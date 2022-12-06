@@ -44,6 +44,16 @@ Prompt: landscape, Gaillardia, Catharanthus, Clematis, Prickly pear cactus, over
 
 ![1670338376088](https://user-images.githubusercontent.com/1305564/205946500-e172b23e-2944-4363-a693-f9879aeb033e.png)
 
+## Danbooru and anime are also supported
+
+```
+node . --dyn-prompts "landscape" --generate-images --artists "d-artist" --dict "d-keyword"
+
+Prompt: landscape, Ixora, Peach tree, evening, i.u.y
+```
+
+![1670339397168](https://user-images.githubusercontent.com/1305564/205949915-e1eab384-2f42-4206-a109-d85d1d267e75.png)
+
 ## Expansions
 
 Prompts phrases frequently used can be added into an expansion file which can
