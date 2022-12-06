@@ -107,12 +107,12 @@ module.exports = {
 	// Path to the artists file (Each artist on a seperate line)
 	/*--artist-filename <name>*/
 	/*--artists <name>*/
-	artistFilename: "d-artist",
+	artistFilename: "artist",
 
 	// Path to the keywords file (Each keyword on a seperate line)
 	/*--keywords-filename <name>*/
 	/*--dict <name>*/
-	keywordsFilename: "d-keyword",
+	keywordsFilename: "keyword",
 
 	// When specifying expansions in the prompts, it searches this folder for them
 	// An expansion is a keyword which expands out to the contents of a file
