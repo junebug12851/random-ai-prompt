@@ -26,6 +26,9 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
 
+// Ensure user-settings is created
+require("./src/createMissingUserSettings")();
+
 // Load settings
 const { settings } = require("./user-settings");
 const { imageSettings } = require("./user-settings");
