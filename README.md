@@ -36,6 +36,14 @@ Dynamic Prompt modules each have a turn in a load order to operate on the prompt
 either entirely replacing the prompt or modifying it such as adding special prompt
 words.
 
+```
+node . --dyn-prompts "landscape" --generate-images
+
+Prompt: landscape, Gaillardia, Catharanthus, Clematis, Prickly pear cactus, overcast, Winslow Homer
+```
+
+![1670338376088](https://user-images.githubusercontent.com/1305564/205946500-e172b23e-2944-4363-a693-f9879aeb033e.png)
+
 ## Expansions
 
 Prompts phrases frequently used can be added into an expansion file which can
