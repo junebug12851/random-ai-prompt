@@ -1,0 +1,10 @@
+clear weather
+overcast
+partly cloudy
+cloudy
+rainy
+stormy
+foggy
+hazy
+snowy
+windy

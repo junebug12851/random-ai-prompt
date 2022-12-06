@@ -1,0 +1,16 @@
+{
+  "name": "random-ai-prompt",
+  "version": "1.0.0",
+  "description": "Random AI Prompt",
+  "main": "index.js",
+  "scripts": {},
+  "author": "junebug12851",
+  "license": "Apache2",
+  "private": true,
+  "dependencies": {
+    "cli-progress": "^3.11.2",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.6.7",
+    "yargs": "^17.6.2"
+  }
+}

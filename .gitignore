@@ -1,0 +1,4 @@
+node_modules/
+user-settings.js
+/output/**
+!**/.gitkeep
