@@ -6,10 +6,17 @@ it was discovered that they can often turn out pretty good and creative however
 it has since evolved into giving you a wide range of control over prompt
 generation.
 
+```
+node .
+
+Prompt: originality, Volkswagen, calling, esp, Unicode, hanger, Fujitsu, Hallsteinn Sigurðsson, Anne Mccaffrey, Ivan Aivazovsky
+```
+
+![1670337357423](https://user-images.githubusercontent.com/1305564/205940995-d73ad22d-0589-436a-a59a-b7589a103180.png)
+
 ## Command-line arguments
 
-Command line arguments can be used to override any setting and give you a
-wide-range of control.
+Command line arguments can be used to override any setting and give you a wide-range of control.
 
 ## WebUI API Supported
 
