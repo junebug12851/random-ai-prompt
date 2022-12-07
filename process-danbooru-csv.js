@@ -68,7 +68,8 @@ for(let i = 0; i < csv.length; i++) {
 	// Replace underscores and slashes with spaces, remove parenthesis
 	let keyword = name
 		.replaceAll(/[\/\\_]/gm, " ")
-		.replaceAll(/[\(\)]/gm, "");
+		.replaceAll(/[\(\)]/gm, "")
+		.replaceAll(/^(\W) (\W)$/gm, "$1_$2");
 
 	// Sort into correct file based on keyword type
 	if(type == 0)
