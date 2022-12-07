@@ -26,6 +26,7 @@ const saveImage = require("../helpers/saveImage");
 let imageSettings;
 let index = 0;
 let total = 0;
+let realbatchCount = 0;
 
 let ongoingProgress = false;
 const updateFreq = 500;
@@ -80,7 +81,7 @@ async function updateProgress() {
 
 	batchProgressBar.update(data.state.job_no + 1, {
 		jobNo: data.state.job_no + 1,
-		jobCount: imageSettings.batchCount
+		jobCount: realbatchCount
 	});
 
 	samplerProgressBar.update(data.state.sampling_step + 1, {
@@ -102,9 +103,9 @@ function startProgress() {
 		format: '      Image: [' + '{bar}' + '] {percentage}% {samplingStep}/{samplingSteps}',
 	});
 
-	batchProgressBar = progressBars.create(imageSettings.batchCount, 1, {
+	batchProgressBar = progressBars.create(realbatchCount, 1, {
 		jobNo: 1,
-		jobCount: imageSettings.batchCount
+		jobCount: realbatchCount
 	}, {
 		format: 'Image Batch: [' + '{bar}' + '] {percentage}% {jobNo}/{jobCount}',
 	});
@@ -143,6 +144,14 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 	imageSettings = _imageSettings;
 	index = _index;
 	total = _total;
+
+	// Save real batch count
+	realbatchCount = imageSettings.batchCount;
+
+	// If high-Res fix is enabled, double batch count as it requires 2 iterations
+	// for a single image
+	if(imageSettings.width > 512 || imageSettings.height > 512)
+		realbatchCount *= 2;
 
 	// Convert image settings over to a format WebUI can understand
 	// To have accurate variations, it's very important to disbale subseed usage
