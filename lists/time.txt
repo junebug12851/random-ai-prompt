@@ -1,4 +1,5 @@
 daytime
+day light
 afternoon
 evening
 dusk
@@ -6,3 +7,12 @@ twilight
 dawn
 morning
 night
+early morning
+late morning
+noon
+midday
+late afternoon
+early evening
+late evening
+midnight
+middle of the night
