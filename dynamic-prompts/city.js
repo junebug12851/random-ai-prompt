@@ -16,18 +16,20 @@
 
 const _ = require("lodash");
 
+function multiColor() {
+	return (_.random(0.0, 1.0, true) < 0.5) ? `multi color ` : ``;
+}
+
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Start with base prompt
-	prompt = "a wonderful traditional {city} city";
+	prompt = "city, streetview, {city}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {building-style}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {time}"
-
-	prompt += ", detailed, streetview";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", cityscape";
@@ -36,7 +38,22 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 		prompt += ", downtown";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", multi color {flower}"
+		prompt += `, ${multiColor()}{flower}`
+	
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${multiColor()}{flower}`
+	
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${multiColor()}vegetation`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${multiColor()}{tree}`
+	
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${multiColor()}{tree}`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", vines";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
@@ -44,13 +61,16 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
 
-	prompt == ", reflective streets, featured on artstation, wide shot";
+	prompt == ", reflective street, wide shot";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {render-color}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {render-color}";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", <rays>";
 
 	prompt == ", lense flares";
 
