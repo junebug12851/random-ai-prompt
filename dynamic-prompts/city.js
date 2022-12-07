@@ -74,6 +74,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	prompt == ", lense flares";
 
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {art-style}";
+
 	const artistCount = (settings.includeArtist) ? _.random(1, 3, false) : 0;	
 
 	// Add in artist
