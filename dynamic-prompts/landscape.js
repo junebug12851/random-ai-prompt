@@ -36,10 +36,25 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, vegetation`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {time}"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {render-color}";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {render-color}";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", <rays>";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {art-style}";
 
 	// Add in artist
 	for(let i = 0; i < treeCount; i++) {
