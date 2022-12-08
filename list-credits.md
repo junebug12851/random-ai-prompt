@@ -1,9 +1,11 @@
-List Name       URL                                                         License
+```
+List Name           URL                                                         License
 ==================================================================================================
 artist*             https://github.com/AUTOMATIC1111/stable-diffusion-webui     Unlicensed
 danbooru/d-*        https://github.com/DominikDoom/a1111-sd-webui-tagcomplete   MIT
 keyword.txt         http://wordlist.aspell.net                                  SCOWL License Below
 nai-tag-expirement  https://zele.st/NovelAI/?Verbs                              CC BY 4.0
+```
 
 NovelAI Experiments by u/Carlyone is licensed under CC BY 4.0
 
