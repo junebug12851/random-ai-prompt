@@ -142,7 +142,7 @@ module.exports = {
 	// This makes it easy to add in dynamic prompts witout worry of specifying existing core ones
 	/*--dyn-prompts <comma-seperated dynamic prompts>*/
 	/*--all-dyn-prompts <comma-seperated dynamic prompts>*/
-	dynamicPrompts: ["_expansion", "_prompt-salt", "_prompt", "_prompt-danbooru", "_list"],
+	dynamicPrompts: ["_promptPrefix", "_expansion", "_prompt-salt", "_prompt", "_prompt-danbooru", "_list"],
 
 	// Auto-add a random number to the end of every prompt, useful as an alternative
 	// to subseeds, suggested by reddit
@@ -156,11 +156,15 @@ module.exports = {
 
 	// The prompt to use
     // {prompt} is replaced with random prompt generated here
-    // {random} is replaced with random item from all lists excluding artists
     // {keyword} is replaced with the selected keywords list file
     // {artist} is replaced with the selected artist list file
     // You can alternatively use {keyword} or {artist} or any other file in 
     // ./data for a single random element from that file
     /*--prompt <prompt>*/
     prompt: "{prompt}",
+
+    // Prefixes this to the start of the prompt upon reaching the start of the
+    // core dynamic prompts
+    /*--prompt-prefix <prompt>*/
+    promptPrefix: "",
 }

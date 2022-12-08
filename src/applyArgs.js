@@ -149,6 +149,12 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 			settings.prompt = "";
 	}
 
+	if(argv.promptPrefix !== undefined) {
+		settings.promptPrefix = argv.promptPrefix.toString();
+		if(settings.promptPrefix == "true" || settings.promptPrefix == "false")
+			settings.promptPrefix = "";
+	}
+
 	///////////////////////////////
 	// Apply arguments to image settings
 	///////////////////////////////
