@@ -42,7 +42,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	prompt = prompt.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
 		// If from the artist file, then pcik a random artist but do not emphasize
 		// them
-		if(p1 == settings.artistFilename)
+		if(p1 == settings.artistFilename || p1.includes("artist"))
 			return sampleFile(p1, settings, false);
 
 		// Otherwise, pull from the file and follow normal emphasis settings
