@@ -1,12 +1,14 @@
 List Name       URL                                                         License
 ==================================================================================================
-artist*         https://github.com/AUTOMATIC1111/stable-diffusion-webui     Unlicensed
-danbooru/d-*    https://github.com/DominikDoom/a1111-sd-webui-tagcomplete   MIT
-flower.txt      Developed Internally                                        Public Domain
-time.txt        Developed Internally                                        Public Domain
-tree.txt        Developed Internally                                        Public Domain
-keyword.txt     http://wordlist.aspell.net                                  SCOWL License Below
-weather.txt     Developed Internally                                        Public Domain
+artist*             https://github.com/AUTOMATIC1111/stable-diffusion-webui     Unlicensed
+danbooru/d-*        https://github.com/DominikDoom/a1111-sd-webui-tagcomplete   MIT
+keyword.txt         http://wordlist.aspell.net                                  SCOWL License Below
+nai-tag-expirement  https://zele.st/NovelAI/?Verbs                              CC BY 4.0
+
+NovelAI Experiments by u/Carlyone is licensed under CC BY 4.0
+
+Any other files which are not listed here are developed internaly by Merk and
+me (junebug12851) and are licensed public domain.
 
 Internally developed files atrtributed to Merk and me (juenbug12851)
 
