@@ -76,16 +76,21 @@ function reloadListFiles(settings) {
     }
 }
 
-function nameToData(settings, name) {
-    // use alias to refer to list if provided
-    if (name == keywordAlias)
-        name = settings.keywordsFilename;
-    else if (name == artistAlias)
-        name = settings.artistFilename;
-    else if (name == randomAlias)
-        name = _.sample(_.keys(lists));
-    else if (name == randomArtistAlias)
-        name = _.sample(_.keys(artists));
+function nameToData(settings, name, skipAliasCheck) {
+
+    skipAliasCheck = (skipAliasCheck == true);
+
+    if(!skipAliasCheck) {
+        // use alias to refer to list if provided
+        if (name == keywordAlias)
+            name = settings.keywordsFilename;
+        else if (name == artistAlias)
+            name = settings.artistFilename;
+        else if (name == randomAlias)
+            name = _.sample(_.keys(lists));
+        else if (name == randomArtistAlias)
+            name = _.sample(_.keys(artists));
+    }
 
     // Save pointer to list
     let list;
@@ -121,7 +126,7 @@ function pull(settings, name) {
     // We have to also re-update the list pointer
     if (data.list.length <= 0) {
         reloadListFile(settings, name);
-        data = nameToData(settings, name);
+        data = nameToData(settings, name, true);
     }
 
     // If still empty, return empty string
