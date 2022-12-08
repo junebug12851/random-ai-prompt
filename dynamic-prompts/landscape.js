@@ -23,7 +23,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	const flowerCount = _.random(1, 3, false);
 	const treeCount = _.random(1, 3, false);
-	const artistCount = (settings.includeArtist) ? _.random(1, 3, false) : 0;
+	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;
 
 	// Add in flowers
 	for(let i = 0; i < flowerCount; i++) {
@@ -45,19 +45,21 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 		prompt += ", {time}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {render-color}";
+		prompt += ", {art-movement}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {render-color}";
+		prompt += ", {art-technique}"
+
+	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+	for(let i = 0; i < imageEffects; i++)
+		prompt += ", {image-effect}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", <rays>";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-style}";
-
 	// Add in artist
-	for(let i = 0; i < treeCount; i++) {
+	for(let i = 0; i < artistCount; i++) {
 		prompt += ", {artist}";
 	}
 

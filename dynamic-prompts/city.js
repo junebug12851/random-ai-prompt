@@ -64,20 +64,20 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	prompt == ", reflective street, wide shot";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {render-color}";
+		prompt += ", {art-movement}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {render-color}";
+		prompt += ", {art-technique}"
+
+	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+	for(let i = 0; i < imageEffects; i++)
+		prompt += ", {image-effect}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", <rays>";
 
-	prompt == ", lense flares";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-style}";
-
-	const artistCount = (settings.includeArtist) ? _.random(1, 3, false) : 0;	
+	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
 
 	// Add in artist
 	for(let i = 0; i < artistCount; i++) {
