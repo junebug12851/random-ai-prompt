@@ -139,7 +139,7 @@ module.exports = {
 	// This makes it easy to add in dynamic prompts witout worry of specifying existing core ones
 	/*--dyn-prompts <comma-seperated dynamic prompts>*/
 	/*--all-dyn-prompts <comma-seperated dynamic prompts>*/
-	dynamicPrompts: ["expansion", "prompt-salt", "prompt", "prompt-random", "prompt-danbooru", "list"],
+	dynamicPrompts: ["_expansion", "_prompt-salt", "_prompt", "_prompt-random", "_prompt-danbooru", "_list"],
 
 	// Auto-add a random number to the end of every prompt, useful as an alternative
 	// to subseeds, suggested by reddit
