@@ -119,6 +119,9 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.dict !== undefined)
 		settings.keywordsFilename = argv.dict.toString();
 
+	if(argv.keywords !== undefined)
+		settings.keywordsFilename = argv.keywords.toString();
+
 	if(argv.expansionFiles !== undefined)
 		settings.expansionFiles = argv.expansionFiles.toString();
 

@@ -112,6 +112,7 @@ module.exports = {
 	// Path to the keywords file (Each keyword on a seperate line)
 	/*--keywords-filename <name>*/
 	/*--dict <name>*/
+	/*--keywords <name>*/
 	keywordsFilename: "keyword",
 
 	// When specifying expansions in the prompts, it searches this folder for them
