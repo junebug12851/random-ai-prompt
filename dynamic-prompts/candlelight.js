@@ -14,29 +14,6 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const listFiles = require("../helpers/listFiles");
-
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-
-	// Start with base prompt
-	prompt = "candle, candlelight, dark, interior";
-
-	// Keywords
-	const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
-	const artistCount = (settings.includeArtist)
-		? _.random(settings.minArtist, settings.maxArtist, false)
-		: 0;
-
-	let str = [];
-
-	for(let i = 0; i < keywordCount; i++) {
-		str.push(`{${listFiles.keywordAlias}}`);
-	}
-
-	for(let i = 0; i < artistCount; i++) {
-		str.push(`{${listFiles.artistAlias}}`);
-	}
-
-	return `${prompt}, ${str.join(", ")}`;
+	return "candle, candlelight, dark, interior, {prompt}";
 }

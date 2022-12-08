@@ -14,53 +14,6 @@
     limitations under the License.
 */
 
-var path = require('path');
-const fs = require('fs');
-const _ = require("lodash");
-
-const randomEmphasis = require("../helpers/randomEmphasis");
-const listFiles = require("../helpers/listFiles");
-
-// Generates a prompt containing this based on settings
-// {d-general}... {d-character}... {d-meta}... {d-artist}... 
-function expandRandom(settings) {
-
-	// Start with base prompt
-	prompt = "candle, candlelight, dark, interior";
-
-	// Keywords
-	const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
-	const artistCount = (settings.includeArtist)
-		? _.random(settings.minArtist, settings.maxArtist, false)
-		: 0;
-
-	const metaCount = _.random(0, 2, false);
-
-	const characterChance = _.random(0.0, 1.0, true);
-	const characterCount = _.random(0, 2, false);
-
-	let str = [];
-
-	for(let i = 0; i < keywordCount; i++) {
-		str.push(`{d-general}`);
-	}
-
-	if(characterChance < 0.2)
-		for(let i = 0; i < characterCount; i++) {
-			str.push(`{d-character}`);
-		}
-
-	for(let i = 0; i < metaCount; i++) {
-		str.push(`{d-meta}`);
-	}
-
-	for(let i = 0; i < artistCount; i++) {
-		str.push(`{d-artist}`);
-	}
-
-	return `${prompt}, ${str.join(", ")}`;
-}
-
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	return expandRandom(settings);
+	return "candle, candlelight, dark, interior, {prompt-danbooru}";
 }

@@ -16,6 +16,8 @@
 
 const _ = require("lodash");
 
+const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Start with base prompt
@@ -59,9 +61,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 		prompt += ", <rays>";
 
 	// Add in artist
-	for(let i = 0; i < artistCount; i++) {
-		prompt += ", {artist}";
-	}
+	const artists = artistRepeater("artist", true, settings);
+	if(artists.length > 0)
+		prompt += `, ${artists}`;
 
 	return prompt;
 }

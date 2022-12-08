@@ -14,35 +14,21 @@
     limitations under the License.
 */
 
-var path = require('path');
-const fs = require('fs');
 const _ = require("lodash");
 
-const randomEmphasis = require("../helpers/randomEmphasis");
-const listFiles = require("../helpers/listFiles");
+const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 
 // Generates a prompt containing this based on settings
 // {d-general}... {d-character}... {d-meta}... {d-artist}... 
 function expandRandom(settings) {
-
-	// Keywords
-	const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
-	const artistCount = (settings.includeArtist)
-		? _.random(settings.minArtist, settings.maxArtist, false)
-		: 0;
-
 	const metaCount = _.random(0, 2, false);
-
-	const characterChance = _.random(0.0, 1.0, true);
 	const characterCount = _.random(0, 2, false);
 
 	let str = [];
 
-	for(let i = 0; i < keywordCount; i++) {
-		str.push(`{d-general}`);
-	}
+	str.push(keywordRepeater("d-general", false, settings));
 
-	if(characterChance < 0.2)
+	if(_.random(0.0, 1.0, true) < 0.2)
 		for(let i = 0; i < characterCount; i++) {
 			str.push(`{d-character}`);
 		}
@@ -51,9 +37,9 @@ function expandRandom(settings) {
 		str.push(`{d-meta}`);
 	}
 
-	for(let i = 0; i < artistCount; i++) {
-		str.push(`{d-artist}`);
-	}
+	const artists = artistRepeater("d-artist", false, settings);
+	if(artists.length > 0)
+		str.push(artists);
 
 	return str.join(", ");
 }

@@ -14,34 +14,19 @@
     limitations under the License.
 */
 
-var path = require('path');
-const fs = require('fs');
-const _ = require("lodash");
-
-const randomEmphasis = require("../helpers/randomEmphasis");
-const listFiles = require("../helpers/listFiles");
+const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 
 // Generates a prompt containing this based on settings
 // {random}... {random-artist}...
 function expandRandom(settings) {
 
-	// Keywords
-	const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
-	const artistCount = (settings.includeArtist)
-		? _.random(settings.minArtist, settings.maxArtist, false)
-		: 0;
+	let prompt = keywordRepeater("random", true, settings);
 
-	let str = [];
-
-	for(let i = 0; i < keywordCount; i++) {
-		str.push(`{${listFiles.randomAlias}}`);
-	}
-
-	for(let i = 0; i < artistCount; i++) {
-		str.push(`{${listFiles.randomArtistAlias}}`);
-	}
-
-	return str.join(", ");
+	const artists = artistRepeater("randomArtist", true, settings);
+	if(artists.length > 0)
+		prompt += `, ${artists}`;
+	
+	return prompt;
 }
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {

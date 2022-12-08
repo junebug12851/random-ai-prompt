@@ -16,6 +16,8 @@
 
 const _ = require("lodash");
 
+const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+
 function multiColor() {
 	return (_.random(0.0, 1.0, true) < 0.5) ? `multi color ` : ``;
 }
@@ -77,12 +79,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", <rays>";
 
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
-
 	// Add in artist
-	for(let i = 0; i < artistCount; i++) {
-		prompt += ", {artist}";
-	}
+	const artists = artistRepeater("artist", true, settings);
+	if(artists.length > 0)
+		prompt += `, ${artists}`;
 
 	return prompt;
 }
