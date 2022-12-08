@@ -19,10 +19,15 @@ const _ = require("lodash");
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Start with base prompt
-	prompt = `person`;
+	prompt = `portrait, person`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", portrait"
+		prompt += ", full body"
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", head and chest, upperbody"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", up-close"
 
 	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
 
@@ -54,7 +59,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
 
-	if(_.random(0.0, 1.0, true) < 0.5)
+	if(_.random(0.0, 1.0, true) < 0.2)
 		prompt += ", {instrument}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
