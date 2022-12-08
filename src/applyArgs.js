@@ -143,8 +143,11 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.promptSaltStart !== undefined)
 		settings.promptSaltStart = parseInt(argv.promptSaltStart);
 
-	if(argv.prompt !== undefined)
+	if(argv.prompt !== undefined) {
 		settings.prompt = argv.prompt.toString();
+		if(settings.prompt == "true" || settings.prompt == "false")
+			settings.prompt = "";
+	}
 
 	///////////////////////////////
 	// Apply arguments to image settings
@@ -213,6 +216,8 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.negativePrompt !== undefined) {
 		settings.generateImages = true;
 		imageSettings.negativePrompt = argv.negativePrompt.toString();
+		if(imageSettings.negativePrompt == "true" || imageSettings.negativePrompt == "false")
+			imageSettings.negativePrompt = "";
 	}
 
 	///////////////////////////////
