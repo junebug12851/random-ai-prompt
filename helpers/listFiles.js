@@ -23,8 +23,6 @@ const artists = {};
 
 const keywordAlias = "keyword";
 const artistAlias = "artist";
-const randomAlias = "random";
-const randomArtistAlias = "random-artist";
 
 // Convert filename.txt -> filename
 function removeExtension(filename) {
@@ -82,13 +80,13 @@ function nameToData(settings, name, skipAliasCheck) {
 
     if(!skipAliasCheck) {
         // use alias to refer to list if provided
-        if (name == keywordAlias)
+        if (name == keywordAlias && settings.keywordsFilename.toString() != "false")
             name = settings.keywordsFilename;
-        else if (name == artistAlias)
+        else if (name == artistAlias && settings.artistFilename.toString() != "false")
             name = settings.artistFilename;
-        else if (name == randomAlias)
+        else if (name == keywordAlias && settings.keywordsFilename.toString() == "false")
             name = _.sample(_.keys(lists));
-        else if (name == randomArtistAlias)
+        else if (name == artistAlias && settings.artistFilename.toString() == "false")
             name = _.sample(_.keys(artists));
     }
 
@@ -155,8 +153,6 @@ module.exports = {
 
     keywordAlias,
     artistAlias,
-    randomAlias,
-    randomArtistAlias,
 
     reloadListFile,
     reloadListFiles,

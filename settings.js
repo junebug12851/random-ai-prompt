@@ -105,11 +105,13 @@ module.exports = {
 	listEntriesUsedOnce: true,
 
 	// Path to the artists file (Each artist on a seperate line)
+	// If false, then don't use an artist file, have it be completely random (excluding keyword dictionaries)
 	/*--artist-filename <name>*/
 	/*--artists <name>*/
 	artistFilename: "artist",
 
 	// Path to the keywords file (Each keyword on a seperate line)
+	// If false, then don't use a keywords file, have it be completely random (excluding artist dictionaries)
 	/*--keywords-filename <name>*/
 	/*--dict <name>*/
 	/*--keywords <name>*/
@@ -140,7 +142,7 @@ module.exports = {
 	// This makes it easy to add in dynamic prompts witout worry of specifying existing core ones
 	/*--dyn-prompts <comma-seperated dynamic prompts>*/
 	/*--all-dyn-prompts <comma-seperated dynamic prompts>*/
-	dynamicPrompts: ["_expansion", "_prompt-salt", "_prompt", "_prompt-random", "_prompt-danbooru", "_list"],
+	dynamicPrompts: ["_expansion", "_prompt-salt", "_prompt", "_prompt-danbooru", "_list"],
 
 	// Auto-add a random number to the end of every prompt, useful as an alternative
 	// to subseeds, suggested by reddit
