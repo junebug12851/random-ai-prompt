@@ -44,6 +44,18 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	// Apply arguments to general settings
 	///////////////////////////////
 
+	if(argv.chaos !== undefined) {
+		const chaosPercent = parseFloat(argv.chaos);
+
+		settings.emphasisChance *= chaosPercent;
+		settings.emphasisLevelChance *= chaosPercent;
+		settings.emphasisMaxLevels = Math.round(settings.emphasisMaxLevels * chaosPercent);
+		settings.deEmphasisChance *= chaosPercent;
+		settings.keywordEditingMin *= chaosPercent;
+		settings.keywordEditingMax *= chaosPercent;
+		settings.keywordAlternatingMaxLevels *= chaosPercent;
+	}
+
 	// Since some people may not want randomness, if this flag is set, it auto
 	// sets max count to tbe the same. To keep randomness, specify both.
 	if(argv.count !== undefined) {
