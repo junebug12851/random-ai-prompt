@@ -29,17 +29,14 @@ module.exports = function randomEmphasis(settings, keyword) {
 	// Prepare for emphasis/de-emphasis leveling
 	let prefix = "";
 	let suffix = "";
-	let count = 1;
-
-	prefix += (lessEmphasis) ? "[" : "(";
-	suffix += (lessEmphasis) ? "]" : ")";
+	let count = 0;
 
 	// Randomly add emphasis/de-emphasis levels based on chance for each level up to set max
-	while(_.random(0.0, 1.0, true) < settings.emphasisLevelChance && count < settings.emphasisMaxLevels) {
+	do {
 		prefix += (lessEmphasis) ? "[" : "(";
 		suffix += (lessEmphasis) ? "]" : ")";
 		count++;
-	}
+	} while(_.random(0.0, 1.0, true) < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
 	// Update modified keyword with emphais/de-emphasis
 	keyword = `${prefix}${keyword}${suffix}`;

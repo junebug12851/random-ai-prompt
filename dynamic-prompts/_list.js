@@ -59,23 +59,13 @@ function sampleFile(name, settings, emphasis) {
 	// Put back in braces
 	name = `{${name}}`;
 
-	for(let i = 0; i < promptFuncsTmp.length; i++) {
+	// Process and save
+	name = promptFuncsTmp[0](settings, name).keyword;
 
-		const result = promptFuncsTmp[i](settings, name);
-		if(!result.wasUsed) {
-			continue;
-		}
+	// Remove used entry from tmp list
+	promptFuncsTmp.splice(0, 1);
 
-		// Save result
-		name = result.keyword;
-
-		// Remove used entry from tmp list
-		promptFuncsTmp.splice(i, 1);
-
-		// End
-		break;
-	}
-
+	// Expand
 	name = name.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
 		return listFiles.pull(settings, p1);
 	});
