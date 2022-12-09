@@ -55,6 +55,33 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 		if(_.random(0.0, 1.0, true) < 0.5)
 			prompt += ", rundown"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", broken"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", broken floor"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", torn wallpaper"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", mold"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", mildew"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", shattered glass"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", holes"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", floor hole"
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", ceiling hole"
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
