@@ -54,7 +54,7 @@ async function processBatch(index, total) {
 	for(let i = 0; i < settings.dynamicPrompts.length; i++) {
 		const dynPromptName = settings.dynamicPrompts[i];
 		const dynPromptFunc = require(`./${settings.dynamicPromptFiles}/${dynPromptName}`);
-		prompt = dynPromptFunc(prompt, settings, imageSettings, upscaleSettings);
+		prompt = dynPromptFunc(prompt, settings, imageSettings, upscaleSettings, i);
 	}
 
 	// Remove annoying windows line-endings
