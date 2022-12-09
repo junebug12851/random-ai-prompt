@@ -16,29 +16,27 @@
 
 const _ = require("lodash");
 
-let wasUsed = false;
-
 // Adds random emphasis/de-emphasis to keywords
-module.exports = function randomEmphasis(settings, keyword) {
+module.exports = function randomAlternating(settings, keyword) {
 	// Stop here if emphasis is disabled
 	if(!settings.keywordAlternating) {
-		return {keyword, wasUsed};
+		return {keyword, wasUsed: true};
 	}
 
 	// Prepare for emphasis/de-emphasis leveling
-	let count = 0;
+	let count = 1;
+
+	keyword += `|${keyword}`
 
 	// Randomly add emphasis/de-emphasis levels based on chance for each level up to set max
-	while(_.random(0.0, 1.0, true) < settings.emphasisLevelChance && count < settings.emphasisMaxLevels) {
+	while(_.random(0.0, 1.0, true) < settings.emphasisLevelChance && count < (settings.keywordAlternatingMaxLevels - 1)) {
 		keyword += `|${keyword}`
 		count++;
-		wasUsed = true;
 	}
 
 	// Update modified keyword with emphais/de-emphasis
-	if(wasUsed)
-		keyword = `[${keyword}]`;
+	keyword = `[${keyword}]`;
 
 	// Send prompt back
-	return {keyword, wasUsed};
+	return {keyword, wasUsed: true};
 }

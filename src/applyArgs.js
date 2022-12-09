@@ -95,6 +95,9 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.alternating !== undefined)
 		settings.keywordAlternating = (argv.alternating == true);
 
+	if(argv.alternatingMaxLevels !== undefined)
+		settings.keywordAlternatingMaxLevels = parseInt(argv.alternatingMaxLevels);
+
 	if(argv.useArtists !== undefined)
 		settings.includeArtist = (argv.useArtists == true);
 

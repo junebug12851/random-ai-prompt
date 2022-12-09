@@ -23,11 +23,20 @@ const randomEditing = require("../helpers/randomEditing");
 const randomAlternating = require("../helpers/randomAlternating");
 const listFiles = require("../helpers/listFiles");
 
+// List of all prompt funcs
 let promptFuncs = [
 	randomEmphasis,
 	randomEditing,
 	randomAlternating,
 ];
+
+// List to give every prompt func a turn
+let promptFuncsTmp = [];
+
+function reloadPromptFunc() {
+	promptFuncsTmp = _.clone(promptFuncs);
+}
+reloadPromptFunc();
 
 // Pulls a random line from a list file
 function sampleFile(name, settings, emphasis) {
@@ -40,18 +49,30 @@ function sampleFile(name, settings, emphasis) {
 	if(!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
 		return listFiles.pull(settings, name);
 
+	// Start list over if depleted
+	if(promptFuncsTmp.length == 0)
+		reloadPromptFunc();
+
 	// Shuffle funcs
-	promptFuncs = _.shuffle(promptFuncs);
+	promptFuncsTmp = _.shuffle(promptFuncsTmp);
 
 	// Put back in braces
 	name = `{${name}}`;
 
-	for(let i = 0; i < promptFuncs.length; i++) {
-		const result = promptFuncs[i](settings, name);
-		if(!result.wasUsed)
-			continue;
+	for(let i = 0; i < promptFuncsTmp.length; i++) {
 
+		const result = promptFuncsTmp[i](settings, name);
+		if(!result.wasUsed) {
+			continue;
+		}
+
+		// Save result
 		name = result.keyword;
+
+		// Remove used entry from tmp list
+		promptFuncsTmp.splice(i, 1);
+
+		// End
 		break;
 	}
 
