@@ -23,59 +23,45 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	const origPrompt = prompt;
 
 	// Start with base prompt
-	prompt = "house";
+	prompt = `portrait, person`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+		prompt += ", full body"
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", head and chest, upperbody"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+		prompt += ", up-close"
+
+	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+	for(let i = 0; i < clothingCount; i++) {
+		prompt += ", {clothes}";
+	}
+
+	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < adjectiveCount; i++) {
+		prompt += ", {adjective}";
+	}
+
+	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < nounCount; i++) {
+		prompt += ", {noun}";
+	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, vegetation`
+		prompt += ", {verb}"
+
+	if(_.random(0.0, 1.0, true) < 0.2)
+		prompt += ", {instrument}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
+		prompt += ", dynamic-pose"
 
 	if(i != 0)
-		prompt = `${origPrompt} AND ${prompt} :0.9`;
+		prompt = `${origPrompt} AND ${prompt} :1.21`;
 
 	return prompt;
 }

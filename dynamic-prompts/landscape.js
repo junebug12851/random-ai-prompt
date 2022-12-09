@@ -18,7 +18,9 @@ const _ = require("lodash");
 
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+
+	const origPrompt = prompt;
 
 	// Start with base prompt
 	prompt = "landscape";
@@ -64,6 +66,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	const artists = artistRepeater("artist", true, settings);
 	if(artists.length > 0)
 		prompt += `, ${artists}`;
+
+	if(i != 0)
+		prompt = `${origPrompt} AND ${prompt} :0.9`;
 
 	return prompt;
 }

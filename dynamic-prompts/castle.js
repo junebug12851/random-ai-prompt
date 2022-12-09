@@ -22,7 +22,9 @@ function multiColor() {
 	return (_.random(0.0, 1.0, true) < 0.5) ? `multi color ` : ``;
 }
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+
+	const origPrompt = prompt;
 
 	// Start with base prompt
 	prompt = "castle, {view}";
@@ -116,6 +118,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	const artists = artistRepeater("artist", true, settings);
 	if(artists.length > 0)
 		prompt += `, ${artists}`;
+
+	if(i != 0)
+		prompt = `${origPrompt} AND ${prompt} :0.9`;
 
 	return prompt;
 }
