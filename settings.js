@@ -60,12 +60,12 @@ module.exports = {
 
 	// For each keyword, the chance it will be emphasized or de-emphasized
 	/*--emphasis-chance <0.0-1.0>*/
-	emphasisChance: 0.25,
+	emphasisChance: 0.20,
 
 	// Upon being selected for emphasis/de-emphasis, the chance on each level
 	// that it will aquire an additional level of emphasis/de-emphasis
 	/*--emphasis-level-chance <0.0-1.0>*/
-	emphasisLevelChance: 0.25,
+	emphasisLevelChance: 0.20,
 
 	// Max levels of empasis/de-emphasis
 	/*--emphasis-max-levels <number>*/
