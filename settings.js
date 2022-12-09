@@ -95,7 +95,7 @@ module.exports = {
 
 	// Max levels of keyword alternating
 	/*--alternating-max-levels <number>*/
-	keywordAlternatingMaxLevels: 3,
+	keywordAlternatingMaxLevels: 2,
 
 	// Whether to additioanlly add in artist keywords
 	/*--use-artists <true/false>*/
