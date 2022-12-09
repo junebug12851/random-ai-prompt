@@ -19,7 +19,15 @@ const _ = require("lodash");
 
 // Bring in helper functions
 const randomEmphasis = require("../helpers/randomEmphasis");
+const randomEditing = require("../helpers/randomEditing");
+const randomAlternating = require("../helpers/randomAlternating");
 const listFiles = require("../helpers/listFiles");
+
+let promptFuncs = [
+	randomEmphasis,
+	randomEditing,
+	randomAlternating,
+];
 
 // Pulls a random line from a list file
 function sampleFile(name, settings, emphasis) {
@@ -29,11 +37,29 @@ function sampleFile(name, settings, emphasis) {
 		? true
 		: (emphasis == true);
 
-	// Return random keyword with optional random emphasis added
-	if(emphasis)
-		return randomEmphasis(settings, [listFiles.pull(settings, name)]);
-	else
+	if(!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
 		return listFiles.pull(settings, name);
+
+	// Shuffle funcs
+	promptFuncs = _.shuffle(promptFuncs);
+
+	// Put back in braces
+	name = `{${name}}`;
+
+	for(let i = 0; i < promptFuncs.length; i++) {
+		const result = promptFuncs[i](settings, name);
+		if(!result.wasUsed)
+			continue;
+
+		name = result.keyword;
+		break;
+	}
+
+	name = name.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
+		return listFiles.pull(settings, p1);
+	});
+
+	return name;
 }
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {

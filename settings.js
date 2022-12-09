@@ -75,6 +75,24 @@ module.exports = {
 	/*--de-emphasis-chance <0.0-1.0>*/
 	deEmphasisChance: 0.25,
 
+	// Whether to randomly ask stable diffusion to add-in, swap-out, or remove
+	// certain keywords mid-generation
+	/*--editing <true/false>*/
+	keywordEditing: true,
+
+	// Minimum steps or percent for editing
+	/*--editing-min <number or 0.0-1.0>*/
+	keywordEditingMin: 2,
+
+	// Maximum steps or percent for editing
+	/*--editing-max <number or 0.0-1.0>*/
+	keywordEditingMax: 4,
+
+	// Whether to randomly ask stable diffusion to alternate random keywords
+	// thus creating hybrid effects from both keywords
+	/*--alternating <true/false>*/
+	keywordAlternating: true,
+
 	// Whether to additioanlly add in artist keywords
 	/*--use-artists <true/false>*/
 	includeArtist: true,

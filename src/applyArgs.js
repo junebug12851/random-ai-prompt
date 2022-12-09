@@ -83,6 +83,18 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.deEmphasisChance !== undefined)
 		settings.deEmphasisChance = parseFloat(argv.deEmphasisChance);
 
+	if(argv.editing !== undefined)
+		settings.keywordEditing = (argv.editing == true);
+
+	if(argv.editingMin !== undefined)
+		settings.keywordEditingMin = argv.editingMin;
+
+	if(argv.editingMax !== undefined)
+		settings.keywordEditingMax = argv.editingMax;
+
+	if(argv.alternating !== undefined)
+		settings.keywordAlternating = (argv.alternating == true);
+
 	if(argv.useArtists !== undefined)
 		settings.includeArtist = (argv.useArtists == true);
 
