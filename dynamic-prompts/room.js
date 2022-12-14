@@ -138,8 +138,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	if(artists.length > 0)
 		prompt += `, ${artists}`;
 
-	if(i != 0)
+	if(i != 0 && !settings.noAnd)
 		prompt = `${origPrompt} AND ${prompt} :0.9`;
+	else if(i != 0 && settings.noAnd)
+		prompt = `${origPrompt}, ${prompt}`;
 
 	return prompt;
 }

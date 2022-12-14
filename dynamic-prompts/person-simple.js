@@ -60,8 +60,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", dynamic-pose"
 
-	if(i != 0)
+	if(i != 0 && !settings.noAnd)
 		prompt = `${origPrompt} AND ${prompt} :1.21`;
+	else if(i != 0 && settings.noAnd)
+		prompt = `${origPrompt}, ${prompt}`;
 
 	return prompt;
 }

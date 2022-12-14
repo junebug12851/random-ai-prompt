@@ -109,6 +109,11 @@ module.exports = {
 	/*--max-artists <number>*/
 	maxArtist: 3,
 
+	// When combining dynamic prompts
+	// don't use AND to put them together
+	/*--noand <true/false>*/
+	noAnd: false,
+
 	// When specifying lists in the prompts, it searches this folder for them
 	// A list is a file with an entry on each line, one will randomly be selected if used in a prompt
 	// To use a list, use {filename}, {keyword}, {artist}, {flower}

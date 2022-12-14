@@ -119,6 +119,9 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 	if(argv.maxArtist !== undefined)
 		settings.maxArtist = parseInt(argv.maxArtist);
 
+	if(argv.noand !== undefined)
+		settings.noAnd = (argv.noand == true);
+
 	if(argv.listFiles !== undefined)
 		settings.listFiles = argv.listFiles.toString();
 
