@@ -18,6 +18,13 @@ const _ = require("lodash");
 
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 
+function maybeAddColor() {
+	if(_.random(0.0, 1.0, true) < 0.5)
+		return "{color} ";
+	else
+		return "";
+}
+
 module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	const origPrompt = prompt;
@@ -31,7 +38,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	// Add in flowers
 	for(let i = 0; i < flowerCount; i++) {
-		prompt += ", {flower}";
+		prompt += `, ${maybeAddColor()}{flower}`;
 	}
 
 	// Add in trees
@@ -40,7 +47,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, vegetation`
+		prompt += `, ${maybeAddColor()}vegetation`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"

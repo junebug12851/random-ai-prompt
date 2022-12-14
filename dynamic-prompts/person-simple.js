@@ -18,6 +18,13 @@ const _ = require("lodash");
 
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 
+function maybeAddColor() {
+	if(_.random(0.0, 1.0, true) < 0.5)
+		return "{color} ";
+	else
+		return "";
+}
+
 module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	const origPrompt = prompt;
@@ -33,10 +40,13 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", up-close"
 
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${maybeAddColor()}{hair}`
+
 	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
 
 	for(let i = 0; i < clothingCount; i++) {
-		prompt += ", {clothes}";
+		prompt += `, ${maybeAddColor()}{clothes}`;
 	}
 
 	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;

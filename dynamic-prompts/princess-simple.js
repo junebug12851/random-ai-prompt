@@ -25,83 +25,68 @@ function maybeAddColor() {
 		return "";
 }
 
-function multiColor() {
-	const addColor = _.random(0.0, 1.0, true) < 0.5;
-
-	if(addColor && (_.random(0.0, 1.0, true) < 0.5))
-		return "multi color ";
-	else if(addColor)
-		return maybeAddColor();
-
-	return "";
-}
-
 module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	const origPrompt = prompt;
 
 	// Start with base prompt
-	prompt = "city, streetview, {city}";
+	prompt = `portrait, princess, royalty`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+		prompt += ", girl"
+	else
+		prompt += ", woman"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+		prompt += `, ${maybeAddColor()}{hair}`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cityscape";
+		prompt += ", full body"
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", head and chest, upperbody"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", downtown";
+		prompt += ", up-close"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}vegetation`
+		prompt += ", sceptor"
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", staff"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
+		prompt += `, ${maybeAddColor()}crown`
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${maybeAddColor()}tiara`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
+		prompt += `, ${maybeAddColor()}robes`
+
+	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+	for(let i = 0; i < clothingCount; i++) {
+		prompt += `, ${maybeAddColor()}{clothes}`;
+	}
+
+	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < adjectiveCount; i++) {
+		prompt += ", {adjective}";
+	}
+
+	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < nounCount; i++) {
+		prompt += ", {noun}";
+	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
+		prompt += ", {verb}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	prompt == ", reflective street, wide shot";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
+		prompt += ", dynamic-pose"
 
 	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :0.9`;
+		prompt = `${origPrompt} AND ${prompt} :1.21`;
 	else if(i != 0 && settings.noAnd)
 		prompt = `${origPrompt}, ${prompt}`;
 

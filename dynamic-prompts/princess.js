@@ -25,94 +25,74 @@ function maybeAddColor() {
 		return "";
 }
 
-function multiColor() {
-	const addColor = _.random(0.0, 1.0, true) < 0.5;
-
-	if(addColor && (_.random(0.0, 1.0, true) < 0.5))
-		return "multi color ";
-	else if(addColor)
-		return maybeAddColor();
-
-	return "";
-}
-
 module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	const origPrompt = prompt;
 
 	// Start with base prompt
-	prompt = "castle, {view}";
+	prompt = `portrait, princess, royalty`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", moat"
+		prompt += ", girl"
+	else
+		prompt += ", woman"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", motte"
+		prompt += `, ${maybeAddColor()}{hair}`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", courtyard"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle keep"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle wall"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fortified tower"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle drawbridge"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle gatehouse"
-
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {mythological-creature}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {city}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lake"
+		prompt += ", full body"
 	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", pond"
+		prompt += ", head and chest, upperbody"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+		prompt += ", up-close"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", sceptor"
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", staff"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${maybeAddColor()}crown`
+	else if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${maybeAddColor()}tiara`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${maybeAddColor()}robes`
+
+	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+	for(let i = 0; i < clothingCount; i++) {
+		prompt += `, ${maybeAddColor()}{clothes}`;
+	}
+
+	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < adjectiveCount; i++) {
+		prompt += ", {adjective}";
+	}
+
+	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+
+	for(let i = 0; i < nounCount; i++) {
+		prompt += ", {noun}";
+	}
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {verb}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {time}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}vegetation`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {weather}"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", dynamic-pose"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {art-movement}"
@@ -128,13 +108,15 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", <rays>";
 
+	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
+
 	// Add in artist
 	const artists = artistRepeater("artist", true, settings);
 	if(artists.length > 0)
 		prompt += `, ${artists}`;
 
 	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :0.9`;
+		prompt = `${origPrompt} AND ${prompt} :1.21`;
 	else if(i != 0 && settings.noAnd)
 		prompt = `${origPrompt}, ${prompt}`;
 
