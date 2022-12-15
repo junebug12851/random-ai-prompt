@@ -32,6 +32,7 @@ const {
 
 console.log("Starting server...");
 
+const fs = require("fs");
 const express = require('express')
 const app = express()
 
@@ -145,5 +146,125 @@ app.get('/generate', async (req, res) => {
   // Generate
   await run();
 
+  res.send("Done");
+});
+
+app.get('/files/dynamic-prompts', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.dynamicPromptFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/files/user-dynamic-prompts', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.dynamicPromptFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+
+    // Push file
+    if(!file.startsWith("_"))
+      userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/files/expansions', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.expansionFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/files/lists', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.listFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/files/lists', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.listFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/files/presets', (req, res) => {
+  const files = fs.readdirSync(settings().settings.presetFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.send(JSON.stringify(userFiles, null, 4));
+});
+
+app.get('/apply-preset/:fileId', (req, res) => {
+
+  // Load it
+  const presetFunc = require(`./${settings().settings.presetFiles}/${req.params.fileId}`);
+
+  // Execute it
+  presetFunc(settings().settings, settings().imageSettings, settings().upscaleSettings);
+
+  // Notify Done
+  res.send("Done");
+});
+
+app.get('/apply-chaos/:value', (req, res) => {
+
+  const chaosPercent = parseFloat(req.params.value);
+
+  settings().settings.emphasisChance *= chaosPercent;
+  settings().settings.emphasisLevelChance *= chaosPercent;
+  settings().settings.emphasisMaxLevels = Math.round(settings().settings.emphasisMaxLevels * chaosPercent);
+  settings().settings.deEmphasisChance *= chaosPercent;
+  settings().settings.keywordEditingMin *= chaosPercent;
+  settings().settings.keywordEditingMax *= chaosPercent;
+  settings().settings.keywordAlternatingMaxLevels *= chaosPercent;
+
+  // Notify Done
   res.send("Done");
 });
