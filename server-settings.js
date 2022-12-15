@@ -14,26 +14,13 @@
     limitations under the License.
 */
 
-const fs = require("fs");
+/////////////////////////////////////
+/// DONT ADJUST SETTINGS HERE
+/// ADJUST SETTINGS IN user-settings.js
+/////////////////////////////////////
 
-function userSettings() {
-    // Check for existence of user-settings.js
-    try {
-        fs.accessSync('./user-settings.json');
-        return;
-    } catch (err) {}
+module.exports = {
 
-    console.log("Missing user-settings.json, creating for you...");
-
-    // Does not exist, create
-    const file = fs.readFileSync('./default-user-settings.json').toString();
-    fs.writeFileSync('./user-settings.json', file);
-}
-
-module.exports = function() {
-
-    // Ensure user settings exists
-    userSettings();
-
-    // Done
-}
+    // Port the API listens on
+    port: 7861
+};

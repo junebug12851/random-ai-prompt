@@ -14,89 +14,27 @@
     limitations under the License.
 */
 
-// Ensure we're within this directory
-process.chdir(__dirname);
-
-// Load imports
-const fs = require('fs');
-const _ = require("lodash");
-const yargs = require('yargs/yargs')
-
-// Process given arguments
-const { hideBin } = require('yargs/helpers')
-const argv = yargs(hideBin(process.argv)).argv
-
-// Ensure user-settings is created
-require("./src/createMissingUserSettings")();
-
-// Load settings
-const { settings } = require("./user-settings");
-const { imageSettings } = require("./user-settings");
-const { upscaleSettings } = require("./user-settings");
+// Load common code
+const common = require("./common");
 
 // If requested to make image variations of a file, this will load in the settings
 // needed to make it happen. It is done before command line prompts to alow custom override
-if(argv.fileVariations !== undefined)
-	require("./src/loadVariationData")(argv.fileVariations, settings, imageSettings, upscaleSettings);
+if(common.argv.fileVariations !== undefined)
+	require("./src/loadVariationData")(
+        common.argv.fileVariations,
+        common.settings.settings,
+        common.settings.imageSettings,
+        common.settings.upscaleSettings);
 
 // Use command line to override settings if any arguments are specified
-require("./src/applyArgs")(argv, settings, imageSettings, upscaleSettings);
+require("./src/applyArgs")(
+    common.argv,
+    common.settings.settings,
+    common.settings.imageSettings,
+    common.settings.upscaleSettings);
 
-// Bring in function to generate prompt and images
-const genImage = require("./src/genImg");
-
-async function processBatch(index, total) {
-
-	// Copy over prompt from settings
-	let prompt = settings.prompt;
-
-	// Then pass it through dnamic prompts if any
-	for(let i = 0; i < settings.dynamicPrompts.length; i++) {
-		const dynPromptName = settings.dynamicPrompts[i];
-		const dynPromptFunc = require(`./${settings.dynamicPromptFiles}/${dynPromptName}`);
-		prompt = dynPromptFunc(prompt, settings, imageSettings, upscaleSettings, i);
-	}
-
-	// Remove annoying windows line-endings
-	prompt = prompt.replaceAll('\r', '');
-
-	// Send to console if not hidden
-	if(!settings.hidePrompt) {
-		console.log();
-		console.log(`Prompt: ${prompt}`);
-		console.log();
-	}
-
-	// Make into image if filled in and not blank
-	if(settings.generateImages && prompt != "")
-		await genImage(prompt, index, total, settings, imageSettings, upscaleSettings);
-}
-
-// Runs the code, this is in it's own function because we use asyc/await
-// to make sure the first batch is done before we send another
-async function run() {
-
-	// If requested to upscale a file, do only that and stop
-	if(argv.upscaleFile !== undefined) {
-		console.log(`Upscaling File ID: ${argv.upscaleFile.toString()}`);
-		const upscaleExisting = require("./src/upscaleExisting");
-		await upscaleExisting(argv.upscaleFile.toString(), settings, imageSettings, upscaleSettings);
-		console.log("Done!")
-		return;
-	}
-
-	// Generate a prompt for each prompt count
-	for(let i = 0; i < settings.promptCount; i++) {
-
-		// Release all list files from memory and re-scan for list filenames to be reloaded upon request IF
-		// * This is the first prompt OR
-		// * It is configured to reload lists on prompt change AND lists are confoigured to be unique
-		// If duplicate list items are allowed then theres no point in list reloading
-		if((settings.reloadListsOnPromptChange && settings.listEntriesUsedOnce) || (i == 0))
-			require("./helpers/listFiles").reloadListFiles(settings);
-
-		await processBatch(i, settings.promptCount);
-	}
-}
-
-run();
+// Upscale if requested, otherwise stop
+if(common.argv.upscaleFile !== undefined)
+	common.upscale()
+else
+	common.run();

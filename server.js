@@ -14,29 +14,20 @@
     limitations under the License.
 */
 
-// Load settings
-const settings = require("./settings");
-const imageSettings = require("./image-settings");
-const upscaleSettings = require("./upscale-settings");
+console.log("Starting app...");
 
-/////////////////////////////////////
-/// Adjust settings here
-/////////////////////////////////////
+const common = require("./common");
 
-// Example adjustments, be sure to go through the settings files and change any
-// settings here
+console.log("Starting server...");
 
-settings.keywordCount = 5;
+const express = require('express')
+const app = express()
 
-imageSettings.cfg = 11.0;
+app.listen(common.settings.serverSettings.port, () => {
+  console.log(`Done! API is listening on http://localhost:${common.settings.serverSettings.port}`)
+});
 
-upscaleSettings.saveBeforeUpscale = true;
-
-/////////////////////////////////////
-/////////////////////////////////////
-
-module.exports = {
-	settings,
-	imageSettings,
-	upscaleSettings
-}
+app.get('/', (req, res) => {
+  res.send('Hello')
+  console.log("Got / request");
+});
