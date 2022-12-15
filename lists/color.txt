@@ -273,7 +273,6 @@ ORCHID Color
 ELECTRIC Color
 Medium Color
 Dark Color
-Dark Color
 Veronica Color
 Heliotrope Color
 Purpureus Color

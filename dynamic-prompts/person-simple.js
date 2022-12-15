@@ -41,6 +41,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		prompt += ", up-close"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {emotion}"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += `, ${maybeAddColor()}{hair}`
 
 	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
