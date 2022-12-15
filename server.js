@@ -16,18 +16,134 @@
 
 console.log("Starting app...");
 
-const common = require("./common");
+const _ = require("lodash");
+const {
+  settings,
+  defSettings,
+  reloadSettings,
+  saveSettings,
+  replaceSettings,
+  userSettings,
+
+  genImage,
+  upscale,
+  run,
+} = require("./common");
 
 console.log("Starting server...");
 
 const express = require('express')
 const app = express()
 
-app.listen(common.settings.serverSettings.port, () => {
-  console.log(`Done! API is listening on http://localhost:${common.settings.serverSettings.port}`)
+// Use the body-parser middleware to parse incoming request bodies
+app.use(express.json());
+
+// Announce API is ready
+app.listen(settings().serverSettings.port, () => {
+  console.log(`Done!`);
+  console.log(`API is listening on http://localhost:${settings().serverSettings.port}`);
 });
 
+// Ping/Pong
 app.get('/', (req, res) => {
-  res.send('Hello')
-  console.log("Got / request");
+  res.send('Pong');
+});
+
+app.get('/ping', (req, res) => {
+  res.send('Pong');
+});
+
+// Get settings
+app.get('/settings', (req, res) => {
+  res.send(JSON.stringify(settings(), null, 4));
+});
+
+app.get('/default-settings', (req, res) => {
+  res.send(JSON.stringify(defSettings(), null, 4));
+});
+
+app.get('/user-settings', (req, res) => {
+  res.send(JSON.stringify(userSettings(), null, 4));
+});
+
+// Reload settings
+app.get('/reload-settings', (req, res) => {
+  reloadSettings();
+  res.send("Done");
+});
+
+// Save settings
+app.get('/save-settings', (req, res) => {
+  saveSettings();
+  res.send("Done");
+});
+
+// Put settings
+app.post('/replace-settings', (req, res) => {
+
+  // Change out settings
+  replaceSettings(req.body);
+
+  // Save settings
+  saveSettings();
+
+  res.send("Done");
+});
+
+// Put settings
+app.post('/merge-settings', (req, res) => {
+
+  // Merge settings
+  _.merge(settings(), req.body);
+
+  // Save settings
+  saveSettings();
+
+  res.send("Done");
+});
+
+// Make file variations
+app.get('/file-variation/:fileId', async (req, res) => {
+
+  // Save settings beforehand
+  saveSettings();
+
+  // Load variation data
+  require("./src/loadVariationData")(
+        req.params.fileId,
+        settings().settings,
+        settings().imageSettings,
+        settings().upscaleSettings);
+
+  // Make variations
+  await run();
+
+  // Undo settings change
+  reloadSettings();
+
+  res.send("Done");
+});
+
+// Upscale existing
+app.get('/upscale-file/:fileId', async (req, res) => {
+
+  // Save settings beforehand
+  saveSettings();
+
+  // Do upscale
+  await upscale(req.params.fileId);
+
+  // Undo settings change
+  reloadSettings();
+
+  res.send("Done");
+});
+
+// Do normal generation
+app.get('/generate', async (req, res) => {
+
+  // Generate
+  await run();
+
+  res.send("Done");
 });

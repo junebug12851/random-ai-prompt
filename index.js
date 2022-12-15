@@ -15,26 +15,34 @@
 */
 
 // Load common code
-const common = require("./common");
+const {
+    argv,
+
+    settings,
+
+    genImage,
+    upscale,
+    run,
+} = require("./common");
 
 // If requested to make image variations of a file, this will load in the settings
 // needed to make it happen. It is done before command line prompts to alow custom override
-if(common.argv.fileVariations !== undefined)
+if(argv.fileVariations !== undefined)
 	require("./src/loadVariationData")(
-        common.argv.fileVariations,
-        common.settings.settings,
-        common.settings.imageSettings,
-        common.settings.upscaleSettings);
+        argv.fileVariations,
+        settings().settings,
+        settings().imageSettings,
+        settings().upscaleSettings);
 
 // Use command line to override settings if any arguments are specified
 require("./src/applyArgs")(
-    common.argv,
-    common.settings.settings,
-    common.settings.imageSettings,
-    common.settings.upscaleSettings);
+    argv,
+    settings().settings,
+    settings().imageSettings,
+    settings().upscaleSettings);
 
 // Upscale if requested, otherwise stop
-if(common.argv.upscaleFile !== undefined)
-	common.upscale()
+if(argv.upscaleFile !== undefined)
+	upscale(argv.upscaleFile)
 else
-	common.run();
+	run();
