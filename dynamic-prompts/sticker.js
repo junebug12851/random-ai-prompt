@@ -27,7 +27,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `die-cut sticker, cute kawaii`; //`{d-character} sticker, white background, illustration minimalism, vector, pastel colors`;
 
-	switch(_.random(0, 3, false)) {
+	switch(_.random(0, 5, false)) {
 		case 0:
 			prompt += ` {animal}`;
 		case 1:
