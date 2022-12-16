@@ -1,18 +1,74 @@
 # Random AI Prompt
 
+**Ever wanted to get an endless supply of creative generations but didnt want to really think about the prompt wording?**
+
 This is a javascript project that generates prompts. The original purpose
 was to generate completely random prompts with completely random keywords because
 it was discovered that they can often turn out pretty good and creative however
 it has since evolved into giving you a wide range of control over prompt
 generation.
 
+You could sit here all day and just ask for more random images, filling up your folder with hundreds of creative images you never would have thought of if you tried to specify the prompt manually even going to bed at night and asking it to make a hundred or so completely random images throguhout the night.
+
+## Random Landscape
+
+```
+node . --dyn-prompts "landscape" --image-width 2048 --image-height 512 --anime
+
+Prompt: landscape, Starflower, Plum tree, vegetation, Marouflage, Vintage Photography, Ghost imaging, Focus Stacking, [desaturated look|Lens Flares], Background light, god ray, light shaft, volumetric lighting, wada kazu, yomu sgt epper, wata do chinkuru
+```
+
+![1671157381915](https://user-images.githubusercontent.com/1305564/208066724-110f40a9-42c3-4825-9c2b-75b5c3be59d5.png)
+
+## Random Room
+
+```
+node . --dyn-prompts "room" --image-width 2048 --image-height 512 --anime
+
+Prompt: room, interrior, [Dining Room], grunge, rundown, broken floor, mold, shattered glass, ceiling hole, clutter, messy, furniture, accesories, Cabin building style, evening, myst, sunny, Industrial painting, Bracketing, Color Blast, Tiltshift
+```
+
+![1671157926331](https://user-images.githubusercontent.com/1305564/208067848-720f488c-7dc3-43a7-a751-e551a1a2b01c.png)
+
+## Random Princess and Castle
+
+```
+node . --dyn-prompts "princess-simple,castle" --image-width 1920 --image-height 1088 --anime
+
+Prompt: portrait, princess, royalty, woman, Quiff Haircut, up-close, sceptor, crown, robes, castle, roadview, moat, courtyard, castle keep, castle wall, castle drawbridge, Brigham City, lake, Cottage building style, dusk, vegetation, Bamboo, ((drizzle)), [Al-Qatt Al-Asiri|Glue-size], popqn
+```
+
+![1671160830692](https://user-images.githubusercontent.com/1305564/208071473-ecc07b97-5508-405b-b007-3636973ec005.png)
+
+## Completely Random Anime
+
+```
+node . --anime
+
+Prompt: grimoire, heiwajima shizuo, nihonga, pokemon frlg, single elbow glove, saigado
+```
+
+![1671185092541](https://user-images.githubusercontent.com/1305564/208074658-eef39d1d-46ad-476b-9ecf-8a4a3a2a47ab.png)
+
+## Completely Random Non-Anime
+
 ```
 node .
 
-Prompt: originality, Volkswagen, calling, esp, Unicode, hanger, Fujitsu, Hallsteinn Sigurðsson, Anne Mccaffrey, Ivan Aivazovsky
+Prompt: boxcar, defenseless, [indubitable::2], [portage|Sweet], Robert Childress, Ejnar Nielsen, Hubert Robert
 ```
 
-![1670337357423](https://user-images.githubusercontent.com/1305564/205940995-d73ad22d-0589-436a-a59a-b7589a103180.png)
+![1671185767246](https://user-images.githubusercontent.com/1305564/208076432-78593a5c-c3b5-47fb-a620-f445c37d9d3e.png)
+
+## Random Non-Anime Room
+
+```
+node .
+
+Prompt: room, interrior, Basement, dirty, rundown, broken, torn wallpaper, shattered glass, holes, ceiling hole, clutter, messy, furniture, accesories, window, Golden Ratio, [Multiple exposure:Kinetic Photography:3], Miniature Faking, god ray, light shaft, volumetric lighting, Brian Mashburn
+```
+
+![1671186220689](https://user-images.githubusercontent.com/1305564/208078096-1cfe82fa-6aab-4b77-8037-a80dda12eab9.png)
 
 ## Command-line arguments
 
@@ -47,7 +103,7 @@ Prompt: landscape, Gaillardia, Catharanthus, Clematis, Prickly pear cactus, over
 ## Danbooru and anime are also supported
 
 ```
-node . --dyn-prompts "landscape" --generate-images --artists "d-artist" --dict "d-keyword"
+node . --dyn-prompts "landscape" --generate-images --anime
 
 Prompt: landscape, Ixora, Peach tree, evening, i.u.y
 ```
