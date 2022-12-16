@@ -38,7 +38,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `tiny cute`;
 
-	switch(_.random(0, 3, false)) {
+	switch(_.random(0, 6, false)) {
 		case 0:
 			prompt += ` {animal}`;
 			break;
