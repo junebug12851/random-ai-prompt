@@ -110,6 +110,33 @@ Prompt: landscape, Ixora, Peach tree, evening, i.u.y
 
 ![1670339397168](https://user-images.githubusercontent.com/1305564/205949915-e1eab384-2f42-4206-a109-d85d1d267e75.png)
 
+## How to install with Git
+
+1. Make sure git is installed
+2. Make sure NodeJS is installed, version doesn't matter. [Link Here](https://nodejs.org)
+3. Open a terminal in a folder of choice and run these commands
+
+```
+git clone https://github.com/junebug12851/random-ai-prompt.git
+cd random-ai-prompt
+npm install
+node .
+```
+
+## How to install without Git
+
+1. Download files
+
+![image](https://user-images.githubusercontent.com/1305564/208082133-ff209076-1fb3-44ef-9a0d-c34f0f90a1e2.png)
+
+2. Extract to folder of choice
+3. Open terminal inside folder and run these commands
+
+```
+npm install
+node .
+```
+
 ## Expansions
 
 Prompts phrases frequently used can be added into an expansion file which can
