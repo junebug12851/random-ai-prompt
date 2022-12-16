@@ -19,6 +19,7 @@
 const _ = require("lodash");
 
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+const entityBasicKeywords = require("../helpers/entity-basic-keywords");
 
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
 
@@ -36,65 +37,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `Retro comic style artwork, highly detailed`;
 
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {emotion}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
-
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
-
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
-
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
+	prompt += entityBasicKeywords();
 
 	prompt += `, comic book cover, symmetrical, vibrant`;
-
-	// const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
-
-	// // Add in artist
-	// const artists = artistRepeater("artist", true, settings);
-	// if(artists.length > 0)
-	// 	prompt += `, ${artists}`;
 
 	if(i != 0 && !settings.noAnd)
 		prompt = `${origPrompt} AND ${prompt} :1.1`;

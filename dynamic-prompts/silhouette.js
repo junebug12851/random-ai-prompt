@@ -61,13 +61,6 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 			break;
 	}
 
-	// const treeCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(0, 3, false) : 0;
-
-	// // Add in trees
-	// for(let i = 0; i < treeCount; i++) {
-	// 	prompt += ", {tree}";
-	// }
-
 	prompt += ", with silhouette of"
 
 	switch(_.random(0, 6, false)) {

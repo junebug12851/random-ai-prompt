@@ -19,6 +19,7 @@
 const _ = require("lodash");
 
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+const entityBasicKeywords = require("../helpers/entity-basic-keywords");
 
 function maybeAddColor() {
 	if(_.random(0.0, 1.0, true) < 0.5)
@@ -36,32 +37,14 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `Funko pop`;
 
-	switch(_.random(0, 6, false)) {
+	switch(_.random(0, 1, false)) {
 		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
 			prompt += ` {d-character}`;
 			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
+		case 1:
 			prompt += ` person`;
 			break;
 	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {emotion}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += `, ${maybeAddColor()}{hair}`
@@ -83,9 +66,6 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	for(let i = 0; i < nounCount; i++) {
 		prompt += ", {noun}";
 	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
 
 	prompt += " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
 

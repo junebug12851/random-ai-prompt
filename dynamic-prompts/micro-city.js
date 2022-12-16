@@ -34,10 +34,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	const origPrompt = prompt;
 
 	// Start with base prompt
-	prompt = "100mm photo of isometric floating island in the sky, surreal, city, {city}";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+	prompt = "100mm photo of isometric floating island in the sky, surreal, city";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {time}"

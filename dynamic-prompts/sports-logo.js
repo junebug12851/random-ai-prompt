@@ -36,53 +36,33 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `2d ferocious`;
 
-	switch(_.random(0, 6, false)) {
+	let human = false;
+
+	switch(_.random(0, 3, false)) {
 		case 0:
 			prompt += ` {animal}`;
 			break;
 		case 1:
 			prompt += ` {d-character}`;
+			human = true;
 			break;
 		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
 			prompt += ` {mythological-creature}`;
 			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
+		case 3:
 			prompt += ` person`;
+			human = true;
 			break;
 	}
 
-	if(_.random(0.0, 1.0, true) < 0.5)
+	if(_.random(0.0, 1.0, true) < 0.5 && human)
 		prompt += `, ${maybeAddColor()}{hair}`
 
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+	const clothingCount = (_.random(0.0, 1.0, true) < 0.5 && human) ? _.random(0, 5, false) : 0;
 
 	for(let i = 0; i < clothingCount; i++) {
 		prompt += `, ${maybeAddColor()}{clothes}`;
 	}
-
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
-
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
 
 	prompt += ` vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
 

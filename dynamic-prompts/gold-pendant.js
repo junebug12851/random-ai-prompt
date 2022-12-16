@@ -60,33 +60,6 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 			break;
 	}
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {emotion}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
-
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
-
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
-
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
-
 	prompt += ` pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
 
 	if(i != 0 && !settings.noAnd)
