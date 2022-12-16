@@ -55,6 +55,18 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.keywordAlternatingMaxLevels *= chaosPercent;
 	}
 
+	// Switch to anime artists/keywords if specified
+	if(argv.anime !== undefined || argv.danbooru !== undefined) {
+		settings.artistFilename = "d-artist";
+		settings.keywordsFilename = "d-keyword";
+	}
+
+	// Switch to normal if specified
+	if(argv.nonAnime !== undefined || argv.nonDanbooru !== undefined) {
+		settings.artistFilename = "artist";
+		settings.keywordsFilename = "keyword";
+	}
+
 	// Since some people may not want randomness, if this flag is set, it auto
 	// sets max count to tbe the same. To keep randomness, specify both.
 	if(argv.count !== undefined) {
