@@ -10,7 +10,8 @@ generation.
 
 You could sit here all day and just ask for more random images, filling up your folder with hundreds of creative images you never would have thought of if you tried to specify the prompt manually even going to bed at night and asking it to make a hundred or so completely random images throguhout the night.
 
-**[Skip to installation part, how do I install this?](#how-to-install-with-git)**
+* **[Skip to installation part, how do I install this?](#how-to-install-with-git)**
+* **[Skip to FAQ, Why Javascript, why not WebUI, etc...](#faq)**
 
 ## Random Landscape
 
@@ -161,3 +162,17 @@ to danbooru tags. You can ad your own custom lists in, some have already been ma
 There are many settings, all of the mcan be overrideen by command-line arguments,
 but sometimes you want to have setting presets to save you time and effort. These
 are simple script files that can add-in settings and even potential randomization.
+
+## FAQ
+
+### Where's the WebUI / GUI?
+
+I'm not good at making one, I'm working on one in C++/Qt but it's honestly overwhelming. If anyone wished to help me develop a proper WebUI in HTML i'm open to it. I have a working API on here already that you can tap into, of course it may need some work.
+
+### Why Javascript and not Python?
+
+Cause I know javascript best, your welcome to make a python version, if you do, I'd appreciate a mention somewhere. I can even list it on here.
+
+### Why not an extension for Automattic1111?
+
+This would also be a good idea but noto nly do I not know python, I also really don't want to put in the work in re-writing this project and formatting it for a GUI. Like above, your welcome to do this if you want and I'd love a mention somewhere.
