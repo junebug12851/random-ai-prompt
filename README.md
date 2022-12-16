@@ -10,6 +10,8 @@ generation.
 
 You could sit here all day and just ask for more random images, filling up your folder with hundreds of creative images you never would have thought of if you tried to specify the prompt manually even going to bed at night and asking it to make a hundred or so completely random images throguhout the night.
 
+**[Skip to installation part, how do I install this?](#how-to-install-with-git)**
+
 ## Random Landscape
 
 ```
