@@ -27,19 +27,28 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = `die-cut sticker, cute kawaii`; //`{d-character} sticker, white background, illustration minimalism, vector, pastel colors`;
 
-	switch(_.random(0, 5, false)) {
+	switch(_.random(0, 6, false)) {
 		case 0:
 			prompt += ` {animal}`;
+			break;
 		case 1:
 			prompt += ` {d-character}`;
+			break;
 		case 2:
 			prompt += ` {flower}`;
+			break;
 		case 3:
 			prompt += ` {instrument}`;
+			break;
 		case 4:
 			prompt += ` {mythological-creature}`;
+			break;
 		case 5:
 			prompt += ` {tree}`;
+			break;
+		case 5:
+			prompt += ` person`;
+			break;
 	}
 
 	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
