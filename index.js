@@ -39,7 +39,8 @@ require("./src/applyArgs")(
     argv,
     settings().settings,
     settings().imageSettings,
-    settings().upscaleSettings);
+    settings().upscaleSettings,
+    settings());
 
 // Upscale if requested, otherwise stop
 if(argv.upscaleFile !== undefined)

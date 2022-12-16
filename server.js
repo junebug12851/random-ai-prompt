@@ -244,10 +244,10 @@ app.get('/files/presets', (req, res) => {
 app.get('/apply-preset/:fileId', (req, res) => {
 
   // Load it
-  const presetFunc = require(`./${settings().settings.presetFiles}/${req.params.fileId}`);
+  const presetData = require(`./${settings().settings.presetFiles}/${req.params.fileId}.json`);
 
-  // Execute it
-  presetFunc(settings().settings, settings().imageSettings, settings().upscaleSettings);
+  // Merge it
+  _.merge(settings(), presetData);
 
   // Notify Done
   res.send("Done");

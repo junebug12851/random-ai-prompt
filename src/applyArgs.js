@@ -14,7 +14,9 @@
     limitations under the License.
 */
 
-module.exports = function(argv, settings, imageSettings, upscaleSettings) {
+const _ = require("lodash");
+
+module.exports = function(argv, settings, imageSettings, upscaleSettings, allSettings) {
 
 	///////////////////////////////
 	// Apply presets
@@ -32,11 +34,8 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings) {
 			// Grab 1
 			const preset = presets[i];
 
-			// Load it
-			const presetFunc = require(`../${settings.presetFiles}/${preset}`);
-
-			// Execute it
-			presetFunc(settings, imageSettings, upscaleSettings);
+			// Merge it into settings
+			_.merge(allSettings, require(`../${settings.presetFiles}/${preset}.json`));
 		}
 	}
 
