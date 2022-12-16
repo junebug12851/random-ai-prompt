@@ -53,12 +53,12 @@ async function updateProgress() {
 		data = await response.json();
 	}
 	catch(err) {
-		if(ongoingProgress)
+		if(ongoingProgress && progressBar != undefined)
 			progressBar.update(null, {
 				err: "Error getting progress"
 			});
-		else
-			console.error(err);
+		// else
+		// 	console.error("Error");
 	}
 
 	// If data is empty then stop here
