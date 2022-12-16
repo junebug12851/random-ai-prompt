@@ -37,7 +37,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	// Start with base prompt
 	prompt = "Multiple layers of silhouette";
 
-	switch(_.random(0, 5, false)) {
+	switch(_.random(0, 6, false)) {
 		case 0:
 			prompt += ` {animal}`;
 			break;
@@ -55,6 +55,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 			break;
 		case 5:
 			prompt += ` {tree}`;
+			break;
+		case 6:
+			prompt += ` person`;
 			break;
 	}
 
@@ -67,7 +70,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 
 	prompt += ", with silhouette of"
 
-	switch(_.random(0, 5, false)) {
+	switch(_.random(0, 6, false)) {
 		case 0:
 			prompt += ` {animal}`;
 			break;
@@ -86,17 +89,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		case 5:
 			prompt += ` {tree}`;
 			break;
+		case 6:
+			prompt += ` person`;
+			break;
 	}
-
-	// const flowerCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(0, 3, false) : 0;
-
-	// // Add in flowers
-	// for(let i = 0; i < flowerCount; i++) {
-	// 	prompt += `, ${maybeAddColor()}{flower}`;
-	// }
-
-	// if(_.random(0.0, 1.0, true) < 0.5)
-	// 	prompt += `, ${maybeAddColor()}vegetation`;
 
 	prompt += ", sharp edges, at";
 
