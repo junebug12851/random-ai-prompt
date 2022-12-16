@@ -55,7 +55,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		case 5:
 			prompt += ` {tree}`;
 			break;
-		case 5:
+		case 6:
 			prompt += ` person`;
 			break;
 	}
