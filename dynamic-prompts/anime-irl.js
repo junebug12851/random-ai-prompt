@@ -18,8 +18,8 @@
 
 const _ = require("lodash");
 
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 const entityBasicKeywords = require("../helpers/entity-basic-keywords");
+const combinePrompts = require("../helpers/combinePrompts");
 
 function maybeAddColor() {
 	if(_.random(0.0, 1.0, true) < 0.5)
@@ -29,8 +29,7 @@ function maybeAddColor() {
 }
 
 // Closeup face portrait of a <name>, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -87,11 +86,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		prompt += ", <rays>";
 
 	prompt += `, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera`;
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.1`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.21, i, total);
 
 	return prompt;
 }

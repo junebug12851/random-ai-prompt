@@ -30,8 +30,10 @@ function editOut(settings, keyword) {
 
 // Adds random editing to keywords
 module.exports = function randomEditing(settings, keyword) {
-	// Stop here if editing is disabled
-	if(!settings.keywordEditing) {
+
+	// Stop here if editing is disabled or this isn't StableDiffusion
+	// To my knowledge, only stable diffusion allows prompt editing
+	if(!settings.keywordEditing || settings.mode != "StableDiffusion") {
 		return {keyword, wasUsed: false};
 	}
 

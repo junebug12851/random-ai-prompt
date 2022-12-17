@@ -17,19 +17,10 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const combinePrompts = require("../helpers/combinePrompts");
 
 // 3d fluffy <name>, closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -46,11 +37,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	}
 
 	prompt += ` closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic`;
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.1`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

@@ -17,20 +17,12 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const combinePrompts = require("../helpers/combinePrompts");
 
 // Multiple layers of silhouette <name>, with silhouette of <name>, 
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -102,11 +94,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		prompt += " heavy fog in air";
 
 	prompt += ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :0.9`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

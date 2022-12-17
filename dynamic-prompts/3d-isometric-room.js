@@ -17,15 +17,7 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const combinePrompts = require("../helpers/combinePrompts");
 
 function getName() {
 	// Start with base prompt
@@ -120,26 +112,17 @@ function getName() {
 }
 
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
 	// Start with base prompt
 	prompt = `Tiny cute isometric`;
-
 	prompt += getName();
-
 	prompt += " in a cutaway box, soft smooth lighting, soft colors, ";
-
 	prompt += "{color}"
-
 	prompt += ` color scheme, soft colors, 100mm lens, 3d blender render`;
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.21`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

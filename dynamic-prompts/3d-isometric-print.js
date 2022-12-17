@@ -16,35 +16,19 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const combinePrompts = require("../helpers/combinePrompts");
 
 // Tiny cute isometric <name>, soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
 	// Start with base prompt
 	prompt = `Tiny cute isometric`;
-
 	prompt += entityBasicKeywords();
-
 	prompt += " soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered";
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.21`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

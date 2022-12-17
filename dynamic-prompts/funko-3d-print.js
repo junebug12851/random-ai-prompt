@@ -18,8 +18,8 @@
 
 const _ = require("lodash");
 
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
 const entityBasicKeywords = require("../helpers/entity-basic-keywords");
+const combinePrompts = require("../helpers/combinePrompts");
 
 function maybeAddColor() {
 	if(_.random(0.0, 1.0, true) < 0.5)
@@ -29,8 +29,7 @@ function maybeAddColor() {
 }
 
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -55,24 +54,8 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 		prompt += `, ${maybeAddColor()}{clothes}`;
 	}
 
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
-
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
-
 	prompt += " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.21`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

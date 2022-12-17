@@ -18,8 +18,8 @@ const _ = require("lodash");
 
 // Adds random emphasis/de-emphasis to keywords
 module.exports = function randomAlternating(settings, keyword) {
-	// Stop here if emphasis is disabled
-	if(!settings.keywordAlternating) {
+	// Stop here if emphasis is disabled or if using an unsupported mode
+	if(!settings.keywordAlternating || settings.mode == "Midjourney") {
 		return {keyword, wasUsed: true};
 	}
 
@@ -36,7 +36,9 @@ module.exports = function randomAlternating(settings, keyword) {
 	}while(_.random(0.0, 1.0, true) < settings.emphasisLevelChance && count < settings.keywordAlternatingMaxLevels);
 
 	// Update modified keyword with emphais/de-emphasis
-	keyword = `[${keyword}]`;
+	// NovelAI doesn't want the square brackets around keyword
+	if(settings.mode == "StableDiffusion")
+		keyword = `[${keyword}]`;
 
 	// Send prompt back
 	return {keyword, wasUsed: true};

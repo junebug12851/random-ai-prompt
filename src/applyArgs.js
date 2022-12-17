@@ -91,6 +91,15 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.hidePrompt !== undefined)
 		settings.hidePrompt = (argv.hidePrompt == true);
 
+	if(argv.modeSd == true || argv.modeStableDiffusion == true)
+		settings.mode = "StableDiffusion"
+
+	if(argv.modeMdj == true || argv.modeMidjourney == true)
+		settings.mode = "Midjourney"
+
+	if(argv.modeNai == true || argv.modeNovelai == true)
+		settings.mode = "NovelAI"
+
 	if(argv.emphasis !== undefined)
 		settings.keywordEmphasis = (argv.emphasis == true);
 

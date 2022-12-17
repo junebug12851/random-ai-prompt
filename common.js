@@ -38,6 +38,8 @@ const {
     userSettings
 } = require("./src/loadSettings");
 
+const coreDynPrompts = defSettings().settings.dynamicPrompts.length;
+
 async function processBatch(index, total) {
 
     // Copy over prompt from settings
@@ -47,7 +49,15 @@ async function processBatch(index, total) {
     for(let i = 0; i < settings().settings.dynamicPrompts.length; i++) {
         const dynPromptName = settings().settings.dynamicPrompts[i];
         const dynPromptFunc = require(`./${settings().settings.dynamicPromptFiles}/${dynPromptName}`);
-        prompt = dynPromptFunc(prompt, settings().settings, settings().imageSettings, settings().upscaleSettings, i);
+        prompt = dynPromptFunc(
+            prompt,                                                     // Prompt
+            settings().settings,                                        // Settings
+            settings().imageSettings,                                   // Image Settings
+            settings().upscaleSettings,                                 // Upscale Settings
+            i,                                                          // DynPrompt Index
+            settings().settings.dynamicPrompts.length - coreDynPrompts, // Total User (Non-Core) DynPrompts
+            i == (settings().settings.dynamicPrompts.length - 1)        // Is last DynPrompt
+        );
     }
 
     // Remove annoying windows line-endings

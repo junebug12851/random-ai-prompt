@@ -15,10 +15,10 @@
 */
 
 const _ = require("lodash");
-
 const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+const combinePrompts = require("../helpers/combinePrompts");
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -84,10 +84,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	if(artists.length > 0)
 		prompt += `, ${artists}`;
 
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.1`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

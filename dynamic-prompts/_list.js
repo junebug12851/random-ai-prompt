@@ -70,6 +70,12 @@ function sampleFile(name, settings, emphasis) {
 		return listFiles.pull(settings, p1);
 	});
 
+	// Convert to NovelAI if it's enabled
+	if(settings.mode == "NovelAI") {
+		name = name.replaceAll("(", "{");
+		name = name.replaceAll(")", "}");
+	}
+
 	return name;
 }
 

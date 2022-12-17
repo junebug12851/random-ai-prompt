@@ -54,6 +54,13 @@ module.exports = {
 	/*--hide-prompt <true/false>*/
 	hidePrompt: false,
 
+	// Which mode of operation to work within
+	// StableDiffusion
+	// NovelAI
+	// Midjourney
+	// Don't auto-generate images on a different mode than stable diffusion
+	mode: "StableDiffusion",
+
 	// Whether to randomly emphasize or de-emphasize keywords
 	/*--emphasis <true/false>*/
 	keywordEmphasis: true,

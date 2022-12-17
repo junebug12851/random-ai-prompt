@@ -17,9 +17,7 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
+const combinePrompts = require("../helpers/combinePrompts");
 
 function maybeAddColor() {
 	if(_.random(0.0, 1.0, true) < 0.5)
@@ -29,8 +27,7 @@ function maybeAddColor() {
 }
 
 // cute kawaii Squishy <name> plush toy, realistic texture, visible stitch line, soft smooth lighting, vibrant studio lighting, modular constructivism, physically based rendering, square image
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
+module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
 
 	const origPrompt = prompt;
 
@@ -66,11 +63,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i) {
 	}
 
 	prompt += ` plush toy, realistic texture, visible stitch line, soft smooth lighting, vibrant studio lighting, modular constructivism, physically based rendering, square image`;
-
-	if(i != 0 && !settings.noAnd)
-		prompt = `${origPrompt} AND ${prompt} :1.1`;
-	else if(i != 0 && settings.noAnd)
-		prompt = `${origPrompt}, ${prompt}`;
+	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }
