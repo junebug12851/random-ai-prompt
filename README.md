@@ -1,6 +1,6 @@
 # Random AI Prompt
 
-**Ever wanted to get an endless supply of creative generations but didnt want to really think about the prompt wording?**
+**Ever wanted to get an endless supply of creative generations but running out of ideas, looking for new prompt inspiration, or just want to let a program handle the prompt wording?**
 
 This is a javascript project that generates prompts. The original purpose
 was to generate completely random prompts with completely random keywords because
