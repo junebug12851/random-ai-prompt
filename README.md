@@ -117,7 +117,8 @@ Prompt: landscape, Ixora, Peach tree, evening, i.u.y
 
 1. Make sure git is installed
 2. Make sure NodeJS is installed, version doesn't matter. [Link Here](https://nodejs.org)
-3. Open a terminal in a folder of choice and run these commands
+3. Make sure to run WebUI with the command line parameters `--api`, this will be in your `webui-user.bat` file if your on Windows __**Very Important**__
+4. Open a terminal in a folder of choice and run these commands
 
 ```
 git clone https://github.com/junebug12851/random-ai-prompt.git
@@ -133,7 +134,8 @@ node .
 ![image](https://user-images.githubusercontent.com/1305564/208082133-ff209076-1fb3-44ef-9a0d-c34f0f90a1e2.png)
 
 2. Extract to folder of choice
-3. Open terminal inside folder and run these commands
+3. Make sure to run WebUI with the command line parameters `--api`, this will be in your `webui-user.bat` file if your on Windows __**Very Important**__
+4. Open terminal inside folder and run these commands
 
 ```
 npm install
