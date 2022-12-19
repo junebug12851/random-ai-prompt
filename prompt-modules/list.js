@@ -24,19 +24,28 @@ const randomAlternating = require("../helpers/randomAlternating");
 const listFiles = require("../helpers/listFiles");
 
 // List of all prompt funcs
-let promptFuncs = [
+let promptFuncsSd = [
 	randomEmphasis,
 	randomEditing,
+	randomAlternating,
+];
+
+let promptFuncsNai = [
+	randomEmphasis,
+	randomAlternating,
+];
+
+let promptFuncsMdj = [
+	randomEmphasis,
 	randomAlternating,
 ];
 
 // List to give every prompt func a turn
 let promptFuncsTmp = [];
 
-function reloadPromptFunc() {
-	promptFuncsTmp = _.clone(promptFuncs);
+function reloadPromptFunc(list) {
+	promptFuncsTmp = _.clone(list);
 }
-reloadPromptFunc();
 
 // Pulls a random line from a list file
 function sampleFile(name, settings, emphasis) {
@@ -49,9 +58,17 @@ function sampleFile(name, settings, emphasis) {
 	if(!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
 		return listFiles.pull(settings, name);
 
+	// Set correct prompt func for target AI Generator
+	let targList = promptFuncsSd;
+
+	if(settings.mode == "NovelAI")
+		targList = promptFuncsNai;
+	else if(settings.mode == "Midjourney")
+		targList = promptFuncsMdj;
+
 	// Start list over if depleted
 	if(promptFuncsTmp.length == 0)
-		reloadPromptFunc();
+		reloadPromptFunc(targList);
 
 	// Shuffle funcs
 	promptFuncsTmp = _.shuffle(promptFuncsTmp);
