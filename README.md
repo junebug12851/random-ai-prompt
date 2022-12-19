@@ -16,7 +16,7 @@ You could sit here all day and just ask for more random images, filling up your 
 ## Random Landscape
 
 ```
-node . --dyn-prompts "landscape" --image-width 2048 --image-height 512 --anime
+node . --dyn-prompts "landscape" --image-width 2048 --image-height 512 --anime-words
 
 Prompt: landscape, Starflower, Plum tree, vegetation, Marouflage, Vintage Photography, Ghost imaging, Focus Stacking, [desaturated look|Lens Flares], Background light, god ray, light shaft, volumetric lighting, wada kazu, yomu sgt epper, wata do chinkuru
 ```
@@ -26,7 +26,7 @@ Prompt: landscape, Starflower, Plum tree, vegetation, Marouflage, Vintage Photog
 ## Random Room
 
 ```
-node . --dyn-prompts "room" --image-width 2048 --image-height 512 --anime
+node . --dyn-prompts "room" --image-width 2048 --image-height 512 --anime-words
 
 Prompt: room, interrior, [Dining Room], grunge, rundown, broken floor, mold, shattered glass, ceiling hole, clutter, messy, furniture, accesories, Cabin building style, evening, myst, sunny, Industrial painting, Bracketing, Color Blast, Tiltshift
 ```
@@ -36,7 +36,7 @@ Prompt: room, interrior, [Dining Room], grunge, rundown, broken floor, mold, sha
 ## Random Princess and Castle
 
 ```
-node . --dyn-prompts "princess-simple,castle" --image-width 1920 --image-height 1088 --anime
+node . --dyn-prompts "princess-simple,castle" --image-width 1920 --image-height 1088 --anime-words
 
 Prompt: portrait, princess, royalty, woman, Quiff Haircut, up-close, sceptor, crown, robes, castle, roadview, moat, courtyard, castle keep, castle wall, castle drawbridge, Brigham City, lake, Cottage building style, dusk, vegetation, Bamboo, ((drizzle)), [Al-Qatt Al-Asiri|Glue-size], popqn
 ```
@@ -46,7 +46,7 @@ Prompt: portrait, princess, royalty, woman, Quiff Haircut, up-close, sceptor, cr
 ## Completely Random Anime
 
 ```
-node . --anime
+node . --anime-words
 
 Prompt: grimoire, heiwajima shizuo, nihonga, pokemon frlg, single elbow glove, saigado
 ```
@@ -106,7 +106,7 @@ Prompt: landscape, Gaillardia, Catharanthus, Clematis, Prickly pear cactus, over
 ## Danbooru and anime are also supported
 
 ```
-node . --dyn-prompts "landscape" --generate-images --anime
+node . --dyn-prompts "landscape" --generate-images --anime-words
 
 Prompt: landscape, Ixora, Peach tree, evening, i.u.y
 ```
