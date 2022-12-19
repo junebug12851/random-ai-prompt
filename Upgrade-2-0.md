@@ -24,6 +24,17 @@ large as `#city` which will produce many keywords to describe a city.
 
 Please check them out in `./dynamic-prompts` folder and make use of them
 
+## The familiar version 1 dynamic prompts are kept!
+
+Ifyou want to use a version 1 prompt, just append a `-v1` at the end of the
+prompt name.
+
+```
+Old Code: --dyn-prompts "princess,castle" --noand --prompt-prefix "<candlelight> "
+
+New code: --prompt "<candlelight>, #princess-v1, #castle-v1"
+```
+
 ## --noand removed
 
 This was a flag that allowed combining prompts with or without `AND` in the old

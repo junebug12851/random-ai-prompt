@@ -17,9 +17,27 @@
 const fs = require('fs');
 const _ = require("lodash");
 
-function expandDynamicPrompt(name, settings, imageSettings, upscaleSettings) {
+function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
+
+	// In case you want to specify version
+	if(name.endsWith("-v2"))
+		name = name.replace("-v2", "");
+
 	// Read expansion file contents
 	return require(`../${settings.dynamicPromptFiles}/${name}`)(settings, imageSettings, upscaleSettings);
+}
+
+function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
+
+	// V1 already includes these
+	settings.autoAddFx = false;
+	settings.autoAddArtists = false;
+
+	// Remove -v1
+	name = name.replace("-v1", "");
+
+	// Read expansion file contents
+	return require(`../${settings.dynamicPromptFiles}/v1/${name}`)(settings, imageSettings, upscaleSettings);
 }
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
@@ -30,7 +48,11 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Expand all dynamic functions
 	prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
-		return expandDynamicPrompt(p1, settings, imageSettings, upscaleSettings)
+
+		if(p1.endsWith("-v1"))
+			return expandDynamicPromptV1(p1, settings, imageSettings, upscaleSettings);
+		else
+			return expandDynamicPromptV2(p1, settings, imageSettings, upscaleSettings);
 	});
 
 	// Auto-append fx and artists if cofnigured to do so
@@ -39,11 +61,11 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Auto-add fx first if requested to do so
 	if(settings.autoAddFx && !includedFx)
-		prompt += `, ${expandDynamicPrompt("fx", settings, imageSettings, upscaleSettings)}`;
+		prompt += `, ${expandDynamicPromptV2("fx", settings, imageSettings, upscaleSettings)}`;
 
 	// Auto-add artists second if requested to do so
 	if(settings.autoAddArtists && !includedArtists)
-		prompt += `, ${expandDynamicPrompt("artists", settings, imageSettings, upscaleSettings)}`;
+		prompt += `, ${expandDynamicPromptV2("artists", settings, imageSettings, upscaleSettings)}`;
 
 	// Return prompt
 	return prompt;
