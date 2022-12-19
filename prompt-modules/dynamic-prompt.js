@@ -17,14 +17,26 @@
 const fs = require('fs');
 const _ = require("lodash");
 
+// Some keywords are better converted to danbooru if danbooru is in effect
+function danbooruReplacer(prompt, settings) {
+	if(!settings.keywordsFilename.startsWith("d-") &&
+		settings.keywordsFilename != "danbooru")
+		return prompt;
+
+	prompt = prompt.replaceAll("person", "{d-person}");
+
+	return prompt;
+}
+
 function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
 
-	// In case you want to specify version
-	if(name.endsWith("-v2"))
-		name = name.replace("-v2", "");
+	// Remove -v2
+	name = name.replace("-v2", "");
 
 	// Read expansion file contents
-	return require(`../${settings.dynamicPromptFiles}/${name}`)(settings, imageSettings, upscaleSettings);
+	return danbooruReplacer(
+		require(`../${settings.dynamicPromptFiles}/${name}`)(settings, imageSettings, upscaleSettings),
+		settings);
 }
 
 function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
@@ -37,7 +49,9 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
 	name = name.replace("-v1", "");
 
 	// Read expansion file contents
-	return require(`../${settings.dynamicPromptFiles}/v1/${name}`)(settings, imageSettings, upscaleSettings);
+	return danbooruReplacer(
+		require(`../${settings.dynamicPromptFiles}/v1/${name}`)(settings, imageSettings, upscaleSettings),
+		settings);
 }
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
