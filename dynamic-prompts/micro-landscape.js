@@ -17,50 +17,20 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const combinePrompts = require("../helpers/combinePrompts");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const nature = require("./nature");
+const weather = require("./weather");
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = "100mm photo of isometric floating island in the sky, surreal";
+	let prompt = "100mm photo of isometric floating island in the sky, surreal";
 
 	if(_.random(0.0, 1.0, true) < 0.25)
 		prompt += ", mountains"
 
-	const flowerCount = _.random(1, 3, false);
-	const treeCount = _.random(1, 3, false);
-
-	// Add in flowers
-	for(let i = 0; i < flowerCount; i++) {
-		prompt += `, ${maybeAddColor()}{flower}`;
-	}
-
-	// Add in trees
-	for(let i = 0; i < treeCount; i++) {
-		prompt += ", {tree}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}vegetation`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
+	prompt += `, ${nature()}, ${weather()}`;
 	prompt += ", intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

@@ -14,26 +14,17 @@
     limitations under the License.
 */
 
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+const _ = require("lodash");
 
-// Generates a prompt containing this based on settings
-// {keyword}... {artist}...
-function expandRandom(settings) {
+module.exports = function() {
 
-	let prompt = keywordRepeater("keyword", true, settings);
+	let prompt = "";
 
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-	
-	return prompt;
-}
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {time}"
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	prompt = prompt.replaceAll(/\{prompt\}/gm, function(match) {
-		return expandRandom(settings);
-	});
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {weather}"
 
-	// Return prompt
 	return prompt;
 }

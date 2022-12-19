@@ -17,53 +17,14 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const combinePrompts = require("../helpers/combinePrompts");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const livingEntity = require("living-entity");
 
 // 2d ferocious <name>, vector illustration, angry eyes, football team emblem logo, 2d flat, centered
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `2d ferocious`;
-
-	let human = false;
-
-	switch(_.random(0, 3, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			human = true;
-			break;
-		case 2:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 3:
-			prompt += ` person`;
-			human = true;
-			break;
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5 && human)
-		prompt += `, ${maybeAddColor()}{hair}`
-
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5 && human) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
-
+	let prompt = `2d ferocious ${livingEntity()}`;
 	prompt += ` vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

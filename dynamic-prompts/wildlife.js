@@ -14,16 +14,32 @@
     limitations under the License.
 */
 
-// This was taken from publicprompts.art and modified to be more dynamic
+const _ = require("lodash");
 
-const animal = require("./animal");
-
-// 3d fluffy <name>, closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic
 module.exports = function() {
 
-	// Start with base prompt
-	let prompt = `3d fluffy, ${animal()}`;
-	prompt += ` closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic`;
+	let prompt = "";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", life"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", animal"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", insect"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", bat"
+
+	if(_.random(0.0, 1.0, true) < 0.2)
+		prompt += ", {mythological-creature}"
+
+	if(_.random(0.0, 1.0, true) < 0.3)
+		prompt += ", {animal}"
+
+	if(_.random(0.0, 1.0, true) < 0.3)
+		prompt += ", {animal}"
 
 	return prompt;
 }

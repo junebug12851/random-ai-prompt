@@ -15,12 +15,12 @@
 */
 
 const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
+const {keywordRepeater} = require("../helpers/keywordRepeater");
 
 // Generates a prompt containing this based on settings
-// {d-general}... {d-character}... {d-meta}... {d-artist}... 
-function expandRandom(settings) {
+// {d-general}... {d-character}... {d-meta}...
+module.exports = function(settings) {
+
 	const metaCount = _.random(0, 2, false);
 	const characterCount = _.random(0, 2, false);
 
@@ -37,18 +37,5 @@ function expandRandom(settings) {
 		str.push(`{d-meta}`);
 	}
 
-	const artists = artistRepeater("d-artist", false, settings);
-	if(artists.length > 0)
-		str.push(artists);
-
 	return str.join(", ");
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	prompt = prompt.replaceAll(/\{prompt-danbooru\}/gm, function(match) {
-		return expandRandom(settings);
-	});
-
-	// Return prompt
-	return prompt;
 }

@@ -16,46 +16,14 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-const combinePrompts = require("../helpers/combinePrompts");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const person = require("./person");
 
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `Funko pop`;
-
-	switch(_.random(0, 1, false)) {
-		case 0:
-			prompt += ` {d-character}`;
-			break;
-		case 1:
-			prompt += ` person`;
-			break;
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
-
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
-
+	let prompt = `Funko pop ${person()}`;
 	prompt += " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

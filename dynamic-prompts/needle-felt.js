@@ -16,28 +16,14 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-const combinePrompts = require("../helpers/combinePrompts");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
+const entity = require("./entity");
 
 // tiny cute 3D felt fiber <name>, made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `tiny cute 3D felt fiber`;
-	prompt += entityBasicKeywords();
+	let prompt = `tiny cute 3D felt fiber ${entity()}`;
 	prompt += ` made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

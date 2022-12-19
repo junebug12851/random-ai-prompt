@@ -16,43 +16,14 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-const combinePrompts = require("../helpers/combinePrompts");
+const entityName = require("./entity-name");
 
 // gold <name> pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `gold`;
-
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
-
+	let prompt = `gold ${entityName()}`;
 	prompt += ` pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

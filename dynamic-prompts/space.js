@@ -15,68 +15,37 @@
 */
 
 const _ = require("lodash");
-
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
-const personSimple = require("./person-simple");
-
-function maybeAddColor(fx) {
-	let ret = "";
-
-	if(_.random(0.0, 1.0, true) < 0.5 && fx)
-		ret += "neon ";
-
-	if(_.random(0.0, 1.0, true) < 0.5 && fx)
-		ret += "glow ";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		ret += "{color} ";
-	
-	return ret;
-}
+const portraitPerson = require("./portrait-person");
+const color = require("./color");
+const glow = require("./glow");
+const neon = require("./neon");
+const ship = require("./ship");
+const mystical = require("./mystical");
 
 function maybeAddSize() {
 	return (_.random(0.0, 1.0, true) < 0.5) ? "{size} " : "";
 }
 
-function addShip() {
-	let prompt = "";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += maybeAddColor(_.random(0.0, 1.0, true) < 0.5);
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += maybeAddColor(_.random(0.0, 1.0, true) < 0.5);
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += "{size} ";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += "{construct-style} ";
-
-	prompt += "spaceship ";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += "spacecraft ";
-
-	return prompt;
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `space, outer space`;
+	let prompt = `space, outer space`;
 
 	// Maybe insert an astronaut or random person
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", astronaut";
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += personSimple("", settings, imageSettings, upscaleSettings, 0, 1, false);
+
+	if(_.random(0.0, 1.0, true) < 0.5) {
+		switch(_.random(0, 1, false)) {
+			case 0:
+				prompt += ", astronaut";
+				break;
+			case 1:
+				prompt += `, ${portraitPerson()}`;
+				break;
+		}
+	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${addShip()}`;
+		prompt += `, ${ship()}`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", satellite";
@@ -103,18 +72,24 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 		prompt += ", cosmos";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor(true)}${maybeAddSize()}sun`;
+		prompt += `, ${color()} ${maybeAddSize()}sun`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor(true)}${maybeAddSize()}moon`;
+		prompt += `, ${color()} ${maybeAddSize()}moon`;
+
+	if(_.random(0.0, 1.0, true) < 0.5) {
+		switch(_.random(0, 1, false)) {
+			case 0:
+				prompt += `, ${color()} ${maybeAddSize()}planet`;
+				break;
+			case 1:
+				prompt += `, ${color()} ${maybeAddSize()}{planet}`;
+				break;
+		}
+	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor(true)}${maybeAddSize()}planet`;
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor(true)}${maybeAddSize()}{planet}`;
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor(true)}${maybeAddSize()}star`;
+		prompt += `, ${color()} ${maybeAddSize()}star`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", shooting star";
@@ -159,48 +134,12 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 		prompt += ", void";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fantasy";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vast";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mystical";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magical";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", colorful";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", beautiful";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", epic";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
+	prompt += `, ${mystical()}`;
 
 	return prompt;
 }

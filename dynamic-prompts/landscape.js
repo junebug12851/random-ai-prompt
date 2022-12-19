@@ -14,67 +14,10 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
+const nature = require("./nature");
+const weather = require("./weather");
 
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
-
+module.exports = function() {
 	// Start with base prompt
-	prompt = "landscape";
-
-	const flowerCount = _.random(1, 3, false);
-	const treeCount = _.random(1, 3, false);
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;
-
-	// Add in flowers
-	for(let i = 0; i < flowerCount; i++) {
-		prompt += `, ${maybeAddColor()}{flower}`;
-	}
-
-	// Add in trees
-	for(let i = 0; i < treeCount; i++) {
-		prompt += ", {tree}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}vegetation`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
-
-	return prompt;
+	return `landscape, ${nature()}, ${weather()}`;
 }

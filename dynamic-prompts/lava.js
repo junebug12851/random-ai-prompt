@@ -15,38 +15,40 @@
 */
 
 const _ = require("lodash");
-const color = require("./color");
 
-module.exports = function() {
+module.exports = function(settings, imageSettings, upscaleSettings) {
 
-	let prompt = "underwater, underwater photography";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", submerged"
+	let prompt = "";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", underwater paradise"
+		prompt += ", magma"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", aquatic life"
+		prompt += ", magma tube"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} reef`
+		prompt += ", lava pool"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} coral`
+		prompt += ", obsidian"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} starfish`
+		prompt += ", heat"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} fish`
+		prompt += ", heat wave"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bioluminescent";
+		prompt += ", fire"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glow";
+		prompt += ", sparks"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", embers"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", ash"
 
 	return prompt;
 }

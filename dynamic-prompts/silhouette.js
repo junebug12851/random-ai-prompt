@@ -17,68 +17,14 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
+const entityName = require("entity-name");
 
 // Multiple layers of silhouette <name>, with silhouette of <name>, 
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = "Multiple layers of silhouette";
-
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
-
-	prompt += ", with silhouette of"
-
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
-
+	let prompt = `Multiple layers of silhouette ${entityName()}, with silhouette of ${entityName()}`;
 	prompt += ", sharp edges, at";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
@@ -94,7 +40,6 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 		prompt += " heavy fog in air";
 
 	prompt += ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

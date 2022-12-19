@@ -16,26 +16,13 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-const combinePrompts = require("../helpers/combinePrompts");
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
+const entity = require("./entity");
 
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `die-cut sticker, cute kawaii`;
-	prompt += entityBasicKeywords();
+	let prompt = `die-cut sticker, cute kawaii, ${entity()}`;
 	prompt += ` sticker, white background, illustration minimalism, vector, pastel colors`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

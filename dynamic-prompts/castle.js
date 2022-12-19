@@ -15,33 +15,16 @@
 */
 
 const _ = require("lodash");
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
+const weather = require("./weather");
+const color = require("./color");
+const water = require("./water");
+const wildlife = require("./wildlife");
+const nature = require("./nature");
 
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
-
-function multiColor() {
-	const addColor = _.random(0.0, 1.0, true) < 0.5;
-
-	if(addColor && (_.random(0.0, 1.0, true) < 0.5))
-		return "multi color ";
-	else if(addColor)
-		return maybeAddColor();
-
-	return "";
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = "castle, {view}";
+	let prompt = "castle, {view}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", moat"
@@ -67,73 +50,13 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", castle gatehouse"
 
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {mythological-creature}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {city}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lake"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", pond"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {building-style}"
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}vegetation`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
+	prompt += `, ${wildlife()}, ${water()}, ${nature()}, ${weather()}`;
 
 	return prompt;
 }

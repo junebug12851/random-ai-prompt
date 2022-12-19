@@ -15,19 +15,14 @@
 */
 
 // This was taken from publicprompts.art and modified to be more dynamic
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-const combinePrompts = require("../helpers/combinePrompts");
+const entity = require("./entity");
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `hologram of a`;
-	prompt += entityBasicKeywords();
+	let prompt = `hologram of a ${entity()}`;
 	prompt += `, floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

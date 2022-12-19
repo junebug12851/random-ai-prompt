@@ -16,19 +16,14 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-const combinePrompts = require("../helpers/combinePrompts");
+const entity = require("./entity");
 
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `Hypnotic illustration of a`;
-	prompt += entityBasicKeywords();
+	let prompt = `Hypnotic illustration of a ${entity()}`;
 	prompt += `, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
 
 	return prompt;
 }

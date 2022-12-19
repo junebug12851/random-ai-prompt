@@ -16,19 +16,15 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityBasicKeywords = require("../helpers/entity-basic-keywords");
-const combinePrompts = require("../helpers/combinePrompts");
+const entity = require("./entity");
 
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = `Retro comic style artwork, highly detailed`;
-	prompt += entityBasicKeywords();
+	let prompt = `Retro comic style artwork, highly detailed `;
+	prompt += entity();
 	prompt += `, comic book cover, symmetrical, vibrant`;
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
 
 	return prompt;
 }

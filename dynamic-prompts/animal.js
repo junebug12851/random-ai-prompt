@@ -14,77 +14,8 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
+const entity = require("./entity");
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
-
-	// Start with base prompt
-	prompt = `animal, {animal}, portrait`;
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", full body"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", head and chest, upperbody"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", up-close"
-
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
-
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
-
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {instrument}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", dynamic-pose"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;	
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 1.1, i, total);
-
-	return prompt;
+module.exports = function() {
+	return entity(null, null, null, "animal");
 }

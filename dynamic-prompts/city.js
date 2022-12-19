@@ -15,40 +15,16 @@
 */
 
 const _ = require("lodash");
+const nature = require("./nature");
+const weather = require("./weather");
 
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
-
-function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
-}
-
-function multiColor() {
-	const addColor = _.random(0.0, 1.0, true) < 0.5;
-
-	if(addColor && (_.random(0.0, 1.0, true) < 0.5))
-		return "multi color ";
-	else if(addColor)
-		return maybeAddColor();
-
-	return "";
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = "city, streetview, {city}";
+	let prompt = "city, streetview, {city}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {building-style}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", cityscape";
@@ -56,52 +32,8 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", downtown";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${multiColor()}vegetation`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	prompt == ", reflective street, wide shot";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
+	prompt += `, ${nature()}, ${weather()}`;
+	prompt += ", reflective street, wide shot";
 
 	return prompt;
 }

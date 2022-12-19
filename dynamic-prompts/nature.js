@@ -19,34 +19,35 @@ const color = require("./color");
 
 module.exports = function() {
 
-	let prompt = "underwater, underwater photography";
+	let prompt = "";
+
+	let flowerCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(1, 3, false) : 0;
+	let treeCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(1, 3, false) : 0;
+
+	// Add in flowers
+	for(let i = 0; i < flowerCount; i++) {
+		prompt += `, ${color()} {flower}`;
+	}
+
+	// Add in trees
+	for(let i = 0; i < treeCount; i++) {
+		prompt += ", {tree}";
+	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", submerged"
+		prompt += ", vines";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", underwater paradise"
+		prompt += `, ${color()} plants`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", aquatic life"
+		prompt += `, ${color()} vegetation`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} reef`
+		prompt += ", lush";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} coral`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} starfish`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} fish`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bioluminescent";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glow";
+	if(_.random(0.0, 1.0, true) < 0.25)
+		prompt += ", oasis"
 
 	return prompt;
 }

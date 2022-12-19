@@ -15,112 +15,22 @@
 */
 
 const _ = require("lodash");
-const {keywordRepeater, artistRepeater} = require("../helpers/keywordRepeater");
-const combinePrompts = require("../helpers/combinePrompts");
+const nature = require("./nature");
+const wildlife = require("./wildlife");
+const water = require("./water");
+const mystical = require("./mystical");
+const weather = require("./weather");
+const eerie = require("./eerie");
+const underwater = require("./underwater");
+const lava = require("./lava");
+const ice = require("./ice");
+const crystal = require("./crystal");
+const crystal = require("./color");
 
-function maybeAddColor() {
-
-	let glow = "";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		glow += "glowing ";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return `${glow}{color} `;
-	else
-		return "";
-}
-
-function waterCave() {
-	let prompt = "sea cave, underwater, underwater photography";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", submerged"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", underwater paradise"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", aquatic life"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}reef`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}coral`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}starfish`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}fish`
-
-	return prompt;
-}
-
-function lavaCave() {
-	let prompt = "lava cave";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magma"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magma tube"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lava pool"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", obsidian"
-
-	return prompt;
-}
-
-function iceCave() {
-	let prompt = "ice cave";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice walls"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice sheets"
-
-	return prompt;
-}
-
-function crystalCave() {
-	let prompt = "crystal cave";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glowing"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}crystal walls`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}crystal floor`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}giant crystals`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ruby"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", diamond"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", emerald"
-
-	return prompt;
-}
-
-module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, total, isLast) {
-
-	const origPrompt = prompt;
+module.exports = function() {
 
 	// Start with base prompt
-	prompt = "cave, cave walls";
+	let prompt = "cave, cave walls";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", subterranean";
@@ -133,16 +43,16 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 	if(_.random(0.0, 1.0, true) < 0.5) {
 		switch(_.random(0, 4, false)) {
 			case 0:
-				prompt += `, ${waterCave()}`;
+				prompt += `, sea cave, ${underwater()}`;
 				break;
 			case 1:
-				prompt += `, ${lavaCave()}`;
+				prompt += `, lava cave, ${lava()}`;
 				break;
 			case 2:
-				prompt += `, ${iceCave()}`;
+				prompt += `, ice cave, ${ice()}`;
 				break;
 			case 3:
-				prompt += `, ${crystalCave()}`;
+				prompt += `, crystal cave, ${crystal()}`;
 				break;
 		}
 	}
@@ -151,28 +61,19 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 		prompt += ", cavern";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lush";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", glow";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", bioluminescent";
 
-	if(_.random(0.0, 1.0, true) < 0.50)
-		prompt += `, ${maybeAddColor()}plants`
-
-	if(_.random(0.0, 1.0, true) < 0.50)
-		prompt += `, ${maybeAddColor()}vegetation`
-
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", structures"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}crystal`
+		prompt += `, ${color()} crystal`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}gemstone`
+		prompt += `, ${color()} gemstone`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", stalagmite"
@@ -193,72 +94,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 		prompt += ", tunnels"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", oasis"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", life"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", animal"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", insect"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bat"
-
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {mythological-creature}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
-	if(_.random(0.0, 1.0, true) < 0.3)
-		prompt += ", {animal}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", water";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", river";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lake";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", stream";
-
-	const flowerCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(0, 3, false) : 0;
-	const treeCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(0, 3, false) : 0;
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;
-
-	// Add in flowers
-	for(let i = 0; i < flowerCount; i++) {
-		prompt += `, ${maybeAddColor()}{flower}`;
-	}
-
-	// Add in trees
-	for(let i = 0; i < treeCount; i++) {
-		prompt += ", {tree}";
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", dark";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", eerie";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", scary";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", worn down";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", weathered";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mysterious";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", underground";
@@ -266,50 +105,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings, i, t
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {color}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mesmorizing"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magical"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fantasy"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", epic"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", grand"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vast"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
-
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
-
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	prompt = combinePrompts(settings, prompt, origPrompt, 0.9, i, total);
+	prompt += `, ${nature()}, ${wildlife()}, ${water()}, ${eerie()}, ${mystical()}, ${weather()}`;
 
 	return prompt;
 }

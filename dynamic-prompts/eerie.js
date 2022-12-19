@@ -14,7 +14,23 @@
     limitations under the License.
 */
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	// Return prompt
-	return `${settings.promptPrefix}${prompt}`;
+const _ = require("lodash");
+
+module.exports = function() {
+
+	let prompt = "";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", dark";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", eerie";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", scary";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", mysterious";
+
+	return prompt;
 }

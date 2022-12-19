@@ -14,19 +14,39 @@
     limitations under the License.
 */
 
-// This was taken from publicprompts.art and modified to be more dynamic
-
 const _ = require("lodash");
-const room = require("./room");
+const glow = require("./glow");
 
-// Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
 module.exports = function() {
 
-	// Start with base prompt
-	let prompt = `Tiny cute isometric `;
-	prompt += room();
-	prompt += " in a cutaway box, soft smooth lighting, soft colors, {color}";
-	prompt += ` color scheme, soft colors, 100mm lens, 3d blender render`;
+	let prompt = "";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", glowing"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${glow()} crystal walls`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${glow()} crystal floor`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${glow()} crystal ceiling`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${glow()} giant crystals`
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", ruby"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", diamond"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", emerald"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `, ${glow()} crystals`
 
 	return prompt;
 }
