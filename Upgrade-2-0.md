@@ -124,7 +124,9 @@ either in command arguents or user-settings.json
 ```
 
 Some prompts do work better if artists and fx auto-append are disabled such as
-the 3D print ones.
+the 3D print ones, in those cases, it will again be handled for you. when using
+dynamic prompts that work best without #artists and/or #fx, they will be auto-disabled
+but your welcome to always add them back manually if you really want to.
 
 ## --anime and --non-anime are renamed
 
