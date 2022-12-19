@@ -20,7 +20,11 @@ const nature = require("./nature");
 const weather = require("./weather");
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = "100mm photo of isometric floating island in the sky, surreal, city";

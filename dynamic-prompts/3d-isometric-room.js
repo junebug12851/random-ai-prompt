@@ -20,7 +20,11 @@ const _ = require("lodash");
 const room = require("./room");
 
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `Tiny cute isometric `;

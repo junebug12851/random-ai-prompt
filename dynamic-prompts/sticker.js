@@ -18,7 +18,11 @@
 
 const entity = require("./entity");
 
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `die-cut sticker, cute kawaii, ${entity()}`;

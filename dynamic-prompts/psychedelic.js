@@ -19,7 +19,11 @@
 const entity = require("./entity");
 
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `Hypnotic illustration of a ${entity()}`;

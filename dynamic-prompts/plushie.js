@@ -20,7 +20,11 @@ const _ = require("lodash");
 const livingEntity = require("./living-entity");
 
 // cute kawaii Squishy <name> plush toy, realistic texture, visible stitch line, soft smooth lighting, vibrant studio lighting, modular constructivism, physically based rendering, square image
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `cute kawaii Squishy ${livingEntity()}`;

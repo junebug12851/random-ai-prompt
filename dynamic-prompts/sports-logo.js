@@ -17,10 +17,14 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const livingEntity = require("living-entity");
+const livingEntity = require("./living-entity");
 
 // 2d ferocious <name>, vector illustration, angry eyes, football team emblem logo, 2d flat, centered
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `2d ferocious ${livingEntity()}`;

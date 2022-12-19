@@ -24,7 +24,7 @@ const weather = require("./weather");
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt += `, ${underwater()}, landscape, ${water()}, ${mystical()}`;
+	let prompt = `${underwater()}, landscape, ${water()}, ${mystical()}`;
 
 	if(_.random(0.0, 1.0, true) < 0.25)
 		prompt += ", dolphin"

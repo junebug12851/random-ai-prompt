@@ -14,6 +14,7 @@
     limitations under the License.
 */
 
+const _ = require("lodash");
 const color = require("./color");
 
 const anyEntity = [0, 1, 2, 3, 4, 5, 6];

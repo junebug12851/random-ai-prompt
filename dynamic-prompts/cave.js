@@ -25,7 +25,7 @@ const underwater = require("./underwater");
 const lava = require("./lava");
 const ice = require("./ice");
 const crystal = require("./crystal");
-const crystal = require("./color");
+const color = require("./color");
 
 module.exports = function() {
 

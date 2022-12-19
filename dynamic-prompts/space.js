@@ -19,7 +19,7 @@ const portraitPerson = require("./portrait-person");
 const color = require("./color");
 const glow = require("./glow");
 const neon = require("./neon");
-const ship = require("./ship");
+const ship = require("./spaceship");
 const mystical = require("./mystical");
 
 function maybeAddSize() {

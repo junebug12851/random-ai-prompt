@@ -17,11 +17,15 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const entityName = require("entity-name");
+const entityName = require("./entity-name");
 
 // Multiple layers of silhouette <name>, with silhouette of <name>, 
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
-module.exports = function() {
+module.exports = function(settings) {
+
+	// This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `Multiple layers of silhouette ${entityName()}, with silhouette of ${entityName()}`;

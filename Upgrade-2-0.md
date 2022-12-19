@@ -56,6 +56,15 @@ Old Code: --dyn-prompts "person" --prompt-prefix "green hair "
 New Code: --prompt "green hair #portrait-person"
 ```
 
+## Prompt spacing auto-fix
+
+If your prompt has extra spaces or commas or empty commas, their now auto-cleaned
+up
+
+```
+#portrait-princess, ,,   #castle		=>	#portrait-princess, #castle
+```
+
 ## Prompt Module Cleanup
 
 Used to, there were psuedo lists, for example `{prompt}` would be a fake list

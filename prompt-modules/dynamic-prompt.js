@@ -24,10 +24,26 @@ function expandDynamicPrompt(name, settings, imageSettings, upscaleSettings) {
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
+	// Check for these before expansion
+	const includedArtists = prompt.includes("#artists");
+	const includedFx = prompt.includes("#fx");
+
 	// Expand all dynamic functions
-	prompt = prompt.replaceAll(/#([\w\-_]+)\W/gm, function(match, p1) {
-		return expandDynamicPrompt(p1, settings, imageSettings, upscaleSettings);
+	prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
+		return expandDynamicPrompt(p1, settings, imageSettings, upscaleSettings)
 	});
+
+	// Auto-append fx and artists if cofnigured to do so
+	// We do this afterwards because some modules may change the settings
+	// so we have to rprocess the modules first
+
+	// Auto-add fx first if requested to do so
+	if(settings.autoAddFx && !includedFx)
+		prompt += `, ${expandDynamicPrompt("fx", settings, imageSettings, upscaleSettings)}`;
+
+	// Auto-add artists second if requested to do so
+	if(settings.autoAddArtists && !includedArtists)
+		prompt += `, ${expandDynamicPrompt("artists", settings, imageSettings, upscaleSettings)}`;
 
 	// Return prompt
 	return prompt;

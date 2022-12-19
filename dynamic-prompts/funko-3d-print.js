@@ -19,7 +19,11 @@
 const person = require("./person");
 
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `Funko pop ${person()}`;

@@ -21,7 +21,11 @@ const entity = require("./entity");
 // tiny cute <name> toy, standing character, soft smooth lighting, soft pastel 
 // colors, skottie young, 3d blender render, polycount, modular constructivism,
 // pop surrealism, physically based rendering, square image
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `tiny cute `;

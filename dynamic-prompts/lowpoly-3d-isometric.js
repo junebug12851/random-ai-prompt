@@ -19,7 +19,11 @@
 const entity = require("./entity");
 
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `kawaii low poly, ${entity()}`;

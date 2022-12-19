@@ -19,7 +19,11 @@
 const entity = require("./entity");
 
 // tiny cute 3D felt fiber <name>, made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `tiny cute 3D felt fiber ${entity()}`;

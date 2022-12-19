@@ -15,17 +15,28 @@
 */
 
 const _ = require("lodash");
+const neon = require("./neon");
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
+module.exports = function() {
 
-	// Auto-add fx first if requested to do so
-	if(settings.autoAddFx && !prompt.includes("#fx"))
-		prompt += `, #fx`;
+	let prompt = "";
 
-	// Auto-add artists second if requested to do so
-	if(settings.autoAddArtists && !prompt.includes("#artists"))
-		prompt += `, #artists`;
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `${neon()} `;
 
-	// Return prompt
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += `${neon()} `;
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += "{size} ";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += "{construct-style} ";
+
+	prompt += "spaceship";
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", spacecraft";
+
 	return prompt;
 }

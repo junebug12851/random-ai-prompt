@@ -183,7 +183,7 @@ module.exports = {
 	// 5. Expand lists with list items
 	// 6. Cleanup extra spaces and commas
 	/*--prompt-modules <comma-seperated dynamic prompts>*/
-	promptModules: ["auto-append", "dynamic-prompt", "expansion", "prompt-salt", "list", "cleanup"],
+	promptModules: ["dynamic-prompt", "expansion", "prompt-salt", "list", "cleanup"],
 
 	// Auto-add artists dynamic prompt at end of prompt
 	/*--auto-artists <true/false>*/

@@ -18,7 +18,11 @@
 const entity = require("./entity");
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
-module.exports = function() {
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
 
 	// Start with base prompt
 	let prompt = `hologram of a ${entity()}`;
