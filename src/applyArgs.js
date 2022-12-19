@@ -56,13 +56,13 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	}
 
 	// Switch to anime artists/keywords if specified
-	if(argv.anime !== undefined || argv.danbooru !== undefined) {
+	if(argv.animeWords !== undefined || argv.danbooruWords !== undefined) {
 		settings.artistFilename = "d-artist";
 		settings.keywordsFilename = "d-keyword";
 	}
 
 	// Switch to normal if specified
-	if(argv.nonAnime !== undefined || argv.nonDanbooru !== undefined) {
+	if(argv.nonAnimeWords !== undefined || argv.nonDanbooruWords !== undefined) {
 		settings.artistFilename = "artist";
 		settings.keywordsFilename = "keyword";
 	}
@@ -139,9 +139,6 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.maxArtist !== undefined)
 		settings.maxArtist = parseInt(argv.maxArtist);
 
-	if(argv.noand !== undefined)
-		settings.noAnd = (argv.noand == true);
-
 	if(argv.listFiles !== undefined)
 		settings.listFiles = argv.listFiles.toString();
 
@@ -181,11 +178,17 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.dynamicPromptFiles !== undefined)
 		settings.dynamicPromptFiles = argv.dynamicPromptFiles.toString();
 
-	if(argv.dynPrompts !== undefined)
-		settings.dynamicPrompts = [...(argv.dynPrompts.toString().split(",")), ...settings.dynamicPrompts];
+	if(argv.promptModuleFiles !== undefined)
+		settings.promptModuleFiles = argv.promptModuleFiles.toString();
 
-	if(argv.allDynPrompts !== undefined)
-		settings.dynamicPrompts = argv.allDynPrompts.toString().split(",");
+	if(argv.promptModules !== undefined)
+		settings.promptModules = argv.promptModules.toString().split(",");
+
+	if(argv.autoArtists !== undefined)
+		settings.autoAddArtists = (argv.autoArtists == true);
+
+	if(argv.autoFx !== undefined)
+		settings.autoAddFx = (argv.autoFx == true);
 
 	if(argv.promptSalt !== undefined)
 		settings.promptSalt = (argv.promptSalt == true);
@@ -197,12 +200,6 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.prompt = argv.prompt.toString();
 		if(settings.prompt == "true" || settings.prompt == "false")
 			settings.prompt = "";
-	}
-
-	if(argv.promptPrefix !== undefined) {
-		settings.promptPrefix = argv.promptPrefix.toString();
-		if(settings.promptPrefix == "true" || settings.promptPrefix == "false")
-			settings.promptPrefix = "";
 	}
 
 	///////////////////////////////

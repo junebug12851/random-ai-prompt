@@ -38,25 +38,20 @@ const {
     userSettings
 } = require("./src/loadSettings");
 
-const coreDynPrompts = defSettings().settings.dynamicPrompts.length;
-
 async function processBatch(index, total) {
 
     // Copy over prompt from settings
     let prompt = settings().settings.prompt;
 
-    // Then pass it through dnamic prompts if any
-    for(let i = 0; i < settings().settings.dynamicPrompts.length; i++) {
-        const dynPromptName = settings().settings.dynamicPrompts[i];
-        const dynPromptFunc = require(`./${settings().settings.dynamicPromptFiles}/${dynPromptName}`);
-        prompt = dynPromptFunc(
-            prompt,                                                     // Prompt
-            settings().settings,                                        // Settings
-            settings().imageSettings,                                   // Image Settings
-            settings().upscaleSettings,                                 // Upscale Settings
-            i,                                                          // DynPrompt Index
-            settings().settings.dynamicPrompts.length - coreDynPrompts, // Total User (Non-Core) DynPrompts
-            i == (settings().settings.dynamicPrompts.length - 1)        // Is last DynPrompt
+    // Then pass it through prompt modules if any
+    for(let i = 0; i < settings().settings.promptModules.length; i++) {
+        const promptModuleName = settings().settings.promptModules[i];
+        const promptModuleFunc = require(`./${settings().settings.promptModuleFiles}/${promptModuleName}`);
+        prompt = promptModuleFunc(
+            prompt,                         // Prompt
+            settings().settings,            // Settings
+            settings().imageSettings,       // Image Settings
+            settings().upscaleSettings,     // Upscale Settings
         );
     }
 

@@ -76,7 +76,7 @@ module.exports = {
 
 	// Max levels of empasis/de-emphasis
 	/*--emphasis-max-levels <number>*/
-	emphasisMaxLevels: 5,
+	emphasisMaxLevels: 3,
 
 	// Upon being selected for emphasis/de-emphasis, chance it will be de-emphasis over emphasis
 	/*--de-emphasis-chance <0.0-1.0>*/
@@ -165,18 +165,33 @@ module.exports = {
 
 	// When specifying dynamic prompts in the command, it searches this folder for them
 	// Dynamic prompts is code that dynamically generates a prompt on each run
-	// The regular prompt is always executed first followed by each dynamic prompt in-order
-	// Each time the prompt is handed to the next dynamic prompt
 	/*--dynamic-prompt-files <path>*/
 	dynamicPromptFiles: "dynamic-prompts",
 
+	// The folder that contain prompt modules that operate on the prompt and give it new features
+	// Dynamic prompts is an example of a prompt module. They are executed in
+	// a specific order
+	/*--prompt-module-files <path>*/
+	promptModuleFiles: "prompt-modules",
+
 	// They will be executed in order and will repeat execution on each prompt change
 	// They should be in array form, only use the comma seperated version for command-line arguments
-	// There are 2 commands, one adds to the start of the list, the other replaces the list
-	// This makes it easy to add in dynamic prompts witout worry of specifying existing core ones
-	/*--dyn-prompts <comma-seperated dynamic prompts>*/
-	/*--all-dyn-prompts <comma-seperated dynamic prompts>*/
-	dynamicPrompts: ["_promptPrefix", "_expansion", "_prompt-salt", "_prompt", "_prompt-danbooru", "_list"],
+	// 1. Auto-append fx and artists if configured to do so
+	// 2. Expand dynamic prompts
+	// 3. Expand expansions
+	// 4. Auto-add salt if requested to do so
+	// 5. Expand lists with list items
+	// 6. Cleanup extra spaces and commas
+	/*--prompt-modules <comma-seperated dynamic prompts>*/
+	promptModules: ["auto-append", "dynamic-prompt", "expansion", "prompt-salt", "list", "cleanup"],
+
+	// Auto-add artists dynamic prompt at end of prompt
+	/*--auto-artists <true/false>*/
+	autoAddArtists: true,
+
+	// Auto-add image effects at end of prompt
+	/*--auto-fx <true/false>*/
+	autoAddFx: true,
 
 	// Auto-add a random number to the end of every prompt, useful as an alternative
 	// to subseeds, suggested by reddit
@@ -189,16 +204,11 @@ module.exports = {
 	promptSaltStart: -1,
 
 	// The prompt to use
-    // {prompt} is replaced with random prompt generated here
+    // #random is replaced with random prompt generated here
     // {keyword} is replaced with the selected keywords list file
     // {artist} is replaced with the selected artist list file
     // You can alternatively use {keyword} or {artist} or any other file in 
     // ./data for a single random element from that file
     /*--prompt <prompt>*/
-    prompt: "{prompt}",
-
-    // Prefixes this to the start of the prompt upon reaching the start of the
-    // core dynamic prompts
-    /*--prompt-prefix <prompt>*/
-    promptPrefix: "",
+    prompt: "#random",
 }
