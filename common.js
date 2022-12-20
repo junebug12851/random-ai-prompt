@@ -19,6 +19,7 @@ process.chdir(__dirname);
 
 // Load imports
 const fs = require('fs');
+const path = require('path');
 const _ = require("lodash");
 const yargs = require('yargs/yargs')
 
@@ -96,6 +97,65 @@ async function run() {
         await processBatch(i, settings().settings.promptCount);
     }
 }
+
+let legacyTxtNotice = false;
+
+function sendLegacyTxtNotice() {
+    if(legacyTxtNotice)
+        return;
+
+    console.log("Converting legacy txt files to json in output folder...");
+    legacyTxtNotice = true;
+}
+
+// Rename legacy txt files to json
+const updateFiles = function(directoryName) {
+
+    // get files in a directory
+    const files = fs.readdirSync(directoryName);
+
+    // Loop through them
+    files.forEach(function(file) {
+
+        // Get full path
+        const fullPath = path.join(directoryName, file);
+
+        // Is it a folder or file?
+        const f = fs.statSync(fullPath);
+
+        // Loop through folder if it is one
+        if (f.isDirectory()) {
+            updateFiles(fullPath);
+        } else {
+
+            // Make sure it's a txt file
+            const ext = path.extname(fullPath).substring(1);
+            if(ext != "txt")
+                return;
+
+            // Announce conversion begin
+            sendLegacyTxtNotice();
+
+            // Get path without extension
+            const fullPathParsed = path.parse(fullPath);
+            const fullBasePath = path.join(fullPathParsed.dir, fullPathParsed.name);
+
+            // Copy it to a json file
+            fs.cpSync(`${fullBasePath}.txt`, `${fullBasePath}.json`);
+
+            // Remove txt file
+            fs.rmSync(`${fullBasePath}.txt`);            
+        }
+    });
+}
+
+// Scan directory
+if(!settings().imageSettings.convertedLegacyData)
+    updateFiles(settings().imageSettings.saveTo);
+
+// Save conversion data
+settings().imageSettings.convertedLegacyData = true;
+saveSettings();
 
 module.exports = {
     argv,
