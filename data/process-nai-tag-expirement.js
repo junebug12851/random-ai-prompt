@@ -16,13 +16,14 @@
 
 // Ensure we're within this directory
 process.chdir(__dirname);
+process.chdir("..");
 
 // load imports
 const fs = require('fs');
 const _ = require("lodash");
 
 // load settings
-const settings = require("./settings");
+const settings = require("../settings");
 
 // load tags file
 const tags = require("./nai-tag-expirement.json");

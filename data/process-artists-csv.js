@@ -16,13 +16,14 @@
 
 // Ensure we're within this directory
 process.chdir(__dirname);
+process.chdir("..");
 
 // load imports
 const fs = require('fs');
 const _ = require("lodash");
 
 // load settings
-const settings = require("./settings");
+const settings = require("../settings");
 
 // Read csv file
 const csv = fs.readFileSync(`./artists.csv`).toString().split("\n");
