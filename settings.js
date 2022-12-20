@@ -176,14 +176,14 @@ module.exports = {
 
 	// They will be executed in order and will repeat execution on each prompt change
 	// They should be in array form, only use the comma seperated version for command-line arguments
-	// 1. Auto-append fx and artists if configured to do so
-	// 2. Expand dynamic prompts
-	// 3. Expand expansions
+	// 1. Expand user-supplied 1st in-case it expands into dynamic prompts
+	// 2. Expand dynamic prompts and auto-append fx and artists if configured to do so
+	// 3. Expand 2nd in-case dynamic prompts added expansions
 	// 4. Auto-add salt if requested to do so
 	// 5. Expand lists with list items
 	// 6. Cleanup extra spaces and commas
 	/*--prompt-modules <comma-seperated dynamic prompts>*/
-	promptModules: ["dynamic-prompt", "expansion", "prompt-salt", "list", "cleanup"],
+	promptModules: ["expansion", "dynamic-prompt", "expansion", "prompt-salt", "list", "cleanup"],
 
 	// Auto-add artists dynamic prompt at end of prompt
 	/*--auto-artists <true/false>*/
