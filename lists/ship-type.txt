@@ -1,0 +1,90 @@
+Aircraft Carrier ship
+Amphibious warfare ship
+Aviso ship
+Barque ship
+Barquentine ship
+Battlecruiser ship
+Battleship
+Bilander ship
+Bireme ship
+Birlinn ship
+Blockade runner ship
+Boita ship
+Brig ship
+Brigantine ship
+Caravel ship
+Carrack ship
+Cartel ship
+Catboat ship
+Clipper ship
+Coastal defense ship
+Cog ship
+Collier ship
+Corvette ship
+Cruise ship
+Cruiser ship
+Destroyer ship
+Destroyer escort ship
+Dhow ship
+Dreadnought ship
+Drekar ship
+Dromons ship
+East Indiaman ship
+Felucca ship
+Fire ship
+Fluyt ship
+Frigate ship
+Galleass ship
+Galleon ship
+Galley ship
+Galliot ship
+Gunboat ship
+Hydrofoil ship
+Ironclad ship
+Junk ship
+Karve ship
+Ketch ship
+Knarr ship
+Lorcha ship
+Landing Ship, Tank ship
+Liberty ship
+Liner or ocean liner ship
+Littoral combat ship
+Longship
+Man-of-war ship
+Merchantman ship
+Armed merchantman ship
+Merchant aircraft carrier ship
+Merchant raider ship
+Mistico ship
+Monitor ship
+Motor ship or motor vessel ship
+Nef ship
+Oil Tanker ship
+Packet ship
+Paddle steamer ship
+Panterschepen ship
+Penteconter ship
+Pinisi ship
+Pinnace ship
+Polyreme ship
+Pram ship
+Quinquereme ship
+Royal Mail ship
+Schooner ship
+Settee ship
+Shallop ship
+Full-rigged ship
+Ship of the line ship
+Sloop ship
+Small Waterplane Area Twin Hull ship
+Snow ship
+Steamship
+Tartane or tartan ship
+Trabaccolo ship
+Tramp steamer ship
+Trireme ship
+Troopship
+Victory ship
+Xebec ship
+Yacht ship
