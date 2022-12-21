@@ -31,6 +31,18 @@ function clearImages() {
     $("#page-gallery").empty();
 }
 
+function getGalleryEl(prompt, imgSrc, width, height) {
+
+    return `
+        <a href="#" class="gallery-el wide-${width} tall-${height}">
+            <div class="overlay">
+                <p>${prompt}</p>
+            </div>
+            <img data-src="${imgSrc}" class="gallery-img lazy-load"/>
+        </a>
+    `;
+}
+
 function processImageFeed(files) {
 
     clearImages();
@@ -58,7 +70,7 @@ function processImageFeed(files) {
             height = 1;
         }
 
-        $("#page-gallery").append(`<img data-src="${files[i].imgPath}" class="gallery-img wide-${width} tall-${height} lazy-load"/>`);
+        $("#page-gallery").append(getGalleryEl(files[i].prompt.substring(0, 100) + "...", files[i].imgPath, width, height));
     }
 
     imagesChanged();
