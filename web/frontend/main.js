@@ -37,20 +37,20 @@ function processImageFeed(files) {
 
     for(let i = 0; i < files.length; i++) {
 
+        // Get width and height in increments of 512
         let width = Math.round(files[i].width / 512);
         let height = Math.round(files[i].height / 512);
+
+        // Convert to aspect rato
+        let ar = width / height;
         
-        // Determine aspect ratio
-        if(width > height) {
+        // Determin col and row span
+        if(ar >= 2.00) {
             width = 2;
             height = 1;
         }
-        else if(height > width) {
+        else if(ar <= 0.50) {
             width = 1;
-            height = 2;
-        }
-        else if((width > 1) && (height > 1)) {
-            width = 2;
             height = 2;
         }
         else {
@@ -112,7 +112,7 @@ function performSearch(event){
 
 function initiateReindex() {
     clearImages();
-    
+
     $.ajax({
         type: 'GET',
         url: '/images/re-index',
