@@ -21,6 +21,9 @@
 
 module.exports = {
 
-    // Port the API listens on
-    port: 7861
+    // Port the API or Web Server listens on
+    port: 7861,
+
+    // Path to the static web files
+    webFolder: "./web",
 };

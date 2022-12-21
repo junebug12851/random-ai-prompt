@@ -1,0 +1,150 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+    background-color: hsl(0.00,0.00%,12.94%);
+    color: hsl(0.00,0.00%,98.04%);
+}
+
+h1 {
+    font-family: 'Rokkitt', serif;
+    font-size: 2.5em;
+    margin-bottom: 5px;
+}
+
+input[type="text"] {
+    height: 1.75em;
+    border: none;
+    border-radius: 10px;
+    background-color: hsl(0.00,0.00%,25.88%);
+    color: hsl(0.00,0.00%,98.04%);
+    padding: 5px 10px;
+    flex-grow: 2;
+}
+
+input[type="text"]:focus {
+  outline: 3px solid hsl(0.00,0.00%,45.88%);
+}
+
+button {
+    display: inline-block;
+    background-color: hsl(0.00,0.00%,12.94%);
+    color: hsl(0.00,0.00%,98.04%);
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+button:hover {
+  background-color: hsl(0.00,0.00%,20%);
+}
+
+button:active {
+  background-color: hsl(0.00,0.00%,5%);
+}
+
+.button-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#page-header {
+    margin: 0 auto;
+    margin-top: 15px;
+    width: fit-content;
+    text-align: center;
+}
+
+#page-gallery {
+    margin: 15px;
+    margin-top: 15px;
+    
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(256px, 1fr));
+    grid-auto-rows: 256px;
+    grid-auto-flow: dense;
+}
+
+.gallery-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/*
+ * If you take an images width and height and divide by 512 you'll get the number
+ * of rows and cols it should span.
+ * This allows for up to 8 or 4096x4096
+*/
+
+.tall-1 {
+    grid-row: span 1;
+}
+
+.tall-2 {
+    grid-row: span 2;
+}
+
+.tall-3 {
+    grid-row: span 3;
+}
+
+.tall-4 {
+    grid-row: span 4;
+}
+
+.tall-5 {
+    grid-row: span 5;
+}
+
+.tall-6 {
+    grid-row: span 6;
+}
+
+.tall-7 {
+    grid-row: span 7;
+}
+
+.tall-8 {
+    grid-row: span 8;
+}
+
+.wide-1 {
+    grid-column: span 1;
+}
+
+.wide-2 {
+    grid-column: span 2;
+}
+
+.wide-3 {
+    grid-column: span 3;
+}
+
+.wide-4 {
+    grid-column: span 4;
+}
+
+.wide-5 {
+    grid-column: span 5;
+}
+
+.wide-6 {
+    grid-column: span 6;
+}
+
+.wide-7 {
+    grid-column: span 7;
+}
+
+.wide-8 {
+    grid-column: span 8;
+}
