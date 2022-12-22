@@ -20,7 +20,7 @@ module.exports = function() {
 
 	let prompt = "";
 
-	if(_.random(0.0, 1.0, true) < 0.15)
+	if(_.random(0.0, 1.0, true) < 0.1)
 		prompt += ", <candlelight>";
 
 	if(_.random(0.0, 1.0, true) < 0.5)

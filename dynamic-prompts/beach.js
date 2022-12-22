@@ -100,27 +100,25 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += `, ${wildlife()}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
-		switch(_.random(0, 5)) {
-			case 0:
-				prompt += `, ${nature()}, ${weather()}`;
-				break;
-			case 1:
-				prompt += `, ${city()}`;
-				break;
-			case 2:
-				prompt += `, ${house()}`;
-				break;
-			case 3:
-				prompt += `, ${landscape()}`;
-				break;
-			case 4:
-				prompt += `, ${ship()}`;
-				break;
-			case 5:
-				prompt += `, ${vehicle()}`;
-				break;
-		}
+	switch(_.random(0, 5)) {
+		case 0:
+			prompt += `, ${nature()}, ${weather()}`;
+			break;
+		case 1:
+			prompt += `, ${city()}`;
+			break;
+		case 2:
+			prompt += `, ${house()}`;
+			break;
+		case 3:
+			prompt += `, ${landscape()}`;
+			break;
+		case 4:
+			prompt += `, ${ship()}`;
+			break;
+		case 5:
+			prompt += `, ${vehicle()}`;
+			break;
 	}
 
 	return prompt;
