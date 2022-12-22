@@ -136,7 +136,8 @@ const query = function(keywords) {
             results.push(files[keywordLookup[0][i]]);
         }
 
-        return results;
+        // Filter duplicates that refer to the same image
+        return _.shuffle(_.uniqBy(results, "imgPath"));
     }
 
     // Figure out the files they have in common
@@ -151,8 +152,8 @@ const query = function(keywords) {
         results.push(files[resultFiles[i]]);
     }
 
-    // Send back
-    return results;
+    // Filter duplicates that refer to the same image
+    return _.shuffle(_.uniqBy(results, "imgPath"));
 }
 
 const rebuildIndexes = function(settings) {

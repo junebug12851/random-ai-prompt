@@ -74,7 +74,7 @@ app.get('/images/query', async function(req, res) {
 
 // Shuffled image feed
 app.get('/images/feed', async function(req, res) {
-  res.jsonp(_.shuffle(_.values(imageIndex.getFiles())));
+  res.jsonp(_.shuffle(_.uniqBy(_.values(imageIndex.getFiles()), "imgPath")));
 });
 
 app.get('/images/re-index', async function(req, res) {
