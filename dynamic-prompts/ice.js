@@ -30,7 +30,7 @@ module.exports = function() {
 		prompt += ", ice floor"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice ceiling"
+		prompt += ", glacier"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", iceberg"
@@ -40,6 +40,21 @@ module.exports = function() {
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", cold"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", snow"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", sleet"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", blizzard"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", freeze"
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", sub-zero"
 
 	return prompt;
 }
