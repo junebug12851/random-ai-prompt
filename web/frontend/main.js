@@ -123,12 +123,7 @@ function loadSearchQuery(query) {
   });
 }
 
-function performSearch(event) {
-   const keycode = (event.keyCode ? event.keyCode : event.which);
-
-   if(keycode != '13')
-        return;
-
+function performSearch() {
     // get query and trim it
     let text = $('#page-search').val();
 
@@ -137,6 +132,15 @@ function performSearch(event) {
         loadImageFeed();
     else
         loadSearchQuery(text)
+}
+
+function searchboxKeyPress(event) {
+    const keycode = (event.keyCode ? event.keyCode : event.which);
+
+   if(keycode != '13')
+        return;
+
+    performSearch();
 }
 
 function updateSearchSuggestion() {
@@ -151,6 +155,26 @@ function updateSearchSuggestion() {
             console.log(error);
         }
   });
+}
+
+function performRandomSearch() {
+
+    // Get random placeholder text
+    let text = $('#page-search').attr('placeholder');
+
+    // Set it as search text
+    $('#page-search').val(text);
+
+    // Request new placeholder text
+    updateSearchSuggestion();
+
+    // Perform search
+    loadSearchQuery(text);
+}
+
+function homeFeed() {
+    $('#page-search').val("");
+    loadImageFeed();
 }
 
 function initiateReindex() {
@@ -188,6 +212,9 @@ $(document).ready(function() {
 
     updateSearchSuggestion();
 
-    $('#page-search').keypress(performSearch);
+    $('#page-search').keypress(searchboxKeyPress);
     $('#re-index').click(initiateReindex);
+    $('#random').click(performRandomSearch);
+    $('#search').click(performSearch);
+    $('#home').click(homeFeed);
 });

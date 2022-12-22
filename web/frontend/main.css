@@ -24,7 +24,7 @@ input[type="text"] {
     background-color: hsl(0.00,0.00%,25.88%);
     color: hsl(0.00,0.00%,98.04%);
     padding: 5px 10px;
-    flex-grow: 2;
+    width: 100%;
 }
 
 input[type="text"]:focus {
@@ -52,7 +52,12 @@ button:active {
     display: flex;
     justify-content: center;
     gap: 10px;
+    margin-top: 10px;
 }
+
+/*.button-row button {
+    width: 100%;
+}*/
 
 #page-header {
     margin: 0 auto;
