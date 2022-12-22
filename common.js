@@ -39,6 +39,11 @@ const {
     userSettings
 } = require("./src/loadSettings");
 
+let cmdLine = _.cloneDeep(process.argv);
+cmdLine.splice(0, 1);
+cmdLine.splice(0, 1);
+settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
+
 async function processBatch(index, total) {
 
     // Copy over prompt from settings

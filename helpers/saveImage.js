@@ -41,6 +41,9 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
 	if(info != undefined && upscaleOf != undefined && (typeof upscaleOf) == "string")
 		info.upscaleOf = upscaleOf;
 
+	if(info != undefined)
+		info.cmd = imageSettings.lastCmd;
+
 	// Write file next to image
 	if(info != undefined)
 		fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));
