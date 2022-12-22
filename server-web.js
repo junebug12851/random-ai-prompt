@@ -53,10 +53,16 @@ app.listen(settings().serverSettings.port, () => {
 // Linkup images to the output folder
 app.use("/images", express.static(settings().imageSettings.saveTo));
 
+// Add program icons to root for browser access
+app.use("/", express.static("./assets/icons"));
+
 // Linkup web content to the web folder
 app.use(express.static(settings().serverSettings.webFolder + "/frontend"));
 
-app.get('/images/query', async function(req, res) {
+// API Requests
+// These respond in JSON and sometimes require JSON input
+
+app.get('/api/images/query', async function(req, res) {
 
   // Get query
   const query = req.query;
@@ -73,11 +79,11 @@ app.get('/images/query', async function(req, res) {
 });
 
 // Shuffled image feed
-app.get('/images/feed', async function(req, res) {
+app.get('/api/images/feed', async function(req, res) {
   res.jsonp(_.shuffle(_.uniqBy(_.values(imageIndex.getFiles()), "imgPath")));
 });
 
-app.get('/images/re-index', async function(req, res) {
+app.get('/api/images/re-index', async function(req, res) {
   imageIndex.rebuildIndexes(settings());
   res.jsonp("success");
 });

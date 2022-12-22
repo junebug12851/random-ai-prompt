@@ -78,7 +78,7 @@ function processImageFeed(files) {
 
 function loadImageFeed() {
     $.ajax({
-        url: "/images/feed",
+        url: "/api/images/feed",
         type: "GET",
         dataType: "json",
         success: function(data){
@@ -94,7 +94,7 @@ function loadImageFeed() {
 function loadSearchQuery(query) {
     $.ajax({
         type: 'GET',
-        url: '/images/query',
+        url: '/api/images/query',
         data: {query},
         success: function(data) {
             processImageFeed(data);
@@ -127,7 +127,7 @@ function initiateReindex() {
 
     $.ajax({
         type: 'GET',
-        url: '/images/re-index',
+        url: '/api/images/re-index',
         success: function(data) {
             loadImageFeed();
         },
