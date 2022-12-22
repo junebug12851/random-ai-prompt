@@ -28,6 +28,14 @@ function danbooruReplacer(prompt, settings) {
 	return prompt;
 }
 
+function convertToPath(name) {
+	if(!name.startsWith("user-"))
+		return name;
+
+	name = name.replace("user-", "");
+	return `user-submitted/${name}`;
+}
+
 function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
 
 	// Remove -v2
@@ -35,7 +43,7 @@ function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
 
 	// Read expansion file contents
 	return danbooruReplacer(
-		require(`../${settings.dynamicPromptFiles}/${name}`)(settings, imageSettings, upscaleSettings),
+		require(`../${settings.dynamicPromptFiles}/${convertToPath(name)}`)(settings, imageSettings, upscaleSettings),
 		settings);
 }
 
@@ -50,7 +58,7 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
 
 	// Read expansion file contents
 	return danbooruReplacer(
-		require(`../${settings.dynamicPromptFiles}/v1/${name}`)(settings, imageSettings, upscaleSettings),
+		require(`../${settings.dynamicPromptFiles}/v1/${convertToPath(name)}`)(settings, imageSettings, upscaleSettings),
 		settings);
 }
 
