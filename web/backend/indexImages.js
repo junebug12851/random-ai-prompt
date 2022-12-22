@@ -61,6 +61,8 @@ function toKeywords(prompt) {
         if(promptWord.length <= 1)
             continue;
 
+        // Opted out of, far too slow even if it provides good results
+
         // Process word with nlp
         // let nlpTmp = nlpProcess(promptWord);
 
@@ -77,6 +79,9 @@ function toKeywords(prompt) {
 
     // Remove duplicate keywords again
     prompt = _.uniq(prompt);
+
+    // Sort
+    prompt = _.sortBy(prompt);
 
     // Send back
     return prompt;
@@ -118,6 +123,20 @@ function toComparitiveKeywords(prompt) {
     return prompt;
 }
 
+const deepLink = function(fromName, toName, linkType) {
+
+    // Create file placeholder if it doesn't exist
+    if(files[fromName] == undefined)
+        files[fromName] = {};
+
+    // Create linkType array if it doesn't exist
+    if(files[fromName][linkType] == undefined)
+        files[fromName][linkType] = [];
+
+    // Perform link
+    files[fromName][linkType].push(toName);
+}
+
 // Index the txt files
 const indexFile = function(settings, filePath) {
     // Make sure it's a json file
@@ -131,10 +150,6 @@ const indexFile = function(settings, filePath) {
     // Get path components
     const basePath = path.join(filePathParsed.dir, filePathParsed.name);
     const name = filePathParsed.name;
-
-    // Skip upscaled images
-    if(name.includes("upscaled"))
-        return;
 
     // get relative path
     const relativePath = path.relative(settings.imageSettings.saveTo, filePath).replaceAll("\\", "/");
@@ -152,12 +167,40 @@ const indexFile = function(settings, filePath) {
     // Add other data
     data.name = name;
 
-    // Save into files
-    files[name] = _.cloneDeep(data);
+    // Deep link original to this upscale
+    // Since we don't index upscales, we store only the image path
+    if(data.upscaleOf)
+        deepLink(data.upscaleOf.toString(), data.imgPath, "upscales");
 
-    // Get keywords and convert to keywwords
+    // Deep link original to this variation
+    // There was apparently a bug that made variationOf names numbers, this ensures their
+    // properly sent as a string
+    if(data.variationOf)
+        deepLink(data.variationOf.toString(), name, "variations");
+
+    // We don't index upscales but we attach the upscale to the original
+    if(name.includes("upscaled"))
+        return;
+
+    // Save into files
+    // Sometimes deep linking will create a file placeholder, don't replace if so
+    if(files[name] == undefined)
+        files[name] = _.cloneDeep(data);
+    else
+        _.merge(files[name], _.cloneDeep(data));
+
+    // Get prompt
     let keywords = _.cloneDeep(data.prompt);
+
+    // Add in original prompt if there is one
+    if(data.origPrompt)
+        keywords = `${keywords}, ${data.origPrompt}`
+
+    // Convert to keywords
     keywords = toKeywords(keywords);
+
+    // Save Keywords
+    files[name].keywords = _.cloneDeep(keywords);
 
     // Index
     for(let i = 0; i < keywords.length; i++) {
@@ -257,6 +300,75 @@ const query = function(keywords) {
     return _.shuffle(_.uniqBy(results, "imgPath"));
 }
 
+// Ensures indexes are valid
+// Such as file placeholders with no file data
+// deep links that point to non-existent files
+const validateIndexes = function() {
+
+    // Get indexed files
+    const fileNames = _.keys(files);
+
+    // Set progress total
+    progressBar.setTotal(fileNames.length);
+
+    // Go through each file
+    for(let i = 0; i < fileNames.length; i++) {
+
+        // Update progress bar
+        progressBar.update(i);
+
+        // Get filename
+        const fileName = files[i];
+
+        // Delete filename if it points to non-existent data
+        if(files[fileName] == undefined) {
+            delete files[fileName];
+            continue;
+        }
+
+        // Delete if there's no stored image path
+        if(files[fileName].imgPath == undefined) {
+            delete files[fileName];
+            continue;
+        }
+
+        // Remove variation to file if no such file exists in index or is
+        // invalid
+        if(files[fileName].variationOf != undefined) {
+            const variationOf = files[fileName].variationOf;
+            if(files[variationOf] == undefined ||
+                files[variationName].imgPath == undefined)
+                delete files[fileName].variationOf;
+        }
+
+        // Remove variations to file if they don't exist
+        if(files[fileName].variations != undefined) {
+
+            // Valid variations
+            const validVariations = [];
+
+            // Go through each variation
+            for(let j = 0; j < files[fileName].variations.length; j++) {
+
+                // Get name
+                const variationName = files[fileName].variations[j];
+
+                // Check to see if it exists and is valid
+                if(files[variationName] != undefined &&
+                    files[variationName].imgPath != undefined)
+                    validVariations.push(variationName);
+            }
+
+            // Re-save proper list of variations
+            files[fileName].variations = validVariations;
+
+            // Remove entirely if all variations are invalid
+            if(files[fileName].variations.length == 0)
+                delete files[fileName].variations;
+        }
+    }
+}
+
 const rebuildIndexes = function(settings) {
     console.log("Indexing images...");
 
@@ -266,6 +378,7 @@ const rebuildIndexes = function(settings) {
     files = {};
 
     buildIndexes(settings, settings.imageSettings.saveTo);
+    validateIndexes();
 
     progressBar.stop();
 }

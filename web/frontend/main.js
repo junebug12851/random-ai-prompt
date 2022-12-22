@@ -1,3 +1,11 @@
+function getUrlParameters() {
+  var params = {};
+  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+      params[key] = value;
+  });
+  return params;
+}
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -50,8 +58,17 @@ function processImageFeed(files) {
     for(let i = 0; i < files.length; i++) {
 
         // Get width and height in increments of 512
-        let width = Math.round(files[i].width / 512);
-        let height = Math.round(files[i].height / 512);
+        let width = files[i].width;
+        let height = files[i].height;
+
+        // Use upscale dimensions if there are ones
+        // this only happens if the file is upscaled and the original is asked to
+        // not be saved
+        if(files[i].upscaleWidth != undefined)
+            width = files[i].upscaleWidth;
+
+        if(files[i].upscaleHeight != undefined)
+            height = files[i].upscaleHeight;
 
         // Convert to aspect rato
         let ar = width / height;
@@ -106,7 +123,7 @@ function loadSearchQuery(query) {
   });
 }
 
-function performSearch(event){
+function performSearch(event) {
    const keycode = (event.keyCode ? event.keyCode : event.which);
 
    if(keycode != '13')
@@ -120,6 +137,20 @@ function performSearch(event){
         loadImageFeed();
     else
         loadSearchQuery(text)
+}
+
+function updateSearchSuggestion() {
+   $.ajax({
+        type: 'GET',
+        url: '/api/images/search-suggestion',
+        success: function(data) {
+            $('#page-search').attr('placeholder', data);
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
 }
 
 function initiateReindex() {
@@ -138,8 +169,25 @@ function initiateReindex() {
   });
 }
 
+// Set the interval to run every 30 seconds
+setInterval(function() {
+
+  updateSearchSuggestion();
+
+}, 15 * 1000);
+
 $(document).ready(function() {
-    loadImageFeed();
+
+    const params = getUrlParameters();
+    if(params.search != undefined) {
+        loadSearchQuery(params.search);
+        $('#page-search').val(params.search);
+    }
+    else
+        loadImageFeed();
+
+    updateSearchSuggestion();
+
     $('#page-search').keypress(performSearch);
     $('#re-index').click(initiateReindex);
 });

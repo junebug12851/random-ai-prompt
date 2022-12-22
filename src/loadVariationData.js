@@ -39,7 +39,7 @@ module.exports = function(name, settings, imageSettings, upscaleSettings) {
 	imageSettings.width = txt.width;
 	imageSettings.height = txt.height;
 	imageSettings.denoising = txt.denoising_strength;
-	imageSettings.variationOf = name;
+	imageSettings.variationOf = name.toString();
 
 	// Load in original prompt
 	settings.origPrompt = txt.origPrompt;

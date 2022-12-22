@@ -78,12 +78,44 @@ app.get('/api/images/query', async function(req, res) {
   res.jsonp(results);
 });
 
-// Shuffled image feed
+// Returns all images shuffled randomly
 app.get('/api/images/feed', async function(req, res) {
   res.jsonp(_.shuffle(_.uniqBy(_.values(imageIndex.getFiles()), "imgPath")));
 });
 
+// Rebuilds index
 app.get('/api/images/re-index', async function(req, res) {
   imageIndex.rebuildIndexes(settings());
   res.jsonp("success");
+});
+
+// Returns all images unshuffled
+app.get('/api/images/files', async function(req, res) {
+  res.jsonp(imageIndex.getFiles());
+});
+
+// Returns all keywords unshuffled
+app.get('/api/images/index', async function(req, res) {
+  res.jsonp(imageIndex.getIndex());
+});
+
+// Returns random keyword suggestions with 1 to 3 keywords
+app.get('/api/images/search-suggestion', async function(req, res) {
+
+  // Whether to pull from a file 1-3 keywords or 1 random keyword
+  const fromFile = _.random(0.0, 1.0, true) < 0.50;
+
+  // How many to pull (if from file)
+  const count = _.random(1, 3, false);
+
+  if(fromFile) {
+    const file = _.sample(_.values(imageIndex.getFiles()));
+    const keywords = _.sampleSize(file.keywords, count);
+
+    res.jsonp(keywords.join(" "));
+  }
+  else {
+    const keyword = _.sample(_.keys(imageIndex.getIndex()));
+    res.jsonp(keyword);
+  }
 });
