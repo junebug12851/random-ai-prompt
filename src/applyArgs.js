@@ -310,18 +310,21 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.upscaleBy !== undefined) {
 		settings.generateImages = true;
 		settings.upscaleImages = true;
+		upscaleSettings.upscaleToSize = false;
 		upscaleSettings.upscaleBy = parseFloat(argv.upscaleBy);
 	}
 
 	if(argv.upscaleToWidth !== undefined) {
 		settings.generateImages = true;
 		settings.upscaleImages = true;
+		upscaleSettings.upscaleToSize = true;
 		upscaleSettings.upscaleToWidth = parseInt(argv.upscaleToWidth);
 	}
 
 	if(argv.upscaleToHeight !== undefined) {
 		settings.generateImages = true;
 		settings.upscaleImages = true;
+		upscaleSettings.upscaleToSize = true;
 		upscaleSettings.upscaleToHeight = parseInt(argv.upscaleToHeight);
 	}
 

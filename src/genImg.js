@@ -219,14 +219,19 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 		info.seed = originalInfo.all_seeds[i];
 		info.subseed = originalInfo.all_subseeds[i];
 
+		// Name of saved image
+		let saveName;
+
 		// Save regular image if configured to do so
 		if(!settings.upscaleImages)
-			saveImage(pngBase64, info, imageSettings, false);
+			saveName = saveImage(pngBase64, info, imageSettings, false);
 		else if(settings.upscaleImages && upscaleSettings.saveBeforeUpscale)
-			saveImage(pngBase64, info, imageSettings, false);
+			saveName = saveImage(pngBase64, info, imageSettings, false);
+		else if(settings.upscaleImages && !upscaleSettings.saveBeforeUpscale)
+			saveName = false
 
 		// Upscale if configured to do so
 		if(settings.upscaleImages)
-			await doUpscale(pngBase64, info, imageSettings, upscaleSettings);
+			await doUpscale(pngBase64, info, imageSettings, upscaleSettings, saveName);
 	}
 }

@@ -20,14 +20,13 @@ const convertMetaToJSON = require("./convertMetaToJSON");
 module.exports = function(name, settings, imageSettings, upscaleSettings) {
 	console.log(`Loading Settings from File ID: ${name}`);
 
-	// Read info file
-	let txt = fs.readFileSync(`${imageSettings.saveTo}/${name}.txt`).toString();
+	let txt;
 
 	// Check to see if it's a JSON file or not, convert if it isn't
-	if(convertMetaToJSON.check(name, txt, settings, imageSettings, upscaleSettings))
-		txt = convertMetaToJSON.convert(name, txt, settings, imageSettings, upscaleSettings);
+	if(convertMetaToJSON.check(name, imageSettings))
+		txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
 	else
-		txt = JSON.parse(txt);
+		txt = require(`../${imageSettings.saveTo}/${name}.json`);
 
 	// Load in Core Settings
 	settings.prompt = txt.prompt;
@@ -40,6 +39,7 @@ module.exports = function(name, settings, imageSettings, upscaleSettings) {
 	imageSettings.width = txt.width;
 	imageSettings.height = txt.height;
 	imageSettings.denoising = txt.denoising_strength;
+	imageSettings.variationOf = name;
 
 	// Set variation settings to get accurate variations
 	// Maintain seed width and height if already present, otherwise ignore

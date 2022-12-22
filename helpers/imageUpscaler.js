@@ -19,7 +19,7 @@ const fetch = require('node-fetch');
 
 const saveImage = require("./saveImage");
 
-module.exports = async function doUpscale(base64Image, info, imageSettings, upscaleSettings) {
+module.exports = async function doUpscale(base64Image, info, imageSettings, upscaleSettings, upscaleOf) {
 	// Convert image settings over to a format WebUI can understand
 	const postData = {
 		image: base64Image,
@@ -37,6 +37,21 @@ module.exports = async function doUpscale(base64Image, info, imageSettings, upsc
 		extras_upscaler_2_visibility: upscaleSettings.upscaler2Percentage,
 		upscale_first: upscaleSettings.fixFacesLast
 	};
+
+	// Save upscale dimensions to json file
+	let toWidth = upscaleSettings.upscaleToWidth;
+	let toHeight = upscaleSettings.upscaleToHeight;
+
+	if(!upscaleSettings.upscaleToSize) {
+		toWidth = info.width * upscaleSettings.upscaleBy;
+		toHeight = info.height * upscaleSettings.upscaleBy;
+	}
+
+	info.upscaleWidth = Math.trunc(toWidth);
+	info.upscaleHeight = Math.trunc(toHeight);
+
+	// Save that this is an upscaled image
+	info.isUpscale = true;
 
 	// Holds WebUI response data
 	let data;
@@ -62,5 +77,5 @@ module.exports = async function doUpscale(base64Image, info, imageSettings, upsc
 	const pngBase64 = data.image;
 
 	// Save it as an upscaled version
-	saveImage(pngBase64, info, imageSettings, true);
+	saveImage(pngBase64, info, imageSettings, true, upscaleOf);
 }

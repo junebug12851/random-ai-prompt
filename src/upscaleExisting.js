@@ -25,15 +25,17 @@ module.exports = async function(name, settings, imageSettings, upscaleSettings) 
 	let png = fs.readFileSync(`${imageSettings.saveTo}/${name}.png`);
 	png = Buffer.from(png).toString('base64');
 
-	// Read info file
-	let txt = fs.readFileSync(`${imageSettings.saveTo}/${name}.txt`).toString();
-	
+	let txt;
+
 	// Check to see if it's a JSON file or not, convert if it isn't
-	if(convertMetaToJSON.check(name, txt, settings, imageSettings, upscaleSettings))
-		txt = convertMetaToJSON.convert(name, txt, settings, imageSettings, upscaleSettings);
+	if(convertMetaToJSON.check(name, imageSettings))
+		txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
 	else
-		txt = JSON.parse(txt);
+		txt = require(`../${imageSettings.saveTo}/${name}.json`);
+
+	// Directly save what this is an upscale of
+	txt.upscaleOf = name;
 
 	// Do upscale
-	await doUpscale(png, txt, imageSettings, upscaleSettings);
+	await doUpscale(png, txt, imageSettings, upscaleSettings, true);
 }

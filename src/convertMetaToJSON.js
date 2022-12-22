@@ -170,7 +170,8 @@ function convert(name, txt, settings, imageSettings, upscaleSettings) {
 	txt = breakdownData(txt, name, settings, imageSettings, upscaleSettings);
 
 	// Replace file with proper JSON file
-	fs.writeFileSync(`${imageSettings.saveTo}/${name}.txt`, JSON.stringify(txt, null, 4));
+	fs.unlinkSync(`${imageSettings.saveTo}/${name}.txt`);
+	fs.writeFileSync(`${imageSettings.saveTo}/${name}.json`, JSON.stringify(txt, null, 4));
 
 	// Announce done
 	console.log("Done converting!")
@@ -179,13 +180,9 @@ function convert(name, txt, settings, imageSettings, upscaleSettings) {
 	return txt;
 }
 
-function check(name, txt, settings, imageSettings, upscaleSettings) {
-	// Read info file and split into multiple lines, remove annoying windows line endings
-	if(txt == undefined)
-		txt = fs.readFileSync(`${imageSettings.saveTo}/${name}.txt`).toString().replaceAll("\r", "");
-
-	// Check for a JSON looking key/value somewhere in the file and report results
-	return !(/\"(.*?)": ?".*?"/mi.test(txt));
+function check(name, imageSettings) {
+	// If there's a txt file there then it's unconverted
+	return fs.existsSync(`${imageSettings.saveTo}/${name}.txt`);
 }
 
 module.exports = {

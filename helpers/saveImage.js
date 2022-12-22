@@ -16,7 +16,7 @@
 
 const fs = require('fs');
 
-module.exports = function saveImage(base64Image, info, imageSettings, upscaled) {
+module.exports = function saveImage(base64Image, info, imageSettings, upscaled, upscaleOf) {
 	// Convert base64 to buffer
 	const pngBuffer = Buffer.from(base64Image, "base64");
 
@@ -24,14 +24,27 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled) 
 	const epoch = (+new Date()).toString();
 
 	// Make filename
-	const filename = (upscaled)
+	// Mark as upscaled only if this is an upscale and a non-upscaled version exists
+	const filename = (upscaled && upscaleOf != false)
 		? `${epoch}-upscaled`
 		: `${epoch}`;
 
 	// Save Image
 	fs.writeFileSync(`${imageSettings.saveTo}/${filename}.png`, pngBuffer);
 
+	// Save into info file what this is a variation of
+	if(info != undefined && imageSettings.variationOf != undefined)
+		info.variationOf = imageSettings.variationOf;
+
+	// If generating an image with auto-upscaler turned on for new images
+	// and asked to save the image before hand, we can link to that image
+	if(info != undefined && upscaleOf != undefined && (typeof upscaleOf) == "string")
+		info.upscaleOf = upscaleOf;
+
 	// Write file next to image
 	if(info != undefined)
 		fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));
+
+	// Return filename
+	return filename;
 }
