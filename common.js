@@ -39,10 +39,8 @@ const {
     userSettings
 } = require("./src/loadSettings");
 
-let cmdLine = _.cloneDeep(process.argv);
-cmdLine.splice(0, 1);
-cmdLine.splice(0, 1);
-settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
+// Ensure lastCmd is removed
+settings().imageSettings.lastCmd = undefined;
 
 async function processBatch(index, total) {
 

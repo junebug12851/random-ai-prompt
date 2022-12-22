@@ -41,6 +41,9 @@ module.exports = function(name, settings, imageSettings, upscaleSettings) {
 	imageSettings.denoising = txt.denoising_strength;
 	imageSettings.variationOf = name;
 
+	// Load in original prompt
+	settings.origPrompt = txt.origPrompt;
+
 	// Set variation settings to get accurate variations
 	// Maintain seed width and height if already present, otherwise ignore
 	imageSettings.seedWidth = (txt.seed_resize_from_w < 0)

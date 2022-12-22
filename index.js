@@ -25,6 +25,13 @@ const {
     run,
 } = require("./common");
 
+const _ = require("lodash");
+
+let cmdLine = _.cloneDeep(process.argv);
+cmdLine.splice(0, 1);
+cmdLine.splice(0, 1);
+settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
+
 // If requested to make image variations of a file, this will load in the settings
 // needed to make it happen. It is done before command line prompts to alow custom override
 if(argv.fileVariations !== undefined)

@@ -209,6 +209,9 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 	delete info.all_subseeds;
 	delete info.infotexts;
 
+	// Save orig prompt
+	info.origPrompt = (settings.origPrompt) ? settings.origPrompt : settings.prompt;
+
 	// Convert image data to actual images
 	for(let i = 0; i < data.images.length; i++) {
 
