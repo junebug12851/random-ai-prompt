@@ -1,6 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
+const nlp = require("compromise");
+const cliProgress = require('cli-progress');
+
+const progressBar = new cliProgress.SingleBar({
+    barCompleteChar: '\u2588',
+    barIncompleteChar: ' ',
+    hideCursor: true,
+    clearOnComplete: true,
+    fps: 30,
+    format: '[' + '{bar}' + '] {percentage}% [{value}/{total}] {duration_formatted}',
+});
 
 // Memory index
 // key = keyword: value = array of image file names
@@ -8,6 +19,104 @@ let index = {};
 
 // key = baseFilename, value = json + relative path to file
 let files = {};
+
+function nlpProcess(word) {
+    let ret = nlp(word).nouns().toSingular().text();
+
+    if(ret.length <= 1)
+        ret = word;
+    else
+        return ret;
+
+    ret = nlp(word).verbs().toInfinitive().text();
+
+    if(ret.length <= 1)
+        ret = word;
+    else
+        return ret;
+
+    return word;
+}
+
+function toKeywords(prompt) {
+
+    // Make lowercase
+    prompt = _.toLower(prompt);
+
+    // Extract keywords, extract by word boundry and letter boundry
+    // This will produce stuff like 1girl => 1girl, girl
+    prompt = [..._.words(prompt, /[\w]+/g), ..._.words(prompt)];
+
+    // Remove duplicate keywords
+    prompt = _.uniq(prompt);
+
+    // Operate on individual keywords
+    let promptTmp = [];
+    for(let i = 0; i < prompt.length; i++) {
+
+        // Trim whitespace
+        let promptWord = prompt[i].trim();
+
+        // Skip over any keywords 1 character or less
+        if(promptWord.length <= 1)
+            continue;
+
+        // Process word with nlp
+        // let nlpTmp = nlpProcess(promptWord);
+
+        // Save only if different from prompt word and more than 1 character
+        // if(nlpTmp.length > 1 && nlpTmp != promptWord)
+        //     promptTmp.push(nlpTmp);
+
+        // Save prompt word
+        promptTmp.push(promptWord);
+    }
+
+    // Save back to prompt
+    prompt = promptTmp;
+
+    // Remove duplicate keywords again
+    prompt = _.uniq(prompt);
+
+    // Send back
+    return prompt;
+}
+
+function toComparitiveKeywords(prompt) {
+    // Make lowercase
+    prompt = _.toLower(prompt);
+
+    // Convert to words by word boundrary only
+    // This gives the user freedom to specify girl or 1girl
+    prompt = _.words(prompt, /[\w]+/g);
+
+    // Remove duplicate keywords
+    prompt = _.uniq(prompt);
+
+    // Operate on individual keywords
+    let promptTmp = [];
+    for(let i = 0; i < prompt.length; i++) {
+
+        // Trim whitespace
+        let promptWord = prompt[i].trim();
+
+        // Skip over any keywords 1 character or less
+        if(promptWord.length <= 1)
+            continue;
+
+        // Save prompt word
+        promptTmp.push(promptWord);
+    }
+
+    // Save back to prompt
+    prompt = promptTmp;
+
+    // Remove duplicate keywords again
+    prompt = _.uniq(prompt);
+
+    // Send back
+    return prompt;
+}
 
 // Index the txt files
 const indexFile = function(settings, filePath) {
@@ -46,21 +155,12 @@ const indexFile = function(settings, filePath) {
     // Save into files
     files[name] = _.cloneDeep(data);
 
-    // Get keywords, remove commas, split itno an array
+    // Get keywords and convert to keywwords
     let keywords = _.cloneDeep(data.prompt);
-    keywords = _.words(keywords);
+    keywords = toKeywords(keywords);
 
+    // Index
     for(let i = 0; i < keywords.length; i++) {
-
-        // Only store keywords greater than 1 character
-        // Sometimes _.words() will split off a character into it's own array entry
-        if(keywords[i].length <= 1)
-            continue;
-
-        // Deburr (Remove acent marks from letters)
-        // Also make lowercase
-        keywords[i] = _.deburr(keywords[i]);
-        keywords[i] = _.lowerCase(keywords[i]);
 
         // Insert into index
         if(index[keywords[i]] == undefined)
@@ -76,8 +176,16 @@ const buildIndexes = function(settings, directoryName) {
     // get files in a directory
     const dirFiles = fs.readdirSync(directoryName);
 
-    // Loop through them
-    dirFiles.forEach(function(file) {
+    // Set progress total
+    progressBar.setTotal(dirFiles.length);
+
+    for(let i = 0; i < dirFiles.length; i++) {
+
+        // Update progress bar
+        progressBar.update(i);
+
+        // Get file
+        const file = dirFiles[i];
 
         // Get full path
         const fullPath = path.join(directoryName, file);
@@ -88,30 +196,23 @@ const buildIndexes = function(settings, directoryName) {
         // Loop through folder if it is one
         if (f.isDirectory()) {
             buildIndexes(settings, fullPath);
+            progressBar.setTotal(dirFiles.length);
+            progressBar.update(i);
         } else {
             indexFile(settings, fullPath);
         }
-    });
+    }
 }
 
 const query = function(keywords) {
 
-    // Convert into words
-    keywords = _.words(keywords);
+    // Convert into keywords built for comparing against index
+    keywords = toComparitiveKeywords(keywords);
 
     const keywordLookup = [];
 
     // Loop through
     for(let i = 0; i < keywords.length; i++) {
-
-        // Sometimes _.words() will split off a character into it's own array entry
-        if(keywords[i].length <= 1)
-            continue;
-
-        // Deburr (Remove acent marks from letters)
-        // Also make lowercase
-        keywords[i] = _.deburr(keywords[i]);
-        keywords[i] = _.lowerCase(keywords[i]);
 
         // Get files associated with keyword
         const keywordFiles = index[keywords[i]];
@@ -159,10 +260,14 @@ const query = function(keywords) {
 const rebuildIndexes = function(settings) {
     console.log("Indexing images...");
 
+    progressBar.start(0 ,0);
+
     index = {};
     files = {};
 
     buildIndexes(settings, settings.imageSettings.saveTo);
+
+    progressBar.stop();
 }
 
 module.exports = {
