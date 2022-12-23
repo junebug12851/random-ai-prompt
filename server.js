@@ -102,6 +102,10 @@ app.get('/api/images/index', async function(req, res) {
   res.jsonp(imageIndex.getIndex());
 });
 
+app.get('/api/images/stats', async function(req, res) {
+  res.jsonp(imageIndex.getIndexStats());
+});
+
 // Returns random keyword suggestions with 1 to 3 keywords
 app.get('/api/images/search-suggestion', async function(req, res) {
 

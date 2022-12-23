@@ -20,6 +20,13 @@ let index = {};
 // key = baseFilename, value = json + relative path to file
 let files = {};
 
+// Index Stats
+// key = keyword: value = object showing keyword count
+// Special keyword for _total showing total keywords and total keyword count
+let indexStats = {
+    _total: {count: 0, keywords: 0, files: 0}
+};
+
 function nlpProcess(word) {
     let ret = nlp(word).nouns().toSingular().text();
 
@@ -186,6 +193,9 @@ const indexFile = function(settings, filePath) {
     if(name.includes("upscaled"))
         return;
 
+    // Increment file count
+    indexStats._total.files++;
+
     // Save into files
     // Sometimes deep linking will create a file placeholder, don't replace if so
     if(files[name] == undefined)
@@ -208,6 +218,18 @@ const indexFile = function(settings, filePath) {
 
     // Index
     for(let i = 0; i < keywords.length; i++) {
+
+        // Add to stats
+
+        // Create keyword if it doesn't exist and increment keyword count
+        if(indexStats[keywords[i]] == undefined) {
+            indexStats._total.keywords++;
+            indexStats[keywords[i]] = {count: 0};
+        }
+
+        // Increment keyword usage count and total usage count
+        indexStats[keywords[i]].count++;
+        indexStats._total.count++;
 
         // Insert into index
         if(index[keywords[i]] == undefined)
@@ -380,6 +402,9 @@ const rebuildIndexes = function(settings) {
 
     index = {};
     files = {};
+    indexStats = {
+        _total: {count: 0, keywords: 0, files: 0}
+    };
 
     buildIndexes(settings, settings.imageSettings.saveTo);
     validateIndexes();
@@ -390,6 +415,7 @@ const rebuildIndexes = function(settings) {
 module.exports = {
     getIndex() {return index},
     getFiles() {return files},
+    getIndexStats() {return indexStats},
     rebuildIndexes,
     query,
 }

@@ -177,6 +177,25 @@ function homeFeed() {
     loadImageFeed();
 }
 
+function updateStats() {
+
+    $.ajax({
+        type: 'GET',
+        url: '/api/images/stats',
+        success: function(data) {
+            const keywordCount = data._total.keywords;
+            const fileCount = data._total.files;
+
+            $("#keyword-count").text(keywordCount);
+            $("#image-count").text(fileCount);
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+}
+
 function initiateReindex() {
     clearImages();
 
@@ -185,6 +204,7 @@ function initiateReindex() {
         url: '/api/images/re-index',
         success: function(data) {
             loadImageFeed();
+            updateStats();
         },
         error: function(error){
             console.log("Error:");
@@ -211,6 +231,7 @@ $(document).ready(function() {
         loadImageFeed();
 
     updateSearchSuggestion();
+    updateStats();
 
     $('#page-search').keypress(searchboxKeyPress);
     $('#re-index').click(initiateReindex);
