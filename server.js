@@ -338,7 +338,13 @@ app.get('/api/apply-chaos/:value', (req, res) => {
   settings().settings.emphasisChance *= chaosPercent;
   settings().settings.emphasisLevelChance *= chaosPercent;
   settings().settings.emphasisMaxLevels = Math.round(settings().settings.emphasisMaxLevels * chaosPercent);
+
   settings().settings.deEmphasisChance *= chaosPercent;
+  if(settings().settings.deEmphasisChance < 0.25)
+    settings().settings.deEmphasisChance = 0.25;
+  else if(settings().settings.deEmphasisChance > 0.50)
+    settings().settings.deEmphasisChance = 0.50;
+  
   settings().settings.keywordAlternatingMaxLevels *= chaosPercent;
 
   // Notify Done

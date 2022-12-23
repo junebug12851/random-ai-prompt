@@ -49,9 +49,13 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.emphasisChance *= chaosPercent;
 		settings.emphasisLevelChance *= chaosPercent;
 		settings.emphasisMaxLevels = Math.round(settings.emphasisMaxLevels * chaosPercent);
+
 		settings.deEmphasisChance *= chaosPercent;
-		settings.keywordEditingMin *= chaosPercent;
-		settings.keywordEditingMax *= chaosPercent;
+		if(settings.deEmphasisChance < 0.25)
+			settings.deEmphasisChance = 0.25;
+		else if(settings.deEmphasisChance > 0.50)
+			settings.deEmphasisChance = 0.50;
+		
 		settings.keywordAlternatingMaxLevels *= chaosPercent;
 	}
 
