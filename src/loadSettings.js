@@ -80,7 +80,18 @@ reloadSettings();
 
 // Allows obtaining the user dettings that differ from the main settings
 function userSettings() {
-	return diffSettings(settings, defSettings);
+
+	// Get diff between default and user settings
+	const ret = diffSettings(settings, defSettings);
+
+	// Remove these internal only settings
+	delete ret.settings.origPrompt;
+	delete ret.imageSettings.lastCmd;
+	delete ret.imageSettings.variationOf;
+	delete ret.imageSettings.origPostPrompt;
+
+	// Return
+	return ret;
 }
 
 // Save User Settings
