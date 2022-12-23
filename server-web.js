@@ -56,6 +56,9 @@ app.use("/images", express.static(settings().imageSettings.saveTo));
 // Add program icons to root for browser access
 app.use("/", express.static("./assets/icons"));
 
+// Make all assets accessible
+app.use("/assets", express.static("./assets"));
+
 // Linkup web content to the web folder
 app.use(express.static(settings().serverSettings.webFolder + "/frontend"));
 

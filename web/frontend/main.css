@@ -15,12 +15,13 @@ h1 {
     font-family: 'Rokkitt', serif;
     font-size: 2.5em;
     margin-bottom: 5px;
+    margin-top: 0;
 }
 
 input[type="text"] {
-    height: 1.75em;
+    height: 2em;
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     background-color: hsl(0.00,0.00%,25.88%);
     color: hsl(0.00,0.00%,98.04%);
     padding: 5px 10px;
@@ -37,7 +38,7 @@ button {
     color: hsl(0.00,0.00%,98.04%);
     border: 1px solid hsl(0.00,0.00%,75.04%);
     padding: 5px;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 button:hover {
@@ -55,15 +56,35 @@ button:active {
     margin-top: 10px;
 }
 
-/*.button-row button {
+.button-row button {
     width: 100%;
-}*/
+}
 
 #page-header {
     margin: 0 auto;
     margin-top: 15px;
+    margin-bottom: 50px;
     width: fit-content;
     text-align: center;
+}
+
+#page-header img {
+    margin: 0;
+    padding: 0;
+}
+
+#page-title {
+    margin-top: -30px;
+    margin-bottom: 15px;
+}
+
+#page-subtitle {
+    margin-top: -13px;
+    margin-bottom: 30px;
+}
+
+#page-search {
+    margin-bottom: 5px;
 }
 
 #page-gallery {
