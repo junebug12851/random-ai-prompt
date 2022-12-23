@@ -44,6 +44,9 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
 	if(info != undefined && imageSettings.lastCmd != undefined)
 		info.cmd = imageSettings.lastCmd;
 
+	if(info != undefined && imageSettings.origPostPrompt != undefined)
+		info.origPostPrompt = imageSettings.origPostPrompt;
+
 	// Write file next to image
 	if(info != undefined)
 		fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));

@@ -89,6 +89,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	if(settings.autoAddArtists && !includedArtists)
 		prompt += `, ${expandDynamicPromptV2("artists", settings, imageSettings, upscaleSettings)}`;
 
+	// Save the original post prompt
+	// The prompt after dynamic prompts but before the lists have been expanded on
+	imageSettings.origPostPrompt = prompt;
+
 	// Return prompt
 	return prompt;
 }
