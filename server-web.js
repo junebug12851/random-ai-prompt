@@ -122,3 +122,213 @@ app.get('/api/images/search-suggestion', async function(req, res) {
     res.jsonp(keyword);
   }
 });
+
+app.get('/api/ping', (req, res) => {
+  res.jsonp('pong');
+});
+
+// Get settings
+app.get('/api/settings', (req, res) => {
+  res.jsonp(settings());
+});
+
+app.get('/api/default-settings', (req, res) => {
+  res.jsonp(defSettings());
+});
+
+app.get('/api/user-settings', (req, res) => {
+  res.jsonp(userSettings());
+});
+
+// Reload settings
+app.get('/api/reload-settings', (req, res) => {
+  reloadSettings();
+  res.jsonp("success");
+});
+
+// Save settings
+app.get('/api/save-settings', (req, res) => {
+  saveSettings();
+  res.jsonp("success");
+});
+
+// Put settings
+app.post('/api/replace-settings', (req, res) => {
+
+  // Change out settings
+  replaceSettings(req.body);
+
+  // Save settings
+  saveSettings();
+
+  res.jsonp("success");
+});
+
+// Put settings
+app.post('/api/merge-settings', (req, res) => {
+
+  // Merge settings
+  _.merge(settings(), req.body);
+
+  // Save settings
+  saveSettings();
+
+  res.jsonp("success");
+});
+
+// Make file variations
+app.get('/api/file-variation/:fileId', async (req, res) => {
+
+  // Save settings beforehand
+  saveSettings();
+
+  // Load variation data
+  require("./src/loadVariationData")(
+        req.params.fileId,
+        settings().settings,
+        settings().imageSettings,
+        settings().upscaleSettings);
+
+  // Make variations
+  await run();
+
+  // Undo settings change
+  reloadSettings();
+
+  res.jsonp("success");
+});
+
+// Upscale existing
+app.get('/api/upscale-file/:fileId', async (req, res) => {
+
+  // Save settings beforehand
+  saveSettings();
+
+  // Do upscale
+  await upscale(req.params.fileId);
+
+  // Undo settings change
+  reloadSettings();
+
+  res.jsonp("success");
+});
+
+// Do normal generation
+app.get('/api/generate', async (req, res) => {
+
+  // Generate
+  await run();
+
+  res.jsonp("success");
+});
+
+app.get('/api/files/dynamic-prompts', (req, res) => {
+
+  // Regular Dynamic Prompts
+
+  let files = fs.readdirSync(settings().settings.dynamicPromptFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  // User Submitted Dynamic Prompts
+
+  files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/user-submitted`);
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    let file = files[i].substr(0, files[i].lastIndexOf('.'));
+    file = `user-${file}`;
+    userFiles.push(file);
+  }
+
+  // Version 1 dynamic prompts
+
+  files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/v1`);
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    let file = files[i].substr(0, files[i].lastIndexOf('.'));
+    file = `${file}-v1`;
+    userFiles.push(file);
+  }
+
+  res.jsonp(userFiles);
+});
+
+app.get('/api/files/expansions', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.expansionFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.jsonp(userFiles);
+});
+
+app.get('/api/files/lists', (req, res) => {
+
+  const files = fs.readdirSync(settings().settings.listFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.jsonp(userFiles);
+});
+
+app.get('/api/files/presets', (req, res) => {
+  const files = fs.readdirSync(settings().settings.presetFiles);
+  const userFiles = [];
+
+  for(let i = 0; i < files.length; i++) {
+    
+    // Get filename without suffix
+    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    userFiles.push(file);
+  }
+
+  res.jsonp(userFiles);
+});
+
+app.get('/api/apply-preset/:fileId', (req, res) => {
+
+  // Load it
+  const presetData = require(`./${settings().settings.presetFiles}/${req.params.fileId}.json`);
+
+  // Merge it
+  _.merge(settings(), presetData);
+
+  // Notify Done
+  res.jsonp("success");
+});
+
+app.get('/api/apply-chaos/:value', (req, res) => {
+
+  const chaosPercent = parseFloat(req.params.value);
+
+  settings().settings.emphasisChance *= chaosPercent;
+  settings().settings.emphasisLevelChance *= chaosPercent;
+  settings().settings.emphasisMaxLevels = Math.round(settings().settings.emphasisMaxLevels * chaosPercent);
+  settings().settings.deEmphasisChance *= chaosPercent;
+  settings().settings.keywordAlternatingMaxLevels *= chaosPercent;
+
+  // Notify Done
+  res.jsonp("success");
+});
