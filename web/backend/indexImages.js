@@ -61,6 +61,10 @@ function toKeywords(prompt) {
         if(promptWord.length <= 1)
             continue;
 
+        // If it consist of only digits, then skip over
+        if(/^\d+$/gm.test(promptWord))
+            continue;
+
         // Opted out of, far too slow even if it provides good results
 
         // Process word with nlp
