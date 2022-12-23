@@ -1,0 +1,39 @@
+doctype html
+head
+
+  // Basics
+  title Random AI Prompt
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1')
+
+  link(rel='stylesheet' href='lib/normalize.css')
+
+  include fragments/favicon.pug
+  include fragments/google-font.pug
+
+  // Stylesheet
+  link(rel='stylesheet' href='main.css')
+  link(rel='stylesheet' href='feed.css')
+
+#page-header
+  img(src='fg.png' width='128' height='128')
+  h1#page-title Random AI Prompt
+  p#page-subtitle
+    | The random search engine
+    br
+    span#keyword-count 
+    |  keywords, 
+    span#image-count 
+    |  images
+  input#page-search(type='text')
+  .button-row
+    button#home Home
+    button#search Search
+    button#random Random
+    button#re-index Re-index
+
+#page-gallery
+
+// Scripts
+script(type='text/javascript' src='lib/jquery-3.6.3.min.js')
+script(type='text/javascript' src='feed.js')

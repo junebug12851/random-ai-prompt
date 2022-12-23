@@ -41,6 +41,10 @@ console.log("Starting server...");
 
 const app = express();
 
+// Use pug as the template engine
+app.set('view engine', 'pug');
+app.set('views', settings().serverSettings.webFolder + "/views")
+
 // Use the body-parser middleware to parse incoming request bodies
 app.use(express.json());
 
@@ -64,6 +68,10 @@ app.use(express.static(settings().serverSettings.webFolder + "/frontend"));
 
 // API Requests
 // These respond in JSON and sometimes require JSON input
+
+app.get('/', (req, res) => {
+  res.render('feed');
+})
 
 app.get('/api/images/query', async function(req, res) {
 
