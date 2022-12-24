@@ -1,5 +1,6 @@
 let name = "";
 let imageData = {};
+let curImgUrl = "";
 
 function onPromptSelectionChange() {
     var selectedOption = $(this).val();
@@ -22,6 +23,36 @@ function onPromptSelectionChange() {
     }
     else {
         $("#generate-this").show();
+    }
+}
+
+function onVariationSelectionChange() {
+
+    $("#variation-images").empty();
+
+    var selectedOption = $("#variation-selection").val();
+
+    if(selectedOption == "variations" && imageData.variations != undefined) {
+        for(let i = 0; i < imageData.variations.length; i++) {
+            const variation = imageData.variations[i];
+            $("#variation-images").append(`
+                <a href="/single?name=${variation.name}"><img src="${variation.imgPath}"/></a>
+            `);
+        }
+    }
+
+    if(selectedOption == "upscales" && imageData.upscales != undefined) {
+        for(let i = 0; i < imageData.upscales.length; i++) {
+            const upscale = imageData.upscales[i];
+            $("#variation-images").append(`
+                <img src="${upscale}"/>
+            `);
+
+            $("#variation-images").click(function(event) {
+                const src = event.target.src;
+                $("#image").attr("src", src);
+            });
+        }
     }
 }
 
@@ -76,6 +107,10 @@ function completePage() {
         $("#type-cell").text("Upscaled Replacing Base");
     else
         $("#type-cell").text("Base Image");
+
+    if(imageData.variationOf == undefined) {
+        $("#make-variations").show();
+    }
 
     $("#model-cell").text(imageData.sd_model_hash);
     $("#seed-cell").text(imageData.seed);
@@ -146,6 +181,19 @@ function completePage() {
 
     // Set Image path
     $("#image").attr("src", imageData.imgPath);
+
+    // Set Variation or upscale images
+
+    if(imageData.upscales != undefined || imageData.variations != undefined)
+        $("#variations-cell").show();
+
+    if(imageData.variations != undefined)
+        $("#variation-selection").append('<option value="variations">Variations</option>');
+
+    if(imageData.upscales != undefined)
+        $("#variation-selection").append('<option value="upscales">Upscales</option>');
+
+    onVariationSelectionChange();
 }
 
 function loadData() {
@@ -256,4 +304,5 @@ $(document).ready(function() {
     $("#parent").click(() => {
         window.location = `/single?name=${imageData.variationOf}`;
     });
+    $('#variation-selection').change(onVariationSelectionChange);
 });

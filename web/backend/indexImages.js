@@ -189,7 +189,10 @@ const indexFile = function(settings, filePath) {
     // There was apparently a bug that made variationOf names numbers, this ensures their
     // properly sent as a string
     if(data.variationOf)
-        deepLink(data.variationOf.toString(), name, "variations");
+        deepLink(data.variationOf.toString(), {
+            name,
+            imgPath: data.imgPath,
+        }, "variations");
 
     // We don't index upscales but we attach the upscale to the original
     if(name.includes("upscaled"))

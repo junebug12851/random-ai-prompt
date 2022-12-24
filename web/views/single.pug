@@ -71,15 +71,16 @@ block content
       ul#keyword-cloud
 
     #image-cell
-      button#make-variations Make Variations
+      button#make-variations(style="display: none") Make Variations
       button#make-upscale Upscale
-      button#download Download
+      //button#download Download
       button#parent(style="display: none") Parent
 
       img#image.full-width-image
 
-    #variations-cell
-        // h1 Variations Cell
+    #variations-cell(style="display: none;")
+      select#variation-selection
+      #variation-images
 
 block scripts
   script(type='text/javascript' src='single.js')
