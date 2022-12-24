@@ -50,6 +50,60 @@ button:active {
   background-color: hsl(0.00,0.00%,5%);
 }
 
+select {
+    display: inline-block;
+    background-color: hsl(0.00,0.00%,12.94%);
+    color: hsl(0.00,0.00%,98.04%);
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+select:hover {
+  background-color: hsl(0.00,0.00%,20%);
+}
+
+select:active {
+  background-color: hsl(0.00,0.00%,5%);
+}
+
+table {
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+}
+
+table td {
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    padding: 7px;
+    text-align: left;
+}
+
+table td:first-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+table tr:first-child td:first-child {
+    text-align: center;
+    font-weight: normal;
+}
+
+table tr:hover {
+    background-color: hsl(0.00,0.00%,20%);
+}
+
+table tr:nth-child(odd) {
+    background-color: hsl(0.00,0.00%,7%);
+}
+
+table tr:nth-child(odd):hover {
+    background-color: hsl(0.00,0.00%,11%);
+}
+
 .button-row {
     display: flex;
     justify-content: center;

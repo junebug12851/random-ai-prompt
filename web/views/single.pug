@@ -1,0 +1,80 @@
+extends layouts/main.pug
+
+block styles
+  link(rel='stylesheet' href='single.css')
+
+block content
+  #page-container
+    #info-cell
+      #keyword-container
+        select#prompt-selection
+          option(value="prompt") Prompt
+          option(value="negative") Negative Prompt
+          option(value="data") Image Data
+
+        p#keywords
+
+        button#copy Copy
+        button#generate-this Generate This
+
+      table
+        tr
+          td#timestamp-cell(colspan="2")
+        tr
+          td Type
+          td#type-cell
+        tr
+          td Model
+          td#model-cell
+        tr
+          td Seed
+          td#seed-cell
+        tr#variation-seed-row(style="display: none")
+          td Variation Seed
+          td#variation-seed-cell
+        tr#variation-amount-row(style="display: none")
+          td Variation Amount
+          td#variation-amount-cell
+        tr
+          td Generated Size
+          td#size-cell
+        tr#seed-size-row(style="display: none")
+          td Seed Size
+          td#seed-size-cell
+        tr#upscale-size-row(style="display: none")
+          td Upscale Size
+          td#upscale-size-cell
+        tr
+          td Sampler
+          td#sampler-cell
+        tr
+          td CFG
+          td#cfg-cell
+        tr
+          td Steps
+          td#steps-cell
+        tr
+          td Restore Faces
+          td#restore-faces-cell
+        tr#denoise-row(style="display: none")
+          td High-Res Detail
+          td#denoising-cell
+        tr
+          td Filename
+          td#filename-cell
+        tr
+          td Data File
+          td#data-file-cell
+        tr
+          td Image File
+          td#image-file-cell
+      ul#keyword-cloud
+
+    #image-cell
+      // h1 Image Cell
+
+    #variations-cell
+        // h1 Variations Cell
+
+block scripts
+  script(type='text/javascript' src='single.js')

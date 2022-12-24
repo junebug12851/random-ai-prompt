@@ -1,11 +1,3 @@
-function getUrlParameters() {
-  var params = {};
-  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-      params[key] = value;
-  });
-  return params;
-}
-
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -39,10 +31,10 @@ function clearImages() {
     $("#page-gallery").empty();
 }
 
-function getGalleryEl(prompt, imgSrc, width, height) {
+function getGalleryEl(prompt, imgSrc, width, height, name) {
 
     return `
-        <a href="#" class="gallery-el wide-${width} tall-${height}">
+        <a href="/single?name=${name}" rel="noopener noreferrer" class="gallery-el wide-${width} tall-${height}">
             <div class="overlay">
                 <p>${prompt}</p>
             </div>
@@ -87,7 +79,15 @@ function processImageFeed(files) {
             height = 1;
         }
 
-        $("#page-gallery").append(getGalleryEl(files[i].prompt.substring(0, 100) + "...", files[i].imgPath, width, height));
+        $("#page-gallery").append(
+            getGalleryEl(
+                files[i].prompt.substring(0, 100) + "...",
+                files[i].imgPath,
+                width,
+                height,
+                files[i].name
+            )
+        );
     }
 
     imagesChanged();

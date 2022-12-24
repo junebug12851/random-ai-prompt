@@ -71,7 +71,11 @@ app.use(express.static(settings().serverSettings.webFolder + "/frontend"));
 
 app.get('/', (req, res) => {
   res.render('feed');
-})
+});
+
+app.get('/single', (req, res) => {
+  res.render('single');
+});
 
 app.get('/api/images/query', async function(req, res) {
 
@@ -87,6 +91,67 @@ app.get('/api/images/query', async function(req, res) {
   const results = imageIndex.query(query.query);
 
   res.jsonp(results);
+});
+
+// Gets a random image name
+app.get('/api/images/random-name', async function(req, res) {
+  res.jsonp(_.sample(imageIndex.getFiles().name));
+});
+
+app.get('/api/images/single/:name', async function(req, res) {
+
+  // Get image name
+  const imageName = req.params.name;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Get index stats
+  const stats = imageIndex.getIndexStats();
+
+  // Get max number to compare keyword popularity percent to
+  const keywordTotalCount = stats._total.highestKeywordCount;
+
+  // Get image keyword list and sort it alphabetically
+  const imageKeywords = _.sortBy(imageData.keywords);
+
+  // Begin working on the keyword cloud
+  const keywordCloud = [];
+
+  for(let i = 0; i < imageKeywords.length; i++) {
+
+    // Get keyword
+    const imageKeyword = imageKeywords[i];
+
+    // Get count
+    let keywordStats = stats[imageKeyword];
+    if(keywordStats == undefined)
+      continue;
+    keywordStats = keywordStats.count;
+
+    // Calc percent
+    const keywordPercent = keywordStats / keywordTotalCount;
+
+    // Push to keyword cloud
+    keywordCloud.push({
+      keyword: imageKeyword,
+      count: keywordStats,
+      percent: keywordPercent
+    })
+  }
+
+  // Save to object
+  imageData.keywordCloud = keywordCloud;
+
+  // Send object back
+  res.jsonp(imageData);
 });
 
 // Returns all images shuffled randomly
@@ -230,6 +295,23 @@ app.get('/api/generate', async (req, res) => {
 
   // Generate
   await run();
+
+  res.jsonp("success");
+});
+
+app.get('/api/generate/:prompt', async (req, res) => {
+
+  // Get prompt
+  const prompt = req.params.prompt;
+
+  // Swap prompts
+  const origPrompt = settings().settings.prompt;
+  settings().settings.prompt = prompt;
+
+  // Generate
+  await run();
+
+  settings().settings.prompt = origPrompt;
 
   res.jsonp("success");
 });

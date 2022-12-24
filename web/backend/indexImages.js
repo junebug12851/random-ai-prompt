@@ -24,7 +24,7 @@ let files = {};
 // key = keyword: value = object showing keyword count
 // Special keyword for _total showing total keywords and total keyword count
 let indexStats = {
-    _total: {count: 0, keywords: 0, files: 0}
+    _total: {count: 0, keywords: 0, files: 0, highestKeyword: "", highestKeywordCount: 0}
 };
 
 function nlpProcess(word) {
@@ -231,6 +231,12 @@ const indexFile = function(settings, filePath) {
         indexStats[keywords[i]].count++;
         indexStats._total.count++;
 
+        // Save high-score winner
+        if(indexStats[keywords[i]].count > indexStats._total.highestKeywordCount) {
+            indexStats._total.highestKeyword = keywords[i];
+            indexStats._total.highestKeywordCount = indexStats[keywords[i]].count;
+        }
+
         // Insert into index
         if(index[keywords[i]] == undefined)
             index[keywords[i]] = [];
@@ -403,7 +409,7 @@ const rebuildIndexes = function(settings) {
     index = {};
     files = {};
     indexStats = {
-        _total: {count: 0, keywords: 0, files: 0}
+        _total: {count: 0, keywords: 0, files: 0, highestKeyword: "", highestKeywordCount: 0}
     };
 
     buildIndexes(settings, settings.imageSettings.saveTo);

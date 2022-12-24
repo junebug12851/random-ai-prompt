@@ -1,0 +1,82 @@
+button {
+	margin-right: 10px;
+}
+
+#page-container {
+	display: grid;
+  	grid-template-columns: 1fr 2fr;
+  	grid-template-rows: 2fr 1fr;
+  	grid-template-areas:
+  		"info image"
+  		"info variations";
+
+  	gap: 25px;
+
+  	width: 100%;
+  	max-width: 1024px;
+  	margin: 0 auto;
+  	margin-top: 50px;
+}
+
+#info-cell {
+	grid-area: info;
+}
+
+#image-cell {
+	grid-area: image;
+}
+
+#variations-cell {
+	grid-area: variations;
+}
+
+#keyword-container {
+    background-color: hsl(0.00,0.00%,23%);
+    padding: 10px;
+    padding-top: 10px;
+    border-radius: 15px;
+}
+
+#keywords {
+    margin-top: 10px;
+    height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+ul#keyword-cloud {
+  list-style-type: none; /* Remove the default bullet points */
+  margin: 0; /* Remove the default margin */
+  padding: 0; /* Remove the default padding */
+  margin-top: 10px;
+}
+
+ul#keyword-cloud li {
+  display: inline-block; /* Display the list items as inline blocks */
+}
+
+ul#keyword-cloud li a {
+    display: inline-block;
+    font-size: 12px;
+    background-color: hsl(0.00,0.00%,12.94%);
+    color: hsl(0.00,0.00%,98.04%);
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    padding: 5px;
+    border-radius: 10px;
+  text-decoration: none; /* Remove the default text decoration for links */
+    margin-top: 5px;
+}
+
+ul#keyword-cloud li a:hover {
+  background-color: hsl(0.00,0.00%,20%); /* Change the background color on hover */
+}
+
+ul#keyword-cloud li a:active {
+  background-color: hsl(0.00,0.00%,5%);
+}
+
+.full-width-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
