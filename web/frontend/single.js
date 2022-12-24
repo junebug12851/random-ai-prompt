@@ -143,6 +143,9 @@ function completePage() {
             <li><a href="/?search=${keyword.keyword}" style="font-size: ${size}px" title="${keyword.count}">${keyword.keyword}</a></li>
         `);
     }
+
+    // Set Image path
+    $("#image").attr("src", imageData.imgPath);
 }
 
 function loadData() {

@@ -75,6 +75,12 @@ ul#keyword-cloud li a:active {
   background-color: hsl(0.00,0.00%,5%);
 }
 
+#image {
+  border-radius: 15px;
+  border: 1px solid hsl(0.00,0.00%,75.04%);
+  margin-top: 15px;
+}
+
 .full-width-image {
   width: 100%;
   height: 100%;
