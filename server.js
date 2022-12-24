@@ -290,6 +290,18 @@ app.get('/api/upscale-file/:fileId', async (req, res) => {
   res.jsonp("success");
 });
 
+app.get('/api/download-file/:name', async (req, res) => {
+
+  // Get image name
+  const imageName = req.params.name;
+
+  // get image data
+  const imageData = imageIndex.getFiles()[imageName];
+
+  // Prompt to download image
+  res.download(`./${settings().imageSettings.saveTo}/${imageData.imgPathReal}`);
+});
+
 // Do normal generation
 app.get('/api/generate', async (req, res) => {
 

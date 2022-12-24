@@ -41,22 +41,32 @@ function completePage() {
     $('#keywords').text(imageData.prompt);
 
     // Add timestamp
-    const timestamp = imageData.job_timestamp;
-    const year = timestamp.substr(0, 4);
-    const month = timestamp.substr(4, 2);
-    const day = timestamp.substr(6, 2);
-    let hour = timestamp.substr(8, 2);
-    let isPm = false;
-    if(hour > 12) {
-        hour -= 12;
-        isPm = true;
+    let timestampReadable = "";
+
+    if((typeof imageData.job_timestamp) == "number")
+        timestampReadable = epochToDateString(imageData.job_timestamp);
+    else {
+        const timestamp = imageData.job_timestamp;
+        const year = timestamp.substr(0, 4);
+        const month = timestamp.substr(4, 2);
+        const day = timestamp.substr(6, 2);
+        let hour = timestamp.substr(8, 2);
+        let isPm = false;
+        if(hour > 12) {
+            hour -= 12;
+            isPm = true;
+        }
+
+        const minute = timestamp.substr(10, 2);
+        isPm = (isPm) ? "pm" : "am";
+
+        timestampReadable = `${month}/${day}/${year} ${hour}:${minute}${isPm}`;
     }
 
-    const minute = timestamp.substr(10, 2);
-    isPm = (isPm) ? "pm" : "am";
-
-    const timestampReadable = `${month}/${day}/${year} ${hour}:${minute}${isPm}`;
     $("#timestamp-cell").text(timestampReadable);
+
+    if(imageData.variationOf != undefined)
+        $("#parent").show();
 
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
@@ -179,6 +189,34 @@ function generatePrompt(prompt) {
   });
 }
 
+function makeVariations() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/file-variation/${imageData.name}`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+}
+
+function upscaleFile() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/upscale-file/${imageData.name}`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+}
+
 function onGenerateThis() {
     generatePrompt($('#keywords').text());
 }
@@ -207,4 +245,12 @@ $(document).ready(function() {
     $('#prompt-selection').change(onPromptSelectionChange);
     $('#generate-this').click(onGenerateThis);
     $('#copy').click(copyPrompt);
+    $("#make-variations").click(makeVariations);
+    $("#make-upscale").click(upscaleFile);
+    $("#download").click(() => {
+        window.location = `/api/download-file/${imageData.name}`;
+    });
+    $("#parent").click(() => {
+        window.location = `/single?name=${imageData.variationOf}`;
+    });
 });

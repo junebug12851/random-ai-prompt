@@ -171,9 +171,11 @@ const indexFile = function(settings, filePath) {
 
     // Add relative and full json path
     data.dataPath = `/images/${relativePath}`;
+    data.dataPathReal = relativePath;
 
     // Add relative and full png path
     data.imgPath = `/images/${relativeImgPath}`;
+    data.imgPathReal = relativeImgPath;
 
     // Add other data
     data.name = name;
