@@ -286,7 +286,7 @@ $(document).ready(function() {
     const params = getUrlParameters();
     const _name = params.name;
 
-    if(name == undefined)
+    if(_name == undefined)
         randomName();
     else {
         name = _name;

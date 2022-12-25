@@ -116,5 +116,6 @@ ul#keyword-cloud li a:active {
 .full-width-image {
   width: 100%;
   height: auto;
+  max-height: 512px;
   object-fit: contain;
 }
