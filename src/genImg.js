@@ -89,6 +89,14 @@ async function updateProgress() {
 		samplingSteps: imageSettings.steps
 	});
 
+	// Save Current Progress
+	imageSettings.progressPercent = progress;
+	imageSettings.progressEta = sdEta;
+	imageSettings.progressCurImg = data.state.job_no;
+	imageSettings.progressTotalImg = realbatchCount;
+	imageSettings.progressCurStep = data.state.sampling_step + 1;
+	imageSettings.progressTotalSteps = imageSettings.steps;
+
 	// Schedule another update
 	setTimeout(updateProgress, updateFreq);
 }
@@ -124,6 +132,16 @@ function startProgress() {
 		format: '    Prompts: [' + '{bar}' + '] {percentage}% {index}/{total}',
 	});
 
+	imageSettings.progressOngoing = true;
+	imageSettings.progressPercent = 0;
+	imageSettings.progressEta = 0;
+	imageSettings.progressCurImg = 1;
+	imageSettings.progressTotalImg = realbatchCount;
+	imageSettings.progressCurStep = 1;
+	imageSettings.progressTotalSteps = imageSettings.steps;
+	imageSettings.progressCurPrompt = index + 1;
+	imageSettings.progressTotalPrompts = total;
+
 	setTimeout(updateProgress, updateFreq);
 }
 
@@ -134,6 +152,16 @@ function stopProgress() {
 	progressBars.remove(batchProgressBar);
 	progressBars.remove(renderProgressBar);
 	progressBars.remove(promptProgressBar);
+
+	imageSettings.progressOngoing = false;
+	imageSettings.progressPercent = null;
+	imageSettings.progressEta = null;
+	imageSettings.progressCurImg = null;
+	imageSettings.progressTotalImg = null;
+	imageSettings.progressCurStep = null;
+	imageSettings.progressTotalSteps = null;
+	imageSettings.progressCurPrompt = null;
+	imageSettings.progressTotalPrompts = null;
 
 	progressBars.stop();
 }

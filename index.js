@@ -26,31 +26,59 @@ const {
 } = require("./common");
 
 const _ = require("lodash");
+const fs = require("fs");
+const express = require('express');
+const app = express();
 
-let cmdLine = _.cloneDeep(process.argv);
-cmdLine.splice(0, 1);
-cmdLine.splice(0, 1);
-settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
+const server = app.listen(settings().serverSettings.portProgress, async function() {
 
-// If requested to make image variations of a file, this will load in the settings
-// needed to make it happen. It is done before command line prompts to alow custom override
-if(argv.fileVariations !== undefined)
-	require("./src/loadVariationData")(
-        argv.fileVariations,
+    let cmdLine = _.cloneDeep(process.argv);
+    cmdLine.splice(0, 1);
+    cmdLine.splice(0, 1);
+    settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
+
+    // If requested to make image variations of a file, this will load in the settings
+    // needed to make it happen. It is done before command line prompts to alow custom override
+    if(argv.fileVariations !== undefined)
+        require("./src/loadVariationData")(
+            argv.fileVariations,
+            settings().settings,
+            settings().imageSettings,
+            settings().upscaleSettings);
+
+    // Use command line to override settings if any arguments are specified
+    require("./src/applyArgs")(
+        argv,
         settings().settings,
         settings().imageSettings,
-        settings().upscaleSettings);
+        settings().upscaleSettings,
+        settings());
 
-// Use command line to override settings if any arguments are specified
-require("./src/applyArgs")(
-    argv,
-    settings().settings,
-    settings().imageSettings,
-    settings().upscaleSettings,
-    settings());
+    // Upscale if requested, otherwise stop
+    if(argv.upscaleFile !== undefined)
+        await upscale(argv.upscaleFile)
+    else
+        await run();
 
-// Upscale if requested, otherwise stop
-if(argv.upscaleFile !== undefined)
-	upscale(argv.upscaleFile)
-else
-	run();
+    // Write results file
+    fs.writeFileSync("./results.json", JSON.stringify({
+        prompts: settings().imageSettings.resultPrompts,
+        images: settings().imageSettings.resultImages,
+    }, null, 4));
+
+    server.close();
+});
+
+app.get('/api/images/progress', async function(req, res) {
+  res.jsonp({
+    progressOngoing: settings().imageSettings.progressOngoing,
+    progressPercent: settings().imageSettings.progressPercent,
+    progressEta: settings().imageSettings.progressEta,
+    progressCurImg: settings().imageSettings.progressCurImg,
+    progressTotalImg: settings().imageSettings.progressTotalImg,
+    progressCurStep: settings().imageSettings.progressCurStep,
+    progressTotalSteps: settings().imageSettings.progressTotalSteps,
+    progressCurPrompt: settings().imageSettings.progressCurPrompt,
+    progressTotalPrompts: settings().imageSettings.progressTotalPrompts,
+  });
+});

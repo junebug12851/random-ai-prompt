@@ -24,6 +24,9 @@ module.exports = {
     // Port the API or Web Server listens on
     port: 7861,
 
+    // Port the progress instance listens on
+    portProgress: 7862,
+
     // Path to the static web files
     webFolder: "./web",
 };

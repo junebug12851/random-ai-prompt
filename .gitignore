@@ -3,3 +3,4 @@ user-settings.js
 user-settings.json
 /output/**
 !**/.gitkeep
+results.json

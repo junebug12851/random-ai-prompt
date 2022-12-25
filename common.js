@@ -69,6 +69,12 @@ async function processBatch(index, total) {
         console.log();
     }
 
+    // Save prompt
+    if(settings().imageSettings.resultPrompts == undefined)
+        settings().imageSettings.resultPrompts = [];
+
+    settings().imageSettings.resultPrompts.push(prompt);
+
     // Make into image if filled in and not blank
     if(settings().settings.generateImages && prompt != "")
         await genImage(prompt, index, total, settings().settings, settings().imageSettings, settings().upscaleSettings);

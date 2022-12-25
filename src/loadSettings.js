@@ -90,6 +90,19 @@ function userSettings() {
 	delete ret.imageSettings.variationOf;
 	delete ret.imageSettings.origPostPrompt;
 
+	delete imageSettings.resultPrompts;
+	delete imageSettings.resultImages;
+
+	delete imageSettings.progressOngoing;
+	delete imageSettings.progressPercent;
+	delete imageSettings.progressEta;
+	delete imageSettings.progressCurImg;
+	delete imageSettings.progressTotalImg;
+	delete imageSettings.progressCurStep;
+	delete imageSettings.progressTotalSteps;
+	delete imageSettings.progressCurPrompt;
+	delete imageSettings.progressTotalPrompts;
+
 	// Return
 	return ret;
 }
