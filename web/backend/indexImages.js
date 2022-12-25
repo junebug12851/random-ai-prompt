@@ -27,6 +27,11 @@ let indexStats = {
     _total: {count: 0, keywords: 0, files: 0, highestKeyword: "", highestKeywordCount: 0}
 };
 
+const progressVal = {
+    value: null,
+    total: null
+};
+
 function nlpProcess(word) {
     let ret = nlp(word).nouns().toSingular().text();
 
@@ -258,11 +263,13 @@ const buildIndexes = function(settings, directoryName) {
 
     // Set progress total
     progressBar.setTotal(dirFiles.length);
+    progressVal.total = dirFiles.length;
 
     for(let i = 0; i < dirFiles.length; i++) {
 
         // Update progress bar
         progressBar.update(i);
+        progressVal.value = i;
 
         // Get file
         const file = dirFiles[i];
@@ -279,6 +286,8 @@ const buildIndexes = function(settings, directoryName) {
             // buildIndexes(settings, fullPath);
             // progressBar.setTotal(dirFiles.length);
             // progressBar.update(i);
+            // progressVal.total = dirFiles.length;
+            // progressVal.value = i;
         } else {
             indexFile(settings, fullPath);
         }
@@ -348,12 +357,14 @@ const validateIndexes = function() {
 
     // Set progress total
     progressBar.setTotal(fileNames.length);
+    progressVal.total = fileNames.length;
 
     // Go through each file
     for(let i = 0; i < fileNames.length; i++) {
 
         // Update progress bar
         progressBar.update(i);
+        progressVal.value = i;
 
         // Get filename
         const fileName = files[i];
@@ -411,6 +422,8 @@ const rebuildIndexes = function(settings) {
     console.log("Indexing images...");
 
     progressBar.start(0 ,0);
+    progressVal.value = 0;
+    progressVal.total = 0;
 
     index = {};
     files = {};
@@ -422,12 +435,15 @@ const rebuildIndexes = function(settings) {
     validateIndexes();
 
     progressBar.stop();
+    progressVal.value = null;
+    progressVal.total = null;
 }
 
 module.exports = {
     getIndex() {return index},
     getFiles() {return files},
     getIndexStats() {return indexStats},
+    getProgress() {return progressVal},
     rebuildIndexes,
     query,
 }

@@ -122,6 +122,10 @@ app.get('/single', (req, res) => {
   res.render('single');
 });
 
+app.get('/re-index', (req, res) => {
+  res.render('re-index');
+});
+
 app.get('/api/images/query', async function(req, res) {
 
   // Get query
@@ -243,6 +247,15 @@ app.get('/api/images/search-suggestion', async function(req, res) {
     const keyword = _.sample(_.keys(imageIndex.getIndex()));
     res.jsonp(keyword);
   }
+});
+
+app.get('/api/images/progress', async function(req, res) {
+  const progress = await getProgress();
+  res.jsonp(progress);
+});
+
+app.get('/api/images/reindex-progress', async function(req, res) {
+  res.jsonp(imageIndex.getProgress());
 });
 
 app.get('/api/ping', (req, res) => {

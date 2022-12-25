@@ -196,23 +196,6 @@ function updateStats() {
   });
 }
 
-function initiateReindex() {
-    clearImages();
-
-    $.ajax({
-        type: 'GET',
-        url: '/api/images/re-index',
-        success: function(data) {
-            loadImageFeed();
-            updateStats();
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  });
-}
-
 // Set the interval to run every 30 seconds
 setInterval(function() {
 

@@ -1,0 +1,12 @@
+#container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* align vertically */
+  justify-content: center; /* align horizontally */
+  width: 100%;
+  height: 100%;
+}
+
+.progress-bar {
+  max-width: 512px;
+}

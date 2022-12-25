@@ -36,3 +36,14 @@ function epochToDateString(epochTimestamp) {
 
   return dateString;
 }
+
+function onReindexButton() {
+  const backUrl = window.location.href;
+  const encodedBackUrl = encodeURIComponent(backUrl);
+  const params = new URLSearchParams({ backUrl: encodedBackUrl });
+  window.location = `/re-index?${params}`;
+}
+
+$(document).ready(function() {
+    $("#reindex-button").click(onReindexButton);
+});
