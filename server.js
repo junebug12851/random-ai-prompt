@@ -33,6 +33,12 @@ const {
 const imageIndex = require("./web/backend/indexImages");
 const fs = require("fs");
 const express = require('express');
+const http = require('http');
+
+const { exec } = require('child_process');
+const { promisify } = require('util');
+
+const execPromise = promisify(exec);
 
 // Rebuild indexes
 imageIndex.rebuildIndexes(settings());
@@ -47,6 +53,45 @@ app.set('views', settings().serverSettings.webFolder + "/views")
 
 // Use the body-parser middleware to parse incoming request bodies
 app.use(express.json());
+
+// Executes index.js with with currently set args
+// await exec();
+
+let args = {};
+
+async function execApp() {
+  const command = ".";
+  const nodeExecutable = `"${process.argv[0]}"`;
+  const commandArgs = [nodeExecutable, command];
+
+  let ret = {};
+
+  for (const [key, value] of Object.entries(args)) {
+    commandArgs.push(`--${key}`);
+    if (value !== undefined) {
+      commandArgs.push(value);
+    }
+  }
+
+  try {
+    const { stdout, stderr } = await execPromise(commandArgs.join(' '));
+    ret = {stdout, stderr};
+  } catch (error) {
+    ret = {error};
+    console.error(`exec error: ${error}`);
+  }
+
+  return ret;
+}
+
+async function getProgress() {
+  try {
+    return await http.get(`http://localhost:${settings().serverSettings.portProgress}`);
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+}
 
 // Announce API is ready
 app.listen(settings().serverSettings.port, () => {
@@ -259,18 +304,12 @@ app.get('/api/file-variation/:fileId', async (req, res) => {
   // Save settings beforehand
   saveSettings();
 
-  // Load variation data
-  require("./src/loadVariationData")(
-        req.params.fileId,
-        settings().settings,
-        settings().imageSettings,
-        settings().upscaleSettings);
+  args = {
+    "file-variations": req.params.fileId
+  };
 
-  // Make variations
-  await run();
-
-  // Undo settings change
-  reloadSettings();
+  // Run file variatons
+  await execApp();
 
   res.jsonp("success");
 });
@@ -281,11 +320,12 @@ app.get('/api/upscale-file/:fileId', async (req, res) => {
   // Save settings beforehand
   saveSettings();
 
-  // Do upscale
-  await upscale(req.params.fileId);
+  args = {
+    "upscale-file": req.params.fileId
+  };
 
-  // Undo settings change
-  reloadSettings();
+  // Run file variatons
+  await execApp();
 
   res.jsonp("success");
 });
