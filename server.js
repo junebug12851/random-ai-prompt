@@ -95,7 +95,7 @@ app.get('/api/images/query', async function(req, res) {
 
 // Gets a random image name
 app.get('/api/images/random-name', async function(req, res) {
-  res.jsonp(_.sample(imageIndex.getFiles().name));
+  res.jsonp(_.sample(imageIndex.getFiles()).name);
 });
 
 app.get('/api/images/single/:name', async function(req, res) {
