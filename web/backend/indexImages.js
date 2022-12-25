@@ -273,11 +273,12 @@ const buildIndexes = function(settings, directoryName) {
         // Is it a folder or file?
         const f = fs.statSync(fullPath);
 
+        // UPDATE: No more recursive directory, root output folder only
         // Loop through folder if it is one
         if (f.isDirectory()) {
-            buildIndexes(settings, fullPath);
-            progressBar.setTotal(dirFiles.length);
-            progressBar.update(i);
+            // buildIndexes(settings, fullPath);
+            // progressBar.setTotal(dirFiles.length);
+            // progressBar.update(i);
         } else {
             indexFile(settings, fullPath);
         }
