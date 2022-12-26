@@ -180,6 +180,10 @@ app.get('/upscale-progress', (req, res) => {
   res.render('upscale-progress');
 });
 
+app.get('/results', (req, res) => {
+  res.render('results');
+});
+
 app.get('/download/:file', (req, res) => {
   res.download(`./${settings().imageSettings.saveTo}/${req.params.file}`);
 });
@@ -314,6 +318,61 @@ app.get('/api/images/progress', async function(req, res) {
 
 app.get('/api/images/reindex-progress', async function(req, res) {
   res.jsonp(imageIndex.getProgress());
+});
+
+app.get('/api/results', async function(req, res) {
+
+  try {
+
+    // get results
+    const results = JSON.parse(fs.readFileSync("./results.json").toString());
+
+    // Breakdown results into images and prompts
+    const images = results.images;
+    const prompts = results.prompts;
+
+    // Array to send to client
+    let ret = {
+      images: [],
+      prompts: (prompts) ? prompts : [],
+    };
+
+    if(images != undefined) {
+      for(let i = 0; i < images.length; i++) {
+
+        // Prepare object to be pushed into array
+        const obj = {};
+
+        // get path to png file
+        obj.image = `/images/${images[i]}.png`;
+
+        // Save reference to index data and index link if it exists
+        const data = imageIndex.getFiles()[images[i]];
+        if(data != undefined) {
+          obj.data = data;
+          obj.link = `/single?name=${images[i]}`;
+        }
+
+        // Otherwise attempt to assume its an upscale and get link that way
+        else {
+          const json = require(`${settings().imageSettings.saveTo}/${images[i]}.json`);
+          if(json.upscaleOf) {
+            obj.data = imageIndex.getFiles()[json.upscaleOf];
+            obj.link = `/single?name=${json.upscaleOf}`;
+          }
+        }
+
+        // Save it
+        ret.images.push(obj);
+      }
+    }
+
+    res.jsonp(ret);
+    return;
+  }
+  catch(err) {}
+
+  res.jsonp({});
 });
 
 app.get('/api/ping', (req, res) => {
