@@ -119,3 +119,7 @@ ul#keyword-cloud li a:active {
   max-height: 512px;
   object-fit: contain;
 }
+
+table a {
+  color: hsl(0.00,0.00%,98.04%);
+}

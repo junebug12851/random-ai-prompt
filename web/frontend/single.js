@@ -161,8 +161,8 @@ function completePage() {
     }
 
     $("#filename-cell").text(imageData.name);
-    $("#data-file-cell").text(imageData.dataPath);
-    $("#image-file-cell").text(imageData.imgPath);
+    $("#data-file-cell").html(`<a href="${imageData.dataPath}" rel="noopener noreferrer" target="_blank">${imageData.dataPath}</a>`);
+    $("#image-file-cell").html(`<a href="${imageData.imgPath}" rel="noopener noreferrer" target="_blank">${imageData.imgPath}</a>`);
 
     for(let i = 0; i < imageData.keywordCloud.length; i++) {
 
