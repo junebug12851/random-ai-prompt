@@ -372,9 +372,6 @@ app.post('/api/merge-settings', (req, res) => {
 // Make file variations
 app.get('/api/file-variation/:fileId', async (req, res) => {
 
-  // Save settings beforehand
-  saveSettings();
-
   args = {
     "file-variations": req.params.fileId
   };
@@ -387,9 +384,6 @@ app.get('/api/file-variation/:fileId', async (req, res) => {
 
 // Upscale existing
 app.get('/api/upscale-file/:fileId', async (req, res) => {
-
-  // Save settings beforehand
-  saveSettings();
 
   args = {
     "upscale-file": req.params.fileId
