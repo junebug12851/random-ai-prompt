@@ -190,6 +190,13 @@ const indexFile = function(settings, filePath) {
     if(data.upscaleOf)
         deepLink(data.upscaleOf.toString(), data.imgPath, "upscales");
 
+    // Don't link upscaled re-rolls
+    if(data.rerollOf && !data.upscaleOf)
+        deepLink(data.rerollOf.toString(), {
+            name,
+            imgPath: data.imgPath,
+        }, "rerolls");
+
     // Deep link original to this variation
     // There was apparently a bug that made variationOf names numbers, this ensures their
     // properly sent as a string

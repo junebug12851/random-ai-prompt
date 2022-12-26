@@ -46,6 +46,16 @@ const server = app.listen(settings().serverSettings.portProgress, async function
             settings().imageSettings,
             settings().upscaleSettings);
 
+    // Re-rolling requires you to specify the filename and the field
+    if(argv.rerollFile != undefined && argv.rerollField != undefined) {
+        require("./src/loadRerollData")(
+            argv.rerollFile,
+            argv.rerollField,
+            settings().settings,
+            settings().imageSettings,
+            settings().upscaleSettings);
+    }
+
     // Use command line to override settings if any arguments are specified
     require("./src/applyArgs")(
         argv,

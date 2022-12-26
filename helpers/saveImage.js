@@ -36,6 +36,9 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
 	if(info != undefined && imageSettings.variationOf != undefined)
 		info.variationOf = imageSettings.variationOf;
 
+	if(info != undefined && imageSettings.rerollOf != undefined)
+		info.rerollOf = imageSettings.rerollOf;
+
 	// If generating an image with auto-upscaler turned on for new images
 	// and asked to save the image before hand, we can link to that image
 	if(info != undefined && upscaleOf != undefined && (typeof upscaleOf) == "string")

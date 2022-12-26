@@ -41,6 +41,15 @@ function onVariationSelectionChange() {
         }
     }
 
+    if(selectedOption == "rerolls" && imageData.rerolls != undefined) {
+        for(let i = 0; i < imageData.rerolls.length; i++) {
+            const reroll = imageData.rerolls[i];
+            $("#variation-images").append(`
+                <a href="/single?name=${reroll.name}"><img src="${reroll.imgPath}"/></a>
+            `);
+        }
+    }
+
     if(selectedOption == "upscales" && imageData.upscales != undefined) {
         for(let i = 0; i < imageData.upscales.length; i++) {
             const upscale = imageData.upscales[i];
@@ -96,11 +105,13 @@ function completePage() {
 
     $("#timestamp-cell").text(timestampReadable);
 
-    if(imageData.variationOf != undefined)
+    if(imageData.variationOf != undefined || imageData.rerollOf != undefined)
         $("#parent").show();
 
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
+    else if(imageData.rerollOf != undefined)
+        $("#type-cell").text("Re-rolled Image");
     else if(imageData.upscaleOf != undefined)
         $("#type-cell").text("Upscaled Image");
     else if(imageData.upscaleOf == undefined && imageData.isUpscale == true)
@@ -184,11 +195,14 @@ function completePage() {
 
     // Set Variation or upscale images
 
-    if(imageData.upscales != undefined || imageData.variations != undefined)
+    if(imageData.upscales != undefined || imageData.variations != undefined || imageData.rerolls != undefined)
         $("#variations-cell").show();
 
     if(imageData.variations != undefined)
         $("#variation-selection").append('<option value="variations">Variations</option>');
+
+    if(imageData.rerolls != undefined)
+        $("#variation-selection").append('<option value="rerolls">Re-Rolls</option>');
 
     if(imageData.upscales != undefined)
         $("#variation-selection").append('<option value="upscales">Upscales</option>');
@@ -226,10 +240,24 @@ function randomName() {
   });
 }
 
-function generatePrompt(prompt) {
+function rerollPrompt() {
+
+    const selectedOption = $("#prompt-selection").val();
+    let fieldName = null;
+
+    if(selectedOption == "prompt")
+        fieldName = "prompt";
+    else if(selectedOption == "original")
+        fieldName = "origPrompt";
+    else if(selectedOption == "post")
+        fieldName = "origPostPrompt";
+
+    if(fieldName == null)
+        return;
+
     $.ajax({
         type: 'GET',
-        url: `/api/generate/${prompt}`,
+        url: `/api/reroll-file/${imageData.name}/${fieldName}`,
         success: function(data) {
             
         },
@@ -239,7 +267,7 @@ function generatePrompt(prompt) {
         }
   });
 
-    displayProgress(true);
+    displayProgress();
 }
 
 function makeVariations() {
@@ -274,8 +302,8 @@ function upscaleFile() {
     displayProgress(false, true);
 }
 
-function onGenerateThis() {
-    generatePrompt($('#keywords').text());
+function onReroll() {
+    rerollPrompt($('#keywords').text());
 }
 
 function copyPrompt() {
@@ -300,7 +328,7 @@ $(document).ready(function() {
     }
 
     $('#prompt-selection').change(onPromptSelectionChange);
-    $('#generate-this').click(onGenerateThis);
+    $('#generate-this').click(onReroll);
     $('#copy').click(copyPrompt);
     $("#make-variations").click(makeVariations);
     $("#make-upscale").click(upscaleFile);
@@ -308,7 +336,10 @@ $(document).ready(function() {
         window.location = `/api/download-file/${imageData.name}`;
     });
     $("#parent").click(() => {
-        window.location = `/single?name=${imageData.variationOf}`;
+        if(imageData.variationOf != undefined)
+            window.location = `/single?name=${imageData.variationOf}`;
+        else if(imageData.rerollOf != undefined)
+            window.location = `/single?name=${imageData.rerollOf}`;
     });
     $('#variation-selection').change(onVariationSelectionChange);
 });

@@ -43,8 +43,8 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	// Apply arguments to general settings
 	///////////////////////////////
 	
-	// Auto disable auto artists and fx if we're making variations or upscales
-	if(argv.fileVariations != undefined || argv.upscaleFile) {
+	// Auto disable auto artists and fx if we're making variations or upscales or rerolls
+	if(argv.fileVariations != undefined || argv.upscaleFile || argv.rerollFile) {
 		settings.autoAddArtists = false;
 		settings.autoAddFx = false;
 	}

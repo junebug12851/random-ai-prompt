@@ -401,6 +401,20 @@ app.get('/api/upscale-file/:fileId', async (req, res) => {
   res.jsonp("success");
 });
 
+// Reroll existing
+app.get('/api/reroll-file/:fileId/:field', async (req, res) => {
+
+  args = {
+    "reroll-file": req.params.fileId,
+    "reroll-field": req.params.field,
+  };
+
+  // Run file variatons
+  await execApp();
+
+  res.jsonp("success");
+});
+
 app.get('/api/download-file/:name', async (req, res) => {
 
   // Get image name
