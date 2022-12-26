@@ -36,6 +36,17 @@ module.exports = function(name, field, settings, imageSettings, upscaleSettings)
 		// Copy field to prompt
 		settings.prompt = txt[field];
 
+		// Copy these other settings, this is re-rolling the image not making a variation
+		// suff like original prompts and seeds should not be copied
+		imageSettings.negativePrompt = txt.negative_prompt;
+		imageSettings.sampler = txt.sampler_name;
+		imageSettings.cfg = txt.cfg_scale;
+		imageSettings.steps = txt.steps;
+		imageSettings.restoreFaces = txt.restore_faces;
+		imageSettings.width = txt.width;
+		imageSettings.height = txt.height;
+		imageSettings.denoising = txt.denoising_strength;
+
 		// Link this as a re-roll only if field was available
 		imageSettings.rerollOf = (txt.rerollOf != undefined) ? txt.rerollOf.toString() : name.toString();
 
