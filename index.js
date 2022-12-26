@@ -71,13 +71,23 @@ const server = app.listen(settings().serverSettings.portProgress, async function
 
 app.get('/api/images/progress', async function(req, res) {
   res.jsonp({
+
+    // Progress on-going or not
     progressOngoing: settings().imageSettings.progressOngoing,
-    progressPercent: settings().imageSettings.progressPercent,
-    progressEta: settings().imageSettings.progressEta,
-    progressCurImg: settings().imageSettings.progressCurImg,
-    progressTotalImg: settings().imageSettings.progressTotalImg,
+
+    // Image Progress
     progressCurStep: settings().imageSettings.progressCurStep,
     progressTotalSteps: settings().imageSettings.progressTotalSteps,
+
+    // Image Batch Progress
+    progressCurImg: settings().imageSettings.progressCurImg,
+    progressTotalImg: settings().imageSettings.progressTotalImg,
+
+    // Image Total Progress
+    progressPercent: settings().imageSettings.progressPercent,
+    progressEta: settings().imageSettings.progressEta,
+
+    // Prompts Progress
     progressCurPrompt: settings().imageSettings.progressCurPrompt,
     progressTotalPrompts: settings().imageSettings.progressTotalPrompts,
   });

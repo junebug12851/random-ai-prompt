@@ -34,6 +34,7 @@ const imageIndex = require("./web/backend/indexImages");
 const fs = require("fs");
 const express = require('express');
 const http = require('http');
+const fetch = require('node-fetch');
 
 const { exec } = require('child_process');
 const { promisify } = require('util');
@@ -58,11 +59,14 @@ app.use(express.json());
 // await exec();
 
 let args = {};
+let execAppOngoing = false;
 
 async function execApp() {
   const command = ".";
   const nodeExecutable = `"${process.argv[0]}"`;
   const commandArgs = [nodeExecutable, command];
+
+  execAppOngoing = true;
 
   let ret = {};
 
@@ -81,16 +85,58 @@ async function execApp() {
     console.error(`exec error: ${error}`);
   }
 
+  execAppOngoing = false;
+
   return ret;
 }
 
+async function getProgressRequest() {
+    const url = `http://localhost:${settings().serverSettings.portProgress}/api/images/progress`;
+
+    // Send response
+    try {
+      const response = await fetch(`http://localhost:${settings().serverSettings.portProgress}/api/images/progress`);
+      return await response.json();
+    }
+    catch(err) {}
+
+    return undefined;
+}
+
 async function getProgress() {
+  let ret;
+
   try {
-    return await http.get(`http://localhost:${settings().serverSettings.portProgress}`);
-  } catch (error) {
-    console.error(error);
-    return {};
+    ret = await getProgressRequest();
+  } catch (error) {}
+
+  if(ret == undefined) {
+    ret = {
+      // Progress on-going or not
+      progressOngoing: false,
+
+      // Image Progress
+      progressCurStep: 1,
+      progressTotalSteps: 1,
+
+      // Image Batch Progress
+      progressCurImg: 1,
+      progressTotalImg: 1,
+
+      // Image Total Progress
+      progressPercent: 1,
+      progressEta: "--s",
+
+      // Prompts Progress
+      progressCurPrompt: 1,
+      progressTotalPrompts: 1,
+    };
   }
+
+  // Whether the actual request is done
+  ret.execOngoing = execAppOngoing;
+
+  return ret;
 }
 
 // Announce API is ready
@@ -124,6 +170,14 @@ app.get('/single', (req, res) => {
 
 app.get('/re-index', (req, res) => {
   res.render('re-index');
+});
+
+app.get('/progress', (req, res) => {
+  res.render('progress');
+});
+
+app.get('/upscale-progress', (req, res) => {
+  res.render('upscale-progress');
 });
 
 app.get('/api/images/query', async function(req, res) {

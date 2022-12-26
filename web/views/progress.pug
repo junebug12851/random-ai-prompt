@@ -1,0 +1,42 @@
+extends layouts/modal.pug
+
+block styles
+    link(rel='stylesheet' href='progress.css')
+
+block content
+    #container
+        p Generating Images
+        p Image
+        .progress-bar
+            #progress-steps.progress(style="width: 100%;")
+        p
+            span#progress-steps-cur 1
+            | &nbsp; / &nbsp;
+            span#progress-steps-total 1
+
+        p Image Batch
+        .progress-bar
+            #progress-image.progress(style="width: 100%;")
+        p
+            span#progress-image-cur 1
+            | &nbsp; / &nbsp;
+            span#progress-image-total 1
+
+        p Image Total
+        .progress-bar
+            #progress-total.progress(style="width: 100%;")
+        p
+            span#progress-total-percent 100%
+            | &nbsp; / &nbsp;
+            span#progress-total-eta --s
+
+        p Prompts
+        .progress-bar
+            #progress-prompts.progress(style="width: 100%;")
+        p
+            span#progress-prompts-cur 1
+            | &nbsp; / &nbsp;
+            span#progress-prompts-total 1
+
+block scripts
+    script(type='text/javascript' src='progress.js')

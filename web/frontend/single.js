@@ -238,6 +238,8 @@ function generatePrompt(prompt) {
             console.log(error);
         }
   });
+
+    displayProgress(true);
 }
 
 function makeVariations() {
@@ -252,6 +254,8 @@ function makeVariations() {
             console.log(error);
         }
   });
+
+    displayProgress();
 }
 
 function upscaleFile() {
@@ -266,6 +270,8 @@ function upscaleFile() {
             console.log(error);
         }
   });
+
+    displayProgress(false, true);
 }
 
 function onGenerateThis() {

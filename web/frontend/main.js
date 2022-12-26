@@ -44,6 +44,27 @@ function onReindexButton() {
   window.location = `/re-index?${params}`;
 }
 
+function _displayProgress(noBack, isUpscale) {
+
+  const progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";
+
+  if(noBack) {
+    window.location = progressUrl;
+    return;
+  }
+
+  const backUrl = window.location.href;
+  const encodedBackUrl = encodeURIComponent(backUrl);
+  const params = new URLSearchParams({ backUrl: encodedBackUrl });
+  window.location = `${progressUrl}?${params}`;
+}
+
+// Give the request time to send
+// For some reason, jquery offers no way to localy determine when the request is sent
+function displayProgress(noBack, isUpscale) {
+  setTimeout(_displayProgress.bind(undefined, noBack, isUpscale), 500);
+}
+
 $(document).ready(function() {
     $("#reindex-button").click(onReindexButton);
 });
