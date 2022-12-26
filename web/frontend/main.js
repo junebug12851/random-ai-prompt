@@ -44,6 +44,14 @@ function onReindexButton() {
   window.location = `/re-index?${params}`;
 }
 
+function _reindexHome() {
+  window.location = `/re-index`;
+}
+
+function reindexHome() {
+  setTimeout(_reindexHome, 500);
+}
+
 function _displayProgress(noBack, isUpscale) {
 
   const progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";

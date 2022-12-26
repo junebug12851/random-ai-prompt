@@ -316,6 +316,22 @@ function copyPrompt() {
     tempInput.remove();
 };
 
+function deleteFile() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/images/delete/${imageData.name}`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+
+    reindexHome();
+}
+
 $(document).ready(function() {
     const params = getUrlParameters();
     const _name = params.name;
@@ -333,7 +349,7 @@ $(document).ready(function() {
     $("#make-variations").click(makeVariations);
     $("#make-upscale").click(upscaleFile);
     $("#download").click(() => {
-        window.location = `/api/download-file/${imageData.name}`;
+        window.location = `/download/${imageData.name}.png`;
     });
     $("#parent").click(() => {
         if(imageData.variationOf != undefined)
@@ -341,5 +357,18 @@ $(document).ready(function() {
         else if(imageData.rerollOf != undefined)
             window.location = `/single?name=${imageData.rerollOf}`;
     });
+    $("#delete-confirmation-yes").click(deleteFile);
     $('#variation-selection').change(onVariationSelectionChange);
+
+    $("#delete").click(() => {
+        $("#delete").hide();
+        $("#delete-confirmation-yes").show();
+        $("#delete-confirmation-no").show();
+    });
+
+    $("#delete-confirmation-no").click(() => {
+        $("#delete").show();
+        $("#delete-confirmation-yes").hide();
+        $("#delete-confirmation-no").hide();
+    });
 });

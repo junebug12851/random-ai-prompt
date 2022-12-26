@@ -123,3 +123,7 @@ ul#keyword-cloud li a:active {
 table a {
   color: hsl(0.00,0.00%,98.04%);
 }
+
+#delete, #delete-confirmation-yes {
+  background-color: hsl(0.00,73.46%,41.37%);
+}

@@ -172,7 +172,7 @@ const indexFile = function(settings, filePath) {
     const relativeImgPath = path.relative(settings.imageSettings.saveTo, `${basePath}.png`).replaceAll("\\", "/");
 
     // Image data
-    const data = require(`../../${basePath}.json`);
+    const data = JSON.parse(fs.readFileSync(`./${basePath}.json`).toString());
 
     // Add relative and full json path
     data.dataPath = `/images/${relativePath}`;
@@ -354,10 +354,43 @@ const query = function(keywords) {
     return _.shuffle(_.uniqBy(results, "imgPath"));
 }
 
+let indexingHasChanged = false;
+let orphanedfiles = [];
+
+// Remove deep link from file
+const removeDeepLink = function(settings, fileName, oneToOneName) {
+    orphanedfiles.push(`${fileName}...`);
+
+    // Minimally touch the file
+    const data = JSON.parse(fs.readFileSync(`${settings.imageSettings.saveTo}/${fileName}.json`).toString());
+    delete data[oneToOneName];
+    fs.writeFileSync(`${settings.imageSettings.saveTo}/${fileName}.json`, JSON.stringify(data, null, 4));
+
+    // Announce inde has changed and needs to be re-indexed
+    indexingHasChanged = true;
+}
+
+const validateDeepLink = function(settings, fileName, oneToOneName) {
+
+    // Remove variation to file if no such file exists in index or is
+    // invalid
+    if(files[fileName][oneToOneName] != undefined) {
+        const oneToOne = files[fileName][oneToOneName];
+        if(files[oneToOne] == undefined ||
+            files[oneToOne].imgPath == undefined) {
+
+            delete files[fileName][oneToOneName];
+
+            // Also remove it from the file itself
+            removeDeepLink(settings, fileName, oneToOneName);
+        }
+    }
+}
+
 // Ensures indexes are valid
 // Such as file placeholders with no file data
 // deep links that point to non-existent files
-const validateIndexes = function() {
+const validateIndexes = function(settings) {
 
     // Get indexed files
     const fileNames = _.keys(files);
@@ -374,7 +407,7 @@ const validateIndexes = function() {
         progressVal.value = i;
 
         // Get filename
-        const fileName = files[i];
+        const fileName = fileNames[i];
 
         // Delete filename if it points to non-existent data
         if(files[fileName] == undefined) {
@@ -388,62 +421,55 @@ const validateIndexes = function() {
             continue;
         }
 
-        // Remove variation to file if no such file exists in index or is
-        // invalid
-        if(files[fileName].variationOf != undefined) {
-            const variationOf = files[fileName].variationOf;
-            if(files[variationOf] == undefined ||
-                files[variationName].imgPath == undefined)
-                delete files[fileName].variationOf;
-        }
-
-        // Remove variations to file if they don't exist
-        if(files[fileName].variations != undefined) {
-
-            // Valid variations
-            const validVariations = [];
-
-            // Go through each variation
-            for(let j = 0; j < files[fileName].variations.length; j++) {
-
-                // Get name
-                const variationName = files[fileName].variations[j];
-
-                // Check to see if it exists and is valid
-                if(files[variationName] != undefined &&
-                    files[variationName].imgPath != undefined)
-                    validVariations.push(variationName);
-            }
-
-            // Re-save proper list of variations
-            files[fileName].variations = validVariations;
-
-            // Remove entirely if all variations are invalid
-            if(files[fileName].variations.length == 0)
-                delete files[fileName].variations;
-        }
+        // Remove deep links that go to nowhere
+        validateDeepLink(settings, fileName, "variationOf");
+        validateDeepLink(settings, fileName, "upscaleOf");
+        validateDeepLink(settings, fileName, "rerollOf");
     }
 }
 
 const rebuildIndexes = function(settings) {
     console.log("Indexing images...");
 
-    progressBar.start(0 ,0);
-    progressVal.value = 0;
-    progressVal.total = 0;
+    let count = 0;
 
-    index = {};
-    files = {};
-    indexStats = {
-        _total: {count: 0, keywords: 0, files: 0, highestKeyword: "", highestKeywordCount: 0}
-    };
+    do {
+        indexingHasChanged = false;
+        orphanedfiles = [];
 
-    buildIndexes(settings, settings.imageSettings.saveTo);
-    validateIndexes();
+        progressBar.start(0 ,0);
+        progressVal.value = 0;
+        progressVal.total = 0;
 
-    progressBar.stop();
-    progressVal.value = null;
-    progressVal.total = null;
+        index = {};
+        files = {};
+        indexStats = {
+            _total: {count: 0, keywords: 0, files: 0, highestKeyword: "", highestKeywordCount: 0}
+        };
+
+        buildIndexes(settings, settings.imageSettings.saveTo);
+        validateIndexes(settings);
+
+        progressBar.stop();
+        progressVal.value = null;
+        progressVal.total = null;
+
+        if(indexingHasChanged) {
+            console.log("");
+            console.log("These files have been orphaned because of a removed parent, we need to re-index...");
+            console.log(orphanedfiles.join("\n"));
+            console.log("");
+            console.log("Re-indexing...");
+        }
+
+        count++;
+        if(count >= 5)
+            break;
+    } while(indexingHasChanged);
+
+    if(count == 5) {
+        console.error("Encountered an infinite re-index loop, had to stop...");
+    }
 }
 
 module.exports = {

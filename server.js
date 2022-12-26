@@ -188,6 +188,19 @@ app.get('/download/:file', (req, res) => {
   res.download(`./${settings().imageSettings.saveTo}/${req.params.file}`);
 });
 
+app.get('/api/images/delete/:filename', (req, res) => {
+
+  // Delete file
+  try {
+    fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.png`);
+    fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.json`);
+  }
+  catch(err) {}
+
+  // Mark as success
+  res.jsonp("success");
+});
+
 app.get('/api/images/query', async function(req, res) {
 
   // Get query
