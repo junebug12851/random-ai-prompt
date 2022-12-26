@@ -119,7 +119,7 @@ table tr:nth-child(odd):hover {
     width: 100%;
     height: 50px;
     margin: 0;
-    margin-bottom: 50px;
+    
     background-color: hsl(0.00,0.00%,5%);
 
     display: flex;
