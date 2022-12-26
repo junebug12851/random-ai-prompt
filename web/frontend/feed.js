@@ -79,6 +79,9 @@ function processImageFeed(files) {
             height = 1;
         }
 
+        if(files[i].prompt == undefined)
+            files[i].prompt = "";
+
         $("#page-gallery").append(
             getGalleryEl(
                 files[i].prompt.substring(0, 100) + "...",
