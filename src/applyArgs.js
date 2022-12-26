@@ -42,6 +42,12 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	///////////////////////////////
 	// Apply arguments to general settings
 	///////////////////////////////
+	
+	// Auto disable auto artists and fx if we're making variations or upscales
+	if(argv.fileVariations != undefined || argv.upscaleFile) {
+		settings.autoAddArtists = false;
+		settings.autoAddFx = false;
+	}
 
 	if(argv.chaos !== undefined) {
 		const chaosPercent = parseFloat(argv.chaos);
