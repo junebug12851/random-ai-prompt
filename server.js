@@ -180,6 +180,10 @@ app.get('/upscale-progress', (req, res) => {
   res.render('upscale-progress');
 });
 
+app.get('/download/:file', (req, res) => {
+  res.download(`./${settings().imageSettings.saveTo}/${req.params.file}`);
+});
+
 app.get('/api/images/query', async function(req, res) {
 
   // Get query
