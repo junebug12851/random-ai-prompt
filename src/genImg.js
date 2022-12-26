@@ -240,6 +240,13 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 	// Save orig prompt
 	info.origPrompt = (settings.origPrompt) ? settings.origPrompt : settings.prompt;
 
+	// Add fx and artists if they were automatically added
+	if(imageSettings.autoIncludedFx)
+		info.origPrompt += ", #fx";
+
+	if(imageSettings.autoIncludedArtists)
+		info.origPrompt += ", #artists";
+
 	// Convert image data to actual images
 	for(let i = 0; i < data.images.length; i++) {
 

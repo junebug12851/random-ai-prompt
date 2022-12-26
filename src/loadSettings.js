@@ -89,6 +89,8 @@ function userSettings() {
 	delete ret.imageSettings.lastCmd;
 	delete ret.imageSettings.variationOf;
 	delete ret.imageSettings.origPostPrompt;
+	delete ret.imageSettings.autoIncludedFx;
+	delete ret.imageSettings.autoIncludedArtists;
 
 	delete imageSettings.resultPrompts;
 	delete imageSettings.resultImages;

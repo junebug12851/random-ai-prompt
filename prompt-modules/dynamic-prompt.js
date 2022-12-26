@@ -82,12 +82,16 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// so we have to rprocess the modules first
 
 	// Auto-add fx first if requested to do so
-	if(settings.autoAddFx && !includedFx)
+	if(settings.autoAddFx && !includedFx) {
 		prompt += `, ${expandDynamicPromptV2("fx", settings, imageSettings, upscaleSettings)}`;
+		imageSettings.autoIncludedFx = true;
+	}
 
 	// Auto-add artists second if requested to do so
-	if(settings.autoAddArtists && !includedArtists)
+	if(settings.autoAddArtists && !includedArtists) {
 		prompt += `, ${expandDynamicPromptV2("artists", settings, imageSettings, upscaleSettings)}`;
+		imageSettings.autoIncludedArtists = true;
+	}
 
 	// Save the original post prompt
 	// The prompt after dynamic prompts but before the lists have been expanded on
