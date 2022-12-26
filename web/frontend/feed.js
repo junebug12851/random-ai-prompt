@@ -217,7 +217,6 @@ $(document).ready(function() {
     updateStats();
 
     $('#page-search').keypress(searchboxKeyPress);
-    $('#re-index').click(initiateReindex);
     $('#random').click(performRandomSearch);
     $('#search').click(performSearch);
     $('#home').click(homeFeed);
