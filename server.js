@@ -409,23 +409,15 @@ app.get('/api/reroll-file/:fileId/:field', async (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/download-file/:name', async (req, res) => {
-
-  // Get image name
-  const imageName = req.params.name;
-
-  // get image data
-  const imageData = imageIndex.getFiles()[imageName];
-
-  // Prompt to download image
-  res.download(`./${settings().imageSettings.saveTo}/${imageData.imgPathReal}`);
-});
-
 // Do normal generation
 app.get('/api/generate', async (req, res) => {
 
-  // Generate
-  await run();
+  args = {
+    "generate-images": undefined
+  };
+
+  // Run file variatons
+  await execApp();
 
   res.jsonp("success");
 });
@@ -435,14 +427,13 @@ app.get('/api/generate/:prompt', async (req, res) => {
   // Get prompt
   const prompt = req.params.prompt;
 
-  // Swap prompts
-  const origPrompt = settings().settings.prompt;
-  settings().settings.prompt = prompt;
+  args = {
+    prompt,
+    "generate-images": undefined
+  };
 
-  // Generate
-  await run();
-
-  settings().settings.prompt = origPrompt;
+  // Run file variatons
+  await execApp();
 
   res.jsonp("success");
 });
@@ -530,36 +521,4 @@ app.get('/api/files/presets', (req, res) => {
   }
 
   res.jsonp(userFiles);
-});
-
-app.get('/api/apply-preset/:fileId', (req, res) => {
-
-  // Load it
-  const presetData = require(`./${settings().settings.presetFiles}/${req.params.fileId}.json`);
-
-  // Merge it
-  _.merge(settings(), presetData);
-
-  // Notify Done
-  res.jsonp("success");
-});
-
-app.get('/api/apply-chaos/:value', (req, res) => {
-
-  const chaosPercent = parseFloat(req.params.value);
-
-  settings().settings.emphasisChance *= chaosPercent;
-  settings().settings.emphasisLevelChance *= chaosPercent;
-  settings().settings.emphasisMaxLevels = Math.round(settings().settings.emphasisMaxLevels * chaosPercent);
-
-  settings().settings.deEmphasisChance *= chaosPercent;
-  if(settings().settings.deEmphasisChance < 0.25)
-    settings().settings.deEmphasisChance = 0.25;
-  else if(settings().settings.deEmphasisChance > 0.50)
-    settings().settings.deEmphasisChance = 0.50;
-  
-  settings().settings.keywordAlternatingMaxLevels *= chaosPercent;
-
-  // Notify Done
-  res.jsonp("success");
 });
