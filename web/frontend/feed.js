@@ -203,6 +203,22 @@ setInterval(function() {
 
 }, 15 * 1000);
 
+function makeArt() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/generate`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+
+    displayProgress(true);
+}
+
 $(document).ready(function() {
 
     const params = getUrlParameters();
@@ -220,4 +236,5 @@ $(document).ready(function() {
     $('#random').click(performRandomSearch);
     $('#search').click(performSearch);
     $('#home').click(homeFeed);
+    $('#make-art').click(makeArt);
 });
