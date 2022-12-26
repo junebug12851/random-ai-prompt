@@ -387,6 +387,80 @@ const validateDeepLink = function(settings, fileName, oneToOneName) {
     }
 }
 
+// Upscales have to be handled specially since their usually not linked
+// more, just referenced. They have to be orphaned more specially
+// We have to convert an upscale reference to a full normal index entry without a parent
+const validateUpscaleDeepLink = function(settings, fileName) {
+    const data = files[fileName];
+
+    // Stop here if no upscales
+    if(data.upscales == undefined)
+        return;
+
+    // Go through upscales
+    for(let i = 0; i < data.upscales.length; i++) {
+
+        // Get upscale path
+        // /images/12457-upscaled.png
+        const upscalePath = data.upscales[i];
+
+        // Convert it to a name
+        // [/images/12457-upscaled.png, 12457-upscaled]
+        let upscaleName = upscalePath.match(/^.*\/(.*)\..*/m);
+
+        // we have to have an array with the full path and name, 2 elements
+        // [/images/12457-upscaled.png, 12457-upscaled]
+        if(upscaleName.length < 2) {
+            console.error(`Attempt to orphan upscale ${upscalePath} failed, needed 2 elements, got 1`);
+            console.error(upscaleName);
+            continue;
+        }
+
+        // Keep only the name part
+        // 12457-upscaled
+        upscaleName = upscaleName[1];
+
+        // Get the path without upscaled
+        // 12457-upscaled
+        let upscaleNewName = upscaleName.match(/^(.*)-.*/m);
+
+        // we have to have an array with the normal name and new name, 2 elements
+        // [12457-upscaled, 12457]
+        if(upscaleNewName.length < 2) {
+            console.error(`Attempt to orphan upscale ${upscalePath} failed, needed 2 elements, got 1`);
+            console.error(upscaleNewName);
+            continue;
+        }
+
+        // 12457
+        upscaleNewName = upscaleNewName[1];
+
+        // Rename the file
+        try {
+            // /output/12457-upscaled.png => /output/12457.png
+            fs.renameSync(
+                `${settings.imageSettings.saveTo}/${upscaleName}.png`,
+                `${settings.imageSettings.saveTo}/${upscaleNewName}.png`
+            );
+
+            // /output/12457-upscaled.json => /output/12457.json
+            fs.renameSync(
+                `${settings.imageSettings.saveTo}/${upscaleName}.json`,
+                `${settings.imageSettings.saveTo}/${upscaleNewName}.json`
+            );
+        }
+        catch(err) {
+            console.error(`Unable to orphan and rename ${upscaleName}`);
+            console.error(err);
+            continue;
+        }
+
+        // Remove the upscaleOf aspect of the file finally getting to the part
+        // where we orphan it
+        removeDeepLink(settings, upscaleNewName, "upscaleOf");
+    }
+}
+
 // Ensures indexes are valid
 // Such as file placeholders with no file data
 // deep links that point to non-existent files
@@ -417,6 +491,7 @@ const validateIndexes = function(settings) {
 
         // Delete if there's no stored image path
         if(files[fileName].imgPath == undefined) {
+            validateUpscaleDeepLink(settings, fileName);
             delete files[fileName];
             continue;
         }
