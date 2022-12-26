@@ -372,7 +372,10 @@ app.get('/api/results', async function(req, res) {
   }
   catch(err) {}
 
-  res.jsonp({});
+  res.jsonp({
+      images: [],
+      prompts: [],
+    });
 });
 
 app.get('/api/ping', (req, res) => {
