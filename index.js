@@ -35,6 +35,15 @@ const server = app.listen(settings().serverSettings.portProgress, async function
     let cmdLine = _.cloneDeep(process.argv);
     cmdLine.splice(0, 1);
     cmdLine.splice(0, 1);
+
+    // Wrap commands in quotes if they are a string and have spaces
+    for (let i = 0; i < cmdLine.length; i++) {
+      const argument = cmdLine[i];
+      if (typeof argument === 'string' && argument.includes(' ')) {
+        cmdLine[i] = `"${argument}"`;
+      }
+    }
+
     settings().imageSettings.lastCmd = `node . ${cmdLine.join(" ")}`;
 
     // If requested to make image variations of a file, this will load in the settings
