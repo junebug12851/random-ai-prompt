@@ -230,8 +230,7 @@ function randomName() {
         type: 'GET',
         url: '/api/images/random-name',
         success: function(data) {
-            name = data;
-            loadData();
+            window.location = `/single?name=${data}`;
         },
         error: function(error){
             console.log("Error:");
