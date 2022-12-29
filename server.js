@@ -216,7 +216,8 @@ app.get('/api/images/query', async function(req, res) {
 
   if(query.query == undefined) {
     res.jsonp([]);
-    cosnole.error("Client sent a query request with no query attached");
+    console.error("Client sent a query request with no query attached");
+    return;
   }
 
   // Do a query
@@ -337,6 +338,7 @@ app.get('/api/images/search-suggestion', async function(req, res) {
     }
 
     const keywords = _.sampleSize(file.keywords, count);
+    res.jsonp(keywords.join(" "));
   }
   else {
     const keyword = _.sample(_.keys(imageIndex.getIndex()));
