@@ -400,14 +400,29 @@ app.get('/api/ping', (req, res) => {
 });
 
 // Single setting
-app.get('/api/setting/:path', (req, res) => {
-  const setting = _.at(settings(), req.params.path);
-  if(setting == null || setting == undefined || setting.length == 0) {
+// app.get('/api/setting/:path', (req, res) => {
+//   const setting = _.at(settings(), req.params.path);
+//   if(setting == null || setting == undefined || setting.length == 0) {
+//     res.jsonp(null);
+//     return;
+//   }
+
+//   res.jsonp(setting[0]);
+// });
+
+app.post('/api/setting', (req, res) => {
+
+  // Verify the body contains an object with a kery of value and a value of anything but undefined
+  if(req.body == null || req.body == undefined || req.body.value == undefined || req.body.path == undefined) {
+    console.error("Posting a setting needs to be done in {value: ..., path: ...}");
     res.jsonp(null);
     return;
   }
 
-  res.jsonp(setting[0]);
+  _.set(settings(), req.body.path, req.body.value);
+
+  saveSettings();
+  res.jsonp("success");
 });
 
 // Get settings

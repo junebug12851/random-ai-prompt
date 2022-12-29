@@ -4,6 +4,158 @@ let settings = {};
 // Lists
 let lists = []; 
 
+let settingsQueue = [];
+let settingsQueueOngoing = false;
+
+async function saveSettings() {
+
+	// Don't do anything if ongoing
+	if(settingsQueueOngoing)
+		return;
+
+	// Mark on-going
+	settingsQueueOngoing = true;
+
+	// Clone settings queue
+	const _settingsQueue = _.cloneDeep(settingsQueue);
+	settingsQueue = [];
+
+	try {
+
+		// Save settings one-by-one
+		for(let i = 0; i < _settingsQueue.length; i++) {
+			await fetch(`/api/setting`, {
+			  method: 'POST',
+			  body: JSON.stringify({
+			  	path: _settingsQueue[i].path,
+			    value: _settingsQueue[i].value
+			  }),
+			  headers: {
+			    'Content-Type': 'application/json'
+			  }
+			});
+		}
+	}
+	catch(err) {
+		console.log("Error:");
+        console.log(err);
+	}
+
+	// Mark false
+	settingsQueueOngoing = false;
+
+	// If the queue has items in it again, restart queue
+	if(settingsQueue.length > 0)
+		setTimeout(saveSettings, 1);
+}
+
+function saveSetting(path, value) {
+	settingsQueue.push({path,value});
+	saveSettings();
+}
+
+function returnValToSetting() {
+
+	// Ignore if invalid
+	if($(this).is(":invalid"))
+		return;
+
+	// Get path(s)
+	const paths = $(this).data('path').split(",");
+
+	// Get the value
+	let val;
+
+	if($(this).is('[type="checkbox"]'))
+		val = $(this).prop('checked').toString();
+	// else if($(this).is('textarea'))
+	// 	val = $(this).text();
+	else
+		val = $(this).val();
+
+	// Convert value to an array of 1 or more elements only if this is a text input or textarea
+	// and it's either implicitly or explicitly requested
+	if(
+		(paths.length > 1 || $(this).data('join') != undefined) &&
+		($(this).is("input[type='text']") || $(this).is("textarea"))
+	) {
+		if($(this).data('join') != undefined)
+			val = val.split($(this).data('join'));
+		else
+			val = val.split("-");
+	}
+
+	// Otherwise just make into an array
+	else
+		val = [val];
+
+	// Type conversion from string to proper primitive values
+	for(let i = 0; i < val.length; i++) {
+
+		// Try to convert to null
+		if(val[i] == "null") {
+			val[i] = null;
+		}
+
+		// Try t convert to undefined
+		else if(val[i] == "undefined") {
+			val[i] = undefined;
+		}
+
+		// Try to convert to a boolean
+		else if(val[i] == "true" || val[i] == "false") {
+			val[i] = (val[i] == "true");
+		}
+
+		// Try to convert to number
+		else if(!isNaN(Number(val[i]))) {
+			val[i] = Number(val[i]);
+		}
+
+		// Try to convert it to a float
+		else if(val[i].endsWith("%") && !isNaN(Number.parseFloat(val[i]))) {
+			val[i] = Number.parseFloat(val[i]);
+			val[i] = +(val[i] * 0.01).toFixed(2);
+		}
+
+		// Leave as a string
+	}
+
+	// Save
+
+	// 1 path to 1 value
+	if(paths.length == 1 && val.length == 1) {
+		saveSetting(paths[0], val[0]);
+		return;
+	}
+
+	// 1 path to an array value
+	else if(paths.length == 1 && val.length > 1) {
+		saveSetting(paths[0], val);
+		return;
+	}
+
+	// 1 value per path
+	else if(val.length == paths.length) {
+
+		for(let i = 0; i < paths.length; i++) {
+
+			// Grab path
+			const path = paths[i];
+
+			// Grab value
+			const value = val[i];
+
+			// Save
+			saveSetting(path, value);
+		}
+
+		return;
+	}
+
+	console.error("Can't classify how to save data back, paths", paths, "values", val);
+}
+
 function setValToSetting() {
 	const path = $(this).data('path').split(",");
 
@@ -33,8 +185,8 @@ function setValToSetting() {
 
 	if($(this).is('[type="checkbox"]'))
 		$(this).prop('checked', value[0]);
-	else if($(this).is('textarea'))
-		$(this).text(value.join(joinStr));
+	// else if($(this).is('textarea'))
+	// 	$(this).text(value.join(joinStr));
 	else
 		$(this).val(value.join(joinStr));
 }
@@ -100,12 +252,16 @@ function onMinusStepperClick(input) {
 
 	if(input.val < step)
 		input.val(step);
+
+	$(input).trigger("change");
 }
 
 function onPlusStepperClick(input) {
 	const currentValue = +input.val();
 	const step = +input.attr('step');
 	input.val(currentValue + step);
+
+	$(input).trigger("change");
 }
 
 function setupNumberSteppers() {
@@ -148,4 +304,5 @@ $(document).ready(function() {
 	downloadSettings();
 	$("#sections button").click(onPageButtonClick);
 	$("input[step]").change(onNumberChangeWStep);
+	$('[data-path]').change(returnValToSetting);
 });
