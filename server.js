@@ -35,6 +35,7 @@ const fs = require("fs");
 const express = require('express');
 const http = require('http');
 const fetch = require('node-fetch');
+const open = require('open');
 
 const { exec } = require('child_process');
 const { promisify } = require('util');
@@ -143,6 +144,9 @@ async function getProgress() {
 app.listen(settings().serverSettings.port, () => {
   console.log(`Done!`);
   console.log(`Visit http://localhost:${settings().serverSettings.port}`);
+
+  // Auto-opens browser
+  open(`http://localhost:${settings().serverSettings.port}`);
 });
 
 // Linkup images to the output folder
