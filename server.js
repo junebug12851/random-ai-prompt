@@ -227,6 +227,14 @@ app.get('/api/images/query', async function(req, res) {
 
 // Gets a random image name
 app.get('/api/images/random-name', async function(req, res) {
+
+  const file = _.sample(imageIndex.getFiles());
+
+  if(file == undefined) {
+    res.jsonp("");
+    return;
+  }
+
   res.jsonp(_.sample(imageIndex.getFiles()).name);
 });
 
@@ -322,12 +330,22 @@ app.get('/api/images/search-suggestion', async function(req, res) {
 
   if(fromFile) {
     const file = _.sample(_.values(imageIndex.getFiles()));
-    const keywords = _.sampleSize(file.keywords, count);
 
-    res.jsonp(keywords.join(" "));
+    if(file == undefined) {
+      res.jsonp("Please make some images by clicking new...");
+      return;
+    }
+
+    const keywords = _.sampleSize(file.keywords, count);
   }
   else {
     const keyword = _.sample(_.keys(imageIndex.getIndex()));
+
+    if(keyword == undefined) {
+      res.jsonp("Please make some images by clicking new...");
+      return;
+    }
+
     res.jsonp(keyword);
   }
 });
