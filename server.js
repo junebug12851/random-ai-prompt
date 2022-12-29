@@ -184,6 +184,10 @@ app.get('/results', (req, res) => {
   res.render('results');
 });
 
+app.get('/settings', (req, res) => {
+  res.render('settings');
+});
+
 app.get('/download/:file', (req, res) => {
   res.download(`./${settings().imageSettings.saveTo}/${req.params.file}`);
 });
@@ -393,6 +397,17 @@ app.get('/api/results', async function(req, res) {
 
 app.get('/api/ping', (req, res) => {
   res.jsonp('pong');
+});
+
+// Single setting
+app.get('/api/setting/:path', (req, res) => {
+  const setting = _.at(settings(), req.params.path);
+  if(setting == null || setting == undefined || setting.length == 0) {
+    res.jsonp(null);
+    return;
+  }
+
+  res.jsonp(setting[0]);
 });
 
 // Get settings

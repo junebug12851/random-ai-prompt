@@ -1,0 +1,297 @@
+extends layouts/main.pug
+
+block styles
+  link(rel='stylesheet' href='settings.css')
+
+block content
+  #container
+    #sections
+      button.active(data-page="batch-sizes") General
+      button(data-page="keyword-settings") Keyword Settings
+      button(data-page="keyword-mangling") Keyword Mangling
+      button(data-page="image-settings") Image Settings
+      button(data-page="upscale-settings") Upscale Settings
+      button(data-page="advanced-settings") Advanced Settings
+
+    #batch-sizes.content
+
+      h1 Prompt
+
+      label(title="The default prompt when no other commands or specifications are given") Default Prompt
+      input(type="text", data-path="settings.prompt")
+
+      label(title="The negative prompt for when generating images") Negative Prompt
+      textarea(data-path="imageSettings.negativePrompt")
+
+      h1 Generation
+
+      label(title="What AI are you making prompts for? You can only auto-generate images if your targetting Stable Diffusion") Target AI
+      select.fuller-width(data-path="settings.mode")
+        option(value="StableDiffusion") Stable Diffusion
+        option(value="NovelAI") NovelAI
+        option(value="Midjourney") Midjourney
+
+      label(title="Whether or not to automatically get Stable diffusion to generate the random prompts. Requires a working Automattic1111 Stable diffusion installation that is running with the --api flag") Generate Images
+      input(type="checkbox", data-path="settings.generateImages")
+
+      label(title="Have this program auto-upscale the generated images (Sometimes it's best to leave this disabled and selectively upscale the images you want).") Upscale Images
+      input(type="checkbox", data-path="settings.upscaleImages")
+
+      h1 Batch Sizes
+
+      label(title="Default number of prompts to generate") Prompts
+      input(type="number", data-path="settings.promptCount")
+
+      label(title="Default number of images to generate per prompt") Images Per Prompt
+      input(type="number", data-path="imageSettings.batchCount")
+
+    #keyword-settings.content(style="display: none;")
+      h1 Keyword Generation
+
+      label(title="When asked to generate random keywords, what amount to generate?") Keywords
+      input(type="text", pattern="^\\d+-\\d+$", data-path="settings.keywordCount,settings.keywordMaxCount")
+
+      h1 FX
+
+      label(title="Will it automatically add random fx keywords to the end of the prompt?") Auto-add FX
+      input(type="checkbox", data-path="settings.autoAddFx")
+
+      h1 Artists
+
+      label(title="When asked to insert a random artist, will it provide one? Or be blank?") Allow Artists
+      input(type="checkbox", data-path="settings.includeArtist")
+
+      label(title="Will it automatically add random artists to the end of the prompt?") Auto-add Artists
+      input(type="checkbox", data-path="settings.autoAddArtists")
+
+      label(title="When asked to randomly add artists, how many to add?") Artists
+      input(type="text", pattern="^\\d+-\\d+$", data-path="settings.minArtist,settings.maxArtist")
+
+      h1 Lists
+
+      label(title="When asked to insert a list entry, should it be unqiue?") Unique Entries
+      input(type="checkbox", data-path="settings.listEntriesUsedOnce")
+
+      label(title="Should list entires be unqiue only to each prompt, or across all prompts?") Each Prompt
+      input(type="checkbox", data-path="settings.reloadListsOnPromptChange")
+
+      label(title="When asked to insert a keyword, which list should it use?") Default Keyword List
+      select(data-lists, data-path="settings.keywordsFilename")
+
+      label(title="When asked to insert an artist, which list should it use?") Default Artist List
+      select(data-lists, data-path="settings.artistFilename")
+
+      h1 Prompt Salt
+
+      label(title="Automatically append salt to the end of the prompt? Salt is a number added at the end to impose a slight variation on the generated image.") Auto-add Salt
+      input(type="checkbox", data-path="settings.promptSalt")
+
+      label(title="Salt starting number, -1 will generate a random 10-digit number") Starting Number
+      input(type="number", data-path="settings.promptSaltStart")
+
+    #keyword-mangling.content(style="display: none;")
+      h1 Keyword Mangling
+
+      label(title="Chance each keyword will be mangled during generation") Mangle Chance
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="settings.emphasisChance", data-percent)
+
+      label(title="Chance each keyword will gain an extra mangle level") Level Chance
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="settings.emphasisLevelChance", data-percent)
+
+      h1 Keyword Emphasizing
+
+      label(title="Enable random keywords to be selected for emphasis/de-emphasis") Random Emphasis
+      input(type="checkbox", data-path="settings.keywordEmphasis")
+
+      label(title="Maximum emphasis/de-emphasis levels") Max Levels
+      input(type="number", data-path="settings.emphasisMaxLevels")
+
+      label(title="Chance keywords will be de-emphasized rather than emphasized") De-emphasis Chance
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="settings.deEmphasisChance", data-percent)
+
+      h1 Keyword Editing
+
+      label(title="Enable random keywords to be selected for swapping in and/or swapping out mid-generation") Random Editing
+      input(type="checkbox", data-path="settings.keywordEditing")
+
+      label(title="Which sampling steps to use for editing, if using Euler (since it works very fast), anything after step 4 is mostly unnoticeable") On Steps
+      input(type="text", data-path="settings.keywordEditingMin,settings.keywordEditingMax")
+
+      h1 Keyword Alternating
+
+      label(title="Enable random keywords to be selected for alternating between each other every step") Random Alternating
+      input(type="checkbox", data-path="settings.keywordAlternating")
+
+      label(title="Maximum number of keywords to alternate between") Max Keywords
+      input(type="number", data-path="settings.keywordAlternatingMaxLevels")
+
+    #image-settings.content(style="display: none;")
+
+      h1 Image Settings
+
+      label(title="What sampler should be used, Euler (not Euler a) is generally reccomended however Heun is even higher quality but requires double the step count.") Sampler
+      select.fuller-width(data-path="imageSettings.sampler")
+        option(value="Euler a") Euler a (Disadvised)
+        option(value="Euler") Euler (Recommended)
+        option(value="LMS") LMS (Old Classic)
+        option(value="Heun") Heun (Higher Quality)
+        option(value="DPM2") DPM2
+        option(value="DPM2 a") DPM2 a
+        option(value="DPM++ 2S a") DPM++ 2S a
+        option(value="DPM++ 2M") DPM++ 2M
+        option(value="DPM++ SDE") DPM++ SDE
+        option(value="DPM fast") DPM fast
+        option(value="DPM adaptive") DPM adaptive
+        option(value="LMS Karras") LMS Karras
+        option(value="DPM2 Karras") DPM2 Karras
+        option(value="DPM2 a Karras") DPM2 a Karras
+        option(value="DPM++ 2S a Karras") DPM++ 2S a Karras
+        option(value="DPM++ 2M Karras") DPM++ 2M Karras
+        option(value="DPM++ SDE Karras") DPM++ SDE Karras
+        option(value="DDIM") DDIM
+        option(value="PLMS") PLMS
+
+      label(title="Step count, higher generally means better quality render but most samplers cap out at a certain level. Euler generally caps at 32 and Heun generally 64. Others vary based on the sampler.") Steps
+      input(type="number", data-path="imageSettings.steps")
+
+      label(title="Width of the image to generate, must be a multiple of 64") Image Width
+      .number-stepper
+        button -
+        input(type="number", data-path="imageSettings.width", step="64")
+        button +
+
+      label(title="Height of the image to generate, must be a multiple of 64") Image Height
+      .number-stepper
+        button -
+        input(type="number", data-path="imageSettings.height", step="64")
+        button +
+
+      label(title="Automatically restore faces, best not to check for cartoony or anime generations") Restore Faces
+      input(type="checkbox", data-path="imageSettings.restoreFaces")
+
+      label(title="When generating images larger than 512x512, it has to do a special technique of generating 2 images (a low-res accurate version, and a high-detail inaccurate version), this is the balance between the two.") High-res Detail
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="imageSettings.denoising", data-percent)
+
+      label(title="How well the AI sticks to the prompt, generally 6-9 for non-anime and 11-15 for anime/cartoon") CFG
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?$", data-path="imageSettings.cfg")
+
+      label(title="What seed to use, I can't imagine a scenario where you wouldnt want it at -1 or random") Seed
+      input(type="text", pattern="^-?[\\d]+$", data-path="imageSettings.seed")
+
+      label(title="For image variations, how far will variations deviate from the original. (Euler a often will do it's own thing and ignore this which is one of quite a few reasons why I disadvise people to use it, use Euler instead)") Variation Percent
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="imageSettings.subseedStrength", data-percent)
+
+    #upscale-settings.content(style="display: none;")
+      h1 Upscale Settings
+
+      label(title="Save image before upscale, generally advise to be checked especially for the WebUI") Save Before
+      input(type="checkbox", data-path="upscaleSettings.saveBeforeUpscale")
+
+      label(title="Whether to upscale to an exact size or by a multiplier") To resolution?
+      input(type="checkbox", data-path="upscaleSettings.upscaleToSize")
+
+      label(title="Upscale to this exact size") Resolution
+      input(type="text", data-path="upscaleSettings.upscaleToWidth,upscaleSettings.upscaleToHeight", data-join="x")
+
+      label(title="Upscale by this multiplier") Or Percent
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="upscaleSettings.upscaleBy", data-percent)
+
+      label(title="Auto-crop upscaled image if it is a different aspect ratio than the original image size") Auto-crop
+      input(type="checkbox", data-path="upscaleSettings.autoCrop")
+
+      label(title="Restore faces after upscale, generally disadvised, will just consume a lot more vram") Restore faces after
+      input(type="checkbox", data-path="upscaleSettings.fixFacesLast")
+
+      h1 Upscalers
+
+      label(title="The first upscaler to use") Upscaler 1
+      select(data-path="upscaleSettings.upscaler1")
+        option(value="Lanczos") Lanczos
+        option(value="Nearest") Nearest
+        option(value="LDSR") LDSR
+        option(value="SwinIR 4x") SwinIR 4x
+        option(value="ESRGAN_4x") ESRGAN_4x
+        option(value="R-ESRGAN General 4xV3") R-ESRGAN General 4xV3
+        option(value="R-ESRGAN General WDN 4xV3") R-ESRGAN General WDN 4xV3
+        option(value="R-ESRGAN AnimeVideo") R-ESRGAN AnimeVideo
+        option(value="R-ESRGAN 4x+") R-ESRGAN 4x+
+        option(value="R-ESRGAN 4x+ Anime6B") R-ESRGAN 4x+ Anime6B
+        option(value="R-ESRGAN 2x+") R-ESRGAN 2x+
+
+      label(title="The second upscaler to use") Upscaler 2
+      select(data-path="upscaleSettings.upscaler2")
+        option(value="None") None
+        option(value="Lanczos") Lanczos
+        option(value="Nearest") Nearest
+        option(value="LDSR") LDSR
+        option(value="SwinIR 4x") SwinIR 4x
+        option(value="ESRGAN_4x") ESRGAN_4x
+        option(value="R-ESRGAN General 4xV3") R-ESRGAN General 4xV3
+        option(value="R-ESRGAN General WDN 4xV3") R-ESRGAN General WDN 4xV3
+        option(value="R-ESRGAN AnimeVideo") R-ESRGAN AnimeVideo
+        option(value="R-ESRGAN 4x+") R-ESRGAN 4x+
+        option(value="R-ESRGAN 4x+ Anime6B") R-ESRGAN 4x+ Anime6B
+        option(value="R-ESRGAN 2x+") R-ESRGAN 2x+
+
+      label(title="Balance between these two upscalers") Balance
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="upscaleSettings.upscaler2Percentage", data-percent)
+
+      h1 Face Restore
+
+      label(title="This face restorer focuses on making beutiful model faces") GFPGAN
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="upscaleSettings.faceRestoreGfpgan", data-percent)
+
+      label(title="This face restorer focuses on making more realistic faces") Code Former
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="upscaleSettings.faceRestoreCodeFormer", data-percent)
+
+      label(title="Balance the 2 face restorers") Balance
+      input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="upscaleSettings.codeFormerWeight", data-percent)
+
+    #advanced-settings.content(style="display: none;")
+
+      h1 Address
+
+      label(title="What address do we connect to Stable Diffusion on?") Stable Diffusion
+      input(type="url", data-path="imageSettings.url")
+
+      label(title="What port does this web interface run on?") Web Interface Port
+      input(type="number", pattern="^[\\d]+$", data-path="serverSettings.port")
+
+      label(title="What port does the progress server run on? This is a server that starts up only when an image or prompt is being generated.") Progress Port
+      input(type="number", pattern="^[\\d]+$", data-path="serverSettings.portProgress")
+
+      h1 Modules
+
+      label(title="When generating a prompt, it passes through several modules in order that work on the prompt, what modules are loaded by the program and in what order? This is kind of advancd and I wouldnt change it without a good reason.") Prompt Modules
+      textarea(data-path="settings.promptModules", data-join="\n")
+
+      h1 Paths
+
+      label(title="Folder to where image files are saved") Image Files
+      input(type="text", data-path="imageSettings.saveTo")
+
+      label(title="Folder to where list files are saved") List Files
+      input(type="text", data-path="settings.listFiles")
+
+      label(title="Folder to where expansion files are saved") Expansion Files
+      input(type="text", data-path="settings.expansionFiles")
+
+      label(title="Folder to where preset files are saved") Preset Files
+      input(type="text", data-path="settings.presetFiles")
+
+      label(title="Folder to where dynamic prompt files are saved") Dynamic Prompt Files
+      input(type="text", data-path="settings.dynamicPromptFiles")
+
+      label(title="Folder to where prompt module files are saved") Prompt Modules
+      input(type="text", data-path="settings.promptModuleFiles")
+
+      label(title="Folder to where web files are saved") Web Files
+      input(type="text", data-path="serverSettings.webFolder")
+
+      h1 Obscure Options
+
+      label(title="When operating the command line, do you want to hide the generated prompt? In the early days this was intended if you decided to generate images and didnt care for it to print out the prompt but virtualy nobody used it.") Hide Prompt
+      input(type="checkbox", data-path="settings.hidePrompt")
+
+block scripts
+  script(type='text/javascript' src='settings.js')

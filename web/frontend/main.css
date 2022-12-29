@@ -46,7 +46,7 @@ button:hover {
   background-color: hsl(0.00,0.00%,20%);
 }
 
-button:active {
+button:active, button.active {
   background-color: hsl(0.00,0.00%,5%);
 }
 
