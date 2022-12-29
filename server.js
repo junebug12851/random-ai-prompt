@@ -72,9 +72,14 @@ async function execApp() {
   let ret = {};
 
   for (const [key, value] of Object.entries(args)) {
+
     commandArgs.push(`--${key}`);
+
     if (value !== undefined) {
-      commandArgs.push(value);
+      if(typeof value === 'string' && value.includes(' '))
+        commandArgs.push(`"${value}"`);
+      else
+        commandArgs.push(value);
     }
   }
 
