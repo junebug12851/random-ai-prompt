@@ -207,9 +207,15 @@ setInterval(function() {
 }, 15 * 1000);
 
 function makeArt() {
+
+    let pageSearch = $("#page-search").val();
+    localStorage.setItem('prompt', pageSearch);
+
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: `/api/generate`,
+        data: JSON.stringify({value: pageSearch}),
+        contentType: 'application/json',
         success: function(data) {
             
         },

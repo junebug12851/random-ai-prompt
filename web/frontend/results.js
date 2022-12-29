@@ -40,9 +40,17 @@ function loadResults() {
 }
 
 function makeArt() {
+
+    // Get saved prompt, if any
+    let pageSearch = localStorage.getItem('prompt');
+    if(pageSearch == undefined || pageSearch == null)
+        pageSearch = "";
+
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: `/api/generate`,
+        data: JSON.stringify({value: pageSearch}),
+        contentType: 'application/json',
         success: function(data) {
             
         },

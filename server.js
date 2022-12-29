@@ -556,15 +556,17 @@ app.get('/api/generate', async (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/generate/:prompt', async (req, res) => {
-
-  // Get prompt
-  const prompt = req.params.prompt;
+app.post('/api/generate', async (req, res) => {
 
   args = {
-    prompt,
     "generate-images": undefined
   };
+
+  if(req.body != null &&
+      req.body != undefined &&
+      req.body.value != undefined &&
+      req.body.value != "")
+    args.prompt = req.body.value;
 
   // Run file variatons
   await execApp();
