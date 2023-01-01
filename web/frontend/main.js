@@ -73,6 +73,18 @@ function displayProgress(noBack, isUpscale) {
   setTimeout(_displayProgress.bind(undefined, noBack, isUpscale), 500);
 }
 
+async function ajaxGet(path) {
+  try {
+    const response = await fetch(path);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return null;
+}
+
 $(document).ready(function() {
     $("#reindex-button").click(onReindexButton);
 });
