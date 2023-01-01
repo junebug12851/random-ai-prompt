@@ -21,3 +21,5 @@ module.exports = function() {
 	// Start with base prompt
 	return `landscape, ${nature()}, ${weather()}`;
 }
+
+module.exports.full = true;

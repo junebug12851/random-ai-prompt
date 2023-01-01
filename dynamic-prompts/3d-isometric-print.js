@@ -32,3 +32,5 @@ module.exports = function(settings) {
 
 	return prompt;
 }
+
+module.exports.full = true;

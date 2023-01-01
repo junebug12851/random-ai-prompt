@@ -579,13 +579,36 @@ app.get('/api/files/dynamic-prompts', (req, res) => {
   // Regular Dynamic Prompts
 
   let files = fs.readdirSync(settings().settings.dynamicPromptFiles);
+
+  // There are 2 types of regular dynamic prompts
+  // Ones that provide a full prompt, and ones that provide a partial prompt
+  // V1 prompts and user submitted prompts are always full prompts
+  const fullRegular = [];
+  const partialRegular = [];
   const userFiles = [];
+  const v1Files = [];
 
   for(let i = 0; i < files.length; i++) {
+
+    // Skip over non-js files or folders
+    try {
+      require(`./${settings().settings.dynamicPromptFiles}/${files[i]}`);
+    }
+    catch(err) {
+      continue;
+    }
+
+    // Load it to read whether it's full or not
+    const isFull = require(`./${settings().settings.dynamicPromptFiles}/${files[i]}`).full == true;
     
     // Get filename without suffix
     const file = files[i].substr(0, files[i].lastIndexOf('.'));
-    userFiles.push(file);
+
+    // Add to correct list
+    if(isFull)
+      fullRegular.push(file);
+    else
+      partialRegular.push(file);
   }
 
   // User Submitted Dynamic Prompts
@@ -609,10 +632,16 @@ app.get('/api/files/dynamic-prompts', (req, res) => {
     // Get filename without suffix
     let file = files[i].substr(0, files[i].lastIndexOf('.'));
     file = `${file}-v1`;
-    userFiles.push(file);
+    v1Files.push(file);
   }
 
-  res.jsonp(userFiles);
+  res.jsonp({
+    fullRegular,
+    partialRegular,
+    userFiles,
+    v1Files,
+    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files]
+  });
 });
 
 app.get('/api/files/expansions', (req, res) => {

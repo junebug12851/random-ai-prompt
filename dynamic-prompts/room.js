@@ -20,3 +20,5 @@ const roomState = require("./room-state");
 module.exports = function() {
 	return `room, interrior, {room}, ${roomState()}, ${weather()}`;
 }
+
+module.exports.full = true;

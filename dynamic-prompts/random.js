@@ -19,3 +19,5 @@ const {keywordRepeater} = require("../helpers/keywordRepeater");
 module.exports = function expandRandom(settings) {
 	return keywordRepeater("keyword", true, settings);
 }
+
+module.exports.full = true;

@@ -39,3 +39,5 @@ module.exports = function(settings) {
 
 	return str.join(", ");
 }
+
+module.exports.full = true;

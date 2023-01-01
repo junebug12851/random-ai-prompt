@@ -22,3 +22,5 @@ const weather = require("./weather");
 module.exports = function() {
 	return `animal, {animal}, ${portrait()}, ${expressive()}, ${weather()}`;
 }
+
+module.exports.full = true;

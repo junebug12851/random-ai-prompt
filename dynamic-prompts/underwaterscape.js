@@ -36,3 +36,5 @@ module.exports = function() {
 
 	return prompt;
 }
+
+module.exports.full = true;
