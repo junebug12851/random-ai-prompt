@@ -101,6 +101,10 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.hidePrompt !== undefined)
 		settings.hidePrompt = (argv.hidePrompt == true);
 
+	// I don't know why i made so many arguments over the same setting =w=
+	if(argv.mode !== undefined)
+		settings.mode = argv.mode;
+
 	if(argv.modeSd == true || argv.modeStableDiffusion == true)
 		settings.mode = "StableDiffusion"
 

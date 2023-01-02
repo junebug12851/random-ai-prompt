@@ -59,6 +59,10 @@ module.exports = {
 	// NovelAI
 	// Midjourney
 	// Don't auto-generate images on a different mode than stable diffusion
+	/*--mode <Mode>*/
+	/*--mode-sd or --mode-stable-diffusion*/
+	/*--mode-mdj or --mode-midjourney*/
+	/*--mode-nai or --mode-novelai*/
 	mode: "StableDiffusion",
 
 	// Whether to randomly emphasize or de-emphasize keywords
