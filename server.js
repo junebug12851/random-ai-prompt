@@ -83,6 +83,11 @@ async function execApp() {
     }
   }
 
+  // Log cmd used
+  let logCmd = commandArgs.join(' ');
+  logCmd = logCmd.replace(nodeExecutable, "node");
+  console.log(logCmd);
+
   try {
     const { stdout, stderr } = await execPromise(commandArgs.join(' '));
     ret = {stdout, stderr};
