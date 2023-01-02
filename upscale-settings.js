@@ -29,7 +29,7 @@ module.exports = {
 
 	// Upscale by amount or to a specific size
 	/*--upscale-to-size <true/false>*/
-	upscaleToSize: true,
+	upscaleToSize: false,
 
 	// Restore Faces with GFPGAN Percent
 	/*--upscale-gfpgan <0.0-1.0>*/

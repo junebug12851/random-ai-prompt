@@ -42,7 +42,7 @@ module.exports = {
 	// Whether to generate images for you based on the generated prompts
 	// Uses the settings in imageSettings.js
 	/*--generate-images <true/false>*/
-	generateImages: false,
+	generateImages: true,
 
 	// Whether to upscale generated images for you based on the generated prompts
 	// Uses the settings in upscaleSettings.js
