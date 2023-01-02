@@ -75,7 +75,7 @@ async function execApp() {
 
     commandArgs.push(`--${key}`);
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== true) {
       if(typeof value === 'string' && value.includes(' '))
         commandArgs.push(`"${value}"`);
       else
