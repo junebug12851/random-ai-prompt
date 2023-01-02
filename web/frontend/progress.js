@@ -51,7 +51,7 @@ function generationProgress() {
         type: 'GET',
         url: '/api/images/progress',
         success: function(data) {
-            console.log(data);
+            // console.log(data);
             dataRefreshComplete(data);
             setTimeout(generationProgress, 250);
         },

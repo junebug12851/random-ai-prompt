@@ -42,14 +42,16 @@ function loadResults() {
 function makeArt() {
 
     // Get saved prompt, if any
-    let pageSearch = localStorage.getItem('prompt');
+    let pageSearch = localStorage.getItem('generateSettings');
     if(pageSearch == undefined || pageSearch == null)
-        pageSearch = "";
+        pageSearch = JSON.stringify({
+            "generate-images": true
+        });
 
     $.ajax({
         type: 'POST',
-        url: `/api/generate`,
-        data: JSON.stringify({value: pageSearch}),
+        url: `/api/generate-full`,
+        data: pageSearch,
         contentType: 'application/json',
         success: function(data) {
             

@@ -19,7 +19,7 @@ h1 {
     margin-top: 0;
 }
 
-input[type="text"] {
+input[type="text"], textarea {
     height: 2em;
     border: none;
     border-radius: 15px;
@@ -29,8 +29,12 @@ input[type="text"] {
     width: 100%;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus, textarea:focus {
   outline: 3px solid hsl(0.00,0.00%,45.88%);
+}
+
+textarea {
+    height: 5em;
 }
 
 button {
@@ -48,6 +52,11 @@ button:hover {
 
 button:active, button.active {
   background-color: hsl(0.00,0.00%,5%);
+}
+
+button[disabled] {
+    opacity: 0.2;
+    background-color: transparent;
 }
 
 select {

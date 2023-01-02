@@ -7,6 +7,31 @@ let lists = [];
 let settingsQueue = [];
 let settingsQueueOngoing = false;
 
+// Converts to start case but fixes numbering
+function startCase(text) {
+	let ret = _.startCase(text);
+
+	// Replace D with Danbooru (More readable)
+	ret = ret.replace(/^D /m, "Danbooru ");
+
+	// Replace Danbooru with anime to be more readable
+	ret = ret.replace("Danbooru", "Anime");
+
+	ret = ret.replace("Dhigh", "Digipa High");
+	ret = ret.replace("Dmed", "Digipa Medium");
+	ret = ret.replace("Dlow", "Digipa Low");
+
+	// Makes it too long, skip, was to add to readability
+	// ret = ret.replace("Danbooru Character C", "Danbooru Character Trademark");
+	// ret = ret.replace("Danbooru Character Nc", "Danbooru Character OC");
+
+	// 3 D Print V 1 => 3D Print V1
+	ret = ret.replaceAll(/(\d) (\w)/gm, "$1$2");
+	ret = ret.replaceAll(/(\w) (\d)/gm, "$1$2");
+
+	return ret;
+}
+
 async function saveSettings() {
 
 	// Don't do anything if ongoing
@@ -194,7 +219,7 @@ function setValToSetting() {
 function onSettingsDownload() {
 	$('select[data-lists]').each(function() {
 		for(let i = 0; i < lists.length; i++) {
-			let display = _.startCase(lists[i]);
+			let display = startCase(lists[i]);
 			if(display == "False")
 				display = "Random";
 

@@ -19,7 +19,7 @@ function reindexProgress() {
         type: 'GET',
         url: '/api/images/reindex-progress',
         success: function(data) {
-            console.log(data);
+            // console.log(data);
             $("#progress-value").text((data.value == null) ? 0 : data.value);
             $("#end-value").text((data.total == null) ? 0 : data.total);
             $("#progress-percent").css("width", (data.total == 0) ? "100%" : (((data.value / data.total) * 100) + "%") );

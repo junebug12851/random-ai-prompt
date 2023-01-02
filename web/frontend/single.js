@@ -20,9 +20,11 @@ function onPromptSelectionChange() {
 
     if(selectedOption == "negative" || selectedOption == "cmd" || selectedOption == "data") {
         $("#generate-this").hide();
+        $("#select-this").hide();
     }
     else {
         $("#generate-this").show();
+        $("#select-this").show();
     }
 }
 
@@ -121,6 +123,7 @@ function completePage() {
 
     if(imageData.variationOf == undefined) {
         $("#make-variations").show();
+        $("#select-variations").show();
     }
 
     $("#model-cell").text(imageData.sd_model_hash);
@@ -239,7 +242,7 @@ function randomName() {
   });
 }
 
-function rerollPrompt() {
+function rerollPrompt(isSelect) {
 
     const selectedOption = $("#prompt-selection").val();
     let fieldName = null;
@@ -253,6 +256,13 @@ function rerollPrompt() {
 
     if(fieldName == null)
         return;
+
+    // If selected, then send re-roll information to the generate page, otherwsie re-roll here with
+    // default settings
+    if(isSelect) {
+        window.location = `/generate?reroll-file=${imageData.name}&reroll-field=${fieldName}&prompt=`;
+        return;
+    }
 
     $.ajax({
         type: 'GET',
@@ -285,6 +295,10 @@ function makeVariations() {
     displayProgress();
 }
 
+function selectVariations() {
+    window.location = `/generate?file-variations=${imageData.name}&prompt=`;
+}
+
 function upscaleFile() {
     $.ajax({
         type: 'GET',
@@ -301,8 +315,16 @@ function upscaleFile() {
     displayProgress(false, true);
 }
 
+function selectUpscale() {
+    window.location = `/generate?upscale-file=${imageData.name}&prompt=`;
+}
+
 function onReroll() {
-    rerollPrompt($('#keywords').text());
+    rerollPrompt();
+}
+
+function onRerollSelect() {
+    rerollPrompt(true);
 }
 
 function copyPrompt() {
@@ -344,9 +366,12 @@ $(document).ready(function() {
 
     $('#prompt-selection').change(onPromptSelectionChange);
     $('#generate-this').click(onReroll);
+    $('#select-this').click(onRerollSelect);
     $('#copy').click(copyPrompt);
     $("#make-variations").click(makeVariations);
+    $("#select-variations").click(selectVariations);
     $("#make-upscale").click(upscaleFile);
+    $("#select-upscale").click(selectUpscale);
     $("#download").click(() => {
         window.location = `/download/${imageData.name}.png`;
     });

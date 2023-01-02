@@ -209,12 +209,19 @@ setInterval(function() {
 function makeArt() {
 
     let pageSearch = $("#page-search").val();
-    localStorage.setItem('prompt', pageSearch);
+
+    const generateSettings = JSON.stringify({
+        "generate-images": true,
+        prompt: pageSearch.trim()
+    });
+
+    localStorage.setItem('prompt', pageSearch.trim());
+    localStorage.setItem('generateSettings', generateSettings);
 
     $.ajax({
         type: 'POST',
-        url: `/api/generate`,
-        data: JSON.stringify({value: pageSearch}),
+        url: `/api/generate-full`,
+        data: generateSettings,
         contentType: 'application/json',
         success: function(data) {
             

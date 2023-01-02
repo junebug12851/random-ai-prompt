@@ -1,0 +1,197 @@
+h1.section {
+    text-align: center;
+    font-size: 25px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#container {
+    display: flex;
+    padding: 0 25px;
+/*    border: 1px solid red;*/
+}
+
+#container > div {
+/*    border: 1px solid blue;*/
+}
+
+#main {
+    flex: 1;
+}
+
+#sidebar {
+    width: 400px;
+    margin-left: -400px;
+}
+
+#sidebar h2 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 25px;
+}
+
+#page-header {
+    margin: 0 auto;
+    margin-top: 5px;
+    margin-bottom: 50px;
+    width: fit-content;
+    text-align: center;
+    min-width: 400px;
+}
+
+#page-header img {
+    margin: 0;
+    padding: 0;
+}
+
+#page-title {
+    margin-top: -30px;
+    margin-bottom: 15px;
+    font-size: 30px;
+}
+
+#page-subtitle {
+    margin-top: -13px;
+    margin-bottom: 30px;
+}
+
+.input-btn {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+#page-search {
+    padding-right: 52px;
+}
+
+.input-btn select {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    font-size: 15px;
+    background-color: transparent;
+    margin: 0;
+    padding: 6px;
+    padding-top: 7px;
+    padding-bottom: 8px;
+
+    border: none;
+    border-radius: 15px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid hsl(0.00,0.00%,50.0%);
+
+    margin-top: 0px;
+    margin-right: 0px;
+    appearance: none;
+
+    padding-left: 4px;
+}
+
+.input-btn select:hover {
+    background-color: hsl(0.00,0.00%,20%);
+}
+
+.input-btn select:active {
+  background-color: hsl(0.00,0.00%,5%);
+}
+
+.option {
+    display: none;
+    position: relative;
+}
+
+.option[data-active="true"] {
+    display: block;
+}
+
+.option button.remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    font-size: 14px;
+    padding: 2px;
+    margin: 0;
+    border-radius: 5px;
+}
+
+.option input[type="number"], .option input[type="text"], .option input[type="url"], .option textarea {
+    background-color: transparent;
+}
+
+.option input[type="number"], .option input[type="text"], .option input[type="url"], .option select, .option textarea {
+    border: none;
+    border-bottom: 1px solid hsl(0.00,0.00%,75.04%);
+    text-align: center;
+    color: hsl(0.00,0.00%,90.04%);
+    outline: none !important; /*? Why am I having to mark this as important?*/
+    border-radius: 0;
+    width: unset;
+
+    appearance: none;
+    -moz-appearance:textfield;
+}
+
+.option input[type=number]::-webkit-outer-spin-button,
+.option input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.option input:invalid {
+  border-bottom: 1px solid red;
+}
+
+.option textarea {
+    text-align: left;
+    height: 140px;
+    width: 100%;
+}
+
+.option .number-stepper {
+    display: flex;
+}
+
+.option .number-stepper input {
+/*    width: 79px;*/
+}
+
+.option .number-stepper button {
+    border-radius: 0;
+    border: none;
+}
+
+#preset-insert {
+    position: absolute;
+    top: 0;
+    right: 65px;
+
+    margin: 0;
+    padding: 0;
+    width: 50px;
+    font-size: 15px;
+
+    padding: 1px;
+    padding-bottom: 2px;
+    appearance: none;
+
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    border-radius: 5px;
+}
+
+#preset-insert:hover {
+    background-color: hsl(0.00,0.00%,20%);
+}
+
+#preset-insert:active {
+  background-color: hsl(0.00,0.00%,5%);
+}

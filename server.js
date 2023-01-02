@@ -42,6 +42,10 @@ const { promisify } = require('util');
 
 const execPromise = promisify(exec);
 
+const promptFiles = require("./src/promptFilesAndSuggestions");
+promptFiles.init(settings);
+promptFiles.loadAll();
+
 // Rebuild indexes
 imageIndex.rebuildIndexes(settings());
 
@@ -200,6 +204,10 @@ app.get('/results', (req, res) => {
 
 app.get('/settings', (req, res) => {
   res.render('settings');
+});
+
+app.get('/generate', (req, res) => {
+  res.render('generate');
 });
 
 app.get('/download/:file', (req, res) => {
@@ -579,104 +587,36 @@ app.post('/api/generate', async (req, res) => {
   res.jsonp("success");
 });
 
+app.post('/api/generate-full', async (req, res) => {
+
+  args = {
+    "generate-images": undefined
+  };
+
+  if(req.body != null &&
+      req.body != undefined)
+    args = req.body;
+
+  // Run file variatons
+  await execApp();
+
+  res.jsonp("success");
+});
+
+app.get('/api/prompt-suggestion', (req, res) => {
+  res.jsonp(promptFiles.promptSuggestion());
+});
+
 app.get('/api/files/dynamic-prompts', (req, res) => {
-
-  // Regular Dynamic Prompts
-
-  let files = fs.readdirSync(settings().settings.dynamicPromptFiles);
-
-  // There are 2 types of regular dynamic prompts
-  // Ones that provide a full prompt, and ones that provide a partial prompt
-  // V1 prompts and user submitted prompts are always full prompts
-  const fullRegular = [];
-  const partialRegular = [];
-  const userFiles = [];
-  const v1Files = [];
-
-  for(let i = 0; i < files.length; i++) {
-
-    // Skip over non-js files or folders
-    try {
-      require(`./${settings().settings.dynamicPromptFiles}/${files[i]}`);
-    }
-    catch(err) {
-      continue;
-    }
-
-    // Load it to read whether it's full or not
-    const isFull = require(`./${settings().settings.dynamicPromptFiles}/${files[i]}`).full == true;
-    
-    // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
-
-    // Add to correct list
-    if(isFull)
-      fullRegular.push(file);
-    else
-      partialRegular.push(file);
-  }
-
-  // User Submitted Dynamic Prompts
-
-  files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/user-submitted`);
-
-  for(let i = 0; i < files.length; i++) {
-    
-    // Get filename without suffix
-    let file = files[i].substr(0, files[i].lastIndexOf('.'));
-    file = `user-${file}`;
-    userFiles.push(file);
-  }
-
-  // Version 1 dynamic prompts
-
-  files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/v1`);
-
-  for(let i = 0; i < files.length; i++) {
-    
-    // Get filename without suffix
-    let file = files[i].substr(0, files[i].lastIndexOf('.'));
-    file = `${file}-v1`;
-    v1Files.push(file);
-  }
-
-  res.jsonp({
-    fullRegular,
-    partialRegular,
-    userFiles,
-    v1Files,
-    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files]
-  });
+  res.jsonp(promptFiles.loadDynPromptList());
 });
 
 app.get('/api/files/expansions', (req, res) => {
-
-  const files = fs.readdirSync(settings().settings.expansionFiles);
-  const userFiles = [];
-
-  for(let i = 0; i < files.length; i++) {
-    
-    // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
-    userFiles.push(file);
-  }
-
-  res.jsonp(userFiles);
+  res.jsonp(promptFiles.loadExpansionFileList());
 });
 
 app.get('/api/files/lists', (req, res) => {
-
-  const files = fs.readdirSync(settings().settings.listFiles);
-  const userFiles = [];
-
-  for(let i = 0; i < files.length; i++) {
-    
-    // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
-    userFiles.push(file);
-  }
-
-  res.jsonp(userFiles);
+  res.jsonp(promptFiles.loadListFileList());
 });
 
 app.get('/api/files/presets', (req, res) => {
