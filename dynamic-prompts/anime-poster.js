@@ -1,0 +1,44 @@
+/*
+    Copyright 2022 juenbug12851
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+const _ = require("lodash");
+const entity = require("./entity");
+
+function colorful() {
+    let colorful = "colorful";
+
+    if(_.random(0.0, 1.0, false) < 0.5)
+        colorful += " multi-color";
+
+    if(_.random(0.0, 1.0, false) < 0.5)
+        colorful += " glow";
+
+    return colorful;
+}
+
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
+
+	// Start with base prompt
+	let prompt = `${entity()}, style of laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, trending pixiv fanbox, acrylic palette knife, 4k, vibrant colors, devinart, trending on artstation, low details`;
+
+	return prompt;
+}
+
+module.exports.full = true;

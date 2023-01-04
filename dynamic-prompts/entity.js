@@ -43,7 +43,6 @@ module.exports = function(settings, imageSettings, upscaleSettings, specificEnti
 	switch(index) {
 		case 0:
 			prompt += `{animal}`;
-			emotion = true;
 			break;
 		case 1:
 			prompt += `{d-character}`;
@@ -58,7 +57,6 @@ module.exports = function(settings, imageSettings, upscaleSettings, specificEnti
 			break;
 		case 4:
 			prompt += `{mythological-creature}`;
-			emotion = true;
 			break;
 		case 5:
 			prompt += `{tree}`;
