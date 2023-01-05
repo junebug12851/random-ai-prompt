@@ -241,11 +241,16 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 	info.origPrompt = (settings.origPrompt) ? settings.origPrompt : settings.prompt;
 
 	// Add fx and artists if they were automatically added
-	if(imageSettings.autoIncludedFx)
+	// Skip if the orignal prompt already exists and skip if this is a random prompt
+	if(imageSettings.autoIncludedFx && !settings.randomPrompt && !settings.origPrompt)
 		info.origPrompt += ", #fx";
 
-	if(imageSettings.autoIncludedArtists)
+	if(imageSettings.autoIncludedArtists && !settings.randomPrompt && !settings.origPrompt)
 		info.origPrompt += ", #artists";
+
+	// Save random prompt
+	if(settings.randomPrompt)
+		info.origRandomPrompt = settings.randomPrompt;
 
 	// Convert image data to actual images
 	for(let i = 0; i < data.images.length; i++) {

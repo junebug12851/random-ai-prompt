@@ -27,7 +27,13 @@ module.exports = function(settings) {
     suggestion.loadAll();
 
     // Execute a full suggestion
-    return suggestion.promptSuggestion(true);
+    const prompt = suggestion.promptSuggestion(true);
+
+    // Save into settings
+    settings.randomPrompt = prompt;
+
+    // Return
+    return prompt;
 }
 
 module.exports.full = true;

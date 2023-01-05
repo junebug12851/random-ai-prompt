@@ -15,6 +15,8 @@ function onPromptSelectionChange() {
         $('#keywords').text(imageData.origPrompt);
     else if(selectedOption == "post")
         $('#keywords').text(imageData.origPostPrompt);
+    else if(selectedOption == "rnd")
+        $('#keywords').text(imageData.origRandomPrompt);
     else if(selectedOption == "cmd")
         $('#keywords').text(imageData.cmd);
 
@@ -75,6 +77,9 @@ function completePage() {
 
     if(imageData.origPostPrompt)
         $('#prompt-selection').append('<option value="post">Post Prompt</option>');
+
+    if(imageData.origRandomPrompt)
+        $('#prompt-selection').append('<option value="rnd">Random Prompt</option>');
 
     if(imageData.cmd)
         $('#prompt-selection').append('<option value="cmd">Command</option>');
