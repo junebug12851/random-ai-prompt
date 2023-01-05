@@ -15,19 +15,30 @@
 */
 
 const _ = require("lodash");
-const portrait = require("./portrait");
 const weather = require("./weather");
 const color = require("./color");
+const glow = require("./glow");
 const animal = require("./animal");
+const mystical = require("./mystical");
+
+function maybeGlow() {
+    if(_.random(0.0, 1.0, true) < 0.5)
+        return glow();
+    else
+        return color();
+}
 
 // rabbit in Egyptian clothing style, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
 module.exports = function(settings) {
 
     // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
+    // settings.autoAddArtists = false;
+    // settings.autoAddFx = false;
 
-    let prompt = `${animal()}`;
+    let prompt = `{animal}, furry`;
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += `, ${mystical()}`;
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", {emotion}"
@@ -38,7 +49,7 @@ module.exports = function(settings) {
     const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
 
     for(let i = 0; i < clothingCount; i++) {
-        prompt += `, ${color()} {clothes}`;
+        prompt += `, ${maybeGlow()} {clothes}`;
     }
 
     if(_.random(0.0, 1.0, true) < 0.1)
@@ -48,7 +59,7 @@ module.exports = function(settings) {
         prompt += `, ${weather()}`;
 
     // Start with base prompt
-    prompt += `, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha, deviantart, artstation, pixiv`;
+    // prompt += `, highly detailed, digital painting, concept art, soft, sharp focus, illustration, deviantart, artstation, pixiv`;
 
     return prompt;
 }

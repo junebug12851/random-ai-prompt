@@ -23,7 +23,9 @@ function danbooruReplacer(prompt, settings) {
 		settings.keywordsFilename != "danbooru")
 		return prompt;
 
-	prompt = prompt.replaceAll("person", "{d-person}");
+	// Person (Case-Insensitive) followed by word-boundry, replace with
+	// {d-person} and carry over word boundry
+	prompt = prompt.replaceAll(/Person(\W)/gmi, "{d-person}$1");
 
 	return prompt;
 }
