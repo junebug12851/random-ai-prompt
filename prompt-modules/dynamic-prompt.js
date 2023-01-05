@@ -91,13 +91,13 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// so we have to rprocess the modules first
 
 	// Auto-add fx first if requested to do so
-	if(settings.autoAddFx && !includedFx) {
+	if(settings.autoAddFx && !includedFx && !settings.ignoreFirstAutoArtistPass) {
 		prompt += `, ${expandDynamicPromptV2("fx", settings, imageSettings, upscaleSettings)}`;
 		imageSettings.autoIncludedFx = true;
 	}
 
 	// Auto-add artists second if requested to do so
-	if(settings.autoAddArtists && !includedArtists) {
+	if(settings.autoAddArtists && !includedArtists && !settings.ignoreFirstAutoArtistPass) {
 		prompt += `, ${expandDynamicPromptV2("artists", settings, imageSettings, upscaleSettings)}`;
 		imageSettings.autoIncludedArtists = true;
 	}
