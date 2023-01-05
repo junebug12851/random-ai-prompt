@@ -6,14 +6,3 @@ girl
 boy
 woman
 man
-solo
-grandmother
-grandfather
-grandson
-granddaughter
-cousin
-sibling
-step-sibling
-half-sibling
-sister
-brother

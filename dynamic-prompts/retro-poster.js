@@ -18,12 +18,7 @@ const _ = require("lodash");
 const weather = require("./weather");
 const color = require("./color");
 
-module.exports = function(settings) {
-
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
+function person() {
     let prompt = `person`;
 
     if(_.random(0.0, 1.0, true) < 0.5)
@@ -41,11 +36,52 @@ module.exports = function(settings) {
     if(_.random(0.0, 1.0, true) < 0.1)
         prompt += ", {instrument}"
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${weather()}`;
+    return prompt;
+}
 
-	// Start with base prompt
-	prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;
+function animal() {
+    let prompt = "";
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += "fusion "
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += "{size} "
+
+    prompt += `{animal}`;
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += " monster"
+
+    return prompt;
+}
+
+module.exports = function(settings) {
+
+    // This will not work well with added artists or fx
+    settings.autoAddArtists = false;
+    settings.autoAddFx = false;
+
+    let prompt = "";
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += "Photo of "
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += "savage "
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += person();
+    else
+        prompt += animal();
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ` ${weather()}`;
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += " in the space"
+
+    prompt += `, style of laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, trending pixiv fanbox, acrylic palette knife, 4k, vibrant colors, deviantart, trending on artstation, low details`;
 
 	return prompt;
 }
