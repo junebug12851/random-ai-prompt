@@ -19,8 +19,9 @@ const _ = require("lodash");
 
 // Some keywords are better converted to danbooru if danbooru is in effect
 function danbooruReplacer(prompt, settings) {
-	if(!settings.keywordsFilename.startsWith("d-") &&
-		settings.keywordsFilename != "danbooru")
+	if(settings.keywordsFilename == false ||
+		(!settings.keywordsFilename.startsWith("d-") &&
+				settings.keywordsFilename != "danbooru"))
 		return prompt;
 
 	// Person (Case-Insensitive) followed by word-boundry, replace with

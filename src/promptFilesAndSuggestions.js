@@ -4,6 +4,7 @@ const _ = require("lodash");
 const cleanup = require("../prompt-modules/cleanup");
 
 const fullRegular = [];
+const fullRegularExcluded = [];
 const partialRegular = [];
 const userFiles = [];
 const v1Files = [];
@@ -11,6 +12,14 @@ const allDynPrompts = [];
 
 const listFiles = [];
 const expansionFiles = [];
+
+const fullDynPrompt = []; // Exclude v1 files
+
+// Artists should always come at the end
+const listFilesNoArtist = [];
+
+// Partial prompt should not include artists
+const partialNoArtistFx = [];
 
 let settings;
 
@@ -31,6 +40,8 @@ function loadDynPromptList() {
   userFiles.length = 0;
   v1Files.length = 0;
   allDynPrompts.length = 0;
+  fullDynPrompt.length = 0;
+  partialNoArtistFx.length = 0;
 
   for(let i = 0; i < files.length; i++) {
 
@@ -44,13 +55,18 @@ function loadDynPromptList() {
 
     // Load it to read whether it's full or not
     const isFull = require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`).full == true;
+    const exclude = require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`).suggestion_exclude == true;
     
     // Get filename without suffix
     const file = files[i].substr(0, files[i].lastIndexOf('.'));
 
     // Add to correct list
-    if(isFull)
+    if(isFull) {
       fullRegular.push(file);
+
+      if(!exclude)
+        fullRegularExcluded.push(file);
+    }
     else
       partialRegular.push(file);
   }
@@ -95,8 +111,25 @@ function loadDynPromptList() {
     v1Files.push(file);
   }
 
+  // Filter out partial prompts
+  for(let i = 0; i < partialRegular.length; i++) {
+
+    // Skip anything with artist in the name
+    if(partialRegular[i].includes("artist"))
+      continue;
+
+    // Skip the fx one
+    if(partialRegular[i] == "fx")
+      continue;
+
+    partialNoArtistFx.push(partialRegular[i]);
+  }
+
   // Add in dynamicp rompt files
   allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles, ...v1Files);
+
+  // Add in Non V1 full Dynamic Prompts
+  fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {
     fullRegular,
@@ -129,12 +162,20 @@ function loadExpansionFileList() {
 function loadListFileList() {
   const files = fs.readdirSync(settings().settings.listFiles);
   listFiles.length = 0;
+  listFilesNoArtist.length = 0;
 
   for(let i = 0; i < files.length; i++) {
     
     // Get filename without suffix
     const file = files[i].substr(0, files[i].lastIndexOf('.'));
     listFiles.push(file);
+  }
+
+  for(let i = 0; i < listFiles.length; i++) {
+    if(listFiles[i].includes("artist"))
+      continue;
+
+    listFilesNoArtist.push(listFiles[i]);
   }
 
   return listFiles;
@@ -146,64 +187,49 @@ function loadAll() {
   loadListFileList();
 }
 
-function promptSuggestion() {
-
-  let postPrompt = "";
+function prePrompt(maxCount) {
   let prePrompt = "";
-  let fullDynPrompt = [...fullRegular, ...userFiles]; // Exclude v1 files
-
-  // Artists should always come at the end
-  let listFilesNoArtist = [];
-
-  // Partial prompt should not include artists
-  let partialNoArtistFx = [];
-
-  for(let i = 0; i < listFiles.length; i++) {
-    if(listFiles[i].includes("artist"))
-      continue;
-
-    listFilesNoArtist.push(listFiles[i]);
-  }
-
-  for(let i = 0; i < partialRegular.length; i++) {
-
-    // Skip anything with artist in the name
-    if(partialRegular[i].includes("artist"))
-      continue;
-
-    // Skip the fx one
-    if(partialRegular[i] == "fx")
-      continue;
-
-    partialNoArtistFx.push(partialRegular[i]);
-  }
-
-  // Randomly add #fx
-  // if(_.random(0.0, 1.0, true) < 0.2)
-  //   postPrompt = ", #fx";
-
-  // // Randomly add #artists
-  // if(_.random(0.0, 1.0, true) < 0.2)
-  //   postPrompt += ", #artists"
 
   // Randomly add stuff to the start of the prompt
   if(_.random(0.0, 1.0, true) < 0.25)
     prePrompt += `, <${_.sample(expansionFiles)}>`
 
-  if(_.random(0.0, 1.0, true) < 0.25)
-    prePrompt += `, #${_.sample(partialNoArtistFx)}`
+  for(let i = 0; i < maxCount; i++) {
+    if(_.random(0.0, 1.0, true) < 0.25)
+      prePrompt += `, #${_.sample(partialNoArtistFx)}`
 
-  if(_.random(0.0, 1.0, true) < 0.25)
-    prePrompt += `, {${_.sample(listFilesNoArtist)}}`
+    if(_.random(0.0, 1.0, true) < 0.25)
+      prePrompt += `, {${_.sample(listFilesNoArtist)}}`
+  }
+
+  return prePrompt;
+}
+
+function promptSuggestion(full) {
 
   // Prepare building final prompt
   let ret = "";
 
-  switch(_.random(0, 0, false)) {
+  let maxOptions = (full == true) ? 3 : 0;
+  let maxCount = (full == true) ? 3 : 1;
+
+  switch(_.random(0, maxOptions, false)) {
 
     // Option 0: Pick 1 full dynamic prompt
     case 0:
-      ret = `${prePrompt}, #${_.sample(fullDynPrompt)}, ${postPrompt}`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
+      break;
+
+    case 1:
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1`;
+      break;
+
+    case 2:
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.50`;
+      break;
+
+    case 3:
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
       break;
   }
 
