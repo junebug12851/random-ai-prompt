@@ -39,7 +39,7 @@ function onVariationSelectionChange() {
     if(selectedOption == "variations" && imageData.variations != undefined) {
         for(let i = 0; i < imageData.variations.length; i++) {
             const variation = imageData.variations[i];
-            $("#variation-images").append(`
+            $("#variation-images").prepend(`
                 <a href="/single?name=${variation.name}"><img src="${variation.imgPath}"/></a>
             `);
         }
@@ -48,7 +48,7 @@ function onVariationSelectionChange() {
     if(selectedOption == "rerolls" && imageData.rerolls != undefined) {
         for(let i = 0; i < imageData.rerolls.length; i++) {
             const reroll = imageData.rerolls[i];
-            $("#variation-images").append(`
+            $("#variation-images").prepend(`
                 <a href="/single?name=${reroll.name}"><img src="${reroll.imgPath}"/></a>
             `);
         }
@@ -57,15 +57,19 @@ function onVariationSelectionChange() {
     if(selectedOption == "upscales" && imageData.upscales != undefined) {
         for(let i = 0; i < imageData.upscales.length; i++) {
             const upscale = imageData.upscales[i];
-            $("#variation-images").append(`
-                <img src="${upscale}"/>
+            $("#variation-images").prepend(`
+                <img src="${upscale}" data-upscale="true"/>
+            `);
+        }
+
+        $("#variation-images").prepend(`
+                <img src="${imageData.imgPath}" data-upscale="true"/>
             `);
 
-            $("#variation-images").click(function(event) {
-                const src = event.target.src;
-                $("#image").attr("src", src);
-            });
-        }
+        $("#variation-images img[data-upscale='true']").click(function(event) {
+            const src = event.target.src;
+            $("#image").attr("src", src);
+        });
     }
 }
 
