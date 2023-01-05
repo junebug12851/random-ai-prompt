@@ -68,8 +68,8 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Check for these before expansion
-	const includedArtists = prompt.includes("#artists");
-	const includedFx = prompt.includes("#fx");
+	const includedArtists = prompt.includes("#artists") || imageSettings.autoIncludedArtists;
+	const includedFx = prompt.includes("#fx") || imageSettings.autoIncludedFx;
 
 	// Expand all dynamic functions
 	prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
