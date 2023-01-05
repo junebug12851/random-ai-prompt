@@ -262,6 +262,8 @@ function rerollPrompt(isSelect) {
         fieldName = "origPrompt";
     else if(selectedOption == "post")
         fieldName = "origPostPrompt";
+    else if(selectedOption == "rnd")
+        fieldName = "origRandomPrompt";
 
     if(fieldName == null)
         return;
