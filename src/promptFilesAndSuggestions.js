@@ -241,15 +241,15 @@ function promptSuggestion(full) {
       break;
 
     case 1:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()} :1.1`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1`;
       break;
 
     case 2:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()} :0.50`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.50`;
       break;
 
     case 3:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${postPrompt()}`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
       break;
   }
 
