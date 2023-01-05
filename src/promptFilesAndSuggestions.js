@@ -202,6 +202,26 @@ function prePrompt(maxCount) {
       prePrompt += `, {${_.sample(listFilesNoArtist)}}`
   }
 
+  // Prevent scenarios liek this
+  // AND, ...
+  // In other words, remove commas and spaces at the start
+  prePrompt = prePrompt.replace(/^[, ]+/m, "");
+
+  return prePrompt;
+}
+
+function postPrompt() {
+  let prePrompt = "";
+
+  // Randomly add stuff to the start of the prompt
+  if(_.random(0.0, 1.0, true) < 0.5)
+    prePrompt += `, #fx`
+
+  if(_.random(0.0, 1.0, true) < 0.5)
+    prePrompt += `, #artists`
+
+  prePrompt = prePrompt.replace(/^[, ]+/m, "");
+
   return prePrompt;
 }
 
@@ -221,15 +241,15 @@ function promptSuggestion(full) {
       break;
 
     case 1:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()} :1.1`;
       break;
 
     case 2:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.50`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()} :0.50`;
       break;
 
     case 3:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} ${postPrompt()}`;
       break;
   }
 
