@@ -19,7 +19,13 @@ const weather = require("./weather");
 const color = require("./color");
 
 function person() {
-    let prompt = `person`;
+
+    let prompt = "";
+
+    if(_.random(0.0, 1.0, true) < 0.80)
+        prompt += "person"
+    else
+        prompt += "{d-character}"
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", {emotion}"
@@ -48,7 +54,10 @@ function animal() {
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += "{size} "
 
-    prompt += `{animal}`;
+    if(_.random(0.0, 1.0, true) < 0.80)
+        prompt += "{animal}"
+    else
+        prompt += "{mythological-creature}"
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += " monster"
