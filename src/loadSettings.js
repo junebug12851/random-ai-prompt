@@ -95,18 +95,18 @@ function userSettings() {
 	delete ret.imageSettings.autoIncludedFx;
 	delete ret.imageSettings.autoIncludedArtists;
 
-	delete imageSettings.resultPrompts;
-	delete imageSettings.resultImages;
+	delete ret.imageSettings.resultPrompts;
+	delete ret.imageSettings.resultImages;
 
-	delete imageSettings.progressOngoing;
-	delete imageSettings.progressPercent;
-	delete imageSettings.progressEta;
-	delete imageSettings.progressCurImg;
-	delete imageSettings.progressTotalImg;
-	delete imageSettings.progressCurStep;
-	delete imageSettings.progressTotalSteps;
-	delete imageSettings.progressCurPrompt;
-	delete imageSettings.progressTotalPrompts;
+	delete ret.imageSettings.progressOngoing;
+	delete ret.imageSettings.progressPercent;
+	delete ret.imageSettings.progressEta;
+	delete ret.imageSettings.progressCurImg;
+	delete ret.imageSettings.progressTotalImg;
+	delete ret.imageSettings.progressCurStep;
+	delete ret.imageSettings.progressTotalSteps;
+	delete ret.imageSettings.progressCurPrompt;
+	delete ret.imageSettings.progressTotalPrompts;
 
 	// Return
 	return ret;
