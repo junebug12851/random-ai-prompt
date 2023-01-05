@@ -46,9 +46,7 @@ module.exports = function(name, field, settings, imageSettings, upscaleSettings)
 		imageSettings.width = txt.width;
 		imageSettings.height = txt.height;
 		imageSettings.denoising = txt.denoising_strength;
-
-		// Link this as a re-roll only if field was available
-		imageSettings.rerollOf = (txt.rerollOf != undefined) ? txt.rerollOf.toString() : name.toString();
+		imageSettings.rerollOf = name.toString();
 
 		// Ensure generate images is enabled
 		settings.generateImages = true;
