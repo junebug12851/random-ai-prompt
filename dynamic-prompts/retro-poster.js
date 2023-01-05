@@ -15,19 +15,8 @@
 */
 
 const _ = require("lodash");
-const entity = require("./entity");
-
-function colorful() {
-    let colorful = "colorful";
-
-    if(_.random(0.0, 1.0, false) < 0.5)
-        colorful += " multi-color";
-
-    if(_.random(0.0, 1.0, false) < 0.5)
-        colorful += " glow";
-
-    return colorful;
-}
+const weather = require("./weather");
+const color = require("./color");
 
 module.exports = function(settings) {
 
@@ -35,8 +24,28 @@ module.exports = function(settings) {
     settings.autoAddArtists = false;
     settings.autoAddFx = false;
 
+    let prompt = `person`;
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ", {emotion}"
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += `, ${color()} {hair}`
+
+    const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+
+    for(let i = 0; i < clothingCount; i++) {
+        prompt += `, ${color()} {clothes}`;
+    }
+
+    if(_.random(0.0, 1.0, true) < 0.1)
+        prompt += ", {instrument}"
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += `, ${weather()}`;
+
 	// Start with base prompt
-	let prompt = `${entity()}, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;
+	prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;
 
 	return prompt;
 }
