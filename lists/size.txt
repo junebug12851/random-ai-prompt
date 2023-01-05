@@ -1,4 +1,3 @@
-smallest
 tiny
 medium
 large
