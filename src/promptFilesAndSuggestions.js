@@ -256,6 +256,9 @@ function promptSuggestion(full) {
   // Cleanup prompt
   ret = cleanup(ret, settings().settings, settings().imageSettings, settings().upscaleSettings);
 
+  // Somehow this still slips through, this time, explicitly search for it
+  ret = ret.replaceAll("AND,", "AND");
+
   // Return
   return ret;
 }

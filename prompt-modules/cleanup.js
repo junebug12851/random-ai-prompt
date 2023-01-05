@@ -38,6 +38,11 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	prompt = newPromt.join(", ");
 
+	// STOP SEEPING THROUGH
+	// This is my 3rd check
+	// We can't have commas or anything after AND only spaces
+	prompt = prompt.replaceAll("AND,", "AND");
+
 	// Return prompt
 	return prompt;
 }
