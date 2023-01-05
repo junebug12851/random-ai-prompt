@@ -68,8 +68,8 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	// Check for these before expansion
-	const includedArtists = prompt.includes("#artists") || imageSettings.autoIncludedArtists;
-	const includedFx = prompt.includes("#fx") || imageSettings.autoIncludedFx;
+	const includedArtists = prompt.includes("#artists") || imageSettings.autoIncludedArtists || settings.ignoreFirstAutoArtistPass;
+	const includedFx = prompt.includes("#fx") || imageSettings.autoIncludedFx || settings.ignoreFirstAutoArtistPass;
 
 	// Expand all dynamic functions
 	prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
@@ -99,6 +99,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Save the original post prompt
 	// The prompt after dynamic prompts but before the lists have been expanded on
 	imageSettings.origPostPrompt = prompt;
+
+	// Make sure first pass is disabled
+	settings.ignoreFirstAutoArtistPass = false;
 
 	// Return prompt
 	return prompt;

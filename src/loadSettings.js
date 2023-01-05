@@ -87,6 +87,7 @@ function userSettings() {
 	// Remove these internal only settings
 	delete ret.settings.origPrompt;
 	delete ret.settings.randomPrompt;
+	delete ret.settings.ignoreFirstAutoArtistPass;
 
 	delete ret.imageSettings.lastCmd;
 	delete ret.imageSettings.variationOf;
