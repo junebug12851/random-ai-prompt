@@ -37,14 +37,5 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", <rays>";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", deviantart"
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", artstation"
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", pixiv"
-
 	return prompt;
 }
