@@ -83,7 +83,7 @@ module.exports = function() {
         prompt += ", stone"
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", mountainous horizon"
+        prompt += ", ((mountainous horizon))"
 
     if(_.random(0.0, 1.0, true) < 0.25)
         prompt += ", [hill]"
