@@ -118,7 +118,7 @@ module.exports = {
 
 	// Maximum artist to add in
 	/*--max-artists <number>*/
-	maxArtist: 2,
+	maxArtist: 3,
 
 	// When combining dynamic prompts
 	// don't use AND to put them together

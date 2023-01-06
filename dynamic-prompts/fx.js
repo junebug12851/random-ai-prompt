@@ -29,7 +29,7 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {art-technique}"
 
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 2, false) : 0;
+	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
 
 	for(let i = 0; i < imageEffects; i++)
 		prompt += ", {image-effect}"
