@@ -40,7 +40,7 @@ function keywordRepeater(keyword, alias, settings) {
 }
 
 function artistRepeater(artist, alias, settings) {
-	const artistCount = (settings.includeArtist)
+	const artistCount = (settings.includeArtist && (_.random(0.0, 1.0, true) < 0.5))
 		? _.random(settings.minArtist, settings.maxArtist, false)
 		: 0;
 
