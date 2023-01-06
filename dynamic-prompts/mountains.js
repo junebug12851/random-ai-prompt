@@ -71,7 +71,7 @@ function settlement() {
 module.exports = function() {
 
     // Start with base prompt
-    let prompt = "mountain";
+    let prompt = "(mountain)";
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", fog"
@@ -87,6 +87,18 @@ module.exports = function() {
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", hill"
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ", valley"
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ", cliff"
+
+    if(_.random(0.0, 1.0, true) < 0.3)
+        prompt += ", forest"
+
+    if(_.random(0.0, 1.0, true) < 0.3)
+        prompt += ", tree"
 
     if(_.random(0.0, 1.0, true) < 0.25) {
         switch(_.random(0, 2, false)) {
