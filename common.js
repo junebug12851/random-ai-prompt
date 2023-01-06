@@ -78,6 +78,12 @@ async function processBatch(index, total) {
     // Make into image if filled in and not blank
     if(settings().settings.generateImages && prompt != "")
         await genImage(prompt, index, total, settings().settings, settings().imageSettings, settings().upscaleSettings);
+
+    // Bug Fix
+    // If this is not added then for a batch of prompts, only the first prompt
+    // has artists and fx added
+    delete settings().imageSettings.autoIncludedFx;
+    delete settings().imageSettings.autoIncludedArtists;
 }
 
 async function upscale(fileId) {
