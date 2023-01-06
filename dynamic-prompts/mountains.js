@@ -85,6 +85,9 @@ module.exports = function() {
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", mountainous horizon"
 
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ", hill"
+
     if(_.random(0.0, 1.0, true) < 0.25) {
         switch(_.random(0, 2, false)) {
             case 0:
