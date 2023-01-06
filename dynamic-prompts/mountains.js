@@ -108,9 +108,6 @@ module.exports = function() {
     if(_.random(0.0, 1.0, true) < 0.25)
         prompt += `, ${eerie()}`
 
-    if(_.random(0.0, 1.0, true) < 0.35)
-        prompt += `, ${ice()}`
-
     if(_.random(0.0, 1.0, true) < 0.2)
         prompt += `, ${mystical()}`
 
