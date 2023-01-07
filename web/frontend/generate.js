@@ -221,6 +221,9 @@ async function updateInsertMenu() {
 
 		$("#prompt-insert").append(`<option value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</option>`);
 	}
+
+	$("#prompt-insert").append(`<option disabled title="Special prompt features">Special Features</option>`);
+	$("#prompt-insert").append(`<option value="{salt}" title="Forces salt to be inserted at this location in the prompt">Force salt here</option>`);
 }
 
 function insertSelected() {
