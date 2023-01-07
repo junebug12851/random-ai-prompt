@@ -22,7 +22,6 @@ const wildlife = require("./wildlife");
 const eerie = require("./eerie");
 const ice = require("./ice");
 const mystical = require("./mystical");
-const color = require("./color");
 
 function settlement() {
     let prompt = "";

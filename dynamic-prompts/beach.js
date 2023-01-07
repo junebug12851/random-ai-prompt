@@ -23,10 +23,6 @@ const weather = require("./weather");
 const ice = require("./ice");
 const city = require("./city");
 const eerie = require("./eerie");
-const house = require("./house");
-const landscape = require("./landscape");
-const ship = require("./ship");
-const vehicle = require("./vehicle");
 const wildlife = require("./wildlife");
 const mystical = require("./mystical");
 
@@ -37,7 +33,7 @@ function winterBeach() {
 		prompt += ", snowy beach";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${ice()}`;
+		prompt += `, (${ice()})`;
 
 	return prompt;
 }
@@ -45,16 +41,24 @@ function winterBeach() {
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt = "beach, palm trees";
+	let prompt = "beach";
 
 	// 50% chance for normal or winter beach
-	if(_.random(0.0, 1.0, true) < 0.5)
+	if(_.random(0.0, 1.0, true) < 0.25)
 		prompt += `, ${winterBeach()}`;
 	else {
 
 		if(_.random(0.0, 1.0, true) < 0.5)
 			prompt += ", tropical";
+
+		if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", palm trees";
+		else if(_.random(0.0, 1.0, true) < 0.5)
+			prompt += ", palm tree";
 	}
+
+	if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", ocean";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", oceanside";
@@ -81,41 +85,21 @@ module.exports = function() {
 		prompt += ", beach sand"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", palm trees";
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", palm tree";
+        prompt += ", fog"
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+		prompt += ", {size} waves";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += `, ${eerie()}`;
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {size} waves";
 
 	if(_.random(0.0, 1.0, true) < 0.2)
 		prompt += `, ${mystical()}`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${water()}`;
+		prompt += `, ${nature()}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${wildlife()}`;
-
-	prompt += `, ${city()}`;
-
-	switch(_.random(0, 3)) {
-		case 0:
-			prompt += `, ${nature()}, ${weather()}`;
-			break;
-		case 1:
-			prompt += `, ${landscape()}`;
-			break;
-		case 2:
-			prompt += `, ${ship()}`;
-			break;
-		case 3:
-			prompt += `, ${vehicle()}`;
-			break;
-	}
+	prompt += `, ${city()}, ${weather()}`;
 
 	return prompt;
 }
