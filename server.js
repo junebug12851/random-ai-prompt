@@ -232,6 +232,46 @@ app.get('/api/images/delete/:filename', (req, res) => {
   res.jsonp("success");
 });
 
+app.get('/api/animation/delete/:fileId', (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Make sure it has at least 1 animation frame
+  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+    res.jsonp({});
+    console.error("Error: API requested to remove animation frames from an image with no frames");
+    return;
+  }
+
+  // Go through all frames
+  for(let i = 0; i < imageData.animationFrames.length; i++) {
+
+    // Get file name
+    const file = imageData.animationFrames[i].name;
+
+    // Delete file
+  try {
+      fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.png`);
+      fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.json`);
+    }
+    catch(err) {}
+  }
+
+  // Mark as success
+  res.jsonp("success");
+});
+
 app.get('/api/images/query', async function(req, res) {
 
   // Get query

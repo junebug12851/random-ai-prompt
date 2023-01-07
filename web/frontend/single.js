@@ -160,6 +160,8 @@ function completePage() {
 
         $("#action-menu option[value='select-extend-anim']").show();
         $("#action-menu option[value='select-extend-anim']").prop('disabled', false);
+
+        $("#delete-frames").show();
     }
 
     $("#model-cell").text(imageData.sd_model_hash);
@@ -394,6 +396,22 @@ function deleteFile() {
     reindexHome();
 }
 
+function deleteFrames() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/animation/delete/${imageData.name}`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+
+    reindexHome();
+}
+
 function regenAnim() {
     $.ajax({
         type: 'GET',
@@ -461,6 +479,7 @@ $(document).ready(function() {
     $('#select-this').click(onRerollSelect);
     $('#copy').click(copyPrompt);
     $("#delete-confirmation-yes").click(deleteFile);
+    $("#delete-frames-confirmation-yes").click(deleteFrames);
     $('#variation-selection').change(onVariationSelectionChange);
 
     $("#delete").click(() => {
@@ -469,9 +488,21 @@ $(document).ready(function() {
         $("#delete-confirmation-no").show();
     });
 
+    $("#delete-frames").click(() => {
+        $("#delete-frames").hide();
+        $("#delete-frames-confirmation-yes").show();
+        $("#delete-frames-confirmation-no").show();
+    });
+
     $("#delete-confirmation-no").click(() => {
         $("#delete").show();
         $("#delete-confirmation-yes").hide();
         $("#delete-confirmation-no").hide();
+    });
+
+    $("#delete-frames-confirmation-no").click(() => {
+        $("#delete-frames").show();
+        $("#delete-frames-confirmation-yes").hide();
+        $("#delete-frames-confirmation-no").hide();
     });
 });
