@@ -50,6 +50,10 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
 	if(info != undefined && imageSettings.origPostPrompt != undefined)
 		info.origPostPrompt = imageSettings.origPostPrompt;
 
+	// Save fake animation filename
+	if(info != undefined && imageSettings.animationOf != undefined)
+		info.animationOf = imageSettings.animationOf;
+
 	// Write file next to image
 	if(info != undefined)
 		fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));
@@ -59,6 +63,13 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
         imageSettings.resultImages = [];
 
     imageSettings.resultImages.push(filename);
+
+    if(imageSettings.animationFrames == undefined && imageSettings.animationOf != undefined) 
+        imageSettings.animationFrames = [];
+    
+    if(imageSettings.animationFrames != undefined)  {
+    	imageSettings.animationFrames.push(filename);
+    }
 
 	// Return filename
 	return filename;

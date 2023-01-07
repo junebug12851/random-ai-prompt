@@ -244,6 +244,10 @@ block content
         input(type="text", pattern="^-?[\\d]+$", data-path="imageSettings.seed", data-command="image-seed")
 
       .option
+        label(title="Animation delay between frames for animations in milliseconds") Animation Delay
+        input(type="number", data-path="imageSettings.animationDelay", data-command="animation-delay")
+
+      .option
         label(title="For image variations, how far will variations deviate from the original. (Euler a often will do it's own thing and ignore this which is one of quite a few reasons why I disadvise people to use it, use Euler instead)") Variation Percent
         input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="imageSettings.subseedStrength", data-percent, data-command="image-subseed-strength")
 

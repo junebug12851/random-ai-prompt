@@ -72,6 +72,10 @@ module.exports = {
     /*--image-subseed-strength <0.0-1.0>*/
     subseedStrength: 0.05,
 
+    // Animation delay for animated images in ms
+    /*--animation-delay <number>*/
+    animationDelay: 200,
+
     // Negative prompt
     /*--negative-prompt <prompt>*/
     negativePrompt: "overexposed, asymmetrical, writing, deformed wings, low quality, text, extra arms, username, extra legs, low quality text, error, lowres, missing fingers, extra digit, fewer digits, cropped, worst quality, normal quality, jpeg artifacts, signature, out of focus, missing limbs, gross, distorted eyes, unfinished eyes, asymmetrical eyes, low quality eyes, bad hands, artist name, b&w, weird colors, blurry, oversize head, amputations, lumpy, extra limbs, extra fingers, mutated hands, bad anatomy, bad proportions, feral, border, extra nipples, trademark, watermark, mutations, tiling, deformed, head cropped, fusion, face cropped, face out of frame, censored, imperfections, disfigured, out of frame, deformed breasts, deformed hands, bad art, extra head, asymmetrical body, crosseyed, body out of frame, cross-eye, ugly, mutation, mutated, poorly drawn face, washed out colors, desaturated colors, faded colors, greyscale, poorly drawn, nsfw, lewd, ecchi, hentai, pervert, softcore, explicit, erotic, nudity, nipples, panties, bra, genitalia, bdsm, bondage, bra, lingerie",

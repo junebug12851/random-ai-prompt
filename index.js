@@ -30,6 +30,8 @@ const fs = require("fs");
 const express = require('express');
 const app = express();
 
+const saveApng = require("./helpers/saveApng");
+
 const server = app.listen(settings().serverSettings.portProgress, async function() {
 
     let cmdLine = _.cloneDeep(process.argv);
@@ -78,6 +80,10 @@ const server = app.listen(settings().serverSettings.portProgress, async function
         await upscale(argv.upscaleFile)
     else
         await run();
+
+    // Make APNG if animation frames exist
+    if(settings().imageSettings.animationFrames != undefined)
+        saveApng(settings().imageSettings.animationFrames, settings().imageSettings);
 
     // Write results file
     fs.writeFileSync("./results.json", JSON.stringify({

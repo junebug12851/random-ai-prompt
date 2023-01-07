@@ -77,7 +77,7 @@ async function processBatch(index, total) {
     prompt = prompt.replaceAll('\r', '');
 
     // If this is an animation, then update the prompt, this carries over the salt number
-    if(settings().settings.animationFilename != undefined) {
+    if(settings().imageSettings.animationOf != undefined) {
         settings().settings.animationPromptSet = prompt;
     }
 

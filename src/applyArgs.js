@@ -97,12 +97,11 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		// Set starting frame #, this can be overridden
 		settings.promptSaltStart = 1;
 
-		// Store the animation virtual file id
-		// This is a fake file that represents the collection of animation frames
+		// Store the animation file id to be created
 		// It also signifies to the program to handle the prompt and data file
 		// differently
 		const epoch = (+new Date()).toString();
-		settings.animationFilename = epoch.toString();
+		imageSettings.animationOf = epoch.toString();
 	}
 
 	// Since some people may not want randomness, if this flag is set, it auto
@@ -306,6 +305,11 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	if(argv.imageSubseedStrength !== undefined) {
 		settings.generateImages = true;
 		imageSettings.subseedStrength = parseFloat(argv.imageSubseedStrength);
+	}
+
+	if(argv.animationDelay !== undefined) {
+		settings.generateImages = true;
+		imageSettings.animationDelay = parseInt(argv.animationDelay);
 	}
 
 	if(argv.negativePrompt !== undefined) {
