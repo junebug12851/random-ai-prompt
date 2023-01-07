@@ -77,8 +77,8 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.keywordsFilename = "keyword";
 	}
 
-	// If the animation flag is set
-	if(argv.animationFrames !== undefined) {
+	// If the animation flag is set for new animations
+	if(argv.animationFrames !== undefined && argv.extendAnimationFile === undefined) {
 
 		// Set seed if one isn't set
 		if(imageSettings.seed == -1)
@@ -102,6 +102,19 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		// differently
 		const epoch = (+new Date()).toString();
 		imageSettings.animationOf = `${epoch.toString()}-anim`;
+	}
+
+	// If the animation flag is set to extend an animation
+	else if(argv.animationFrames !== undefined && argv.extendAnimationFile !== undefined) {
+
+		// Set the animation frame count to be the prompt count
+		// This can be overridden
+		settings.promptCount = parseInt(argv.animationFrames);
+	}
+
+	// Alias for prompt salt start for readability
+	if(argv.animationStartingFrame !== undefined) {
+		settings.promptSaltStart = parseInt(argv.animationStartingFrame);
 	}
 
 	// Since some people may not want randomness, if this flag is set, it auto

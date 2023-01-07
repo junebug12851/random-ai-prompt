@@ -157,6 +157,9 @@ function completePage() {
     if(imageData.isAnimation != undefined) {
         $("#action-menu option[value='regen-anim']").show();
         $("#action-menu option[value='regen-anim']").prop('disabled', false);
+
+        $("#action-menu option[value='select-extend-anim']").show();
+        $("#action-menu option[value='select-extend-anim']").prop('disabled', false);
     }
 
     $("#model-cell").text(imageData.sd_model_hash);
@@ -432,6 +435,9 @@ function actionMenuSelection() {
         selectUpscale();
     else if(selectedValue == "regen-anim")
         regenAnim();
+    else if(selectedValue == "select-extend-anim") {
+        window.location = `/generate?animation-starting-frame=5&animation-frames=5&extend-animation-file=${imageData.name}&prompt=`;
+    }
 
     $(this).prop('selectedIndex', 0);
 }

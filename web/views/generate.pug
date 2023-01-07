@@ -64,8 +64,16 @@ block content
         input(type="checkbox", data-command="non-anime-words")
 
       .option
-        label(title="Make the render an animation, this is the number of frames") Animation Frames
+        label(title="Starting frame number for animations") Animation Starting Frame
+        input(type="number", data-command="animation-starting-frame", value="1")
+
+      .option
+        label(title="Make an animation, this is the number of frames to make") Animation Frames
         input(type="number", data-command="animation-frames", value="5")
+
+      .option
+        label(title="Add more frames to an existing animation file") More Animation Frames To
+        input(type="text", data-command="extend-animation-file")
 
       .option
         label(title="The negative prompt for when generating images") Negative Prompt

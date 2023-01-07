@@ -67,6 +67,15 @@ const server = app.listen(settings().serverSettings.portProgress, async function
             settings().upscaleSettings);
     }
 
+    // Extend an animation
+    if(argv.extendAnimationFile != undefined) {
+        require("./src/extendAnimation")(
+            argv.extendAnimationFile,
+            settings().settings,
+            settings().imageSettings,
+            settings().upscaleSettings);
+    }
+
     // Use command line to override settings if any arguments are specified
     require("./src/applyArgs")(
         argv,
@@ -82,7 +91,12 @@ const server = app.listen(settings().serverSettings.portProgress, async function
         await run();
 
     // Make APNG if animation frames exist
-    if(settings().imageSettings.animationFrames != undefined)
+    // The cmd prompt is limited in that it doesn't have access to the image index
+    // This means we can't gather existing image files, meaning if we save an animation, it will
+    // only be for the newly generated images
+    // Therefore, extending only adds new frames but to update the animiation, you need to use
+    // the webui and regenerate it there
+    if(settings().imageSettings.animationFrames != undefined && argv.extendAnimationFile == undefined)
         saveApng(settings().imageSettings.animationFrames, settings().imageSettings);
 
     // Write results file
