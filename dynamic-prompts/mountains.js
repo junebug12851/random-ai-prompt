@@ -23,29 +23,7 @@ const eerie = require("./eerie");
 const ice = require("./ice");
 const mystical = require("./mystical");
 const lava = require("./lava");
-const crystal = require("./crystal");
 const color = require("./color");
-
-function additionalMystical() {
-    let prompt = "";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", glow";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", bioluminescent";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${color()} crystal`
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${color()} gemstone`
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", {color}";
-
-    return prompt;
-}
 
 function settlement() {
     let prompt = "";
@@ -57,7 +35,7 @@ function settlement() {
         prompt += ", [[village]]"
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", path"
+        prompt += ", [[path]]"
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", worn down";
@@ -101,21 +79,15 @@ module.exports = function() {
         prompt += ", tree"
 
     if(_.random(0.0, 1.0, true) < 0.25) {
-        switch(_.random(0, 2, false)) {
+        switch(_.random(0, 1, false)) {
             case 0:
                 prompt += `, volcano, ${lava()}`;
                 break;
             case 1:
                 prompt += `, winter, snow mountain, ${ice()}`;
                 break;
-            case 2:
-                prompt += `, crystal mountain, ${crystal()}`;
-                break;
         }
     }
-
-    if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, ${additionalMystical()}`
 
     if(_.random(0.0, 1.0, true) < 0.3)
         prompt += `, ${settlement()}`
