@@ -4,8 +4,6 @@ const apng = require("./makeApng");
 // Saves the png files as an animated png file
 module.exports = function(imageArray, imageSettings) {
 
-	console.log(imageArray);
-
 	// Read the PNG files into an array of Buffers
 	const pngBuffers = imageArray.map(pngFile => fs.readFileSync(`${imageSettings.saveTo}/${pngFile}.png`));
 

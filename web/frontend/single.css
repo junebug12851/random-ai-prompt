@@ -128,3 +128,7 @@ table a {
 #delete, #delete-confirmation-yes {
   background-color: hsl(0.00,73.46%,41.37%);
 }
+
+#action-menu {
+  margin-right: 10px;
+}

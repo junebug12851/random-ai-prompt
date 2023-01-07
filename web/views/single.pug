@@ -72,12 +72,16 @@ block content
       ul#keyword-cloud
 
     #image-cell
-      button#make-variations(style="display: none") Make Variations
-      button#make-upscale Upscale
-      button#download Download
-      button#parent(style="display: none") Parent
-      button#select-variations(style="display: none") Select Variations
-      button#select-upscale Select Upscale
+      select#action-menu
+        option(value="-1") Actions...
+        option(value="make-variations", title="1-Click image variations using default variation settings", style="display: none;", disabled) Make Variations
+        option(value="make-upscale", title="1-Click upscale using default upscale settings") Upscale
+        option(value="download", title="Download this image or animation") Download
+        option(value="parent", title="Go to this images parent", style="display: none;", disabled) Parent
+        option(value="select-variations", title="Take this image to the generation page to customize it for variations", style="display: none;", disabled) Select Variations
+        option(value="select-upscale", title="Take this image to the generation page to customize it for upscales") Select Upscale
+        option(value="regen-anim", title="Re-make the animation based on the currently linked frames", style="display: none;", disabled) Regenerate Animation
+
       button#delete Delete
       button#delete-confirmation-no(style="display: none") Don't Delete
       button#delete-confirmation-yes(style="display: none") Confirm Delete

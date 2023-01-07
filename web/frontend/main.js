@@ -52,9 +52,12 @@ function reindexHome() {
   setTimeout(_reindexHome, 500);
 }
 
-function _displayProgress(noBack, isUpscale) {
+function _displayProgress(noBack, isUpscale, isAnim) {
 
-  const progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";
+  let progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";
+
+  if(isAnim)
+    progressUrl = "/regen-anim";
 
   if(noBack) {
     window.location = progressUrl;
@@ -69,8 +72,8 @@ function _displayProgress(noBack, isUpscale) {
 
 // Give the request time to send
 // For some reason, jquery offers no way to localy determine when the request is sent
-function displayProgress(noBack, isUpscale) {
-  setTimeout(_displayProgress.bind(undefined, noBack, isUpscale), 500);
+function displayProgress(noBack, isUpscale, isAnim) {
+  setTimeout(_displayProgress.bind(undefined, noBack, isUpscale, isAnim), 500);
 }
 
 async function ajaxGet(path) {

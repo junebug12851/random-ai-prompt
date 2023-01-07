@@ -36,6 +36,7 @@ const express = require('express');
 const http = require('http');
 const fetch = require('node-fetch');
 const open = require('open');
+const saveApng = require('./helpers/saveApng');
 
 const { exec } = require('child_process');
 const { promisify } = require('util');
@@ -208,6 +209,10 @@ app.get('/settings', (req, res) => {
 
 app.get('/generate', (req, res) => {
   res.render('generate');
+});
+
+app.get('/regen-anim', (req, res) => {
+  res.render('regen-anim');
 });
 
 app.get('/download/:file', (req, res) => {
@@ -553,6 +558,49 @@ app.get('/api/reroll-file/:fileId/:field', async (req, res) => {
   // Run file variatons
   await execApp();
 
+  res.jsonp("success");
+});
+
+// Make file variations
+app.get('/api/file-update-animation/:fileId', async (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Make sure it has at least 1 animation frame
+  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+    res.jsonp({});
+    console.error("Error: API requested to update an image with no frames");
+    return;
+  }
+
+  // Convert to filename list
+  const files = [];
+
+  for(let i = 0; i < imageData.animationFrames.length; i++) {
+    files.push(imageData.animationFrames[i].name);
+  }
+
+  // Set animation of
+  settings().imageSettings.animationOf = imageName;
+
+  // Re-update animated image
+  saveApng(files, settings().imageSettings);
+
+  // Clear animation of
+  delete settings().imageSettings.animationOf;
+
+  // Return
   res.jsonp("success");
 });
 

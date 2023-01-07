@@ -54,10 +54,11 @@ function onVariationSelectionChange() {
         }
     }
 
+    // Important to append to preserve frame order
     if(selectedOption == "animationFrames" && imageData.animationFrames != undefined) {
         for(let i = 0; i < imageData.animationFrames.length; i++) {
             const animationFrame = imageData.animationFrames[i];
-            $("#variation-images").prepend(`
+            $("#variation-images").append(`
                 <a href="/single?name=${animationFrame.name}"><img src="${animationFrame.imgPath}"/></a>
             `);
         }
@@ -125,8 +126,10 @@ function completePage() {
 
     $("#timestamp-cell").text(timestampReadable);
 
-    if(imageData.variationOf != undefined || imageData.rerollOf != undefined || imageData.animationFrameOf != undefined)
-        $("#parent").show();
+    if(imageData.variationOf != undefined || imageData.rerollOf != undefined || imageData.animationFrameOf != undefined) {
+        $("#action-menu option[value='parent']").show();
+        $("#action-menu option[value='parent']").prop('disabled', false);
+    }
 
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
@@ -144,8 +147,16 @@ function completePage() {
         $("#type-cell").text("Base Image");
 
     if(imageData.variationOf == undefined) {
-        $("#make-variations").show();
-        $("#select-variations").show();
+        $("#action-menu option[value='make-variations']").show();
+        $("#action-menu option[value='make-variations']").prop('disabled', false);
+
+        $("#action-menu option[value='select-variations']").show();
+        $("#action-menu option[value='select-variations']").prop('disabled', false);
+    }
+
+    if(imageData.isAnimation != undefined) {
+        $("#action-menu option[value='regen-anim']").show();
+        $("#action-menu option[value='regen-anim']").prop('disabled', false);
     }
 
     $("#model-cell").text(imageData.sd_model_hash);
@@ -380,6 +391,51 @@ function deleteFile() {
     reindexHome();
 }
 
+function regenAnim() {
+    $.ajax({
+        type: 'GET',
+        url: `/api/file-update-animation/${imageData.name}`,
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  });
+
+    displayProgress(false, false, true);
+}
+
+function actionMenuSelection() {
+
+    // Get selected value
+    const selectedValue = $(this).val();
+
+    if(selectedValue == "make-variations")
+        makeVariations();
+    else if(selectedValue == "make-upscale")
+        upscaleFile();
+    else if(selectedValue == "download")
+        window.location = `/download/${imageData.name}.png`;
+    else if(selectedValue == "parent") {
+        if(imageData.variationOf != undefined)
+            window.location = `/single?name=${imageData.variationOf}`;
+        else if(imageData.rerollOf != undefined)
+            window.location = `/single?name=${imageData.rerollOf}`;
+        else if(imageData.animationFrameOf != undefined)
+            window.location = `/single?name=${imageData.animationFrameOf}`;
+    }
+    else if(selectedValue == "select-variations")
+        selectVariations();
+    else if(selectedValue == "select-upscale")
+        selectUpscale();
+    else if(selectedValue == "regen-anim")
+        regenAnim();
+
+    $(this).prop('selectedIndex', 0);
+}
+
 $(document).ready(function() {
     const params = getUrlParameters();
     const _name = params.name;
@@ -391,25 +447,13 @@ $(document).ready(function() {
         loadData();
     }
 
+    // Listen for insert menu change
+    $("#action-menu").change(actionMenuSelection);
+
     $('#prompt-selection').change(onPromptSelectionChange);
     $('#generate-this').click(onReroll);
     $('#select-this').click(onRerollSelect);
     $('#copy').click(copyPrompt);
-    $("#make-variations").click(makeVariations);
-    $("#select-variations").click(selectVariations);
-    $("#make-upscale").click(upscaleFile);
-    $("#select-upscale").click(selectUpscale);
-    $("#download").click(() => {
-        window.location = `/download/${imageData.name}.png`;
-    });
-    $("#parent").click(() => {
-        if(imageData.variationOf != undefined)
-            window.location = `/single?name=${imageData.variationOf}`;
-        else if(imageData.rerollOf != undefined)
-            window.location = `/single?name=${imageData.rerollOf}`;
-        else if(imageData.animationFrameOf != undefined)
-            window.location = `/single?name=${imageData.animationFrameOf}`;
-    });
     $("#delete-confirmation-yes").click(deleteFile);
     $('#variation-selection').change(onVariationSelectionChange);
 
