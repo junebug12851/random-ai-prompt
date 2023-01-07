@@ -252,6 +252,10 @@ module.exports = async function(prompt, _index, _total, settings, _imageSettings
 	if(settings.randomPrompt)
 		info.origRandomPrompt = settings.randomPrompt;
 
+	// Save fake animation filename
+	if(settings.animationFilename != undefined)
+		info.animationFilename = settings.animationFilename;
+
 	// Convert image data to actual images
 	for(let i = 0; i < data.images.length; i++) {
 
