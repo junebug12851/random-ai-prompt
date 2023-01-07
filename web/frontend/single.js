@@ -54,6 +54,15 @@ function onVariationSelectionChange() {
         }
     }
 
+    if(selectedOption == "animationFrames" && imageData.animationFrames != undefined) {
+        for(let i = 0; i < imageData.animationFrames.length; i++) {
+            const animationFrame = imageData.animationFrames[i];
+            $("#variation-images").prepend(`
+                <a href="/single?name=${animationFrame.name}"><img src="${animationFrame.imgPath}"/></a>
+            `);
+        }
+    }
+
     if(selectedOption == "upscales" && imageData.upscales != undefined) {
         for(let i = 0; i < imageData.upscales.length; i++) {
             const upscale = imageData.upscales[i];
@@ -116,13 +125,17 @@ function completePage() {
 
     $("#timestamp-cell").text(timestampReadable);
 
-    if(imageData.variationOf != undefined || imageData.rerollOf != undefined)
+    if(imageData.variationOf != undefined || imageData.rerollOf != undefined || imageData.animationFrameOf != undefined)
         $("#parent").show();
 
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
     else if(imageData.rerollOf != undefined)
         $("#type-cell").text("Re-rolled Image");
+    else if(imageData.animationFrameOf != undefined)
+        $("#type-cell").text("Animation Frame");
+    else if(imageData.isAnimation != undefined)
+        $("#type-cell").text("Animation");
     else if(imageData.upscaleOf != undefined)
         $("#type-cell").text("Upscaled Image");
     else if(imageData.upscaleOf == undefined && imageData.isUpscale == true)
@@ -207,7 +220,7 @@ function completePage() {
 
     // Set Variation or upscale images
 
-    if(imageData.upscales != undefined || imageData.variations != undefined || imageData.rerolls != undefined)
+    if(imageData.upscales != undefined || imageData.variations != undefined || imageData.rerolls != undefined || imageData.animationFrames != undefined)
         $("#variations-cell").show();
 
     if(imageData.variations != undefined)
@@ -215,6 +228,9 @@ function completePage() {
 
     if(imageData.rerolls != undefined)
         $("#variation-selection").append('<option value="rerolls">Re-Rolls</option>');
+
+    if(imageData.animationFrames != undefined)
+        $("#variation-selection").append('<option value="animationFrames">Animation Frames</option>');
 
     if(imageData.upscales != undefined)
         $("#variation-selection").append('<option value="upscales">Upscales</option>');
@@ -391,6 +407,8 @@ $(document).ready(function() {
             window.location = `/single?name=${imageData.variationOf}`;
         else if(imageData.rerollOf != undefined)
             window.location = `/single?name=${imageData.rerollOf}`;
+        else if(imageData.animationFrameOf != undefined)
+            window.location = `/single?name=${imageData.animationFrameOf}`;
     });
     $("#delete-confirmation-yes").click(deleteFile);
     $('#variation-selection').change(onVariationSelectionChange);
