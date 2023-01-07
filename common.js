@@ -47,9 +47,19 @@ async function processBatch(index, total) {
     // Copy over prompt from settings
     let prompt = settings().settings.prompt;
 
+    // If an animation prompt has already been set, use that instead
+    if(settings().settings.animationPromptSet != undefined)
+        prompt = settings().settings.animationPromptSet;
+
     // Then pass it through prompt modules if any
     for(let i = 0; i < settings().settings.promptModules.length; i++) {
-        const promptModuleName = settings().settings.promptModules[i];
+
+        let promptModuleName = settings().settings.promptModules[i];
+
+        // If animation prompt is set, then only change salt
+        if(settings().settings.animationPromptSet != undefined)
+            promptModuleName = `prompt-salt`;
+
         const promptModuleFunc = require(`./${settings().settings.promptModuleFiles}/${promptModuleName}`);
         prompt = promptModuleFunc(
             prompt,                         // Prompt
@@ -57,10 +67,19 @@ async function processBatch(index, total) {
             settings().imageSettings,       // Image Settings
             settings().upscaleSettings,     // Upscale Settings
         );
+
+        // If animation prompt is set, then stop here
+        if(settings().settings.animationPromptSet != undefined)
+            break;
     }
 
     // Remove annoying windows line-endings
     prompt = prompt.replaceAll('\r', '');
+
+    // If this is an animation, then update the prompt, this carries over the salt number
+    if(settings().settings.animationFilename != undefined) {
+        settings().settings.animationPromptSet = prompt;
+    }
 
     // Send to console if not hidden
     if(!settings().settings.hidePrompt) {

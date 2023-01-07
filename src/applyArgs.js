@@ -77,6 +77,34 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.keywordsFilename = "keyword";
 	}
 
+	// If the animation flag is set
+	if(argv.animationFrames !== undefined) {
+
+		// Set seed if one isn't set
+		if(imageSettings.seed == -1)
+			imageSettings.seed = _.random(100000000, 999999999, false);
+
+		// Force generate images to be true
+		settings.generateImages = true;
+
+		// Set the animation frame count to be the prompt count
+		// This can be overridden
+		settings.promptCount = parseInt(argv.animationFrames);
+
+		// Force prompt salt
+		settings.promptSalt = true;
+
+		// Set starting frame #, this can be overridden
+		settings.promptSaltStart = 1;
+
+		// Store the animation virtual file id
+		// This is a fake file that represents the collection of animation frames
+		// It also signifies to the program to handle the prompt and data file
+		// differently
+		const epoch = (+new Date()).toString();
+		settings.animationFilename = epoch.toString();
+	}
+
 	// Since some people may not want randomness, if this flag is set, it auto
 	// sets max count to tbe the same. To keep randomness, specify both.
 	if(argv.count !== undefined) {

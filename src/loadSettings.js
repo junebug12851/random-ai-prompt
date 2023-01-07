@@ -88,6 +88,8 @@ function userSettings() {
 	delete ret.settings.origPrompt;
 	delete ret.settings.randomPrompt;
 	delete ret.settings.ignoreFirstAutoArtistPass;
+	delete ret.settings.animationFilename;
+	delete ret.settings.animationPromptSet;
 
 	delete ret.imageSettings.lastCmd;
 	delete ret.imageSettings.variationOf;

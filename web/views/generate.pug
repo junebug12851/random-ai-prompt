@@ -64,6 +64,10 @@ block content
         input(type="checkbox", data-command="non-anime-words")
 
       .option
+        label(title="Make the render an animation, this is the number of frames") Animation Frames
+        input(type="number", data-command="animation-frames", value="5")
+
+      .option
         label(title="The negative prompt for when generating images") Negative Prompt
         textarea(data-path="imageSettings.negativePrompt", data-command="negative-prompt")
 
