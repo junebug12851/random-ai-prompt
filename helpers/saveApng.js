@@ -19,7 +19,7 @@ module.exports = function(imageArray, imageSettings) {
 
 	// Save the APNG to a file
 	// We save with the png extension to make coding much easier
-	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}-anim.png`, apngBuffer);
+	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.png`, apngBuffer);
 
 	// Read info file from first file in the array
 	const info = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${imageArray[0]}.json`).toString());
@@ -32,11 +32,11 @@ module.exports = function(imageArray, imageSettings) {
 
 	// Write info file next to image
 	if(info != undefined)
-		fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}-anim.json`, JSON.stringify(info, null, 4));
+		fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.json`, JSON.stringify(info, null, 4));
 
 	// Save image filename
     if(imageSettings.resultImages == undefined)
         imageSettings.resultImages = [];
 
-    imageSettings.resultImages.push(`${imageSettings.animationOf}-anim`);
+    imageSettings.resultImages.push(`${imageSettings.animationOf}`);
 }

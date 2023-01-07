@@ -101,7 +101,7 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		// It also signifies to the program to handle the prompt and data file
 		// differently
 		const epoch = (+new Date()).toString();
-		imageSettings.animationOf = epoch.toString();
+		imageSettings.animationOf = `${epoch.toString()}-anim`;
 	}
 
 	// Since some people may not want randomness, if this flag is set, it auto
