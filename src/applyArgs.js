@@ -78,7 +78,9 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 	}
 
 	// If the animation flag is set for new animations
-	if(argv.animationFrames !== undefined && argv.extendAnimationFile === undefined) {
+	if(argv.animationFrames !== undefined &&
+		argv.extendAnimationFile === undefined &&
+		argv.toAnimationFile === undefined) {
 
 		// Set seed if one isn't set
 		if(imageSettings.seed == -1)
@@ -104,8 +106,10 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		imageSettings.animationOf = `${epoch.toString()}-anim`;
 	}
 
-	// If the animation flag is set to extend an animation
-	else if(argv.animationFrames !== undefined && argv.extendAnimationFile !== undefined) {
+	// If the animation flag is set to extend or convert to an animation
+	else if(argv.animationFrames !== undefined &&
+			(argv.extendAnimationFile !== undefined ||
+			argv.toAnimationFile !== undefined)) {
 
 		// Set the animation frame count to be the prompt count
 		// This can be overridden

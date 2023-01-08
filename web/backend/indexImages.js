@@ -212,6 +212,12 @@ const indexFile = function(settings, filePath) {
             imgPath: data.imgPath,
         }, "animationFrames");
 
+    if(data.animationOf)
+        deepLink(data.animationOf.toString(), {
+            name,
+            imgPath: data.imgPath,
+        }, "animations");
+
     // We don't index upscales but we attach the upscale to the original
     if(name.includes("upscaled"))
         return;
@@ -507,6 +513,7 @@ const validateIndexes = function(settings) {
         validateDeepLink(settings, fileName, "upscaleOf");
         validateDeepLink(settings, fileName, "rerollOf");
         validateDeepLink(settings, fileName, "animationFrameOf");
+        validateDeepLink(settings, fileName, "animationOf");
     }
 }
 

@@ -76,6 +76,15 @@ const server = app.listen(settings().serverSettings.portProgress, async function
             settings().upscaleSettings);
     }
 
+    // Convert to an animation
+    else if(argv.toAnimationFile != undefined) {
+        require("./src/toAnimation")(
+            argv.toAnimationFile,
+            settings().settings,
+            settings().imageSettings,
+            settings().upscaleSettings);
+    }
+
     // Use command line to override settings if any arguments are specified
     require("./src/applyArgs")(
         argv,

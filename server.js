@@ -634,8 +634,8 @@ app.get('/api/file-update-animation/:fileId', async (req, res) => {
   // Set animation of
   settings().imageSettings.animationOf = imageName;
 
-  // Re-update animated image
-  saveApng(files, settings().imageSettings);
+  // Re-update animated image and skip writing json file
+  saveApng(files, settings().imageSettings, true);
 
   // Clear animation of
   delete settings().imageSettings.animationOf;

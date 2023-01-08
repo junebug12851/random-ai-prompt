@@ -2,7 +2,7 @@ const fs = require('fs');
 const apng = require("./makeApng");
 
 // Saves the png files as an animated png file
-module.exports = function(imageArray, imageSettings) {
+module.exports = function(imageArray, imageSettings, dontWriteJSON) {
 
 	// Read the PNG files into an array of Buffers
 	const pngBuffers = imageArray.map(pngFile => fs.readFileSync(`${imageSettings.saveTo}/${pngFile}.png`));
@@ -19,6 +19,15 @@ module.exports = function(imageArray, imageSettings) {
 	// We save with the png extension to make coding much easier
 	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.png`, apngBuffer);
 
+	// Save image filename
+    if(imageSettings.resultImages == undefined)
+        imageSettings.resultImages = [];
+
+    imageSettings.resultImages.push(`${imageSettings.animationOf}`);
+
+	if(dontWriteJSON)
+		return;
+
 	// Read info file from first file in the array
 	const info = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${imageArray[0]}.json`).toString());
 
@@ -28,13 +37,10 @@ module.exports = function(imageArray, imageSettings) {
 	// Set key that signifies this is the animation the frames link to
 	info.isAnimation = true;
 
+	// Set parent image if there is one
+	if(imageSettings.animationOfImg != undefined)
+		info.animationOf = imageSettings.animationOfImg;
+
 	// Write info file next to image
-	if(info != undefined)
-		fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.json`, JSON.stringify(info, null, 4));
-
-	// Save image filename
-    if(imageSettings.resultImages == undefined)
-        imageSettings.resultImages = [];
-
-    imageSettings.resultImages.push(`${imageSettings.animationOf}`);
+	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.json`, JSON.stringify(info, null, 4));
 }

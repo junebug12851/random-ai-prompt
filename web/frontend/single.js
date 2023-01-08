@@ -55,6 +55,16 @@ function onVariationSelectionChange() {
     }
 
     // Important to append to preserve frame order
+    if(selectedOption == "animations" && imageData.animations != undefined) {
+        for(let i = 0; i < imageData.animations.length; i++) {
+            const animation = imageData.animations[i];
+            $("#variation-images").append(`
+                <a href="/single?name=${animation.name}"><img src="${animation.imgPath}"/></a>
+            `);
+        }
+    }
+
+    // Important to append to preserve frame order
     if(selectedOption == "animationFrames" && imageData.animationFrames != undefined) {
         for(let i = 0; i < imageData.animationFrames.length; i++) {
             const animationFrame = imageData.animationFrames[i];
@@ -126,7 +136,10 @@ function completePage() {
 
     $("#timestamp-cell").text(timestampReadable);
 
-    if(imageData.variationOf != undefined || imageData.rerollOf != undefined || imageData.animationFrameOf != undefined) {
+    if(imageData.variationOf != undefined || 
+        imageData.rerollOf != undefined || 
+        imageData.animationFrameOf != undefined ||
+        imageData.animationOf != undefined) {
         $("#action-menu option[value='parent']").show();
         $("#action-menu option[value='parent']").prop('disabled', false);
     }
@@ -162,6 +175,15 @@ function completePage() {
         $("#action-menu option[value='select-extend-anim']").prop('disabled', false);
 
         $("#delete-frames").show();
+    }
+
+    // Not an animation or animation frame and has no associated animation
+    if(imageData.animationFrameOf == undefined && imageData.isAnimation == undefined && imageData.animations == undefined) {
+        $("#action-menu option[value='make-anim']").show();
+        $("#action-menu option[value='make-anim']").prop('disabled', false);
+
+        $("#action-menu option[value='select-make-anim']").show();
+        $("#action-menu option[value='select-make-anim']").prop('disabled', false);
     }
 
     $("#model-cell").text(imageData.sd_model_hash);
@@ -236,7 +258,11 @@ function completePage() {
 
     // Set Variation or upscale images
 
-    if(imageData.upscales != undefined || imageData.variations != undefined || imageData.rerolls != undefined || imageData.animationFrames != undefined)
+    if(imageData.upscales != undefined ||
+        imageData.variations != undefined || 
+        imageData.rerolls != undefined || 
+        imageData.animations != undefined ||
+        imageData.animationFrames != undefined)
         $("#variations-cell").show();
 
     if(imageData.variations != undefined)
@@ -244,6 +270,9 @@ function completePage() {
 
     if(imageData.rerolls != undefined)
         $("#variation-selection").append('<option value="rerolls">Re-Rolls</option>');
+
+    if(imageData.animations != undefined)
+        $("#variation-selection").append('<option value="animations">Animations</option>');
 
     if(imageData.animationFrames != undefined)
         $("#variation-selection").append('<option value="animationFrames">Animation Frames</option>');
@@ -338,8 +367,41 @@ function makeVariations() {
     displayProgress();
 }
 
+function makeAnimations() {
+
+    // Set Generation state
+    const state = {
+        "generate-images": true,
+        "to-animation-file": imageData.name,
+    };
+
+    // Save state
+    localStorage.setItem('generateSettings', JSON.stringify(state));
+
+    // Post it
+    $.ajax({
+        type: 'POST',
+        url: `/api/generate-full`,
+        data: JSON.stringify(state),
+        contentType: 'application/json',
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+    });
+
+    displayProgress(true);
+}
+
 function selectVariations() {
     window.location = `/generate?file-variations=${imageData.name}&prompt=`;
+}
+
+function selectAnimation() {
+    window.location = `/generate?to-animation-file=${imageData.name}&animation-starting-frame=1&animation-frames=5&prompt=`;
 }
 
 function upscaleFile() {
@@ -437,6 +499,8 @@ function actionMenuSelection() {
         makeVariations();
     else if(selectedValue == "make-upscale")
         upscaleFile();
+    else if(selectedValue == "make-anim")
+        makeAnimations();
     else if(selectedValue == "download")
         window.location = `/download/${imageData.name}.png`;
     else if(selectedValue == "parent") {
@@ -446,11 +510,15 @@ function actionMenuSelection() {
             window.location = `/single?name=${imageData.rerollOf}`;
         else if(imageData.animationFrameOf != undefined)
             window.location = `/single?name=${imageData.animationFrameOf}`;
+        else if(imageData.animationOf != undefined)
+            window.location = `/single?name=${imageData.animationOf}`;
     }
     else if(selectedValue == "select-variations")
         selectVariations();
     else if(selectedValue == "select-upscale")
         selectUpscale();
+    else if(selectedValue == "select-make-anim")
+        selectAnimation();
     else if(selectedValue == "regen-anim")
         regenAnim();
     else if(selectedValue == "select-extend-anim") {

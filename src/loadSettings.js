@@ -97,6 +97,7 @@ function userSettings() {
 	delete ret.imageSettings.autoIncludedArtists;
 	delete ret.imageSettings.animationOf;
 	delete ret.imageSettings.animationFrames;
+	delete ret.imageSettings.animationOfImg;
 
 	delete ret.imageSettings.resultPrompts;
 	delete ret.imageSettings.resultImages;
