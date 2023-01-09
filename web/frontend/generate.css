@@ -15,11 +15,6 @@ label {
 #container {
     display: flex;
     padding: 0 25px;
-/*    border: 1px solid red;*/
-}
-
-#container > div {
-/*    border: 1px solid blue;*/
 }
 
 #main {
@@ -60,48 +55,6 @@ label {
 #page-subtitle {
     margin-top: -13px;
     margin-bottom: 30px;
-}
-
-.input-btn {
-    position: relative;
-    margin-bottom: 5px;
-}
-
-#page-search {
-    padding-right: 52px;
-}
-
-.input-btn select {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50px;
-    font-size: 15px;
-    background-color: transparent;
-    margin: 0;
-    padding: 6px;
-    padding-top: 7px;
-    padding-bottom: 8px;
-
-    border: none;
-    border-radius: 15px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: 1px solid hsl(0.00,0.00%,50.0%);
-
-    margin-top: 0px;
-    margin-right: 0px;
-    appearance: none;
-
-    padding-left: 4px;
-}
-
-.input-btn select:hover {
-    background-color: hsl(0.00,0.00%,20%);
-}
-
-.input-btn select:active {
-  background-color: hsl(0.00,0.00%,5%);
 }
 
 .option {
@@ -194,4 +147,41 @@ label {
 
 #preset-insert:active {
   background-color: hsl(0.00,0.00%,5%);
+}
+
+#main > p {
+    text-align: center;
+}
+
+#keyword-cloud {
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+#keyword-cloud button {
+    display: inline-block;
+    margin-right: 4px;
+    border-radius: 0;
+    border: none;
+    /*border: 1px solid hsl(0.00,0.00%,35%);
+    border: none;
+    border-right: 1px solid hsl(0.00,0.00%,35%);*/
+    color: hsl(0.00,0.00%,80%);
+    background-color: transparent;
+}
+
+#keyword-cloud span {
+    display: block;
+    margin: 15px 0;
+    font-weight: bold;
+    color: hsl(0.00,0.00%,90%);
+}
+
+#keyword-cloud button:hover {
+    background-color: hsl(0.00,0.00%,20%);
+    color: hsl(0.00,0.00%,99%);
+}
+
+#keyword-cloud button:active {
+    background-color: hsl(0.00,0.00%,10%);
 }

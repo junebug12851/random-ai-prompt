@@ -162,9 +162,9 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < dynPrompts.fullRegular.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Full dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">Full Dynamic Prompts</option>`);
+			$("#keyword-cloud").append(`<span title="Full dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">Full Dynamic Prompts</span>`);
 
-		$("#prompt-insert").append(`<option value="#${dynPrompts.fullRegular[i]}">${startCase(dynPrompts.fullRegular[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.fullRegular[i]}">${startCase(dynPrompts.fullRegular[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
@@ -173,9 +173,9 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < dynPrompts.userFiles.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</option>`);
+			$("#keyword-cloud").append(`<span title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</span>`);
 
-		$("#prompt-insert").append(`<option value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
@@ -184,9 +184,9 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < lists.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Replaced by a single random entry from the list file">Lists</option>`);
+			$("#keyword-cloud").append(`<span title="Replaced by a single random entry from the list file">Lists</span>`);
 
-		$("#prompt-insert").append(`<option value="{${lists[i]}}">${startCase(lists[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="{${lists[i]}}">${startCase(lists[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
@@ -195,9 +195,9 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < expansions.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Inserts a string of text from the expansion file (Same text everytime). Expansion files can contain dynamic prompts and lists though to offer randomiation">Expansions</option>`);
+			$("#keyword-cloud").append(`<span title="Inserts a string of text from the expansion file (Same text everytime). Expansion files can contain dynamic prompts and lists though to offer randomiation">Expansions</span>`);
 
-		$("#prompt-insert").append(`<option value="<${expansions[i]}>">${startCase(expansions[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="<${expansions[i]}>">${startCase(expansions[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
@@ -206,9 +206,9 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < dynPrompts.partialRegular.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Partial prompts, these are meant to compliment other parts of a prompt but don't stand well on their own">Partial Dynamic Prompts</option>`);
+			$("#keyword-cloud").append(`<span title="Partial prompts, these are meant to compliment other parts of a prompt but don't stand well on their own">Partial Dynamic Prompts</span>`);
 
-		$("#prompt-insert").append(`<option value="#${dynPrompts.partialRegular[i]}">${startCase(dynPrompts.partialRegular[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.partialRegular[i]}">${startCase(dynPrompts.partialRegular[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
@@ -217,17 +217,17 @@ async function updateInsertMenu() {
 
 	for(let i = 0; i < dynPrompts.v1Files.length; i++) {
 		if(i == 0)
-			$("#prompt-insert").append(`<option disabled title="Full legacy dynamically generated prompts around a theme">V1 Dynamic Prompts</option>`);
+			$("#keyword-cloud").append(`<span disabled title="Full legacy dynamically generated prompts around a theme">V1 Dynamic Prompts</span>`);
 
-		$("#prompt-insert").append(`<option value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</option>`);
+		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</button>`);
 	}
 
-	$("#prompt-insert").append(`<option disabled title="Special prompt features">Special Features</option>`);
-	$("#prompt-insert").append(`<option value="{salt}" title="Forces salt to be inserted at this location in the prompt">Force salt here</option>`);
+	$("#keyword-cloud").append(`<span title="Special prompt features">Special Features</span>`);
+	$("#keyword-cloud").append(`<button data-value="{salt}" title="Forces salt/frame number to be inserted at this location in the prompt">Force salt here</button>`);
 }
 
 function insertSelected() {
-	const selectedValue = $(this).val();
+	const selectedValue = $(this).data("value");
 
 	let curText = $('#page-search').val().trim();
 	if(curText == "")
@@ -236,7 +236,6 @@ function insertSelected() {
 		curText = `${curText}, ${selectedValue}`;
 
 	$('#page-search').val(curText);
-	$(this).prop('selectedIndex', 0);
 }
 
 function presetSelected() {
@@ -642,7 +641,7 @@ $(document).ready(async function() {
 	removeSettingOnClick();
 
 	// Listen for insert menu change
-	$("#prompt-insert").change(insertSelected);
+	$("#keyword-cloud button").click(insertSelected);
 
 	// Listen for preset menu change
 	$("#preset-insert").change(presetSelected);
