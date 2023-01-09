@@ -51,8 +51,10 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
 		info.origPostPrompt = imageSettings.origPostPrompt;
 
 	// Save fake animation filename
-	if(info != undefined && imageSettings.animationOf != undefined)
+	if(info != undefined && imageSettings.animationOf != undefined) {
 		info.animationFrameOf = imageSettings.animationOf;
+		info.animatonFrameNumber = imageSettings.usedSalt;
+	}
 
 	// Write file next to image
 	if(info != undefined)

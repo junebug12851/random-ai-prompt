@@ -27,20 +27,29 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 
 	prompt = prompt.replaceAll(/\{salt\}/gm, function(match) {
 		foundSalt = true;
+		imageSettings.usedSalt = (val >= 0) ? `[${val}]` : getRndSalt();
 		return (val >= 0) ? `[${val}]` : getRndSalt();
 	});
 
 	prompt = prompt.replaceAll(/\[\d+\]/gm, function(match) {
 		foundSalt = true;
+		imageSettings.usedSalt = (val >= 0) ? `[${val}]` : getRndSalt();
 		return (val >= 0) ? `[${val}]` : getRndSalt();
 	});
 
 	if(settings.promptSalt && !foundSalt) {
+
+		imageSettings.usedSalt = (val >= 0) ? `[${val}]` : getRndSalt();
+
 		if(val >= 0)
 			prompt = `${prompt} [${val}]`;
 		else
 			prompt = `${prompt} ${getRndSalt()}`;
 	}
+
+	// Remove brackets around used salt
+	if(imageSettings.usedSalt != undefined)
+		imageSettings.usedSalt = imageSettings.usedSalt.replaceAll(/[\[\]]/gm, "");
 
 	if(val >= 0) {
 		settings.promptSaltStart++;

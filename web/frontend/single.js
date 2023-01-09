@@ -144,12 +144,17 @@ function completePage() {
         $("#action-menu option[value='parent']").prop('disabled', false);
     }
 
+    let frameNumber = "";
+
+    if(imageData.animatonFrameNumber != undefined)
+        frameNumber = " #" + imageData.animatonFrameNumber;
+
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
     else if(imageData.rerollOf != undefined)
         $("#type-cell").text("Re-rolled Image");
     else if(imageData.animationFrameOf != undefined)
-        $("#type-cell").text("Animation Frame");
+        $("#type-cell").text("Animation Frame" + frameNumber);
     else if(imageData.isAnimation != undefined)
         $("#type-cell").text("Animation");
     else if(imageData.upscaleOf != undefined)

@@ -31,8 +31,9 @@ module.exports = function(imageArray, imageSettings, dontWriteJSON) {
 	// Read info file from first file in the array
 	const info = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${imageArray[0]}.json`).toString());
 
-	// Remove animation frame link to animation key
+	// Remove animation frame data since this is the animation itself
 	delete info.animationFrameOf;
+	delete info.animatonFrameNumber;
 
 	// Set key that signifies this is the animation the frames link to
 	info.isAnimation = true;
