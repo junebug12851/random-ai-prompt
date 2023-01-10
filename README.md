@@ -13,6 +13,12 @@ You could sit here all day and just ask for more random images, filling up your 
 * **[Skip to installation part, how do I install this?](#how-to-install-with-git)**
 * **[Skip to FAQ, Why Javascript, etc...](#faq)**
 
+## Installation Video
+
+[Click to watch video on Youtube](https://www.youtube.com/watch?v=DX88OaDq0Hs)
+
+[![Youtube Thumbnail](https://user-images.githubusercontent.com/1305564/211483878-f4e5e988-80df-48be-bcce-a90e8c9ac2ce.png)](https://www.youtube.com/watch?v=DX88OaDq0Hs)
+
 ## There's a nice WebUI that you can do everythign in
 
 ![ezgif-4-bc20e48e09](https://user-images.githubusercontent.com/1305564/211252031-38a390c5-285d-4886-b764-34578ff83c53.png)
