@@ -264,6 +264,21 @@ function completePage() {
 
         $("#delete-frames").show();
     }
+    else {
+        // Non-Animated image options
+        if(hasMagick) {
+            $("#action-menu option[value='invalid-magick']").show();
+            
+            $("#action-menu option[value='magick-single-gif']").show();
+            $("#action-menu option[value='magick-single-gif']").prop('disabled', false);
+
+            $("#action-menu option[value='magick-single-webp']").show();
+            $("#action-menu option[value='magick-single-webp']").prop('disabled', false);
+
+            $("#action-menu option[value='magick-single-jpg']").show();
+            $("#action-menu option[value='magick-single-jpg']").prop('disabled', false);
+        }
+    }
 
     // Not an animation or animation frame and has no associated animation
     if(imageData.animationFrameOf == undefined && imageData.isAnimation == undefined && imageData.animations == undefined) {
@@ -685,6 +700,13 @@ function actionMenuSelection() {
         window.location = `/api/magick-animation-convert/${imageData.name}/webp`;
     else if(selectedValue == "magick-mp4")
         window.location = `/api/magick-animation-convert/${imageData.name}/mp4`;
+
+    else if(selectedValue == "magick-single-gif")
+        window.location = `/api/magick-image-convert/${imageData.name}/gif`;
+    else if(selectedValue == "magick-single-webp")
+        window.location = `/api/magick-image-convert/${imageData.name}/webp`;
+    else if(selectedValue == "magick-single-jpg")
+        window.location = `/api/magick-image-convert/${imageData.name}/jpg`;
 
     $(this).prop('selectedIndex', 0);
 }

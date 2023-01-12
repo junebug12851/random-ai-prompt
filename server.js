@@ -808,7 +808,7 @@ app.get('/api/magick-installed', async (req, res) => {
   res.jsonp(isInstalled);
 });
 
-// Make file variations
+// Use Image Magick to convert animation to another animation file
 app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
 
   // Get image name
@@ -846,6 +846,46 @@ app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
     {
       delay: +(settings().imageSettings.animationDelay / 10).toFixed(0)
     },
+    files,
+    `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`
+  );
+
+  // Return
+  res.download(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
+
+  // Auto-remove after some time
+  setTimeout(function() {
+    fs.unlinkSync(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
+  }, 5 * 1000);
+});
+
+// Use Image Magick to convert image to another image file
+app.get('/api/magick-image-convert/:fileId/:ext', async (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get new extension
+  const newExt = req.params.ext;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Convert to filename list
+  const files = [
+    `./${settings().imageSettings.saveTo}/${imageName}.png`
+  ];
+
+  // Run file variatons
+  await execMagick(
+    undefined,
     files,
     `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`
   );
