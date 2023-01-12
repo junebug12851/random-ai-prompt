@@ -465,6 +465,13 @@ app.get('/api/images/search-suggestion', async function(req, res) {
   }
 });
 
+app.get('/api/images/random-keywords', async function(req, res) {
+
+  // Get up to 25 random keywords
+  const keywords = _.sampleSize(_.keys(imageIndex.getIndex()), 50);
+  res.jsonp(keywords);
+});
+
 app.get('/api/images/progress', async function(req, res) {
   const progress = await getProgress();
   res.jsonp(progress);

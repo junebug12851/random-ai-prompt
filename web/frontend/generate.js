@@ -144,17 +144,21 @@ function returnValToSetting() {
 async function updateInsertMenu() {
 
 	// Gather files
-	const dynPrompts = await ajaxGet('/api/files/dynamic-prompts');
-	if(dynPrompts == null)
-		return;
+	let dynPrompts = await ajaxGet('/api/files/dynamic-prompts');
+	if(dynPrompts == null || dynPrompts == undefined)
+		dynPrompts = [];
 
-	const expansions = await ajaxGet('/api/files/expansions');
-	if(expansions == null)
-		return;
+	let expansions = await ajaxGet('/api/files/expansions');
+	if(expansions == null || expansions == undefined)
+		expansions = [];
 
-	const lists = await ajaxGet('/api/files/lists');
-	if(lists == null)
-		return;
+	let lists = await ajaxGet('/api/files/lists');
+	if(lists == null || lists == undefined)
+		lists = [];
+
+	let randomKeywords = await ajaxGet('/api/images/random-keywords');
+	if(randomKeywords == null || randomKeywords == undefined)
+		randomKeywords = [];
 
 	// ------------------------------------------------------------------------
 	// Dynamic prompts full
@@ -220,6 +224,17 @@ async function updateInsertMenu() {
 			$("#keyword-cloud").append(`<span disabled title="Full legacy dynamically generated prompts around a theme">V1 Dynamic Prompts</span>`);
 
 		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</button>`);
+	}
+
+	// ------------------------------------------------------------------------
+	// Random Keywords
+	// ------------------------------------------------------------------------
+
+	for(let i = 0; i < randomKeywords.length; i++) {
+		if(i == 0)
+			$("#keyword-cloud").append(`<span disabled title="Random keywords from images you've already generated">Random Existing Keywords</span>`);
+
+		$("#keyword-cloud").append(`<button data-value="${randomKeywords[i]}">${startCase(randomKeywords[i])}</button>`);
 	}
 
 	$("#keyword-cloud").append(`<span title="Special prompt features">Special Features</span>`);
