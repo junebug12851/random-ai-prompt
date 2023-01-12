@@ -52,6 +52,17 @@ function reindexHome() {
   setTimeout(_reindexHome, 500);
 }
 
+function _reIndexToUrl(url) {
+  const backUrl = url;
+  const encodedBackUrl = encodeURIComponent(backUrl);
+  const params = new URLSearchParams({ backUrl: encodedBackUrl });
+  window.location = `/re-index?${params}`;
+}
+
+function reIndexToUrl(url) {
+  setTimeout(_reIndexToUrl.bind(undefined, url), 500);
+}
+
 function _displayProgress(noBack, isUpscale, isAnim) {
 
   let progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";
