@@ -461,11 +461,14 @@ app.get('/api/results', async function(req, res) {
 
         // Otherwise attempt to assume its an upscale and get link that way
         else {
-          const json = require(`${settings().imageSettings.saveTo}/${images[i]}.json`);
-          if(json.upscaleOf) {
-            obj.data = imageIndex.getFiles()[json.upscaleOf];
-            obj.link = `/single?name=${json.upscaleOf}`;
+          try {
+            const json = require(`${settings().imageSettings.saveTo}/${images[i]}.json`);
+            if(json.upscaleOf) {
+              obj.data = imageIndex.getFiles()[json.upscaleOf];
+              obj.link = `/single?name=${json.upscaleOf}`;
+            }
           }
+          catch(err) {}
         }
 
         // Save it
