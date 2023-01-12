@@ -519,7 +519,8 @@ async function deleteFile() {
 }
 
 async function deleteFrames() {
-    ajaxGet(`/api/animation/delete/${imageData.name}`);
+    await ajaxGet(`/api/animation/delete/${imageData.name}`);
+    reIndexToUrl(window.location.href);
     reIndexToUrl(window.location.href);
 }
 
