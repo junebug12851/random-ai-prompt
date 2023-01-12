@@ -131,7 +131,12 @@ table a {
   color: hsl(0.00,0.00%,98.04%);
 }
 
-#delete, #delete-confirmation-yes, #delete-frames, #delete-frames-confirmation-yes {
+#delete,
+#delete-confirmation-yes,
+#delete-frames,
+#delete-frames-confirmation-yes,
+#delete-upscales,
+#delete-upscales-confirmation-yes {
   background-color: hsl(0.00,73.46%,41.37%);
 }
 

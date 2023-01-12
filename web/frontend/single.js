@@ -236,6 +236,9 @@ function completePage() {
         $("#action-menu option[value='select-make-anim']").prop('disabled', false);
     }
 
+    if(imageData.upscales)
+        $("#delete-upscales").show();
+
     $("#model-cell").text(imageData.sd_model_hash);
     $("#seed-cell").text(imageData.seed);
 
@@ -508,6 +511,13 @@ async function deleteFile() {
     if(imageData.isAnimation)
         await ajaxGet(`/api/animation/delete/${imageData.name}`);
 
+    // Delete upscales as well
+    if(imageData.upscales)
+        await ajaxGet(`/api/upscales/delete/${imageData.name}`);
+
+    // Keep Variations and Re-Rolls, they can be deleted individually
+    // I may add a delete button for them, dunno
+
     // Then delete image
     ajaxGet(`/api/images/delete/${imageData.name}`);
     
@@ -521,6 +531,10 @@ async function deleteFile() {
 async function deleteFrames() {
     await ajaxGet(`/api/animation/delete/${imageData.name}`);
     reIndexToUrl(window.location.href);
+}
+
+async function deleteUpscales() {
+    await ajaxGet(`/api/upscales/delete/${imageData.name}`);
     reIndexToUrl(window.location.href);
 }
 
@@ -589,6 +603,7 @@ $(document).ready(function() {
     $('#copy').click(copyPrompt);
     $("#delete-confirmation-yes").click(deleteFile);
     $("#delete-frames-confirmation-yes").click(deleteFrames);
+    $("#delete-upscales-confirmation-yes").click(deleteUpscales);
     $('#variation-selection').change(onVariationSelectionChange);
 
     $("#delete").click(() => {
@@ -603,6 +618,12 @@ $(document).ready(function() {
         $("#delete-frames-confirmation-no").show();
     });
 
+    $("#delete-upscales").click(() => {
+        $("#delete-upscales").hide();
+        $("#delete-upscales-confirmation-yes").show();
+        $("#delete-upscales-confirmation-no").show();
+    });
+
     $("#delete-confirmation-no").click(() => {
         $("#delete").show();
         $("#delete-confirmation-yes").hide();
@@ -613,5 +634,11 @@ $(document).ready(function() {
         $("#delete-frames").show();
         $("#delete-frames-confirmation-yes").hide();
         $("#delete-frames-confirmation-no").hide();
+    });
+
+    $("#delete-upscales-confirmation-no").click(() => {
+        $("#delete-upscales").show();
+        $("#delete-upscales-confirmation-yes").hide();
+        $("#delete-upscales-confirmation-no").hide();
     });
 });

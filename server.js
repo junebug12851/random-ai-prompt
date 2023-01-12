@@ -278,6 +278,50 @@ app.get('/api/animation/delete/:fileId', (req, res) => {
   res.jsonp("success");
 });
 
+app.get('/api/upscales/delete/:fileId', (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Make sure it has at least 1 upscale
+  if(imageData.upscales == undefined || imageData.upscales.length == 0) {
+    res.jsonp({});
+    console.error("Error: API requested to remove upscales from an image with no upscales");
+    return;
+  }
+
+  // Go through all upscales
+  for(let i = 0; i < imageData.upscales.length; i++) {
+
+    // Get file name and remove fake path and extension
+    let file = imageData.upscales[i];
+    file = file.replaceAll("/images/", "");
+    file = file.replaceAll(".png", "");
+
+    // Delete file
+  try {
+      fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.png`);
+      fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.json`);
+    }
+    catch(err) {
+      console.error(err);
+    }
+  }
+
+  // Mark as success
+  res.jsonp("success");
+});
+
 app.get('/api/images/query', async function(req, res) {
 
   // Get query
