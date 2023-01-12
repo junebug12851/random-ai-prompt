@@ -11,6 +11,51 @@ function onPromptSelectionChange() {
         $('#keywords').text(imageData.negative_prompt);
     else if(selectedOption == "data")
         $('#keywords').text(JSON.stringify(imageData, null, 4));
+    else if(selectedOption == "info-md") {
+        let txt = `**Prompt**: ${imageData.prompt}
+
+**Negative Prompt**: ${imageData.negative_prompt}
+
+**Seed**: ${imageData.seed}
+
+**Size**: ${imageData.width}x${imageData.height}
+
+**Sampler**: ${imageData.sampler_name}
+
+**CFG**: ${imageData.cfg_scale}
+
+**Steps**: ${imageData.steps}
+
+**Model**: ${imageData.sd_model_hash}
+
+Generated using [RandomAIPrompt](https://github.com/junebug12851/random-ai-prompt)`
+
+        if(imageData.origPrompt)
+            txt += ` with keywords: ${imageData.origPrompt}`
+
+        $('#keywords').text(txt);
+    }
+
+    else if(selectedOption == "info-txt") {
+        let txt = `Prompt: ${imageData.prompt}
+
+Negative Prompt: ${imageData.negative_prompt}
+
+Seed: ${imageData.seed}
+Size: ${imageData.width}x${imageData.height}
+Sampler: ${imageData.sampler_name}
+CFG: ${imageData.cfg_scale}
+Steps: ${imageData.steps}
+Model: ${imageData.sd_model_hash}
+
+Generated using RandomAIPrompt (https://github.com/junebug12851/random-ai-prompt)`
+
+        if(imageData.origPrompt)
+            txt += ` with keywords: ${imageData.origPrompt}`
+
+        $('#keywords').text(txt);
+    }
+
     else if(selectedOption == "original")
         $('#keywords').text(imageData.origPrompt);
     else if(selectedOption == "post")
