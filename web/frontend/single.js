@@ -233,20 +233,21 @@ function completePage() {
             $("#action-menu option[value='make-extend-anim']").prop('disabled', false);
         }
 
+        $("#action-menu option[value='invalid-magick']").show();
+        $("#action-menu option[value='magick-gif']").show();
+        $("#action-menu option[value='magick-webp']").show();
+        $("#action-menu option[value='magick-mp4']").show();
+        $("#action-menu option[value='magick-mng']").show();
+
         if(hasMagick) {
-            $("#action-menu option[value='invalid-magick']").show();
-
-            $("#action-menu option[value='magick-gif']").show();
             $("#action-menu option[value='magick-gif']").prop('disabled', false);
-
-            $("#action-menu option[value='magick-webp']").show();
             $("#action-menu option[value='magick-webp']").prop('disabled', false);
-
-            $("#action-menu option[value='magick-mp4']").show();
             $("#action-menu option[value='magick-mp4']").prop('disabled', false);
-
-            $("#action-menu option[value='magick-mng']").show();
             $("#action-menu option[value='magick-mng']").prop('disabled', false);
+        }
+        else {
+            $("#action-menu option[value='missing-magick']").show();
+            $("#action-menu option[value='missing-magick']").prop('disabled', false);
         }
 
         $("#frame-count-row").show();
@@ -265,18 +266,21 @@ function completePage() {
         $("#delete-frames").show();
     }
     else {
+
+        $("#action-menu option[value='invalid-magick']").show();
+        $("#action-menu option[value='magick-single-gif']").show();
+        $("#action-menu option[value='magick-single-webp']").show();
+        $("#action-menu option[value='magick-single-jpg']").show();
+
         // Non-Animated image options
         if(hasMagick) {
-            $("#action-menu option[value='invalid-magick']").show();
-            
-            $("#action-menu option[value='magick-single-gif']").show();
             $("#action-menu option[value='magick-single-gif']").prop('disabled', false);
-
-            $("#action-menu option[value='magick-single-webp']").show();
             $("#action-menu option[value='magick-single-webp']").prop('disabled', false);
-
-            $("#action-menu option[value='magick-single-jpg']").show();
             $("#action-menu option[value='magick-single-jpg']").prop('disabled', false);
+        }
+        else {
+            $("#action-menu option[value='missing-magick']").show();
+            $("#action-menu option[value='missing-magick']").prop('disabled', false);
         }
     }
 
@@ -707,6 +711,9 @@ function actionMenuSelection() {
         window.location = `/api/magick-image-convert/${imageData.name}/webp`;
     else if(selectedValue == "magick-single-jpg")
         window.location = `/api/magick-image-convert/${imageData.name}/jpg`;
+
+    else if(selectedValue == "missing-magick")
+        window.open("https://imagemagick.org/script/download.php", '_blank');
 
     $(this).prop('selectedIndex', 0);
 }
