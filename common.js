@@ -94,8 +94,9 @@ async function processBatch(index, total) {
 
     settings().imageSettings.resultPrompts.push(prompt);
 
-    // Make into image if filled in and not blank
-    if(settings().settings.generateImages && prompt != "")
+    // Make into image if filled in and not blank and targetting Stabloe Diffusion
+    // Disallow if not targetting Stable Diffusion
+    if(settings().settings.generateImages && prompt != "" && settings().settings.mode == "StableDiffusion")
         await genImage(prompt, index, total, settings().settings, settings().imageSettings, settings().upscaleSettings);
 
     // Bug Fix
