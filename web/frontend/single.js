@@ -234,6 +234,8 @@ function completePage() {
         }
 
         if(hasMagick) {
+            $("#action-menu option[value='invalid-magick']").show();
+
             $("#action-menu option[value='magick-gif']").show();
             $("#action-menu option[value='magick-gif']").prop('disabled', false);
 
