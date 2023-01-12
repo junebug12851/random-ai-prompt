@@ -491,36 +491,36 @@ function copyPrompt() {
     tempInput.remove();
 };
 
-function deleteFile() {
-    $.ajax({
-        type: 'GET',
-        url: `/api/images/delete/${imageData.name}`,
-        success: function(data) {
-            
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  });
+async function deleteFile() {
 
-    reindexHome();
+    let backUrl = null;
+
+    if(imageData.variationOf != undefined)
+        backUrl = `/single?name=${imageData.variationOf}`;
+    else if(imageData.rerollOf != undefined)
+        backUrl = `/single?name=${imageData.rerollOf}`;
+    else if(imageData.animationFrameOf != undefined)
+        backUrl = `/single?name=${imageData.animationFrameOf}`;
+    else if(imageData.animationOf != undefined)
+        backUrl = `/single?name=${imageData.animationOf}`;
+
+    // Delete frames first
+    if(imageData.isAnimation)
+        await ajaxGet(`/api/animation/delete/${imageData.name}`);
+
+    // Then delete image
+    ajaxGet(`/api/images/delete/${imageData.name}`);
+    
+    // If has parent, go to parent, otherwise go to image feed
+    if(backUrl != null)
+        reIndexToUrl(backUrl);
+    else
+        reindexHome();
 }
 
-function deleteFrames() {
-    $.ajax({
-        type: 'GET',
-        url: `/api/animation/delete/${imageData.name}`,
-        success: function(data) {
-            
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  });
-
-    reindexHome();
+async function deleteFrames() {
+    ajaxGet(`/api/animation/delete/${imageData.name}`);
+    reIndexToUrl(window.location.href);
 }
 
 async function regenAnim() {
