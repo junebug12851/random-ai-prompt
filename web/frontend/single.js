@@ -479,20 +479,11 @@ function deleteFrames() {
     reindexHome();
 }
 
-function regenAnim() {
-    $.ajax({
-        type: 'GET',
-        url: `/api/file-update-animation/${imageData.name}`,
-        success: function(data) {
-            
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  });
+async function regenAnim() {
 
-    displayProgress(false, false, true);
+    // Just reload, this is relatively fast
+    await ajaxGet(`/api/file-update-animation/${imageData.name}`);
+    window.location.reload();
 }
 
 function actionMenuSelection() {
