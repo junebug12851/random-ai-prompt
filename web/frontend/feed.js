@@ -49,6 +49,10 @@ function processImageFeed(files) {
 
     for(let i = 0; i < files.length; i++) {
 
+        // Don't list animation frames on the feed
+        if(files[i].animationFrameOf)
+            continue;
+
         // Get width and height in increments of 512
         let width = files[i].width;
         let height = files[i].height;
