@@ -66,6 +66,46 @@ app.use(express.json());
 
 let args = {};
 let execAppOngoing = false;
+let execMagickOngoing = false;
+
+async function execMagick(args) {
+  const nodeExecutable = `magick`;
+  const commandArgs = [nodeExecutable];
+
+  execMagickOngoing = true;
+
+  let ret = {};
+
+  for (const [key, value] of Object.entries(args)) {
+
+    commandArgs.push(`-${key}`);
+
+    // Seems it's a bit more complicated than just spaces, especially for powershell
+    // If it has any characters that warrant quotes auto-enclose in quotes
+    if (value !== undefined && value !== true) {
+      if(typeof value === 'string' && /[^a-z0-9\- .,]/gi.test(value))
+        commandArgs.push(`"${value}"`);
+      else
+        commandArgs.push(value);
+    }
+  }
+
+  // Log cmd used
+  let logCmd = commandArgs.join(' ');
+  console.log(logCmd);
+
+  try {
+    const { stdout, stderr } = await execPromise(commandArgs.join(' '));
+    ret = {stdout, stderr};
+  } catch (error) {
+    ret = {error};
+    console.error(`exec error: ${error}`);
+  }
+
+  execMagickOngoing = false;
+
+  return ret;
+}
 
 async function execApp() {
   const command = ".";
@@ -737,6 +777,18 @@ app.post('/api/generate-full', async (req, res) => {
   await execApp();
 
   res.jsonp("success");
+});
+
+app.get('/api/magick-installed', async (req, res) => {
+
+  // Run file variatons
+  const ret = await execMagick({
+    version: undefined
+  });
+
+  const isInstalled = (ret.stdout != undefined && ret.stdout.length > 0);
+
+  res.jsonp(isInstalled);
 });
 
 app.get('/api/prompt-suggestion', (req, res) => {
