@@ -76,6 +76,12 @@ button {
     height: 150px;
     overflow-y: auto;
     overflow-x: hidden;
+
+    white-space: pre-wrap;
+}
+
+.keep-whitespace {
+  white-space: pre-wrap;
 }
 
 ul#keyword-cloud {

@@ -440,7 +440,7 @@ function onRerollSelect() {
 function copyPrompt() {
     const text = $('#keywords').text();
 
-    const tempInput = $('<input>');
+    const tempInput = $('<textarea class="keep-whitespace"></textarea>');
     $('body').append(tempInput);
     tempInput.val(text).select();
     document.execCommand('copy');
