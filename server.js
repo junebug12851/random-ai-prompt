@@ -80,8 +80,10 @@ async function execApp() {
 
     commandArgs.push(`--${key}`);
 
+    // Seems it's a bit more complicated than just spaces, especially for powershell
+    // If it has any characters that warrant quotes auto-enclose in quotes
     if (value !== undefined && value !== true) {
-      if(typeof value === 'string' && value.includes(' '))
+      if(typeof value === 'string' && /[^a-z0-9\- .,]/gi.test(value))
         commandArgs.push(`"${value}"`);
       else
         commandArgs.push(value);

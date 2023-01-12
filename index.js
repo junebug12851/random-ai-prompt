@@ -41,7 +41,14 @@ const server = app.listen(settings().serverSettings.portProgress, async function
     // Wrap commands in quotes if they are a string and have spaces
     for (let i = 0; i < cmdLine.length; i++) {
       const argument = cmdLine[i];
-      if (typeof argument === 'string' && argument.includes(' ')) {
+
+      // Ignore if not string
+      if(typeof argument !== 'string')
+        continue;
+
+      // Seems it's a bit more complicated than just spaces, especially for powershell
+      // If it starts with any character that isn't a letter or number, auto-enclose in quotes
+      if(/[^a-z0-9\- .,]/gi.test(argument)) {
         cmdLine[i] = `"${argument}"`;
       }
     }
