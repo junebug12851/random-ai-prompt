@@ -517,6 +517,56 @@ const validateIndexes = function(settings) {
     }
 }
 
+// Does final steps that can only be done after all is said and done
+const postBuildIndexes = function() {
+
+    // Get indexed files
+    const fileNames = _.keys(files);
+
+    // Go through each file
+    for(let i = 0; i < fileNames.length; i++) {
+
+        // Get filename
+        const fileName = fileNames[i];
+
+        // Get file data
+        const file = files[fileName];
+
+        // Stop if has no animations
+        if(file.animationFrames == undefined)
+            continue;
+
+        // Initial value of invalid
+        let highestFrameCount = -1;
+
+        // Get highest frame count
+        for(let j = 0; j < file.animationFrames.length; j++) {
+
+            // Get animation frame file name
+            const animationFrameFileName = file.animationFrames[j].name;
+
+            // Get animation frame file
+            const animationFrameFile = files[animationFrameFileName];
+
+            // Skip if file isn't present for some reason
+            if(animationFrameFile == undefined)
+                continue;
+
+            // Skip if frame isn't listed for some reason
+            if(animationFrameFile.animatonFrameNumber == undefined)
+                continue;
+
+            // Compare
+            if((+animationFrameFile.animatonFrameNumber) > highestFrameCount)
+                highestFrameCount = (+animationFrameFile.animatonFrameNumber);
+        }
+
+        // Save highest frame number
+        if(highestFrameCount > -1)
+            file.highestFrameCount = +highestFrameCount;
+    }
+}
+
 const rebuildIndexes = function(settings) {
     console.log("Indexing images...");
 
@@ -538,6 +588,7 @@ const rebuildIndexes = function(settings) {
 
         buildIndexes(settings, settings.imageSettings.saveTo);
         validateIndexes(settings);
+        postBuildIndexes();
 
         progressBar.stop();
         progressVal.value = null;

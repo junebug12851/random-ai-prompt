@@ -194,6 +194,9 @@ function completePage() {
     if(imageData.animatonFrameNumber != undefined)
         frameNumber = " #" + imageData.animatonFrameNumber;
 
+    if(imageData.highestFrameCount != undefined)
+        highestFrameCount = " (" + imageData.highestFrameCount + " frames)";
+
     if(imageData.variationOf != undefined)
         $("#type-cell").text("Variation Image");
     else if(imageData.rerollOf != undefined)
@@ -209,6 +212,11 @@ function completePage() {
     else
         $("#type-cell").text("Base Image");
 
+    if(imageData.highestFrameCount) {
+        $("#highest-frame-row").show();
+        $("#highest-frame-cell").text(imageData.highestFrameCount);
+    }
+
     if(imageData.variationOf == undefined) {
         $("#action-menu option[value='make-variations']").show();
         $("#action-menu option[value='make-variations']").prop('disabled', false);
@@ -218,6 +226,19 @@ function completePage() {
     }
 
     if(imageData.isAnimation != undefined) {
+
+        if(imageData.highestFrameCount) {
+            $("#action-menu option[value='make-extend-anim']").show();
+            $("#action-menu option[value='make-extend-anim']").prop('disabled', false);
+        }
+
+        $("#frame-count-row").show();
+
+        if(imageData.animationFrames)
+            $("#frame-count-cell").text(imageData.animationFrames.length);
+        else
+            $("#frame-count-cell").text(0);
+
         $("#action-menu option[value='regen-anim']").show();
         $("#action-menu option[value='regen-anim']").prop('disabled', false);
 
@@ -405,6 +426,42 @@ function rerollPrompt(isSelect) {
             console.log(error);
         }
   });
+
+    displayProgress();
+}
+
+function extendAnim(isSelect) {
+    // Create state
+    const state = {
+        "extend-animation-file": imageData.name,
+    };
+
+    // Add highest frame count if present
+    if(imageData.highestFrameCount)
+        state["animation-starting-frame"] = imageData.highestFrameCount + 1;
+
+    // Save state
+    localStorage.setItem('generateSettings', JSON.stringify(state));
+
+    if(isSelect) {
+        window.location = `/generate`;
+        return;
+    }
+
+    // Post it
+    $.ajax({
+        type: 'POST',
+        url: `/api/generate-full`,
+        data: JSON.stringify(state),
+        contentType: 'application/json',
+        success: function(data) {
+            
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+    });
 
     displayProgress();
 }
@@ -601,13 +658,10 @@ function actionMenuSelection() {
         selectAnimation();
     else if(selectedValue == "regen-anim")
         regenAnim();
-    else if(selectedValue == "select-extend-anim") {
-        localStorage.setItem('generateSettings', JSON.stringify({
-            "extend-animation-file": imageData.name
-        }));
-
-        window.location = `/generate`;
-    }
+    else if(selectedValue == "make-extend-anim")
+        extendAnim();
+    else if(selectedValue == "select-extend-anim")
+        extendAnim(true);
 
     $(this).prop('selectedIndex', 0);
 }

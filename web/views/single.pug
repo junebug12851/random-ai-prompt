@@ -26,6 +26,12 @@ block content
         tr
           td Type
           td#type-cell
+        tr#frame-count-row(style="display: none")
+          td Frame Count
+          td#frame-count-cell
+        tr#highest-frame-row(style="display: none")
+          td Highest Frame
+          td#highest-frame-cell
         tr
           td Model
           td#model-cell
@@ -83,12 +89,13 @@ block content
         option(value="invalid", disabled) -----
         option(value="make-variations", title="1-Click image variations using default variation settings", style="display: none;", disabled) Variations
         option(value="make-upscale", title="1-Click upscale using default upscale settings") Upscale
-        option(value="make-anim", title="1-Click make this image into an animation", style="display: none;", disabled) Animate
+        option(value="make-anim", title="1-Click make this image into an animation using default animation settings", style="display: none;", disabled) Animate
+        option(value="make-extend-anim", title="1-Click make this animation longer using default animation settings", style="display: none;", disabled) More Frames
         option(value="invalid", disabled) -----
         option(value="select-variations", title="Take this image to the generation page to customize it for variations", style="display: none;", disabled) Select Variations
         option(value="select-upscale", title="Take this image to the generation page to customize it for upscales") Select Upscale
-        option(value="select-extend-anim", title="Extend this animation with more frames", style="display: none;", disabled) More Frames
         option(value="select-make-anim", title="Take this image to the generation page to customize it for making it into an animation", style="display: none;", disabled) Select Animate
+        option(value="select-extend-anim", title="Take this image to the generation page to extend this animation with more frames", style="display: none;", disabled) Select More Frames
 
       button#delete Delete
       button#delete-confirmation-no(style="display: none") Don't Delete
