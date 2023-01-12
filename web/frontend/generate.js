@@ -687,4 +687,7 @@ $(document).ready(async function() {
 	// Generate
 	$("#generate").click(generate);
 	$("#random").click(performRandomGenerate);
+
+	$("input,select,textarea").change(saveState);
+	$("button").click(saveState);
 });
