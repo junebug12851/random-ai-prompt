@@ -68,7 +68,7 @@ let args = {};
 let execAppOngoing = false;
 let execMagickOngoing = false;
 
-async function execMagick(args) {
+async function execMagick(args, surpressError) {
   const nodeExecutable = `magick`;
   const commandArgs = [nodeExecutable];
 
@@ -99,7 +99,9 @@ async function execMagick(args) {
     ret = {stdout, stderr};
   } catch (error) {
     ret = {error};
-    console.error(`exec error: ${error}`);
+
+    if(!surpressError)
+      console.error(`exec error: ${error}`);
   }
 
   execMagickOngoing = false;
@@ -784,7 +786,7 @@ app.get('/api/magick-installed', async (req, res) => {
   // Run file variatons
   const ret = await execMagick({
     version: undefined
-  });
+  }, true);
 
   const isInstalled = (ret.stdout != undefined && ret.stdout.length > 0);
 
