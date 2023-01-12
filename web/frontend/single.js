@@ -515,7 +515,7 @@ async function deleteFile() {
     if(imageData.upscales)
         await ajaxGet(`/api/upscales/delete/${imageData.name}`);
 
-    // Keep Variations and Re-Rolls, they can be deleted individually
+    // Keep Variations, Re-Rolls, and Animations they can be deleted individually
     // I may add a delete button for them, dunno
 
     // Then delete image
