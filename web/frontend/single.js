@@ -382,10 +382,15 @@ function rerollPrompt(isSelect) {
     if(fieldName == null)
         return;
 
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "reroll-file": imageData.name,
+        "reroll-field": fieldName,
+    }));
+
     // If selected, then send re-roll information to the generate page, otherwsie re-roll here with
     // default settings
     if(isSelect) {
-        window.location = `/generate?reroll-file=${imageData.name}&reroll-field=${fieldName}&prompt=`;
+        window.location = `/generate`;
         return;
     }
 
@@ -405,6 +410,10 @@ function rerollPrompt(isSelect) {
 }
 
 function makeVariations() {
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "file-variations": imageData.name
+    }));
+    
     $.ajax({
         type: 'GET',
         url: `/api/file-variation/${imageData.name}`,
@@ -449,14 +458,26 @@ function makeAnimations() {
 }
 
 function selectVariations() {
-    window.location = `/generate?file-variations=${imageData.name}&prompt=`;
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "file-variations": imageData.name
+    }));
+
+    window.location = `/generate`;
 }
 
 function selectAnimation() {
-    window.location = `/generate?to-animation-file=${imageData.name}&animation-starting-frame=&animation-frames=&prompt=`;
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "to-animation-file": imageData.name
+    }));
+
+    window.location = `/generate`;
 }
 
 function upscaleFile() {
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "upscale-file": imageData.name
+    }));
+
     $.ajax({
         type: 'GET',
         url: `/api/upscale-file/${imageData.name}`,
@@ -473,7 +494,11 @@ function upscaleFile() {
 }
 
 function selectUpscale() {
-    window.location = `/generate?upscale-file=${imageData.name}&prompt=`;
+    localStorage.setItem('generateSettings', JSON.stringify({
+        "upscale-file": imageData.name
+    }));
+
+    window.location = `/generate`;
 }
 
 function onReroll() {
@@ -577,7 +602,11 @@ function actionMenuSelection() {
     else if(selectedValue == "regen-anim")
         regenAnim();
     else if(selectedValue == "select-extend-anim") {
-        window.location = `/generate?animation-starting-frame=&animation-frames=&extend-animation-file=${imageData.name}&prompt=`;
+        localStorage.setItem('generateSettings', JSON.stringify({
+            "extend-animation-file": imageData.name
+        }));
+
+        window.location = `/generate`;
     }
 
     $(this).prop('selectedIndex', 0);
