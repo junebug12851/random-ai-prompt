@@ -852,6 +852,11 @@ app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
 
   // Return
   res.download(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
+
+  // Auto-remove after some time
+  setTimeout(function() {
+    fs.unlinkSync(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
+  }, 5 * 1000);
 });
 
 app.get('/api/prompt-suggestion', (req, res) => {
