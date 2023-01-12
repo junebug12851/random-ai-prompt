@@ -453,7 +453,7 @@ function selectVariations() {
 }
 
 function selectAnimation() {
-    window.location = `/generate?to-animation-file=${imageData.name}&animation-starting-frame=1&animation-frames=5&prompt=`;
+    window.location = `/generate?to-animation-file=${imageData.name}&animation-starting-frame=&animation-frames=&prompt=`;
 }
 
 function upscaleFile() {
@@ -577,7 +577,7 @@ function actionMenuSelection() {
     else if(selectedValue == "regen-anim")
         regenAnim();
     else if(selectedValue == "select-extend-anim") {
-        window.location = `/generate?animation-starting-frame=5&animation-frames=5&extend-animation-file=${imageData.name}&prompt=`;
+        window.location = `/generate?animation-starting-frame=&animation-frames=&extend-animation-file=${imageData.name}&prompt=`;
     }
 
     $(this).prop('selectedIndex', 0);

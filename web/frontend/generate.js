@@ -546,11 +546,23 @@ function insertSettings(obj) {
 		// Get option group
 		const optionGroup = $(control).parents(".option").first();
 
-		// Set value to stored value
-		if($(control).is('[type="checkbox"]'))
-			$(control).prop('checked', value);
-		else
-			$(control).val(value);
+		// Do nothing for empty values
+		if(value == "" && $(control).is("[data-command]")) {
+
+			// Fill list data if applicable
+			fillListData(control);
+
+			// Fill-in settings value if applicable
+			fillSettingValue(control);
+		}
+		else if(value != "") {
+			
+			// Set value to stored value
+			if($(control).is('[type="checkbox"]'))
+				$(control).prop('checked', value);
+			else
+				$(control).val(value);
+		}
 
 		// Enable option group
 		$(optionGroup).attr("data-active", "true");
@@ -653,9 +665,6 @@ $(document).ready(async function() {
 
 	// Settings first
 	insertSettings(localStorage.getItem('generateSettings'));
-
-	// Then prompt
-	// insertStoredPrompt();
 
 	// Then URL parameters to override
 	insertSettings(getUrlParameters());

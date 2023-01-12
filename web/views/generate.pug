@@ -65,11 +65,11 @@ block content
 
       .option
         label(title="Starting frame number for animations") Animation Starting Frame
-        input(type="number", data-command="animation-starting-frame", value="1")
+        input(type="number", data-path="imageSettings.animationStartFrame", data-command="animation-starting-frame")
 
       .option
         label(title="Make an animation, this is the number of frames to make") Animation Frames
-        input(type="number", data-command="animation-frames", value="5")
+        input(type="number", data-path="imageSettings.animationFrameCount", data-command="animation-frames")
 
       .option
         label(title="Make a file into an animation") Animate File

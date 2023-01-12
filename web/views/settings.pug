@@ -178,11 +178,19 @@ block content
       label(title="What seed to use, I can't imagine a scenario where you wouldnt want it at -1 or random") Seed
       input(type="text", pattern="^-?[\\d]+$", data-path="imageSettings.seed")
 
-      label(title="Animation delay between frames for animations in milliseconds") Animation Delay
-      input(type="number", data-path="imageSettings.animationDelay")
-
       label(title="For image variations, how far will variations deviate from the original. (Euler a often will do it's own thing and ignore this which is one of quite a few reasons why I disadvise people to use it, use Euler instead)") Variation Percent
       input(type="text", pattern="^[\\d]+(?:.\\d+)?%$", data-path="imageSettings.subseedStrength", data-percent)
+
+      h1 Animation
+
+      label(title="Animation delay between frames for animations in milliseconds") Delay
+      input(type="number", data-path="imageSettings.animationDelay")
+
+      label(title="Animation delay between frames for animations in milliseconds") Start Frame
+      input(type="number", data-path="imageSettings.animationStartFrame")
+
+      label(title="Animation delay between frames for animations in milliseconds") Frame Count
+      input(type="number", data-path="imageSettings.animationFrameCount")
 
     #upscale-settings.content(style="display: none;")
       h1 Upscale Settings

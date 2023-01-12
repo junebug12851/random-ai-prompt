@@ -31,13 +31,13 @@ module.exports = function(name, settings, imageSettings, upscaleSettings) {
 
 	// Set the animation frame count to be the prompt count
 	// This can be overridden
-	settings.promptCount = 5;
+	settings.promptCount = imageSettings.animationFrameCount;
 
 	// Force prompt salt
 	settings.promptSalt = true;
 
 	// Set starting frame #, this can be overridden
-	settings.promptSaltStart = 1;
+	settings.promptSaltStart = imageSettings.animationStartFrame;
 
 	// Store the animation file id to be created
 	// It also signifies to the program to handle the prompt and data file

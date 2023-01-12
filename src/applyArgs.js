@@ -97,7 +97,7 @@ module.exports = function(argv, settings, imageSettings, upscaleSettings, allSet
 		settings.promptSalt = true;
 
 		// Set starting frame #, this can be overridden
-		settings.promptSaltStart = 1;
+		settings.promptSaltStart = imageSettings.animationStartFrame;
 
 		// Store the animation file id to be created
 		// It also signifies to the program to handle the prompt and data file
