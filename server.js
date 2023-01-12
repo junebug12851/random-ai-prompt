@@ -228,7 +228,9 @@ app.get('/api/images/delete/:filename', (req, res) => {
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.png`);
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.json`);
   }
-  catch(err) {}
+  catch(err) {
+    console.error(err);
+  }
 
   // Mark as success
   res.jsonp("success");
@@ -267,7 +269,9 @@ app.get('/api/animation/delete/:fileId', (req, res) => {
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.png`);
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.json`);
     }
-    catch(err) {}
+    catch(err) {
+      console.error(err);
+    }
   }
 
   // Mark as success
