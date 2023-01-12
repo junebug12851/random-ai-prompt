@@ -12,6 +12,14 @@ html, body {
     font-family: 'Maven Pro', sans-serif;
 }
 
+/*
+ * UI Fix: Sometimes elements just don't cause the browser to allow scrolling to them
+ * so they either appear hidden or partially visible and easily missable
+*/
+body {
+    margin-bottom: 30px;
+}
+
 h1 {
     font-family: 'Rokkitt', serif;
     font-size: 2.5em;
