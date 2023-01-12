@@ -20,6 +20,9 @@ const fetch = require('node-fetch');
 const saveImage = require("./saveImage");
 
 module.exports = async function doUpscale(base64Image, info, imageSettings, upscaleSettings, upscaleOf) {
+
+	imageSettings.progressUpscaling = true;
+
 	// Convert image settings over to a format WebUI can understand
 	const postData = {
 		image: base64Image,

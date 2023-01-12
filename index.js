@@ -130,6 +130,9 @@ app.get('/api/images/progress', async function(req, res) {
     // Progress on-going or not
     progressOngoing: settings().imageSettings.progressOngoing,
 
+    // Upscaling or not
+    progressUpscaling: settings().imageSettings.progressUpscaling,
+
     // Image Progress
     progressCurStep: settings().imageSettings.progressCurStep,
     progressTotalSteps: settings().imageSettings.progressTotalSteps,

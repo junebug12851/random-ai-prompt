@@ -14,6 +14,13 @@ function dataRefreshComplete(data) {
         return;
     }
 
+    // If we're upscaling, then proceed to show upscaling progress window
+    if(data.progressUpscaling) {
+        const encodedBackUrl = encodeURIComponent(backUrl);
+        const params = new URLSearchParams({ backUrl: encodedBackUrl });
+        window.location = `/upscale-progress?${params}`;
+    }
+
     // Image Progress
     const progressCurStep = data.progressCurStep;
     const progressTotalSteps = data.progressTotalSteps;

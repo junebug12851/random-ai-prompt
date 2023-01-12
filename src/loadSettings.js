@@ -112,6 +112,8 @@ function userSettings() {
 	delete ret.imageSettings.progressCurPrompt;
 	delete ret.imageSettings.progressTotalPrompts;
 
+	delete ret.imageSettings.progressUpscaling;
+
 	// Return
 	return ret;
 }
