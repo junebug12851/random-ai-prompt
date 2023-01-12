@@ -1,6 +1,7 @@
 let name = "";
 let imageData = {};
 let curImgUrl = "";
+let hasMagick = false;
 
 function onPromptSelectionChange() {
     var selectedOption = $(this).val();
@@ -230,6 +231,20 @@ function completePage() {
         if(imageData.highestFrameCount) {
             $("#action-menu option[value='make-extend-anim']").show();
             $("#action-menu option[value='make-extend-anim']").prop('disabled', false);
+        }
+
+        if(hasMagick) {
+            $("#action-menu option[value='magick-gif']").show();
+            $("#action-menu option[value='magick-gif']").prop('disabled', false);
+
+            $("#action-menu option[value='magick-webp']").show();
+            $("#action-menu option[value='magick-webp']").prop('disabled', false);
+
+            $("#action-menu option[value='magick-mp4']").show();
+            $("#action-menu option[value='magick-mp4']").prop('disabled', false);
+
+            $("#action-menu option[value='magick-mng']").show();
+            $("#action-menu option[value='magick-mng']").prop('disabled', false);
         }
 
         $("#frame-count-row").show();
@@ -662,11 +677,21 @@ function actionMenuSelection() {
         extendAnim();
     else if(selectedValue == "select-extend-anim")
         extendAnim(true);
+    else if(selectedValue == "magick-gif")
+        window.location = `/api/magick-animation-convert/${imageData.name}/gif`;
+    else if(selectedValue == "magick-webp")
+        window.location = `/api/magick-animation-convert/${imageData.name}/webp`;
+    else if(selectedValue == "magick-mp4")
+        window.location = `/api/magick-animation-convert/${imageData.name}/mp4`;
 
     $(this).prop('selectedIndex', 0);
 }
 
-$(document).ready(function() {
+$(document).ready(async function() {
+
+    // Check for image magick
+    hasMagick = await ajaxGet(`/api/magick-installed`);
+
     const params = getUrlParameters();
     const _name = params.name;
 

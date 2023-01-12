@@ -68,7 +68,7 @@ let args = {};
 let execAppOngoing = false;
 let execMagickOngoing = false;
 
-async function execMagick(args, surpressError) {
+async function execMagick(args, fileNames, output, silent) {
   const nodeExecutable = `magick`;
   const commandArgs = [nodeExecutable];
 
@@ -76,23 +76,38 @@ async function execMagick(args, surpressError) {
 
   let ret = {};
 
-  for (const [key, value] of Object.entries(args)) {
+  // Add arguments "-key value"
+  if(args != undefined) {
+    for (const [key, value] of Object.entries(args)) {
 
-    commandArgs.push(`-${key}`);
+      commandArgs.push(`-${key}`);
 
-    // Seems it's a bit more complicated than just spaces, especially for powershell
-    // If it has any characters that warrant quotes auto-enclose in quotes
-    if (value !== undefined && value !== true) {
-      if(typeof value === 'string' && /[^a-z0-9\- .,]/gi.test(value))
-        commandArgs.push(`"${value}"`);
-      else
-        commandArgs.push(value);
+      // Seems it's a bit more complicated than just spaces, especially for powershell
+      // If it has any characters that warrant quotes auto-enclose in quotes
+      if (value !== undefined && value !== true) {
+        if(typeof value === 'string' && /[^a-z0-9\- .,]/gi.test(value))
+          commandArgs.push(`"${value}"`);
+        else
+          commandArgs.push(value);
+      }
     }
   }
 
+  // Add input filenames
+  if(fileNames != undefined) {
+    for(let i = 0; i < fileNames.length; i++)
+      commandArgs.push(fileNames[i]);
+  }
+
+  // Add output filename
+  if(output != undefined)
+    commandArgs.push(output);
+
   // Log cmd used
   let logCmd = commandArgs.join(' ');
-  console.log(logCmd);
+
+  if(!silent)
+    console.log(logCmd);
 
   try {
     const { stdout, stderr } = await execPromise(commandArgs.join(' '));
@@ -100,7 +115,7 @@ async function execMagick(args, surpressError) {
   } catch (error) {
     ret = {error};
 
-    if(!surpressError)
+    if(!silent)
       console.error(`exec error: ${error}`);
   }
 
@@ -786,11 +801,57 @@ app.get('/api/magick-installed', async (req, res) => {
   // Run file variatons
   const ret = await execMagick({
     version: undefined
-  }, true);
+  }, undefined, undefined, true);
 
   const isInstalled = (ret.stdout != undefined && ret.stdout.length > 0);
 
   res.jsonp(isInstalled);
+});
+
+// Make file variations
+app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get new extension
+  const newExt = req.params.ext;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Make sure it has at least 1 animation frame
+  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+    res.jsonp({});
+    console.error("Error: API requested to convert an animation with no frames");
+    return;
+  }
+
+  // Convert to filename list
+  const files = [];
+
+  for(let i = 0; i < imageData.animationFrames.length; i++) {
+    files.push(`./${settings().imageSettings.saveTo}/${imageData.animationFrames[i].name}.png`);
+  }
+
+  // Run file variatons
+  await execMagick(
+    {
+      delay: +(settings().imageSettings.animationDelay / 10).toFixed(0)
+    },
+    files,
+    `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`
+  );
+
+  // Return
+  res.download(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
 });
 
 app.get('/api/prompt-suggestion', (req, res) => {
