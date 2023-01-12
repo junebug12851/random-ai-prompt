@@ -44,9 +44,7 @@ function makeArt() {
     // Get saved prompt, if any
     let pageSearch = localStorage.getItem('generateSettings');
     if(pageSearch == undefined || pageSearch == null)
-        pageSearch = JSON.stringify({
-            "generate-images": true
-        });
+        pageSearch = JSON.stringify({});
 
     $.ajax({
         type: 'POST',

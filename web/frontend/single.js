@@ -421,7 +421,6 @@ function makeAnimations() {
 
     // Set Generation state
     const state = {
-        "generate-images": true,
         "to-animation-file": imageData.name,
     };
 

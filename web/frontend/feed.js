@@ -214,10 +214,10 @@ function makeArt() {
 
     let pageSearch = $("#page-search").val();
 
-    const generateSettings = JSON.stringify({
-        "generate-images": true,
-        prompt: pageSearch.trim()
-    });
+    const generateSettings = {};
+
+    if(pageSearch.trim() != "")
+        generateSettings.prompt = pageSearch.trim();
 
     localStorage.setItem('prompt', pageSearch.trim());
     localStorage.setItem('generateSettings', generateSettings);

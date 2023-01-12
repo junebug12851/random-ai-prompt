@@ -652,10 +652,6 @@ app.get('/api/file-update-animation/:fileId', async (req, res) => {
 // Do normal generation
 app.get('/api/generate', async (req, res) => {
 
-  args = {
-    "generate-images": undefined
-  };
-
   // Run file variatons
   await execApp();
 
@@ -663,10 +659,6 @@ app.get('/api/generate', async (req, res) => {
 });
 
 app.post('/api/generate', async (req, res) => {
-
-  args = {
-    "generate-images": undefined
-  };
 
   if(req.body != null &&
       req.body != undefined &&
@@ -681,10 +673,6 @@ app.post('/api/generate', async (req, res) => {
 });
 
 app.post('/api/generate-full', async (req, res) => {
-
-  args = {
-    "generate-images": undefined
-  };
 
   if(req.body != null &&
       req.body != undefined)
