@@ -33,15 +33,15 @@ block content
 
       .option
         label(title="Make a variation of this image") Image Variation
-        input(type="text", data-command="file-variations")
+        input(type="text", data-command="file-variations", data-skip="true")
 
       .option
         label(title="Make a completely new image that's based on what made this image") Re-Roll Image
-        input(type="text", data-command="reroll-file")
+        input(type="text", data-command="reroll-file", data-skip="true")
 
       .option
         label(title="What part of the image are you re-rolling?") Re-Roll Which Part?
-        select(data-command="reroll-field")
+        select(data-command="reroll-field", data-skip="true")
           option(value="prompt") Prompt
           option(value="origPrompt") Original Prompt
           option(value="origPostPrompt") Post Prompt
@@ -49,7 +49,7 @@ block content
 
       .option
         label(title="Upscale this image") Upscale Image
-        input(type="text", data-command="upscale-file")
+        input(type="text", data-command="upscale-file", data-skip="true")
 
       .option
         label(title="Apply chaos to the prompt generation") Chaos
@@ -65,19 +65,19 @@ block content
 
       .option
         label(title="Starting frame number for animations") Animation Starting Frame
-        input(type="number", data-path="imageSettings.animationStartFrame", data-command="animation-starting-frame")
+        input(type="number", data-path="imageSettings.animationStartFrame", data-command="animation-starting-frame", data-skip="true")
 
       .option
         label(title="Make an animation, this is the number of frames to make") Animation Frames
-        input(type="number", data-path="imageSettings.animationFrameCount", data-command="animation-frames")
+        input(type="number", data-path="imageSettings.animationFrameCount", data-command="animation-frames", data-skip="true")
 
       .option
         label(title="Make a file into an animation") Animate File
-        input(type="text", data-command="to-animation-file")
+        input(type="text", data-command="to-animation-file", data-skip="true")
 
       .option
         label(title="Add more frames to an existing animation file") More Animation Frames To
-        input(type="text", data-command="extend-animation-file")
+        input(type="text", data-command="extend-animation-file", data-skip="true")
 
       .option
         label(title="The negative prompt for when generating images") Negative Prompt

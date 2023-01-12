@@ -411,7 +411,7 @@ function rerollPrompt(isSelect) {
     // If selected, then send re-roll information to the generate page, otherwsie re-roll here with
     // default settings
     if(isSelect) {
-        window.location = `/generate`;
+        window.location = `/generate?useAll=true`;
         return;
     }
 
@@ -444,7 +444,7 @@ function extendAnim(isSelect) {
     localStorage.setItem('generateSettings', JSON.stringify(state));
 
     if(isSelect) {
-        window.location = `/generate`;
+        window.location = `/generate?useAll=true`;
         return;
     }
 
@@ -519,7 +519,7 @@ function selectVariations() {
         "file-variations": imageData.name
     }));
 
-    window.location = `/generate`;
+    window.location = `/generate?useAll=true`;
 }
 
 function selectAnimation() {
@@ -527,7 +527,7 @@ function selectAnimation() {
         "to-animation-file": imageData.name
     }));
 
-    window.location = `/generate`;
+    window.location = `/generate?useAll=true`;
 }
 
 function upscaleFile() {
@@ -555,7 +555,7 @@ function selectUpscale() {
         "upscale-file": imageData.name
     }));
 
-    window.location = `/generate`;
+    window.location = `/generate?useAll=true`;
 }
 
 function onReroll() {

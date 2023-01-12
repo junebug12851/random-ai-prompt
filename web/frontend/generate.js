@@ -517,7 +517,7 @@ function insertStoredPrompt() {
 	$("#page-search").val(prompt);
 }
 
-function insertSettings(obj) {
+function insertSettings(obj, useAll) {
 
 	// Skip if null or undefined
 	if(obj == null || obj == undefined)
@@ -560,6 +560,10 @@ function insertSettings(obj) {
 
 		// Get option group
 		const optionGroup = $(control).parents(".option").first();
+
+		// If it has the data-skip, then skip if not told to useAll
+		if($(control).is("[data-skip]") && !useAll)
+			return;
 
 		// Do nothing for empty values
 		if(value == "" && $(control).is("[data-command]")) {
@@ -678,11 +682,20 @@ $(document).ready(async function() {
 
 	// Insert stored data
 
-	// Settings first
-	insertSettings(localStorage.getItem('generateSettings'));
-
 	// Then URL parameters to override
-	insertSettings(getUrlParameters());
+	const params = getUrlParameters();
+
+	// Decode prompt in case it has special characters in it
+	if(params.prompt)
+		params.prompt = decodeURIComponent(params.prompt);
+
+	// Retrieve useAll from url parameters and ensure removed
+	let useAll = (params.useAll == "true");
+	delete params.useAll;
+
+	// Settings first
+	insertSettings(localStorage.getItem('generateSettings'), useAll);
+	insertSettings(params, useAll);
 
 	// Generate
 	$("#generate").click(generate);
