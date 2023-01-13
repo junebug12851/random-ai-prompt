@@ -20,7 +20,6 @@ const weather = require("./weather");
 const eerie = require("./eerie");
 const ice = require("./ice");
 const mystical = require("./mystical");
-const wildlife = require("./wildlife");
 const roomState = require("./room-state");
 
 module.exports = function() {
@@ -46,9 +45,6 @@ module.exports = function() {
 
 	if(_.random(0.0, 1.0, true) < 0.35)
 		prompt += `, ${mystical()}`;
-
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, ${wildlife()}`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += `, ${roomState()}`;

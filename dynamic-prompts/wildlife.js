@@ -29,9 +29,6 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", insect"
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bat"
-
 	if(_.random(0.0, 1.0, true) < 0.2)
 		prompt += ", {mythological-creature}"
 
