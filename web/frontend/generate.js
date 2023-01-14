@@ -594,6 +594,7 @@ function insertSettings(obj, useAll) {
 function saveState() {
 
 	// Clear saved state
+	state = {};
 	localStorage.setItem('generateSettings', "{}");
 
 	// Save current settings
