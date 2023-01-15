@@ -135,6 +135,20 @@ are simple script files that can add-in settings and even potential randomizatio
 
 > These are all accessible in the WebUI
 
+## Automattic1111 Stable Diffusion Changes
+
+### Make sure in the settings you enable old High-Res fix
+
+If this is not enabled, images above 512x512 will have high-res fix applied wrong and may fail to generate
+
+![image](https://user-images.githubusercontent.com/1305564/212523905-e4f57a28-16e2-4aeb-be8e-39e76bc72e51.png)
+
+### Make sure you allowed the API with `--api` flag
+
+This is how this program talks to Stable Diffusion, if the `--api` flag is not set this program cannot talk to Stable Diffusion and you will not be able to  auto generate images.
+
+![image](https://user-images.githubusercontent.com/1305564/212523965-37fcc97e-eacb-42ca-a736-efafd6530b14.png)
+
 ## How to install with Git
 
 1. Make sure git is installed
