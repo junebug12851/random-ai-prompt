@@ -8,7 +8,7 @@ it was discovered that they can often turn out pretty good and creative however
 it has since evolved into giving you a wide range of control over prompt
 generation.
 
-* **[Skip to installation part, how do I install this?](#how-to-install-with-git)**
+* **[Skip to installation part, how do I install this?](#automattic1111-stable-diffusion-changes)**
 * **[Skip to FAQ, Why Javascript, etc...](#faq)**
 
 ## Installation Video
