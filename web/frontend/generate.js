@@ -643,6 +643,44 @@ function performRandomGenerate() {
     generate();
 }
 
+function copyShareLink() {
+
+	// First save state
+	saveState();
+
+	// Copy state
+	const _state = _.cloneDeep(state);
+
+	// Copy prompt and negative prompt
+	const prompt = _state.prompt;
+	const negativePrompt = _state["negative-prompt"];
+
+	// Remove
+	delete _state.prompt;
+	delete _state["negative-prompt"];
+
+	// Convert rest of state to url parameters
+
+	// Then get the url to copy
+	// Add useAll param to allow all settings to transfer over
+	// Add urlOnly to exclude bringing in existing existing saved state
+	let text = `http://localhost:7861/generate?useAll=true&urlOnly=true&${new URLSearchParams(_state).toString()}`;
+
+	// Add prompt and negative prompt back urlencoded
+	if(prompt)
+		text += `&prompt=${encodeURIComponent(prompt)}`;
+
+	if(negativePrompt)
+		text += `&negative-prompt=${encodeURIComponent(negativePrompt)}`;
+
+	// Then copy it to clipboard
+    const tempInput = $('<input type="text"/>');
+    $('body').append(tempInput);
+    tempInput.val(text).select();
+    document.execCommand('copy');
+    tempInput.remove();
+}
+
 $(document).ready(async function() {
 
 	// Add remove buttons to all options
@@ -690,17 +728,28 @@ $(document).ready(async function() {
 	if(params.prompt)
 		params.prompt = decodeURIComponent(params.prompt);
 
-	// Retrieve useAll from url parameters and ensure removed
+	if(params["negative-prompt"])
+		params["negative-prompt"] = decodeURIComponent(params["negative-prompt"]);
+
+	// Retrieve useAll and urlOnly from url parameters and ensure removed
 	let useAll = (params.useAll == "true");
+	let urlOnly = (params.urlOnly == "true");
 	delete params.useAll;
+	delete params.urlOnly;
 
 	// Settings first
-	insertSettings(localStorage.getItem('generateSettings'), useAll);
+
+	// Saved state first if allowed
+	if(!urlOnly)
+		insertSettings(localStorage.getItem('generateSettings'), useAll);
+
+	// Then URL
 	insertSettings(params, useAll);
 
 	// Generate
 	$("#generate").click(generate);
 	$("#random").click(performRandomGenerate);
+	$("#share").click(copyShareLink);
 
 	$("input,select,textarea").change(saveState);
 	$("button").click(saveState);

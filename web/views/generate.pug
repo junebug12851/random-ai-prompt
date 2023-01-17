@@ -14,8 +14,9 @@ block content
         input#page-search(type='text')
 
         .button-row
-          button#generate Generate
-          button#random Random
+          button#generate(title="Generate using these settings") Generate
+          button#random(title="Generate using random search sugestion") Random
+          button#share(title="Copy a link that you can give to someone which will copy all the current generation settings including current prompt") Share Link
 
       p Special keywords you can insert
       #keyword-cloud
