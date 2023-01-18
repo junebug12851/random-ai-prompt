@@ -23,10 +23,16 @@ function expandExpansion(name, settings) {
 }
 
 module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	// 1st pass
-	prompt = prompt.replaceAll(/<(.*?)>/gm, function(match, p1) {
-		return expandExpansion(p1, settings);
-	});
+
+	// Max iterations in case of infinite loops
+	let maxCount = 10;
+
+	// Keep expanding expansions up to max levels
+	for(let i = 0; i < maxCount && /<(.*?)>/gm.test(prompt); i++) {
+		prompt = prompt.replaceAll(/<(.*?)>/gm, function(match, p1) {
+			return expandExpansion(p1, settings);
+		});
+	}
 
 	// Return prompt
 	return prompt;
