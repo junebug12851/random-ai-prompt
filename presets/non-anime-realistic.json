@@ -1,0 +1,10 @@
+{
+    "imageSettings": {
+        "negativePrompt": "overexposed, asymmetrical, writing, deformed wings, text, extra arms, username, extra legs, error, lowres, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, out of focus, missing limbs, distorted eyes, unfinished eyes, asymmetrical eyes, low quality eyes, bad hands, artist name, b&w, weird colors, blurry, oversize head, amputations, lumpy, extra limbs, extra fingers, mutated hands, bad anatomy, bad proportions, border, extra nipples, trademark, watermark, mutations, tiling, deformed, head cropped, fusion, face cropped, face out of frame, censored, disfigured, out of frame, deformed breasts, deformed hands, extra head, asymmetrical body, crosseyed, body out of frame, cross-eye, mutation, mutated, washed out colors, desaturated colors, faded colors, greyscale, nsfw, lewd, ecchi, hentai, pervert, softcore, explicit, erotic, nudity, nipples, panties, bra, genitalia, bdsm, bondage, bra, lingerie",
+        "restoreFaces": true
+    },
+    "settings": {
+        "keywordsFilename": "keyword",
+        "artistFilename": "artist"
+    }
+}
