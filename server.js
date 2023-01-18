@@ -667,6 +667,19 @@ app.post('/api/expansion/save', (req, res) => {
   res.jsonp("Success!");
 });
 
+app.post('/api/preset/save', (req, res) => {
+
+  // Verify the body contains an object
+  if(req.body == null || req.body == undefined) {
+    console.error("Can't save preset without json body");
+    res.jsonp(null);
+    return;
+  }
+
+  fs.writeFileSync(`${settings().settings.presetFiles}/${req.body.fileName}.json`, JSON.stringify(req.body.presetObj, null, 4));
+  res.jsonp("Success!");
+});
+
 // Put settings
 app.post('/api/replace-settings', (req, res) => {
 

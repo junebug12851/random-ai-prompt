@@ -71,20 +71,20 @@ block content
         input(type="checkbox", data-command="non-anime-words")
 
       .option
-        label(title="Starting frame number for animations") Animation Starting Frame
-        input(type="number", data-path="imageSettings.animationStartFrame", data-command="animation-starting-frame", data-skip="true")
-
-      .option
-        label(title="Make an animation, this is the number of frames to make") Animation Frames
-        input(type="number", data-path="imageSettings.animationFrameCount", data-command="animation-frames", data-skip="true")
-
-      .option
         label(title="Make a file into an animation") Animate File
         input(type="text", data-command="to-animation-file", data-skip="true")
 
       .option
         label(title="Add more frames to an existing animation file") More Animation Frames To
         input(type="text", data-command="extend-animation-file", data-skip="true")
+
+      .option
+        label(title="Starting frame number for animations") Animation Starting Frame
+        input(type="number", data-path="imageSettings.animationStartFrame", data-command="animation-starting-frame", data-skip="true")
+
+      .option
+        label(title="Make an animation, this is the number of frames to make") Animation Frames
+        input(type="number", data-path="imageSettings.animationFrameCount", data-command="animation-frames", data-skip="true")
 
       .option
         label(title="The negative prompt for when generating images") Negative Prompt
@@ -376,6 +376,12 @@ block content
       .option
         label(title="Folder to where prompt module files are saved") Prompt Modules
         input(type="text", data-path="settings.promptModuleFiles", data-command="prompt-module-files")
+
+      button#save-preset(style="display: none;") Save Preset
+      .button-row#preset-name(style="display: none;")
+        input#preset-name-val(type="text", placeholder="Preset Name", style="flex-grow: 2")
+        button#preset-save(style="flex-shrink: 2") Save
+        button#preset-cancel(style="flex-shrink: 2") Cancel
 
 block scripts
   script(type='text/javascript' src='generate.js')

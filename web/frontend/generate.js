@@ -291,7 +291,7 @@ function populateSettingsList() {
     	formElement = $(this).children().filter('.number-stepper').children().filter('input');
 
     // Get the text of the label element
-    const labelText = label.text();
+    let labelText = label.text();
 
     // Get the value of the form element
     const formElementValue = formElement.data("command");
@@ -359,6 +359,94 @@ function fillSettingValue(el) {
 		$(el).val(value.join(joinStr));
 }
 
+function resetSavePreset() {
+	// Enable or disable button
+	$("#save-preset").hide();
+	$("#preset-name").hide();
+
+	$("#preset-name-val").val("");
+
+	const enabledOverrides = $(".option[data-active='true'] [data-path]");
+	const enabledArgs = $(".option[data-active='true'] [data-command]:not([data-path])");
+	if(enabledOverrides.length > 0 && enabledArgs.length == 0)
+		$("#save-preset").show();
+}
+
+function savePreset() {
+
+	// Get all active options that are settings
+	const enabledOverrides = $(".option[data-active='true'] [data-path]");
+
+	// Save state
+	// This pulls all the values
+	saveState();
+
+	// Object to save as a preset
+	const presetObj = {};
+
+	// Loop through active settings
+	enabledOverrides.each(function() {
+
+		// Ignore if invalid
+		if($(this).is(":invalid"))
+			return;
+
+		// Get settings path
+		const paths = $(this).attr("data-path").split(".");
+
+		// Ensure path is 2 parts
+		if(paths.length != 2) {
+			console.error("Path is not 2 parts, cannot save preset", paths);
+			return;
+		}
+
+		// Convert paths to named parts
+		const settingFile = paths[0];
+		const setting = paths[1];
+
+		// Get command to pull from saved state
+		const command = $(this).attr("data-command");
+
+		// Ensure command is present
+		if(command == undefined || command == null || command == "") {
+			console.error("Command is not present", command);
+			return;
+		}
+
+		// Get value
+		const value = state[command];
+
+		// Save into preset object
+		if(presetObj[settingFile] == undefined)
+			presetObj[settingFile] = {};
+
+		presetObj[settingFile][setting] = value;
+	});
+
+	const fileName = $("#preset-name-val").val().trim();
+
+	// Do nothing if no presetObj or file name
+	if(_.isEmpty(presetObj) || fileName == "") {
+		console.error("No preset to save");
+		return;
+	}
+
+	// Post it
+	$.ajax({
+        type: 'POST',
+        url: `/api/preset/save`,
+        data: JSON.stringify({presetObj,fileName}),
+        contentType: 'application/json',
+        success: function(data) {
+            window.location.reload();
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  	});
+}
+
 function showSettingOnSelect() {
 	$('#add-settings').change(function() {
 
@@ -391,6 +479,9 @@ function showSettingOnSelect() {
 
 		// Reset selected index
 		$(this).prop('selectedIndex', 0);
+
+		// Update save preset visibility
+		resetSavePreset();
 	});
 }
 
@@ -413,6 +504,9 @@ function removeSettingOnClick() {
 
 	  // Re-enable setting in select menu
 	  $(`#add-settings option[value="${command}"]`).prop('disabled', false);
+
+	  // Update save preset visibility
+	  resetSavePreset();
 	});
 }
 
@@ -429,6 +523,34 @@ async function downloadSettings() {
 function addRemoveButton() {
 	$(".option").attr("data-active", "false");
 	$(".option").append(`<button class="remove">Remove</button>`);
+}
+
+function labelSettings() {
+	$('.option').each(function() {
+
+	    // Get the label child element
+	    const label = $(this).children('label');
+
+	    // Get the textarea, input, select, or checkbox child element
+	    let formElement = $(this).children().filter(':input').first();
+
+	    // It may be contained in .number-stepper
+	    if(formElement.is("button.remove"))
+	    	formElement = $(this).children().filter('.number-stepper').children().filter('input');
+
+	    const isSetting = formElement.is("[data-path]");
+
+	    if(!isSetting)
+	    	return;
+
+	    // Get the text of the label element
+	    let labelText = label.text();
+
+	    if(isSetting)
+	    	labelText = `&#x2662 ${labelText}`;
+
+	    label.html(labelText);
+	});
 }
 
 function onMinusStepperClick(input) {
@@ -714,6 +836,10 @@ $(document).ready(async function() {
 	// Add remove buttons to all options
 	addRemoveButton();
 
+	// Prefix all settings that correspon to a setting with a diamond
+	// Only setting overrides can have a preset
+	labelSettings();
+
 	// Configure number steppers
 	setupNumberSteppers();
 
@@ -793,4 +919,19 @@ $(document).ready(async function() {
 	});
 
 	$("#expansion-save").click(saveExpansion);
+
+	$("#save-preset").click(() => {
+		$("#save-preset").hide();
+		$("#preset-name").show();
+	});
+
+	$("#preset-cancel").click(() => {
+		$("#save-preset").show();
+		$("#preset-name").hide();
+	});
+
+	$("#preset-save").click(savePreset);
+
+	// Enable or disable the save preset button
+	resetSavePreset();
 });

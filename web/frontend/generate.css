@@ -57,6 +57,15 @@ label {
     margin-bottom: 30px;
 }
 
+#save-preset {
+    display: block;
+    margin-top: 25px;
+}
+
+#preset-name {
+    margin-top: 25px;
+}
+
 .option {
     display: none;
     position: relative;
