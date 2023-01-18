@@ -121,6 +121,12 @@ async function upscale(fileId) {
 // Runs the code, this is in it's own function because we use asyc/await
 // to make sure the first batch is done before we send another
 async function run() {
+
+    // Clear results file
+    settings().imageSettings.resultPrompts = [];
+    settings().imageSettings.resultImages = [];
+    saveResults(settings().imageSettings);
+
     // Generate a prompt for each prompt count
     for(let i = 0; i < settings().settings.promptCount; i++) {
 
