@@ -654,6 +654,19 @@ app.get('/api/save-settings', (req, res) => {
   res.jsonp("success");
 });
 
+app.post('/api/expansion/save', (req, res) => {
+
+  // Verify the body contains an object
+  if(req.body == null || req.body == undefined) {
+    console.error("Can't save expansion without json body");
+    res.jsonp(null);
+    return;
+  }
+
+  fs.writeFileSync(`${settings().settings.expansionFiles}/${req.body.fileName}.txt`, req.body.prompt);
+  res.jsonp("Success!");
+});
+
 // Put settings
 app.post('/api/replace-settings', (req, res) => {
 

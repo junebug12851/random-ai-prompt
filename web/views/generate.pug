@@ -13,10 +13,16 @@ block content
 
         input#page-search(type='text')
 
-        .button-row
+        .button-row#prompt-buttons
           button#generate(title="Generate using these settings") Generate
           button#random(title="Generate using random search sugestion") Random
           button#share(title="Copy a link that you can give to someone which will copy all the current generation settings including current prompt") Share Link
+          button#expansion(title="Save current prompt as an expansion") Expansion
+
+        .button-row#expansion-name(style="display: none;")
+          input#expansion-name-val(type="text", placeholder="Expansion Name", style="flex-grow: 2")
+          button#expansion-save(style="flex-shrink: 2") Save
+          button#expansion-cancel(style="flex-shrink: 2") Cancel
 
       p Special keywords you can insert
       #keyword-cloud

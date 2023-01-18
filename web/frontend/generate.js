@@ -631,6 +631,34 @@ function generate() {
     displayProgress(true);
 }
 
+function saveExpansion() {
+
+	const prompt = $("#page-search").val().trim();
+	const fileName = $("#expansion-name-val").val().trim();
+
+	// Do nothing if no prompt or file name
+	if(prompt == "" || fileName == "")
+		return;
+
+	// Save settings
+	saveState();
+
+	// Post it
+	$.ajax({
+        type: 'POST',
+        url: `/api/expansion/save`,
+        data: JSON.stringify({prompt,fileName}),
+        contentType: 'application/json',
+        success: function(data) {
+            window.location.reload();
+        },
+        error: function(error){
+            console.log("Error:");
+            console.log(error);
+        }
+  	});
+}
+
 function performRandomGenerate() {
 
     // Get random placeholder text
@@ -753,4 +781,16 @@ $(document).ready(async function() {
 
 	$("input,select,textarea").change(saveState);
 	$("button").click(saveState);
+
+	$("#expansion").click(() => {
+		$("#prompt-buttons").hide();
+		$("#expansion-name").show();
+	});
+
+	$("#expansion-cancel").click(() => {
+		$("#prompt-buttons").show();
+		$("#expansion-name").hide();
+	});
+
+	$("#expansion-save").click(saveExpansion);
 });
