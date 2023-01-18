@@ -89,8 +89,6 @@ async function loadResults() {
     setTimeout(loadResults, 250);
 }
 
-setTimeout(loadResults, 250);
-
 function generationProgress() {
     $.ajax({
         type: 'GET',
@@ -108,6 +106,16 @@ function generationProgress() {
   });
 }
 
+function toggleDetailedProgress() {
+    $("#minimal-progress-bar").toggle();
+    $("#expanded-progress-bar").toggle();
+
+    if($("#minimal-progress-bar").is(":visible"))
+        $(".minimal-expand").text("Expand Progress");
+    else
+        $(".minimal-expand").text("Collapse Progress");
+}
+
 $(document).ready(function() {
     const params = new URLSearchParams(window.location.search);
     const encodedUrl = params.get('backUrl');
@@ -116,4 +124,7 @@ $(document).ready(function() {
         backUrl = decodeURIComponent(encodedUrl);
 
     setTimeout(generationProgress, 250);
+    setTimeout(loadResults, 250);
+
+    $(".minimal-expand").click(toggleDetailedProgress);
 });
