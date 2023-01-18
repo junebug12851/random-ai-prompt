@@ -172,28 +172,6 @@ async function updateInsertMenu() {
 	}
 
 	// ------------------------------------------------------------------------
-	// Dynamic prompts user-submitted
-	// ------------------------------------------------------------------------
-
-	for(let i = 0; i < dynPrompts.userFiles.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</span>`);
-
-		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</button>`);
-	}
-
-	// ------------------------------------------------------------------------
-	// Lists
-	// ------------------------------------------------------------------------
-
-	for(let i = 0; i < lists.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Replaced by a single random entry from the list file">Lists</span>`);
-
-		$("#keyword-cloud").append(`<button data-value="{${lists[i]}}">${startCase(lists[i])}</button>`);
-	}
-
-	// ------------------------------------------------------------------------
 	// Expansions
 	// ------------------------------------------------------------------------
 
@@ -213,6 +191,28 @@ async function updateInsertMenu() {
 			$("#keyword-cloud").append(`<span title="Partial prompts, these are meant to compliment other parts of a prompt but don't stand well on their own">Partial Dynamic Prompts</span>`);
 
 		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.partialRegular[i]}">${startCase(dynPrompts.partialRegular[i])}</button>`);
+	}
+
+	// ------------------------------------------------------------------------
+	// Lists
+	// ------------------------------------------------------------------------
+
+	for(let i = 0; i < lists.length; i++) {
+		if(i == 0)
+			$("#keyword-cloud").append(`<span title="Replaced by a single random entry from the list file">Lists</span>`);
+
+		$("#keyword-cloud").append(`<button data-value="{${lists[i]}}">${startCase(lists[i])}</button>`);
+	}
+
+	// ------------------------------------------------------------------------
+	// Dynamic prompts user-submitted
+	// ------------------------------------------------------------------------
+
+	for(let i = 0; i < dynPrompts.userFiles.length; i++) {
+		if(i == 0)
+			$("#keyword-cloud").append(`<span title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</span>`);
+
+		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</button>`);
 	}
 
 	// ------------------------------------------------------------------------
