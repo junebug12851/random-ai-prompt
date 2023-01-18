@@ -40,7 +40,7 @@ function dataRefreshComplete(data) {
     // Image Total Progress
     const progressPercent = Math.round(+data.progressPercent);
     const progressEta = data.progressEta;
-    $("#progress-total").css("width", progressPercent + "%");
+    $(".progress-total").css("width", progressPercent + "%");
     $("#progress-total-percent").text(progressPercent + "%");
     $("#progress-total-eta").text(progressEta);
 
