@@ -53,6 +53,44 @@ function dataRefreshComplete(data) {
     $("#progress-prompts-total").text(progressTotalPrompts);
 }
 
+let loadedPrompts = 0;
+let loadedImages = 0;
+
+async function loadResults() {
+
+    // Get results
+    const results = await ajaxGet("/api/progress-results");
+
+    // Stop if invalid
+    if(results == null || results == undefined)
+        return;
+
+    if(results.prompts.length > 0) {
+        $("#prompts-title").show();
+        $("#prompts").show();
+    }
+
+    for(let i = loadedPrompts; i < results.prompts.length; i++,loadedPrompts++) {
+        $("#prompts").append(`<p class="prompt">${results.prompts[i]}</p>`);
+    }
+
+    if(results.images.length > 0) {
+        $("#images-title").show();
+        $("#images").show();
+    }
+
+    for(let i = loadedImages; i < results.images.length; i++,loadedImages++) {
+        if(results.images[i] == undefined)
+            continue;
+
+        $("#images").append(`<a href="${results.images[i]}" class="image" rel="noopener noreferrer" target="_blank"><img src="${results.images[i]}"/></a>`);
+    }
+
+    setTimeout(loadResults, 250);
+}
+
+setTimeout(loadResults, 250);
+
 function generationProgress() {
     $.ajax({
         type: 'GET',

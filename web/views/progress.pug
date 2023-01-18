@@ -6,7 +6,7 @@ block styles
 block content
     #container
         p Generating Images
-        p Image
+        p Current Image
         .progress-bar
             #progress-steps.progress(style="width: 100%;")
         p
@@ -22,7 +22,7 @@ block content
             | &nbsp; / &nbsp;
             span#progress-image-total 1
 
-        p Image Total
+        p Image Batch Total
         .progress-bar
             #progress-total.progress(style="width: 100%;")
         p
@@ -30,13 +30,19 @@ block content
             | &nbsp; / &nbsp;
             span#progress-total-eta --s
 
-        p Prompts
+        p Prompt Batch
         .progress-bar
             #progress-prompts.progress(style="width: 100%;")
         p
             span#progress-prompts-cur 1
             | &nbsp; / &nbsp;
             span#progress-prompts-total 1
+
+        p#prompts-title(style="display: none;") Generated Prompts
+        #prompts(style="display: none;")
+
+        p#images-title(style="display: none;") Generated Images
+        #images(style="display: none;")
 
 block scripts
     script(type='text/javascript' src='progress.js')

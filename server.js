@@ -538,6 +538,40 @@ app.get('/api/images/reindex-progress', async function(req, res) {
   res.jsonp(imageIndex.getProgress());
 });
 
+app.get('/api/progress-results', async function(req, res) {
+
+  // get results
+  let results = {};
+
+  try {
+    results = JSON.parse(fs.readFileSync("./results.json").toString());
+  }
+  catch(err) {
+    console.error(err);
+  }
+
+  // Breakdown results into images and prompts
+  const images = results.images;
+  const prompts = results.prompts;
+
+  // Array to send to client
+  let ret = {
+    images: [],
+    prompts: (prompts) ? prompts : [],
+  };
+
+  // Convert image name array to an image url array for the web ui
+  if(images != undefined) {
+    for(let i = 0; i < images.length; i++) {
+
+      // get path to png file
+      ret.images.push(`/images/${images[i]}.png`);
+    }
+  }
+
+  res.jsonp(ret);
+});
+
 app.get('/api/results', async function(req, res) {
 
   try {
