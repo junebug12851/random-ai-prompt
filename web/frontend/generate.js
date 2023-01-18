@@ -423,7 +423,7 @@ function savePreset() {
 		presetObj[settingFile][setting] = value;
 	});
 
-	const fileName = $("#preset-name-val").val().trim();
+	const fileName = $("#preset-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
 
 	// Do nothing if no presetObj or file name
 	if(_.isEmpty(presetObj) || fileName == "") {
@@ -756,7 +756,7 @@ function generate() {
 function saveExpansion() {
 
 	const prompt = $("#page-search").val().trim();
-	const fileName = $("#expansion-name-val").val().trim();
+	const fileName = $("#expansion-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
 
 	// Do nothing if no prompt or file name
 	if(prompt == "" || fileName == "")
