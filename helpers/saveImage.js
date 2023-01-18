@@ -15,6 +15,7 @@
 */
 
 const fs = require('fs');
+const saveResults = require("./saveResults");
 
 module.exports = function saveImage(base64Image, info, imageSettings, upscaled, upscaleOf) {
 	// Convert base64 to buffer
@@ -65,6 +66,7 @@ module.exports = function saveImage(base64Image, info, imageSettings, upscaled, 
         imageSettings.resultImages = [];
 
     imageSettings.resultImages.push(filename);
+    saveResults(imageSettings);
 
     if(imageSettings.animationFrames == undefined && imageSettings.animationOf != undefined) 
         imageSettings.animationFrames = [];

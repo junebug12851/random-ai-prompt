@@ -31,6 +31,7 @@ const express = require('express');
 const app = express();
 
 const saveApng = require("./helpers/saveApng");
+const saveResults = require("./helpers/saveResults");
 
 const server = app.listen(settings().serverSettings.portProgress, async function() {
 
@@ -116,10 +117,7 @@ const server = app.listen(settings().serverSettings.portProgress, async function
         saveApng(settings().imageSettings.animationFrames, settings().imageSettings);
 
     // Write results file
-    fs.writeFileSync("./results.json", JSON.stringify({
-        prompts: settings().imageSettings.resultPrompts,
-        images: settings().imageSettings.resultImages,
-    }, null, 4));
+    saveResults(settings().imageSettings);
 
     server.close();
 });

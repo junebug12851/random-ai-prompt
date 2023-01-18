@@ -1,5 +1,6 @@
 const fs = require('fs');
 const apng = require("./makeApng");
+const saveResults = require("./saveResults");
 
 // Saves the png files as an animated png file
 module.exports = function(imageArray, imageSettings, dontWriteJSON) {
@@ -24,6 +25,7 @@ module.exports = function(imageArray, imageSettings, dontWriteJSON) {
         imageSettings.resultImages = [];
 
     imageSettings.resultImages.push(`${imageSettings.animationOf}`);
+    saveResults(imageSettings);
 
 	if(dontWriteJSON)
 		return;

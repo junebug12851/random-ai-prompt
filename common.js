@@ -26,6 +26,7 @@ const yargs = require('yargs/yargs')
 // Process given arguments
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
+const saveResults = require("./helpers/saveResults");
 
 // Bring in function to generate prompt and images
 const genImage = require("./src/genImg");
@@ -93,6 +94,7 @@ async function processBatch(index, total) {
         settings().imageSettings.resultPrompts = [];
 
     settings().imageSettings.resultPrompts.push(prompt);
+    saveResults(settings().imageSettings);
 
     // Make into image if filled in and not blank and targetting Stabloe Diffusion
     // Disallow if not targetting Stable Diffusion
