@@ -393,12 +393,7 @@ app.get('/api/animation/externalize/:fileId', (req, res) => {
   catch(err) {}
 
   try {
-    fs.mkdirSync(`${baseFolderPath}/input`);
-  }
-  catch(err) {}
-
-  try {
-    fs.mkdirSync(`${baseFolderPath}/output`);
+    fs.mkdirSync(`${baseFolderPath}/frames`);
   }
   catch(err) {}
 
@@ -437,7 +432,7 @@ Multiplier/Speed Factor to get near 60FPS: ${factor}`);
 
     // Copy file
   try {
-      fs.copyFileSync(`./${settings().imageSettings.saveTo}/${fromFilename}`, `${baseFolderPath}/input/${toFilename}`);
+      fs.copyFileSync(`./${settings().imageSettings.saveTo}/${fromFilename}`, `${baseFolderPath}/frames/${toFilename}`);
     }
     catch(err) {
       console.error(err);
