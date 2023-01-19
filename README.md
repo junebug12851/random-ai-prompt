@@ -27,6 +27,12 @@ generation.
 
 ![water-girl-very-small2](https://user-images.githubusercontent.com/1305564/211252276-6d35f46a-9b4b-4cb5-be7a-06395df14dfc.gif)
 
+### And it even supports easy transfer to AI Interpolation Apps
+
+You can now one-click export any animation to a seperate folder that can be used to dump into programs like [`FrameFlow`](https://nmkd.itch.io/flowframes) on Windows or [`DAIN`](https://github.com/baowenbo/DAIN#google-colab-demo) Google Collab amongst others to smooth out FPS from something like `5fps` to `30fps`, `50fps`, or `60fps`
+
+![frames-10x-RIFE-RIFE4 0-50fps](https://user-images.githubusercontent.com/1305564/213558543-ff93b8c5-668c-4365-b649-c7d5b77a6935.gif)
+
 ## Here are some images you can make with this program
 
 ### Random Landscape
