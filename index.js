@@ -49,7 +49,7 @@ const server = app.listen(settings().serverSettings.portProgress, async function
 
       // Seems it's a bit more complicated than just spaces, especially for powershell
       // If it starts with any character that isn't a letter or number, auto-enclose in quotes
-      if(/[^a-z0-9\- .,]/gi.test(argument)) {
+      if(/[^a-z0-9\-.,]/gi.test(argument)) {
         cmdLine[i] = `"${argument}"`;
       }
     }
