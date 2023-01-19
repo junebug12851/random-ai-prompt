@@ -100,6 +100,7 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Process prompt, 2nd pass, expand list keywords into random items from list
 	// also include random prompt if requested
 	prompt = prompt.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
+
 		// If from the artist file, then pcik a random artist but do not emphasize
 		// them
 		if(p1 == settings.artistFilename || p1.includes("artist"))

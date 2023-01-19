@@ -70,34 +70,38 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Check for these before expansion
 	const includedArtists = prompt.includes("#artists") || 
 							prompt.includes("artist") || // In case someone uses an artist list but not dyn prompt
-							imageSettings.autoIncludedArtists || 
-							settings.ignoreFirstAutoArtistPass;
+							imageSettings.autoIncludedArtists;
 
 	const includedFx = prompt.includes("#fx") ||
-						imageSettings.autoIncludedFx || 
-						settings.ignoreFirstAutoArtistPass;
+						imageSettings.autoIncludedFx;
 
-	// Expand all dynamic functions
-	prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
+	// Max iterations in case of infinite loops
+	let maxCount = 10;
 
-		if(p1.endsWith("-v1"))
-			return expandDynamicPromptV1(p1, settings, imageSettings, upscaleSettings);
-		else
-			return expandDynamicPromptV2(p1, settings, imageSettings, upscaleSettings);
-	});
+	// Keep expanding expansions up to max levels
+	for(let i = 0; i < maxCount && /#([\w\-_]+)/gm.test(prompt); i++) {
+
+		prompt = prompt.replaceAll(/#([\w\-_]+)/gm, function(match, p1) {
+
+			if(p1.endsWith("-v1"))
+				return expandDynamicPromptV1(p1, settings, imageSettings, upscaleSettings);
+			else
+				return expandDynamicPromptV2(p1, settings, imageSettings, upscaleSettings);
+		});
+	}
 
 	// Auto-append fx and artists if cofnigured to do so
 	// We do this afterwards because some modules may change the settings
 	// so we have to rprocess the modules first
 
 	// Auto-add fx first if requested to do so
-	if(settings.autoAddFx && !includedFx && !settings.ignoreFirstAutoArtistPass) {
+	if(settings.autoAddFx && !includedFx) {
 		prompt += `, ${expandDynamicPromptV2("fx", settings, imageSettings, upscaleSettings)}`;
 		imageSettings.autoIncludedFx = true;
 	}
 
 	// Auto-add artists second if requested to do so
-	if(settings.autoAddArtists && !includedArtists && !settings.ignoreFirstAutoArtistPass) {
+	if(settings.autoAddArtists && !includedArtists) {
 		prompt += `, ${expandDynamicPromptV2("artists", settings, imageSettings, upscaleSettings)}`;
 		imageSettings.autoIncludedArtists = true;
 	}
@@ -105,9 +109,6 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Save the original post prompt
 	// The prompt after dynamic prompts but before the lists have been expanded on
 	imageSettings.origPostPrompt = prompt;
-
-	// Make sure first pass is disabled
-	settings.ignoreFirstAutoArtistPass = false;
 
 	// Return prompt
 	return prompt;

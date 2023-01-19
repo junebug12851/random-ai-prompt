@@ -31,7 +31,6 @@ module.exports = function(settings) {
 
     // Save into settings
     settings.randomPrompt = prompt;
-    settings.ignoreFirstAutoArtistPass = true;
 
     // Return
     return prompt;
