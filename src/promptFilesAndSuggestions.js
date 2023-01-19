@@ -202,11 +202,6 @@ function prePrompt(maxCount) {
       prePrompt += `, {${_.sample(listFilesNoArtist)}}`
   }
 
-  // Prevent scenarios liek this
-  // AND, ...
-  // In other words, remove commas and spaces at the start
-  prePrompt = prePrompt.replace(/^[, ]+/m, "");
-
   return prePrompt;
 }
 
@@ -219,8 +214,6 @@ function postPrompt() {
 
   if(_.random(0.0, 1.0, true) < 0.5)
     prePrompt += `, #artists`
-
-  prePrompt = prePrompt.replace(/^[, ]+/m, "");
 
   return prePrompt;
 }
@@ -253,11 +246,11 @@ function promptSuggestion(full) {
       break;
   }
 
-  // Cleanup prompt
-  ret = cleanup(ret, settings().settings, settings().imageSettings, settings().upscaleSettings);
+  // // Cleanup prompt
+  // ret = cleanup(ret, settings().settings, settings().imageSettings, settings().upscaleSettings);
 
-  // Somehow this still slips through, this time, explicitly search for it
-  ret = ret.replaceAll("AND,", "AND");
+  // // Somehow this still slips through, this time, explicitly search for it
+  // ret = ret.replaceAll("AND,", "AND");
 
   // Return
   return ret;
