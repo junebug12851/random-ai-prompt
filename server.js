@@ -32,13 +32,14 @@ const {
 
 const imageIndex = require("./web/backend/indexImages");
 const fs = require("fs");
+const path = require("path");
 const express = require('express');
 const http = require('http');
 const fetch = require('node-fetch');
 const open = require('open');
 const saveApng = require('./helpers/saveApng');
 
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 const { promisify } = require('util');
 
 const execPromise = promisify(exec);
@@ -60,6 +61,32 @@ app.set('views', settings().serverSettings.webFolder + "/views")
 
 // Use the body-parser middleware to parse incoming request bodies
 app.use(express.json());
+
+function dirOpen(dirPath) {
+
+  dirPath = path.resolve(dirPath);
+
+  let command = '';
+  switch (process.platform) {
+    case 'darwin':
+      command = 'open';
+      break;
+    case 'win32':
+      command = 'explorer';
+      break;
+    default:
+      command = 'xdg-open';
+      break;
+  }
+
+  try {
+    return execSync(`${command} "${dirPath}"`);
+  }
+  catch(err) {
+    // Weirdly, it often fails sauccesfully??? Disable error if it's successful
+    // console.error(err);
+  }
+}
 
 // Executes index.js with with currently set args
 // await exec();
@@ -330,6 +357,103 @@ app.get('/api/animation/delete/:fileId', (req, res) => {
       console.error(err);
     }
   }
+
+  // Mark as success
+  res.jsonp("success");
+});
+
+app.get('/api/animation/externalize/:fileId', (req, res) => {
+
+  // Get image name
+  const imageName = req.params.fileId;
+
+  // Get image data
+  const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
+
+  // Make sure image exists in index
+  if(imageData === undefined) {
+    res.jsonp({});
+    console.error("Error: API requested a non-indexed image");
+    return;
+  }
+
+  // Make sure it has at least 1 animation frame
+  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+    res.jsonp({});
+    console.error("Error: API requested to prepare an animation for ai interpolation from an image with no frames");
+    return;
+  }
+
+  const baseFolderPath = `./${settings().imageSettings.saveTo}/external-${imageName}`;
+
+  // Make directory
+  try {
+    fs.mkdirSync(`${baseFolderPath}`);
+  }
+  catch(err) {}
+
+  try {
+    fs.mkdirSync(`${baseFolderPath}/input`);
+  }
+  catch(err) {}
+
+  try {
+    fs.mkdirSync(`${baseFolderPath}/output`);
+  }
+  catch(err) {}
+
+  // Calculate info
+  const delayMs = +settings().imageSettings.animationDelay;
+  const frames = imageData.animationFrames.length;
+  const delayS = +(delayMs / 1000).toFixed(2);
+  const length = frames * delayS;
+  const fps = +(1 / delayS).toFixed(0);
+
+  let factor = +(60 / fps).toFixed(0);
+
+  // Write info to file
+  try {
+    fs.writeFileSync(`${baseFolderPath}/info.txt`, 
+`Frame Delay: ${delayMs}ms (${delayS}s)
+Total Frames: ${frames}
+Animation Length: ${length}s
+FPS: ${fps}
+Target FPS: 60
+Multiplier/Speed Factor to get near 60FPS: ${factor}`);
+  }
+  catch(err) {
+    console.error(err);
+  }
+
+  // Go through all frames
+  for(let i = 0; i < imageData.animationFrames.length; i++) {
+
+    // Get from file name
+    const fromFilename = `${imageData.animationFrames[i].name}.png`;
+
+    // Get file name
+    // 00001.png, 00002.png, 00003.png, etc...
+    const toFilename = String(i+1).padStart(5, "0") + ".png";
+
+    // Copy file
+  try {
+      fs.copyFileSync(`./${settings().imageSettings.saveTo}/${fromFilename}`, `${baseFolderPath}/input/${toFilename}`);
+    }
+    catch(err) {
+      console.error(err);
+    }
+  }
+
+  // Copy animation over as well
+  try {
+    fs.copyFileSync(`./${settings().imageSettings.saveTo}/${imageName}.png`, `${baseFolderPath}/animation.png`);
+  }
+  catch(err) {
+    console.error(err);
+  }
+
+  // Open folder
+  dirOpen(baseFolderPath);
 
   // Mark as success
   res.jsonp("success");

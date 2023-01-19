@@ -260,6 +260,9 @@ function completePage() {
         $("#action-menu option[value='regen-anim']").show();
         $("#action-menu option[value='regen-anim']").prop('disabled', false);
 
+        $("#action-menu option[value='externalize-anim']").show();
+        $("#action-menu option[value='externalize-anim']").prop('disabled', false);
+
         $("#action-menu option[value='select-extend-anim']").show();
         $("#action-menu option[value='select-extend-anim']").prop('disabled', false);
 
@@ -663,6 +666,13 @@ async function regenAnim() {
     window.location.reload();
 }
 
+async function externalizeAnim() {
+
+    // Just reload, this is relatively fast
+    await ajaxGet(`/api/animation/externalize/${imageData.name}`);
+    window.location.reload();
+}
+
 function actionMenuSelection() {
 
     // Get selected value
@@ -694,6 +704,8 @@ function actionMenuSelection() {
         selectAnimation();
     else if(selectedValue == "regen-anim")
         regenAnim();
+    else if(selectedValue == "externalize-anim")
+        externalizeAnim();
     else if(selectedValue == "make-extend-anim")
         extendAnim();
     else if(selectedValue == "select-extend-anim")
