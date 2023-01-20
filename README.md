@@ -31,7 +31,7 @@ generation.
 
 You can now one-click export any animation to a seperate folder that can be used to dump into programs like [`FrameFlow`](https://nmkd.itch.io/flowframes) on Windows or [`DAIN`](https://github.com/baowenbo/DAIN#google-colab-demo) Google Collab amongst others to smooth out FPS from something like `5fps` to `30fps`, `50fps`, or `60fps`
 
-![input-10x-RIFE-RIFE4 0-50fps](https://user-images.githubusercontent.com/1305564/213575259-36ab258b-8e58-40c2-bb89-74cdd4db95b8.gif)
+![frames-10x-RIFE-RIFE4 0-50fps](https://user-images.githubusercontent.com/1305564/213594508-68be4a51-b79c-45a8-9eaa-1c67fc88ea77.gif)
 
 ## Here are some images you can make with this program
 
