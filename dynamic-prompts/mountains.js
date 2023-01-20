@@ -16,27 +16,6 @@
 
 const _ = require("lodash");
 
-function settlement() {
-    let prompt = "";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", [[house]]"
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", [[village]]"
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", [[path]]"
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", worn down";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", weathered";
-
-    return prompt;
-}
-
 module.exports = function() {
 
     // Start with base prompt
@@ -81,7 +60,7 @@ module.exports = function() {
     }
 
     if(_.random(0.0, 1.0, true) < 0.3)
-        prompt += `, ${settlement()}`
+        prompt += `, #settlement`
 
     if(_.random(0.0, 1.0, true) < 0.25)
         prompt += `, #eerie`

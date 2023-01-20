@@ -71,22 +71,10 @@ module.exports = function() {
 		prompt += ", stalactite"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", house"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", village"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", path"
+		prompt += ", #settlement"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", tunnels"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", worn down";
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", weathered";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", underground";
