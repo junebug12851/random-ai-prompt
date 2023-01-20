@@ -17,14 +17,6 @@
 // Orignally submitted by Merk, modified by me, junebug12851
 
 const _ = require("lodash");
-const nature = require("./nature");
-const water = require("./water");
-const weather = require("./weather");
-const ice = require("./ice");
-const city = require("./city");
-const eerie = require("./eerie");
-const wildlife = require("./wildlife");
-const mystical = require("./mystical");
 
 function winterBeach() {
 	let prompt = "winter beach";
@@ -33,7 +25,7 @@ function winterBeach() {
 		prompt += ", snowy beach";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, (${ice()})`;
+		prompt += `, (#ice)`;
 
 	return prompt;
 }
@@ -91,15 +83,15 @@ module.exports = function() {
 		prompt += ", {size} waves";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${eerie()}`;
+		prompt += `, #eerie`;
 
 	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += `, ${mystical()}`;
+		prompt += `, #mystical`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${nature()}`;
+		prompt += `, #nature`;
 
-	prompt += `, ${city()}, ${weather()}`;
+	prompt += `, #city, #weather`;
 
 	return prompt;
 }

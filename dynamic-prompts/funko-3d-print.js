@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const person = require("./person");
-
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
 module.exports = function(settings) {
 
@@ -26,10 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `Funko pop ${person()}`;
-	prompt += " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
-
-	return prompt;
+	return "Funko pop #person figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
 }
 
 module.exports.full = true;

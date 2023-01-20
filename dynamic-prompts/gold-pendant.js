@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityName = require("./entity-name");
-
 // gold <name> pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot
 module.exports = function(settings) {
 
@@ -26,10 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `gold ${entityName()}`;
-	prompt += ` pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
-
-	return prompt;
+	return `gold #entity-name pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
 }
 
 module.exports.full = true;

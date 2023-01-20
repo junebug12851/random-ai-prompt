@@ -14,11 +14,8 @@
     limitations under the License.
 */
 
-const weather = require("./weather");
-const roomState = require("./room-state");
-
 module.exports = function() {
-	return `room, interrior, {room}, ${roomState()}, ${weather()}`;
+	return `room, interrior, {room}, #room-state, #weather`;
 }
 
 module.exports.full = true;

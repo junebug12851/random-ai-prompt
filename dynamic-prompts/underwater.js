@@ -15,7 +15,6 @@
 */
 
 const _ = require("lodash");
-const color = require("./color");
 
 module.exports = function() {
 
@@ -31,16 +30,16 @@ module.exports = function() {
 		prompt += ", aquatic life"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} reef`
+		prompt += `, #color reef`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} coral`
+		prompt += `, #color coral`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} starfish`
+		prompt += `, #color starfish`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} fish`
+		prompt += `, #color fish`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", bioluminescent";

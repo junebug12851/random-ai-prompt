@@ -15,9 +15,6 @@
 */
 
 const _ = require("lodash");
-const eerie = require("./eerie");
-const mystical = require("./mystical");
-const roomState = require("./room-state");
 
 module.exports = function() {
 
@@ -39,13 +36,13 @@ module.exports = function() {
 		prompt += ", cozy";
 
 	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, ${eerie()}`;
+		prompt += `, #eerie`;
 
 	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, ${mystical()}`;
+		prompt += `, #mystical`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${roomState()}`;
+		prompt += `, #room-state`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {building-style}"

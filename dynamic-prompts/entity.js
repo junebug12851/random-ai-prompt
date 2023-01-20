@@ -15,7 +15,6 @@
 */
 
 const _ = require("lodash");
-const color = require("./color");
 
 const anyEntity = [0, 1, 2, 3, 4, 5, 6];
 const humanEntity = [1, 6];
@@ -50,7 +49,7 @@ module.exports = function(settings, imageSettings, upscaleSettings, specificEnti
 			human = true;
 			break;
 		case 2:
-			prompt += `${color()} {flower}`;
+			prompt += `#color {flower}`;
 			break;
 		case 3:
 			prompt += `{instrument}`;
@@ -72,12 +71,12 @@ module.exports = function(settings, imageSettings, upscaleSettings, specificEnti
 		prompt += ", {emotion}"
 
 	if(_.random(0.0, 1.0, true) < 0.5 && human && !nameOnly)
-		prompt += `, ${color()} {hair}`
+		prompt += `, #color {hair}`
 
 	const clothingCount = (_.random(0.0, 1.0, true) < 0.5 && human && !nameOnly) ? _.random(0, 5, false) : 0;
 
 	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${color()} {clothes}`;
+		prompt += `, #color {clothes}`;
 	}
 
 	return prompt;

@@ -16,9 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const nature = require("./nature");
-const weather = require("./weather");
-
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
 module.exports = function(settings) {
 
@@ -27,11 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = "100mm photo of isometric floating island in the sky, surreal, city";
-	prompt += `, ${nature()}, ${weather()}`;
-	prompt += ", intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
-
-	return prompt;
+	return "100mm photo of isometric floating island in the sky, surreal, city, #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 }
 
 module.exports.full = true;

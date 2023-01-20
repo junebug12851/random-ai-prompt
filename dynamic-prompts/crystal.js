@@ -15,7 +15,6 @@
 */
 
 const _ = require("lodash");
-const glow = require("./glow");
 
 module.exports = function() {
 
@@ -25,16 +24,13 @@ module.exports = function() {
 		prompt += ", glowing"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${glow()} crystal walls`
+		prompt += `, #glow crystal walls`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${glow()} crystal floor`
+		prompt += `, #glow crystal floor`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${glow()} crystal ceiling`
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${glow()} giant crystals`
+		prompt += `, #glow giant crystals`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", ruby"
@@ -46,7 +42,7 @@ module.exports = function() {
 		prompt += ", emerald"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${glow()} crystals`
+		prompt += `, #glow crystals`
 
 	return prompt;
 }

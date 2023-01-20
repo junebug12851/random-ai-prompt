@@ -15,14 +15,6 @@
 */
 
 const _ = require("lodash");
-const weather = require("./weather");
-const water = require("./water");
-const nature = require("./nature");
-const wildlife = require("./wildlife");
-const eerie = require("./eerie");
-const ice = require("./ice");
-const mystical = require("./mystical");
-const roomState = require("./room-state");
 
 module.exports = function() {
 
@@ -45,18 +37,18 @@ module.exports = function() {
         prompt += ", walkway"
 
     if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, ${eerie()}`
+        prompt += `, #eerie`
 
     if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, ${ice()}`
+        prompt += `, #ice`
 
     if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, ${mystical()}`
+        prompt += `, #mystical`
 
     if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, ${roomState()}`
+        prompt += `, #room-state`
 
-	prompt += `, ${wildlife()}, ${water()}, ${nature()}, ${weather()}`;
+	prompt += `, #wildlife, #water, #nature, #weather`;
 
 	return prompt;
 }

@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine
 module.exports = function(settings) {
 
@@ -26,10 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `kawaii low poly, ${entity()}`;
-	prompt += `, 3d isometric render, white background, ambient occlusion, unity engine`;
-
-	return prompt;
+	return `kawaii low poly, #entity, 3d isometric render, white background, ambient occlusion, unity engine`;
 }
 
 module.exports.full = true;

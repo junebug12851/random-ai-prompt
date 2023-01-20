@@ -15,26 +15,17 @@
 */
 
 const _ = require("lodash");
-const eerie = require("./eerie");
-const ice = require("./ice");
-const lava = require("./lava");
-const underwater = require("./underwater");
-const mystical = require("./mystical");
-const nature = require("./nature");
-const weather = require("./weather");
-const wildlife = require("./wildlife");
-const color = require("./color");
 
 function addWeatherFx(prompt) {
 	switch(_.random(0, 3, false)) {
 		case 0:
-			prompt += `, ${ice()}`;
+			prompt += `, #ice`;
 			break;
 		case 1:
-			prompt += `, ${lava()}`;
+			prompt += `, #lava`;
 			break;
 		case 2:
-			prompt += `, ${underwater()}`;
+			prompt += `, #underwater`;
 			break;
 	}
 
@@ -44,19 +35,19 @@ function addWeatherFx(prompt) {
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt = "vehicle, {vehicle-type}, ";
+	let prompt = "vehicle, {vehicle-type}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt = addWeatherFx(prompt);
+		prompt = `, ${addWeatherFx(prompt)}`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} `;
+		prompt += `, #color`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} `;
+		prompt += `, #color`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {size} ";
+		prompt += ", {size}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {mood} atmosphere"
@@ -119,17 +110,17 @@ module.exports = function() {
 			prompt += ", wrecked"
 
 		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, ${eerie()}`;
+			prompt += `, #eerie`;
 
 		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, ${nature()}`;
+			prompt += `, #nature`;
 
 		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, ${wildlife()}`;
+			prompt += `, #wildlife`;
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += `, ${mystical()}`;
+		prompt += `, #mystical`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {construct-style}";
@@ -138,7 +129,7 @@ module.exports = function() {
 		prompt += ", {building-style}"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${weather()}`;
+		prompt += `, #weather`;
 
 	return prompt;
 }

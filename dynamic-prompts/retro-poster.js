@@ -15,8 +15,6 @@
 */
 
 const _ = require("lodash");
-const weather = require("./weather");
-const color = require("./color");
 
 module.exports = function(settings) {
 
@@ -30,19 +28,19 @@ module.exports = function(settings) {
         prompt += ", {emotion}"
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${color()} {hair}`
+        prompt += `, #color {hair}`
 
     const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
 
     for(let i = 0; i < clothingCount; i++) {
-        prompt += `, ${color()} {clothes}`;
+        prompt += `, #color {clothes}`;
     }
 
     if(_.random(0.0, 1.0, true) < 0.1)
         prompt += ", {instrument}"
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${weather()}`;
+        prompt += `, #weather`;
 
     // Start with base prompt
     prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;

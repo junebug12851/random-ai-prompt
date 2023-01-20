@@ -15,11 +15,10 @@
 */
 
 const _ = require("lodash");
-const color = require("./color");
 
 module.exports = function() {
     if(_.random(0.0, 1.0, true) < 0.5)
-        return color();
+        return "#color";
     else
-        return `glow ${color()}`;
+        return `glow #color`;
 }

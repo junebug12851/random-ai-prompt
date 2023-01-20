@@ -35,9 +35,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines), very detailed`;
-
-	return prompt;
+	return `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines), very detailed`;
 }
 
 module.exports.full = true;

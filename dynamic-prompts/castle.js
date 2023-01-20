@@ -15,11 +15,6 @@
 */
 
 const _ = require("lodash");
-const weather = require("./weather");
-const color = require("./color");
-const water = require("./water");
-const wildlife = require("./wildlife");
-const nature = require("./nature");
 
 module.exports = function() {
 
@@ -56,7 +51,7 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", {building-style}"
 
-	prompt += `, ${wildlife()}, ${water()}, ${nature()}, ${weather()}`;
+	prompt += `, #wildlife, #water, #nature, #weather`;
 
 	return prompt;
 }

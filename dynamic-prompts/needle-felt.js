@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 // tiny cute 3D felt fiber <name>, made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image
 module.exports = function(settings) {
 
@@ -26,10 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `tiny cute 3D felt fiber ${entity()}`;
-	prompt += ` made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image`;
-
-	return prompt;
+	return `tiny cute 3D felt fiber #entity made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image`;
 }
 
 module.exports.full = true;

@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
 module.exports = function(settings) {
 
@@ -26,11 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `Retro comic style artwork, highly detailed `;
-	prompt += entity();
-	prompt += `, comic book cover, symmetrical, vibrant`;
-
-	return prompt;
+	return "Retro comic style artwork, highly detailed #entity, comic book cover, symmetrical, vibrant";
 }
 
 module.exports.full = true;

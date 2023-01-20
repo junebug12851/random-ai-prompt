@@ -14,20 +14,10 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const weather = require("./weather");
-const color = require("./color");
-const water = require("./water");
-const nature = require("./nature");
-
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt = "((zoo)), park, exhibit, (({animal}))";
-
-	prompt += `, ${water()}, ${nature()}, ${weather()}`;
-
-	return prompt;
+	return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";
 }
 
 module.exports.full = true;

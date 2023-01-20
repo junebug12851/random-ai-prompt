@@ -15,12 +15,6 @@
 */
 
 const _ = require("lodash");
-const portraitPerson = require("./portrait-person");
-const color = require("./color");
-const glow = require("./glow");
-const neon = require("./neon");
-const ship = require("./spaceship");
-const mystical = require("./mystical");
 
 function maybeAddSize() {
 	return (_.random(0.0, 1.0, true) < 0.5) ? "{size} " : "";
@@ -39,13 +33,13 @@ module.exports = function() {
 				prompt += ", astronaut";
 				break;
 			case 1:
-				prompt += `, ${portraitPerson()}`;
+				prompt += `, #portrait-person`;
 				break;
 		}
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${ship()}`;
+		prompt += `, #ship`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", satellite";
@@ -72,24 +66,24 @@ module.exports = function() {
 		prompt += ", cosmos";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} ${maybeAddSize()}sun`;
+		prompt += `, #color ${maybeAddSize()} sun`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} ${maybeAddSize()}moon`;
+		prompt += `, #color ${maybeAddSize()} moon`;
 
 	if(_.random(0.0, 1.0, true) < 0.5) {
 		switch(_.random(0, 1, false)) {
 			case 0:
-				prompt += `, ${color()} ${maybeAddSize()}planet`;
+				prompt += `, #color ${maybeAddSize()} planet`;
 				break;
 			case 1:
-				prompt += `, ${color()} ${maybeAddSize()}{planet}`;
+				prompt += `, #color ${maybeAddSize()} {planet}`;
 				break;
 		}
 	}
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} ${maybeAddSize()}star`;
+		prompt += `, #color ${maybeAddSize()} star`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", shooting star";
@@ -104,10 +98,10 @@ module.exports = function() {
 		prompt += ", meteor shower";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddSize()}astronomical object`;
+		prompt += `, ${maybeAddSize()} astronomical object`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddSize()}celestial object`;
+		prompt += `, ${maybeAddSize()} celestial object`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", neutron stars";
@@ -139,7 +133,7 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", beautiful";
 
-	prompt += `, ${mystical()}`;
+	prompt += `, #mystical`;
 
 	return prompt;
 }

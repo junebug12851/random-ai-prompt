@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 // tiny cute <name> toy, standing character, soft smooth lighting, soft pastel 
 // colors, skottie young, 3d blender render, polycount, modular constructivism,
 // pop surrealism, physically based rendering, square image
@@ -28,11 +26,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `tiny cute `;
-	prompt += entity();
-	prompt += " toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
-
-	return prompt;
+	return "tiny cute #entity toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
 }
 
 module.exports.full = true;

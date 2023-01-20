@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
 module.exports = function(settings) {
 
@@ -26,10 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `Hypnotic illustration of a ${entity()}`;
-	prompt += `, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
-
-	return prompt;
+	return `Hypnotic illustration of a #entity hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
 }
 
 module.exports.full = true;

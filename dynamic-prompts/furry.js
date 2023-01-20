@@ -15,17 +15,12 @@
 */
 
 const _ = require("lodash");
-const weather = require("./weather");
-const color = require("./color");
-const glow = require("./glow");
-const animal = require("./animal");
-const mystical = require("./mystical");
 
 function maybeGlow() {
     if(_.random(0.0, 1.0, true) < 0.5)
-        return glow();
+        return "#glow";
     else
-        return color();
+        return "#color";
 }
 
 // rabbit in Egyptian clothing style, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
@@ -38,7 +33,7 @@ module.exports = function(settings) {
     let prompt = `{animal}, furry`;
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${mystical()}`;
+        prompt += `, #mystical`;
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", {emotion}"
@@ -56,10 +51,7 @@ module.exports = function(settings) {
         prompt += ", {instrument}"
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${weather()}`;
-
-    // Start with base prompt
-    // prompt += `, highly detailed, digital painting, concept art, soft, sharp focus, illustration, deviantart, artstation, pixiv`;
+        prompt += `, #weather`;
 
     return prompt;
 }

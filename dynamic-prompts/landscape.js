@@ -15,13 +15,6 @@
 */
 
 const _ = require("lodash");
-const weather = require("./weather");
-const water = require("./water");
-const nature = require("./nature");
-const wildlife = require("./wildlife");
-const eerie = require("./eerie");
-const ice = require("./ice");
-const mystical = require("./mystical");
 
 function settlement() {
     let prompt = "";
@@ -73,24 +66,24 @@ module.exports = function() {
         prompt += ", rock"
 
     if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, winter, snow landscape, ${ice()}`;
+        prompt += `, winter, snow landscape, #ice`;
 
     if(_.random(0.0, 1.0, true) < 0.2)
         prompt += `, ${settlement()}`
 
     if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, ${eerie()}`
+        prompt += `, #eerie`
 
     if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, ${mystical()}`
+        prompt += `, #mystical`
 
     if(_.random(0.0, 1.0, true) < 0.3)
-        prompt += `, ${wildlife()}`
+        prompt += `, #wildlife`
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, ${water()}`
+        prompt += `, #water`
 
-    prompt += `, ${nature()}, ${weather()}`;
+    prompt += `, #nature, #weather`;
 
     return prompt;
 }

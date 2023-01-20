@@ -16,8 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entity = require("./entity");
-
 module.exports = function(settings) {
 
     // This will not work well with added artists or fx
@@ -25,10 +23,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `die-cut sticker, cute kawaii, ${entity()}`;
-	prompt += ` sticker, white background, illustration minimalism, vector, pastel colors`;
-
-	return prompt;
+	return `die-cut sticker, cute kawaii, #entity sticker, white background, illustration minimalism, vector, pastel colors`;
 }
 
 module.exports.full = true;

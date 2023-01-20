@@ -15,16 +15,11 @@
 */
 
 const _ = require("lodash");
-const person = require("./person");
-const portrait = require("./portrait");
-const expressive = require("./expressive");
-const weather = require("./weather");
-const color = require("./color");
 
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt = `${portrait()}, princess, royalty`;
+	let prompt = `#portrait, princess, royalty`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", girl"
@@ -37,14 +32,14 @@ module.exports = function() {
 		prompt += ", staff"
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} crown`
+		prompt += `, #color crown`
 	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} tiara`
+		prompt += `, #color tiara`
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${color()} robes`
+		prompt += `, #color robes`
 
-	prompt += `, ${expressive()}, ${weather()}`;
+	prompt += `, #expressive, #weather`;
 
 	return prompt;
 }

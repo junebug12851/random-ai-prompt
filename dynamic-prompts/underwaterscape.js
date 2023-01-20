@@ -15,16 +15,11 @@
 */
 
 const _ = require("lodash");
-const underwater = require("./underwater");
-const water = require("./water");
-const mystical = require("./mystical");
-const nature = require("./nature");
-const weather = require("./weather");
 
 module.exports = function() {
 
 	// Start with base prompt
-	let prompt = `${underwater()}, landscape, ${water()}, ${mystical()}`;
+	let prompt = `#underwater, landscape, #water, #mystical`;
 
 	if(_.random(0.0, 1.0, true) < 0.25)
 		prompt += ", dolphin"
@@ -32,7 +27,7 @@ module.exports = function() {
 	if(_.random(0.0, 1.0, true) < 0.20)
 		prompt += ", whale"
 
-	prompt += `, ${nature()}, ${weather()}`;
+	prompt += `, #nature, #weather`;
 
 	return prompt;
 }

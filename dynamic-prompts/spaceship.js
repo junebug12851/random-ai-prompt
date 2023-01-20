@@ -15,25 +15,24 @@
 */
 
 const _ = require("lodash");
-const neon = require("./neon");
 
 module.exports = function() {
 
 	let prompt = "";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `${neon()} `;
+		prompt += ` #neon`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `${neon()} `;
+		prompt += ` #neon`;
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += "{size} ";
+		prompt += " {size}";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += "{construct-style} ";
+		prompt += " {construct-style}";
 
-	prompt += "spaceship";
+	prompt += " spaceship";
 
 	if(_.random(0.0, 1.0, true) < 0.5)
 		prompt += ", spacecraft";

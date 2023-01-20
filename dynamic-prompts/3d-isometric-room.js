@@ -16,9 +16,6 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-const room = require("./room");
-
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
 module.exports = function(settings) {
 
@@ -27,12 +24,7 @@ module.exports = function(settings) {
     settings.autoAddFx = false;
 
 	// Start with base prompt
-	let prompt = `Tiny cute isometric `;
-	prompt += room();
-	prompt += " in a cutaway box, soft smooth lighting, soft colors, {color}";
-	prompt += ` color scheme, soft colors, 100mm lens, 3d blender render`;
-
-	return prompt;
+	return "Tiny cute isometric #room in a cutaway box, soft smooth lighting, soft colors, {color} color scheme, soft colors, 100mm lens, 3d blender render";
 }
 
 module.exports.full = true;

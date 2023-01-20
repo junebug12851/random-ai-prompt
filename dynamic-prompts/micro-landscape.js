@@ -17,8 +17,6 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 const _ = require("lodash");
-const nature = require("./nature");
-const weather = require("./weather");
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
 module.exports = function(settings) {
@@ -33,8 +31,7 @@ module.exports = function(settings) {
 	if(_.random(0.0, 1.0, true) < 0.25)
 		prompt += ", mountains"
 
-	prompt += `, ${nature()}, ${weather()}`;
-	prompt += ", intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+	prompt += ", #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 
 	return prompt;
 }
