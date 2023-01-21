@@ -1,0 +1,35 @@
+winter beach:
+====================
+winter beach
+[] snowy beach
+[] (#ice)
+
+tropical beach:
+====================
+[] tropical
+
+[] palm trees
+[fail] palm tree
+
+start:
+====================
+beach
+[25%,insert] winter beach
+[fail,insert] tropical beach
+
+[] ocean
+[] oceanside
+[] seaside
+[] sand
+[] beachside
+[] sandy beach
+[] ocean view
+[] sea shells
+[] beach sand
+[] fog
+[] {size} waves
+[] #eerie
+[] #mystical
+[] #nature
+
+#city, #weather
