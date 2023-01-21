@@ -1,35 +1,45 @@
-winter beach:
+====================
+=- description: Generates a prompt for a beach with a city near it
+=- full prompt
+====================
+
+====================
+winter-beach:
 ====================
 winter beach
-[] snowy beach
-[] (#ice)
 
-tropical beach:
+*       snowy beach
+*       (#ice)
+
 ====================
-[] tropical
+tropical-beach:
+====================
+tropical beach
 
-[] palm trees
-[fail] palm tree
+*       palm trees
+*fail   palm tree
 
+====================
 start:
 ====================
 beach
-[25%,insert] winter beach
-[fail,insert] tropical beach
 
-[] ocean
-[] oceanside
-[] seaside
-[] sand
-[] beachside
-[] sandy beach
-[] ocean view
-[] sea shells
-[] beach sand
-[] fog
-[] {size} waves
-[] #eerie
-[] #mystical
-[] #nature
+*25%    +winter-beach
+*fail   +tropical-beach
+
+*       ocean
+*       oceanside
+*       seaside
+*       sand
+*       beachside
+*       sandy beach
+*       ocean view
+*       sea shells
+*       beach sand
+*       fog
+*       {size} waves
+*       #eerie
+*20%    #mystical
+*       #nature
 
 #city, #weather
