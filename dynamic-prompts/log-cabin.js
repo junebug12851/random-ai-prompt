@@ -21,9 +21,6 @@ module.exports = function() {
     // Start with base prompt
     let prompt = "((cabin, log cabin)), dense forest, dense woods, dense trees";
 
-    if(_.random(0.0, 1.0, true) < 0.35)
-        prompt += ", {shed-type}"
-
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", fog"
 
