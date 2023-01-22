@@ -62,13 +62,18 @@ module.exports = function(settings) {
         prompt += ", hyperrealistic";
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", victorian";
+        prompt += ", #mystical";
+
+    prompt += `, #landscape`;
+
+    if(_.random(0.0, 1.0, true) < 0.5)
+        prompt += ", [[castle]]";
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", #general-state";
 
     if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", #mystical";
+        prompt += ", victorian";
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", illustration";
@@ -114,12 +119,6 @@ module.exports = function(settings) {
 
     if(_.random(0.0, 1.0, true) < 0.5)
         prompt += ", <dap>";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", #landscape";
-
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", #castle";
 
 	return prompt;
 }
