@@ -17,6 +17,9 @@
 const fs = require('fs');
 const _ = require("lodash");
 
+const loraFind = "<lora:";
+const loraReplacement = "%%lora:";
+
 function expandExpansion(name, settings) {
 	// Read expansion file contents
 	return fs.readFileSync(`${settings.expansionFiles}/${name}.txt`).toString();
@@ -28,8 +31,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	let maxCount = 10;
 
 	// Lora compatible
-	if(prompt.startsWith("<lora:"))
-		return prompt;
+	// The only easiest way I see to make this work is to make it something else
+	// and then back to bypass the checks
+	// otherwise this gets very complicated
+	prompt = prompt.replaceAll(loraFind, loraReplacement);
 
 	// Keep expanding expansions up to max levels
 	for(let i = 0; i < maxCount && /<(.*?)>/gm.test(prompt); i++) {
@@ -37,6 +42,9 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 			return expandExpansion(p1, settings);
 		});
 	}
+
+	// Make it back
+	prompt = prompt.replaceAll(loraReplacement, loraFind);
 
 	// Return prompt
 	return prompt;
