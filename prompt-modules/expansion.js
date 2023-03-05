@@ -27,6 +27,10 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Max iterations in case of infinite loops
 	let maxCount = 10;
 
+	// Lora compatible
+	if(prompt.startsWith("<lora:"))
+		return prompt;
+
 	// Keep expanding expansions up to max levels
 	for(let i = 0; i < maxCount && /<(.*?)>/gm.test(prompt); i++) {
 		prompt = prompt.replaceAll(/<(.*?)>/gm, function(match, p1) {

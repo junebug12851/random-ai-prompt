@@ -71,7 +71,10 @@ async function loadResults() {
     }
 
     for(let i = loadedPrompts; i < results.prompts.length; i++,loadedPrompts++) {
-        $("#prompts").append(`<p class="prompt">${results.prompts[i]}</p>`);
+        try {
+            $("#prompts").append(`<p class="prompt">${results.prompts[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`);
+        }
+        catch(err) {}
     }
 
     if(results.images.length > 0) {

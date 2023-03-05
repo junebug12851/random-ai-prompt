@@ -5,8 +5,12 @@ function resultsLoaded(results) {
         $("#prompts").show();
     }
 
-    for(let i = 0; i < results.prompts.length; i++)
-        $("#prompts").append(`<p class="prompt">${results.prompts[i]}</p>`);
+    for(let i = 0; i < results.prompts.length; i++) {
+        try {
+            $("#prompts").append(`<p class="prompt">${results.prompts[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`);
+        }
+        catch(err) {}
+    }
 
     if(results.images.length > 0) {
         $("#images-title").show();
