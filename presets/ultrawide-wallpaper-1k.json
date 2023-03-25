@@ -1,0 +1,14 @@
+{
+    "settings": {
+        "upscaleImages": true,
+    },
+    "imageSettings": {
+        "width": 1280,
+        "height": 576
+    },
+    "upscaleSettings": {
+        "upscaleToSize": true,
+        "upscaleToWidth": 2520,
+        "upscaleToHeight": 1080
+    }
+}
