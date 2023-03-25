@@ -1,4 +1,4 @@
-git checkout package-lock.json
+git checkout .
 git pull
 npm install
 clear
