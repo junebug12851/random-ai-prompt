@@ -5,3 +5,5 @@ user-settings.json
 !**/.gitkeep
 results.json
 *.lnk
+*-private*
+*private-*
