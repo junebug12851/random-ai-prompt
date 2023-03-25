@@ -1,6 +1,6 @@
 {
     "settings": {
-        "upscaleImages": true,
+        "upscaleImages": true
     },
     "imageSettings": {
         "width": 576,
