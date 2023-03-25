@@ -4,3 +4,4 @@ user-settings.json
 /output/**
 !**/.gitkeep
 results.json
+*.lnk
