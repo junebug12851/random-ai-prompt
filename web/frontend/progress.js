@@ -15,11 +15,14 @@ function dataRefreshComplete(data) {
     }
 
     // If we're upscaling, then proceed to show upscaling progress window
-    if(data.progressUpscaling) {
-        const encodedBackUrl = encodeURIComponent(backUrl);
-        const params = new URLSearchParams({ backUrl: encodedBackUrl });
-        window.location = `/upscale-progress?${params}`;
-    }
+    // Causes a bug where the upscaling window doesnt go back here, lets ignore for now
+    // I want to eventually unify the upscaler and progress
+    
+    // if(data.progressUpscaling) {
+    //     const encodedBackUrl = encodeURIComponent(backUrl);
+    //     const params = new URLSearchParams({ backUrl: encodedBackUrl });
+    //     window.location = `/upscale-progress?${params}`;
+    // }
 
     // Image Progress
     const progressCurStep = data.progressCurStep;
