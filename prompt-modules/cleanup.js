@@ -26,6 +26,12 @@ module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
 	// Get rid of extra spaces
 	prompt = prompt.replaceAll(/ +/gm, " ");
 
+	// Remove space before parenthesis
+	prompt = prompt.replaceAll(" )", ")");
+
+	// Get rid of empty parenthesis
+	prompt = prompt.replaceAll(/\( *\)/gm, "");
+
 	// Get rid of unesesary commas
 	prompt = prompt.split(",");
 	const newPromt = [];
