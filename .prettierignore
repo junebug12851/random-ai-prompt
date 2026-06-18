@@ -1,0 +1,9 @@
+node_modules/
+output/
+docs/
+web/frontend/lib/
+data/*.csv
+data/*.json
+package-lock.json
+user-settings.json
+results.json
