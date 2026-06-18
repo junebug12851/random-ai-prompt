@@ -12,6 +12,7 @@ export default [
       "output/**",
       "docs/**",
       "web/frontend/lib/**",
+      "web-app/**",
       "user-settings.json",
       "results.json",
     ],

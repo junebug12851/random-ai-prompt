@@ -1,0 +1,21 @@
+# Netlify build for the React + Vite SPA in web-app/.
+# Commands run from the repo root; paths below are root-relative (no `base`, to
+# avoid base-directory ambiguity). The SPA is static; the only server code is the
+# stateless BYOK generation proxy under web-app/netlify/functions/.
+
+[build]
+  command = "npm --prefix web-app install && npm --prefix web-app run build"
+  publish = "web-app/dist"
+  functions = "web-app/netlify/functions"
+
+# Route the app's /api/* calls to the serverless functions.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA fallback: every other path serves index.html so client routing works.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

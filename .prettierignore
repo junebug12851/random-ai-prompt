@@ -2,6 +2,7 @@ node_modules/
 output/
 docs/
 web/frontend/lib/
+web-app/
 data/*.csv
 data/*.json
 package-lock.json

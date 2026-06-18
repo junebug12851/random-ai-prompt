@@ -44,3 +44,32 @@ Export shape follows the consumer: `listFiles.js` is indexed dynamically so it s
 `no-useless-escape` and `no-dupe-else-if` in the hand-written prompt/data files are kept as **warnings**.
 Auto-fixing a regex escape or collapsing a duplicate branch can change the prompts users get, which is a
 behavior change we won't make blindly. They're surfaced for deliberate review instead.
+
+## Go web: React + Vite SPA, BYOK providers, stateless Netlify host (2026-06-18)
+
+The project is moving from a localhost-only Node tool to a **React + Vite SPA** usable **online or
+locally**, hosted on **Netlify**, storing nothing. The decisions and their reasoning, settled in a
+design discussion:
+
+- **React + Vite SPA (not Next.js).** With no database, no accounts, and no server-rendered data, the
+  heavy half of a meta-framework would go unused; a lean Vite SPA is the best-aligned "proper but light"
+  choice. Well-supported, great testing story.
+- **BYOK modular providers.** Users bring their own image-API key; the app never hosts GPUs or pays for
+  compute. Each backend is a module behind one interface — the same plugin shape the dynamic prompts
+  use. This is what makes "online" viable without a cost/ops burden.
+- **No storage, no accounts.** Generated images go straight to the browser; settings live in
+  `localStorage`. The server is stateless.
+- **Stateless Netlify proxy only where CORS forces it.** Hosted providers usually block browser calls,
+  so a thin function forwards the user's key (submit→poll), logging/storing nothing. Local mode calls
+  the user's own WebUI directly and skips the proxy.
+- **Retire Express.** Not because it's dated (we're on the modern v5) but because the SPA + a couple of
+  serverless functions replace a hand-wired backend. The CLI stays, sharing the engine via a Node
+  loader.
+- **Browser-safe core via an injected loader.** The prompt engine is refactored to take its data
+  (lists, expansions, dynamic prompts) through a loader interface, so it runs unchanged in Node (fs +
+  createRequire) and in the browser (Vite `import.meta.glob`). The dynamic prompts being ESM default
+  exports already is what makes the browser bundling clean.
+- **Netlify default, Cloudflare Pages as the scale option.** Chosen for a commercial-OK free tier and no
+  overage surprises; near-zero lock-in since nothing is stored.
+
+Full plan + phases: [`../plans/web-migration.md`](../plans/web-migration.md).
