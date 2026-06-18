@@ -1,5 +1,5 @@
 import { Text, Num, Toggle, Select, TextArea, Group } from "./Field.jsx";
-import { catalog } from "../lib/catalog.js";
+import { getListNames } from "../lib/promptEngine.js";
 import { availableProviders, getProvider } from "../lib/providers/index.js";
 import { defaultSettings } from "../lib/settings.js";
 
@@ -10,7 +10,7 @@ const MODES = [
 ];
 
 // Source-list options: every list, plus "false" meaning fully random.
-const listOptions = [{ value: "false", label: "(fully random)" }, ...catalog.lists.map((t) => t.slice(1, -1))];
+const listOptions = [{ value: "false", label: "(fully random)" }, ...getListNames()];
 
 export default function Settings({ settings, setSettings }) {
   const set = (patch) => setSettings({ ...settings, ...patch });

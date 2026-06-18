@@ -228,6 +228,32 @@ textarea {
   padding: 0 0.4rem;
 }
 
+/* Builder save row + blocks */
+.save-row input {
+  min-width: 12rem;
+  flex: 1;
+}
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.block h3 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 0.45rem;
+}
+.block h3 em {
+  font-style: normal;
+  opacity: 0.55;
+}
+.block .picker-list {
+  margin-top: 0;
+  max-height: 200px;
+}
+
 /* Settings groups */
 .settings-actions {
   display: flex;

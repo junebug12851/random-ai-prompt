@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettings } from "./lib/settings.js";
 import { ONLINE } from "./lib/providers/index.js";
+import { readSharedSettings } from "./lib/share.js";
 import Generate from "./components/Generate.jsx";
 import Builder from "./components/Builder.jsx";
 import Settings from "./components/Settings.jsx";
@@ -15,6 +16,16 @@ export default function App() {
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState("generate");
   const Active = TABS.find((t) => t.id === tab).Component;
+
+  // A shared link (#s=...) seeds settings on load, then the hash is cleared.
+  useEffect(() => {
+    const shared = readSharedSettings();
+    if (shared) {
+      setSettings((s) => ({ ...s, ...shared }));
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="app">
