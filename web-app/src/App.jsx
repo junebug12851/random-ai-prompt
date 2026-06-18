@@ -2,19 +2,22 @@ import { useEffect, useState } from "react";
 import { useSettings } from "./lib/settings.js";
 import { ONLINE } from "./lib/providers/index.js";
 import { readSharedSettings } from "./lib/share.js";
-import Generate from "./components/Generate.jsx";
 import Builder from "./components/Builder.jsx";
-import Settings from "./components/Settings.jsx";
+// Generate and Settings are temporarily hidden from the nav while the UI is
+// being reworked. Their components still live in ./components/ — to bring a tab
+// back, re-import it and add its entry to TABS below.
+// import Generate from "./components/Generate.jsx";
+// import Settings from "./components/Settings.jsx";
 
 const TABS = [
-  { id: "generate", label: "Generate", Component: Generate },
+  // { id: "generate", label: "Generate", Component: Generate },
   { id: "build", label: "Build", Component: Builder },
-  { id: "settings", label: "Settings", Component: Settings },
+  // { id: "settings", label: "Settings", Component: Settings },
 ];
 
 export default function App() {
   const [settings, setSettings] = useSettings();
-  const [tab, setTab] = useState("generate");
+  const [tab, setTab] = useState("build");
   const Active = TABS.find((t) => t.id === tab).Component;
 
   // A shared link (#s=...) seeds settings on load, then the hash is cleared.
