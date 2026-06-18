@@ -1,33 +1,24 @@
-// PLACEHOLDER prompt engine.
+// The browser prompt engine — the real one.
 //
-// Phase 3 of the migration replaces this with the real, browser-safe core: the
-// dynamic-prompt / list / expansion pipeline, fed by a Vite `import.meta.glob`
-// loader that bundles `dynamic-prompts/**/*.js` (already ESM default exports) and
-// the `lists/` + `expansions/` text files. See notes/plans/web-migration.md.
-//
-// For now this does light, dependency-free work so the UI is wired end to end.
+// This wires the SPA to the shared, framework-agnostic engine in repo-root core/
+// using the Vite import.meta.glob browser loader (which bundles every dynamic
+// prompt + the lists/ and expansions/ text data at build time). The exact same
+// engine runs in Node via the node loader. See notes/plans/web-migration.md.
+import { createEngine } from "../../../core/engine.js";
+import { browserLoader } from "../../../core/browserLoader.js";
+import promptFiles from "../../../src/promptFilesAndSuggestions.js";
+
+// The #random / #simple-random prompts use the loader-injected suggestion
+// builder (a shared singleton). Point it at the browser loader before any
+// generation runs.
+promptFiles.configure(browserLoader);
+
+const engine = createEngine(browserLoader);
 
 export function generatePrompt(settings) {
-  let prompt = settings.prompt || "";
-
-  // Stand-in for #random until the real engine lands.
-  prompt = prompt.replaceAll("#random", "a placeholder generated prompt, highly detailed");
-
-  // {salt}: a random number, like the real prompt-salt module.
-  prompt = prompt.replaceAll(/\{salt\}/g, () => `[${Math.floor(Math.random() * 9e9 + 1e9)}]`);
-
-  // Cleanup, mirroring the real cleanup stage.
-  prompt = prompt
-    .replaceAll(/\s+/g, " ")
-    .replaceAll(/\s+,/g, ",")
-    .replaceAll(/,\s*,/g, ",")
-    .replace(/^[,\s]+|[,\s]+$/g, "")
-    .trim();
-
-  return prompt;
+  return engine.generate(settings);
 }
 
 export function generatePrompts(settings) {
-  const count = Math.max(1, Number(settings.promptCount) || 1);
-  return Array.from({ length: count }, () => generatePrompt(settings));
+  return engine.generateMany(settings);
 }

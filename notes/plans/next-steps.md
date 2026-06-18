@@ -2,6 +2,11 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
+0. **Web SPA bundle size.** The phase-3 engine port bundles the list/expansion text and all 113
+   dynamic prompts eagerly (~712 KB gzipped). Trim it: serve the larger list files (`danbooru`, `d-*`)
+   from `public/` via runtime fetch instead of inlining, switch dynamic-prompt imports to a lazy glob,
+   and/or use `lodash-es` for tree-shaking. Not blocking, but worth doing before launch.
+
 1. **Live end-to-end verification with a Stable Diffusion WebUI.** Start a WebUI with `--api`, then
    exercise: CLI generate (`npm start`), the web UI (`npm run server`) feed/search/settings, and one
    each of variation, reroll, upscale, and animation. This is the one thing the modernization could not

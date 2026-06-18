@@ -15,7 +15,12 @@
 */
 
 import _ from "lodash";
-import listFiles from "./listFiles.js";
+import { keywordAlias, artistAlias } from "./aliases.js";
+
+// Maps the `keyword`/`artist` repeat targets to their alias list name. Kept here
+// (instead of indexing the fs-backed listFiles object) so this module stays
+// browser-safe — see helpers/aliases.js.
+const ALIASES = { keyword: keywordAlias, artist: artistAlias };
 
 function processRepeat(count, keyword, alias) {
   if (count <= 0) return "";
@@ -23,7 +28,7 @@ function processRepeat(count, keyword, alias) {
   let str = [];
 
   for (let i = 0; i < count; i++) {
-    if (alias == true) str.push(`{${listFiles[`${keyword}Alias`]}}`);
+    if (alias == true) str.push(`{${ALIASES[keyword]}}`);
     else str.push(`{${keyword}}`);
   }
 

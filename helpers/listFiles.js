@@ -16,13 +16,11 @@
 
 import fs from "node:fs";
 import _ from "lodash";
+import { keywordAlias, artistAlias } from "./aliases.js";
 
 // All-lists in memory
 const lists = {};
 const artists = {};
-
-const keywordAlias = "keyword";
-const artistAlias = "artist";
 
 // Convert filename.txt -> filename
 function removeExtension(filename) {

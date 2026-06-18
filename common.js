@@ -30,10 +30,17 @@ import listFiles from "./helpers/listFiles.js";
 import genImage from "./src/genImg.js";
 import upscaleExisting from "./src/upscaleExisting.js";
 import loadSettings from "./src/loadSettings.js";
+import promptFiles from "./src/promptFilesAndSuggestions.js";
+import { nodeLoader } from "./core/nodeLoader.js";
 
 // Prompt modules are loaded by config-driven path; Node 24 can require() ES
 // modules synchronously, which the prompt pipeline relies on.
 const require = createRequire(import.meta.url);
+
+// The dynamic-prompt suggestion builder is loader-injected; on the Node side it
+// reads the catalog from the filesystem. Configure it once here so any code path
+// that triggers #random (CLI or server) finds it ready.
+promptFiles.configure(nodeLoader);
 
 // Process given command-line arguments
 const argv = yargs(hideBin(process.argv)).argv;
