@@ -22,3 +22,9 @@ export function generatePrompt(settings) {
 export function generatePrompts(settings) {
   return engine.generateMany(settings);
 }
+
+// Expand a specific prompt string through the full pipeline (used for the
+// Builder's live preview). Overrides the prompt but keeps all other settings.
+export function expandPrompt(prompt, settings) {
+  return engine.generate({ ...settings, prompt });
+}

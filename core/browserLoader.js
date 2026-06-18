@@ -17,6 +17,7 @@ const expansionRaw = import.meta.glob("../expansions/*.txt", {
   import: "default",
   eager: true,
 });
+const presetModules = import.meta.glob("../presets/*.json", { eager: true, import: "default" });
 
 // ".../dynamic-prompts/v1/castle.js" -> "v1/castle"; ".../lists/keyword.txt" -> "keyword"
 function keyFor(path, dir) {
@@ -41,6 +42,11 @@ for (const [path, raw] of Object.entries(expansionRaw)) {
   expansionText[keyFor(path, "expansions")] = String(raw);
 }
 
+const presets = {};
+for (const [path, obj] of Object.entries(presetModules)) {
+  presets[keyFor(path, "presets")] = obj;
+}
+
 export const browserLoader = {
   readExpansion(name) {
     return expansionText[name] ?? null;
@@ -59,5 +65,11 @@ export const browserLoader = {
   },
   dynamicPromptNames() {
     return Object.keys(dynamicPrompts);
+  },
+  presetNames() {
+    return Object.keys(presets);
+  },
+  loadPreset(name) {
+    return presets[name] ?? null;
   },
 };

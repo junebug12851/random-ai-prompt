@@ -3,16 +3,58 @@ import { useEffect, useState } from "react";
 // Settings live ONLY in this browser (localStorage). No accounts, no server
 // storage. BYOK API keys are part of settings and likewise never leave the
 // browser except when sent per-request to the generation proxy.
-const STORAGE_KEY = "rap.settings.v1";
+//
+// The prompt-knob field names match the engine's settings (settings.js) so they
+// flow straight into prompt generation; image params are read by the providers.
+const STORAGE_KEY = "rap.settings.v2";
 
 export const defaultSettings = {
   // Prompt
   prompt: "#random",
+  promptCount: 1,
+  mode: "StableDiffusion", // StableDiffusion | NovelAI | Midjourney
+
+  // Keyword counts
   keywordCount: 5,
   keywordMaxCount: 7,
-  promptCount: 1,
 
-  // Generation
+  // Keyword/artist source lists ("false" = fully random from the dictionaries)
+  keywordsFilename: "keyword",
+  artistFilename: "artist",
+
+  // Emphasis
+  keywordEmphasis: true,
+  emphasisChance: 0.25,
+  emphasisLevelChance: 0.25,
+  emphasisMaxLevels: 3,
+  deEmphasisChance: 0.25,
+
+  // Editing (add/swap/remove keywords mid-generation)
+  keywordEditing: true,
+  keywordEditingMin: 2,
+  keywordEditingMax: 4,
+
+  // Alternating (hybrid keywords)
+  keywordAlternating: true,
+  keywordAlternatingMaxLevels: 2,
+
+  // Artists
+  includeArtist: true,
+  minArtist: 0,
+  maxArtist: 2,
+
+  // Auto-append + salt
+  autoAddArtists: true,
+  autoAddFx: true,
+  promptSalt: false,
+  promptSaltStart: -1,
+  noAnd: false,
+
+  // List behaviour
+  listEntriesUsedOnce: true,
+  reloadListsOnPromptChange: true,
+
+  // Generation / providers
   generateImages: false,
   provider: "local-webui",
   localWebuiUrl: "http://127.0.0.1:7860",
@@ -24,6 +66,8 @@ export const defaultSettings = {
   imageWidth: 512,
   imageHeight: 512,
   cfg: 11,
+  seed: -1,
+  restoreFaces: false,
   negativePrompt: "",
 };
 
