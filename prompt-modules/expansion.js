@@ -14,45 +14,43 @@
     limitations under the License.
 */
 
-const fs = require('fs');
-const _ = require("lodash");
+import fs from "node:fs";
+import _ from "lodash";
 
 const loraFind = "<lora:";
 const loraReplacement = "%%lora:";
 
 function expandExpansion(name, settings) {
-	// Read expansion file contents
-	return fs.readFileSync(`${settings.expansionFiles}/${name}.txt`).toString();
+  // Read expansion file contents
+  return fs.readFileSync(`${settings.expansionFiles}/${name}.txt`).toString();
 }
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
+export default function (prompt, settings, imageSettings, upscaleSettings) {
+  // Max iterations in case of infinite loops
+  let maxCount = 10;
 
-	// Max iterations in case of infinite loops
-	let maxCount = 10;
+  // Lora compatible
+  // Lora's syntax is similar to the expansion syntax (<lora:name:weight>) so
+  // we have to issue a compatibility fix (<lora:name:weight> => %%lora:name:weight>)
+  // The only easiest way I see to make this work is to make it something else
+  // and then back to bypass the checks
+  // otherwise this gets very complicated
+  prompt = prompt.replaceAll(loraFind, loraReplacement);
 
-	// Lora compatible
-	// Lora's syntax is similar to the expansion syntax (<lora:name:weight>) so
-	// we have to issue a compatibility fix (<lora:name:weight> => %%lora:name:weight>)
-	// The only easiest way I see to make this work is to make it something else
-	// and then back to bypass the checks
-	// otherwise this gets very complicated
-	prompt = prompt.replaceAll(loraFind, loraReplacement);
+  // Keep expanding expansions up to max levels
+  for (let i = 0; i < maxCount && /<(.*?)>/gm.test(prompt); i++) {
+    // After every pass, ensure Lora prefixed is renamed
+    // This allows Loras to be in expansions, even deeply nested
+    prompt = prompt.replaceAll(loraFind, loraReplacement);
 
-	// Keep expanding expansions up to max levels
-	for(let i = 0; i < maxCount && /<(.*?)>/gm.test(prompt); i++) {
+    prompt = prompt.replaceAll(/<(.*?)>/gm, function (match, p1) {
+      return expandExpansion(p1, settings);
+    });
+  }
 
-		// After every pass, ensure Lora prefixed is renamed
-		// This allows Loras to be in expansions, even deeply nested
-		prompt = prompt.replaceAll(loraFind, loraReplacement);
+  // Make it all back
+  prompt = prompt.replaceAll(loraReplacement, loraFind);
 
-		prompt = prompt.replaceAll(/<(.*?)>/gm, function(match, p1) {
-			return expandExpansion(p1, settings);
-		});
-	}
-
-	// Make it all back
-	prompt = prompt.replaceAll(loraReplacement, loraFind);
-
-	// Return prompt
-	return prompt;
+  // Return prompt
+  return prompt;
 }

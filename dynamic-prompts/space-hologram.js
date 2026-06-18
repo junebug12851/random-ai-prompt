@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return `hologram of a #entity floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
+  // Start with base prompt
+  return `hologram of a #entity floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
 }
 
-module.exports.full = true;
+export const full = true;

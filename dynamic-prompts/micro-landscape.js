@@ -16,24 +16,23 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
+  // Start with base prompt
+  let prompt = "100mm photo of isometric floating island in the sky, surreal";
 
-	// Start with base prompt
-	let prompt = "100mm photo of isometric floating island in the sky, surreal";
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", mountains";
 
-	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += ", mountains"
+  prompt +=
+    ", #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 
-	prompt += ", #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

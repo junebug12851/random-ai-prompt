@@ -14,28 +14,25 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function colorful() {
-    let colorful = "colorful";
+  let colorful = "colorful";
 
-    if(_.random(0.0, 1.0, false) < 0.5)
-        colorful += " multi-color";
+  if (_.random(0.0, 1.0, false) < 0.5) colorful += " multi-color";
 
-    if(_.random(0.0, 1.0, false) < 0.5)
-        colorful += " glow";
+  if (_.random(0.0, 1.0, false) < 0.5) colorful += " glow";
 
-    return colorful;
+  return colorful;
 }
 
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines), very detailed`;
+  // Start with base prompt
+  return `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines), very detailed`;
 }
 
-module.exports.full = true;
+export const full = true;

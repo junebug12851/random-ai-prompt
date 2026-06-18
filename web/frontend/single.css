@@ -1,30 +1,30 @@
 button {
-	margin-right: 5px;
+  margin-right: 5px;
   font-size: 15px;
 }
 
 #page-container {
-	display: grid;
-  	grid-template-columns: 1fr 2fr;
-  	grid-template-rows: 1fr 1fr;
-  	grid-template-areas:
-  		"info image"
-  		"info variations";
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas:
+    "info image"
+    "info variations";
 
-  	gap: 25px;
+  gap: 25px;
 
-  	width: 100%;
-  	max-width: 1024px;
-  	margin: 0 auto;
-  	margin-top: 50px;
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  margin-top: 50px;
 }
 
 #info-cell {
-	grid-area: info;
+  grid-area: info;
 }
 
 #image-cell {
-	grid-area: image;
+  grid-area: image;
   overflow: hidden;
 }
 
@@ -35,7 +35,7 @@ button {
 */
 
 #variations-cell {
-	grid-area: variations;
+  grid-area: variations;
 }
 
 #variation-images {
@@ -65,19 +65,19 @@ button {
 }
 
 #keyword-container {
-    background-color: hsl(0.00,0.00%,23%);
-    padding: 10px;
-    padding-top: 10px;
-    border-radius: 15px;
+  background-color: hsl(0, 0%, 23%);
+  padding: 10px;
+  padding-top: 10px;
+  border-radius: 15px;
 }
 
 #keywords {
-    margin-top: 10px;
-    height: 150px;
-    overflow-y: auto;
-    overflow-x: hidden;
+  margin-top: 10px;
+  height: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
 
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .keep-whitespace {
@@ -96,23 +96,23 @@ ul#keyword-cloud li {
 }
 
 ul#keyword-cloud li a {
-    display: inline-block;
-    font-size: 12px;
-    background-color: hsl(0.00,0.00%,12.94%);
-    color: hsl(0.00,0.00%,98.04%);
-    border: 1px solid hsl(0.00,0.00%,75.04%);
-    padding: 5px;
-    border-radius: 10px;
+  display: inline-block;
+  font-size: 12px;
+  background-color: hsl(0, 0%, 12.94%);
+  color: hsl(0, 0%, 98.04%);
+  border: 1px solid hsl(0, 0%, 75.04%);
+  padding: 5px;
+  border-radius: 10px;
   text-decoration: none; /* Remove the default text decoration for links */
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 ul#keyword-cloud li a:hover {
-  background-color: hsl(0.00,0.00%,20%); /* Change the background color on hover */
+  background-color: hsl(0, 0%, 20%); /* Change the background color on hover */
 }
 
 ul#keyword-cloud li a:active {
-  background-color: hsl(0.00,0.00%,5%);
+  background-color: hsl(0, 0%, 5%);
 }
 
 #image {
@@ -128,7 +128,7 @@ ul#keyword-cloud li a:active {
 }
 
 table a {
-  color: hsl(0.00,0.00%,98.04%);
+  color: hsl(0, 0%, 98.04%);
 }
 
 #delete,
@@ -137,7 +137,7 @@ table a {
 #delete-frames-confirmation-yes,
 #delete-upscales,
 #delete-upscales-confirmation-yes {
-  background-color: hsl(0.00,73.46%,41.37%);
+  background-color: hsl(0, 73.46%, 41.37%);
 }
 
 #action-menu {

@@ -14,103 +14,84 @@
     limitations under the License.
 */
 
-const fs = require('fs');
-const _ = require("lodash");
+import fs from "node:fs";
+import _ from "lodash";
 
 // Bring in helper functions
-const randomEmphasis = require("../helpers/randomEmphasis");
-const randomEditing = require("../helpers/randomEditing");
-const randomAlternating = require("../helpers/randomAlternating");
-const listFiles = require("../helpers/listFiles");
+import randomEmphasis from "../helpers/randomEmphasis.js";
+import randomEditing from "../helpers/randomEditing.js";
+import randomAlternating from "../helpers/randomAlternating.js";
+import listFiles from "../helpers/listFiles.js";
 
 // List of all prompt funcs
-let promptFuncsSd = [
-	randomEmphasis,
-	randomEditing,
-	randomAlternating,
-];
+let promptFuncsSd = [randomEmphasis, randomEditing, randomAlternating];
 
-let promptFuncsNai = [
-	randomEmphasis,
-	randomAlternating,
-];
+let promptFuncsNai = [randomEmphasis, randomAlternating];
 
-let promptFuncsMdj = [
-	randomEmphasis,
-	randomAlternating,
-];
+let promptFuncsMdj = [randomEmphasis, randomAlternating];
 
 // List to give every prompt func a turn
 let promptFuncsTmp = [];
 
 function reloadPromptFunc(list) {
-	promptFuncsTmp = _.clone(list);
+  promptFuncsTmp = _.clone(list);
 }
 
 // Pulls a random line from a list file
 function sampleFile(name, settings, emphasis) {
+  // If emphasis is not set, default to true, otherwise, convert to boolean
+  emphasis = emphasis === undefined ? true : emphasis == true;
 
-	// If emphasis is not set, default to true, otherwise, convert to boolean
-	emphasis = (emphasis === undefined)
-		? true
-		: (emphasis == true);
+  if (!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
+    return listFiles.pull(settings, name);
 
-	if(!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
-		return listFiles.pull(settings, name);
+  // Set correct prompt func for target AI Generator
+  let targList = promptFuncsSd;
 
-	// Set correct prompt func for target AI Generator
-	let targList = promptFuncsSd;
+  if (settings.mode == "NovelAI") targList = promptFuncsNai;
+  else if (settings.mode == "Midjourney") targList = promptFuncsMdj;
 
-	if(settings.mode == "NovelAI")
-		targList = promptFuncsNai;
-	else if(settings.mode == "Midjourney")
-		targList = promptFuncsMdj;
+  // Start list over if depleted
+  if (promptFuncsTmp.length == 0) reloadPromptFunc(targList);
 
-	// Start list over if depleted
-	if(promptFuncsTmp.length == 0)
-		reloadPromptFunc(targList);
+  // Shuffle funcs
+  promptFuncsTmp = _.shuffle(promptFuncsTmp);
 
-	// Shuffle funcs
-	promptFuncsTmp = _.shuffle(promptFuncsTmp);
+  // Put back in braces
+  name = `{${name}}`;
 
-	// Put back in braces
-	name = `{${name}}`;
+  // Process and save
+  name = promptFuncsTmp[0](settings, name).keyword;
 
-	// Process and save
-	name = promptFuncsTmp[0](settings, name).keyword;
+  // Remove used entry from tmp list
+  promptFuncsTmp.splice(0, 1);
 
-	// Remove used entry from tmp list
-	promptFuncsTmp.splice(0, 1);
+  // Expand
+  name = name.replaceAll(/\{(.*?)\}/gm, function (match, p1) {
+    return listFiles.pull(settings, p1);
+  });
 
-	// Expand
-	name = name.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
-		return listFiles.pull(settings, p1);
-	});
+  // Convert to NovelAI if it's enabled
+  if (settings.mode == "NovelAI") {
+    name = name.replaceAll("(", "{");
+    name = name.replaceAll(")", "}");
+  }
 
-	// Convert to NovelAI if it's enabled
-	if(settings.mode == "NovelAI") {
-		name = name.replaceAll("(", "{");
-		name = name.replaceAll(")", "}");
-	}
-
-	return name;
+  return name;
 }
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
-	// Process prompt, 2nd pass, expand list keywords into random items from list
-	// also include random prompt if requested
-	prompt = prompt.replaceAll(/\{(.*?)\}/gm, function(match, p1) {
+export default function (prompt, settings, imageSettings, upscaleSettings) {
+  // Process prompt, 2nd pass, expand list keywords into random items from list
+  // also include random prompt if requested
+  prompt = prompt.replaceAll(/\{(.*?)\}/gm, function (match, p1) {
+    // If from the artist file, then pcik a random artist but do not emphasize
+    // them
+    if (p1 == settings.artistFilename || p1.includes("artist"))
+      return sampleFile(p1, settings, false);
+    // Otherwise, pull from the file and follow normal emphasis settings
+    else return sampleFile(p1, settings, settings.keywordEmphasis);
+  });
 
-		// If from the artist file, then pcik a random artist but do not emphasize
-		// them
-		if(p1 == settings.artistFilename || p1.includes("artist"))
-			return sampleFile(p1, settings, false);
-
-		// Otherwise, pull from the file and follow normal emphasis settings
-		else
-			return sampleFile(p1, settings, settings.keywordEmphasis);
-	});
-
-	// Return prompt
-	return prompt;
+  // Return prompt
+  return prompt;
 }

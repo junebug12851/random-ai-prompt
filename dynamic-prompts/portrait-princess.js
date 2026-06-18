@@ -14,34 +14,26 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = `#portrait, princess, royalty`;
 
-	// Start with base prompt
-	let prompt = `#portrait, princess, royalty`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", girl";
+  else prompt += ", woman";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", girl"
-	else
-		prompt += ", woman"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sceptor";
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", staff";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sceptor"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", staff"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color crown`;
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color tiara`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color crown`
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color tiara`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color robes`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color robes`
+  prompt += `, #expressive, #weather`;
 
-	prompt += `, #expressive, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

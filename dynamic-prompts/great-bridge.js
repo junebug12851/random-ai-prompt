@@ -14,61 +14,52 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function size() {
-	// Start with base prompt
-	let prompt = "";
+  // Start with base prompt
+  let prompt = "";
 
-	switch(_.random(0, 2, false)) {
-		case 0:
-			prompt += " giant";
-			break;
+  switch (_.random(0, 2, false)) {
+    case 0:
+      prompt += " giant";
+      break;
 
-		case 1:
-			prompt += " huge";
-			break;
+    case 1:
+      prompt += " huge";
+      break;
 
-		case 2:
-			prompt += " massive";
-			break;
-	}
+    case 2:
+      prompt += " massive";
+      break;
+  }
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += " epic"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " epic";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += " expansive"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " expansive";
 
-    return prompt;
+  return prompt;
 }
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = `a beautiful ${size()} bridge over a ${size()} ocean with many clouds beneath bridge, intricate detail, highly detailed, wide angle, closeup`;
 
-	// Start with base prompt
-	let prompt = `a beautiful ${size()} bridge over a ${size()} ocean with many clouds beneath bridge, intricate detail, highly detailed, wide angle, closeup`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", exotic";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", exotic"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fog"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", hill";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", hill"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, #ice`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, winter, snow landscape, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
 
-    if(_.random(0.0, 1.0, true) < 0.35)
-        prompt += `, #eerie`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #mystical`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #mystical`
+  prompt += `, #weather, <dap>`;
 
-    prompt += `, #weather, <dap>`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

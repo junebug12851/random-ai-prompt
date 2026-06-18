@@ -14,16 +14,15 @@
     limitations under the License.
 */
 
-// Ensure we're within this directory
-process.chdir(__dirname);
-process.chdir("..");
-
 // load imports
-const fs = require('fs');
-const _ = require("lodash");
+import fs from "node:fs";
 
 // load settings
-const settings = require("../settings");
+import settings from "../settings.js";
+
+// Ensure we're within this directory
+process.chdir(import.meta.dirname);
+process.chdir("..");
 
 // Read csv file
 const csv = fs.readFileSync(`./danbooru.csv`).toString().split("\n");
@@ -46,45 +45,34 @@ const metaKeywords = [];
 const unknownKeywords = [];
 
 // loop through CSV
-for(let i = 0; i < csv.length; i++) {
+for (let i = 0; i < csv.length; i++) {
+  // Get line and split into pieces
+  const csvLine = csv[i].replaceAll("\r", "").split(",");
 
-	// Get line and split into pieces
-	const csvLine = csv[i]
-		.replaceAll("\r", "")
-		.split(",");
+  if (csvLine == "") continue;
 
-	if(csvLine == "")
-		continue;
+  // Name the pieces
+  const name = csvLine[0];
+  const type = csvLine[1];
+  const count = csvLine[2];
 
-	// Name the pieces
-	const name = csvLine[0];
-	const type = csvLine[1];
-	const count = csvLine[2];
+  // Minimum Quality
+  if (count < minCount) continue;
 
-	// Minimum Quality
-	if(count < minCount)
-		continue;
+  // Fix keyword
+  // Replace underscores and slashes with spaces, remove parenthesis
+  let keyword = name
+    .replaceAll(/[\/\\_]/gm, " ")
+    .replaceAll(/[\(\)]/gm, "")
+    .replaceAll(/^(\W) (\W)$/gm, "$1_$2");
 
-	// Fix keyword
-	// Replace underscores and slashes with spaces, remove parenthesis
-	let keyword = name
-		.replaceAll(/[\/\\_]/gm, " ")
-		.replaceAll(/[\(\)]/gm, "")
-		.replaceAll(/^(\W) (\W)$/gm, "$1_$2");
-
-	// Sort into correct file based on keyword type
-	if(type == 0)
-		generalKeywords.push(keyword);
-	else if(type == 1)
-		artistKeywords.push(keyword);
-	else if(type == 3)
-		copyrightKeywords.push(keyword);
-	else if(type == 4)
-		characterKeywords.push(keyword);
-	else if(type == 5)
-		metaKeywords.push(keyword);
-	else
-		unknownKeywords.push(keyword);
+  // Sort into correct file based on keyword type
+  if (type == 0) generalKeywords.push(keyword);
+  else if (type == 1) artistKeywords.push(keyword);
+  else if (type == 3) copyrightKeywords.push(keyword);
+  else if (type == 4) characterKeywords.push(keyword);
+  else if (type == 5) metaKeywords.push(keyword);
+  else unknownKeywords.push(keyword);
 }
 
 // Write out files
@@ -95,20 +83,29 @@ fs.writeFileSync(`${settings.listFiles}/d-general.txt`, generalKeywords.join("\n
 fs.writeFileSync(`${settings.listFiles}/d-artist.txt`, artistKeywords.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/d-character-c.txt`, copyrightKeywords.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/d-character-nc.txt`, characterKeywords.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/d-character.txt`, [...characterKeywords, ...copyrightKeywords].join("\n"));
+fs.writeFileSync(
+  `${settings.listFiles}/d-character.txt`,
+  [...characterKeywords, ...copyrightKeywords].join("\n"),
+);
 fs.writeFileSync(`${settings.listFiles}/d-meta.txt`, metaKeywords.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/d-keyword.txt`, [
-	...generalKeywords,
-	...copyrightKeywords,
-	...characterKeywords,
-	...metaKeywords,
-	...unknownKeywords,
-].join("\n"));
-fs.writeFileSync(`${settings.listFiles}/danbooru.txt`, [
-	...generalKeywords,
-	...artistKeywords,
-	...copyrightKeywords,
-	...characterKeywords,
-	...metaKeywords,
-	...unknownKeywords,
-].join("\n"));
+fs.writeFileSync(
+  `${settings.listFiles}/d-keyword.txt`,
+  [
+    ...generalKeywords,
+    ...copyrightKeywords,
+    ...characterKeywords,
+    ...metaKeywords,
+    ...unknownKeywords,
+  ].join("\n"),
+);
+fs.writeFileSync(
+  `${settings.listFiles}/danbooru.txt`,
+  [
+    ...generalKeywords,
+    ...artistKeywords,
+    ...copyrightKeywords,
+    ...characterKeywords,
+    ...metaKeywords,
+    ...unknownKeywords,
+  ].join("\n"),
+);

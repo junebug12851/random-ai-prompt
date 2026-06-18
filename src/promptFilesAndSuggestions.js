@@ -1,7 +1,13 @@
-const fs = require("fs");
-const _ = require("lodash");
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import _ from "lodash";
 
-const cleanup = require("../prompt-modules/cleanup");
+import cleanup from "../prompt-modules/cleanup.js";
+
+// Dynamic prompts are loaded on demand by config-driven path. Node 24 can
+// `require()` ES modules synchronously, which is exactly what the scanning
+// loops below rely on, so we use a scoped require for that plugin-style loading.
+const require = createRequire(import.meta.url);
 
 const fullRegular = [];
 const fullRegularExcluded = [];
@@ -43,50 +49,45 @@ function loadDynPromptList() {
   fullDynPrompt.length = 0;
   partialNoArtistFx.length = 0;
 
-  for(let i = 0; i < files.length; i++) {
-
+  for (let i = 0; i < files.length; i++) {
     // Skip over non-js files or folders
     try {
       require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`);
-    }
-    catch(err) {
+    } catch (err) {
       continue;
     }
 
     // Load it to read whether it's full or not
     const isFull = require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`).full == true;
-    const exclude = require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`).suggestion_exclude == true;
-    
+    const exclude =
+      require(`../${settings().settings.dynamicPromptFiles}/${files[i]}`).suggestion_exclude ==
+      true;
+
     // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    const file = files[i].substr(0, files[i].lastIndexOf("."));
 
     // Add to correct list
-    if(isFull) {
+    if (isFull) {
       fullRegular.push(file);
 
-      if(!exclude)
-        fullRegularExcluded.push(file);
-    }
-    else
-      partialRegular.push(file);
+      if (!exclude) fullRegularExcluded.push(file);
+    } else partialRegular.push(file);
   }
 
   // User Submitted Dynamic Prompts
 
   files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/user-submitted`);
 
-  for(let i = 0; i < files.length; i++) {
-
+  for (let i = 0; i < files.length; i++) {
     // Skip over non-js files or folders
     try {
       require(`../${settings().settings.dynamicPromptFiles}/user-submitted/${files[i]}`);
-    }
-    catch(err) {
+    } catch (err) {
       continue;
     }
-    
+
     // Get filename without suffix
-    let file = files[i].substr(0, files[i].lastIndexOf('.'));
+    let file = files[i].substr(0, files[i].lastIndexOf("."));
     file = `user-${file}`;
     userFiles.push(file);
   }
@@ -95,32 +96,27 @@ function loadDynPromptList() {
 
   files = fs.readdirSync(`${settings().settings.dynamicPromptFiles}/v1`);
 
-  for(let i = 0; i < files.length; i++) {
-
+  for (let i = 0; i < files.length; i++) {
     // Skip over non-js files or folders
     try {
       require(`../${settings().settings.dynamicPromptFiles}/v1/${files[i]}`);
-    }
-    catch(err) {
+    } catch (err) {
       continue;
     }
-    
+
     // Get filename without suffix
-    let file = files[i].substr(0, files[i].lastIndexOf('.'));
+    let file = files[i].substr(0, files[i].lastIndexOf("."));
     file = `${file}-v1`;
     v1Files.push(file);
   }
 
   // Filter out partial prompts
-  for(let i = 0; i < partialRegular.length; i++) {
-
+  for (let i = 0; i < partialRegular.length; i++) {
     // Skip anything with artist in the name
-    if(partialRegular[i].includes("artist"))
-      continue;
+    if (partialRegular[i].includes("artist")) continue;
 
     // Skip the fx one
-    if(partialRegular[i] == "fx")
-      continue;
+    if (partialRegular[i] == "fx") continue;
 
     partialNoArtistFx.push(partialRegular[i]);
   }
@@ -136,23 +132,20 @@ function loadDynPromptList() {
     partialRegular,
     userFiles,
     v1Files,
-    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files]
+    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files],
   };
 }
 
 function loadExpansionFileList() {
-
   const files = fs.readdirSync(settings().settings.expansionFiles);
   expansionFiles.length = 0;
 
-  for(let i = 0; i < files.length; i++) {
-
+  for (let i = 0; i < files.length; i++) {
     // Skip over non-text files
-    if(!files[i].endsWith(".txt"))
-      continue;
-    
+    if (!files[i].endsWith(".txt")) continue;
+
     // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    const file = files[i].substr(0, files[i].lastIndexOf("."));
     expansionFiles.push(file);
   }
 
@@ -164,16 +157,14 @@ function loadListFileList() {
   listFiles.length = 0;
   listFilesNoArtist.length = 0;
 
-  for(let i = 0; i < files.length; i++) {
-    
+  for (let i = 0; i < files.length; i++) {
     // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    const file = files[i].substr(0, files[i].lastIndexOf("."));
     listFiles.push(file);
   }
 
-  for(let i = 0; i < listFiles.length; i++) {
-    if(listFiles[i].includes("artist"))
-      continue;
+  for (let i = 0; i < listFiles.length; i++) {
+    if (listFiles[i].includes("artist")) continue;
 
     listFilesNoArtist.push(listFiles[i]);
   }
@@ -191,15 +182,12 @@ function prePrompt(maxCount) {
   let prePrompt = "";
 
   // Randomly add stuff to the start of the prompt
-  if(_.random(0.0, 1.0, true) < 0.25)
-    prePrompt += `, <${_.sample(expansionFiles)}>`
+  if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, <${_.sample(expansionFiles)}>`;
 
-  for(let i = 0; i < maxCount; i++) {
-    if(_.random(0.0, 1.0, true) < 0.25)
-      prePrompt += `, #${_.sample(partialNoArtistFx)}`
+  for (let i = 0; i < maxCount; i++) {
+    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, #${_.sample(partialNoArtistFx)}`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-      prePrompt += `, {${_.sample(listFilesNoArtist)}}`
+    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {${_.sample(listFilesNoArtist)}}`;
   }
 
   return prePrompt;
@@ -209,25 +197,21 @@ function postPrompt() {
   let prePrompt = "";
 
   // Randomly add stuff to the start of the prompt
-  if(_.random(0.0, 1.0, true) < 0.5)
-    prePrompt += `, #fx`
+  if (_.random(0.0, 1.0, true) < 0.5) prePrompt += `, #fx`;
 
-  if(_.random(0.0, 1.0, true) < 0.5)
-    prePrompt += `, #artists`
+  if (_.random(0.0, 1.0, true) < 0.5) prePrompt += `, #artists`;
 
   return prePrompt;
 }
 
 function promptSuggestion(full) {
-
   // Prepare building final prompt
   let ret = "";
 
-  let maxOptions = (full == true) ? 3 : 0;
-  let maxCount = (full == true) ? 3 : 1;
+  let maxOptions = full == true ? 3 : 0;
+  let maxCount = full == true ? 3 : 1;
 
-  switch(_.random(0, maxOptions, false)) {
-
+  switch (_.random(0, maxOptions, false)) {
     // Option 0: Pick 1 full dynamic prompt
     case 0:
       ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
@@ -256,11 +240,11 @@ function promptSuggestion(full) {
   return ret;
 }
 
-module.exports = {
+export default {
   init,
   loadDynPromptList,
   loadExpansionFileList,
   loadListFileList,
   loadAll,
-  promptSuggestion
+  promptSuggestion,
 };

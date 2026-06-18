@@ -16,34 +16,31 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
-// Multiple layers of silhouette <name>, with silhouette of <name>, 
+// Multiple layers of silhouette <name>, with silhouette of <name>,
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-	// This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
+  // Start with base prompt
+  let prompt =
+    "Multiple layers of silhouette #entity-name, with silhouette of #entity-name, sharp edges, at";
 
-	// Start with base prompt
-	let prompt = "Multiple layers of silhouette #entity-name, with silhouette of #entity-name, sharp edges, at";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {time}";
+  else prompt += " sunset";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {time}";
-	else
-		prompt += " sunset";
+  prompt += " with";
 
-	prompt += " with"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {weather}";
+  else prompt += " heavy fog in air";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {weather}";
-	else
-		prompt += " heavy fog in air";
+  prompt +=
+    ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
 
-	prompt += ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

@@ -16,39 +16,38 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 // gold <name> pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `gold`;
 
-	// Start with base prompt
-	let prompt = `gold`;
+  switch (_.random(0, 6, false)) {
+    case 0:
+      prompt += ` {animal}`;
+      break;
+    case 1:
+      prompt += ` {d-character}`;
+      break;
+    case 2:
+      prompt += ` {flower}`;
+      break;
+    case 3:
+      prompt += ` {instrument}`;
+      break;
+    case 4:
+      prompt += ` {mythological-creature}`;
+      break;
+    case 5:
+      prompt += ` {tree}`;
+      break;
+    case 6:
+      prompt += ` person`;
+      break;
+  }
 
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
+  prompt += ` pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
 
-	prompt += ` pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot`;
-
-	return prompt;
+  return prompt;
 }

@@ -14,72 +14,56 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "((mountain))";
 
-    // Start with base prompt
-    let prompt = "((mountain))";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fog"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rock";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", rock"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", stone";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", stone"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ((mountainous horizon))";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", ((mountainous horizon))"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", [hill]";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", [hill]"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", [valley]";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", [valley]"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", [cliff]";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", [cliff]"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", forest";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", forest"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", tree";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", tree"
-
-    if(_.random(0.0, 1.0, true) < 0.25) {
-        switch(_.random(0, 1, false)) {
-            case 0:
-                prompt += `, volcano, #lava`;
-                break;
-            case 1:
-                prompt += `, winter, snow mountain, #ice`;
-                break;
-        }
+  if (_.random(0.0, 1.0, true) < 0.25) {
+    switch (_.random(0, 1, false)) {
+      case 0:
+        prompt += `, volcano, #lava`;
+        break;
+      case 1:
+        prompt += `, winter, snow mountain, #ice`;
+        break;
     }
+  }
 
-    if(_.random(0.0, 1.0, true) < 0.3)
-        prompt += `, #settlement`
+  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, #settlement`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, #eerie`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #eerie`;
 
-    if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, #mystical`
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #mystical`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #wildlife`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #wildlife`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, #water`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #water`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #nature`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #nature`;
 
-    prompt += `, #weather`;
+  prompt += `, #weather`;
 
-    return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

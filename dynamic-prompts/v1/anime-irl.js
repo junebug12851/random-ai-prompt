@@ -16,71 +16,61 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
 // Closeup face portrait of a <name>, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `Closeup face portrait of a`;
 
-	// Start with base prompt
-	let prompt = `Closeup face portrait of a`;
+  switch (_.random(0, 1, false)) {
+    case 0:
+      prompt += ` {d-character}`;
+      break;
 
-	switch(_.random(0, 1, false)) {
-		case 0:
-			prompt += ` {d-character}`;
-			break;
+    case 1:
+      prompt += ` person`;
+      break;
+  }
 
-		case 1:
-			prompt += ` person`;
-			break;			
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {emotion}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}{hair}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, ${maybeAddColor()}{clothes}`;
+  }
 
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
+  const adjectiveCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < adjectiveCount; i++) {
+    prompt += ", {adjective}";
+  }
 
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
+  const nounCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < nounCount; i++) {
+    prompt += ", {noun}";
+  }
 
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {verb}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {weather}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += ", {instrument}";
 
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {instrument}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", <rays>";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
+  prompt += `, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera`;
 
-	prompt += `, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera`;
-
-	return prompt;
+  return prompt;
 }

@@ -14,34 +14,30 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", water";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", water";
+  if (_.random(0.0, 1.0, true) < 0.5) {
+    switch (_.random(0, 3, false)) {
+      case 0:
+        prompt += ", lake";
+        break;
+      case 1:
+        prompt += ", pond";
+        break;
+      case 2:
+        prompt += ", ocean";
+        break;
+    }
+  }
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
-		switch(_.random(0, 3, false)) {
-			case 0:
-				prompt += ", lake";
-				break;
-			case 1:
-				prompt += ", pond";
-				break;
-			case 2:
-				prompt += ", ocean";
-				break;
-		}
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", stream";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", stream";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", river";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", river";
-
-	return prompt;
+  return prompt;
 }

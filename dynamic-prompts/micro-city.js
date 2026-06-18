@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return "100mm photo of isometric floating island in the sky, surreal, city, #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+  // Start with base prompt
+  return "100mm photo of isometric floating island in the sky, surreal, city, #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 }
 
-module.exports.full = true;
+export const full = true;

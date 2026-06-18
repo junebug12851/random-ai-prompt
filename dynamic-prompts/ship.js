@@ -14,127 +14,93 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function addWeatherFx(prompt) {
-	switch(_.random(0, 3, false)) {
-		case 0:
-			prompt += `, #ice`;
-			break;
-		case 1:
-			prompt += `, #lava`;
-			break;
-		case 2:
-			prompt += `, #underwater`;
-			break;
-	}
+  switch (_.random(0, 3, false)) {
+    case 0:
+      prompt += `, #ice`;
+      break;
+    case 1:
+      prompt += `, #lava`;
+      break;
+    case 2:
+      prompt += `, #underwater`;
+      break;
+  }
 
-	return prompt;
+  return prompt;
 }
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "ship, {ship-type}, ";
 
-	// Start with base prompt
-	let prompt = "ship, {ship-type}, ";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += addWeatherFx(prompt);
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += addWeatherFx(prompt);
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {size}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {size}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {mood} atmosphere";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {mood} atmosphere"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed"
+  if (_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", reflective surface";
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", polished";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", reflective surface"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shiny";
+  } else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dirty";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", polished"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", grunge";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shiny"
-	}
-	else {
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", dirty"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rundown";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", grunge"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", rundown"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", torn";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", holes";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", torn"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", graffiti";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", holes"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", abandoned";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", graffiti"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ghost ship";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", abandoned"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cracked";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", ghost ship"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rusted";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", cracked"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", damaged";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", rusted"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", destroyed";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", damaged"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sunk";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", destroyed"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", wrecked";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", sunk"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #eerie`;
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", wrecked"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #nature`;
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, #eerie`;
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #wildlife`;
+  }
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, #nature`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += `, #wildlife`;
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {construct-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {construct-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

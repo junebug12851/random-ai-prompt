@@ -14,55 +14,41 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "((cabin, log cabin)), dense forest, dense woods, dense trees";
 
-    // Start with base prompt
-    let prompt = "((cabin, log cabin)), dense forest, dense woods, dense trees";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fog"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", hill";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", hill"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", valley";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", valley"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cliff";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", cliff"
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, #ice`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, winter, snow landscape, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #eerie`;
 
-    if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, #eerie`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, #mystical`
+  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, #wildlife`;
 
-    if(_.random(0.0, 1.0, true) < 0.3)
-        prompt += `, #wildlife`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #water`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #water`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", path";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", path"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", worn down";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", worn down";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", weathered";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", weathered";
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", #room-state";
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += ", #room-state";
+  prompt += ", #nature, #weather, wide shot, upclose, <dap>";
 
-    prompt += ", #nature, #weather, wide shot, upclose, <dap>";
-
-    return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

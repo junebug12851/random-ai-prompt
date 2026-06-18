@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return `Hypnotic illustration of a #entity hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
+  // Start with base prompt
+  return `Hypnotic illustration of a #entity hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
 }
 
-module.exports.full = true;
+export const full = true;

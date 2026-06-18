@@ -14,67 +14,63 @@
     limitations under the License.
 */
 
-const fs = require('fs');
-const saveResults = require("./saveResults");
+import fs from "node:fs";
+import saveResults from "./saveResults.js";
 
-module.exports = function saveImage(base64Image, info, imageSettings, upscaled, upscaleOf) {
-	// Convert base64 to buffer
-	const pngBuffer = Buffer.from(base64Image, "base64");
+export default function saveImage(base64Image, info, imageSettings, upscaled, upscaleOf) {
+  // Convert base64 to buffer
+  const pngBuffer = Buffer.from(base64Image, "base64");
 
-	// Get current time
-	const epoch = (+new Date()).toString();
+  // Get current time
+  const epoch = (+new Date()).toString();
 
-	// Make filename
-	// Mark as upscaled only if this is an upscale and a non-upscaled version exists
-	const filename = (upscaled && upscaleOf != false)
-		? `${epoch}-upscaled`
-		: `${epoch}`;
+  // Make filename
+  // Mark as upscaled only if this is an upscale and a non-upscaled version exists
+  const filename = upscaled && upscaleOf != false ? `${epoch}-upscaled` : `${epoch}`;
 
-	// Save Image
-	fs.writeFileSync(`${imageSettings.saveTo}/${filename}.png`, pngBuffer);
+  // Save Image
+  fs.writeFileSync(`${imageSettings.saveTo}/${filename}.png`, pngBuffer);
 
-	// Save into info file what this is a variation of
-	if(info != undefined && imageSettings.variationOf != undefined)
-		info.variationOf = imageSettings.variationOf;
+  // Save into info file what this is a variation of
+  if (info != undefined && imageSettings.variationOf != undefined)
+    info.variationOf = imageSettings.variationOf;
 
-	if(info != undefined && imageSettings.rerollOf != undefined)
-		info.rerollOf = imageSettings.rerollOf;
+  if (info != undefined && imageSettings.rerollOf != undefined)
+    info.rerollOf = imageSettings.rerollOf;
 
-	// If generating an image with auto-upscaler turned on for new images
-	// and asked to save the image before hand, we can link to that image
-	if(info != undefined && upscaleOf != undefined && (typeof upscaleOf) == "string")
-		info.upscaleOf = upscaleOf;
+  // If generating an image with auto-upscaler turned on for new images
+  // and asked to save the image before hand, we can link to that image
+  if (info != undefined && upscaleOf != undefined && typeof upscaleOf == "string")
+    info.upscaleOf = upscaleOf;
 
-	if(info != undefined && imageSettings.lastCmd != undefined)
-		info.cmd = imageSettings.lastCmd;
+  if (info != undefined && imageSettings.lastCmd != undefined) info.cmd = imageSettings.lastCmd;
 
-	if(info != undefined && imageSettings.origPostPrompt != undefined)
-		info.origPostPrompt = imageSettings.origPostPrompt;
+  if (info != undefined && imageSettings.origPostPrompt != undefined)
+    info.origPostPrompt = imageSettings.origPostPrompt;
 
-	// Save fake animation filename
-	if(info != undefined && imageSettings.animationOf != undefined) {
-		info.animationFrameOf = imageSettings.animationOf;
-		info.animatonFrameNumber = imageSettings.usedSalt;
-	}
+  // Save fake animation filename
+  if (info != undefined && imageSettings.animationOf != undefined) {
+    info.animationFrameOf = imageSettings.animationOf;
+    info.animatonFrameNumber = imageSettings.usedSalt;
+  }
 
-	// Write file next to image
-	if(info != undefined)
-		fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));
+  // Write file next to image
+  if (info != undefined)
+    fs.writeFileSync(`${imageSettings.saveTo}/${filename}.json`, JSON.stringify(info, null, 4));
 
-	// Save image filename
-    if(imageSettings.resultImages == undefined)
-        imageSettings.resultImages = [];
+  // Save image filename
+  if (imageSettings.resultImages == undefined) imageSettings.resultImages = [];
 
-    imageSettings.resultImages.push(filename);
-    saveResults(imageSettings);
+  imageSettings.resultImages.push(filename);
+  saveResults(imageSettings);
 
-    if(imageSettings.animationFrames == undefined && imageSettings.animationOf != undefined) 
-        imageSettings.animationFrames = [];
-    
-    if(imageSettings.animationFrames != undefined)  {
-    	imageSettings.animationFrames.push(filename);
-    }
+  if (imageSettings.animationFrames == undefined && imageSettings.animationOf != undefined)
+    imageSettings.animationFrames = [];
 
-	// Return filename
-	return filename;
+  if (imageSettings.animationFrames != undefined) {
+    imageSettings.animationFrames.push(filename);
+  }
+
+  // Return filename
+  return filename;
 }

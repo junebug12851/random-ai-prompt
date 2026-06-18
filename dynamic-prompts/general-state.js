@@ -14,46 +14,33 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "";
 
-	// Start with base prompt
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {mood} atmosphere";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {mood} atmosphere"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed"
+  if (_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", reflective surface";
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", polished";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", reflective surface"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shiny";
+  } else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dirty";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", polished"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", grunge";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shiny"
-	}
-	else {
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", dirty"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", grunge"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", holes";
+  }
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", messy";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", holes"
-	}
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", messy"
-
-	return prompt;
+  return prompt;
 }

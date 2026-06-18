@@ -14,32 +14,24 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mesmorizing";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mesmorizing"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", magical";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magical"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mystical";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mystical"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fantasy";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fantasy"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", epic";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", epic"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", grand";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", grand"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", vast";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vast"
-
-	return prompt;
+  return prompt;
 }

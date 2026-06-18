@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-module.exports = function() {
-	return `school room, interrior, {school-room}, #room-state, #weather`;
+export default function () {
+  return `school room, interrior, {school-room}, #room-state, #weather`;
 }
 
-module.exports.full = true;
+export const full = true;

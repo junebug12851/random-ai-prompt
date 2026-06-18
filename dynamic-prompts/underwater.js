@@ -14,38 +14,28 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "underwater, underwater photography";
 
-	let prompt = "underwater, underwater photography";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", submerged";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", submerged"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", underwater paradise";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", underwater paradise"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", aquatic life";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", aquatic life"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color reef`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color reef`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color coral`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color coral`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color starfish`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color starfish`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color fish`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #color fish`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", bioluminescent";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bioluminescent";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", glow";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glow";
-
-	return prompt;
+  return prompt;
 }

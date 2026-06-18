@@ -16,46 +16,35 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = "100mm photo of isometric floating island in the sky, surreal, city";
 
-	// Start with base prompt
-	let prompt = "100mm photo of isometric floating island in the sky, surreal, city";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}{flower}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{flower}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}vegetation`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}{flower}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
-	
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, {tree}`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}vegetation`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", vines";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {tree}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {tree}`;
 
-	prompt += ", intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", vines";
 
-	return prompt;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {weather}";
+
+  prompt += ", intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+
+  return prompt;
 }

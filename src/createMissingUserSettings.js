@@ -14,26 +14,25 @@
     limitations under the License.
 */
 
-const fs = require("fs");
+import fs from "node:fs";
 
 function userSettings() {
-    // Check for existence of user-settings.js
-    try {
-        fs.accessSync('./user-settings.json');
-        return;
-    } catch (err) {}
+  // Check for existence of user-settings.js
+  try {
+    fs.accessSync("./user-settings.json");
+    return;
+  } catch (err) {}
 
-    console.log("Missing user-settings.json, creating for you...");
+  console.log("Missing user-settings.json, creating for you...");
 
-    // Does not exist, create
-    const file = fs.readFileSync('./default-user-settings.json').toString();
-    fs.writeFileSync('./user-settings.json', file);
+  // Does not exist, create
+  const file = fs.readFileSync("./default-user-settings.json").toString();
+  fs.writeFileSync("./user-settings.json", file);
 }
 
-module.exports = function() {
+export default function () {
+  // Ensure user settings exists
+  userSettings();
 
-    // Ensure user settings exists
-    userSettings();
-
-    // Done
+  // Done
 }

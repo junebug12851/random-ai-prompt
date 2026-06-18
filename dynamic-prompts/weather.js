@@ -14,17 +14,14 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {weather}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
-
-	return prompt;
+  return prompt;
 }

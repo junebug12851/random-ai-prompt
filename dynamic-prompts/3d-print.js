@@ -16,17 +16,16 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-// tiny cute <name> toy, standing character, soft smooth lighting, soft pastel 
+// tiny cute <name> toy, standing character, soft smooth lighting, soft pastel
 // colors, skottie young, 3d blender render, polycount, modular constructivism,
 // pop surrealism, physically based rendering, square image
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return "tiny cute #entity toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
+  // Start with base prompt
+  return "tiny cute #entity toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
 }
 
-module.exports.full = true;
+export const full = true;

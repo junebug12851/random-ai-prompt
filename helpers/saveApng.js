@@ -1,49 +1,51 @@
-const fs = require('fs');
-const apng = require("./makeApng");
-const saveResults = require("./saveResults");
+import fs from "node:fs";
+import apng from "./makeApng.js";
+import saveResults from "./saveResults.js";
 
 // Saves the png files as an animated png file
-module.exports = function(imageArray, imageSettings, dontWriteJSON) {
+export default function (imageArray, imageSettings, dontWriteJSON) {
+  // Read the PNG files into an array of Buffers
+  const pngBuffers = imageArray.map((pngFile) =>
+    fs.readFileSync(`${imageSettings.saveTo}/${pngFile}.png`),
+  );
 
-	// Read the PNG files into an array of Buffers
-	const pngBuffers = imageArray.map(pngFile => fs.readFileSync(`${imageSettings.saveTo}/${pngFile}.png`));
+  const apngBuffer = apng(pngBuffers, function (frameIndex) {
+    // Same speed for all frames
+    // Kind of neat to think about future possibiltiies that may allow for
+    // seperate speeds for each frame
+    return { numerator: imageSettings.animationDelay, denominator: 1000 };
+  });
 
-	const apngBuffer = apng(pngBuffers, function(frameIndex) {
+  // Save the APNG to a file
+  // We save with the png extension to make coding much easier
+  fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.png`, apngBuffer);
 
-		// Same speed for all frames
-		// Kind of neat to think about future possibiltiies that may allow for
-		// seperate speeds for each frame
-		return { numerator: imageSettings.animationDelay, denominator: 1000 };
-	});
+  // Save image filename
+  if (imageSettings.resultImages == undefined) imageSettings.resultImages = [];
 
-	// Save the APNG to a file
-	// We save with the png extension to make coding much easier
-	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.png`, apngBuffer);
+  imageSettings.resultImages.push(`${imageSettings.animationOf}`);
+  saveResults(imageSettings);
 
-	// Save image filename
-    if(imageSettings.resultImages == undefined)
-        imageSettings.resultImages = [];
+  if (dontWriteJSON) return;
 
-    imageSettings.resultImages.push(`${imageSettings.animationOf}`);
-    saveResults(imageSettings);
+  // Read info file from first file in the array
+  const info = JSON.parse(
+    fs.readFileSync(`${imageSettings.saveTo}/${imageArray[0]}.json`).toString(),
+  );
 
-	if(dontWriteJSON)
-		return;
+  // Remove animation frame data since this is the animation itself
+  delete info.animationFrameOf;
+  delete info.animatonFrameNumber;
 
-	// Read info file from first file in the array
-	const info = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${imageArray[0]}.json`).toString());
+  // Set key that signifies this is the animation the frames link to
+  info.isAnimation = true;
 
-	// Remove animation frame data since this is the animation itself
-	delete info.animationFrameOf;
-	delete info.animatonFrameNumber;
+  // Set parent image if there is one
+  if (imageSettings.animationOfImg != undefined) info.animationOf = imageSettings.animationOfImg;
 
-	// Set key that signifies this is the animation the frames link to
-	info.isAnimation = true;
-
-	// Set parent image if there is one
-	if(imageSettings.animationOfImg != undefined)
-		info.animationOf = imageSettings.animationOfImg;
-
-	// Write info file next to image
-	fs.writeFileSync(`${imageSettings.saveTo}/${imageSettings.animationOf}.json`, JSON.stringify(info, null, 4));
+  // Write info file next to image
+  fs.writeFileSync(
+    `${imageSettings.saveTo}/${imageSettings.animationOf}.json`,
+    JSON.stringify(info, null, 4),
+  );
 }

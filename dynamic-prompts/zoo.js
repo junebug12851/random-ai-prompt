@@ -14,10 +14,9 @@
     limitations under the License.
 */
 
-module.exports = function() {
-
-	// Start with base prompt
-	return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";
+export default function () {
+  // Start with base prompt
+  return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";
 }
 
-module.exports.full = true;
+export const full = true;

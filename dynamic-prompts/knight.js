@@ -14,113 +14,81 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function(settings) {
+export default function (settings) {
+  // Disable auto fx and artists
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // Disable auto fx and artists
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
+  // Start with base prompt
+  let prompt = `knight, warrior`;
 
-	// Start with base prompt
-	let prompt = `knight, warrior`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", helmet";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", helmet";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", nordic armor";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", nordic armor";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", holding a sword";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", holding a sword";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fullbody";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fullbody";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", front-shot";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", front-shot";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rpg portrait";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", rpg portrait";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", closeup";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", closeup";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed face";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", detailed face";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed body";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", detailed body";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", highly detailed";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", highly detailed";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", intricate detailed";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", intricate detailed";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", hyperrealistic";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", hyperrealistic";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", #mystical";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", #mystical";
+  prompt += `, #landscape`;
 
-    prompt += `, #landscape`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", [[castle]]";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", [[castle]]";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", #general-state";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", #general-state";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", victorian";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", victorian";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", illustration";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", illustration";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", character design";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", character design";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", concept art";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", concept art";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", unreal engine 5";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", unreal engine 5";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", daz";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", daz";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", octane render";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", octane render";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dynamic lighting";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", dynamic lighting";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", vibrancy";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", vibrancy";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cinematic";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", cinematic";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cinematic lighting";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", cinematic lighting";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", global illumination";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", global illumination";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ray tracing";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", ray tracing";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", hdr";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", hdr";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", digital art";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", digital art";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", <dap>";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", <dap>";
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

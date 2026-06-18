@@ -16,17 +16,17 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityBasicKeywords = require("../entity");
+import entityBasicKeywords from "../entity.js";
 
-// tiny cute <name> toy, standing character, soft smooth lighting, soft pastel 
+// tiny cute <name> toy, standing character, soft smooth lighting, soft pastel
 // colors, skottie young, 3d blender render, polycount, modular constructivism,
 // pop surrealism, physically based rendering, square image
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `tiny cute `;
+  prompt += entityBasicKeywords();
+  prompt +=
+    " toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
 
-	// Start with base prompt
-	let prompt = `tiny cute `;
-	prompt += entityBasicKeywords();
-	prompt += " toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
-
-	return prompt;
+  return prompt;
 }

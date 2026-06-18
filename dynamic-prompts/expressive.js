@@ -14,32 +14,30 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  const adjectiveCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < adjectiveCount; i++) {
+    prompt += ", {adjective}";
+  }
 
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
+  const nounCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < nounCount; i++) {
+    prompt += ", {noun}";
+  }
 
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
+  const adverbCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const adverbCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < adverbCount; i++) {
+    prompt += ", {adverb}";
+  }
 
-	for(let i = 0; i < adverbCount; i++) {
-		prompt += ", {adverb}";
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {verb}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
-
-	return prompt;
+  return prompt;
 }

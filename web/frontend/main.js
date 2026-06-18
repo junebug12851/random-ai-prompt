@@ -1,7 +1,7 @@
 function getUrlParameters() {
   var params = {};
-  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-      params[key] = value;
+  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+    params[key] = value;
   });
   return params;
 }
@@ -21,18 +21,18 @@ function epochToDateString(epochTimestamp) {
   var minutes = date.getMinutes();
 
   // Determine AM or PM
-  var ampm = hours >= 12 ? 'pm' : 'am';
+  var ampm = hours >= 12 ? "pm" : "am";
 
   // Convert the hours from military time to standard time
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
 
   // Add leading zeros if necessary
-  hours = hours < 10 ? '0' + hours : hours;
-  minutes = minutes < 10 ? '0' + minutes : minutes;
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
 
   // Build the final string
-  var dateString = month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ampm;
+  var dateString = month + "/" + day + "/" + year + " " + hours + ":" + minutes + ampm;
 
   return dateString;
 }
@@ -64,13 +64,11 @@ function reIndexToUrl(url) {
 }
 
 function _displayProgress(noBack, isUpscale, isAnim) {
+  let progressUrl = isUpscale ? "/upscale-progress" : "/progress";
 
-  let progressUrl = (isUpscale) ? "/upscale-progress" : "/progress";
+  if (isAnim) progressUrl = "/regen-anim";
 
-  if(isAnim)
-    progressUrl = "/regen-anim";
-
-  if(noBack) {
+  if (noBack) {
     window.location = progressUrl;
     return;
   }
@@ -99,6 +97,6 @@ async function ajaxGet(path) {
   return null;
 }
 
-$(document).ready(function() {
-    $("#reindex-button").click(onReindexButton);
+$(document).ready(function () {
+  $("#reindex-button").click(onReindexButton);
 });

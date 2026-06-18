@@ -14,41 +14,37 @@
     limitations under the License.
 */
 
-const fs = require("fs");
+import loadVariationData from "./loadVariationData.js";
 
-const convertMetaToJSON = require("./convertMetaToJSON");
-const loadVariationData = require("./loadVariationData");
+export default function (name, settings, imageSettings, upscaleSettings) {
+  // Load variation data
+  loadVariationData(name, settings, imageSettings, upscaleSettings);
 
-module.exports = function(name, settings, imageSettings, upscaleSettings) {
+  // Delete variation specific stuff
+  delete imageSettings.variationOf;
+  delete imageSettings.seedWidth;
+  delete imageSettings.seedHeight;
 
-	// Load variation data
-	loadVariationData(name, settings, imageSettings, upscaleSettings);
+  // Set the animation frame count to be the prompt count
+  // This can be overridden
+  settings.promptCount = imageSettings.animationFrameCount;
 
-	// Delete variation specific stuff
-	delete imageSettings.variationOf;
-	delete imageSettings.seedWidth;
-	delete imageSettings.seedHeight;
+  // Force prompt salt
+  settings.promptSalt = true;
 
-	// Set the animation frame count to be the prompt count
-	// This can be overridden
-	settings.promptCount = imageSettings.animationFrameCount;
+  // Set starting frame #, this can be overridden
+  settings.promptSaltStart = imageSettings.animationStartFrame;
 
-	// Force prompt salt
-	settings.promptSalt = true;
+  // Store the animation file id to be created
+  // It also signifies to the program to handle the prompt and data file
+  // differently
+  const epoch = (+new Date()).toString();
+  imageSettings.animationOf = `${epoch.toString()}-anim`;
 
-	// Set starting frame #, this can be overridden
-	settings.promptSaltStart = imageSettings.animationStartFrame;
+  // Store what image this is based on
+  imageSettings.animationOfImg = name;
 
-	// Store the animation file id to be created
-	// It also signifies to the program to handle the prompt and data file
-	// differently
-	const epoch = (+new Date()).toString();
-	imageSettings.animationOf = `${epoch.toString()}-anim`;
-
-	// Store what image this is based on
-	imageSettings.animationOfImg = name;
-
-	// Disable auto add artist and fx
-	settings.autoAddArtists = false;
-	settings.autoAddFx = false;
+  // Disable auto add artist and fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 }

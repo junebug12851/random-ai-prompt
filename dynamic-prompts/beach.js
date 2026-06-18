@@ -16,84 +16,62 @@
 
 // Orignally submitted by Merk, modified by me, junebug12851
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function winterBeach() {
-	let prompt = "winter beach";
+  let prompt = "winter beach";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", snowy beach";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", snowy beach";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, (#ice)`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, (#ice)`;
 
-	return prompt;
+  return prompt;
 }
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "beach";
 
-	// Start with base prompt
-	let prompt = "beach";
+  // 50% chance for normal or winter beach
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, ${winterBeach()}`;
+  else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", tropical";
 
-	// 50% chance for normal or winter beach
-	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += `, ${winterBeach()}`;
-	else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", palm trees";
+    else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", palm tree";
+  }
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", tropical";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ocean";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", palm trees";
-		else if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", palm tree";
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", oceanside";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ocean";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", seaside";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", oceanside";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sand";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", seaside";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", beachside";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sand";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sandy beach";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", beachside"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ocean view";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sandy beach"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sea shells";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ocean view"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", beach sand";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sea shells"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", beach sand"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {size} waves";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fog"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #eerie`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {size} waves";
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #mystical`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #nature`;
 
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += `, #mystical`;
+  prompt += `, #city, #weather`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #nature`;
-
-	prompt += `, #city, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

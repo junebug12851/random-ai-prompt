@@ -15,15 +15,14 @@
 */
 
 // This was taken from publicprompts.art and modified to be more dynamic
-const entityBasicKeywords = require("../entity");
+import entityBasicKeywords from "../entity.js";
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `hologram of a `;
+  prompt += entityBasicKeywords();
+  prompt += `, floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
 
-	// Start with base prompt
-	let prompt = `hologram of a `;
-	prompt += entityBasicKeywords();
-	prompt += `, floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
-
-	return prompt;
+  return prompt;
 }

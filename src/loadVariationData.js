@@ -14,48 +14,44 @@
     limitations under the License.
 */
 
-const fs = require("fs");
-const convertMetaToJSON = require("./convertMetaToJSON");
+import fs from "node:fs";
+import convertMetaToJSON from "./convertMetaToJSON.js";
 
-module.exports = function(name, settings, imageSettings, upscaleSettings) {
-	console.log(`Loading Settings from File ID: ${name}`);
+export default function (name, settings, imageSettings, upscaleSettings) {
+  console.log(`Loading Settings from File ID: ${name}`);
 
-	let txt;
+  let txt;
 
-	// Check to see if it's a JSON file or not, convert if it isn't
-	if(convertMetaToJSON.check(name, imageSettings))
-		txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
-	else
-		txt = require(`../${imageSettings.saveTo}/${name}.json`);
+  // Check to see if it's a JSON file or not, convert if it isn't
+  if (convertMetaToJSON.check(name, imageSettings))
+    txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
+  else txt = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${name}.json`, "utf8"));
 
-	// Load in Core Settings
-	settings.prompt = txt.prompt;
-	imageSettings.negativePrompt = txt.negative_prompt;
-	imageSettings.seed = txt.seed;
-	imageSettings.sampler = txt.sampler_name;
-	imageSettings.cfg = txt.cfg_scale;
-	imageSettings.steps = txt.steps;
-	imageSettings.restoreFaces = txt.restore_faces;
-	imageSettings.width = txt.width;
-	imageSettings.height = txt.height;
-	imageSettings.denoising = txt.denoising_strength;
-	imageSettings.variationOf = (txt.variationOf != undefined) ? txt.variationOf.toString() : name.toString();
+  // Load in Core Settings
+  settings.prompt = txt.prompt;
+  imageSettings.negativePrompt = txt.negative_prompt;
+  imageSettings.seed = txt.seed;
+  imageSettings.sampler = txt.sampler_name;
+  imageSettings.cfg = txt.cfg_scale;
+  imageSettings.steps = txt.steps;
+  imageSettings.restoreFaces = txt.restore_faces;
+  imageSettings.width = txt.width;
+  imageSettings.height = txt.height;
+  imageSettings.denoising = txt.denoising_strength;
+  imageSettings.variationOf =
+    txt.variationOf != undefined ? txt.variationOf.toString() : name.toString();
 
-	// Load in original prompts
-	settings.origPrompt = txt.origPrompt;
-	imageSettings.origPostPrompt = txt.origPostPrompt;
-	settings.randomPrompt = txt.origRandomPrompt;
+  // Load in original prompts
+  settings.origPrompt = txt.origPrompt;
+  imageSettings.origPostPrompt = txt.origPostPrompt;
+  settings.randomPrompt = txt.origRandomPrompt;
 
-	// Set variation settings to get accurate variations
-	// Maintain seed width and height if already present, otherwise ignore
-	imageSettings.seedWidth = (txt.seed_resize_from_w < 0)
-		? txt.width
-		: txt.seed_resize_from_w;
+  // Set variation settings to get accurate variations
+  // Maintain seed width and height if already present, otherwise ignore
+  imageSettings.seedWidth = txt.seed_resize_from_w < 0 ? txt.width : txt.seed_resize_from_w;
 
-	imageSettings.seedHeight = (txt.seed_resize_from_h < 0)
-		? txt.height
-		: txt.seed_resize_from_h;
+  imageSettings.seedHeight = txt.seed_resize_from_h < 0 ? txt.height : txt.seed_resize_from_h;
 
-	// Ensure generate images is enabled
-	settings.generateImages = true;
+  // Ensure generate images is enabled
+  settings.generateImages = true;
 }

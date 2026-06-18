@@ -14,25 +14,21 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "city, streetview, {city}";
 
-	// Start with base prompt
-	let prompt = "city, streetview, {city}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cityscape";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cityscape";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", downtown";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", downtown";
+  prompt += ", #nature, #weather, reflective street, wide shot";
 
-	prompt += ", #nature, #weather, reflective street, wide shot";
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

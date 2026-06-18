@@ -14,25 +14,20 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {art-movement}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {art-technique}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
+  const imageEffects = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < imageEffects; i++) prompt += ", {image-effect}";
 
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", <rays>";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
-
-	return prompt;
+  return prompt;
 }

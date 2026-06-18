@@ -14,43 +14,33 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "((park))";
 
-	// Start with base prompt
-	let prompt = "((park))";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", benches";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", benches"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", people";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", people"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", crowd";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", crowd"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fountain";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", fountain"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", walkway";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", walkway"
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #eerie`;
 
-    if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, #eerie`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #ice`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, #ice`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
 
-    if(_.random(0.0, 1.0, true) < 0.25)
-        prompt += `, #mystical`
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #room-state`;
 
-    if(_.random(0.0, 1.0, true) < 0.2)
-        prompt += `, #room-state`
+  prompt += `, #wildlife, #water, #nature, #weather`;
 
-	prompt += `, #wildlife, #water, #nature, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

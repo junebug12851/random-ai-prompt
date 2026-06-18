@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return "Retro comic style artwork, highly detailed #entity, comic book cover, symmetrical, vibrant";
+  // Start with base prompt
+  return "Retro comic style artwork, highly detailed #entity, comic book cover, symmetrical, vibrant";
 }
 
-module.exports.full = true;
+export const full = true;

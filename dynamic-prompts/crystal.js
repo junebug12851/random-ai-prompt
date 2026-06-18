@@ -14,35 +14,26 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", glowing";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glowing"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #glow crystal walls`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #glow crystal walls`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #glow crystal floor`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #glow crystal floor`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #glow giant crystals`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #glow giant crystals`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ruby";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ruby"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", diamond";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", diamond"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", emerald";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", emerald"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #glow crystals`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #glow crystals`
-
-	return prompt;
+  return prompt;
 }

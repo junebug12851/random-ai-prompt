@@ -14,41 +14,30 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", magma";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magma"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", magma tube";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magma tube"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", lava pool";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", lava pool"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", obsidian";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", obsidian"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", heat";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", heat"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", heat wave";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", heat wave"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fire";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fire"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sparks";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sparks"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", embers";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", embers"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ash";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ash"
-
-	return prompt;
+  return prompt;
 }

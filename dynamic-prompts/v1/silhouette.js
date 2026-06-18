@@ -16,81 +16,77 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
-const {artistRepeater} = require("../../helpers/keywordRepeater");
+import _ from "lodash";
+import { artistRepeater } from "../../helpers/keywordRepeater.js";
 
-// Multiple layers of silhouette <name>, with silhouette of <name>, 
+// Multiple layers of silhouette <name>, with silhouette of <name>,
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = "Multiple layers of silhouette";
 
-	// Start with base prompt
-	let prompt = "Multiple layers of silhouette";
+  switch (_.random(0, 6, false)) {
+    case 0:
+      prompt += ` {animal}`;
+      break;
+    case 1:
+      prompt += ` {d-character}`;
+      break;
+    case 2:
+      prompt += ` {flower}`;
+      break;
+    case 3:
+      prompt += ` {instrument}`;
+      break;
+    case 4:
+      prompt += ` {mythological-creature}`;
+      break;
+    case 5:
+      prompt += ` {tree}`;
+      break;
+    case 6:
+      prompt += ` person`;
+      break;
+  }
 
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
+  prompt += ", with silhouette of";
 
-	prompt += ", with silhouette of"
+  switch (_.random(0, 6, false)) {
+    case 0:
+      prompt += ` {animal}`;
+      break;
+    case 1:
+      prompt += ` {d-character}`;
+      break;
+    case 2:
+      prompt += ` {flower}`;
+      break;
+    case 3:
+      prompt += ` {instrument}`;
+      break;
+    case 4:
+      prompt += ` {mythological-creature}`;
+      break;
+    case 5:
+      prompt += ` {tree}`;
+      break;
+    case 6:
+      prompt += ` person`;
+      break;
+  }
 
-	switch(_.random(0, 6, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			break;
-		case 2:
-			prompt += ` {flower}`;
-			break;
-		case 3:
-			prompt += ` {instrument}`;
-			break;
-		case 4:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 5:
-			prompt += ` {tree}`;
-			break;
-		case 6:
-			prompt += ` person`;
-			break;
-	}
+  prompt += ", sharp edges, at";
 
-	prompt += ", sharp edges, at";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {time}";
+  else prompt += " sunset";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {time}";
-	else
-		prompt += " sunset";
+  prompt += " with";
 
-	prompt += " with"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {weather}";
+  else prompt += " heavy fog in air";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {weather}";
-	else
-		prompt += " heavy fog in air";
+  prompt +=
+    ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
 
-	prompt += ", vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background";
-
-	return prompt;
+  return prompt;
 }

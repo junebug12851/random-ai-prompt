@@ -14,46 +14,35 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "castle, {view}";
 
-	// Start with base prompt
-	let prompt = "castle, {view}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", moat";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", moat"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", motte";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", motte"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", courtyard";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", courtyard"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", castle keep";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle keep"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", castle wall";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle wall"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fortified tower";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", fortified tower"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", castle drawbridge";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle drawbridge"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", castle gatehouse";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", castle gatehouse"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {city}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {city}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+  prompt += `, #wildlife, #water, #nature, #weather`;
 
-	prompt += `, #wildlife, #water, #nature, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

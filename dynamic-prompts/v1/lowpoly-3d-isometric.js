@@ -16,15 +16,14 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityBasicKeywords = require("../entity");
+import entityBasicKeywords from "../entity.js";
 
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `kawaii low poly `;
+  prompt += entityBasicKeywords();
+  prompt += `, 3d isometric render, white background, ambient occlusion, unity engine`;
 
-	// Start with base prompt
-	let prompt = `kawaii low poly `;
-	prompt += entityBasicKeywords();
-	prompt += `, 3d isometric render, white background, ambient occlusion, unity engine`;
-
-	return prompt;
+  return prompt;
 }

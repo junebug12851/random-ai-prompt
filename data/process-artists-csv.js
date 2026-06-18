@@ -14,16 +14,15 @@
     limitations under the License.
 */
 
-// Ensure we're within this directory
-process.chdir(__dirname);
-process.chdir("..");
-
 // load imports
-const fs = require('fs');
-const _ = require("lodash");
+import fs from "node:fs";
 
 // load settings
-const settings = require("../settings");
+import settings from "../settings.js";
+
+// Ensure we're within this directory
+process.chdir(import.meta.dirname);
+process.chdir("..");
 
 // Read csv file
 const csv = fs.readFileSync(`./artists.csv`).toString().split("\n");
@@ -56,60 +55,39 @@ const weird = [];
 const unknown = [];
 
 // loop through CSV
-for(let i = 1; i < csv.length; i++) {
+for (let i = 1; i < csv.length; i++) {
+  // Get line and split into pieces
+  // Remove windows line ending
+  const csvLine = csv[i].replaceAll("\r", "").split(",");
 
-	// Get line and split into pieces
-	// Remove windows line ending
-	const csvLine = csv[i]
-		.replaceAll("\r", "")
-		.split(",");
+  if (csvLine == "") continue;
 
-	if(csvLine == "")
-		continue;
+  // Name the pieces
+  const artist = csvLine[0];
+  const score = parseFloat(csvLine[1]);
+  const category = csvLine[2];
 
-	// Name the pieces
-	const artist = csvLine[0];
-	const score = parseFloat(csvLine[1]);
-	const category = csvLine[2];
+  if (score < minScore) continue;
 
-	if(score < minScore)
-		continue;
+  const keyword = artist;
 
-	const keyword = artist;
-
-	// Sort into correct file based on category
-	if(category == "anime")
-	    anime.push(keyword);
-    else if(category == "black-white")
-	    blackWhite.push(keyword);
-    else if(category == "c")
-	    cartoon.push(keyword);
-    else if(category == "cartoon")
-	    cartoon.push(keyword);
-	else if(category == "digipa-low-impact")
-	    digipaLowImpact.push(keyword);
-    else if(category == "digipa-med-impact")
-	    digipaMedImpact.push(keyword);
-	else if(category == "digipa-high-impact")
-	    digipaHighImpact.push(keyword);
-    else if(category == "fareast")
-	    fareast.push(keyword);
-    else if(category == "fineart")
-	    fineart.push(keyword);
-    else if(category == "n")
-	    nudity.push(keyword);
-    else if(category == "nudity")
-	    nudity.push(keyword);
-    else if(category == "scribbles")
-	    scribbles.push(keyword);
-    else if(category == "special")
-	    special.push(keyword);
-    else if(category == "ukioe")
-	    ukioe.push(keyword);
-    else if(category == "weird")
-	    weird.push(keyword);
-	else
-		unknown.push(keyword);
+  // Sort into correct file based on category
+  if (category == "anime") anime.push(keyword);
+  else if (category == "black-white") blackWhite.push(keyword);
+  else if (category == "c") cartoon.push(keyword);
+  else if (category == "cartoon") cartoon.push(keyword);
+  else if (category == "digipa-low-impact") digipaLowImpact.push(keyword);
+  else if (category == "digipa-med-impact") digipaMedImpact.push(keyword);
+  else if (category == "digipa-high-impact") digipaHighImpact.push(keyword);
+  else if (category == "fareast") fareast.push(keyword);
+  else if (category == "fineart") fineart.push(keyword);
+  else if (category == "n") nudity.push(keyword);
+  else if (category == "nudity") nudity.push(keyword);
+  else if (category == "scribbles") scribbles.push(keyword);
+  else if (category == "special") special.push(keyword);
+  else if (category == "ukioe") ukioe.push(keyword);
+  else if (category == "weird") weird.push(keyword);
+  else unknown.push(keyword);
 }
 
 // Write out files
@@ -119,11 +97,10 @@ fs.writeFileSync(`${settings.listFiles}/artist-cartoon.txt`, cartoon.join("\n"))
 fs.writeFileSync(`${settings.listFiles}/artist-dlow.txt`, digipaLowImpact.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-dmed.txt`, digipaMedImpact.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-dhigh.txt`, digipaHighImpact.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-digipa.txt`, [
-	...digipaHighImpact,
-	...digipaMedImpact,
-	...digipaLowImpact,
-].join("\n"));
+fs.writeFileSync(
+  `${settings.listFiles}/artist-digipa.txt`,
+  [...digipaHighImpact, ...digipaMedImpact, ...digipaLowImpact].join("\n"),
+);
 fs.writeFileSync(`${settings.listFiles}/artist-fareast.txt`, fareast.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-fineart.txt`, fineart.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-nudity.txt`, nudity.join("\n"));
@@ -131,19 +108,22 @@ fs.writeFileSync(`${settings.listFiles}/artist-scribbles.txt`, scribbles.join("\
 fs.writeFileSync(`${settings.listFiles}/artist-special.txt`, special.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-ukioe.txt`, ukioe.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-weird.txt`, weird.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist.txt`, [
-	...anime,
-	...blackWhite,
-	...cartoon,
-	...digipaHighImpact,
-	...digipaMedImpact,
-	...digipaLowImpact,
-	...fareast,
-	...fineart,
-	...nudity,
-	...scribbles,
-	...special,
-	...ukioe,
-	...weird,
-	...unknown,
-].join("\n"));
+fs.writeFileSync(
+  `${settings.listFiles}/artist.txt`,
+  [
+    ...anime,
+    ...blackWhite,
+    ...cartoon,
+    ...digipaHighImpact,
+    ...digipaMedImpact,
+    ...digipaLowImpact,
+    ...fareast,
+    ...fineart,
+    ...nudity,
+    ...scribbles,
+    ...special,
+    ...ukioe,
+    ...weird,
+    ...unknown,
+  ].join("\n"),
+);

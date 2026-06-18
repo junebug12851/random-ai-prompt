@@ -14,42 +14,41 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function editIn(settings, keyword) {
-	return `[${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 function swapOut(settings, keyword) {
-	return `[${keyword}:${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}:${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 function editOut(settings, keyword) {
-	return `[${keyword}::${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}::${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 // Adds random editing to keywords
-module.exports = function randomEditing(settings, keyword) {
+export default function randomEditing(settings, keyword) {
+  // Stop here if editing is disabled or this isn't StableDiffusion
+  // To my knowledge, only stable diffusion allows prompt editing
+  if (!settings.keywordEditing || settings.mode != "StableDiffusion") {
+    return { keyword, wasUsed: false };
+  }
 
-	// Stop here if editing is disabled or this isn't StableDiffusion
-	// To my knowledge, only stable diffusion allows prompt editing
-	if(!settings.keywordEditing || settings.mode != "StableDiffusion") {
-		return {keyword, wasUsed: false};
-	}
+  // Figure out what kind of editing
+  switch (_.random(0, 2, false)) {
+    case 0:
+      keyword = editIn(settings, keyword);
+      break;
+    case 1:
+      keyword = swapOut(settings, keyword);
+      break;
+    case 2:
+      keyword = editOut(settings, keyword);
+      break;
+  }
 
-	// Figure out what kind of editing
-	switch(_.random(0, 2, false)) {
-		case 0:
-			keyword = editIn(settings, keyword);
-			break;
-		case 1:
-			keyword = swapOut(settings, keyword);
-			break;
-		case 2:
-			keyword = editOut(settings, keyword);
-			break;
-	}
-
-	// Send prompt back
-	return {keyword, wasUsed: true};
+  // Send prompt back
+  return { keyword, wasUsed: true };
 }

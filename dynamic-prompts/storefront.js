@@ -14,56 +14,42 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "store, storefront, {store-type}, streetview";
 
-	let prompt = "store, storefront, {store-type}, streetview";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", intricate";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", intricate";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cozy";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cozy";
+  prompt += `, #nature`;
 
-	prompt += `, #nature`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #ice`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #mystical`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #room-state`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #room-state`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", city";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", city";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {city}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {city}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", downtown";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", downtown";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", reflective street";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", reflective street";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", wide shot";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", wide shot";
+  prompt += `, #weather`;
 
-	prompt += `, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

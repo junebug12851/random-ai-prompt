@@ -16,14 +16,13 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return `die-cut sticker, cute kawaii, #entity sticker, white background, illustration minimalism, vector, pastel colors`;
+  // Start with base prompt
+  return `die-cut sticker, cute kawaii, #entity sticker, white background, illustration minimalism, vector, pastel colors`;
 }
 
-module.exports.full = true;
+export const full = true;

@@ -14,22 +14,17 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "portrait";
 
-	let prompt = "portrait";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", full body";
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", head and chest, upperbody";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", full body"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", head and chest, upperbody"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", up-close";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", up-close"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dynamic pose";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", dynamic pose"
-
-	return prompt;
+  return prompt;
 }

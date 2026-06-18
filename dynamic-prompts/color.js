@@ -14,11 +14,9 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
-    if(_.random(0.0, 1.0, true) < 0.5)
-        return "";
-    else
-        return (_.random(0.0, 1.0, true) < 0.5) ? "multi-color" : "{color}";
+export default function () {
+  if (_.random(0.0, 1.0, true) < 0.5) return "";
+  else return _.random(0.0, 1.0, true) < 0.5 ? "multi-color" : "{color}";
 }

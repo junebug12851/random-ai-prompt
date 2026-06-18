@@ -14,104 +14,79 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const {artistRepeater} = require("../../helpers/keywordRepeater");
+import _ from "lodash";
+import { artistRepeater } from "../../helpers/keywordRepeater.js";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = "underwater, underwater photography, landscape";
 
-	// Start with base prompt
-	let prompt = "underwater, underwater photography, landscape";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ocean";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ocean"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", submerged";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", submerged"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", underwater paradise";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", underwater paradise"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mesmorizing";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", mesmorizing"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", aquatic life";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", aquatic life"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}bioluminescent`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}bioluminescent`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}reef`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}reef`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", magical";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", magical"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}coral`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}coral`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}starfish`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}starfish`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}fish`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}fish`
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", dolphin";
 
-	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += ", dolphin"
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += ", whale";
 
-	if(_.random(0.0, 1.0, true) < 0.20)
-		prompt += ", whale"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}plants`;
 
-	if(_.random(0.0, 1.0, true) < 0.50)
-		prompt += `, ${maybeAddColor()}plants`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}vegetation`;
 
-	if(_.random(0.0, 1.0, true) < 0.50)
-		prompt += `, ${maybeAddColor()}vegetation`
+  const flowerCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(1, 3, false) : 0;
+  const treeCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(1, 3, false) : 0;
+  const artistCount = settings.includeArtist ? _.random(0, 3, false) : 0;
 
-	const flowerCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(1, 3, false) : 0;
-	const treeCount = (_.random(0.0, 1.0, true) < 0.50) ? _.random(1, 3, false) : 0;
-	const artistCount = (settings.includeArtist) ? _.random(0, 3, false) : 0;
+  // Add in flowers
+  for (let i = 0; i < flowerCount; i++) {
+    prompt += `, ${maybeAddColor()}{flower}`;
+  }
 
-	// Add in flowers
-	for(let i = 0; i < flowerCount; i++) {
-		prompt += `, ${maybeAddColor()}{flower}`;
-	}
+  // Add in trees
+  for (let i = 0; i < treeCount; i++) {
+    prompt += ", {tree}";
+  }
 
-	// Add in trees
-	for(let i = 0; i < treeCount; i++) {
-		prompt += ", {tree}";
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {weather}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {weather}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {art-movement}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-movement}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {art-technique}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {art-technique}"
+  const imageEffects = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-	const imageEffects = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < imageEffects; i++) prompt += ", {image-effect}";
 
-	for(let i = 0; i < imageEffects; i++)
-		prompt += ", {image-effect}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", <rays>";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", <rays>";
+  // Add in artist
+  const artists = artistRepeater("artist", true, settings);
+  if (artists.length > 0) prompt += `, ${artists}`;
 
-	// Add in artist
-	const artists = artistRepeater("artist", true, settings);
-	if(artists.length > 0)
-		prompt += `, ${artists}`;
-
-	return prompt;
+  return prompt;
 }

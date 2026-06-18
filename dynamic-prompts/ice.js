@@ -14,50 +14,36 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ice walls";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice walls"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ice sheets";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice sheets"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ice floor";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ice floor"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", glacier";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", glacier"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", iceberg";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", iceberg"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", frost";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", frost"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cold";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cold"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", snow";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", snow"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sleet";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sleet"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", blizzard";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", blizzard"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", freeze";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", freeze"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sub-zero";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sub-zero"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", winter";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", winter"
-
-	return prompt;
+  return prompt;
 }

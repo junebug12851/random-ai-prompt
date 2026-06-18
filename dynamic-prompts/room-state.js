@@ -14,100 +14,69 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = "";
 
-	// Start with base prompt
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {mood} atmosphere";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {mood} atmosphere"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed"
+  if (_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", reflective surface";
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", polished";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", reflective surface"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shiny";
+  } else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dirty";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", polished"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cobweb";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shiny"
-	}
-	else {
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", dirty"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", spider web";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", cobweb"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", grunge";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", spider web"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rundown";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", grunge"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", rundown"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken floor";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", torn wallpaper";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken floor"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mold";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", torn wallpaper"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mildew";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", mold"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shattered glass";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", mildew"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", holes";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shattered glass"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", floor hole";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", holes"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ceiling hole";
+  }
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", floor hole"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", clutter";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", ceiling hole"
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", messy";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", clutter"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", furniture";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", messy"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", items";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", furniture"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", accesories";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", items"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", window";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", accesories"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", furnished";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", window"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", furnished"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {general-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
-
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {general-style}"
-
-	return prompt;
+  return prompt;
 }

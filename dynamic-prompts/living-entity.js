@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-const entity = require("./entity");
+import entity from "./entity.js";
 
-module.exports = function() {
-	return entity(null, null, null, "living");
+export default function () {
+  return entity(null, null, null, "living");
 }

@@ -14,28 +14,26 @@
     limitations under the License.
 */
 
-const fs = require("fs");
+import fs from "node:fs";
 
-const doUpscale = require("../helpers/imageUpscaler");
-const convertMetaToJSON = require("./convertMetaToJSON");
+import doUpscale from "../helpers/imageUpscaler.js";
+import convertMetaToJSON from "./convertMetaToJSON.js";
 
-module.exports = async function(name, settings, imageSettings, upscaleSettings) {
+export default async function (name, settings, imageSettings, upscaleSettings) {
+  // Read file
+  let png = fs.readFileSync(`${imageSettings.saveTo}/${name}.png`);
+  png = Buffer.from(png).toString("base64");
 
-	// Read file
-	let png = fs.readFileSync(`${imageSettings.saveTo}/${name}.png`);
-	png = Buffer.from(png).toString('base64');
+  let txt;
 
-	let txt;
+  // Check to see if it's a JSON file or not, convert if it isn't
+  if (convertMetaToJSON.check(name, imageSettings))
+    txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
+  else txt = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${name}.json`, "utf8"));
 
-	// Check to see if it's a JSON file or not, convert if it isn't
-	if(convertMetaToJSON.check(name, imageSettings))
-		txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
-	else
-		txt = require(`../${imageSettings.saveTo}/${name}.json`);
+  // Directly save what this is an upscale of
+  txt.upscaleOf = name;
 
-	// Directly save what this is an upscale of
-	txt.upscaleOf = name;
-
-	// Do upscale
-	await doUpscale(png, txt, imageSettings, upscaleSettings, true);
+  // Do upscale
+  await doUpscale(png, txt, imageSettings, upscaleSettings, true);
 }

@@ -14,22 +14,19 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = `#underwater, landscape, #water, #mystical`;
 
-	// Start with base prompt
-	let prompt = `#underwater, landscape, #water, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", dolphin";
 
-	if(_.random(0.0, 1.0, true) < 0.25)
-		prompt += ", dolphin"
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += ", whale";
 
-	if(_.random(0.0, 1.0, true) < 0.20)
-		prompt += ", whale"
+  prompt += `, #nature, #weather`;
 
-	prompt += `, #nature, #weather`;
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

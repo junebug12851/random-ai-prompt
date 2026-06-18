@@ -14,46 +14,38 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function maybeGlow() {
-    if(_.random(0.0, 1.0, true) < 0.5)
-        return "#glow";
-    else
-        return "#color";
+  if (_.random(0.0, 1.0, true) < 0.5) return "#glow";
+  else return "#color";
 }
 
 // rabbit in Egyptian clothing style, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  // settings.autoAddArtists = false;
+  // settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    // settings.autoAddArtists = false;
-    // settings.autoAddFx = false;
+  let prompt = `{animal}, furry`;
 
-    let prompt = `{animal}, furry`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #mystical`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", {emotion}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, in {general-style} clothing style`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, in {general-style} clothing style`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-    const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, ${maybeGlow()} {clothes}`;
+  }
 
-    for(let i = 0; i < clothingCount; i++) {
-        prompt += `, ${maybeGlow()} {clothes}`;
-    }
+  if (_.random(0.0, 1.0, true) < 0.1) prompt += ", {instrument}";
 
-    if(_.random(0.0, 1.0, true) < 0.1)
-        prompt += ", {instrument}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #weather`;
-
-    return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

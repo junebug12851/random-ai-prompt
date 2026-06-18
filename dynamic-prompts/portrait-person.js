@@ -14,17 +14,15 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  // Start with base prompt
+  let prompt = `#portrait, #person, #expressive, #weather`;
 
-	// Start with base prompt
-	let prompt = `#portrait, #person, #expressive, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += ", {instrument}";
 
-	if(_.random(0.0, 1.0, true) < 0.2)
-		prompt += ", {instrument}"
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

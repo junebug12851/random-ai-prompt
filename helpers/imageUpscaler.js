@@ -14,71 +14,72 @@
     limitations under the License.
 */
 
-const fs = require('fs');
-const fetch = require('node-fetch');
+import saveImage from "./saveImage.js";
 
-const saveImage = require("./saveImage");
+export default async function doUpscale(
+  base64Image,
+  info,
+  imageSettings,
+  upscaleSettings,
+  upscaleOf,
+) {
+  imageSettings.progressUpscaling = true;
 
-module.exports = async function doUpscale(base64Image, info, imageSettings, upscaleSettings, upscaleOf) {
+  // Convert image settings over to a format WebUI can understand
+  const postData = {
+    image: base64Image,
+    resize_mode: upscaleSettings.upscaleToSize ? 1 : 0,
+    show_extras_results: true,
+    gfpgan_visibility: upscaleSettings.faceRestoreGfpgan,
+    codeformer_visibility: upscaleSettings.faceRestoreCodeFormer,
+    codeformer_weight: upscaleSettings.codeFormerWeight,
+    upscaling_resize: upscaleSettings.upscaleBy,
+    upscaling_resize_w: upscaleSettings.upscaleToWidth,
+    upscaling_resize_h: upscaleSettings.upscaleToHeight,
+    upscaling_crop: upscaleSettings.autoCrop,
+    upscaler_1: upscaleSettings.upscaler1,
+    upscaler_2: upscaleSettings.upscaler2,
+    extras_upscaler_2_visibility: upscaleSettings.upscaler2Percentage,
+    upscale_first: upscaleSettings.fixFacesLast,
+  };
 
-	imageSettings.progressUpscaling = true;
+  // Save upscale dimensions to json file
+  let toWidth = upscaleSettings.upscaleToWidth;
+  let toHeight = upscaleSettings.upscaleToHeight;
 
-	// Convert image settings over to a format WebUI can understand
-	const postData = {
-		image: base64Image,
-		resize_mode: (upscaleSettings.upscaleToSize) ? 1 : 0,
-		show_extras_results: true,
-		gfpgan_visibility: upscaleSettings.faceRestoreGfpgan,
-		codeformer_visibility: upscaleSettings.faceRestoreCodeFormer,
-		codeformer_weight: upscaleSettings.codeFormerWeight,
-		upscaling_resize: upscaleSettings.upscaleBy,
-		upscaling_resize_w: upscaleSettings.upscaleToWidth,
-		upscaling_resize_h: upscaleSettings.upscaleToHeight,
-		upscaling_crop: upscaleSettings.autoCrop,
-		upscaler_1: upscaleSettings.upscaler1,
-		upscaler_2: upscaleSettings.upscaler2,
-		extras_upscaler_2_visibility: upscaleSettings.upscaler2Percentage,
-		upscale_first: upscaleSettings.fixFacesLast
-	};
+  if (!upscaleSettings.upscaleToSize) {
+    toWidth = info.width * upscaleSettings.upscaleBy;
+    toHeight = info.height * upscaleSettings.upscaleBy;
+  }
 
-	// Save upscale dimensions to json file
-	let toWidth = upscaleSettings.upscaleToWidth;
-	let toHeight = upscaleSettings.upscaleToHeight;
+  info.upscaleWidth = Math.trunc(toWidth);
+  info.upscaleHeight = Math.trunc(toHeight);
 
-	if(!upscaleSettings.upscaleToSize) {
-		toWidth = info.width * upscaleSettings.upscaleBy;
-		toHeight = info.height * upscaleSettings.upscaleBy;
-	}
+  // Save that this is an upscaled image
+  info.isUpscale = true;
 
-	info.upscaleWidth = Math.trunc(toWidth);
-	info.upscaleHeight = Math.trunc(toHeight);
+  // Holds WebUI response data
+  let data;
 
-	// Save that this is an upscaled image
-	info.isUpscale = true;
+  console.log("Upscaling...");
 
-	// Holds WebUI response data
-	let data;
+  // Send response
+  try {
+    const response = await fetch(`${imageSettings.url}/sdapi/v1/extra-single-image`, {
+      method: "post",
+      body: JSON.stringify(postData),
+      headers: { "Content-Type": "application/json" },
+    });
 
-	console.log("Upscaling...");
+    data = await response.json();
+  } catch (err) {
+    console.log("An error has occured when asking WebUI to upscale images");
+    throw err;
+  }
 
-	// Send response
-	try {
-		const response = await fetch(`${imageSettings.url}/sdapi/v1/extra-single-image`, {
-			method: 'post',
-			body: JSON.stringify(postData),
-			headers: {'Content-Type': 'application/json'}
-		});
+  // Get Base64 PNG
+  const pngBase64 = data.image;
 
-		data = await response.json();
-	}
-	catch(err) {
-		console.log("An error has occured when asking WebUI to upscale images");
-		throw err;
-	}
-
-	// Get Base64 PNG
-	const pngBase64 = data.image;
-
-	// Save it as an upscaled version
-	saveImage(pngBase64, info, imageSettings, true, upscaleOf);
+  // Save it as an upscaled version
+  saveImage(pngBase64, info, imageSettings, true, upscaleOf);
 }

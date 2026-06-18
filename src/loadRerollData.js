@@ -14,43 +14,39 @@
     limitations under the License.
 */
 
-const fs = require("fs");
-const convertMetaToJSON = require("./convertMetaToJSON");
+import fs from "node:fs";
+import convertMetaToJSON from "./convertMetaToJSON.js";
 
-module.exports = function(name, field, settings, imageSettings, upscaleSettings) {
-	console.log(`Re-Rolling ${field} from File ID: ${name}`);
+export default function (name, field, settings, imageSettings, upscaleSettings) {
+  console.log(`Re-Rolling ${field} from File ID: ${name}`);
 
-	let txt;
+  let txt;
 
-	// Check to see if it's a JSON file or not, convert if it isn't
-	if(convertMetaToJSON.check(name, imageSettings))
-		txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
-	else
-		txt = require(`../${imageSettings.saveTo}/${name}.json`);
+  // Check to see if it's a JSON file or not, convert if it isn't
+  if (convertMetaToJSON.check(name, imageSettings))
+    txt = convertMetaToJSON.convert(name, undefined, settings, imageSettings, upscaleSettings);
+  else txt = JSON.parse(fs.readFileSync(`${imageSettings.saveTo}/${name}.json`, "utf8"));
 
-	// Copy field in if it exists
-	if(txt[field] != undefined) {
+  // Copy field in if it exists
+  if (txt[field] != undefined) {
+    console.log(`Found ${field} to reload in file`);
 
-		console.log(`Found ${field} to reload in file`);
+    // Copy field to prompt
+    settings.prompt = txt[field];
 
-		// Copy field to prompt
-		settings.prompt = txt[field];
+    // Copy these other settings, this is re-rolling the image not making a variation
+    // suff like original prompts and seeds should not be copied
+    imageSettings.negativePrompt = txt.negative_prompt;
+    imageSettings.sampler = txt.sampler_name;
+    imageSettings.cfg = txt.cfg_scale;
+    imageSettings.steps = txt.steps;
+    imageSettings.restoreFaces = txt.restore_faces;
+    imageSettings.width = txt.width;
+    imageSettings.height = txt.height;
+    imageSettings.denoising = txt.denoising_strength;
+    imageSettings.rerollOf = name.toString();
 
-		// Copy these other settings, this is re-rolling the image not making a variation
-		// suff like original prompts and seeds should not be copied
-		imageSettings.negativePrompt = txt.negative_prompt;
-		imageSettings.sampler = txt.sampler_name;
-		imageSettings.cfg = txt.cfg_scale;
-		imageSettings.steps = txt.steps;
-		imageSettings.restoreFaces = txt.restore_faces;
-		imageSettings.width = txt.width;
-		imageSettings.height = txt.height;
-		imageSettings.denoising = txt.denoising_strength;
-		imageSettings.rerollOf = name.toString();
-
-		// Ensure generate images is enabled
-		settings.generateImages = true;
-	}
-	else
-		console.log(`Unable to re-roll, did not find ${field} in file.`);
+    // Ensure generate images is enabled
+    settings.generateImages = true;
+  } else console.log(`Unable to re-roll, did not find ${field} in file.`);
 }

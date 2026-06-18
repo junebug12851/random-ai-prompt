@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-const {artistRepeater} = require("../helpers/keywordRepeater");
+import { artistRepeater } from "../helpers/keywordRepeater.js";
 
-module.exports = function expandRandom(settings) {
-	return artistRepeater("artist", true, settings);
+export default function expandRandom(settings) {
+  return artistRepeater("artist", true, settings);
 }

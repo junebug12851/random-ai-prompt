@@ -2,38 +2,37 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       const img = entry.target;
-      const src = img.getAttribute('data-src');
-      img.setAttribute('src', src);
-      img.classList.remove('lazy-load');
+      const src = img.getAttribute("data-src");
+      img.setAttribute("src", src);
+      img.classList.remove("lazy-load");
       observer.unobserve(img);
-  }
-});
+    }
+  });
 });
 
 function imagesChanged() {
-    const images = document.querySelectorAll('.lazy-load');
+  const images = document.querySelectorAll(".lazy-load");
 
-    images.forEach((img) => {
-      observer.observe(img);
+  images.forEach((img) => {
+    observer.observe(img);
   });
 }
 
 function clearImages() {
-    const images = document.querySelectorAll('.lazy-load');
+  const images = document.querySelectorAll(".lazy-load");
 
-    images.forEach((img) => {
-        try {
-          observer.unobserve(img);
-      } catch(err) {}
-    });
+  images.forEach((img) => {
+    try {
+      observer.unobserve(img);
+    } catch (err) {}
+  });
 
-    // Clear gallery
-    $("#page-gallery").empty();
+  // Clear gallery
+  $("#page-gallery").empty();
 }
 
 function getGalleryEl(prompt, imgSrc, width, height, name) {
-
-    return `
+  return `
         <a href="/single?name=${name}" rel="noopener noreferrer" class="gallery-el wide-${width} tall-${height}">
             <div class="overlay">
                 <p>${prompt}</p>
@@ -44,217 +43,195 @@ function getGalleryEl(prompt, imgSrc, width, height, name) {
 }
 
 function processImageFeed(files) {
+  clearImages();
 
-    clearImages();
+  for (let i = 0; i < files.length; i++) {
+    // Don't list animation frames on the feed
+    if (files[i].animationFrameOf) continue;
 
-    for(let i = 0; i < files.length; i++) {
+    // Get width and height in increments of 512
+    let width = files[i].width;
+    let height = files[i].height;
 
-        // Don't list animation frames on the feed
-        if(files[i].animationFrameOf)
-            continue;
+    // Use upscale dimensions if there are ones
+    // this only happens if the file is upscaled and the original is asked to
+    // not be saved
+    if (files[i].upscaleWidth != undefined) width = files[i].upscaleWidth;
 
-        // Get width and height in increments of 512
-        let width = files[i].width;
-        let height = files[i].height;
+    if (files[i].upscaleHeight != undefined) height = files[i].upscaleHeight;
 
-        // Use upscale dimensions if there are ones
-        // this only happens if the file is upscaled and the original is asked to
-        // not be saved
-        if(files[i].upscaleWidth != undefined)
-            width = files[i].upscaleWidth;
+    // Convert to aspect rato
+    let ar = width / height;
 
-        if(files[i].upscaleHeight != undefined)
-            height = files[i].upscaleHeight;
-
-        // Convert to aspect rato
-        let ar = width / height;
-        
-        // Determin col and row span
-        if(ar >= 2.00) {
-            width = 2;
-            height = 1;
-        }
-        else if(ar <= 0.50) {
-            width = 1;
-            height = 2;
-        }
-        else {
-            width = 1;
-            height = 1;
-        }
-
-        if(files[i].prompt == undefined)
-            files[i].prompt = "";
-
-        $("#page-gallery").append(
-            getGalleryEl(
-                files[i].prompt.substring(0, 100) + "...",
-                files[i].imgPath,
-                width,
-                height,
-                files[i].name
-            )
-        );
+    // Determin col and row span
+    if (ar >= 2.0) {
+      width = 2;
+      height = 1;
+    } else if (ar <= 0.5) {
+      width = 1;
+      height = 2;
+    } else {
+      width = 1;
+      height = 1;
     }
 
-    imagesChanged();
+    if (files[i].prompt == undefined) files[i].prompt = "";
+
+    $("#page-gallery").append(
+      getGalleryEl(
+        files[i].prompt.substring(0, 100) + "...",
+        files[i].imgPath,
+        width,
+        height,
+        files[i].name,
+      ),
+    );
+  }
+
+  imagesChanged();
 }
 
 function loadImageFeed() {
-    $.ajax({
-        url: "/api/images/feed",
-        type: "GET",
-        dataType: "json",
-        success: function(data){
-            processImageFeed(data);
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-    });
+  $.ajax({
+    url: "/api/images/feed",
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      processImageFeed(data);
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
+  });
 }
 
 function loadSearchQuery(query) {
-    $.ajax({
-        type: 'GET',
-        url: '/api/images/query',
-        data: {query},
-        success: function(data) {
-            processImageFeed(data);
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
+  $.ajax({
+    type: "GET",
+    url: "/api/images/query",
+    data: { query },
+    success: function (data) {
+      processImageFeed(data);
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
   });
 }
 
 function performSearch() {
-    // get query and trim it
-    let text = $('#page-search').val();
+  // get query and trim it
+  let text = $("#page-search").val();
 
-    // If it's completely empty, refresh feed, otherwise, send a query to the backend
-    if(text == "")
-        loadImageFeed();
-    else
-        loadSearchQuery(text)
+  // If it's completely empty, refresh feed, otherwise, send a query to the backend
+  if (text == "") loadImageFeed();
+  else loadSearchQuery(text);
 }
 
 function searchboxKeyPress(event) {
-    const keycode = (event.keyCode ? event.keyCode : event.which);
+  const keycode = event.keyCode ? event.keyCode : event.which;
 
-   if(keycode != '13')
-        return;
+  if (keycode != "13") return;
 
-    performSearch();
+  performSearch();
 }
 
 function updateSearchSuggestion() {
-   $.ajax({
-        type: 'GET',
-        url: '/api/images/search-suggestion',
-        success: function(data) {
-            $('#page-search').attr('placeholder', data);
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
+  $.ajax({
+    type: "GET",
+    url: "/api/images/search-suggestion",
+    success: function (data) {
+      $("#page-search").attr("placeholder", data);
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
   });
 }
 
 function performRandomSearch() {
+  // Get random placeholder text
+  let text = $("#page-search").attr("placeholder");
 
-    // Get random placeholder text
-    let text = $('#page-search').attr('placeholder');
+  // Set it as search text
+  $("#page-search").val(text);
 
-    // Set it as search text
-    $('#page-search').val(text);
+  // Request new placeholder text
+  updateSearchSuggestion();
 
-    // Request new placeholder text
-    updateSearchSuggestion();
-
-    // Perform search
-    loadSearchQuery(text);
+  // Perform search
+  loadSearchQuery(text);
 }
 
 function homeFeed() {
-    $('#page-search').val("");
-    loadImageFeed();
+  $("#page-search").val("");
+  loadImageFeed();
 }
 
 function updateStats() {
+  $.ajax({
+    type: "GET",
+    url: "/api/images/stats",
+    success: function (data) {
+      const keywordCount = data._total.keywords;
+      const fileCount = data._total.files;
 
-    $.ajax({
-        type: 'GET',
-        url: '/api/images/stats',
-        success: function(data) {
-            const keywordCount = data._total.keywords;
-            const fileCount = data._total.files;
-
-            $("#keyword-count").text(keywordCount);
-            $("#image-count").text(fileCount);
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
+      $("#keyword-count").text(keywordCount);
+      $("#image-count").text(fileCount);
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
   });
 }
 
 // Set the interval to run every 30 seconds
-setInterval(function() {
-
+setInterval(function () {
   updateSearchSuggestion();
-
 }, 15 * 1000);
 
 function makeArt() {
+  let pageSearch = $("#page-search").val();
 
-    let pageSearch = $("#page-search").val();
+  const generateSettings = {};
 
-    const generateSettings = {};
+  if (pageSearch.trim() != "") generateSettings.prompt = pageSearch.trim();
 
-    if(pageSearch.trim() != "")
-        generateSettings.prompt = pageSearch.trim();
+  localStorage.setItem("prompt", pageSearch.trim());
+  localStorage.setItem("generateSettings", generateSettings);
 
-    localStorage.setItem('prompt', pageSearch.trim());
-    localStorage.setItem('generateSettings', generateSettings);
-
-    $.ajax({
-        type: 'POST',
-        url: `/api/generate-full`,
-        data: generateSettings,
-        contentType: 'application/json',
-        success: function(data) {
-            
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
+  $.ajax({
+    type: "POST",
+    url: `/api/generate-full`,
+    data: generateSettings,
+    contentType: "application/json",
+    success: function (data) {},
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
   });
 
-    displayProgress(true);
+  displayProgress(true);
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
+  const params = getUrlParameters();
+  if (params.search != undefined) {
+    loadSearchQuery(params.search);
+    $("#page-search").val(params.search);
+  } else loadImageFeed();
 
-    const params = getUrlParameters();
-    if(params.search != undefined) {
-        loadSearchQuery(params.search);
-        $('#page-search').val(params.search);
-    }
-    else
-        loadImageFeed();
+  updateSearchSuggestion();
+  updateStats();
 
-    updateSearchSuggestion();
-    updateStats();
-
-    $('#page-search').keypress(searchboxKeyPress);
-    $('#random').click(performRandomSearch);
-    $('#search').click(performSearch);
-    $('#home').click(homeFeed);
-    $('#make-art').click(makeArt);
+  $("#page-search").keypress(searchboxKeyPress);
+  $("#random").click(performRandomSearch);
+  $("#search").click(performSearch);
+  $("#home").click(homeFeed);
+  $("#make-art").click(makeArt);
 });

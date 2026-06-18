@@ -14,38 +14,33 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
+  let prompt = `person`;
 
-    let prompt = `person`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += ", {emotion}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color {hair}`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #color {hair}`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-    const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, #color {clothes}`;
+  }
 
-    for(let i = 0; i < clothingCount; i++) {
-        prompt += `, #color {clothes}`;
-    }
+  if (_.random(0.0, 1.0, true) < 0.1) prompt += ", {instrument}";
 
-    if(_.random(0.0, 1.0, true) < 0.1)
-        prompt += ", {instrument}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
 
-    if(_.random(0.0, 1.0, true) < 0.5)
-        prompt += `, #weather`;
+  // Start with base prompt
+  prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;
 
-    // Start with base prompt
-    prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;
-
-    return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

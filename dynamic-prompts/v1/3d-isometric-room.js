@@ -16,109 +16,79 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function getName() {
-	// Start with base prompt
-	let prompt = "room, {room}";
+  // Start with base prompt
+  let prompt = "room, {room}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {mood} atmosphere"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {mood} atmosphere";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5) {
+  if (_.random(0.0, 1.0, true) < 0.5) {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", reflective surface";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", reflective surface"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", polished";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", polished"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shiny";
+  } else {
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dirty";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shiny"
-	}
-	else {
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", dirty"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cobweb";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", cobweb"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", spider web";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", spider web"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", grunge";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", grunge"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", rundown";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", rundown"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", broken floor";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", broken floor"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", torn wallpaper";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", torn wallpaper"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mold";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", mold"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", mildew";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", mildew"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shattered glass";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", shattered glass"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", holes";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", holes"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", floor hole";
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", floor hole"
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ceiling hole";
+  }
 
-		if(_.random(0.0, 1.0, true) < 0.5)
-			prompt += ", ceiling hole"
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", clutter";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", clutter"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", messy";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", messy"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", furniture";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", furniture"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", items";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", items"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", accesories";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", accesories"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", window";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", window"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", furnished";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", furnished"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
-
-	return prompt;
+  return prompt;
 }
 
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `Tiny cute isometric`;
+  prompt += getName();
+  prompt += " in a cutaway box, soft smooth lighting, soft colors, ";
+  prompt += "{color}";
+  prompt += ` color scheme, soft colors, 100mm lens, 3d blender render`;
 
-	// Start with base prompt
-	let prompt = `Tiny cute isometric`;
-	prompt += getName();
-	prompt += " in a cutaway box, soft smooth lighting, soft colors, ";
-	prompt += "{color}"
-	prompt += ` color scheme, soft colors, 100mm lens, 3d blender render`;
-
-	return prompt;
+  return prompt;
 }

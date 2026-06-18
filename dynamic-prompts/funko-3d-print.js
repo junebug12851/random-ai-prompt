@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return "Funko pop #person figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
+  // Start with base prompt
+  return "Funko pop #person figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
 }
 
-module.exports.full = true;
+export const full = true;

@@ -3,7 +3,8 @@
   margin-top: 15px;
 }
 
-#container, .sub-container {
+#container,
+.sub-container {
   display: flex;
   flex-direction: column;
   align-items: center; /* align vertically */
@@ -54,7 +55,7 @@ img {
 }
 
 #expanded-progress-bar {
-  background-color: hsl(0.00,0.00%,20%);
+  background-color: hsl(0, 0%, 20%);
   margin-top: 25px;
 }
 
@@ -68,5 +69,5 @@ img {
   padding: 7px;
   line-height: 10px;
   border-radius: 5px;
-/*  margin-bottom: -10px;*/
+  /*  margin-bottom: -10px;*/
 }

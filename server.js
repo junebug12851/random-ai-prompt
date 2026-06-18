@@ -16,35 +16,24 @@
 
 console.log("Starting app...");
 
-const _ = require("lodash");
-const {
-  settings,
-  defSettings,
-  reloadSettings,
-  saveSettings,
-  replaceSettings,
-  userSettings,
+import _ from "lodash";
+import fs from "node:fs";
+import path from "node:path";
+import { exec, execSync } from "node:child_process";
+import { promisify } from "node:util";
+import express from "express";
+import open from "open";
 
-  genImage,
-  upscale,
-  run,
-} = require("./common");
+import common from "./common.js";
+import imageIndex from "./web/backend/indexImages.js";
+import saveApng from "./helpers/saveApng.js";
+import promptFiles from "./src/promptFilesAndSuggestions.js";
 
-const imageIndex = require("./web/backend/indexImages");
-const fs = require("fs");
-const path = require("path");
-const express = require('express');
-const http = require('http');
-const fetch = require('node-fetch');
-const open = require('open');
-const saveApng = require('./helpers/saveApng');
-
-const { exec, execSync } = require('child_process');
-const { promisify } = require('util');
+const { settings, defSettings, reloadSettings, saveSettings, replaceSettings, userSettings } =
+  common;
 
 const execPromise = promisify(exec);
 
-const promptFiles = require("./src/promptFilesAndSuggestions");
 promptFiles.init(settings);
 promptFiles.loadAll();
 
@@ -56,33 +45,31 @@ console.log("Starting server...");
 const app = express();
 
 // Use pug as the template engine
-app.set('view engine', 'pug');
-app.set('views', settings().serverSettings.webFolder + "/views")
+app.set("view engine", "pug");
+app.set("views", settings().serverSettings.webFolder + "/views");
 
 // Use the body-parser middleware to parse incoming request bodies
 app.use(express.json());
 
 function dirOpen(dirPath) {
-
   dirPath = path.resolve(dirPath);
 
-  let command = '';
+  let command = "";
   switch (process.platform) {
-    case 'darwin':
-      command = 'open';
+    case "darwin":
+      command = "open";
       break;
-    case 'win32':
-      command = 'explorer';
+    case "win32":
+      command = "explorer";
       break;
     default:
-      command = 'xdg-open';
+      command = "xdg-open";
       break;
   }
 
   try {
     return execSync(`${command} "${dirPath}"`);
-  }
-  catch(err) {
+  } catch (err) {
     // Weirdly, it often fails sauccesfully??? Disable error if it's successful
     // console.error(err);
   }
@@ -104,46 +91,40 @@ async function execMagick(args, fileNames, output, silent) {
   let ret = {};
 
   // Add arguments "-key value"
-  if(args != undefined) {
+  if (args != undefined) {
     for (const [key, value] of Object.entries(args)) {
-
       commandArgs.push(`-${key}`);
 
       // Seems it's a bit more complicated than just spaces, especially for powershell
       // If it has any characters that warrant quotes auto-enclose in quotes
       if (value !== undefined && value !== true) {
-        if(typeof value === 'string' && /[^a-z0-9\-.,]/gi.test(value))
+        if (typeof value === "string" && /[^a-z0-9\-.,]/gi.test(value))
           commandArgs.push(`"${value}"`);
-        else
-          commandArgs.push(value);
+        else commandArgs.push(value);
       }
     }
   }
 
   // Add input filenames
-  if(fileNames != undefined) {
-    for(let i = 0; i < fileNames.length; i++)
-      commandArgs.push(fileNames[i]);
+  if (fileNames != undefined) {
+    for (let i = 0; i < fileNames.length; i++) commandArgs.push(fileNames[i]);
   }
 
   // Add output filename
-  if(output != undefined)
-    commandArgs.push(output);
+  if (output != undefined) commandArgs.push(output);
 
   // Log cmd used
-  let logCmd = commandArgs.join(' ');
+  let logCmd = commandArgs.join(" ");
 
-  if(!silent)
-    console.log(logCmd);
+  if (!silent) console.log(logCmd);
 
   try {
-    const { stdout, stderr } = await execPromise(commandArgs.join(' '));
-    ret = {stdout, stderr};
+    const { stdout, stderr } = await execPromise(commandArgs.join(" "));
+    ret = { stdout, stderr };
   } catch (error) {
-    ret = {error};
+    ret = { error };
 
-    if(!silent)
-      console.error(`exec error: ${error}`);
+    if (!silent) console.error(`exec error: ${error}`);
   }
 
   execMagickOngoing = false;
@@ -161,29 +142,27 @@ async function execApp() {
   let ret = {};
 
   for (const [key, value] of Object.entries(args)) {
-
     commandArgs.push(`--${key}`);
 
     // Seems it's a bit more complicated than just spaces, especially for powershell
     // If it has any characters that warrant quotes auto-enclose in quotes
     if (value !== undefined && value !== true) {
-      if(typeof value === 'string' && /[^a-z0-9\-.,]/gi.test(value))
+      if (typeof value === "string" && /[^a-z0-9\-.,]/gi.test(value))
         commandArgs.push(`"${value}"`);
-      else
-        commandArgs.push(value);
+      else commandArgs.push(value);
     }
   }
 
   // Log cmd used
-  let logCmd = commandArgs.join(' ');
+  let logCmd = commandArgs.join(" ");
   logCmd = logCmd.replace(nodeExecutable, "node");
   console.log(logCmd);
 
   try {
-    const { stdout, stderr } = await execPromise(commandArgs.join(' '));
-    ret = {stdout, stderr};
+    const { stdout, stderr } = await execPromise(commandArgs.join(" "));
+    ret = { stdout, stderr };
   } catch (error) {
-    ret = {error};
+    ret = { error };
     console.error(`exec error: ${error}`);
   }
 
@@ -193,16 +172,17 @@ async function execApp() {
 }
 
 async function getProgressRequest() {
-    const url = `http://localhost:${settings().serverSettings.portProgress}/api/images/progress`;
+  const url = `http://localhost:${settings().serverSettings.portProgress}/api/images/progress`;
 
-    // Send response
-    try {
-      const response = await fetch(`http://localhost:${settings().serverSettings.portProgress}/api/images/progress`);
-      return await response.json();
-    }
-    catch(err) {}
+  // Send response
+  try {
+    const response = await fetch(
+      `http://localhost:${settings().serverSettings.portProgress}/api/images/progress`,
+    );
+    return await response.json();
+  } catch (err) {}
 
-    return undefined;
+  return undefined;
 }
 
 async function getProgress() {
@@ -212,7 +192,7 @@ async function getProgress() {
     ret = await getProgressRequest();
   } catch (error) {}
 
-  if(ret == undefined) {
+  if (ret == undefined) {
     ret = {
       // Progress on-going or not
       progressOngoing: false,
@@ -265,54 +245,52 @@ app.use(express.static(settings().serverSettings.webFolder + "/frontend"));
 // API Requests
 // These respond in JSON and sometimes require JSON input
 
-app.get('/', (req, res) => {
-  res.render('feed');
+app.get("/", (req, res) => {
+  res.render("feed");
 });
 
-app.get('/single', (req, res) => {
-  res.render('single');
+app.get("/single", (req, res) => {
+  res.render("single");
 });
 
-app.get('/re-index', (req, res) => {
-  res.render('re-index');
+app.get("/re-index", (req, res) => {
+  res.render("re-index");
 });
 
-app.get('/progress', (req, res) => {
-  res.render('progress');
+app.get("/progress", (req, res) => {
+  res.render("progress");
 });
 
-app.get('/upscale-progress', (req, res) => {
-  res.render('upscale-progress');
+app.get("/upscale-progress", (req, res) => {
+  res.render("upscale-progress");
 });
 
-app.get('/results', (req, res) => {
-  res.render('results');
+app.get("/results", (req, res) => {
+  res.render("results");
 });
 
-app.get('/settings', (req, res) => {
-  res.render('settings');
+app.get("/settings", (req, res) => {
+  res.render("settings");
 });
 
-app.get('/generate', (req, res) => {
-  res.render('generate');
+app.get("/generate", (req, res) => {
+  res.render("generate");
 });
 
-app.get('/regen-anim', (req, res) => {
-  res.render('regen-anim');
+app.get("/regen-anim", (req, res) => {
+  res.render("regen-anim");
 });
 
-app.get('/download/:file', (req, res) => {
+app.get("/download/:file", (req, res) => {
   res.download(`./${settings().imageSettings.saveTo}/${req.params.file}`);
 });
 
-app.get('/api/images/delete/:filename', (req, res) => {
-
+app.get("/api/images/delete/:filename", (req, res) => {
   // Delete file
   try {
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.png`);
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${req.params.filename}.json`);
-  }
-  catch(err) {
+  } catch (err) {
     console.error(err);
   }
 
@@ -320,8 +298,7 @@ app.get('/api/images/delete/:filename', (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/animation/delete/:fileId', (req, res) => {
-
+app.get("/api/animation/delete/:fileId", (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -329,31 +306,29 @@ app.get('/api/animation/delete/:fileId', (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Make sure it has at least 1 animation frame
-  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+  if (imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
     res.jsonp({});
     console.error("Error: API requested to remove animation frames from an image with no frames");
     return;
   }
 
   // Go through all frames
-  for(let i = 0; i < imageData.animationFrames.length; i++) {
-
+  for (let i = 0; i < imageData.animationFrames.length; i++) {
     // Get file name
     const file = imageData.animationFrames[i].name;
 
     // Delete file
-  try {
+    try {
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.png`);
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.json`);
-    }
-    catch(err) {
+    } catch (err) {
       console.error(err);
     }
   }
@@ -362,8 +337,7 @@ app.get('/api/animation/delete/:fileId', (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/animation/externalize/:fileId', (req, res) => {
-
+app.get("/api/animation/externalize/:fileId", (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -371,16 +345,18 @@ app.get('/api/animation/externalize/:fileId', (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Make sure it has at least 1 animation frame
-  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+  if (imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
     res.jsonp({});
-    console.error("Error: API requested to prepare an animation for ai interpolation from an image with no frames");
+    console.error(
+      "Error: API requested to prepare an animation for ai interpolation from an image with no frames",
+    );
     return;
   }
 
@@ -389,13 +365,11 @@ app.get('/api/animation/externalize/:fileId', (req, res) => {
   // Make directory
   try {
     fs.mkdirSync(`${baseFolderPath}`);
-  }
-  catch(err) {}
+  } catch (err) {}
 
   try {
     fs.mkdirSync(`${baseFolderPath}/frames`);
-  }
-  catch(err) {}
+  } catch (err) {}
 
   // Calculate info
   const delayMs = +settings().imageSettings.animationDelay;
@@ -408,42 +382,46 @@ app.get('/api/animation/externalize/:fileId', (req, res) => {
 
   // Write info to file
   try {
-    fs.writeFileSync(`${baseFolderPath}/info.txt`, 
-`Frame Delay: ${delayMs}ms (${delayS}s)
+    fs.writeFileSync(
+      `${baseFolderPath}/info.txt`,
+      `Frame Delay: ${delayMs}ms (${delayS}s)
 Total Frames: ${frames}
 Animation Length: ${length}s
 FPS: ${fps}
 Target FPS: 60
-Multiplier/Speed Factor to get near 60FPS: ${factor}`);
-  }
-  catch(err) {
+Multiplier/Speed Factor to get near 60FPS: ${factor}`,
+    );
+  } catch (err) {
     console.error(err);
   }
 
   // Go through all frames
-  for(let i = 0; i < imageData.animationFrames.length; i++) {
-
+  for (let i = 0; i < imageData.animationFrames.length; i++) {
     // Get from file name
     const fromFilename = `${imageData.animationFrames[i].name}.png`;
 
     // Get file name
     // 00001.png, 00002.png, 00003.png, etc...
-    const toFilename = String(i+1).padStart(5, "0") + ".png";
+    const toFilename = String(i + 1).padStart(5, "0") + ".png";
 
     // Copy file
-  try {
-      fs.copyFileSync(`./${settings().imageSettings.saveTo}/${fromFilename}`, `${baseFolderPath}/frames/${toFilename}`);
-    }
-    catch(err) {
+    try {
+      fs.copyFileSync(
+        `./${settings().imageSettings.saveTo}/${fromFilename}`,
+        `${baseFolderPath}/frames/${toFilename}`,
+      );
+    } catch (err) {
       console.error(err);
     }
   }
 
   // Copy animation over as well
   try {
-    fs.copyFileSync(`./${settings().imageSettings.saveTo}/${imageName}.png`, `${baseFolderPath}/animation.png`);
-  }
-  catch(err) {
+    fs.copyFileSync(
+      `./${settings().imageSettings.saveTo}/${imageName}.png`,
+      `${baseFolderPath}/animation.png`,
+    );
+  } catch (err) {
     console.error(err);
   }
 
@@ -454,8 +432,7 @@ Multiplier/Speed Factor to get near 60FPS: ${factor}`);
   res.jsonp("success");
 });
 
-app.get('/api/upscales/delete/:fileId', (req, res) => {
-
+app.get("/api/upscales/delete/:fileId", (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -463,33 +440,31 @@ app.get('/api/upscales/delete/:fileId', (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Make sure it has at least 1 upscale
-  if(imageData.upscales == undefined || imageData.upscales.length == 0) {
+  if (imageData.upscales == undefined || imageData.upscales.length == 0) {
     res.jsonp({});
     console.error("Error: API requested to remove upscales from an image with no upscales");
     return;
   }
 
   // Go through all upscales
-  for(let i = 0; i < imageData.upscales.length; i++) {
-
+  for (let i = 0; i < imageData.upscales.length; i++) {
     // Get file name and remove fake path and extension
     let file = imageData.upscales[i];
     file = file.replaceAll("/images/", "");
     file = file.replaceAll(".png", "");
 
     // Delete file
-  try {
+    try {
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.png`);
       fs.unlinkSync(`./${settings().imageSettings.saveTo}/${file}.json`);
-    }
-    catch(err) {
+    } catch (err) {
       console.error(err);
     }
   }
@@ -498,12 +473,11 @@ app.get('/api/upscales/delete/:fileId', (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/images/query', async function(req, res) {
-
+app.get("/api/images/query", async function (req, res) {
   // Get query
   const query = req.query;
 
-  if(query.query == undefined) {
+  if (query.query == undefined) {
     res.jsonp([]);
     console.error("Client sent a query request with no query attached");
     return;
@@ -516,11 +490,10 @@ app.get('/api/images/query', async function(req, res) {
 });
 
 // Gets a random image name
-app.get('/api/images/random-name', async function(req, res) {
-
+app.get("/api/images/random-name", async function (req, res) {
   const file = _.sample(imageIndex.getFiles());
 
-  if(file == undefined) {
+  if (file == undefined) {
     res.jsonp("");
     return;
   }
@@ -528,8 +501,7 @@ app.get('/api/images/random-name', async function(req, res) {
   res.jsonp(_.sample(imageIndex.getFiles()).name);
 });
 
-app.get('/api/images/single/:name', async function(req, res) {
-
+app.get("/api/images/single/:name", async function (req, res) {
   // Get image name
   const imageName = req.params.name;
 
@@ -537,7 +509,7 @@ app.get('/api/images/single/:name', async function(req, res) {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
@@ -555,15 +527,13 @@ app.get('/api/images/single/:name', async function(req, res) {
   // Begin working on the keyword cloud
   const keywordCloud = [];
 
-  for(let i = 0; i < imageKeywords.length; i++) {
-
+  for (let i = 0; i < imageKeywords.length; i++) {
     // Get keyword
     const imageKeyword = imageKeywords[i];
 
     // Get count
     let keywordStats = stats[imageKeyword];
-    if(keywordStats == undefined)
-      continue;
+    if (keywordStats == undefined) continue;
     keywordStats = keywordStats.count;
 
     // Calc percent
@@ -573,8 +543,8 @@ app.get('/api/images/single/:name', async function(req, res) {
     keywordCloud.push({
       keyword: imageKeyword,
       count: keywordStats,
-      percent: keywordPercent
-    })
+      percent: keywordPercent,
+    });
   }
 
   // Save to object
@@ -585,54 +555,52 @@ app.get('/api/images/single/:name', async function(req, res) {
 });
 
 // Returns all images shuffled randomly
-app.get('/api/images/feed', async function(req, res) {
+app.get("/api/images/feed", async function (req, res) {
   res.jsonp(_.shuffle(_.uniqBy(_.values(imageIndex.getFiles()), "imgPath")));
 });
 
 // Rebuilds index
-app.get('/api/images/re-index', async function(req, res) {
+app.get("/api/images/re-index", async function (req, res) {
   imageIndex.rebuildIndexes(settings());
   res.jsonp("success");
 });
 
 // Returns all images unshuffled
-app.get('/api/images/files', async function(req, res) {
+app.get("/api/images/files", async function (req, res) {
   res.jsonp(imageIndex.getFiles());
 });
 
 // Returns all keywords unshuffled
-app.get('/api/images/index', async function(req, res) {
+app.get("/api/images/index", async function (req, res) {
   res.jsonp(imageIndex.getIndex());
 });
 
-app.get('/api/images/stats', async function(req, res) {
+app.get("/api/images/stats", async function (req, res) {
   res.jsonp(imageIndex.getIndexStats());
 });
 
 // Returns random keyword suggestions with 1 to 3 keywords
-app.get('/api/images/search-suggestion', async function(req, res) {
-
+app.get("/api/images/search-suggestion", async function (req, res) {
   // Whether to pull from a file 1-3 keywords or 1 random keyword
-  const fromFile = _.random(0.0, 1.0, true) < 0.50;
+  const fromFile = _.random(0.0, 1.0, true) < 0.5;
 
   // How many to pull (if from file)
   const count = _.random(1, 3, false);
 
-  if(fromFile) {
+  if (fromFile) {
     const file = _.sample(_.values(imageIndex.getFiles()));
 
-    if(file == undefined) {
+    if (file == undefined) {
       res.jsonp("Please make some images by clicking new...");
       return;
     }
 
     const keywords = _.sampleSize(file.keywords, count);
     res.jsonp(keywords.join(" "));
-  }
-  else {
+  } else {
     const keyword = _.sample(_.keys(imageIndex.getIndex()));
 
-    if(keyword == undefined) {
+    if (keyword == undefined) {
       res.jsonp("Please make some images by clicking new...");
       return;
     }
@@ -641,31 +609,28 @@ app.get('/api/images/search-suggestion', async function(req, res) {
   }
 });
 
-app.get('/api/images/random-keywords', async function(req, res) {
-
+app.get("/api/images/random-keywords", async function (req, res) {
   // Get up to 25 random keywords
   const keywords = _.sampleSize(_.keys(imageIndex.getIndex()), 50);
   res.jsonp(keywords);
 });
 
-app.get('/api/images/progress', async function(req, res) {
+app.get("/api/images/progress", async function (req, res) {
   const progress = await getProgress();
   res.jsonp(progress);
 });
 
-app.get('/api/images/reindex-progress', async function(req, res) {
+app.get("/api/images/reindex-progress", async function (req, res) {
   res.jsonp(imageIndex.getProgress());
 });
 
-app.get('/api/progress-results', async function(req, res) {
-
+app.get("/api/progress-results", async function (req, res) {
   // get results
   let results = {};
 
   try {
     results = JSON.parse(fs.readFileSync("./results.json").toString());
-  }
-  catch(err) {
+  } catch (err) {
     console.error(err);
   }
 
@@ -676,13 +641,12 @@ app.get('/api/progress-results', async function(req, res) {
   // Array to send to client
   let ret = {
     images: [],
-    prompts: (prompts) ? prompts : [],
+    prompts: prompts ? prompts : [],
   };
 
   // Convert image name array to an image url array for the web ui
-  if(images != undefined) {
-    for(let i = 0; i < images.length; i++) {
-
+  if (images != undefined) {
+    for (let i = 0; i < images.length; i++) {
       // get path to png file
       ret.images.push(`/images/${images[i]}.png`);
     }
@@ -691,10 +655,8 @@ app.get('/api/progress-results', async function(req, res) {
   res.jsonp(ret);
 });
 
-app.get('/api/results', async function(req, res) {
-
+app.get("/api/results", async function (req, res) {
   try {
-
     // get results
     const results = JSON.parse(fs.readFileSync("./results.json").toString());
 
@@ -705,12 +667,11 @@ app.get('/api/results', async function(req, res) {
     // Array to send to client
     let ret = {
       images: [],
-      prompts: (prompts) ? prompts : [],
+      prompts: prompts ? prompts : [],
     };
 
-    if(images != undefined) {
-      for(let i = 0; i < images.length; i++) {
-
+    if (images != undefined) {
+      for (let i = 0; i < images.length; i++) {
         // Prepare object to be pushed into array
         const obj = {};
 
@@ -719,7 +680,7 @@ app.get('/api/results', async function(req, res) {
 
         // Save reference to index data and index link if it exists
         const data = imageIndex.getFiles()[images[i]];
-        if(data != undefined) {
+        if (data != undefined) {
           obj.data = data;
           obj.link = `/single?name=${images[i]}`;
         }
@@ -727,13 +688,14 @@ app.get('/api/results', async function(req, res) {
         // Otherwise attempt to assume its an upscale and get link that way
         else {
           try {
-            const json = require(`${settings().imageSettings.saveTo}/${images[i]}.json`);
-            if(json.upscaleOf) {
+            const json = JSON.parse(
+              fs.readFileSync(`${settings().imageSettings.saveTo}/${images[i]}.json`, "utf8"),
+            );
+            if (json.upscaleOf) {
               obj.data = imageIndex.getFiles()[json.upscaleOf];
               obj.link = `/single?name=${json.upscaleOf}`;
             }
-          }
-          catch(err) {}
+          } catch (err) {}
         }
 
         // Save it
@@ -743,17 +705,16 @@ app.get('/api/results', async function(req, res) {
 
     res.jsonp(ret);
     return;
-  }
-  catch(err) {}
+  } catch (err) {}
 
   res.jsonp({
-      images: [],
-      prompts: [],
-    });
+    images: [],
+    prompts: [],
+  });
 });
 
-app.get('/api/ping', (req, res) => {
-  res.jsonp('pong');
+app.get("/api/ping", (req, res) => {
+  res.jsonp("pong");
 });
 
 // Single setting
@@ -767,10 +728,14 @@ app.get('/api/ping', (req, res) => {
 //   res.jsonp(setting[0]);
 // });
 
-app.post('/api/setting', (req, res) => {
-
+app.post("/api/setting", (req, res) => {
   // Verify the body contains an object with a kery of value and a value of anything but undefined
-  if(req.body == null || req.body == undefined || req.body.value == undefined || req.body.path == undefined) {
+  if (
+    req.body == null ||
+    req.body == undefined ||
+    req.body.value == undefined ||
+    req.body.path == undefined
+  ) {
     console.error("Posting a setting needs to be done in {value: ..., path: ...}");
     res.jsonp(null);
     return;
@@ -783,59 +748,62 @@ app.post('/api/setting', (req, res) => {
 });
 
 // Get settings
-app.get('/api/settings', (req, res) => {
+app.get("/api/settings", (req, res) => {
   res.jsonp(settings());
 });
 
-app.get('/api/default-settings', (req, res) => {
+app.get("/api/default-settings", (req, res) => {
   res.jsonp(defSettings());
 });
 
-app.get('/api/user-settings', (req, res) => {
+app.get("/api/user-settings", (req, res) => {
   res.jsonp(userSettings());
 });
 
 // Reload settings
-app.get('/api/reload-settings', (req, res) => {
+app.get("/api/reload-settings", (req, res) => {
   reloadSettings();
   res.jsonp("success");
 });
 
 // Save settings
-app.get('/api/save-settings', (req, res) => {
+app.get("/api/save-settings", (req, res) => {
   saveSettings();
   res.jsonp("success");
 });
 
-app.post('/api/expansion/save', (req, res) => {
-
+app.post("/api/expansion/save", (req, res) => {
   // Verify the body contains an object
-  if(req.body == null || req.body == undefined) {
+  if (req.body == null || req.body == undefined) {
     console.error("Can't save expansion without json body");
     res.jsonp(null);
     return;
   }
 
-  fs.writeFileSync(`${settings().settings.expansionFiles}/${req.body.fileName}.txt`, req.body.prompt);
+  fs.writeFileSync(
+    `${settings().settings.expansionFiles}/${req.body.fileName}.txt`,
+    req.body.prompt,
+  );
   res.jsonp("Success!");
 });
 
-app.post('/api/preset/save', (req, res) => {
-
+app.post("/api/preset/save", (req, res) => {
   // Verify the body contains an object
-  if(req.body == null || req.body == undefined) {
+  if (req.body == null || req.body == undefined) {
     console.error("Can't save preset without json body");
     res.jsonp(null);
     return;
   }
 
-  fs.writeFileSync(`${settings().settings.presetFiles}/${req.body.fileName}.json`, JSON.stringify(req.body.presetObj, null, 4));
+  fs.writeFileSync(
+    `${settings().settings.presetFiles}/${req.body.fileName}.json`,
+    JSON.stringify(req.body.presetObj, null, 4),
+  );
   res.jsonp("Success!");
 });
 
 // Put settings
-app.post('/api/replace-settings', (req, res) => {
-
+app.post("/api/replace-settings", (req, res) => {
   // Change out settings
   replaceSettings(req.body);
 
@@ -846,8 +814,7 @@ app.post('/api/replace-settings', (req, res) => {
 });
 
 // Put settings
-app.post('/api/merge-settings', (req, res) => {
-
+app.post("/api/merge-settings", (req, res) => {
   // Merge settings
   _.merge(settings(), req.body);
 
@@ -858,10 +825,9 @@ app.post('/api/merge-settings', (req, res) => {
 });
 
 // Make file variations
-app.get('/api/file-variation/:fileId', async (req, res) => {
-
+app.get("/api/file-variation/:fileId", async (req, res) => {
   args = {
-    "file-variations": req.params.fileId
+    "file-variations": req.params.fileId,
   };
 
   // Run file variatons
@@ -871,10 +837,9 @@ app.get('/api/file-variation/:fileId', async (req, res) => {
 });
 
 // Upscale existing
-app.get('/api/upscale-file/:fileId', async (req, res) => {
-
+app.get("/api/upscale-file/:fileId", async (req, res) => {
   args = {
-    "upscale-file": req.params.fileId
+    "upscale-file": req.params.fileId,
   };
 
   // Run file variatons
@@ -884,8 +849,7 @@ app.get('/api/upscale-file/:fileId', async (req, res) => {
 });
 
 // Reroll existing
-app.get('/api/reroll-file/:fileId/:field', async (req, res) => {
-
+app.get("/api/reroll-file/:fileId/:field", async (req, res) => {
   args = {
     "reroll-file": req.params.fileId,
     "reroll-field": req.params.field,
@@ -898,8 +862,7 @@ app.get('/api/reroll-file/:fileId/:field', async (req, res) => {
 });
 
 // Make file variations
-app.get('/api/file-update-animation/:fileId', async (req, res) => {
-
+app.get("/api/file-update-animation/:fileId", async (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -907,14 +870,14 @@ app.get('/api/file-update-animation/:fileId', async (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Make sure it has at least 1 animation frame
-  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+  if (imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
     res.jsonp({});
     console.error("Error: API requested to update an image with no frames");
     return;
@@ -923,7 +886,7 @@ app.get('/api/file-update-animation/:fileId', async (req, res) => {
   // Convert to filename list
   const files = [];
 
-  for(let i = 0; i < imageData.animationFrames.length; i++) {
+  for (let i = 0; i < imageData.animationFrames.length; i++) {
     files.push(imageData.animationFrames[i].name);
   }
 
@@ -941,20 +904,20 @@ app.get('/api/file-update-animation/:fileId', async (req, res) => {
 });
 
 // Do normal generation
-app.get('/api/generate', async (req, res) => {
-
+app.get("/api/generate", async (req, res) => {
   // Run file variatons
   await execApp();
 
   res.jsonp("success");
 });
 
-app.post('/api/generate', async (req, res) => {
-
-  if(req.body != null &&
-      req.body != undefined &&
-      req.body.value != undefined &&
-      req.body.value != "")
+app.post("/api/generate", async (req, res) => {
+  if (
+    req.body != null &&
+    req.body != undefined &&
+    req.body.value != undefined &&
+    req.body.value != ""
+  )
     args.prompt = req.body.value;
 
   // Run file variatons
@@ -963,11 +926,8 @@ app.post('/api/generate', async (req, res) => {
   res.jsonp("success");
 });
 
-app.post('/api/generate-full', async (req, res) => {
-
-  if(req.body != null &&
-      req.body != undefined)
-    args = req.body;
+app.post("/api/generate-full", async (req, res) => {
+  if (req.body != null && req.body != undefined) args = req.body;
 
   // Run file variatons
   await execApp();
@@ -975,21 +935,24 @@ app.post('/api/generate-full', async (req, res) => {
   res.jsonp("success");
 });
 
-app.get('/api/magick-installed', async (req, res) => {
-
+app.get("/api/magick-installed", async (req, res) => {
   // Run file variatons
-  const ret = await execMagick({
-    version: undefined
-  }, undefined, undefined, true);
+  const ret = await execMagick(
+    {
+      version: undefined,
+    },
+    undefined,
+    undefined,
+    true,
+  );
 
-  const isInstalled = (ret.stdout != undefined && ret.stdout.length > 0);
+  const isInstalled = ret.stdout != undefined && ret.stdout.length > 0;
 
   res.jsonp(isInstalled);
 });
 
 // Use Image Magick to convert animation to another animation file
-app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
-
+app.get("/api/magick-animation-convert/:fileId/:ext", async (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -1000,14 +963,14 @@ app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Make sure it has at least 1 animation frame
-  if(imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
+  if (imageData.animationFrames == undefined || imageData.animationFrames.length == 0) {
     res.jsonp({});
     console.error("Error: API requested to convert an animation with no frames");
     return;
@@ -1016,31 +979,30 @@ app.get('/api/magick-animation-convert/:fileId/:ext', async (req, res) => {
   // Convert to filename list
   const files = [];
 
-  for(let i = 0; i < imageData.animationFrames.length; i++) {
+  for (let i = 0; i < imageData.animationFrames.length; i++) {
     files.push(`./${settings().imageSettings.saveTo}/${imageData.animationFrames[i].name}.png`);
   }
 
   // Run file variatons
   await execMagick(
     {
-      delay: +(settings().imageSettings.animationDelay / 10).toFixed(0)
+      delay: +(settings().imageSettings.animationDelay / 10).toFixed(0),
     },
     files,
-    `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`
+    `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`,
   );
 
   // Return
   res.download(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
 
   // Auto-remove after some time
-  setTimeout(function() {
+  setTimeout(function () {
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
   }, 5 * 1000);
 });
 
 // Use Image Magick to convert image to another image file
-app.get('/api/magick-image-convert/:fileId/:ext', async (req, res) => {
-
+app.get("/api/magick-image-convert/:fileId/:ext", async (req, res) => {
   // Get image name
   const imageName = req.params.fileId;
 
@@ -1051,57 +1013,50 @@ app.get('/api/magick-image-convert/:fileId/:ext', async (req, res) => {
   const imageData = _.cloneDeep(imageIndex.getFiles()[imageName]);
 
   // Make sure image exists in index
-  if(imageData === undefined) {
+  if (imageData === undefined) {
     res.jsonp({});
     console.error("Error: API requested a non-indexed image");
     return;
   }
 
   // Convert to filename list
-  const files = [
-    `./${settings().imageSettings.saveTo}/${imageName}.png`
-  ];
+  const files = [`./${settings().imageSettings.saveTo}/${imageName}.png`];
 
   // Run file variatons
-  await execMagick(
-    undefined,
-    files,
-    `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`
-  );
+  await execMagick(undefined, files, `./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
 
   // Return
   res.download(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
 
   // Auto-remove after some time
-  setTimeout(function() {
+  setTimeout(function () {
     fs.unlinkSync(`./${settings().imageSettings.saveTo}/${imageName}.${newExt}`);
   }, 5 * 1000);
 });
 
-app.get('/api/prompt-suggestion', (req, res) => {
+app.get("/api/prompt-suggestion", (req, res) => {
   res.jsonp(promptFiles.promptSuggestion());
 });
 
-app.get('/api/files/dynamic-prompts', (req, res) => {
+app.get("/api/files/dynamic-prompts", (req, res) => {
   res.jsonp(promptFiles.loadDynPromptList());
 });
 
-app.get('/api/files/expansions', (req, res) => {
+app.get("/api/files/expansions", (req, res) => {
   res.jsonp(promptFiles.loadExpansionFileList());
 });
 
-app.get('/api/files/lists', (req, res) => {
+app.get("/api/files/lists", (req, res) => {
   res.jsonp(promptFiles.loadListFileList());
 });
 
-app.get('/api/files/presets', (req, res) => {
+app.get("/api/files/presets", (req, res) => {
   const files = fs.readdirSync(settings().settings.presetFiles);
   const userFiles = [];
 
-  for(let i = 0; i < files.length; i++) {
-    
+  for (let i = 0; i < files.length; i++) {
     // Get filename without suffix
-    const file = files[i].substr(0, files[i].lastIndexOf('.'));
+    const file = files[i].substr(0, files[i].lastIndexOf("."));
     userFiles.push(file);
   }
 

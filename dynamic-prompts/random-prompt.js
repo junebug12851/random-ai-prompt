@@ -14,27 +14,26 @@
     limitations under the License.
 */
 
-const suggestion = require("../src/promptFilesAndSuggestions");
+import suggestion from "../src/promptFilesAndSuggestions.js";
 
-module.exports = function(settings) {
+export default function (settings) {
+  // Init
+  suggestion.init(function () {
+    return { settings };
+  });
 
-    // Init
-	suggestion.init(function() {
-        return {settings};
-    });
+  // Load All
+  suggestion.loadAll();
 
-    // Load All
-    suggestion.loadAll();
+  // Execute a full suggestion
+  const prompt = suggestion.promptSuggestion(true);
 
-    // Execute a full suggestion
-    const prompt = suggestion.promptSuggestion(true);
+  // Save into settings
+  settings.randomPrompt = prompt;
 
-    // Save into settings
-    settings.randomPrompt = prompt;
-
-    // Return
-    return prompt;
+  // Return
+  return prompt;
 }
 
-module.exports.full = true;
-module.exports.suggestion_exclude = true;
+export const full = true;
+export const suggestion_exclude = true;

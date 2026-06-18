@@ -14,43 +14,32 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "store, interior";
 
-	let prompt = "store, interior";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shop";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", shop";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {store-type}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {store-type}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", intricate";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", intricate";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", detailed";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", detailed";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cozy";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cozy";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #mystical`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #room-state`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, #room-state`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {building-style}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {time}"
-
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;

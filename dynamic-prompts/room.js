@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-module.exports = function() {
-	return `room, interrior, {room}, #room-state, #weather`;
+export default function () {
+  return `room, interrior, {room}, #room-state, #weather`;
 }
 
-module.exports.full = true;
+export const full = true;

@@ -14,75 +14,58 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `portrait, princess, royalty`;
 
-	// Start with base prompt
-	let prompt = `portrait, princess, royalty`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", girl";
+  else prompt += ", woman";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", girl"
-	else
-		prompt += ", woman"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {emotion}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}{hair}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", full body";
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", head and chest, upperbody";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", full body"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", head and chest, upperbody"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", up-close";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", up-close"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sceptor";
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", staff";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", sceptor"
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", staff"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}crown`;
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}tiara`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}crown`
-	else if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}tiara`
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}robes`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}robes`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, ${maybeAddColor()}{clothes}`;
+  }
 
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
+  const adjectiveCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const adjectiveCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < adjectiveCount; i++) {
+    prompt += ", {adjective}";
+  }
 
-	for(let i = 0; i < adjectiveCount; i++) {
-		prompt += ", {adjective}";
-	}
+  const nounCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 3, false) : 0;
 
-	const nounCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 3, false) : 0;
+  for (let i = 0; i < nounCount; i++) {
+    prompt += ", {noun}";
+  }
 
-	for(let i = 0; i < nounCount; i++) {
-		prompt += ", {noun}";
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {verb}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", {verb}"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dynamic-pose";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", dynamic-pose"
-
-	return prompt;
+  return prompt;
 }

@@ -14,41 +14,39 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 /*
  * 1. Remove empty commas that don't look good
  * 2. Remove extra spaces that don't look good
-*/
+ */
 
-module.exports = function(prompt, settings, imageSettings, upscaleSettings) {
+export default function (prompt, settings, imageSettings, upscaleSettings) {
+  // Get rid of extra spaces
+  prompt = prompt.replaceAll(/ +/gm, " ");
 
-	// Get rid of extra spaces
-	prompt = prompt.replaceAll(/ +/gm, " ");
+  // Remove space before parenthesis
+  prompt = prompt.replaceAll(" )", ")");
 
-	// Remove space before parenthesis
-	prompt = prompt.replaceAll(" )", ")");
+  // Get rid of empty parenthesis
+  prompt = prompt.replaceAll(/\( *\)/gm, "");
 
-	// Get rid of empty parenthesis
-	prompt = prompt.replaceAll(/\( *\)/gm, "");
+  // Get rid of unesesary commas
+  prompt = prompt.split(",");
+  const newPromt = [];
 
-	// Get rid of unesesary commas
-	prompt = prompt.split(",");
-	const newPromt = [];
+  for (let i = 0; i < prompt.length; i++) {
+    const el = prompt[i].trim();
+    if (el != "") newPromt.push(el);
+  }
 
-	for(let i = 0; i < prompt.length; i++) {
-		const el = prompt[i].trim();
-		if(el != "")
-			newPromt.push(el);
-	}
+  prompt = newPromt.join(", ");
 
-	prompt = newPromt.join(", ");
+  // STOP SEEPING THROUGH
+  // This is my 3rd check
+  // We can't have commas or anything after AND only spaces
+  prompt = prompt.replaceAll("AND,", "AND");
 
-	// STOP SEEPING THROUGH
-	// This is my 3rd check
-	// We can't have commas or anything after AND only spaces
-	prompt = prompt.replaceAll("AND,", "AND");
-
-	// Return prompt
-	return prompt;
+  // Return prompt
+  return prompt;
 }

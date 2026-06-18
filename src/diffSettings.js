@@ -1,32 +1,30 @@
-const _ = require("lodash");
+import _ from "lodash";
 
 function processGroup(settings, defSettings, groupName, diff) {
+  if (settings[groupName] == undefined) return;
 
-	if(settings[groupName] == undefined)
-		return;
+  _.forEach(settings[groupName], (value, key) => {
+    const curSetting = settings[groupName][key];
+    const defSetting = defSettings[groupName][key];
 
-	_.forEach(settings[groupName], (value, key) => {
-		const curSetting = settings[groupName][key];
-		const defSetting = defSettings[groupName][key];
-
-		if(!_.isEqual(curSetting, defSetting)) {
-			diff[groupName][key] = curSetting;
-		}
-	});
+    if (!_.isEqual(curSetting, defSetting)) {
+      diff[groupName][key] = curSetting;
+    }
+  });
 }
 
-module.exports = function(settings, defSettings) {
-	const diff = {
-		settings: {},
-		imageSettings: {},
-		upscaleSettings: {},
-		serverSettings: {}
-	};
+export default function (settings, defSettings) {
+  const diff = {
+    settings: {},
+    imageSettings: {},
+    upscaleSettings: {},
+    serverSettings: {},
+  };
 
-	processGroup(settings, defSettings, "settings", diff);
-	processGroup(settings, defSettings, "imageSettings", diff);
-	processGroup(settings, defSettings, "upscaleSettings", diff);
-	processGroup(settings, defSettings, "serverSettings", diff);
+  processGroup(settings, defSettings, "settings", diff);
+  processGroup(settings, defSettings, "imageSettings", diff);
+  processGroup(settings, defSettings, "upscaleSettings", diff);
+  processGroup(settings, defSettings, "serverSettings", diff);
 
-	return diff;
+  return diff;
 }

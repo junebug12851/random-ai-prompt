@@ -16,50 +16,46 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
 // 2d ferocious <name>, vector illustration, angry eyes, football team emblem logo, 2d flat, centered
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `2d ferocious`;
 
-	// Start with base prompt
-	let prompt = `2d ferocious`;
+  let human = false;
 
-	let human = false;
+  switch (_.random(0, 3, false)) {
+    case 0:
+      prompt += ` {animal}`;
+      break;
+    case 1:
+      prompt += ` {d-character}`;
+      human = true;
+      break;
+    case 2:
+      prompt += ` {mythological-creature}`;
+      break;
+    case 3:
+      prompt += ` person`;
+      human = true;
+      break;
+  }
 
-	switch(_.random(0, 3, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {d-character}`;
-			human = true;
-			break;
-		case 2:
-			prompt += ` {mythological-creature}`;
-			break;
-		case 3:
-			prompt += ` person`;
-			human = true;
-			break;
-	}
+  if (_.random(0.0, 1.0, true) < 0.5 && human) prompt += `, ${maybeAddColor()}{hair}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5 && human)
-		prompt += `, ${maybeAddColor()}{hair}`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 && human ? _.random(0, 5, false) : 0;
 
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5 && human) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, ${maybeAddColor()}{clothes}`;
+  }
 
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
+  prompt += ` vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
 
-	prompt += ` vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
-
-	return prompt;
+  return prompt;
 }

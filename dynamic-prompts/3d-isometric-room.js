@@ -17,14 +17,13 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
-module.exports = function(settings) {
+export default function (settings) {
+  // This will not work well with added artists or fx
+  settings.autoAddArtists = false;
+  settings.autoAddFx = false;
 
-    // This will not work well with added artists or fx
-    settings.autoAddArtists = false;
-    settings.autoAddFx = false;
-
-	// Start with base prompt
-	return "Tiny cute isometric #room in a cutaway box, soft smooth lighting, soft colors, {color} color scheme, soft colors, 100mm lens, 3d blender render";
+  // Start with base prompt
+  return "Tiny cute isometric #room in a cutaway box, soft smooth lighting, soft colors, {color} color scheme, soft colors, 100mm lens, 3d blender render";
 }
 
-module.exports.full = true;
+export const full = true;

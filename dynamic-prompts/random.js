@@ -14,10 +14,10 @@
     limitations under the License.
 */
 
-const {keywordRepeater} = require("../helpers/keywordRepeater");
+import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
-module.exports = function expandRandom(settings) {
-	return keywordRepeater("keyword", true, settings);
+export default function expandRandom(settings) {
+  return keywordRepeater("keyword", true, settings);
 }
 
-module.exports.full = true;
+export const full = true;

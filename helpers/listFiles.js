@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-const fs = require('fs');
-const _ = require("lodash");
+import fs from "node:fs";
+import _ from "lodash";
 
 // All-lists in memory
 const lists = {};
@@ -26,135 +26,117 @@ const artistAlias = "artist";
 
 // Convert filename.txt -> filename
 function removeExtension(filename) {
-    return filename.substring(0, filename.lastIndexOf('.')) || filename;
+  return filename.substring(0, filename.lastIndexOf(".")) || filename;
 }
 
 // Get list of filenames.txt
 function getListFiles(settings) {
-    // Get all list files
-    return fs.readdirSync(settings.listFiles);
+  // Get all list files
+  return fs.readdirSync(settings.listFiles);
 }
 
 // Reload file into the list in-memory
 function reloadListFile(settings, name) {
-    // Load list into memory as an array
-    const list = fs.readFileSync(`${settings.listFiles}/${name}.txt`).toString().split("\n");
+  // Load list into memory as an array
+  const list = fs.readFileSync(`${settings.listFiles}/${name}.txt`).toString().split("\n");
 
-    // Save into memory under proper list category
-    if (name == settings.artistFilename ||
-        name.includes("artist"))
-        artists[name] = list;
-    else
-        lists[name] = list;
+  // Save into memory under proper list category
+  if (name == settings.artistFilename || name.includes("artist")) artists[name] = list;
+  else lists[name] = list;
 }
 
 function lazyReloadListFile(settings, name) {
-    if (name == settings.artistFilename ||
-        name.includes("artist"))
-        artists[name] = [];
-    else
-        lists[name] = [];
+  if (name == settings.artistFilename || name.includes("artist")) artists[name] = [];
+  else lists[name] = [];
 }
 
 // Reload all lists into memory
 function reloadListFiles(settings) {
+  // Get list files
+  const files = getListFiles(settings);
 
-    // Get list files
-    const files = getListFiles(settings);
+  // Add-in real lists
+  // Loop through all lists
+  for (let i = 0; i < files.length; i++) {
+    // Convert filename.txt to filename
+    const key = removeExtension(files[i]);
 
-    // Add-in real lists
-    // Loop through all lists
-    for (let i = 0; i < files.length; i++) {
-
-        // Convert filename.txt to filename
-        const key = removeExtension(files[i]);
-
-        // Re-load into memory
-        lazyReloadListFile(settings, key);
-    }
+    // Re-load into memory
+    lazyReloadListFile(settings, key);
+  }
 }
 
 function nameToData(settings, name, skipAliasCheck) {
+  skipAliasCheck = skipAliasCheck == true;
 
-    skipAliasCheck = (skipAliasCheck == true);
+  if (!skipAliasCheck) {
+    // use alias to refer to list if provided
+    if (name == keywordAlias && settings.keywordsFilename.toString() != "false")
+      name = settings.keywordsFilename;
+    else if (name == artistAlias && settings.artistFilename.toString() != "false")
+      name = settings.artistFilename;
+    else if (name == keywordAlias && settings.keywordsFilename.toString() == "false")
+      name = _.sample(_.keys(lists));
+    else if (name == artistAlias && settings.artistFilename.toString() == "false")
+      name = _.sample(_.keys(artists));
+  }
 
-    if(!skipAliasCheck) {
-        // use alias to refer to list if provided
-        if (name == keywordAlias && settings.keywordsFilename.toString() != "false")
-            name = settings.keywordsFilename;
-        else if (name == artistAlias && settings.artistFilename.toString() != "false")
-            name = settings.artistFilename;
-        else if (name == keywordAlias && settings.keywordsFilename.toString() == "false")
-            name = _.sample(_.keys(lists));
-        else if (name == artistAlias && settings.artistFilename.toString() == "false")
-            name = _.sample(_.keys(artists));
-    }
+  // Save pointer to list
+  let list;
+  let isArtistList = false;
 
-    // Save pointer to list
-    let list;
-    let isArtistList = false;
+  if (name == settings.artistFilename || name.includes("artist")) {
+    list = artists[name];
+    isArtistList = true;
+  } else list = lists[name];
 
-    if (name == settings.artistFilename ||
-        name.includes("artist")) {
-        list = artists[name];
-        isArtistList = true;
-    }
-    else
-        list = lists[name];
-
-    return {
-        name,
-        list,
-        isArtistList,
-    };
+  return {
+    name,
+    list,
+    isArtistList,
+  };
 }
 
 // Pulls a list entry from a named list
 function pull(settings, name) {
+  // Convert name to data
+  let data = nameToData(settings, name);
+  name = data.name;
 
-    // Convert name to data
-    let data = nameToData(settings, name);
-    name = data.name;
+  // Immidiately stop if artist are disabled when an artist is requested
+  if (data.isArtistList && !settings.includeArtist) return "";
 
-    // Immidiately stop if artist are disabled when an artist is requested
-    if (data.isArtistList && !settings.includeArtist)
-        return "";
+  // If list is empty, reload
+  // We have to also re-update the list pointer
+  if (data.list.length <= 0) {
+    reloadListFile(settings, name);
+    data = nameToData(settings, name, true);
+  }
 
-    // If list is empty, reload
-    // We have to also re-update the list pointer
-    if (data.list.length <= 0) {
-        reloadListFile(settings, name);
-        data = nameToData(settings, name, true);
-    }
+  // If still empty, return empty string
+  if (data.list.length <= 0) return "";
 
-    // If still empty, return empty string
-    if (data.list.length <= 0)
-        return "";
+  // Pull random index
+  const index = _.random(0, data.list.length - 1);
 
-    // Pull random index
-    const index = _.random(0, data.list.length - 1);
+  // Pull list entry
+  const entry = data.list[index];
 
-    // Pull list entry
-    const entry = data.list[index];
+  // Remove it from the list
+  if (settings.listEntriesUsedOnce) data.list.splice(index, 1);
 
-    // Remove it from the list
-    if (settings.listEntriesUsedOnce)
-        data.list.splice(index, 1);
+  // If list is empty, reload
+  if (data.list.length <= 0) reloadListFile(settings, name);
 
-    // If list is empty, reload
-    if (data.list.length <= 0)
-        reloadListFile(settings, name);
-
-    // Return list item
-    return entry;
+  // Return list item
+  return entry;
 }
 
-module.exports = {
+export default {
+  keywordAlias,
+  artistAlias,
 
-    keywordAlias,
-    artistAlias,
-
-    reloadListFile,
-    reloadListFiles,
-    pull
+  reloadListFile,
+  reloadListFiles,
+  pull,
 };

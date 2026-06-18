@@ -16,24 +16,23 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
 // 3d fluffy <name>, closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `3d fluffy`;
 
-	// Start with base prompt
-	let prompt = `3d fluffy`;
+  switch (_.random(0, 1, false)) {
+    case 0:
+      prompt += ` {animal}`;
+      break;
+    case 1:
+      prompt += ` {mythological-creature}`;
+      break;
+  }
 
-	switch(_.random(0, 1, false)) {
-		case 0:
-			prompt += ` {animal}`;
-			break;
-		case 1:
-			prompt += ` {mythological-creature}`;
-			break;
-	}
+  prompt += ` closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic`;
 
-	prompt += ` closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic`;
-
-	return prompt;
+  return prompt;
 }

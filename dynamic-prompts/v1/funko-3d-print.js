@@ -16,42 +16,39 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const _ = require("lodash");
+import _ from "lodash";
 
-const entityBasicKeywords = require("../entity");
+import entityBasicKeywords from "../entity.js";
 
 function maybeAddColor() {
-	if(_.random(0.0, 1.0, true) < 0.5)
-		return "{color} ";
-	else
-		return "";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";
+  else return "";
 }
 
 // Funko pop <name> figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `Funko pop`;
 
-	// Start with base prompt
-	let prompt = `Funko pop`;
+  switch (_.random(0, 1, false)) {
+    case 0:
+      prompt += ` {d-character}`;
+      break;
+    case 1:
+      prompt += ` person`;
+      break;
+  }
 
-	switch(_.random(0, 1, false)) {
-		case 0:
-			prompt += ` {d-character}`;
-			break;
-		case 1:
-			prompt += ` person`;
-			break;
-	}
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ${maybeAddColor()}{hair}`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += `, ${maybeAddColor()}{hair}`
+  const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
-	const clothingCount = (_.random(0.0, 1.0, true) < 0.5) ? _.random(0, 5, false) : 0;
+  for (let i = 0; i < clothingCount; i++) {
+    prompt += `, ${maybeAddColor()}{clothes}`;
+  }
 
-	for(let i = 0; i < clothingCount; i++) {
-		prompt += `, ${maybeAddColor()}{clothes}`;
-	}
+  prompt +=
+    " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
 
-	prompt += " figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
-
-	return prompt;
+  return prompt;
 }

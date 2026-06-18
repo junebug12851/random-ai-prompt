@@ -16,16 +16,16 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-const entityBasicKeywords = require("../entity");
+import entityBasicKeywords from "../entity.js";
 
 // Tiny cute isometric <name>, soft smooth lighting, soft colors, soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue blackground, physically based rendering, centered
 
-module.exports = function(settings, imageSettings, upscaleSettings) {
+export default function (settings, imageSettings, upscaleSettings) {
+  // Start with base prompt
+  let prompt = `Tiny cute isometric `;
+  prompt += entityBasicKeywords();
+  prompt +=
+    " soft smooth lighting, soft colors, soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue blackground, physically based rendering, centered";
 
-	// Start with base prompt
-	let prompt = `Tiny cute isometric `;
-	prompt += entityBasicKeywords();
-	prompt += " soft smooth lighting, soft colors, soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue blackground, physically based rendering, centered";
-
-	return prompt;
+  return prompt;
 }

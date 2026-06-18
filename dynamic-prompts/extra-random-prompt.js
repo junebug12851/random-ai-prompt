@@ -14,17 +14,16 @@
     limitations under the License.
 */
 
-const randomPrompt = require("./random-prompt");
+import randomPrompt from "./random-prompt.js";
 
-module.exports = function(settings) {
+export default function (settings) {
+  // Set keywords and artists to use any list file (total random)
+  settings.keywordsFilename = false;
+  settings.artistFilename = false;
 
-    // Set keywords and artists to use any list file (total random)
-    settings.keywordsFilename = false;
-    settings.artistFilename = false;
-
-    // Then use random prompt
-    return randomPrompt(settings);
+  // Then use random prompt
+  return randomPrompt(settings);
 }
 
-module.exports.full = true;
-module.exports.suggestion_exclude = true;
+export const full = true;
+export const suggestion_exclude = true;

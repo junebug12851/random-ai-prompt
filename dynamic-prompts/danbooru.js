@@ -14,30 +14,29 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
-const {keywordRepeater} = require("../helpers/keywordRepeater");
+import _ from "lodash";
+import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
 // Generates a prompt containing this based on settings
 // {d-general}... {d-character}... {d-meta}...
-module.exports = function(settings) {
+export default function (settings) {
+  const metaCount = _.random(0, 2, false);
+  const characterCount = _.random(0, 2, false);
 
-	const metaCount = _.random(0, 2, false);
-	const characterCount = _.random(0, 2, false);
+  let str = [];
 
-	let str = [];
+  str.push(keywordRepeater("d-general", false, settings));
 
-	str.push(keywordRepeater("d-general", false, settings));
+  if (_.random(0.0, 1.0, true) < 0.2)
+    for (let i = 0; i < characterCount; i++) {
+      str.push(`{d-character}`);
+    }
 
-	if(_.random(0.0, 1.0, true) < 0.2)
-		for(let i = 0; i < characterCount; i++) {
-			str.push(`{d-character}`);
-		}
+  for (let i = 0; i < metaCount; i++) {
+    str.push(`{d-meta}`);
+  }
 
-	for(let i = 0; i < metaCount; i++) {
-		str.push(`{d-meta}`);
-	}
-
-	return str.join(", ");
+  return str.join(", ");
 }
 
-module.exports.full = true;
+export const full = true;

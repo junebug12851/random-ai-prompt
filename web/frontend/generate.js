@@ -5,290 +5,295 @@ let state = {};
 
 // Save state
 function saveSetting(path, value) {
+  // Save into state
+  if (value == "") state[path] = undefined;
+  else state[path] = value;
 
-	// Save into state
-	if(value == "")
-		state[path] = undefined;
-	else
-		state[path] = value;
-
-	// Save into local storage
-	localStorage.setItem('generateSettings', JSON.stringify(state));
+  // Save into local storage
+  localStorage.setItem("generateSettings", JSON.stringify(state));
 }
 
 // Converts to start case but fixes numbering
 function startCase(text) {
-	let ret = _.startCase(text);
+  let ret = _.startCase(text);
 
-	// Replace D with Danbooru (More readable)
-	ret = ret.replace(/^D /m, "Danbooru ");
+  // Replace D with Danbooru (More readable)
+  ret = ret.replace(/^D /m, "Danbooru ");
 
-	// Replace Danbooru with anime to be more readable
-	ret = ret.replace("Danbooru", "Anime");
+  // Replace Danbooru with anime to be more readable
+  ret = ret.replace("Danbooru", "Anime");
 
-	ret = ret.replace("Dhigh", "Digipa High");
-	ret = ret.replace("Dmed", "Digipa Medium");
-	ret = ret.replace("Dlow", "Digipa Low");
+  ret = ret.replace("Dhigh", "Digipa High");
+  ret = ret.replace("Dmed", "Digipa Medium");
+  ret = ret.replace("Dlow", "Digipa Low");
 
-	// Makes it too long, skip, was to add to readability
-	// ret = ret.replace("Danbooru Character C", "Danbooru Character Trademark");
-	// ret = ret.replace("Danbooru Character Nc", "Danbooru Character OC");
+  // Makes it too long, skip, was to add to readability
+  // ret = ret.replace("Danbooru Character C", "Danbooru Character Trademark");
+  // ret = ret.replace("Danbooru Character Nc", "Danbooru Character OC");
 
-	// 3 D Print V 1 => 3D Print V1
-	ret = ret.replaceAll(/(\d) (\w)/gm, "$1$2");
-	ret = ret.replaceAll(/(\w) (\d)/gm, "$1$2");
+  // 3 D Print V 1 => 3D Print V1
+  ret = ret.replaceAll(/(\d) (\w)/gm, "$1$2");
+  ret = ret.replaceAll(/(\w) (\d)/gm, "$1$2");
 
-	return ret;
+  return ret;
 }
 
 function returnValToSetting() {
+  // Ignore if invalid
+  if ($(this).is(":invalid")) return;
 
-	// Ignore if invalid
-	if($(this).is(":invalid"))
-		return;
+  // Get cmd(s)
+  const paths = $(this).data("command").split(",");
 
-	// Get cmd(s)
-	const paths = $(this).data('command').split(",");
+  // Get the value
+  let val;
 
-	// Get the value
-	let val;
+  if ($(this).is('[type="checkbox"]')) val = $(this).prop("checked").toString();
+  else val = $(this).val();
 
-	if($(this).is('[type="checkbox"]'))
-		val = $(this).prop('checked').toString();
-	else
-		val = $(this).val();
+  // Convert value to an array of 1 or more elements only if this is a text input or textarea
+  // and it's either implicitly or explicitly requested
+  if (
+    (paths.length > 1 || $(this).data("join") != undefined) &&
+    ($(this).is("input[type='text']") || $(this).is("textarea"))
+  ) {
+    if ($(this).data("join") != undefined) val = val.split($(this).data("join"));
+    else val = val.split("-");
+  }
 
-	// Convert value to an array of 1 or more elements only if this is a text input or textarea
-	// and it's either implicitly or explicitly requested
-	if(
-		(paths.length > 1 || $(this).data('join') != undefined) &&
-		($(this).is("input[type='text']") || $(this).is("textarea"))
-	) {
-		if($(this).data('join') != undefined)
-			val = val.split($(this).data('join'));
-		else
-			val = val.split("-");
-	}
+  // Otherwise just make into an array
+  else val = [val];
 
-	// Otherwise just make into an array
-	else
-		val = [val];
+  // Type conversion from string to proper primitive values
+  for (let i = 0; i < val.length; i++) {
+    // Try to convert to null
+    if (val[i] == "null") {
+      val[i] = null;
+    }
 
-	// Type conversion from string to proper primitive values
-	for(let i = 0; i < val.length; i++) {
+    // Try t convert to undefined
+    else if (val[i] == "undefined") {
+      val[i] = undefined;
+    }
 
-		// Try to convert to null
-		if(val[i] == "null") {
-			val[i] = null;
-		}
+    // Try to convert to a boolean
+    else if (val[i] == "true" || val[i] == "false") {
+      val[i] = val[i] == "true";
+    }
 
-		// Try t convert to undefined
-		else if(val[i] == "undefined") {
-			val[i] = undefined;
-		}
+    // Try to convert to number
+    else if (!isNaN(Number(val[i]))) {
+      val[i] = Number(val[i]);
+    }
 
-		// Try to convert to a boolean
-		else if(val[i] == "true" || val[i] == "false") {
-			val[i] = (val[i] == "true");
-		}
+    // Try to convert it to a float
+    else if (val[i].endsWith("%") && !isNaN(Number.parseFloat(val[i]))) {
+      val[i] = Number.parseFloat(val[i]);
+      val[i] = +(val[i] * 0.01).toFixed(2);
+    }
 
-		// Try to convert to number
-		else if(!isNaN(Number(val[i]))) {
-			val[i] = Number(val[i]);
-		}
+    // Leave as a string
+  }
 
-		// Try to convert it to a float
-		else if(val[i].endsWith("%") && !isNaN(Number.parseFloat(val[i]))) {
-			val[i] = Number.parseFloat(val[i]);
-			val[i] = +(val[i] * 0.01).toFixed(2);
-		}
+  // Save
 
-		// Leave as a string
-	}
+  // 1 path to 1 value
+  if (paths.length == 1 && val.length == 1) {
+    saveSetting(paths[0], val[0]);
+    return;
+  }
 
-	// Save
+  // 1 path to an array value
+  else if (paths.length == 1 && val.length > 1) {
+    saveSetting(paths[0], val);
+    return;
+  }
 
-	// 1 path to 1 value
-	if(paths.length == 1 && val.length == 1) {
-		saveSetting(paths[0], val[0]);
-		return;
-	}
+  // 1 value per path
+  else if (val.length == paths.length) {
+    for (let i = 0; i < paths.length; i++) {
+      // Grab path
+      const path = paths[i];
 
-	// 1 path to an array value
-	else if(paths.length == 1 && val.length > 1) {
-		saveSetting(paths[0], val);
-		return;
-	}
+      // Grab value
+      const value = val[i];
 
-	// 1 value per path
-	else if(val.length == paths.length) {
+      // Save
+      saveSetting(path, value);
+    }
 
-		for(let i = 0; i < paths.length; i++) {
+    return;
+  }
 
-			// Grab path
-			const path = paths[i];
-
-			// Grab value
-			const value = val[i];
-
-			// Save
-			saveSetting(path, value);
-		}
-
-		return;
-	}
-
-	console.error("Can't classify how to save data back, paths", paths, "values", val);
+  console.error("Can't classify how to save data back, paths", paths, "values", val);
 }
 
 async function updateInsertMenu() {
+  // Gather files
+  let dynPrompts = await ajaxGet("/api/files/dynamic-prompts");
+  if (dynPrompts == null || dynPrompts == undefined) dynPrompts = [];
 
-	// Gather files
-	let dynPrompts = await ajaxGet('/api/files/dynamic-prompts');
-	if(dynPrompts == null || dynPrompts == undefined)
-		dynPrompts = [];
+  let expansions = await ajaxGet("/api/files/expansions");
+  if (expansions == null || expansions == undefined) expansions = [];
 
-	let expansions = await ajaxGet('/api/files/expansions');
-	if(expansions == null || expansions == undefined)
-		expansions = [];
+  let lists = await ajaxGet("/api/files/lists");
+  if (lists == null || lists == undefined) lists = [];
 
-	let lists = await ajaxGet('/api/files/lists');
-	if(lists == null || lists == undefined)
-		lists = [];
+  let randomKeywords = await ajaxGet("/api/images/random-keywords");
+  if (randomKeywords == null || randomKeywords == undefined) randomKeywords = [];
 
-	let randomKeywords = await ajaxGet('/api/images/random-keywords');
-	if(randomKeywords == null || randomKeywords == undefined)
-		randomKeywords = [];
+  // ------------------------------------------------------------------------
+  // Dynamic prompts full
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Dynamic prompts full
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < dynPrompts.fullRegular.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span title="Full dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">Full Dynamic Prompts</span>`,
+      );
 
-	for(let i = 0; i < dynPrompts.fullRegular.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Full dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">Full Dynamic Prompts</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="#${dynPrompts.fullRegular[i]}">${startCase(dynPrompts.fullRegular[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.fullRegular[i]}">${startCase(dynPrompts.fullRegular[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Expansions
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Expansions
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < expansions.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span title="Inserts a string of text from the expansion file (Same text everytime). Expansion files can contain dynamic prompts and lists though to offer randomiation">Expansions</span>`,
+      );
 
-	for(let i = 0; i < expansions.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Inserts a string of text from the expansion file (Same text everytime). Expansion files can contain dynamic prompts and lists though to offer randomiation">Expansions</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="<${expansions[i]}>">${startCase(expansions[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="<${expansions[i]}>">${startCase(expansions[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Dynamic prompts partial
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Dynamic prompts partial
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < dynPrompts.partialRegular.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span title="Partial prompts, these are meant to compliment other parts of a prompt but don't stand well on their own">Partial Dynamic Prompts</span>`,
+      );
 
-	for(let i = 0; i < dynPrompts.partialRegular.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Partial prompts, these are meant to compliment other parts of a prompt but don't stand well on their own">Partial Dynamic Prompts</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="#${dynPrompts.partialRegular[i]}">${startCase(dynPrompts.partialRegular[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.partialRegular[i]}">${startCase(dynPrompts.partialRegular[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Lists
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Lists
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < lists.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span title="Replaced by a single random entry from the list file">Lists</span>`,
+      );
 
-	for(let i = 0; i < lists.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Replaced by a single random entry from the list file">Lists</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="{${lists[i]}}">${startCase(lists[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="{${lists[i]}}">${startCase(lists[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Dynamic prompts user-submitted
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Dynamic prompts user-submitted
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < dynPrompts.userFiles.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</span>`,
+      );
 
-	for(let i = 0; i < dynPrompts.userFiles.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span title="Full user-submitted dynamically generated prompts around a theme, these stand on their own and don't usually need extra prompt keywords">User Dynamic Prompts</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.userFiles[i]}">${startCase(dynPrompts.userFiles[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Dynamic prompts V1
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Dynamic prompts V1
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < dynPrompts.v1Files.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span disabled title="Full legacy dynamically generated prompts around a theme">V1 Dynamic Prompts</span>`,
+      );
 
-	for(let i = 0; i < dynPrompts.v1Files.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span disabled title="Full legacy dynamically generated prompts around a theme">V1 Dynamic Prompts</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="#${dynPrompts.v1Files[i]}">${startCase(dynPrompts.v1Files[i])}</button>`);
-	}
+  // ------------------------------------------------------------------------
+  // Random Keywords
+  // ------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-	// Random Keywords
-	// ------------------------------------------------------------------------
+  for (let i = 0; i < randomKeywords.length; i++) {
+    if (i == 0)
+      $("#keyword-cloud").append(
+        `<span disabled title="Random keywords from images you've already generated">Random Existing Keywords</span>`,
+      );
 
-	for(let i = 0; i < randomKeywords.length; i++) {
-		if(i == 0)
-			$("#keyword-cloud").append(`<span disabled title="Random keywords from images you've already generated">Random Existing Keywords</span>`);
+    $("#keyword-cloud").append(
+      `<button data-value="${randomKeywords[i]}">${startCase(randomKeywords[i])}</button>`,
+    );
+  }
 
-		$("#keyword-cloud").append(`<button data-value="${randomKeywords[i]}">${startCase(randomKeywords[i])}</button>`);
-	}
-
-	$("#keyword-cloud").append(`<span title="Special prompt features">Special Features</span>`);
-	$("#keyword-cloud").append(`<button data-value="{salt}" title="Forces salt/frame number to be inserted at this location in the prompt">Force salt here</button>`);
+  $("#keyword-cloud").append(`<span title="Special prompt features">Special Features</span>`);
+  $("#keyword-cloud").append(
+    `<button data-value="{salt}" title="Forces salt/frame number to be inserted at this location in the prompt">Force salt here</button>`,
+  );
 }
 
 function insertSelected() {
-	const selectedValue = $(this).data("value");
+  const selectedValue = $(this).data("value");
 
-	let curText = $('#page-search').val().trim();
-	if(curText == "")
-		curText = selectedValue;
-	else
-		curText = `${curText}, ${selectedValue}`;
+  let curText = $("#page-search").val().trim();
+  if (curText == "") curText = selectedValue;
+  else curText = `${curText}, ${selectedValue}`;
 
-	$('#page-search').val(curText);
+  $("#page-search").val(curText);
 }
 
 function presetSelected() {
-	const selectedValue = $(this).val();
+  const selectedValue = $(this).val();
 
-	let curText = $('[data-command="presets"]').val().trim();
-	if(curText == "")
-		curText = selectedValue;
-	else
-		curText = `${curText},${selectedValue}`;
+  let curText = $('[data-command="presets"]').val().trim();
+  if (curText == "") curText = selectedValue;
+  else curText = `${curText},${selectedValue}`;
 
-	$('[data-command="presets"]').val(curText);
-	$(this).prop('selectedIndex', 0);
+  $('[data-command="presets"]').val(curText);
+  $(this).prop("selectedIndex", 0);
 }
 
 async function updateSearchSuggestion() {
-
-  const suggestion = await ajaxGet('/api/prompt-suggestion');
-  $('#page-search').attr('placeholder', suggestion);
-
+  const suggestion = await ajaxGet("/api/prompt-suggestion");
+  $("#page-search").attr("placeholder", suggestion);
 }
 
 // Set the interval to run every 30 seconds
 setInterval(updateSearchSuggestion, 15 * 1000);
 
 function populateSettingsList() {
-	// Loop through all div elements with the "option" class
-  $('.option').each(function() {
-
+  // Loop through all div elements with the "option" class
+  $(".option").each(function () {
     // Get the label child element
-    const label = $(this).children('label');
+    const label = $(this).children("label");
 
     // Get the textarea, input, select, or checkbox child element
-    let formElement = $(this).children().filter(':input').first();
+    let formElement = $(this).children().filter(":input").first();
 
     // It may be contained in .number-stepper
-    if(formElement.is("button.remove"))
-    	formElement = $(this).children().filter('.number-stepper').children().filter('input');
+    if (formElement.is("button.remove"))
+      formElement = $(this).children().filter(".number-stepper").children().filter("input");
 
     // Get the text of the label element
     let labelText = label.text();
@@ -297,641 +302,582 @@ function populateSettingsList() {
     const formElementValue = formElement.data("command");
 
     // Title
-    const labelTitle = label.attr('title');
+    const labelTitle = label.attr("title");
 
     // Add the label text as an option to the select menu
-    $('#add-settings').append(`<option title="${labelTitle}" value="${formElementValue}">${labelText}</option>`);
+    $("#add-settings").append(
+      `<option title="${labelTitle}" value="${formElementValue}">${labelText}</option>`,
+    );
   });
 }
 
 function fillListData(el) {
+  // Stop if this isn't a select box with the data-lists attribute
+  if (!$(el).is("select[data-lists]")) return;
 
-	// Stop if this isn't a select box with the data-lists attribute
-	if(!$(el).is("select[data-lists]"))
-		return;
+  // Empty out children
+  $(el).empty();
 
-	// Empty out children
-	$(el).empty();
+  for (let i = 0; i < lists.length; i++) {
+    let display = startCase(lists[i]);
+    if (display == "False") display = "Random";
 
-	for(let i = 0; i < lists.length; i++) {
-		let display = startCase(lists[i]);
-		if(display == "False")
-			display = "Random";
-
-		$(el).append(`<option value="${lists[i]}">${display}</option>`);
-	}
+    $(el).append(`<option value="${lists[i]}">${display}</option>`);
+  }
 }
 
 function fillSettingValue(el) {
-	// Stop if this isn't an element with the data-path attribute
-	if(!$(el).is("[data-path]"))
-		return;
+  // Stop if this isn't an element with the data-path attribute
+  if (!$(el).is("[data-path]")) return;
 
-	const path = $(el).data('path').split(",");
+  const path = $(el).data("path").split(",");
 
-	let value = _.at(settings, path);
+  let value = _.at(settings, path);
 
-	if(value == null || value == undefined || value.length == 0)
-		return;
+  if (value == null || value == undefined || value.length == 0) return;
 
-	if($(el).data('percent') != undefined) {
-		for(let i = 0; i < value.length; i++) {
-			value[i] = (+(value[i] * 100).toFixed(2)) + "%";
-		}
-	}
+  if ($(el).data("percent") != undefined) {
+    for (let i = 0; i < value.length; i++) {
+      value[i] = +(value[i] * 100).toFixed(2) + "%";
+    }
+  }
 
-	let joinStr = "-";
+  let joinStr = "-";
 
-	if($(el).data('join') != undefined) {
-		joinStr = $(el).data('join');
+  if ($(el).data("join") != undefined) {
+    joinStr = $(el).data("join");
 
-		for(let i = 0; i < value.length; i++) {
-			if(Array.isArray(value[i]))
-				value[i] = value[i].join(joinStr);
-		}
-	}
+    for (let i = 0; i < value.length; i++) {
+      if (Array.isArray(value[i])) value[i] = value[i].join(joinStr);
+    }
+  }
 
-	// console.log(path, value);
+  // console.log(path, value);
 
-	if($(el).is('[type="checkbox"]'))
-		$(el).prop('checked', value[0]);
-	else
-		$(el).val(value.join(joinStr));
+  if ($(el).is('[type="checkbox"]')) $(el).prop("checked", value[0]);
+  else $(el).val(value.join(joinStr));
 }
 
 function resetSavePreset() {
-	// Enable or disable button
-	$("#save-preset").hide();
-	$("#preset-name").hide();
+  // Enable or disable button
+  $("#save-preset").hide();
+  $("#preset-name").hide();
 
-	$("#preset-name-val").val("");
+  $("#preset-name-val").val("");
 
-	const enabledOverrides = $(".option[data-active='true'] [data-path]");
-	const enabledArgs = $(".option[data-active='true'] [data-command]:not([data-path])");
-	if(enabledOverrides.length > 0 && enabledArgs.length == 0)
-		$("#save-preset").show();
+  const enabledOverrides = $(".option[data-active='true'] [data-path]");
+  const enabledArgs = $(".option[data-active='true'] [data-command]:not([data-path])");
+  if (enabledOverrides.length > 0 && enabledArgs.length == 0) $("#save-preset").show();
 }
 
 function savePreset() {
+  // Get all active options that are settings
+  const enabledOverrides = $(".option[data-active='true'] [data-path]");
 
-	// Get all active options that are settings
-	const enabledOverrides = $(".option[data-active='true'] [data-path]");
+  // Save state
+  // This pulls all the values
+  saveState();
 
-	// Save state
-	// This pulls all the values
-	saveState();
+  // Object to save as a preset
+  const presetObj = {};
 
-	// Object to save as a preset
-	const presetObj = {};
+  // Loop through active settings
+  enabledOverrides.each(function () {
+    // Ignore if invalid
+    if ($(this).is(":invalid")) return;
 
-	// Loop through active settings
-	enabledOverrides.each(function() {
+    // Get settings path
+    const paths = $(this).attr("data-path").split(".");
 
-		// Ignore if invalid
-		if($(this).is(":invalid"))
-			return;
+    // Ensure path is 2 parts
+    if (paths.length != 2) {
+      console.error("Path is not 2 parts, cannot save preset", paths);
+      return;
+    }
 
-		// Get settings path
-		const paths = $(this).attr("data-path").split(".");
+    // Convert paths to named parts
+    const settingFile = paths[0];
+    const setting = paths[1];
 
-		// Ensure path is 2 parts
-		if(paths.length != 2) {
-			console.error("Path is not 2 parts, cannot save preset", paths);
-			return;
-		}
+    // Get command to pull from saved state
+    const command = $(this).attr("data-command");
 
-		// Convert paths to named parts
-		const settingFile = paths[0];
-		const setting = paths[1];
+    // Ensure command is present
+    if (command == undefined || command == null || command == "") {
+      console.error("Command is not present", command);
+      return;
+    }
 
-		// Get command to pull from saved state
-		const command = $(this).attr("data-command");
+    // Get value
+    const value = state[command];
 
-		// Ensure command is present
-		if(command == undefined || command == null || command == "") {
-			console.error("Command is not present", command);
-			return;
-		}
+    // Save into preset object
+    if (presetObj[settingFile] == undefined) presetObj[settingFile] = {};
 
-		// Get value
-		const value = state[command];
+    presetObj[settingFile][setting] = value;
+  });
 
-		// Save into preset object
-		if(presetObj[settingFile] == undefined)
-			presetObj[settingFile] = {};
+  const fileName = $("#preset-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
 
-		presetObj[settingFile][setting] = value;
-	});
+  // Do nothing if no presetObj or file name
+  if (_.isEmpty(presetObj) || fileName == "") {
+    console.error("No preset to save");
+    return;
+  }
 
-	const fileName = $("#preset-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
-
-	// Do nothing if no presetObj or file name
-	if(_.isEmpty(presetObj) || fileName == "") {
-		console.error("No preset to save");
-		return;
-	}
-
-	// Post it
-	$.ajax({
-        type: 'POST',
-        url: `/api/preset/save`,
-        data: JSON.stringify({presetObj,fileName}),
-        contentType: 'application/json',
-        success: function(data) {
-            window.location.reload();
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  	});
+  // Post it
+  $.ajax({
+    type: "POST",
+    url: `/api/preset/save`,
+    data: JSON.stringify({ presetObj, fileName }),
+    contentType: "application/json",
+    success: function (data) {
+      window.location.reload();
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
+  });
 }
 
 function showSettingOnSelect() {
-	$('#add-settings').change(function() {
+  $("#add-settings").change(function () {
+    // Get selected value
+    const selectedValue = $(this).val();
 
-		// Get selected value
-		const selectedValue = $(this).val();
+    // Skip if invalid option
+    if (selectedValue == "-1") return;
 
-		// Skip if invalid option
-		if(selectedValue == "-1")
-			return;
+    const inputEl = $(`[data-command="${selectedValue}"]`).first();
 
-		const inputEl = $(`[data-command="${selectedValue}"]`).first();
+    // Fill list data if applicable
+    fillListData(inputEl);
 
-		// Fill list data if applicable
-		fillListData(inputEl);
+    // Fill-in settings value if applicable
+    fillSettingValue(inputEl);
 
-		// Fill-in settings value if applicable
-		fillSettingValue(inputEl);
+    // Set active to true
+    if (inputEl.parent().is(".option")) inputEl.parent().attr("data-active", true);
+    else {
+      inputEl.parent().parent().attr("data-active", true);
+    }
 
-		// Set active to true
-		if(inputEl.parent().is(".option"))
-			inputEl.parent().attr('data-active', true);
-		else {
-			inputEl.parent().parent().attr('data-active', true);
-		}
+    // Disable selected option
+    $(this).find("option:selected").prop("disabled", true);
 
-		// Disable selected option
-		$(this)
-			.find('option:selected')
-			.prop('disabled', true);
+    // Reset selected index
+    $(this).prop("selectedIndex", 0);
 
-		// Reset selected index
-		$(this).prop('selectedIndex', 0);
-
-		// Update save preset visibility
-		resetSavePreset();
-	});
+    // Update save preset visibility
+    resetSavePreset();
+  });
 }
 
 function removeSettingOnClick() {
-	$('button.remove').click(function() {
+  $("button.remove").click(function () {
+    // Get values
+    let siblingInput = $(this).siblings(":input").first();
 
-		// Get values
-	  let siblingInput = $(this).siblings(':input').first();
+    if (siblingInput.length == 0)
+      siblingInput = $(this).siblings(".number-stepper").first().children().filter("input");
 
-	  if(siblingInput.length == 0)
-	  	siblingInput = $(this).siblings('.number-stepper').first().children().filter('input');
+    const command = siblingInput.data("command");
 
-	  const command = siblingInput.data('command');
-	  
-	  // Set option to inactive
-	  $(this).parent().attr('data-active', "false");
+    // Set option to inactive
+    $(this).parent().attr("data-active", "false");
 
-	  // Clear value
-	  siblingInput.val('');
+    // Clear value
+    siblingInput.val("");
 
-	  // Re-enable setting in select menu
-	  $(`#add-settings option[value="${command}"]`).prop('disabled', false);
+    // Re-enable setting in select menu
+    $(`#add-settings option[value="${command}"]`).prop("disabled", false);
 
-	  // Update save preset visibility
-	  resetSavePreset();
-	});
+    // Update save preset visibility
+    resetSavePreset();
+  });
 }
 
 async function downloadSettings() {
-	const _settings = await ajaxGet('/api/settings');
-	if(_settings != null && _settings != undefined)
-		settings = _settings;
+  const _settings = await ajaxGet("/api/settings");
+  if (_settings != null && _settings != undefined) settings = _settings;
 
-	const _lists = await ajaxGet('/api/files/lists');
-	if(_lists != null && _lists != undefined)
-		lists = _lists;
+  const _lists = await ajaxGet("/api/files/lists");
+  if (_lists != null && _lists != undefined) lists = _lists;
 }
 
 function addRemoveButton() {
-	$(".option").attr("data-active", "false");
-	$(".option").append(`<button class="remove">Remove</button>`);
+  $(".option").attr("data-active", "false");
+  $(".option").append(`<button class="remove">Remove</button>`);
 }
 
 function labelSettings() {
-	$('.option').each(function() {
+  $(".option").each(function () {
+    // Get the label child element
+    const label = $(this).children("label");
 
-	    // Get the label child element
-	    const label = $(this).children('label');
+    // Get the textarea, input, select, or checkbox child element
+    let formElement = $(this).children().filter(":input").first();
 
-	    // Get the textarea, input, select, or checkbox child element
-	    let formElement = $(this).children().filter(':input').first();
+    // It may be contained in .number-stepper
+    if (formElement.is("button.remove"))
+      formElement = $(this).children().filter(".number-stepper").children().filter("input");
 
-	    // It may be contained in .number-stepper
-	    if(formElement.is("button.remove"))
-	    	formElement = $(this).children().filter('.number-stepper').children().filter('input');
+    const isSetting = formElement.is("[data-path]");
 
-	    const isSetting = formElement.is("[data-path]");
+    if (!isSetting) return;
 
-	    if(!isSetting)
-	    	return;
+    // Get the text of the label element
+    let labelText = label.text();
 
-	    // Get the text of the label element
-	    let labelText = label.text();
+    if (isSetting) labelText = `&#x2662 ${labelText}`;
 
-	    if(isSetting)
-	    	labelText = `&#x2662 ${labelText}`;
-
-	    label.html(labelText);
-	});
+    label.html(labelText);
+  });
 }
 
 function onMinusStepperClick(input) {
-	const currentValue = +input.val();
-	const step = +input.attr('step');
-	input.val(currentValue - step);
+  const currentValue = +input.val();
+  const step = +input.attr("step");
+  input.val(currentValue - step);
 
-	if(input.val < step)
-		input.val(step);
+  if (input.val < step) input.val(step);
 
-	$(input).trigger("change");
+  $(input).trigger("change");
 }
 
 function onPlusStepperClick(input) {
-	const currentValue = +input.val();
-	const step = +input.attr('step');
-	input.val(currentValue + step);
+  const currentValue = +input.val();
+  const step = +input.attr("step");
+  input.val(currentValue + step);
 
-	$(input).trigger("change");
+  $(input).trigger("change");
 }
 
 function setupNumberSteppers() {
-	$(".number-stepper").each(function() {
-		const minusBtn = $(this).children('button:first-child');
-		const input = $(this).children('input');
-		const plusBtn = $(this).children('button:nth-child(3)');
+  $(".number-stepper").each(function () {
+    const minusBtn = $(this).children("button:first-child");
+    const input = $(this).children("input");
+    const plusBtn = $(this).children("button:nth-child(3)");
 
-		minusBtn.click(onMinusStepperClick.bind(undefined, input));
-		plusBtn.click(onPlusStepperClick.bind(undefined, input));
-	});
+    minusBtn.click(onMinusStepperClick.bind(undefined, input));
+    plusBtn.click(onPlusStepperClick.bind(undefined, input));
+  });
 }
 
 function onNumberChangeWStep() {
+  // Get value
+  let value = +$(this).val();
+  const step = +$(this).attr("step");
 
-	// Get value
-	let value = +$(this).val();
-	const step = +$(this).attr('step');
+  // If value is multiple of 64, then stop here
+  const mult64Check = value % step;
+  if (mult64Check === 0) return;
 
-	// If value is multiple of 64, then stop here
-    const mult64Check = value % step;
-    if(mult64Check === 0)
-        return;
+  // Convert partial multiple of 64 to percent
+  const mult64Percent = mult64Check / step;
 
-    // Convert partial multiple of 64 to percent
-    const mult64Percent = mult64Check / step;
+  // Round up or down to nearest multiple of 64
+  if (mult64Percent >= 0.5) value += step - mult64Check;
+  else value -= mult64Check;
 
-    // Round up or down to nearest multiple of 64
-    if(mult64Percent >= 0.50)
-        value += (step - mult64Check);
-    else
-        value -= mult64Check;
-
-    // Set value
-    $(this).val(value);
+  // Set value
+  $(this).val(value);
 }
 
 async function updatePresetMenu() {
+  // Gather files
+  const presets = await ajaxGet("/api/files/presets");
+  if (presets == null) return;
 
-	// Gather files
-	const presets = await ajaxGet('/api/files/presets');
-	if(presets == null)
-		return;
-
-	for(let i = 0; i < presets.length; i++) {
-		$("#preset-insert").append(`<option value="${presets[i]}">${startCase(presets[i])}</option>`);
-	}
+  for (let i = 0; i < presets.length; i++) {
+    $("#preset-insert").append(`<option value="${presets[i]}">${startCase(presets[i])}</option>`);
+  }
 }
 
 function insertStoredPrompt() {
+  // Get stored prompt in browser
+  let prompt = localStorage.getItem("prompt");
 
-	// Get stored prompt in browser
-	let prompt = localStorage.getItem('prompt');
+  // Check to see if it exists and isn't an empty string
+  if (prompt == "" || prompt == null || prompt == undefined) return;
 
-	// Check to see if it exists and isn't an empty string
-	if(prompt == "" || prompt == null || prompt == undefined)
-		return;
+  // Trim it
+  prompt = prompt.trim();
 
-	// Trim it
-	prompt = prompt.trim();
+  // Do empty string check again
+  if (prompt == "") return;
 
-	// Do empty string check again
-	if(prompt == "")
-		return;
-
-	// Set it to the textbox
-	$("#page-search").val(prompt);
+  // Set it to the textbox
+  $("#page-search").val(prompt);
 }
 
 function insertSettings(obj, useAll) {
+  // Skip if null or undefined
+  if (obj == null || obj == undefined) return;
 
-	// Skip if null or undefined
-	if(obj == null || obj == undefined)
-		return;
+  try {
+    // Convert to JSON if string
+    if (typeof obj == "string") obj = JSON.parse(obj);
+  } catch (err) {
+    console.error(err);
 
-	try {
-		// Convert to JSON if string
-		if(typeof obj == "string")
-			obj = JSON.parse(obj);
-	}
-	catch(err) {
+    // Skip if error
+    return;
+  }
 
-		console.error(err);
+  // Skip if not an object
+  if (!_.isPlainObject(obj)) return;
 
-		// Skip if error
-		return;
-	}
+  // Apply settings
+  _.forOwn(obj, function (value, key) {
+    // Get setting with key
+    let control = $(`[data-command="${key}"]`);
 
-	// Skip if not an object
-	if(!_.isPlainObject(obj))
-		return;
+    if (key == "prompt") control = $("#page-search");
 
-	// Apply settings
-	_.forOwn(obj, function(value, key) {
+    // Make sure it's found
+    if (control.length == 0) {
+      console.error("data-command not found", key);
+      return;
+    }
 
-		// Get setting with key
-		let control = $(`[data-command="${key}"]`);
+    // Pick out first one
+    control = $(control).first();
 
-		if(key == "prompt")
-			control = $("#page-search");
+    // Get option group
+    const optionGroup = $(control).parents(".option").first();
 
-		// Make sure it's found
-		if(control.length == 0) {
-			console.error("data-command not found", key);
-			return;
-		}
+    // If it has the data-skip, then skip if not told to useAll
+    if ($(control).is("[data-skip]") && !useAll) return;
 
-		// Pick out first one
-		control = $(control).first()
+    // Do nothing for empty values
+    if (value == "" && $(control).is("[data-command]")) {
+      // Fill list data if applicable
+      fillListData(control);
 
-		// Get option group
-		const optionGroup = $(control).parents(".option").first();
+      // Fill-in settings value if applicable
+      fillSettingValue(control);
+    } else if (value != "") {
+      // Set value to stored value
+      if ($(control).is('[type="checkbox"]')) $(control).prop("checked", value);
+      else $(control).val(value);
+    }
 
-		// If it has the data-skip, then skip if not told to useAll
-		if($(control).is("[data-skip]") && !useAll)
-			return;
+    // Enable option group
+    $(optionGroup).attr("data-active", "true");
 
-		// Do nothing for empty values
-		if(value == "" && $(control).is("[data-command]")) {
-
-			// Fill list data if applicable
-			fillListData(control);
-
-			// Fill-in settings value if applicable
-			fillSettingValue(control);
-		}
-		else if(value != "") {
-			
-			// Set value to stored value
-			if($(control).is('[type="checkbox"]'))
-				$(control).prop('checked', value);
-			else
-				$(control).val(value);
-		}
-
-		// Enable option group
-		$(optionGroup).attr("data-active", "true");
-
-		// Disable option in menu
-		$(`#add-settings option[value="${key}"]`).prop('disabled', true);
-	});
+    // Disable option in menu
+    $(`#add-settings option[value="${key}"]`).prop("disabled", true);
+  });
 }
 
 function saveState() {
+  // Clear saved state
+  state = {};
+  localStorage.setItem("generateSettings", "{}");
 
-	// Clear saved state
-	state = {};
-	localStorage.setItem('generateSettings', "{}");
+  // Save current settings
+  $(`.option[data-active="true"] [data-command]`).each(returnValToSetting);
 
-	// Save current settings
-	$(`.option[data-active="true"] [data-command]`).each(returnValToSetting);
+  // Save prompt
+  if ($("#page-search").val().trim() != "") {
+    saveSetting("prompt", $("#page-search").val().trim());
+  }
 
-	// Save prompt
-	if($("#page-search").val().trim() != "") {
-		saveSetting("prompt", $("#page-search").val().trim());
-	}
-
-	localStorage.setItem('prompt', $("#page-search").val().trim());
+  localStorage.setItem("prompt", $("#page-search").val().trim());
 }
 
 function generate() {
+  // Save the current state
+  saveState();
 
-	// Save the current state
-	saveState();
+  // Post it
+  $.ajax({
+    type: "POST",
+    url: `/api/generate-full`,
+    data: JSON.stringify(state),
+    contentType: "application/json",
+    success: function (data) {},
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
+  });
 
-	// Post it
-	$.ajax({
-        type: 'POST',
-        url: `/api/generate-full`,
-        data: JSON.stringify(state),
-        contentType: 'application/json',
-        success: function(data) {
-            
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  	});
-
-    displayProgress(true);
+  displayProgress(true);
 }
 
 function saveExpansion() {
+  const prompt = $("#page-search").val().trim();
+  const fileName = $("#expansion-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
 
-	const prompt = $("#page-search").val().trim();
-	const fileName = $("#expansion-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
+  // Do nothing if no prompt or file name
+  if (prompt == "" || fileName == "") return;
 
-	// Do nothing if no prompt or file name
-	if(prompt == "" || fileName == "")
-		return;
+  // Save settings
+  saveState();
 
-	// Save settings
-	saveState();
-
-	// Post it
-	$.ajax({
-        type: 'POST',
-        url: `/api/expansion/save`,
-        data: JSON.stringify({prompt,fileName}),
-        contentType: 'application/json',
-        success: function(data) {
-            window.location.reload();
-        },
-        error: function(error){
-            console.log("Error:");
-            console.log(error);
-        }
-  	});
+  // Post it
+  $.ajax({
+    type: "POST",
+    url: `/api/expansion/save`,
+    data: JSON.stringify({ prompt, fileName }),
+    contentType: "application/json",
+    success: function (data) {
+      window.location.reload();
+    },
+    error: function (error) {
+      console.log("Error:");
+      console.log(error);
+    },
+  });
 }
 
 function performRandomGenerate() {
+  // Get random placeholder text
+  let text = $("#page-search").attr("placeholder");
 
-    // Get random placeholder text
-    let text = $('#page-search').attr('placeholder');
+  // Set it as search text
+  $("#page-search").val(text);
 
-    // Set it as search text
-    $('#page-search').val(text);
-
-    // Generate
-    generate();
+  // Generate
+  generate();
 }
 
 function copyShareLink() {
+  // First save state
+  saveState();
 
-	// First save state
-	saveState();
+  // Copy state
+  const _state = _.cloneDeep(state);
 
-	// Copy state
-	const _state = _.cloneDeep(state);
+  // Copy prompt and negative prompt
+  const prompt = _state.prompt;
+  const negativePrompt = _state["negative-prompt"];
 
-	// Copy prompt and negative prompt
-	const prompt = _state.prompt;
-	const negativePrompt = _state["negative-prompt"];
+  // Remove
+  delete _state.prompt;
+  delete _state["negative-prompt"];
 
-	// Remove
-	delete _state.prompt;
-	delete _state["negative-prompt"];
+  // Convert rest of state to url parameters
 
-	// Convert rest of state to url parameters
+  // Then get the url to copy
+  // Add useAll param to allow all settings to transfer over
+  // Add urlOnly to exclude bringing in existing existing saved state
+  let text = `http://localhost:7861/generate?useAll=true&urlOnly=true&${new URLSearchParams(_state).toString()}`;
 
-	// Then get the url to copy
-	// Add useAll param to allow all settings to transfer over
-	// Add urlOnly to exclude bringing in existing existing saved state
-	let text = `http://localhost:7861/generate?useAll=true&urlOnly=true&${new URLSearchParams(_state).toString()}`;
+  // Add prompt and negative prompt back urlencoded
+  if (prompt) text += `&prompt=${encodeURIComponent(prompt)}`;
 
-	// Add prompt and negative prompt back urlencoded
-	if(prompt)
-		text += `&prompt=${encodeURIComponent(prompt)}`;
+  if (negativePrompt) text += `&negative-prompt=${encodeURIComponent(negativePrompt)}`;
 
-	if(negativePrompt)
-		text += `&negative-prompt=${encodeURIComponent(negativePrompt)}`;
-
-	// Then copy it to clipboard
-    const tempInput = $('<input type="text"/>');
-    $('body').append(tempInput);
-    tempInput.val(text).select();
-    document.execCommand('copy');
-    tempInput.remove();
+  // Then copy it to clipboard
+  const tempInput = $('<input type="text"/>');
+  $("body").append(tempInput);
+  tempInput.val(text).select();
+  document.execCommand("copy");
+  tempInput.remove();
 }
 
-$(document).ready(async function() {
+$(document).ready(async function () {
+  // Add remove buttons to all options
+  addRemoveButton();
 
-	// Add remove buttons to all options
-	addRemoveButton();
+  // Prefix all settings that correspon to a setting with a diamond
+  // Only setting overrides can have a preset
+  labelSettings();
 
-	// Prefix all settings that correspon to a setting with a diamond
-	// Only setting overrides can have a preset
-	labelSettings();
+  // Configure number steppers
+  setupNumberSteppers();
 
-	// Configure number steppers
-	setupNumberSteppers();
+  // Update preset menu
+  await updatePresetMenu();
 
-	// Update preset menu
-	await updatePresetMenu();
+  // Populate insert menu with files
+  await updateInsertMenu();
 
-	// Populate insert menu with files
-	await updateInsertMenu();
+  // Update search suggestion
+  await updateSearchSuggestion();
 
-	// Update search suggestion
-	await updateSearchSuggestion();
+  // Download settings
+  await downloadSettings();
 
-	// Download settings
-	await downloadSettings();
+  // Populate setting options into the select menu
+  populateSettingsList();
 
-	// Populate setting options into the select menu
-	populateSettingsList();
+  // Enable selection menu to activate settings
+  showSettingOnSelect();
 
-	// Enable selection menu to activate settings
-	showSettingOnSelect();
+  // Remove settings on click
+  removeSettingOnClick();
 
-	// Remove settings on click
-	removeSettingOnClick();
+  // Listen for insert menu change
+  $("#keyword-cloud button").click(insertSelected);
 
-	// Listen for insert menu change
-	$("#keyword-cloud button").click(insertSelected);
+  // Listen for preset menu change
+  $("#preset-insert").change(presetSelected);
 
-	// Listen for preset menu change
-	$("#preset-insert").change(presetSelected);
+  // Listen for number stepper
+  $("input[step]").change(onNumberChangeWStep);
 
-	// Listen for number stepper
-	$("input[step]").change(onNumberChangeWStep);
+  // Insert stored data
 
-	// Insert stored data
+  // Then URL parameters to override
+  const params = getUrlParameters();
 
-	// Then URL parameters to override
-	const params = getUrlParameters();
+  // Decode prompt in case it has special characters in it
+  if (params.prompt) params.prompt = decodeURIComponent(params.prompt);
 
-	// Decode prompt in case it has special characters in it
-	if(params.prompt)
-		params.prompt = decodeURIComponent(params.prompt);
+  if (params["negative-prompt"])
+    params["negative-prompt"] = decodeURIComponent(params["negative-prompt"]);
 
-	if(params["negative-prompt"])
-		params["negative-prompt"] = decodeURIComponent(params["negative-prompt"]);
+  // Retrieve useAll and urlOnly from url parameters and ensure removed
+  let useAll = params.useAll == "true";
+  let urlOnly = params.urlOnly == "true";
+  delete params.useAll;
+  delete params.urlOnly;
 
-	// Retrieve useAll and urlOnly from url parameters and ensure removed
-	let useAll = (params.useAll == "true");
-	let urlOnly = (params.urlOnly == "true");
-	delete params.useAll;
-	delete params.urlOnly;
+  // Settings first
 
-	// Settings first
+  // Saved state first if allowed
+  if (!urlOnly) insertSettings(localStorage.getItem("generateSettings"), useAll);
 
-	// Saved state first if allowed
-	if(!urlOnly)
-		insertSettings(localStorage.getItem('generateSettings'), useAll);
+  // Then URL
+  insertSettings(params, useAll);
 
-	// Then URL
-	insertSettings(params, useAll);
+  // Generate
+  $("#generate").click(generate);
+  $("#random").click(performRandomGenerate);
+  $("#share").click(copyShareLink);
 
-	// Generate
-	$("#generate").click(generate);
-	$("#random").click(performRandomGenerate);
-	$("#share").click(copyShareLink);
+  $("input,select,textarea").change(saveState);
+  $("button").click(saveState);
 
-	$("input,select,textarea").change(saveState);
-	$("button").click(saveState);
+  $("#expansion").click(() => {
+    $("#prompt-buttons").hide();
+    $("#expansion-name").show();
+  });
 
-	$("#expansion").click(() => {
-		$("#prompt-buttons").hide();
-		$("#expansion-name").show();
-	});
+  $("#expansion-cancel").click(() => {
+    $("#prompt-buttons").show();
+    $("#expansion-name").hide();
+  });
 
-	$("#expansion-cancel").click(() => {
-		$("#prompt-buttons").show();
-		$("#expansion-name").hide();
-	});
+  $("#expansion-save").click(saveExpansion);
 
-	$("#expansion-save").click(saveExpansion);
+  $("#save-preset").click(() => {
+    $("#save-preset").hide();
+    $("#preset-name").show();
+  });
 
-	$("#save-preset").click(() => {
-		$("#save-preset").hide();
-		$("#preset-name").show();
-	});
+  $("#preset-cancel").click(() => {
+    $("#save-preset").show();
+    $("#preset-name").hide();
+  });
 
-	$("#preset-cancel").click(() => {
-		$("#save-preset").show();
-		$("#preset-name").hide();
-	});
+  $("#preset-save").click(savePreset);
 
-	$("#preset-save").click(savePreset);
-
-	// Enable or disable the save preset button
-	resetSavePreset();
+  // Enable or disable the save preset button
+  resetSavePreset();
 });

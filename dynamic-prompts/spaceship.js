@@ -14,28 +14,22 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
-module.exports = function() {
+export default function () {
+  let prompt = "";
 
-	let prompt = "";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` #neon`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ` #neon`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` #neon`;
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ` #neon`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {size}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {size}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {construct-style}";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += " {construct-style}";
+  prompt += " spaceship";
 
-	prompt += " spaceship";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", spacecraft";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", spacecraft";
-
-	return prompt;
+  return prompt;
 }

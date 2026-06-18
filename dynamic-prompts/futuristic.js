@@ -14,107 +14,83 @@
     limitations under the License.
 */
 
-const _ = require("lodash");
+import _ from "lodash";
 
 // Keeps track of what dynamic prompts have been used
 let data = {};
 
-module.exports = function() {
+export default function () {
+  // Ensure their reset
+  data = {};
 
-	// Ensure their reset
-	data = {};
+  // Start with base prompt
+  let prompt = "futuristic";
 
-	// Start with base prompt
-	let prompt = "futuristic";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", metal";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", metal";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", bolt";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", bolt";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", high-tech";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", high-tech";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cyberpunk";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", cyberpunk";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ancient";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", ancient";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", (#glow)";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", (#glow)"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", (#neon)";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", (#neon)"
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", night";
 
-	if(_.random(0.0, 1.0, true) < 0.5)
-		prompt += ", night"
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", fog";
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-        prompt += ", fog"
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", mecha";
 
-    if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += ", mecha";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #crystal`;
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += `, #crystal`;
+  // Chance to include a person or animal
+  if (_.random(0.0, 1.0, true) < 0.35) {
+    prompt += ", #portrait-person";
 
-	// Chance to include a person or animal
-	if(_.random(0.0, 1.0, true) < 0.35) {
-		prompt += ", #portrait-person";
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += ", solo";
 
-		if(_.random(0.0, 1.0, true) < 0.50)
-			prompt += ", solo";
+    data.weather = true;
+    data.animal = true;
+  } else if (_.random(0.0, 1.0, true) < 0.35) {
+    prompt += ", #portrait-animal";
+    data.weather = true;
+  }
 
-		data.weather = true;
-		data.animal = true;
-	}
-	else if(_.random(0.0, 1.0, true) < 0.35) {
-		prompt += ", #portrait-animal";
-		data.weather = true;
-	}
+  // Don't include both ruins and city
+  if (_.random(0.0, 1.0, true) < 0.15) {
+    prompt += `, #ruins`;
+    data.eerie = true;
+    data.mystical = true;
+    data.weather = true;
+  } else if (_.random(0.0, 1.0, true) < 0.35) {
+    prompt += `, #city`;
+    data.weather = true;
+  }
 
-	// Don't include both ruins and city
-	if(_.random(0.0, 1.0, true) < 0.15) {
-		prompt += `, #ruins`;
-		data.eerie = true;
-		data.mystical = true;
-		data.weather = true;
-	}
-	else if(_.random(0.0, 1.0, true) < 0.35) {
-		prompt += `, #city`;
-		data.weather = true;
-	}
+  if (_.random(0.0, 1.0, true) < 0.2 && !data.animal) prompt += `, #animal`;
 
-	if((_.random(0.0, 1.0, true) < 0.20) && !data.animal)
-		prompt += `, #animal`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.eerie) prompt += `, #eerie`;
 
-	if((_.random(0.0, 1.0, true) < 0.35) && !data.eerie)
-		prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.mystical) prompt += `, #mystical`;
 
-	if((_.random(0.0, 1.0, true) < 0.35) && !data.mystical)
-		prompt += `, #mystical`;
-		
-	if((_.random(0.0, 1.0, true) < 0.35) && !data.weather)
-		prompt += `, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.weather) prompt += `, #weather`;
 
-	if(_.random(0.0, 1.0, true) < 0.20)
-		prompt += ", artifact";
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += ", artifact";
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += ", dramatic lighting";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", dramatic lighting";
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += ", intense";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", intense";
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += ", <dap>";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <dap>";
 
-	if(_.random(0.0, 1.0, true) < 0.35)
-		prompt += ", <legacy-detail>";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <legacy-detail>";
 
-	return prompt;
+  return prompt;
 }
 
-module.exports.full = true;
+export const full = true;
