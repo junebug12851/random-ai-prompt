@@ -18,7 +18,7 @@
 import fs from "node:fs";
 
 // load settings
-import settings from "../settings.js";
+import settings from "../src/settings.js";
 
 // Ensure we're within this directory
 process.chdir(import.meta.dirname);

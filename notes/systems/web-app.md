@@ -1,0 +1,43 @@
+# The React SPA — `web-app/`
+
+A standalone **React 19 + Vite 6** single-page app (`web-app/`, its own `package.json`). It runs the
+**real prompt engine in the browser** ([core-engine.md](core-engine.md)) and generates images through a
+modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml` builds and deploys; see
+[`../reference/deployment.md`](../reference/deployment.md).
+
+## Layout
+
+| File | Role |
+|------|------|
+| `src/main.jsx` / `src/App.jsx` | Entry + shell. |
+| `src/components/` | `Builder`, `Field`, `Gallery`, `Generate`, `Settings`, `TokenPicker` — the UI. |
+| `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
+| `src/lib/catalog.js` | The token catalog (lists / expansions / dynamic prompts) the builder offers. |
+| `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
+| `src/lib/providers/` | The generation providers (see below). |
+
+## The provider model
+
+Generation backends are modular — the same plugin pattern the dynamic prompts use. Each provider
+implements `{ id, label, local, needsKey, generate({prompt, settings, key, signal}) -> {images} }`:
+
+- **`localWebui`** — calls the user's own SD WebUI directly from the browser (`local: true`).
+- **`hostedProxy`** — BYOK: posts to the Netlify function, which forwards to a hosted image API.
+
+`providers/index.js` registers them and exposes `availableProviders()`, which **filters out local-only
+providers when deployed online** (`ONLINE` ← `VITE_ONLINE` env var) — one codebase serves both the local
+and the hosted build. Add a backend by dropping a module in `providers/` and registering it.
+
+## The Netlify function — `web-app/netlify/functions/generate.js`
+
+A **stateless BYOK proxy**: receives `{prompt, key, params}`, forwards to the chosen hosted API, polls
+until ready (submit→poll keeps each invocation within serverless time limits), returns image URLs.
+**Stores nothing; must never log the key.** The hosted-provider dispatch is the wiring point for
+migration phase 2 (currently a deliberate stub). Local generation never touches this function — the
+browser calls the user's WebUI directly.
+
+## Build / deploy
+
+`netlify.toml` (repo root): `npm --prefix web-app install && npm --prefix web-app run build` →
+`web-app/dist`, with `/api/*` routed to the functions and an SPA fallback to `index.html`. Details in
+[`../reference/deployment.md`](../reference/deployment.md).

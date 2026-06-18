@@ -3,7 +3,7 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.0.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.0.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
 ## Current state (read this first)
@@ -48,7 +48,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 |------|--------|
 | `npm install` (Node 24) | ✅ resolves clean |
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
-| `npm run lint` | ✅ 0 errors (163 warnings, pre-existing) |
+| `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
 | CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |
 | Server `node server.js` | ⚠️ imports + Express 5 routes validated; not launched live |

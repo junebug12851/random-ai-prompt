@@ -1,0 +1,5 @@
+# Temporary scratch area for transient files — build/run artifacts, logs,
+# generated outputs, throwaway test data, smoke-test scratch, etc.
+# Ignore everything in this folder but keep the folder itself tracked.
+*
+!.gitignore

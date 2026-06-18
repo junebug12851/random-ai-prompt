@@ -1,1 +1,1 @@
-node server
+node src/server

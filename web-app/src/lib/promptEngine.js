@@ -5,8 +5,8 @@
 // and exposes everything the UI needs: generation, live preview, the categorized
 // building blocks, and presets (built-in + custom).
 import _ from "lodash";
-import { createEngine } from "../../../core/engine.js";
-import { browserLoader } from "../../../core/browserLoader.js";
+import { createEngine } from "../../../src/core/engine.js";
+import { browserLoader } from "../../../src/core/browserLoader.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { getCustomExpansions, getCustomPresets } from "./customStore.js";
 

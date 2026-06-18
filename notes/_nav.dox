@@ -1,0 +1,128 @@
+/*
+ * Doxygen navigation tree for the project notes.
+ *
+ * This file ONLY defines page hierarchy (via \subpage); it holds no prose of its own beyond short
+ * hub descriptions. Every note's actual content lives in its Markdown file — this just organizes
+ * those pages into a browsable tree under "Project Notes" in Related Pages, instead of one flat pile.
+ *
+ * Page IDs:
+ *   - Markdown files get Doxygen's automatic, path-derived IDs: notes/<dir>/<file>.md  ->
+ *     md_notes_2<dir>_2<file>   (the "_2" encodes a "/").  e.g. md_notes_2reference_2esm-patterns
+ *   - The index READMEs carry explicit {#labels} in their Markdown (README files otherwise collide
+ *     on a filename-derived ID and don't become pages): rap_notes_system, rap_sessions_about,
+ *     rap_systems_about.
+ *   - Extensionless repo files (VERSION, LICENSE) mangle uppercase as md__v_e_r_s_i_o_n etc.
+ *
+ * MAINTENANCE — a hard rule: EVERY Markdown page Doxygen ingests must be placed in a tree here,
+ * never left to auto-append. When you ADD or RENAME a Markdown file that is in the Doxyfile INPUT
+ * (a note, or a repo doc like list-credits.md / VERSION / LICENSE), add/adjust its \subpage line
+ * below. If a page isn't listed it still builds — it just lands flat at the TOP of Related Pages,
+ * which is exactly the unstructured pile we don't want. The only top-level Related Pages should be
+ * the hub pages defined in this file: "Project Notes" and "Project & Repository".
+ */
+
+/**
+\page rap_notes Project Notes
+\brief Living documentation for the codebase — start with Status, then explore by section.
+
+The full project-notes system, organized. Read **Status** for the current state, then the section
+that fits what you need: the day-by-day **Session Logs**, the per-commit **Changelog**, the **Context**
+background, the **System Map**, the **Reference** lookups, the **Decisions**, and the **Plans**.
+
+\subpage rap_notes_system <br>
+\subpage md_notes_2status <br>
+\subpage rap_sessions <br>
+\subpage rap_changelog <br>
+\subpage rap_context <br>
+\subpage rap_systems <br>
+\subpage rap_reference <br>
+\subpage rap_decisions <br>
+\subpage rap_plans
+*/
+
+/**
+\page rap_sessions Session Logs
+\brief The day-by-day history — per-day files grouped into month folders, newest first.
+
+\subpage rap_sessions_about <br>
+\subpage rap_sessions_2026_06
+*/
+
+/**
+\page rap_sessions_2026_06 June 2026
+\brief Daily session logs for June 2026 (`notes/sessions/2026-06/`).
+
+\subpage md_notes_2sessions_22026-06_22026-06-18
+*/
+
+/**
+\page rap_changelog Changelog
+\brief Plain-English history, one entry per commit, split by month.
+
+\subpage md_notes_2version <br>
+\subpage md_notes_2version_22026-06
+*/
+
+/**
+\page rap_context Context
+\brief Background that changes rarely — what the project is and how it got here.
+
+\subpage md_notes_2context_2project <br>
+\subpage md_notes_2context_2architecture <br>
+\subpage md_notes_2context_2principles <br>
+\subpage md_notes_2context_2history
+*/
+
+/**
+\page rap_systems System Map
+\brief How the machine is built — macro overview plus per-layer deep-dives.
+
+\subpage rap_systems_about <br>
+\subpage md_notes_2systems_2overview <br>
+\subpage md_notes_2systems_2core-engine <br>
+\subpage md_notes_2systems_2cli <br>
+\subpage md_notes_2systems_2server <br>
+\subpage md_notes_2systems_2web-app
+*/
+
+/**
+\page rap_reference Reference
+\brief Quick lookups, no story — patterns, dependencies, and conventions.
+
+\subpage md_notes_2reference_2esm-patterns <br>
+\subpage md_notes_2reference_2dependencies <br>
+\subpage md_notes_2reference_2fix-patterns <br>
+\subpage md_notes_2reference_2documentation <br>
+\subpage md_notes_2reference_2deployment <br>
+\subpage md_notes_2reference_2git-workflow <br>
+\subpage md_notes_2reference_2versioning
+*/
+
+/**
+\page rap_decisions Decisions
+\brief Why the structural choices were made — and what was tried and rejected.
+
+\subpage md_notes_2decisions_2architecture <br>
+\subpage md_notes_2decisions_2rejected
+*/
+
+/**
+\page rap_plans Plans
+\brief What comes next — ordered tasks, the testing picture, the web migration, and longer-term ideas.
+
+\subpage md_notes_2plans_2next-steps <br>
+\subpage md_notes_2plans_2testing <br>
+\subpage md_notes_2plans_2web-migration <br>
+\subpage md_notes_2plans_2future
+*/
+
+/**
+\page rap_project Project & Repository
+\brief Repository-level docs that aren't development notes — credits, help, version, and license.
+
+\subpage md_list-credits <br>
+\subpage md_list-help <br>
+\subpage md__upgrade-2-0 <br>
+\subpage md__v_e_r_s_i_o_n <br>
+\subpage md__l_i_c_e_n_s_e
+*/

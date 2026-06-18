@@ -1,0 +1,52 @@
+name: CI
+
+# Test-on-every-push. Mirrors the local Default Workflow (lint + format + the import smoke test)
+# so green here means the same thing as green locally. See notes/plans/testing.md.
+
+on:
+  push:
+    branches: [dev, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Lint, format & smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Import smoke test (full ES-module graph + all dynamic prompts)
+        run: npm run smoke
+
+  web-app:
+    name: Build the React SPA
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web-app/package-lock.json
+
+      - name: Install web-app dependencies
+        run: npm --prefix web-app ci
+
+      - name: Build web-app
+        run: npm --prefix web-app run build

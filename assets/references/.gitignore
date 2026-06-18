@@ -1,0 +1,12 @@
+# assets/references/ -- local-only home for reference material (read-only, never a build input).
+#
+# An official place to keep project references and source clones used while working on this project
+# -- e.g. the Stable Diffusion WebUI API docs, the original danbooru/artist tag-source dumps that
+# `data/*.csv` were processed from, or any upstream prompt/list sources credited in
+# `list-credits.md` -- so they have a known home and can be dropped back here if they ever get
+# deleted, then referenced until they do.
+#
+# NONE of the contents are version-controlled (they can be large and are not ours to ship); only
+# this .gitignore is tracked, which is what keeps the otherwise-empty folder in the repo.
+*
+!.gitignore

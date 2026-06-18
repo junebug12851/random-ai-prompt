@@ -1,10 +1,16 @@
 node_modules/
 output/
 docs/
-web/frontend/lib/
+tmp/
+src/web/frontend/lib/
 web-app/
 data/*.csv
 data/*.json
 package-lock.json
 user-settings.json
 results.json
+
+# Prose & doc-nav are not governed by Prettier (its config here targets JS/JSON/YAML code style;
+# the living notes use compact Markdown tables on purpose). Format check stays meaningful for code.
+*.md
+*.dox

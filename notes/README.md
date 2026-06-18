@@ -1,4 +1,4 @@
-# Project Notes — random-ai-prompt
+# Project Notes — random-ai-prompt {#rap_notes_system}
 
 Living documentation for the codebase and project, written during development so that anyone picking
 it up — a human or an AI opening the repo cold — can orient fast and avoid re-learning things the hard
@@ -17,8 +17,8 @@ This file describes the **system** — where everything lives and how it's kept 
 | [`sessions/`](sessions/README.md) | **The history.** One file per day in month folders (`YYYY-MM/YYYY-MM-DD.md`): what changed each session and why. |
 | [`version.md`](version.md) | **The changelog** — plain-English, one entry per commit, newest first (index; months under `version/`). |
 | `context/` | Background that changes rarely: [`project.md`](context/project.md) (what it is + goals), [`architecture.md`](context/architecture.md) (layout + entry points + pipeline), [`principles.md`](context/principles.md) (philosophy), [`history.md`](context/history.md) (origins + the 2026 ESM modernization). |
-| `systems/` | **System map** — [`overview.md`](systems/overview.md): the machine end-to-end (CLI vs server, settings, the prompt-module pipeline, dynamic prompts, the image index). |
-| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`git-workflow.md`](reference/git-workflow.md), [`versioning.md`](reference/versioning.md) (the version-number scheme). |
+| `systems/` | **System map** — [`README.md`](systems/README.md) (hub) + [`overview.md`](systems/overview.md) (the machine end-to-end) and the per-layer deep-dives: [`core-engine.md`](systems/core-engine.md), [`cli.md`](systems/cli.md), [`server.md`](systems/server.md), [`web-app.md`](systems/web-app.md). |
+| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (Doxygen doc-site + JSDoc style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`versioning.md`](reference/versioning.md) (the version-number scheme). |
 | `decisions/` | Rationale: [`architecture.md`](decisions/architecture.md) (choices + why), [`rejected.md`](decisions/rejected.md) (things tried/considered that were rejected). |
 | `plans/` | What's next: [`next-steps.md`](plans/next-steps.md) (ordered tasks), [`testing.md`](plans/testing.md) (the testing reality), [`future.md`](plans/future.md) (longer-term vision). |
 
@@ -42,6 +42,8 @@ has one home and one trigger:
 | Hit a CJS→ESM / Node landmine | Add to [`reference/esm-patterns.md`](reference/esm-patterns.md) |
 | Changed a dependency | Update [`reference/dependencies.md`](reference/dependencies.md) |
 | Made / rejected a structural decision | [`decisions/architecture.md`](decisions/architecture.md) / [`decisions/rejected.md`](decisions/rejected.md) |
+| Added/renamed a Markdown note in the Doxyfile `INPUT` | Add its `\subpage` line to [`_nav.dox`](_nav.dox) under the right hub (same commit) — or it floats flat on the Doxygen/Pages site. See [`reference/documentation.md`](reference/documentation.md) |
+| Changed how docs/CI/releases work | Update [`reference/documentation.md`](reference/documentation.md) / [`reference/deployment.md`](reference/deployment.md) |
 
 The structure is meant to **grow**. If something doesn't fit an existing file, make a new one in the
 right folder rather than stuffing it somewhere wrong. (The fuller, AI-facing version of this loop is in
@@ -64,6 +66,7 @@ right folder rather than stuffing it somewhere wrong. (The fuller, AI-facing ver
 ```
 notes/
   README.md              ← this file (the system)
+  _nav.dox               ← Doxygen navigation tree (places every note page in a hub)
   status.md              ← current state only (health + open issues, no history)
   version.md             ← changelog index (plain-English, per commit)
   version/               ← changelog, one file per month (YYYY-MM.md)
@@ -72,12 +75,17 @@ notes/
     YYYY-MM/YYYY-MM-DD.md← what changed that day and why (newest on top)
   context/               ← background that changes rarely
     project.md  architecture.md  principles.md  history.md
-  systems/               ← the system map
-    overview.md
+  systems/               ← the system map (macro + per-layer)
+    README.md  overview.md  core-engine.md  cli.md  server.md  web-app.md
   reference/             ← quick lookup, no story
-    esm-patterns.md  dependencies.md  fix-patterns.md  git-workflow.md  versioning.md
+    esm-patterns.md  dependencies.md  fix-patterns.md
+    documentation.md  deployment.md  git-workflow.md  versioning.md
   decisions/             ← rationale for choices
     architecture.md  rejected.md
   plans/                 ← what comes next
-    next-steps.md  testing.md  future.md
+    next-steps.md  testing.md  web-migration.md  future.md
 ```
+
+The repo also carries the doc-site footprint these notes describe: the root **`Doxyfile`**, the
+vendored theme under **`docs/doxygen-awesome/`** (generated HTML under `docs/html/` is git-ignored),
+and the CI/release pipelines under **`.github/workflows/`** (`ci.yml`, `pages.yml`, `release.yml`).

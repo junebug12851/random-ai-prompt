@@ -1,0 +1,61 @@
+name: Docs (GitHub Pages)
+
+# Builds the Doxygen doc-site (API docs + the living notes) and deploys it to GitHub Pages on every
+# push to master. The Doxygen home is the Pages root (USE_MDFILE_AS_MAINPAGE = README.md).
+# See notes/reference/documentation.md and notes/reference/deployment.md.
+#
+# One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deploy; don't cancel an in-progress run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # apt's Doxygen is old (1.9.1) and mis-parses some Markdown; install the current release from
+      # the official Doxygen GitHub release so CI output matches a modern local toolchain.
+      - name: Install Doxygen 1.14.0
+        run: |
+          set -euo pipefail
+          ver=1.14.0
+          url="https://github.com/doxygen/doxygen/releases/download/Release_${ver//./_}/doxygen-${ver}.linux.bin.tar.gz"
+          curl -fsSL "$url" -o /tmp/doxygen.tar.gz
+          tar -xzf /tmp/doxygen.tar.gz -C /tmp
+          sudo cp "/tmp/doxygen-${ver}/bin/doxygen" /usr/local/bin/doxygen
+          doxygen --version
+
+      - name: Generate docs
+        run: doxygen Doxyfile
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/html
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,9 +1,9 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Random AI prompt + image generator for Stable Diffusion WebUI, with a CLI and a local web UI.",
   "type": "module",
-  "main": "index.js",
+  "main": "src/index.js",
   "author": "junebug12851",
   "license": "Apache-2.0",
   "private": true,
@@ -11,29 +11,37 @@
     "node": ">=24"
   },
   "scripts": {
-    "start": "node index.js",
-    "server": "node server.js",
-    "webui": "node server.js",
+    "start": "node src/index.js",
+    "server": "node src/server.js",
+    "webui": "node src/server.js",
+    "web": "npm --prefix web-app run dev",
+    "web:dev": "npm --prefix web-app run dev",
+    "web:build": "npm --prefix web-app run build",
+    "web:preview": "npm --prefix web-app run preview",
+    "web:install": "npm --prefix web-app install",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "smoke": "node scripts/smoke-test.mjs",
+    "docs": "doxygen Doxyfile",
+    "test": "npm run lint && npm run smoke"
   },
   "dependencies": {
     "cli-progress": "^3.12.0",
     "compromise": "^14.15.1",
     "crc": "^4.3.2",
     "express": "^5.2.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "open": "^11.0.0",
     "pug": "^3.0.4",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.0.0",
-    "globals": "^16.0.0",
+    "globals": "^17.6.0",
     "prettier": "^3.0.0"
   }
 }

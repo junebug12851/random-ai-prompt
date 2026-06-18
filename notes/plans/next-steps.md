@@ -27,3 +27,7 @@ Ordered, roughly by priority. Update as items are done or added.
    their lint. Out of scope for the Node migration; do only if desired.
 6. **Optional: consider in-process generation** instead of the server-spawns-CLI design (see
    [`future.md`](future.md)).
+7. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
+   flags benign init-then-overwrite patterns in `src/server.js` (×3), `src/web/backend/indexImages.js`
+   (×2), and `src/web/frontend/single.js` (×1). Currently demoted to `warn` in `eslint.config.js`.
+   Either tidy the dead stores or leave as-is (changing them is behavior-neutral here, but low value).

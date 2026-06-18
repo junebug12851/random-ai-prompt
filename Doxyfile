@@ -1,0 +1,113 @@
+# Doxyfile for random-ai-prompt — curated (not a full default dump; unlisted tags take defaults).
+# Generate with:  doxygen Doxyfile   → open docs/html/index.html
+# Upgrade across Doxygen versions with:  doxygen -u Doxyfile
+#
+# This documents the JavaScript codebase AND renders the living notes (notes/) as a cross-linked
+# doc-site. Doxygen is a C/C++/Java/JS-capable API tool; here it doubles as the notes/site renderer
+# (USE_MDFILE_AS_MAINPAGE + the notes/ tree in INPUT). See notes/reference/documentation.md.
+
+#---------------------------------------------------------------------------
+# Project
+#---------------------------------------------------------------------------
+PROJECT_NAME           = "random-ai-prompt"
+PROJECT_BRIEF          = "Random AI prompt + image generator for Stable Diffusion WebUI (CLI + web UI)"
+PROJECT_NUMBER         =
+OUTPUT_DIRECTORY       = docs
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+
+#---------------------------------------------------------------------------
+# Input — the JS source roots + the repo docs + the living notes
+#---------------------------------------------------------------------------
+# README is the doc landing page (USE_MDFILE_AS_MAINPAGE). LICENSE + VERSION (extensionless) are in
+# INPUT + FILE_PATTERNS with EXTENSION_MAPPING below so the README's [LICENSE]/[VERSION] links resolve.
+INPUT                  = README.md \
+                         LICENSE \
+                         VERSION \
+                         list-credits.md \
+                         list-help.md \
+                         Upgrade-2-0.md \
+                         notes \
+                         src \
+                         web-app/src
+INPUT_ENCODING         = UTF-8
+RECURSIVE              = YES
+FILE_PATTERNS          = *.js *.mjs *.jsx *.md *.dox VERSION LICENSE
+EXTENSION_MAPPING      = no_extension=md
+EXCLUDE                = output \
+                         tmp \
+                         node_modules \
+                         web-app/node_modules \
+                         web-app/dist \
+                         docs/html
+EXCLUDE_PATTERNS       = */node_modules/* \
+                         */dist/* \
+                         *.min.js
+USE_MDFILE_AS_MAINPAGE = README.md
+IMPLICIT_DIR_DOCS      = NO
+
+#---------------------------------------------------------------------------
+# Extraction
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_PRIVATE        = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+INTERNAL_DOCS          = NO
+
+#---------------------------------------------------------------------------
+# Markdown / notes rendering
+#---------------------------------------------------------------------------
+MARKDOWN_SUPPORT       = YES
+MARKDOWN_ID_STYLE      = GITHUB
+# AUTOLINK off: otherwise Doxygen turns every bare filename in the notes (even inside `backticks`)
+# into a link to a near-empty "File Reference" stub. Off, only real [text](file.md) and \ref resolve.
+# See notes/reference/documentation.md.
+AUTOLINK_SUPPORT       = NO
+JAVADOC_AUTOBRIEF      = YES
+TAB_SIZE               = 2
+TOC_INCLUDE_HEADINGS   = 5
+
+#---------------------------------------------------------------------------
+# Warnings (don't fail the build on JS the parser doesn't fully model)
+#---------------------------------------------------------------------------
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+
+#---------------------------------------------------------------------------
+# HTML output (doxygen-awesome theme, vendored under docs/doxygen-awesome/)
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_COLORSTYLE        = LIGHT
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome/doxygen-awesome.css
+
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_DOCBOOK       = NO
+
+#---------------------------------------------------------------------------
+# Diagrams — off by default (no Graphviz dependency; flip HAVE_DOT=YES if dot is on PATH)
+#---------------------------------------------------------------------------
+HAVE_DOT               = NO
+
+#---------------------------------------------------------------------------
+# Source browser
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+ALPHABETICAL_INDEX     = YES

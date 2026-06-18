@@ -16,7 +16,7 @@
 
 import fs from "node:fs";
 
-import doUpscale from "../helpers/imageUpscaler.js";
+import doUpscale from "./helpers/imageUpscaler.js";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 
 export default async function (name, settings, imageSettings, upscaleSettings) {

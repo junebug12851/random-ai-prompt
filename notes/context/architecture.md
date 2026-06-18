@@ -1,57 +1,63 @@
 # Architecture
 
-ES modules (`"type": "module"`), Node 24. Everything runs with the current working directory pinned to
-the project root by `chdir.js`, so the many `./output`, `./lists`, `./results.json` style paths resolve.
+ES modules (`"type": "module"`), Node 24. **All code lives under `src/`; all prompt content (data)
+lives under `data/`.** Everything runs with the current working directory pinned to the project root by
+`src/chdir.js` (which `chdir`s to its parent), so the many `./output`, `./data/lists`, `./results.json`
+style paths resolve from the root regardless of where `node` was launched.
 
 ## Top-level layout
 
 ```
-index.js            CLI entry — parses args, runs generation, also hosts the progress server
-server.js           Web UI entry — Express + Pug app, shells out to the CLI to generate
-common.js           Shared core — argv, settings accessors, run()/processBatch()/upscale()
-chdir.js            Side-effect module: process.chdir(import.meta.dirname). Imported first.
-
-settings.js / image-settings.js / upscale-settings.js / server-settings.js
-                    Default settings objects (export default {...})
-default-user-settings.json   Seed for the user's user-settings.json
-
-src/                Loaders + per-feature logic
+src/                ALL code
+  index.js          CLI entry — parses args, runs generation, also hosts the progress server
+  server.js         Web UI entry — Express + Pug app, shells out to the CLI to generate
+  common.js         Shared core — argv, settings accessors, run()/processBatch()/upscale()
+  chdir.js          Side-effect module: process.chdir(parent of src) = repo root. Imported first.
+  settings.js / image-settings.js / upscale-settings.js / server-settings.js   Default settings objects
   loadSettings.js          merge defaults + user-settings.json (+ legacy migration)
   createMissingUserSettings.js / diffSettings.js / convertMetaToJSON.js
   applyArgs.js             apply presets + command-line overrides
   genImg.js                call SD WebUI txt2img + progress bars (uses global fetch)
   loadVariationData.js / loadRerollData.js / upscaleExisting.js / extendAnimation.js / toAnimation.js
   promptFilesAndSuggestions.js   scan/classify dynamic prompts, build suggestions
-
-prompt-modules/     The prompt pipeline stages
-  dynamic-prompt.js  expand #name tokens (loads dynamic-prompts/* via createRequire)
-  expansion.js       expand <name> tokens   list.js  expand {name} tokens
-  prompt-salt.js     {salt} handling        cleanup.js  whitespace/comma cleanup
-
-dynamic-prompts/    ~113 plugin modules: export default fn (+ export const full / suggestion_exclude)
-  v1/  user-submitted/   variant sets
-lists/  expansions/  presets/   data files for {name}, <name>, and presets
-helpers/            saveImage, saveApng, makeApng, saveResults, listFiles, keywordRepeater,
+  prompt-modules/   The prompt pipeline stages
+    dynamic-prompt.js  expand #name tokens (loads dynamic-prompts/* via createRequire)
+    expansion.js       expand <name> tokens   list.js  expand {name} tokens
+    prompt-salt.js     {salt} handling        cleanup.js  whitespace/comma cleanup
+  dynamic-prompts/  ~113 plugin modules: export default fn (+ export const full / suggestion_exclude)
+    v1/  user-submitted/   variant sets
+  helpers/          saveImage, saveApng, makeApng, saveResults, listFiles, keywordRepeater,
                     imageUpscaler, randomEmphasis/Editing/Alternating
-data/               one-off scripts that build the lists/ files from CSV/JSON sources
+  core/             the isomorphic engine (engine.js, stages/, node/browserLoader) — see systems/core-engine.md
+  web/              backend/indexImages.js (image index) + frontend/ (browser JS/CSS) + views/ (Pug)
 
-web/                backend/indexImages.js (the image search index) + frontend/ (browser JS/CSS) +
-                    views/ (Pug templates)
-output/             generated images + their .json metadata (gitignored)
+data/               ALL prompt content
+  lists/  expansions/  presets/   data files for {name}, <name>, and presets
+  artists.csv / danbooru.csv / nai-tag-expirement.json   raw sources
+  process-*.js      one-off scripts that build the lists/ files from the CSV/JSON sources
+
+default-user-settings.json   Seed for the user's user-settings.json (root)
+output/             generated images + their .json metadata (root, gitignored)
+user-settings.json / results.json   runtime user data (root, gitignored)
 ```
+
+The directory names code consumes are centralized in `src/settings.js` (`listFiles: "./data/lists"`,
+`expansionFiles: "./data/expansions"`, `presetFiles: "./data/presets"`; `dynamicPromptFiles`/
+`promptModuleFiles` stay relative to `src/`). The web UI's served folder is `serverSettings.webFolder`
+= `"./src/web"`.
 
 ## Data flow — CLI generate
 
 `node . ...` → `common.js` loads settings → `index.js` listens on the progress port, applies
 variation/reroll/animation loaders and `applyArgs` → `run()` → for each prompt, `processBatch()` runs
 `settings.promptModules` over the prompt string (expanding `#`/`{}`/`<>`, salt, cleanup) → if images are
-enabled and mode is StableDiffusion, `genImg.js` POSTs to the WebUI `txt2img` API, saves PNG + JSON via
-`helpers/saveImage.js`, optionally upscales (`helpers/imageUpscaler.js`) → results written to
+enabled and mode is StableDiffusion, `src/genImg.js` POSTs to the WebUI `txt2img` API, saves PNG + JSON
+via `src/helpers/saveImage.js`, optionally upscales (`src/helpers/imageUpscaler.js`) → results written to
 `results.json` and (for animations) an APNG.
 
 ## Data flow — Web UI
 
-`node server.js` builds the image index (`web/backend/indexImages.js` scans `output/*.json`), starts
+`node src/server.js` builds the image index (`src/web/backend/indexImages.js` scans `output/*.json`), starts
 Express on `server-settings.port` (7861), opens the browser, and serves the Pug pages + a JSON API.
 Generation requests (`/api/generate`, `/api/file-variation/:id`, `/api/upscale-file/:id`, …) set args
 and **spawn the CLI** (`node . --flags`) via `child_process`; progress is read by polling the CLI's

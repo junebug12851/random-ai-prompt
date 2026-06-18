@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import cleanup from "../prompt-modules/cleanup.js";
+import cleanup from "./prompt-modules/cleanup.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
 //

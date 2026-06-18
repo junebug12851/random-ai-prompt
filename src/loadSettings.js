@@ -6,10 +6,10 @@ import createMissingUserSettings from "./createMissingUserSettings.js";
 import diffSettings from "./diffSettings.js";
 
 // Load settings
-import basicSettings from "../settings.js";
-import imageSettings from "../image-settings.js";
-import upscaleSettings from "../upscale-settings.js";
-import serverSettings from "../server-settings.js";
+import basicSettings from "./settings.js";
+import imageSettings from "./image-settings.js";
+import upscaleSettings from "./upscale-settings.js";
+import serverSettings from "./server-settings.js";
 
 // Scoped require used only for the optional, synchronous legacy `user-settings.js`
 // migration below (createRequire can load the old CommonJS settings file).

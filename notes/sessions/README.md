@@ -1,4 +1,4 @@
-# Session Logs
+# Session Logs {#rap_sessions_about}
 
 The running history of the project — **what changed each working session and why.** One file per
 calendar day, grouped into **month folders**: `sessions/YYYY-MM/YYYY-MM-DD.md` (e.g.

@@ -1,9 +1,11 @@
 # random-ai-prompt — AI Context
 
 Random AI prompt + image generator for the Stable Diffusion WebUI. Node.js (ES modules) — a
-yargs **CLI** (`index.js`) and a local **Express + Pug web UI** (`server.js`) that share one core
-(`common.js`). Open source, by junebug12851. Originally CommonJS (2022); modernized to ES modules on
-Node 24 LTS in June 2026.
+yargs **CLI** (`src/index.js`) and a local **Express + Pug web UI** (`src/server.js`) that share one
+core (`src/common.js`). Open source, by junebug12851. Originally CommonJS (2022); modernized to ES
+modules on Node 24 LTS in June 2026. **All code lives under `src/`; all prompt content (lists,
+expansions, presets, the CSV sources) lives under `data/`; runtime/user data (`output/`,
+`user-settings.json`, `results.json`) stays at the repo root.**
 
 ## Start Here
 
@@ -20,10 +22,12 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/context/architecture.md` | Codebase layout, the two entry points, the prompt pipeline, data flow |
 | `notes/context/principles.md` | Project philosophy — what to do and what to avoid |
 | `notes/context/history.md` | The 2022 origins and the 2026 ESM modernization |
-| `notes/systems/overview.md` | **System map** — the machine: CLI vs server, settings, the prompt-module pipeline, dynamic prompts, the image index. Start here to understand how it fits together |
+| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `web-app.md`. Start here to understand how it fits together |
 | `notes/reference/esm-patterns.md` | **The Node/ESM landmine catalog** — CJS→ESM gotchas hit during the migration (import ordering vs `process.chdir`, `require(ESM)` for config-driven plugin loading, default vs named exports, JSON imports, dropping `node-fetch`). Read before touching module wiring |
 | `notes/reference/dependencies.md` | Every runtime/dev dependency, why it's there, and the breaking-change notes for the current majors |
 | `notes/reference/fix-patterns.md` | Error → fix lookup table |
+| `notes/reference/documentation.md` | **The doc-site** — generating the Doxygen site (`npm run docs`), the JSDoc comment house-style, and the `_nav.dox` rule. Read before adding a note page |
+| `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify web-app deploy |
 | `notes/reference/git-workflow.md` | Branch model + commit style + hard safety rules. Read before any git op |
 | `notes/reference/versioning.md` | Version-number scheme — SemVer, the `VERSION` file, keeping `package.json` in sync |
 | `notes/decisions/architecture.md` | Key structural choices and why |
@@ -37,11 +41,12 @@ The full notes system is in `notes/`, organized by topic:
 - **This is ES modules (`"type": "module"`).** Every relative import needs its **file extension**
   (`./foo.js`, not `./foo`). There is no `require`/`module.exports`/`__dirname`/`__filename` — use
   `import`/`export`, `import.meta.url`, `import.meta.dirname`. See `reference/esm-patterns.md`.
-- **`chdir.js` must stay imported first in `common.js`.** The whole app uses cwd-relative paths
-  (`./output`, `./lists`, `./results.json`, `./user-settings.json`). `chdir.js` does
-  `process.chdir(import.meta.dirname)` and is imported before settings load. Because ES-module imports
-  are evaluated in order, importing it first guarantees the chdir happens before any module reads a
-  cwd-relative file. Don't reorder it below the settings imports. See `decisions/architecture.md`.
+- **`src/chdir.js` must stay imported first in `src/common.js`.** The whole app uses cwd-relative paths
+  (`./output`, `./data/lists`, `./results.json`, `./user-settings.json`). Because `chdir.js` now lives
+  in `src/`, it does `process.chdir(path.join(import.meta.dirname, ".."))` to pin the cwd to the **repo
+  root** (its parent), and is imported before settings load. Because ES-module imports are evaluated in
+  order, importing it first guarantees the chdir happens before any module reads a cwd-relative file.
+  Don't reorder it below the settings imports, and don't drop the `".."`. See `decisions/architecture.md`.
 - **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
   modules are loaded by a runtime path (`require(\`./${settings.dynamicPromptFiles}/${name}\`)`),
   synchronously, inside string-replace callbacks. Node 24 can `require()` ES modules synchronously, so
@@ -53,8 +58,8 @@ The full notes system is in `notes/`, organized by topic:
   `export default function (settings, imageSettings, upscaleSettings) {…}`, plus
   `export const full = true;` / `export const suggestion_exclude = true;` where applicable. Keep that
   shape or the loader in `src/promptFilesAndSuggestions.js` won't classify them.
-- **`helpers/listFiles.js` is a default-export object on purpose** (it's indexed dynamically:
-  `listFiles[\`${keyword}Alias\`]`). `helpers/keywordRepeater.js` is named exports
+- **`src/helpers/listFiles.js` is a default-export object on purpose** (it's indexed dynamically:
+  `listFiles[\`${keyword}Alias\`]`). `src/helpers/keywordRepeater.js` is named exports
   (`artistRepeater`, `keywordRepeater`) because it's consumed via destructuring. Don't flip them.
 - **Never use `node-fetch`.** Node 24 has a global `fetch`; the dependency was removed in 2.0.0.
 - **Use PowerShell or the file tools (Read/Edit/Write) — not the Cowork bash sandbox.** Bash has
@@ -73,16 +78,20 @@ npm run server         # start the web UI on http://localhost:7861 (node server.
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
+npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
+npm test               # lint + smoke (the headless verification gate)
+npm run docs           # generate the Doxygen doc-site into docs/html/ (needs Doxygen on PATH)
 ```
 
 - Generating images requires a **Stable Diffusion WebUI running with `--api`** on the URL in
   `imageSettings.url` (default `http://127.0.0.1:7860`). Without it, prompt generation still runs but
   the image calls fail — that's expected, not a bug.
-- There is **no automated test suite yet** (see `notes/plans/testing.md`). Verification today is:
-  `npm run lint`, `node --check` on changed files, and an **import smoke test** — load `common.js` +
-  `src/promptFilesAndSuggestions.js`, call `loadAll()` and expand a prompt — to confirm the whole ES
-  module graph (incl. all dynamic prompts via `require(ESM)`) resolves without starting a server or
-  touching the network.
+- There is **no full automated test suite yet** (see `notes/plans/testing.md`). Verification today is:
+  `npm run lint`, `node --check` on changed files, and the **import smoke test** (`npm run smoke` →
+  `scripts/smoke-test.mjs`) — it loads `src/common.js` + `src/promptFilesAndSuggestions.js` the way the
+  server boots, forces every dynamic prompt to load via `require(ESM)`, and expands a prompt, confirming
+  the whole ES module graph resolves without starting a server or touching the network. `npm test` runs
+  lint + smoke together. The same checks run in CI (`.github/workflows/ci.yml`).
 
 ## Default Workflow — Do These By Default (a standing instruction)
 
@@ -90,18 +99,48 @@ After making changes, run this loop without being asked:
 
 1. **Lint + format.** `npm run lint` (fix new errors; pre-existing warnings are fine) and
    `npm run format`.
-2. **Smoke-test the module graph.** `node --check` changed files; run the import smoke test above for
+2. **Verify the module graph.** `node --check` changed files; run `npm run smoke` (or `npm test`) for
    anything touching module wiring, settings, or the prompt pipeline. Only proceed on green.
 3. **Commit on `dev`.** Stage specific files (never `git add -A`/`.`), focused `type: summary`
    messages, and write the changelog entry **inside the same commit** (see below). `git push origin
-   dev` after each commit. Do **not** commit to `master` without an explicit go-ahead.
-4. **Keep `VERSION` + `package.json` in sync.** Bump in the same commit when a change warrants it —
-   **PATCH** for a fix/small change, **MINOR** for a feature; never **MAJOR** automatically. See
-   `reference/versioning.md`.
+   dev` after each commit.
+4. **Keep `VERSION` + `package.json` in sync.** Bump both in the same commit when a change warrants it —
+   **PATCH** for a fix/small change, **MINOR** for a feature; never **MAJOR** automatically. Docs / notes
+   / test / CI-only commits don't move the number. See `reference/versioning.md`.
+5. **Ship to `master` when green (on go-ahead).** `master` is **FF-only** from a green `dev` — never
+   commit on `master` directly. When shipping (with the owner's go-ahead, unless they've asked for it to
+   be automatic like the sibling project), confirm CI is green on the `dev` HEAD
+   (`gh run list --branch dev -L 1`), then:
+   `git checkout master && git merge --ff-only dev && git push origin master && git checkout dev`.
+   A `master` push that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
+   the Pages docs (`pages.yml`); watch them with `gh run watch`. See `reference/deployment.md`.
+6. **Regenerate the docs after shipping (by default).** After a `master` FF, run `npm run docs` so the
+   generated `docs/html/` (git-ignored) tracks `master`; CI also rebuilds + deploys it to Pages.
 
 Hard git safety rules are absolute: never `push --force`, never rewrite pushed history, never
 `reset --hard`/`rebase`/`clean -fd`/delete a branch without an explicit request. Inspect `git status`
 before and after. Full standards: `notes/reference/git-workflow.md`.
+
+## GitHub Is Part of Default Management (a standing instruction)
+
+The GitHub CLI (`gh`) is the way to keep GitHub state part of the normal workflow — event-based, not on
+a timer. The trigger is **preparing `master` for shipment**, not a calendar.
+
+- **When prepping `master` for shipment**, do a quick GitHub check: `gh run list` (CI/Pages/release
+  health — must be green), plus `gh issue list` and `gh pr list`. If there are open/new/changed issues
+  or PRs, surface them as a short summary and **ask whether to work on them now or later** — don't
+  silently start.
+- **Never auto-act on issues/PRs** (no closing, merging, or pushing to PR branches) without an explicit
+  go-ahead — surfacing + asking is the default. Hard git safety rules still apply.
+- **Releases are software releases only**, each with a clear auto-composed description; the docs site
+  lives on GitHub Pages (not in git, not in a release). See `reference/deployment.md`.
+
+## Keep the Credits Living
+
+`list-credits.md` is the human-readable credits for the prompt lists, data sources, tools, and AI
+assistance the project builds on. Keep it current **by default, without being asked** — whenever a new
+person, data source, framework, tool, service, or AI assistant contributes, add them under the right
+section. (It's the analog of an in-app credits screen; treat it as a living document.)
 
 ## Maintaining the Notes — Your Responsibility
 
@@ -115,8 +154,11 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Fixed a compiler/runtime error | Add a row to `notes/reference/fix-patterns.md` |
 | Hit a CJS→ESM / Node landmine | Add to `notes/reference/esm-patterns.md` |
 | Changed/added/removed a dependency | Update `notes/reference/dependencies.md` |
+| Studied a layer in depth | Update the matching `notes/systems/*.md` deep-dive (and add JSDoc per `notes/reference/documentation.md`) |
 | Made / rejected a structural decision | `notes/decisions/architecture.md` / `notes/decisions/rejected.md` |
 | Finished or unblocked a task | Update `notes/plans/next-steps.md` |
+| Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
+| Created/renamed a Markdown note in the Doxyfile `INPUT` | Add its `\subpage` to `notes/_nav.dox` under the right hub, **same commit** — or it floats flat on the Doxygen/Pages site. See `notes/reference/documentation.md` |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
 
 If something doesn't fit an existing file, make a new one in the right folder. The goal: any AI (or

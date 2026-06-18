@@ -1,0 +1,5 @@
+# Temporary staging area for assets being imported/processed into the project
+# (icons, mockups, list/CSV source dumps mid-conversion, etc.).
+# Ignore everything here but keep the folder itself tracked.
+*
+!.gitignore

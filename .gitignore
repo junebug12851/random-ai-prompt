@@ -7,3 +7,13 @@ results.json
 *.lnk
 *-private*
 *private-*
+
+# Local build/CI helper scripts & logs at the repo root (machine-specific, regenerated,
+# never meant to be tracked). Underscore-prefixed by convention; transient logs go in tmp/.
+/_*.bat
+/_*.log
+/_*.sh
+
+# Generated documentation (Doxygen). The Doxyfile and the vendored theme under
+# docs/doxygen-awesome/ ARE tracked; only the generated HTML is ignored.
+/docs/html/

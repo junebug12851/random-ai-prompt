@@ -11,7 +11,7 @@ export default [
       "node_modules/**",
       "output/**",
       "docs/**",
-      "web/frontend/lib/**",
+      "src/web/frontend/lib/**",
       "web-app/**",
       "user-settings.json",
       "results.json",
@@ -20,9 +20,9 @@ export default [
 
   js.configs.recommended,
 
-  // Node-side ES modules (CLI, server, helpers, prompt logic).
+  // Node-side ES modules (CLI, server, helpers, prompt logic, scripts/*.mjs).
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.mjs"],
     ignores: ["web/frontend/**"],
     languageOptions: {
       ecmaVersion: "latest",
@@ -40,6 +40,12 @@ export default [
       // changing the prompts they produce. Tracked in notes/plans/next-steps.md.
       "no-useless-escape": "warn",
       "no-dupe-else-if": "warn",
+      // ESLint 10 promoted no-useless-assignment into eslint:recommended. It
+      // flags benign init-then-overwrite patterns in the hand-written server
+      // code (e.g. `let command = ""` before a switch, `let ret = {}` before a
+      // later assign). Kept as a warning, not an error, to stay behavior-neutral
+      // and consistent with the rules above. Tracked in notes/plans/next-steps.md.
+      "no-useless-assignment": "warn",
     },
   },
 
@@ -48,8 +54,8 @@ export default [
   // sibling files), so the module-oriented "undefined/redeclare" rules don't
   // apply. Linted loosely here; they are not part of the Node ES-module code.
   {
-    files: ["web/frontend/**/*.js"],
-    ignores: ["web/frontend/lib/**"],
+    files: ["src/web/frontend/**/*.js"],
+    ignores: ["src/web/frontend/lib/**"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "script",

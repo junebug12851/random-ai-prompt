@@ -19,7 +19,7 @@ import fs from "node:fs";
 import _ from "lodash";
 
 // load settings
-import settings from "../settings.js";
+import settings from "../src/settings.js";
 
 // load tags file
 import tags from "./nai-tag-expirement.json" with { type: "json" };

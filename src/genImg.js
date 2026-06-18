@@ -18,8 +18,8 @@
 import cliProgress from "cli-progress";
 
 // Bring in shared code
-import doUpscale from "../helpers/imageUpscaler.js";
-import saveImage from "../helpers/saveImage.js";
+import doUpscale from "./helpers/imageUpscaler.js";
+import saveImage from "./helpers/saveImage.js";
 
 // Import image settings
 let imageSettings;
