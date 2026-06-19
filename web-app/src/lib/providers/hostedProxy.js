@@ -1,3 +1,8 @@
+/**
+ * Hosted (BYOK) provider — posts the prompt + the user's key to the stateless Netlify
+ * proxy, which forwards to a hosted image API. The key is per-request, never stored.
+ * @module web-app/lib/providers/hostedProxy
+ */
 // Hosted provider via the stateless Netlify proxy (bring your own key).
 //
 // The proxy forwards the user's key to the chosen hosted image API, polls for the

@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { transformSync } from "@babel/core";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const notesDir = path.join(root, "notes");
@@ -138,6 +139,43 @@ write(
 tutorials["project-repo__index"] = { title: "Project & Repository", children: repoChildren };
 
 fs.writeFileSync(path.join(outDir, "tutorials.json"), JSON.stringify(tutorials, null, 2), "utf8");
+
+// ---- Transpile the web-app (React/JSX) so JSDoc can read it ----
+// JSDoc's parser can't read JSX, so babel strips it (preserving comments) into a temp
+// mirror that JSDoc reads instead of the .jsx source. The `@module` tags in each file
+// give clean nav names, so the temp path doesn't matter. The plain .js lib files pass
+// through unchanged. See jsdoc.config.json (`source.include` adds tmp/webapp-docs).
+const webappOut = path.join(root, "tmp", "webapp-docs");
+fs.rmSync(webappOut, { recursive: true, force: true });
+function transpileTree(absDir, relBase) {
+  if (!fs.existsSync(absDir)) return 0;
+  let n = 0;
+  for (const e of fs.readdirSync(absDir, { withFileTypes: true })) {
+    const abs = path.join(absDir, e.name);
+    if (e.isDirectory()) {
+      n += transpileTree(abs, path.join(relBase, e.name));
+      continue;
+    }
+    if (!/\.(jsx?|mjs)$/.test(e.name)) continue;
+    const outAbs = path.join(webappOut, relBase, e.name.replace(/\.jsx$/, ".js"));
+    fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+    const res = transformSync(fs.readFileSync(abs, "utf8"), {
+      filename: abs,
+      presets: [["@babel/preset-react", { runtime: "automatic" }]],
+      comments: true,
+      compact: false,
+      babelrc: false,
+      configFile: false,
+    });
+    fs.writeFileSync(outAbs, res.code, "utf8");
+    n++;
+  }
+  return n;
+}
+const waCount =
+  transpileTree(path.join(root, "web-app", "src"), "src") +
+  transpileTree(path.join(root, "web-app", "netlify"), "netlify");
+console.log(`Transpiled ${waCount} web-app files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
 execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });

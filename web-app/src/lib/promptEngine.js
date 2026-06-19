@@ -1,3 +1,9 @@
+/**
+ * The SPA's browser-engine facade: wires the shared `core/` engine to a loader that
+ * augments the bundled data with the user's browser-local custom expansions, and
+ * exposes generation, live preview, the categorized building blocks, and presets.
+ * @module web-app/lib/promptEngine
+ */
 // The browser engine facade for the SPA.
 //
 // Wires the shared core engine to a loader that augments the bundled data with
@@ -26,6 +32,11 @@ const loader = {
 promptFiles.configure(loader);
 const engine = createEngine(loader);
 
+/**
+ * Scale the emphasis / alternating knobs by `settings.chaos` (mirrors the CLI `--chaos`).
+ * @param {object} settings The generation settings.
+ * @returns {object} The (possibly) chaos-scaled settings.
+ */
 // Chaos scales the emphasis/alternating knobs (mirrors the CLI's --chaos).
 function withChaos(settings) {
   const c = Number(settings.chaos);
@@ -40,12 +51,26 @@ function withChaos(settings) {
   };
 }
 
+/**
+ * @param {object} settings The generation settings.
+ * @returns {string} One generated prompt.
+ */
 export function generatePrompt(settings) {
   return engine.generate(withChaos(settings));
 }
+/**
+ * @param {object} settings The generation settings (`promptCount`).
+ * @returns {string[]} That many generated prompts.
+ */
 export function generatePrompts(settings) {
   return engine.generateMany(withChaos(settings));
 }
+/**
+ * Expand a specific prompt (the live preview).
+ * @param {string} prompt The prompt to expand.
+ * @param {object} settings The generation settings.
+ * @returns {string} The expanded prompt.
+ */
 export function expandPrompt(prompt, settings) {
   return engine.generate({ ...withChaos(settings), prompt });
 }
@@ -56,6 +81,11 @@ const dyn = promptFiles.loadDynPromptList(); // { fullRegular, partialRegular, u
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
+/**
+ * @returns {object[]} The categorized building-block groups for the token cloud
+ *   (full / partial dynamic prompts, expansions, lists, user, v1, special, plus the
+ *   user's browser-local custom expansions).
+ */
 export function getBlocks() {
   const blocks = [
     {
@@ -90,14 +120,25 @@ export function getBlocks() {
   return blocks;
 }
 
+/**
+ * @returns {string[]} The sorted list names.
+ */
 export function getListNames() {
   return browserLoader.listNames().slice().sort();
 }
 
+/**
+ * @returns {string[]} The sorted preset names (built-in + the user's custom presets).
+ */
 export function getPresetNames() {
   return [...new Set([...browserLoader.presetNames(), ...Object.keys(getCustomPresets())])].sort();
 }
 
+/**
+ * Load a preset's settings (a custom preset shadows a built-in of the same name).
+ * @param {string} name The preset name.
+ * @returns {object} The preset settings (or `{}` if unknown).
+ */
 export function loadPreset(name) {
   const custom = getCustomPresets();
   if (name in custom) return custom[name];

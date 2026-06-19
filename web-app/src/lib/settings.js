@@ -1,3 +1,9 @@
+/**
+ * The browser-local (localStorage) settings store: the defaults, load/save, and the
+ * `useSettings` React hook. Prompt-knob names match the engine's settings; BYOK keys
+ * live here too and never leave the browser except per-request.
+ * @module web-app/lib/settings
+ */
 import { useEffect, useState } from "react";
 
 // Settings live ONLY in this browser (localStorage). No accounts, no server
@@ -8,6 +14,10 @@ import { useEffect, useState } from "react";
 // flow straight into prompt generation; image params are read by the providers.
 const STORAGE_KEY = "rap.settings.v2";
 
+/**
+ * @constant {object} The default SPA settings (prompt knobs match the engine; image
+ *   params are read by the providers).
+ */
 export const defaultSettings = {
   // Prompt
   prompt: "#random",
@@ -71,6 +81,9 @@ export const defaultSettings = {
   negativePrompt: "",
 };
 
+/**
+ * @returns {object} The settings from localStorage merged over the defaults.
+ */
 export function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -81,6 +94,11 @@ export function loadSettings() {
   }
 }
 
+/**
+ * Persist settings to localStorage (best-effort; ignores quota / private-mode errors).
+ * @param {object} settings The settings to save.
+ * @returns {void}
+ */
 export function saveSettings(settings) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -89,6 +107,10 @@ export function saveSettings(settings) {
   }
 }
 
+/**
+ * React hook: settings state that auto-persists to localStorage on every change.
+ * @returns {Array} `[settings, setSettings]` — the state and its setter.
+ */
 // React hook: settings state that auto-persists to localStorage on change.
 export function useSettings() {
   const [settings, setSettings] = useState(loadSettings);

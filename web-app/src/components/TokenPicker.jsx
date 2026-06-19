@@ -1,7 +1,18 @@
+/**
+ * A searchable grid of insertable token chips (capped at 400 rendered so big lists
+ * like danbooru stay snappy).
+ * @module web-app/components/TokenPicker
+ */
 import { useState } from "react";
 
 // A searchable grid of tokens. Click one to insert it into the prompt. Capped at
 // a few hundred rendered chips so the big lists (danbooru, etc.) stay snappy.
+/**
+ * @param {object} props
+ * @param {string[]} props.tokens The tokens to show.
+ * @param {Function} props.onInsert Called with the clicked token.
+ * @returns {JSX.Element}
+ */
 export default function TokenPicker({ tokens, onInsert }) {
   const [q, setQ] = useState("");
   const filtered = q ? tokens.filter((t) => t.toLowerCase().includes(q.toLowerCase())) : tokens;

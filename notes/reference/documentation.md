@@ -33,14 +33,17 @@ Graphviz — JSDoc parses ESM / `export default` natively, which is why it repla
 
 ### What's covered / what's not
 
-- **Code API:** every authored `.js` under `src/` + the `data/process-*.js` build scripts (config
-  `jsdoc.config.json`: `source.include = ["src","data","README.md"]`, excluding `node_modules`,
-  `**/lib/**`, and `*.min.js`). `README.md` is the landing page (`opts.readme`).
+- **Code API:** every authored `.js` under `src/` + the `data/process-*.js` build scripts, **and the
+  `web-app/` React SPA** (config `jsdoc.config.json`: `source.include` adds `tmp/webapp-docs`). JSDoc
+  can't parse JSX, so `build-docs.mjs` babel-transpiles `web-app/src` + the Netlify function into
+  `tmp/webapp-docs` (JSX stripped, comments kept) and JSDoc reads that mirror; the `@module` tags give
+  clean nav names. `README.md` is the landing page (`opts.readme`).
 - **Notes:** the entire `notes/` tree + `list-credits.md` / `list-help.md` / `Upgrade-2-0.md` render as
   tutorial pages, auto-discovered by `build-docs.mjs` (no manual nav file to maintain).
-- **Not covered:** `node_modules/`, `output/`, `tmp/`, the local-only `assets/`, the built
-  `web-app/dist/`, vendored `*.min.js`, and the Pug templates (no JS doc generator parses Pug). The
-  `web-app/` React SPA isn't in the API source roots (it has its own toolchain).
+- **Not covered:** `node_modules/`, `output/`, `tmp/` source (only the generated `tmp/webapp-docs`
+  mirror is read), the local-only `assets/`, the built `web-app/dist/`, the vendored `web/frontend/lib`
+  + `*.min.js`, and the Pug templates / CSS (no JS doc generator parses Pug or CSS — those are covered
+  conceptually in [`../systems/`](../systems/README.md)).
 
 ### How the code is documented
 
@@ -50,11 +53,13 @@ JSDoc extracts a real **per-function API** (it handles ESM / `export default` wh
   scripts; the vendored `lib/*.min.js` are left untouched. Each file gets a description, with richer
   multi-line module headers on the files with real logic.
 - **Per-function JSDoc** (`@param`/`@returns`/description) on **all server-side code, all 113
-  dynamic-prompt generators, and all top-level `web/frontend/*` functions**. The only things without
-  per-function docs are anonymous callbacks (Express route arrows, jQuery closures, `$(document).ready`),
-  which no generator extracts. Quality varies by layer: the engine / core-logic docs are bespoke; the
-  dynamic-prompts and frontend handlers are accurate generated scaffolds (correct params/returns,
-  humanized descriptions).
+  dynamic-prompt generators, all top-level `web/frontend/*` functions, and the entire `web-app/` SPA**
+  (every lib function + provider + the Netlify handler + every React component, each file an `@module`).
+  The only things without per-function docs are anonymous callbacks (Express route arrows, jQuery
+  closures, `$(document).ready`, React inline event handlers), which no generator extracts. Quality
+  varies by layer: the engine / core-logic / web-app docs are bespoke; the dynamic-prompts and the
+  classic frontend handlers are accurate generated scaffolds (correct params/returns, humanized
+  descriptions).
 - **The notes pages carry the conceptual depth** the code comments don't — the prompt DSL
   ([prompt-dsl.md](prompt-dsl.md)), the dynamic-prompt catalog ([dynamic-prompts.md](dynamic-prompts.md)),
   and the system map ([`../systems/`](../systems/README.md)) — and they live in the **same site**, as
@@ -72,9 +77,11 @@ but ESLint / Prettier still walk the filesystem**, so it must be excluded in bot
 ### Files (the doc footprint)
 
 - `jsdoc.config.json` — the JSDoc config (source roots, the docdash template + options, `opts.tutorials`).
-- `scripts/build-docs.mjs` — generates the note tutorials (+ link rewriting) and runs JSDoc.
-- `docdash` (devDependency) — the template (sidebar nav, search box).
-- `docs/jsdoc/` and `tmp/jsdoc-tutorials/` — generated output. **git-ignored**, never committed.
+- `scripts/build-docs.mjs` — generates the note tutorials (+ link rewriting), babel-transpiles the
+  `web-app/` JSX into a JSDoc-readable mirror, and runs JSDoc.
+- `docdash` (devDependency) — the template (sidebar nav, search box). `@babel/core` + `@babel/preset-react`
+  — used by `build-docs.mjs` only, to strip JSX for documentation (not part of the app build).
+- `docs/jsdoc/`, `tmp/jsdoc-tutorials/`, and `tmp/webapp-docs/` — generated output. **git-ignored**.
 
 ### Adding or renaming a note
 
@@ -109,10 +116,12 @@ The conventions documentation passes follow, so comments read as one consistent 
 
 ## 3. Status
 
-The doc-site builds clean — `npm run docs` (JSDoc + docdash, exit 0): the README home, the per-function
-code API, and the whole `notes/` tree as tutorial pages with working cross-links. **Documentation
-coverage is complete** (2026-06-18): `@file` on every authored `.js`, and per-function JSDoc on all
-server-side code, all 113 dynamic prompts, and all top-level frontend functions (only anonymous callbacks
-remain, which no generator extracts). **Doxygen was retired here** (2026-06-18) in favour of the single
-JSDoc site — it couldn't parse the anonymous `export default` plugins, and one tool now does both the
-code API and the notes.
+The doc-site builds clean — `npm run docs` (JSDoc + docdash, exit 0, ~244 pages): the README home, the
+per-function code API, and the whole `notes/` tree as tutorial pages with working cross-links.
+**Documentation coverage is complete** (2026-06-18): `@file` on every authored `.js`, and per-function
+JSDoc across the **whole repo** — all server-side code, all 113 dynamic prompts, all top-level
+`web/frontend/*` functions, **and the entire `web-app/` React SPA** (16 modules: every lib function +
+provider + the Netlify handler + each React component, via the babel-transpile-then-JSDoc path). Only
+anonymous callbacks remain, which no generator extracts. **Doxygen was retired here** (2026-06-18) in
+favour of the single JSDoc site — it couldn't parse the anonymous `export default` plugins, and one tool
+now does the code API (incl. JSX) and the notes.

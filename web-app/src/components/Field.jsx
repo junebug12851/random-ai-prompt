@@ -1,6 +1,16 @@
+/**
+ * Small labeled, controlled form controls (Text, Num, Toggle, Select, TextArea,
+ * Group). Each takes `value` + `onChange(newValue)` so the parent owns state.
+ * @module web-app/components/Field
+ */
 // Small labeled form controls. Each takes a value + onChange(newValue) so the
 // parent owns state. Keeps the Settings / Builder forms uncluttered.
 
+/**
+ * Labeled text input.
+ * @param {object} props `{ label, value, onChange, ...rest }`.
+ * @returns {JSX.Element}
+ */
 export function Text({ label, value, onChange, ...rest }) {
   return (
     <label className="field">
@@ -10,6 +20,11 @@ export function Text({ label, value, onChange, ...rest }) {
   );
 }
 
+/**
+ * Labeled number input (emits a Number, or "" when cleared).
+ * @param {object} props `{ label, value, onChange, step, min, max }`.
+ * @returns {JSX.Element}
+ */
 export function Num({ label, value, onChange, step, min, max }) {
   return (
     <label className="field">
@@ -26,6 +41,11 @@ export function Num({ label, value, onChange, step, min, max }) {
   );
 }
 
+/**
+ * Labeled checkbox.
+ * @param {object} props `{ label, value, onChange }`.
+ * @returns {JSX.Element}
+ */
 export function Toggle({ label, value, onChange }) {
   return (
     <label className="field field-toggle">
@@ -35,6 +55,11 @@ export function Toggle({ label, value, onChange }) {
   );
 }
 
+/**
+ * Labeled select. `options` are strings or `{ value, label }`.
+ * @param {object} props `{ label, value, onChange, options }`.
+ * @returns {JSX.Element}
+ */
 export function Select({ label, value, onChange, options }) {
   return (
     <label className="field">
@@ -53,6 +78,11 @@ export function Select({ label, value, onChange, options }) {
   );
 }
 
+/**
+ * Labeled textarea.
+ * @param {object} props `{ label, value, onChange, rows, ...rest }`.
+ * @returns {JSX.Element}
+ */
 export function TextArea({ label, value, onChange, rows = 3, ...rest }) {
   return (
     <label className="field">
@@ -62,6 +92,11 @@ export function TextArea({ label, value, onChange, rows = 3, ...rest }) {
   );
 }
 
+/**
+ * Titled section wrapper.
+ * @param {object} props `{ title, children }`.
+ * @returns {JSX.Element}
+ */
 export function Group({ title, children }) {
   return (
     <section className="group">

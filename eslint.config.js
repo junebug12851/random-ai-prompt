@@ -11,6 +11,7 @@ export default [
       "node_modules/**",
       "output/**",
       "docs/**",
+      "tmp/**",
       // assets/ is local-only reference material (e.g. the pinned pre-revival
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",

@@ -1,3 +1,9 @@
+/**
+ * The Generate tab — build prompt(s) client-side, then (optionally) send each to the
+ * selected provider for an image. Results are in-session only. (Hidden from the nav
+ * while the UI is reworked.)
+ * @module web-app/components/Generate
+ */
 import { useState } from "react";
 import Gallery from "./Gallery.jsx";
 import { generatePrompts } from "../lib/promptEngine.js";
@@ -5,6 +11,14 @@ import { getProvider } from "../lib/providers/index.js";
 
 // Run generation: build the prompt(s) client-side, then (optionally) send each to
 // the selected provider for an image. Results are in-session only.
+/**
+ * Run generation: build the prompt(s) in the browser and optionally request images
+ * from the selected provider.
+ * @param {object} props
+ * @param {object} props.settings The current settings.
+ * @param {Function} props.setSettings Update the settings.
+ * @returns {JSX.Element}
+ */
 export default function Generate({ settings, setSettings }) {
   const [prompts, setPrompts] = useState([]);
   const [images, setImages] = useState([]);

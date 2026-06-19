@@ -1,3 +1,9 @@
+/**
+ * The Build tab — the browser-native version of the original generate screen's prompt
+ * tools (block cloud, live preview, share link, word toggles, chaos, save expansion /
+ * preset).
+ * @module web-app/components/Builder
+ */
 import { useMemo, useState } from "react";
 import { Select } from "./Field.jsx";
 import { getBlocks, getPresetNames, loadPreset, expandPrompt } from "../lib/promptEngine.js";
@@ -6,6 +12,15 @@ import { shareUrl } from "../lib/share.js";
 
 // Compose a prompt from building blocks, presets and quick controls — the
 // browser-native version of the original generate screen's prompt tools.
+/**
+ * Compose a prompt from building blocks, presets, and quick controls: a searchable
+ * block cloud, live expansion preview, share link, anime/normal word toggles, a chaos
+ * knob, and save-as-expansion / save-as-preset.
+ * @param {object} props
+ * @param {object} props.settings The current settings.
+ * @param {Function} props.setSettings Update the settings.
+ * @returns {JSX.Element}
+ */
 export default function Builder({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks/presets
   const [query, setQuery] = useState("");

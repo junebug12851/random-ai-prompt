@@ -2,9 +2,9 @@
   "plugins": ["plugins/markdown"],
   "recurseDepth": 10,
   "source": {
-    "include": ["src", "data", "README.md"],
+    "include": ["src", "data", "README.md", "tmp/webapp-docs"],
     "includePattern": ".+\\.js$",
-    "excludePattern": "(node_modules|[\\\\/]lib[\\\\/]|\\.min\\.js$)"
+    "excludePattern": "(node_modules|frontend[\\\\/]lib[\\\\/]|\\.min\\.js$)"
   },
   "opts": {
     "destination": "./docs/jsdoc/",

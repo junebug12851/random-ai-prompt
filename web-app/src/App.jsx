@@ -1,3 +1,9 @@
+/**
+ * The SPA shell: top-bar tab nav (currently just Build while the UI is reworked) + a
+ * local/online mode badge, applies a shared-link (`#s=…`) to settings on load, and
+ * renders the active tab.
+ * @module web-app/App
+ */
 import { useEffect, useState } from "react";
 import { useSettings } from "./lib/settings.js";
 import { ONLINE } from "./lib/providers/index.js";
@@ -15,6 +21,10 @@ const TABS = [
   // { id: "settings", label: "Settings", Component: Settings },
 ];
 
+/**
+ * The application shell component.
+ * @returns {JSX.Element} The app (header nav + active tab + footer).
+ */
 export default function App() {
   const [settings, setSettings] = useSettings();
   const [tab, setTab] = useState("build");

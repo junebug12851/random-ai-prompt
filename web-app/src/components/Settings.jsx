@@ -1,3 +1,9 @@
+/**
+ * The Settings tab — the full settings form (provider / BYOK key, prompt knobs,
+ * emphasis / editing / alternating, artists / fx / salt, image params, negative
+ * prompt). (Hidden from the nav while the UI is reworked.)
+ * @module web-app/components/Settings
+ */
 import { Text, Num, Toggle, Select, TextArea, Group } from "./Field.jsx";
 import { getListNames } from "../lib/promptEngine.js";
 import { availableProviders, getProvider } from "../lib/providers/index.js";
@@ -12,6 +18,13 @@ const MODES = [
 // Source-list options: every list, plus "false" meaning fully random.
 const listOptions = [{ value: "false", label: "(fully random)" }, ...getListNames()];
 
+/**
+ * The full settings form.
+ * @param {object} props
+ * @param {object} props.settings The current settings.
+ * @param {Function} props.setSettings Update the settings.
+ * @returns {JSX.Element}
+ */
 export default function Settings({ settings, setSettings }) {
   const set = (patch) => setSettings({ ...settings, ...patch });
   const setKey = (id, value) => setSettings({ ...settings, keys: { ...settings.keys, [id]: value } });

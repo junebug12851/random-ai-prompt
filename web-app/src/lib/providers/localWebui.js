@@ -1,3 +1,8 @@
+/**
+ * Local Stable Diffusion WebUI provider — calls the user's OWN WebUI (`--api`, CORS)
+ * directly from the browser, no proxy or key. Local mode only.
+ * @module web-app/lib/providers/localWebui
+ */
 // Local Stable Diffusion WebUI provider.
 //
 // Calls the user's OWN WebUI (started with `--api`, CORS enabled) directly from

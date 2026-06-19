@@ -1,3 +1,7 @@
+/**
+ * The SPA entry point — mounts `<App />` into `#root`.
+ * @module web-app/main
+ */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
