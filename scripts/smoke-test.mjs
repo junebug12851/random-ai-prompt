@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief The import smoke test (`npm run smoke`) — the project's headless verification gate.
+ */
 // Import smoke test — the project's headless verification (no server, no network).
 //
 // Loads the whole ES-module graph the same way `server.js` boots it, which forces every
