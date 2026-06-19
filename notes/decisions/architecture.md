@@ -73,3 +73,37 @@ design discussion:
   overage surprises; near-zero lock-in since nothing is stored.
 
 Full plan + phases: [`../plans/web-migration.md`](../plans/web-migration.md).
+
+## One JSDoc doc-site, not Doxygen (2026-06-18)
+
+The documentation went through two tools before settling. Doxygen was set up first (file-level `@file`
+headers + the notes as pages), but it **cannot extract this code's symbols** — the dynamic-prompt
+generators are anonymous `export default function`, and Doxygen's ESM support is weak — so it could only
+ever give a File List plus the notes, never a real per-function API. **JSDoc parses ESM and
+`export default` natively**, so it was adopted and Doxygen **retired entirely**. One generator now does
+everything: `npm run docs` → `scripts/build-docs.mjs` → a single **JSDoc + docdash** site. The owner's
+constraint shaped this: **JSDoc comments, not TypeScript** ("I don't like TypeScript unless it's really
+needed") — pure-JavaScript `/** … */` comments give the per-function API without a type system or a build
+step in the way. See [`../reference/documentation.md`](../reference/documentation.md).
+
+## Unify code API + notes in the same site (notes as JSDoc tutorials) (2026-06-18)
+
+Rather than keep the conceptual notes and the code API as two separate things, the whole `notes/` tree is
+wired into the JSDoc site as **tutorials**: `build-docs.mjs` walks `notes/**`, builds a `tutorials.json`
+hierarchy that mirrors the folder tree (the role Doxygen's `_nav.dox` played), and rewrites inter-note
+links so they resolve to the generated tutorial pages. One site carries the README home, the per-function
+code API, and the living notes with a shared sidebar + search. This is deliberate: the depth the code
+comments can't carry (the prompt DSL, the dynamic-prompt catalog, the system map) lives **beside** the API,
+not in a separate doc system. Auto-discovery means adding/renaming a note needs no nav-file maintenance.
+
+## Keep JSDoc for the React SPA too — transpile JSX, don't switch tools (2026-06-18)
+
+The `web-app/` React SPA raised the question of whether to adopt a React-specific doc tool (better-docs,
+react-docgen, Storybook). Decision: **stay on the one JSDoc site** for now. JSDoc can't parse JSX, so
+`build-docs.mjs` **babel-transpiles** `web-app/src` (+ the Netlify function) into a `tmp/webapp-docs`
+mirror (JSX stripped, comments kept) that JSDoc reads, with `@module` tags giving clean nav names. This
+keeps one source of truth for all documentation while the SPA is still young and its components are simple.
+The trigger to revisit: **if the SPA grows a real component library** with props/variants worth a visual
+catalog, add **Storybook** (interactive component docs) and/or **better-docs** `@component` support
+*alongside* JSDoc — not as a replacement for the unified site. Recorded so the judgment isn't re-litigated
+from scratch.

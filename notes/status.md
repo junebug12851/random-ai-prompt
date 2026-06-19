@@ -8,7 +8,10 @@ see [`reference/versioning.md`](reference/versioning.md)).
 
 ## Current state (read this first)
 
-The project was just **modernized** (2026-06-18):
+Everything below happened during the **2026-06-18 revival** (the project had been dormant since
+2023-04-07). Four strands, in order:
+
+**1. Modernized to ES modules on Node 24.**
 
 - **Runtime:** Node **24 LTS** (was implicitly an old Node). `.nvmrc` = `24`, `engines.node >= 24`.
 - **Module system:** the entire codebase is now **ES modules** (`"type": "module"`). ~130 files moved
@@ -21,7 +24,31 @@ The project was just **modernized** (2026-06-18):
 - **Tooling added:** ESLint 9 (flat config) + Prettier 3, plus `.editorconfig`, `.nvmrc`,
   `.prettierrc.json`/`.prettierignore`. `npm` scripts: `start`, `server`/`webui`, `lint`, `lint:fix`,
   `format`, `format:check`.
-- **The full AI/notes system** (`CLAUDE.md` + `notes/`) was set up, modeled on a sibling project.
+
+**2. Reorganized the tree (2.0.1).** All code lives under **`src/`**, all prompt content (lists,
+expansions, presets, the CSV sources) under **`data/`**; runtime/user data (`output/`,
+`user-settings.json`, `results.json`) stays at the repo root. `src/chdir.js` pins the cwd to the repo
+root (its parent) so every cwd-relative path keeps working.
+
+**3. Started the web migration — a React + Vite SPA** (`web-app/`, usable online BYOK or locally). The
+real prompt engine was ported to a browser-safe `core/` driven by an **injected loader** (Node: fs +
+`createRequire`; browser: Vite `import.meta.glob`), so there is one engine, no duplicated prompt logic.
+The SPA has a Settings editor, a Prompt **Build**er (blocks cloud, share links, custom
+expansions/presets, chaos), and a Generate gallery — though **only the Build tab is currently shown**
+while the rest of the UI is reworked. Build tooling is **Vite 8 / @vitejs/plugin-react 6**. The classic
+Express + Pug server and the CLI are untouched and still work.
+
+**4. Documented the whole repo in one JSDoc doc-site.** `npm run docs` (`scripts/build-docs.mjs`) builds
+a single **JSDoc + docdash** site that unifies the per-function **code API** (every authored `.js`,
+including the React SPA via a babel-transpile-then-JSDoc step) with the **entire `notes/` tree as
+tutorials** (cross-links rewritten). **Doxygen was retired.** Coverage is complete: `@file` on every
+authored file, per-function JSDoc across all server-side code, all 113 dynamic prompts, the frontend
+scripts, and the whole `web-app/` SPA — only anonymous callbacks are left (no generator extracts them).
+The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
+
+**Deployments are intentionally held.** `master` sits at the last pre-revival commit (`241a148`); GitHub
+Releases / Pages deploys are paused on purpose because the rewrite is too early to ship. Active work is on
+`dev`. See [`reference/deployment.md`](reference/deployment.md).
 
 **Verification done:** `node --check` on all 152 server-side JS files (0 syntax errors); `npm run lint`
 (0 errors, 163 pre-existing style warnings); a Prettier pass over the codebase; and an **import smoke
@@ -50,5 +77,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
+| `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
+| `web-app` SPA `vite build` | ✅ green |
 | CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |
 | Server `node server.js` | ⚠️ imports + Express 5 routes validated; not launched live |

@@ -15,7 +15,15 @@ unwieldy. This file is the index; pick a month below (newest first).
 
 | Month | Notes |
 |-------|-------|
-| [June 2026](version/2026-06.md) | The 2.0.0 ES-module + Node 24 modernization. |
+| [June 2026](version/2026-06.md) | Revival: the 2.0.0 ES-module + Node 24 modernization, the React + Vite SPA migration, and the full JSDoc doc-site. |
+| [April 2023](version/2023-04.md) | Last activity before a ~3-year dormancy (legacy detail wording, 2:1 presets). |
+| [March 2023](version/2023-03.md) | LoRA support, image-size/wallpaper presets, repo hygiene. |
+| [January 2023](version/2023-01.md) | Peak month: the Generate tab, animations, ImageMagick, nested dynamic prompts. |
+| [December 2022](version/2022-12.md) | The original build — the randomization engine, the list library, the web gallery, JSON settings, the 2.0 refactor. |
+
+> **Two eras.** The **2022–2023 months are reconstructed retrospectively** from the git log and grouped
+> by theme (they predate the inline rule below). The **June 2026 month and onward follow the per-commit
+> inline rule** — one entry per commit, written in the same commit.
 
 ## How this is kept updated (the inline rule)
 

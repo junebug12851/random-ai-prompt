@@ -17,14 +17,17 @@ Ordered, roughly by priority. Update as items are done or added.
    `futuristic.js`, `beach.js`) have duplicate `else if` conditions — likely latent bugs in the prompt
    generators. Decide the intended condition per case (this *will* change generated prompts), or
    confirm they're harmless. Don't bulk-edit.
-3. **Add an automated test/smoke harness.** Promote the manual import smoke test into a committed script
-   (e.g. `npm test` running a Node script that loads the graph, loads all dynamic prompts, and asserts
-   a few prompt expansions). Optionally a couple of unit tests for `cleanup`/`list`/`prompt-salt`.
-   See [`testing.md`](testing.md).
+3. **Grow the test harness into real assertions.** The import **smoke test now exists** (committed as
+   `scripts/smoke-test.mjs`, run by `npm run smoke` / `npm test`, and in CI) — it loads the full module
+   graph, forces every dynamic prompt through `require(ESM)`, and expands a prompt. Next: add actual
+   **unit tests** (e.g. for `cleanup` / `list` / `prompt-salt`) and a small browser-engine assertion for
+   the SPA's `core/` path. See [`testing.md`](testing.md).
 4. **README refresh.** The root `README.md` predates 2.0.0; update the run instructions to the `npm`
-   scripts and note the Node 24 requirement.
-5. **Optional: modernize `web/frontend/`.** Convert the browser scripts to modules/bundling and tighten
-   their lint. Out of scope for the Node migration; do only if desired.
+   scripts, note the Node 24 requirement, and mention the `web-app/` SPA and the `npm run docs` doc-site.
+5. **Finish the SPA UI rework, then re-enable the Generate + Settings tabs.** The React + Vite `web-app/`
+   exists and only the **Build** tab is currently shown while the UI is reworked. Complete that rework
+   and unhide the other tabs. (The older `web/frontend/` jQuery client modernization is now largely
+   superseded by this SPA — do it only if the classic server is kept long-term.)
 6. **Optional: consider in-process generation** instead of the server-spawns-CLI design (see
    [`future.md`](future.md)).
 7. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
