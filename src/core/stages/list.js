@@ -12,6 +12,11 @@ import randomAlternating from "../../helpers/randomAlternating.js";
 // emphasis/editing/alternating randomization. Loader-injected port of
 // prompt-modules/list.js; the pure random* helpers are reused as-is and the
 // file access goes through the list store.
+/**
+ * Build the `{name}` list stage bound to a list store (loader-injected port).
+ * @param {object} store The list store (`{ pull }`).
+ * @returns {Function} The list stage `(prompt, settings) => string`.
+ */
 export function makeListStage(store) {
   const promptFuncsSd = [randomEmphasis, randomEditing, randomAlternating];
   const promptFuncsNai = [randomEmphasis, randomAlternating];

@@ -7,6 +7,14 @@ import fs from "node:fs";
 import apng from "./makeApng.js";
 import saveResults from "./saveResults.js";
 
+/**
+ * Stitch an array of frame PNGs into an APNG (saved as `<animationOf>.png`) and write
+ * its sidecar (marking `isAnimation` and linking the parent image).
+ * @param {string[]} imageArray The frame base filenames, in order.
+ * @param {object} imageSettings The image settings (animationOf, animationDelay, saveTo).
+ * @param {boolean} [dontWriteJSON] Skip writing the sidecar (used when only refreshing the APNG).
+ * @returns {void}
+ */
 // Saves the png files as an animated png file
 export default function (imageArray, imageSettings, dontWriteJSON) {
   // Read the PNG files into an array of Buffers

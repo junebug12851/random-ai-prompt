@@ -15,6 +15,12 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 
+/**
+ * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
+ * loading. Implements `readExpansion`, `readListLines`, `listNames`, `expansionNames`,
+ * `loadDynamicPrompt`, `dynamicPromptNames`.
+ * @type {object}
+ */
 export const nodeLoader = {
   readExpansion(name) {
     try {

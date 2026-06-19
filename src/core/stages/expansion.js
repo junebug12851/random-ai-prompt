@@ -6,6 +6,11 @@
 // Expansion stage: `<name>` -> contents of expansions/name.txt.
 // Loader-injected port of prompt-modules/expansion.js (no fs); the loader
 // supplies the expansion text so the same logic runs in Node and the browser.
+/**
+ * Build the `<name>` expansion stage bound to a loader (loader-injected port, LoRA-safe).
+ * @param {object} loader The loader (`{ readExpansion }`).
+ * @returns {Function} The expansion stage `(prompt, settings) => string`.
+ */
 export function makeExpansionStage(loader) {
   const loraFind = "<lora:";
   const loraReplacement = "%%lora:";

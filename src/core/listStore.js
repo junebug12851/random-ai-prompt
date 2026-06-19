@@ -10,6 +10,11 @@ import { keywordAlias, artistAlias } from "../helpers/aliases.js";
 // data-source-agnostic: the working list copies come from `loader.readListLines`
 // (fs in Node, bundled ?raw text in the browser) instead of reading files here.
 // Keeps the once-only depletion + alias resolution behaviour of the original.
+/**
+ * Create a loader-backed list store with the original once-only depletion + alias behaviour.
+ * @param {object} loader Data loader (`readListLines`, `listNames`).
+ * @returns {{pull: Function, reset: Function}} The store API.
+ */
 export function createListStore(loader) {
   const lists = {};
   const artists = {};
@@ -50,6 +55,12 @@ export function createListStore(loader) {
     return target[name];
   }
 
+  /**
+   * Pull a random entry from list `name` (alias-resolved), with once-only depletion.
+   * @param {object} settings The merged settings.
+   * @param {string} name The list name or alias.
+   * @returns {string} A random entry, or "".
+   */
   function pull(settings, name) {
     name = resolveName(settings, name);
     if (name === undefined || name === null) return "";
@@ -71,6 +82,10 @@ export function createListStore(loader) {
     return entry;
   }
 
+  /**
+   * Clear depletion state — call once per generated prompt so each draws from a full set.
+   * @returns {void}
+   */
   // Clear depletion state — call once per generated prompt so each prompt draws
   // from a full set of list entries.
   function reset() {

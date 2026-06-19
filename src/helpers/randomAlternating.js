@@ -21,6 +21,14 @@
 
 import _ from "lodash";
 
+/**
+ * Randomly build an alternation `kw|kw|…` (StableDiffusion wraps it in `[...]`),
+ * adding terms while `emphasisLevelChance` rolls, up to `keywordAlternatingMaxLevels`.
+ * No-op for Midjourney or when `keywordAlternating` is off.
+ * @param {object} settings The merged generation settings.
+ * @param {string} keyword The keyword.
+ * @returns {{keyword: string, wasUsed: boolean}} The (possibly) alternated keyword.
+ */
 // Adds random emphasis/de-emphasis to keywords
 export default function randomAlternating(settings, keyword) {
   // Stop here if emphasis is disabled or if using an unsupported mode

@@ -21,10 +21,23 @@
 
 import _ from "lodash";
 
+/**
+ * @returns {string} A fresh random salt token like `[1234567890]`.
+ */
 function getRndSalt() {
   return `[${_.random(1000000000, 9999999999, false)}]`;
 }
 
+/**
+ * Prompt-salt pipeline stage: resolve `{salt}` / `[n]` tokens (and optionally
+ * auto-append a salt) to a random or incrementing seed-salt number; records the
+ * bare number in `imageSettings.usedSalt`.
+ * @param {string} prompt The incoming prompt.
+ * @param {object} settings The merged generation settings (`promptSalt`, `promptSaltStart`).
+ * @param {object} imageSettings Image settings; receives `usedSalt`.
+ * @param {object} [upscaleSettings] Unused.
+ * @returns {string} The prompt with salt resolved/appended.
+ */
 export default function (prompt, settings, imageSettings, upscaleSettings) {
   let foundSalt = false;
   let val = settings.promptSaltStart;

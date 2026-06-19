@@ -38,10 +38,24 @@ let promptFuncsMdj = [randomEmphasis, randomAlternating];
 // List to give every prompt func a turn
 let promptFuncsTmp = [];
 
+/**
+ * Refill the per-pull pool of randomizers so each gets a turn before any repeats.
+ * @param {Function[]} list The mode-appropriate randomizer set to clone into the pool.
+ * @returns {void}
+ */
 function reloadPromptFunc(list) {
   promptFuncsTmp = _.clone(list);
 }
 
+/**
+ * Pull one random entry from list `name`, optionally applying a single randomizer
+ * (emphasis / editing / alternating, chosen without replacement) and resolving any
+ * nested `{list}` tokens the randomizer leaves behind.
+ * @param {string} name The list name to pull from.
+ * @param {object} settings The merged generation settings.
+ * @param {boolean} [emphasis=true] Whether this keyword is eligible for randomization.
+ * @returns {string} The (possibly randomized) keyword.
+ */
 // Pulls a random line from a list file
 function sampleFile(name, settings, emphasis) {
   // If emphasis is not set, default to true, otherwise, convert to boolean
@@ -85,6 +99,15 @@ function sampleFile(name, settings, emphasis) {
   return name;
 }
 
+/**
+ * List pipeline stage: replace every `{name}` token with a random line from that
+ * list, applying emphasis/editing/alternating to non-artist keywords.
+ * @param {string} prompt The prompt after the dynamic-prompt and salt stages.
+ * @param {object} settings The merged generation settings.
+ * @param {object} [imageSettings] Image settings (unused; stage-signature parity).
+ * @param {object} [upscaleSettings] Upscale settings (unused).
+ * @returns {string} The prompt with all list tokens resolved.
+ */
 export default function (prompt, settings, imageSettings, upscaleSettings) {
   // Process prompt, 2nd pass, expand list keywords into random items from list
   // also include random prompt if requested

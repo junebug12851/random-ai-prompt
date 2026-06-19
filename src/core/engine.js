@@ -38,6 +38,12 @@ const DEFAULT_ORDER = [
   "cleanup",
 ];
 
+/**
+ * Create a framework-agnostic prompt engine that runs the same pipeline as the CLI.
+ * @param {object} loader Data-access loader (Node fs or browser glob): `readExpansion`,
+ *   `readListLines`, `listNames`, `loadDynamicPrompt`.
+ * @returns {{expand: Function, generate: Function, generateMany: Function}} The engine API.
+ */
 export function createEngine(loader) {
   const store = createListStore(loader);
 
@@ -49,6 +55,14 @@ export function createEngine(loader) {
     cleanup,
   };
 
+  /**
+   * Run the prompt-module pipeline (in `settings.promptModules` order) over a prompt.
+   * @param {string} prompt The seed prompt.
+   * @param {object} settings The merged settings.
+   * @param {object} imageSettings Per-generation image-settings scratch.
+   * @param {object} upscaleSettings Per-generation upscale-settings scratch.
+   * @returns {string} The fully expanded prompt.
+   */
   function expand(prompt, settings, imageSettings, upscaleSettings) {
     const order = settings.promptModules || DEFAULT_ORDER;
     for (const name of order) {
@@ -63,6 +77,11 @@ export function createEngine(loader) {
   // Generate a single prompt. Defaults from settings.js are merged under the
   // caller's settings so every field the stages read is present, and a shallow
   // copy is used so per-generation mutations (auto-fx toggles, etc.) don't leak.
+  /**
+   * Generate a single prompt from default settings merged under the caller's overrides.
+   * @param {object} [userSettings] Settings overrides (e.g. `{ prompt, mode }`).
+   * @returns {string} One generated prompt.
+   */
   function generate(userSettings = {}) {
     store.reset();
     const settings = { ...baseSettings, ...userSettings };
@@ -71,6 +90,11 @@ export function createEngine(loader) {
     return expand(settings.prompt ?? "#random", settings, imageSettings, upscaleSettings);
   }
 
+  /**
+   * Generate `userSettings.promptCount` prompts (minimum 1).
+   * @param {object} [userSettings] Settings overrides.
+   * @returns {string[]} The generated prompts.
+   */
   function generateMany(userSettings = {}) {
     const count = Math.max(1, Number(userSettings.promptCount) || 1);
     return Array.from({ length: count }, () => generate(userSettings));

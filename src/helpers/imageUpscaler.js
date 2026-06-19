@@ -21,6 +21,16 @@
 
 import saveImage from "./saveImage.js";
 
+/**
+ * POST an image to the SD WebUI extra-single-image (upscale) API and save the result
+ * via saveImage, recording the upscale dimensions on `info`.
+ * @param {string} base64Image The base64 PNG to upscale.
+ * @param {object} info The image info (mutated with upscaleWidth/Height/isUpscale).
+ * @param {object} imageSettings The image settings (WebUI url, saveTo).
+ * @param {object} upscaleSettings The upscale settings.
+ * @param {(string|boolean)} [upscaleOf] The original file id this upscales.
+ * @returns {Promise<void>}
+ */
 export default async function doUpscale(
   base64Image,
   info,

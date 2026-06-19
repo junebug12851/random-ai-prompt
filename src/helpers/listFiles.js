@@ -27,17 +27,32 @@ import { keywordAlias, artistAlias } from "./aliases.js";
 const lists = {};
 const artists = {};
 
+/**
+ * Strip a file extension (`name.txt` → `name`).
+ * @param {string} filename The filename.
+ * @returns {string} The name without its extension.
+ */
 // Convert filename.txt -> filename
 function removeExtension(filename) {
   return filename.substring(0, filename.lastIndexOf(".")) || filename;
 }
 
+/**
+ * @param {object} settings The merged generation settings (`listFiles` dir).
+ * @returns {string[]} The list filenames in the list directory.
+ */
 // Get list of filenames.txt
 function getListFiles(settings) {
   // Get all list files
   return fs.readdirSync(settings.listFiles);
 }
 
+/**
+ * Load a list file fully into memory (under the artist or keyword bucket).
+ * @param {object} settings The merged generation settings.
+ * @param {string} name The list name.
+ * @returns {void}
+ */
 // Reload file into the list in-memory
 function reloadListFile(settings, name) {
   // Load list into memory as an array
@@ -48,11 +63,22 @@ function reloadListFile(settings, name) {
   else lists[name] = list;
 }
 
+/**
+ * Mark a list slot empty so it is lazily re-read from disk on next pull.
+ * @param {object} settings The merged generation settings.
+ * @param {string} name The list name.
+ * @returns {void}
+ */
 function lazyReloadListFile(settings, name) {
   if (name == settings.artistFilename || name.includes("artist")) artists[name] = [];
   else lists[name] = [];
 }
 
+/**
+ * Lazily clear every list (forces a fresh draw set on the next prompt).
+ * @param {object} settings The merged generation settings.
+ * @returns {void}
+ */
 // Reload all lists into memory
 function reloadListFiles(settings) {
   // Get list files
@@ -69,6 +95,13 @@ function reloadListFiles(settings) {
   }
 }
 
+/**
+ * Resolve a list name (handling the `keyword`/`artist` aliases) to its in-memory array.
+ * @param {object} settings The merged generation settings.
+ * @param {string} name The requested list name or alias.
+ * @param {boolean} [skipAliasCheck] Skip alias resolution (used after a reload).
+ * @returns {{name: string, list: string[], isArtistList: boolean}} The resolved list handle.
+ */
 function nameToData(settings, name, skipAliasCheck) {
   skipAliasCheck = skipAliasCheck == true;
 
@@ -100,6 +133,13 @@ function nameToData(settings, name, skipAliasCheck) {
   };
 }
 
+/**
+ * Pull a random entry from a list, with once-only depletion and auto-reload when
+ * the list empties. Artist lists return "" when `includeArtist` is off.
+ * @param {object} settings The merged generation settings.
+ * @param {string} name The list name or alias.
+ * @returns {string} A random list entry, or "".
+ */
 // Pulls a list entry from a named list
 function pull(settings, name) {
   // Convert name to data

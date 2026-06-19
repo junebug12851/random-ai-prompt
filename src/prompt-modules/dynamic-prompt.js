@@ -27,6 +27,13 @@ import { createRequire } from "node:module";
 // plugin-style loading.
 const require = createRequire(import.meta.url);
 
+/**
+ * When an anime/danbooru keyword dict is active, rewrite a trailing `, Person` to
+ * `{d-person}` so the anime character list is used instead of the generic person list.
+ * @param {string} prompt The prompt fragment.
+ * @param {object} settings The merged generation settings (`keywordsFilename`).
+ * @returns {string} The (possibly) substituted prompt.
+ */
 // Some keywords are better converted to danbooru if danbooru is in effect
 function danbooruReplacer(prompt, settings) {
   if (
@@ -42,6 +49,11 @@ function danbooruReplacer(prompt, settings) {
   return prompt;
 }
 
+/**
+ * Map a `user-`-prefixed dynamic-prompt name to its `user-submitted/` path.
+ * @param {string} name The dynamic-prompt key.
+ * @returns {string} The resolved path key.
+ */
 function convertToPath(name) {
   if (!name.startsWith("user-")) return name;
 
@@ -49,6 +61,14 @@ function convertToPath(name) {
   return `user-submitted/${name}`;
 }
 
+/**
+ * Load and run a v2 dynamic-prompt plugin (`#name`), applying danbooru substitution.
+ * @param {string} name The dynamic-prompt name (a trailing `-v2` is stripped).
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings The image settings.
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {string} The generated prompt fragment.
+ */
 function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
   // Remove -v2
   name = name.replace("-v2", "");
@@ -64,6 +84,15 @@ function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
   );
 }
 
+/**
+ * Load and run a frozen v1 dynamic-prompt plugin (`#name-v1`); v1 bakes in fx and
+ * artists, so auto-add is forced off.
+ * @param {string} name The dynamic-prompt name (a trailing `-v1` is stripped).
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings The image settings.
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {string} The generated prompt fragment.
+ */
 function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
   // V1 already includes these
   settings.autoAddFx = false;
@@ -83,6 +112,16 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
   );
 }
 
+/**
+ * Dynamic-prompt pipeline stage: expand every `#name` token by running its plugin
+ * (recursively up to 10 passes; `-v1` and `user-` variants supported), then
+ * auto-append `#fx` / `#artists` when configured. Snapshots `imageSettings.origPostPrompt`.
+ * @param {string} prompt The prompt after the first expansion pass.
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings Image settings; receives `origPostPrompt` and auto-include flags.
+ * @param {object} [upscaleSettings] Passed through to plugins.
+ * @returns {string} The prompt with all dynamic prompts expanded.
+ */
 export default function (prompt, settings, imageSettings, upscaleSettings) {
   // Check for these before expansion
   const includedArtists =

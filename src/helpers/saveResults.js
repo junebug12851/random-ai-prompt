@@ -5,6 +5,11 @@
 
 import fs from "node:fs";
 
+/**
+ * Write `results.json` — the current run's prompts and image names.
+ * @param {object} imageSettings The image settings (`resultPrompts`, `resultImages`).
+ * @returns {void}
+ */
 export default function (imageSettings) {
   try {
     // Write results file

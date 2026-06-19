@@ -22,6 +22,17 @@
 import fs from "node:fs";
 import saveResults from "./saveResults.js";
 
+/**
+ * Write a generated PNG and its JSON metadata sidecar — stamping the relationship /
+ * provenance fields (variationOf, rerollOf, upscaleOf, cmd, origPostPrompt, animation
+ * links) — append it to the run results, and track animation frames.
+ * @param {string} base64Image The base64 PNG data.
+ * @param {object} info The WebUI generation info (mutated with relationship fields).
+ * @param {object} imageSettings The image settings (saveTo + relationship context).
+ * @param {boolean} upscaled Whether this is an upscaled image.
+ * @param {(string|boolean)} [upscaleOf] The file id this upscales, or false to suppress the `-upscaled` suffix.
+ * @returns {string} The saved base filename (without extension).
+ */
 export default function saveImage(base64Image, info, imageSettings, upscaled, upscaleOf) {
   // Convert base64 to buffer
   const pngBuffer = Buffer.from(base64Image, "base64");

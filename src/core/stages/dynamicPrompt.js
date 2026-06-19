@@ -7,6 +7,12 @@
 // Loader-injected port of prompt-modules/dynamic-prompt.js. The loader returns
 // the plugin module namespace ({ default, full, suggestion_exclude }); we call
 // `.default(...)`. Same expansion/danbooru/auto-fx logic in Node and the browser.
+/**
+ * Build the `#name` dynamic-prompt stage bound to a loader (loader-injected port;
+ * v1 / user-submitted, auto-fx/artists, danbooru substitution).
+ * @param {object} loader The loader (`{ loadDynamicPrompt }`).
+ * @returns {Function} The stage `(prompt, settings, imageSettings, upscaleSettings) => string`.
+ */
 export function makeDynamicPromptStage(loader) {
   function danbooruReplacer(prompt, settings) {
     if (

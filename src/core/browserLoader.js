@@ -57,6 +57,12 @@ for (const [path, obj] of Object.entries(presetModules)) {
   presets[keyFor(path, "presets")] = obj;
 }
 
+/**
+ * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
+ * `readExpansion`, `readListLines`, `listNames`, `expansionNames`, `loadDynamicPrompt`,
+ * `dynamicPromptNames`, `presetNames`, `loadPreset`.
+ * @type {object}
+ */
 export const browserLoader = {
   readExpansion(name) {
     return expansionText[name] ?? null;

@@ -21,6 +21,14 @@
 
 import _ from "lodash";
 
+/**
+ * StableDiffusion emphasis: wrap the keyword in N nested `()` (emphasis) or `[]`
+ * (de-emphasis); N is rolled by `emphasisLevelChance` up to `emphasisMaxLevels`.
+ * @param {object} settings The merged generation settings.
+ * @param {boolean} lessEmphasis De-emphasize (`[]`) rather than emphasize (`()`).
+ * @param {string} keyword The keyword to wrap.
+ * @returns {string} The wrapped keyword.
+ */
 function processSd(settings, lessEmphasis, keyword) {
   // Prepare for emphasis/de-emphasis leveling
   let prefix = "";
@@ -43,6 +51,14 @@ function processSd(settings, lessEmphasis, keyword) {
   return keyword;
 }
 
+/**
+ * NovelAI emphasis: same nested-bracket leveling as SD (the list stage later
+ * rewrites `()` to `{}` for NovelAI).
+ * @param {object} settings The merged generation settings.
+ * @param {boolean} lessEmphasis De-emphasize rather than emphasize.
+ * @param {string} keyword The keyword to wrap.
+ * @returns {string} The wrapped keyword.
+ */
 function processNAI(settings, lessEmphasis, keyword) {
   // Prepare for emphasis/de-emphasis leveling
   let prefix = "";
@@ -65,6 +81,14 @@ function processNAI(settings, lessEmphasis, keyword) {
   return keyword;
 }
 
+/**
+ * Midjourney emphasis: append `::factor`, factor = 1.05·N up (or its reciprocal
+ * down); N is rolled by `emphasisLevelChance` up to `emphasisMaxLevels`.
+ * @param {object} settings The merged generation settings.
+ * @param {boolean} lessEmphasis De-emphasize rather than emphasize.
+ * @param {string} keyword The keyword to weight.
+ * @returns {string} The weighted keyword.
+ */
 function processMdj(settings, lessEmphasis, keyword) {
   // Prepare for emphasis/de-emphasis leveling
   let count = 0;
@@ -91,6 +115,12 @@ function processMdj(settings, lessEmphasis, keyword) {
   return keyword;
 }
 
+/**
+ * Randomly emphasize or de-emphasize a keyword for the active engine (SD / NAI / MDJ).
+ * @param {object} settings The merged generation settings.
+ * @param {string} keyword The keyword to modify.
+ * @returns {{keyword: string, wasUsed: boolean}} The (possibly) modified keyword and whether it changed.
+ */
 // Adds random emphasis/de-emphasis to keywords
 export default function randomEmphasis(settings, keyword) {
   // Stop here if emphasis is disabled

@@ -21,18 +21,43 @@
 
 import _ from "lodash";
 
+/**
+ * Prompt-editing "edit-in": `[kw:n]` — kw appears after step n.
+ * @param {object} settings The merged generation settings (`keywordEditingMin/Max`).
+ * @param {string} keyword The keyword.
+ * @returns {string} The edit-in form.
+ */
 function editIn(settings, keyword) {
   return `[${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
+/**
+ * Prompt-editing "swap": `[kw:kw:n]` — re-assert the keyword at step n.
+ * @param {object} settings The merged generation settings (`keywordEditingMin/Max`).
+ * @param {string} keyword The keyword.
+ * @returns {string} The swap form.
+ */
 function swapOut(settings, keyword) {
   return `[${keyword}:${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
+/**
+ * Prompt-editing "edit-out": `[kw::n]` — kw drops at step n.
+ * @param {object} settings The merged generation settings (`keywordEditingMin/Max`).
+ * @param {string} keyword The keyword.
+ * @returns {string} The edit-out form.
+ */
 function editOut(settings, keyword) {
   return `[${keyword}::${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
+/**
+ * Randomly apply one StableDiffusion prompt-editing form (edit-in / swap / edit-out).
+ * No-op unless `keywordEditing` is on and mode is StableDiffusion.
+ * @param {object} settings The merged generation settings.
+ * @param {string} keyword The keyword.
+ * @returns {{keyword: string, wasUsed: boolean}} The (possibly) edited keyword and whether it changed.
+ */
 // Adds random editing to keywords
 export default function randomEditing(settings, keyword) {
   // Stop here if editing is disabled or this isn't StableDiffusion

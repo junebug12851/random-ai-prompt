@@ -25,11 +25,26 @@ import _ from "lodash";
 const loraFind = "<lora:";
 const loraReplacement = "%%lora:";
 
+/**
+ * Read an expansion file's raw text.
+ * @param {string} name The expansion name (file `data/expansions/<name>.txt`).
+ * @param {object} settings The merged generation settings (for `expansionFiles`).
+ * @returns {string} The file contents.
+ */
 function expandExpansion(name, settings) {
   // Read expansion file contents
   return fs.readFileSync(`${settings.expansionFiles}/${name}.txt`).toString();
 }
 
+/**
+ * Expansion pipeline stage: splice `<name>` tokens with the contents of their
+ * expansion file, recursively (up to 10 passes) and LoRA-safe (masks `<lora:…>`).
+ * @param {string} prompt The incoming prompt.
+ * @param {object} settings The merged generation settings.
+ * @param {object} [imageSettings] Unused (stage-signature parity).
+ * @param {object} [upscaleSettings] Unused.
+ * @returns {string} The prompt with all `<expansion>` tokens spliced in.
+ */
 export default function (prompt, settings, imageSettings, upscaleSettings) {
   // Max iterations in case of infinite loops
   let maxCount = 10;

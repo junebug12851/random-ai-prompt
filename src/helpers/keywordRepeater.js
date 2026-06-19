@@ -27,6 +27,13 @@ import { keywordAlias, artistAlias } from "./aliases.js";
 // browser-safe — see helpers/aliases.js.
 const ALIASES = { keyword: keywordAlias, artist: artistAlias };
 
+/**
+ * Build a comma-joined run of `count` list tokens.
+ * @param {number} count How many tokens to emit (<= 0 yields "").
+ * @param {string} keyword The repeat target ("keyword" or "artist").
+ * @param {boolean} alias Whether to resolve via the keyword/artist alias.
+ * @returns {string} The joined `{token}, {token}, …` string.
+ */
 function processRepeat(count, keyword, alias) {
   if (count <= 0) return "";
 
@@ -40,11 +47,27 @@ function processRepeat(count, keyword, alias) {
   return str.join(", ");
 }
 
+/**
+ * Emit a random number of keyword tokens, between `settings.keywordCount` and
+ * `settings.keywordMaxCount`.
+ * @param {string} keyword The repeat target.
+ * @param {boolean} alias Whether to resolve via the alias.
+ * @param {object} settings The merged generation settings.
+ * @returns {string} The joined keyword tokens.
+ */
 function keywordRepeater(keyword, alias, settings) {
   const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
   return processRepeat(keywordCount, keyword, alias);
 }
 
+/**
+ * Emit a random number of artist tokens — gated by `settings.includeArtist` and a
+ * 50% coin flip — between `settings.minArtist` and `settings.maxArtist`.
+ * @param {string} artist The repeat target.
+ * @param {boolean} alias Whether to resolve via the alias.
+ * @param {object} settings The merged generation settings.
+ * @returns {string} The joined artist tokens (possibly "").
+ */
 function artistRepeater(artist, alias, settings) {
   const artistCount =
     settings.includeArtist && _.random(0.0, 1.0, true) < 0.5

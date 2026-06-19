@@ -26,6 +26,15 @@ import _ from "lodash";
  * 2. Remove extra spaces that don't look good
  */
 
+/**
+ * Cleanup pipeline stage: collapse stray whitespace, drop empty `()` and empty
+ * comma segments, and fix `AND,` artifacts — producing the finished prompt string.
+ * @param {string} prompt The prompt after all earlier stages.
+ * @param {object} [settings] Unused (stage-signature parity).
+ * @param {object} [imageSettings] Unused.
+ * @param {object} [upscaleSettings] Unused.
+ * @returns {string} The tidied prompt.
+ */
 export default function (prompt, settings, imageSettings, upscaleSettings) {
   // Get rid of extra spaces
   prompt = prompt.replaceAll(/ +/gm, " ");
