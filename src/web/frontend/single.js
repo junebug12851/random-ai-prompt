@@ -8,6 +8,9 @@ let imageData = {};
 let curImgUrl = "";
 let hasMagick = false;
 
+/**
+ * On prompt selection change.
+ */
 function onPromptSelectionChange() {
   var selectedOption = $(this).val();
 
@@ -67,6 +70,9 @@ Generated using RandomAIPrompt (https://github.com/junebug12851/random-ai-prompt
   }
 }
 
+/**
+ * On variation selection change.
+ */
 function onVariationSelectionChange() {
   $("#variation-images").empty();
 
@@ -129,6 +135,9 @@ function onVariationSelectionChange() {
   }
 }
 
+/**
+ * Complete page.
+ */
 function completePage() {
   // Fill in prompt selection
   if (imageData.origPrompt)
@@ -388,6 +397,9 @@ function completePage() {
   onVariationSelectionChange();
 }
 
+/**
+ * Load data.
+ */
 function loadData() {
   $.ajax({
     type: "GET",
@@ -403,6 +415,9 @@ function loadData() {
   });
 }
 
+/**
+ * Random name.
+ */
 function randomName() {
   $.ajax({
     type: "GET",
@@ -417,6 +432,10 @@ function randomName() {
   });
 }
 
+/**
+ * Reroll prompt.
+ * @param {boolean} isSelect
+ */
 function rerollPrompt(isSelect) {
   const selectedOption = $("#prompt-selection").val();
   let fieldName = null;
@@ -456,6 +475,10 @@ function rerollPrompt(isSelect) {
   displayProgress();
 }
 
+/**
+ * Extend anim.
+ * @param {boolean} isSelect
+ */
 function extendAnim(isSelect) {
   // Create state
   const state = {
@@ -490,6 +513,9 @@ function extendAnim(isSelect) {
   displayProgress();
 }
 
+/**
+ * Make variations.
+ */
 function makeVariations() {
   localStorage.setItem(
     "generateSettings",
@@ -511,6 +537,9 @@ function makeVariations() {
   displayProgress();
 }
 
+/**
+ * Make animations.
+ */
 function makeAnimations() {
   // Set Generation state
   const state = {
@@ -536,6 +565,9 @@ function makeAnimations() {
   displayProgress(true);
 }
 
+/**
+ * Select variations.
+ */
 function selectVariations() {
   localStorage.setItem(
     "generateSettings",
@@ -547,6 +579,9 @@ function selectVariations() {
   window.location = `/generate?useAll=true`;
 }
 
+/**
+ * Select animation.
+ */
 function selectAnimation() {
   localStorage.setItem(
     "generateSettings",
@@ -558,6 +593,9 @@ function selectAnimation() {
   window.location = `/generate?useAll=true`;
 }
 
+/**
+ * Upscale file.
+ */
 function upscaleFile() {
   localStorage.setItem(
     "generateSettings",
@@ -579,6 +617,9 @@ function upscaleFile() {
   displayProgress(false, true);
 }
 
+/**
+ * Select upscale.
+ */
 function selectUpscale() {
   localStorage.setItem(
     "generateSettings",
@@ -590,14 +631,23 @@ function selectUpscale() {
   window.location = `/generate?useAll=true`;
 }
 
+/**
+ * On reroll.
+ */
 function onReroll() {
   rerollPrompt();
 }
 
+/**
+ * On reroll select.
+ */
 function onRerollSelect() {
   rerollPrompt(true);
 }
 
+/**
+ * Copy prompt.
+ */
 function copyPrompt() {
   const text = $("#keywords").text();
 
@@ -656,6 +706,9 @@ async function externalizeAnim() {
   window.location.reload();
 }
 
+/**
+ * Action menu selection.
+ */
 function actionMenuSelection() {
   // Get selected value
   const selectedValue = $(this).val();

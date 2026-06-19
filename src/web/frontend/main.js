@@ -3,6 +3,10 @@
  * @brief Browser shared helpers: URL params, epoch-to-date, ajaxGet, and the re-index / progress navigation used across pages.
  */
 
+/**
+ * Get url parameters.
+ * @returns {*}
+ */
 function getUrlParameters() {
   var params = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
@@ -11,6 +15,11 @@ function getUrlParameters() {
   return params;
 }
 
+/**
+ * Epoch to date string.
+ * @param {number} epochTimestamp
+ * @returns {*}
+ */
 function epochToDateString(epochTimestamp) {
   // Create a new JavaScript Date object based on the timestamp
   // multiplied by 1000 so that the argument is in milliseconds, not seconds.
@@ -42,6 +51,9 @@ function epochToDateString(epochTimestamp) {
   return dateString;
 }
 
+/**
+ * On reindex button.
+ */
 function onReindexButton() {
   const backUrl = window.location.href;
   const encodedBackUrl = encodeURIComponent(backUrl);
@@ -49,14 +61,24 @@ function onReindexButton() {
   window.location = `/re-index?${params}`;
 }
 
+/**
+ * Reindex home.
+ */
 function _reindexHome() {
   window.location = `/re-index`;
 }
 
+/**
+ * Reindex home.
+ */
 function reindexHome() {
   setTimeout(_reindexHome, 500);
 }
 
+/**
+ * Re index to url.
+ * @param {string} url
+ */
 function _reIndexToUrl(url) {
   const backUrl = url;
   const encodedBackUrl = encodeURIComponent(backUrl);
@@ -64,10 +86,20 @@ function _reIndexToUrl(url) {
   window.location = `/re-index?${params}`;
 }
 
+/**
+ * Re index to url.
+ * @param {string} url
+ */
 function reIndexToUrl(url) {
   setTimeout(_reIndexToUrl.bind(undefined, url), 500);
 }
 
+/**
+ * Display progress.
+ * @param {boolean} noBack
+ * @param {boolean} isUpscale
+ * @param {boolean} isAnim
+ */
 function _displayProgress(noBack, isUpscale, isAnim) {
   let progressUrl = isUpscale ? "/upscale-progress" : "/progress";
 
@@ -86,6 +118,12 @@ function _displayProgress(noBack, isUpscale, isAnim) {
 
 // Give the request time to send
 // For some reason, jquery offers no way to localy determine when the request is sent
+/**
+ * Display progress.
+ * @param {boolean} noBack
+ * @param {boolean} isUpscale
+ * @param {boolean} isAnim
+ */
 function displayProgress(noBack, isUpscale, isAnim) {
   setTimeout(_displayProgress.bind(undefined, noBack, isUpscale, isAnim), 500);
 }

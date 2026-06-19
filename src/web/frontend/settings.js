@@ -13,6 +13,11 @@ let settingsQueue = [];
 let settingsQueueOngoing = false;
 
 // Converts to start case but fixes numbering
+/**
+ * Start case.
+ * @param {string} text
+ * @returns {*}
+ */
 function startCase(text) {
   let ret = _.startCase(text);
 
@@ -74,11 +79,19 @@ async function saveSettings() {
   if (settingsQueue.length > 0) setTimeout(saveSettings, 1);
 }
 
+/**
+ * Save setting.
+ * @param {string} path
+ * @param {*} value
+ */
 function saveSetting(path, value) {
   settingsQueue.push({ path, value });
   saveSettings();
 }
 
+/**
+ * Return val to setting.
+ */
 function returnValToSetting() {
   // Ignore if invalid
   if ($(this).is(":invalid")) return;
@@ -171,6 +184,9 @@ function returnValToSetting() {
   console.error("Can't classify how to save data back, paths", paths, "values", val);
 }
 
+/**
+ * Set val to setting.
+ */
 function setValToSetting() {
   const path = $(this).data("path").split(",");
 
@@ -202,6 +218,9 @@ function setValToSetting() {
   else $(this).val(value.join(joinStr));
 }
 
+/**
+ * On settings download.
+ */
 function onSettingsDownload() {
   $("select[data-lists]").each(function () {
     for (let i = 0; i < lists.length; i++) {
@@ -215,6 +234,9 @@ function onSettingsDownload() {
   $("[data-path]").each(setValToSetting);
 }
 
+/**
+ * Download lists.
+ */
 function downloadLists() {
   $.ajax({
     type: "GET",
@@ -230,6 +252,9 @@ function downloadLists() {
   });
 }
 
+/**
+ * Download settings.
+ */
 function downloadSettings() {
   $.ajax({
     type: "GET",
@@ -245,6 +270,9 @@ function downloadSettings() {
   });
 }
 
+/**
+ * On page button click.
+ */
 function onPageButtonClick() {
   const target = $(this).attr("data-page");
 
@@ -255,6 +283,10 @@ function onPageButtonClick() {
   $("#" + target).show();
 }
 
+/**
+ * On minus stepper click.
+ * @param {object} input
+ */
 function onMinusStepperClick(input) {
   const currentValue = +input.val();
   const step = +input.attr("step");
@@ -265,6 +297,10 @@ function onMinusStepperClick(input) {
   $(input).trigger("change");
 }
 
+/**
+ * On plus stepper click.
+ * @param {object} input
+ */
 function onPlusStepperClick(input) {
   const currentValue = +input.val();
   const step = +input.attr("step");
@@ -273,6 +309,9 @@ function onPlusStepperClick(input) {
   $(input).trigger("change");
 }
 
+/**
+ * Setup number steppers.
+ */
 function setupNumberSteppers() {
   $(".number-stepper").each(function () {
     const minusBtn = $(this).children("button:first-child");
@@ -284,6 +323,9 @@ function setupNumberSteppers() {
   });
 }
 
+/**
+ * On number change wstep.
+ */
 function onNumberChangeWStep() {
   // Get value
   let value = +$(this).val();

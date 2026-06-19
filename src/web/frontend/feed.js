@@ -15,6 +15,9 @@ const observer = new IntersectionObserver((entries) => {
   });
 });
 
+/**
+ * Images changed.
+ */
 function imagesChanged() {
   const images = document.querySelectorAll(".lazy-load");
 
@@ -23,6 +26,9 @@ function imagesChanged() {
   });
 }
 
+/**
+ * Clear images.
+ */
 function clearImages() {
   const images = document.querySelectorAll(".lazy-load");
 
@@ -36,6 +42,15 @@ function clearImages() {
   $("#page-gallery").empty();
 }
 
+/**
+ * Get gallery el.
+ * @param {string} prompt
+ * @param {string} imgSrc
+ * @param {number} width
+ * @param {number} height
+ * @param {string} name
+ * @returns {*}
+ */
 function getGalleryEl(prompt, imgSrc, width, height, name) {
   return `
         <a href="/single?name=${name}" rel="noopener noreferrer" class="gallery-el wide-${width} tall-${height}">
@@ -47,6 +62,10 @@ function getGalleryEl(prompt, imgSrc, width, height, name) {
     `;
 }
 
+/**
+ * Process image feed.
+ * @param {object} files
+ */
 function processImageFeed(files) {
   clearImages();
 
@@ -96,6 +115,9 @@ function processImageFeed(files) {
   imagesChanged();
 }
 
+/**
+ * Load image feed.
+ */
 function loadImageFeed() {
   $.ajax({
     url: "/api/images/feed",
@@ -111,6 +133,10 @@ function loadImageFeed() {
   });
 }
 
+/**
+ * Load search query.
+ * @param {string} query
+ */
 function loadSearchQuery(query) {
   $.ajax({
     type: "GET",
@@ -126,6 +152,9 @@ function loadSearchQuery(query) {
   });
 }
 
+/**
+ * Perform search.
+ */
 function performSearch() {
   // get query and trim it
   let text = $("#page-search").val();
@@ -135,6 +164,10 @@ function performSearch() {
   else loadSearchQuery(text);
 }
 
+/**
+ * Searchbox key press.
+ * @param {Event} event
+ */
 function searchboxKeyPress(event) {
   const keycode = event.keyCode ? event.keyCode : event.which;
 
@@ -143,6 +176,9 @@ function searchboxKeyPress(event) {
   performSearch();
 }
 
+/**
+ * Update search suggestion.
+ */
 function updateSearchSuggestion() {
   $.ajax({
     type: "GET",
@@ -157,6 +193,9 @@ function updateSearchSuggestion() {
   });
 }
 
+/**
+ * Perform random search.
+ */
 function performRandomSearch() {
   // Get random placeholder text
   let text = $("#page-search").attr("placeholder");
@@ -171,11 +210,17 @@ function performRandomSearch() {
   loadSearchQuery(text);
 }
 
+/**
+ * Home feed.
+ */
 function homeFeed() {
   $("#page-search").val("");
   loadImageFeed();
 }
 
+/**
+ * Update stats.
+ */
 function updateStats() {
   $.ajax({
     type: "GET",
@@ -199,6 +244,9 @@ setInterval(function () {
   updateSearchSuggestion();
 }, 15 * 1000);
 
+/**
+ * Make art.
+ */
 function makeArt() {
   let pageSearch = $("#page-search").val();
 

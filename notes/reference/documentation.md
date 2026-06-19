@@ -67,14 +67,17 @@ What it provides instead, comprehensively:
 
 **JSDoc the _tool_** (jsdoc.app, `npm run docs:api`) is wired up alongside Doxygen for exactly this — a
 no-TypeScript, ESM-native code API into `docs/jsdoc/` that reuses these same `@file` headers and **does**
-extract per-function docs where Doxygen can't. The per-function pass is **complete for all server-side
-code**: `@param`/`@returns`/descriptions on every function in the prompt engine (prompt-modules, helpers,
-`core/`), the loaders, settings, `common`/`genImg`/`promptFilesAndSuggestions`, the `server.js` helpers,
-and the self-healing image index — plus a uniform documented contract on all **113 dynamic-prompt**
-generators. The one deliberate exception is the **legacy `web/frontend/*` browser scripts** (the jQuery
-client being retired per [web-migration](../plans/web-migration.md)): those stay file-level for now.
-Terminology note: the `/** … */` *comments* here are "JSDoc comments" regardless of which generator
-consumes them — no TypeScript is involved either way.
+extract per-function docs where Doxygen can't. The per-function pass is **complete across the whole
+codebase**: `@param`/`@returns`/descriptions on every function in the prompt engine (prompt-modules,
+helpers, `core/`), the loaders, settings, `common`/`genImg`/`promptFilesAndSuggestions`, the `server.js`
+helpers, and the self-healing image index; a uniform documented contract on all **113 dynamic-prompt**
+generators; and every top-level function in the **`web/frontend/*` browser scripts**. The only things
+without per-function JSDoc are anonymous callbacks (Express route arrows, jQuery event closures,
+`$(document).ready`), which no JS doc generator can extract anyway. Hand-written quality varies by layer:
+the server-side engine/core-logic docs are bespoke; the dynamic-prompts and frontend handlers carry
+generated-but-accurate scaffolds (correct params/returns, humanized descriptions). Terminology note: the
+`/** … */` *comments* here are "JSDoc comments" regardless of which generator consumes them — no
+TypeScript is involved either way.
 
 ### Build inputs vs. gitignored reference
 
@@ -140,12 +143,12 @@ The conventions documentation passes follow, so comments read as one consistent 
 Both doc generators build clean (`npm run docs` Doxygen, exit 0; `npm run docs:api` JSDoc, exit 0).
 **File-level coverage is complete** (2026-06-18): every authored `.js` (165 under `src/` + 3 `data/`
 build scripts) carries a `@file @brief`. **Per-function JSDoc is complete for all server-side code and
-all 113 dynamic prompts** — the prompt engine, loaders, settings, `common`/`genImg`/
-`promptFilesAndSuggestions`, the `server.js` helpers, and the image index all carry `@param`/`@returns`,
-so they extract as a real per-function API in `docs/jsdoc/`. The remaining gap is the legacy
-`web/frontend/*` browser scripts, kept file-level on purpose (jQuery client being retired). `core/`
-remains the prose style reference. Doxygen's own symbol extraction is still not pursued (it can't parse
-the anonymous default exports — see "the file-level model" above; JSDoc is the code-API generator).
+all 113 dynamic prompts and the `web/frontend/*` browser scripts** — the prompt engine, loaders,
+settings, `common`/`genImg`/`promptFilesAndSuggestions`, the `server.js` helpers, the image index, and
+every top-level frontend function all carry `@param`/`@returns`, so they extract as a real per-function
+API in `docs/jsdoc/`. The only undocumented things are anonymous callbacks no generator can extract.
+`core/` remains the prose style reference. Doxygen's own symbol extraction is still not pursued (it can't
+parse the anonymous default exports — see "the file-level model" above; JSDoc is the code-API generator).
 
 Three build warnings remain and are **benign** (`WARN_AS_ERROR = NO`, so the build stays clean):
 

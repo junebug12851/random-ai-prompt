@@ -5,6 +5,9 @@
 
 let backUrl = "/";
 
+/**
+ * Initiate reindex.
+ */
 function initiateReindex() {
   $.ajax({
     type: "GET",
@@ -19,6 +22,9 @@ function initiateReindex() {
   });
 }
 
+/**
+ * Reindex progress.
+ */
 function reindexProgress() {
   $.ajax({
     type: "GET",

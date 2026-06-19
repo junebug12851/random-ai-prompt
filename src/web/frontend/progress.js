@@ -5,6 +5,10 @@
 
 let backUrl = "/results";
 
+/**
+ * Data refresh complete.
+ * @param {object} data
+ */
 function dataRefreshComplete(data) {
   // Ongoing Progress
   const progressOngoing = data.progressOngoing;
@@ -102,6 +106,9 @@ async function loadResults() {
   setTimeout(loadResults, 250);
 }
 
+/**
+ * Generation progress.
+ */
 function generationProgress() {
   $.ajax({
     type: "GET",
@@ -119,6 +126,9 @@ function generationProgress() {
   });
 }
 
+/**
+ * Toggle detailed progress.
+ */
 function toggleDetailedProgress() {
   $("#minimal-progress-bar").toggle();
   $("#expanded-progress-bar").toggle();

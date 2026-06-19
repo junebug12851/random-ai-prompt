@@ -3,6 +3,10 @@
  * @brief Results page: shows the last run prompts and images and offers make-new-art.
  */
 
+/**
+ * Results loaded.
+ * @param {object} results
+ */
 function resultsLoaded(results) {
   if (results.prompts.length > 0) {
     $("#prompts-title").show();
@@ -33,6 +37,9 @@ function resultsLoaded(results) {
   if (results.prompts.length == 0 && results.images.length == 0) $("#no-results").show();
 }
 
+/**
+ * Load results.
+ */
 function loadResults() {
   $.ajax({
     url: "/api/results",
@@ -48,6 +55,9 @@ function loadResults() {
   });
 }
 
+/**
+ * Make art.
+ */
 function makeArt() {
   // Get saved prompt, if any
   let pageSearch = localStorage.getItem("generateSettings");

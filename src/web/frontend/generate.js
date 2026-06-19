@@ -9,6 +9,11 @@ let lists = [];
 let state = {};
 
 // Save state
+/**
+ * Save setting.
+ * @param {string} path
+ * @param {*} value
+ */
 function saveSetting(path, value) {
   // Save into state
   if (value == "") state[path] = undefined;
@@ -19,6 +24,11 @@ function saveSetting(path, value) {
 }
 
 // Converts to start case but fixes numbering
+/**
+ * Start case.
+ * @param {string} text
+ * @returns {*}
+ */
 function startCase(text) {
   let ret = _.startCase(text);
 
@@ -43,6 +53,9 @@ function startCase(text) {
   return ret;
 }
 
+/**
+ * Return val to setting.
+ */
 function returnValToSetting() {
   // Ignore if invalid
   if ($(this).is(":invalid")) return;
@@ -258,6 +271,9 @@ async function updateInsertMenu() {
   );
 }
 
+/**
+ * Insert selected.
+ */
 function insertSelected() {
   const selectedValue = $(this).data("value");
 
@@ -268,6 +284,9 @@ function insertSelected() {
   $("#page-search").val(curText);
 }
 
+/**
+ * Preset selected.
+ */
 function presetSelected() {
   const selectedValue = $(this).val();
 
@@ -287,6 +306,9 @@ async function updateSearchSuggestion() {
 // Set the interval to run every 30 seconds
 setInterval(updateSearchSuggestion, 15 * 1000);
 
+/**
+ * Populate settings list.
+ */
 function populateSettingsList() {
   // Loop through all div elements with the "option" class
   $(".option").each(function () {
@@ -316,6 +338,10 @@ function populateSettingsList() {
   });
 }
 
+/**
+ * Fill list data.
+ * @param {object} el
+ */
 function fillListData(el) {
   // Stop if this isn't a select box with the data-lists attribute
   if (!$(el).is("select[data-lists]")) return;
@@ -331,6 +357,10 @@ function fillListData(el) {
   }
 }
 
+/**
+ * Fill setting value.
+ * @param {object} el
+ */
 function fillSettingValue(el) {
   // Stop if this isn't an element with the data-path attribute
   if (!$(el).is("[data-path]")) return;
@@ -363,6 +393,9 @@ function fillSettingValue(el) {
   else $(el).val(value.join(joinStr));
 }
 
+/**
+ * Reset save preset.
+ */
 function resetSavePreset() {
   // Enable or disable button
   $("#save-preset").hide();
@@ -375,6 +408,9 @@ function resetSavePreset() {
   if (enabledOverrides.length > 0 && enabledArgs.length == 0) $("#save-preset").show();
 }
 
+/**
+ * Save preset.
+ */
 function savePreset() {
   // Get all active options that are settings
   const enabledOverrides = $(".option[data-active='true'] [data-path]");
@@ -446,6 +482,9 @@ function savePreset() {
   });
 }
 
+/**
+ * Show setting on select.
+ */
 function showSettingOnSelect() {
   $("#add-settings").change(function () {
     // Get selected value
@@ -479,6 +518,9 @@ function showSettingOnSelect() {
   });
 }
 
+/**
+ * Remove setting on click.
+ */
 function removeSettingOnClick() {
   $("button.remove").click(function () {
     // Get values
@@ -511,11 +553,17 @@ async function downloadSettings() {
   if (_lists != null && _lists != undefined) lists = _lists;
 }
 
+/**
+ * Add remove button.
+ */
 function addRemoveButton() {
   $(".option").attr("data-active", "false");
   $(".option").append(`<button class="remove">Remove</button>`);
 }
 
+/**
+ * Label settings.
+ */
 function labelSettings() {
   $(".option").each(function () {
     // Get the label child element
@@ -541,6 +589,10 @@ function labelSettings() {
   });
 }
 
+/**
+ * On minus stepper click.
+ * @param {object} input
+ */
 function onMinusStepperClick(input) {
   const currentValue = +input.val();
   const step = +input.attr("step");
@@ -551,6 +603,10 @@ function onMinusStepperClick(input) {
   $(input).trigger("change");
 }
 
+/**
+ * On plus stepper click.
+ * @param {object} input
+ */
 function onPlusStepperClick(input) {
   const currentValue = +input.val();
   const step = +input.attr("step");
@@ -559,6 +615,9 @@ function onPlusStepperClick(input) {
   $(input).trigger("change");
 }
 
+/**
+ * Setup number steppers.
+ */
 function setupNumberSteppers() {
   $(".number-stepper").each(function () {
     const minusBtn = $(this).children("button:first-child");
@@ -570,6 +629,9 @@ function setupNumberSteppers() {
   });
 }
 
+/**
+ * On number change wstep.
+ */
 function onNumberChangeWStep() {
   // Get value
   let value = +$(this).val();
@@ -600,6 +662,9 @@ async function updatePresetMenu() {
   }
 }
 
+/**
+ * Insert stored prompt.
+ */
 function insertStoredPrompt() {
   // Get stored prompt in browser
   let prompt = localStorage.getItem("prompt");
@@ -617,6 +682,11 @@ function insertStoredPrompt() {
   $("#page-search").val(prompt);
 }
 
+/**
+ * Insert settings.
+ * @param {object} obj
+ * @param {boolean} useAll
+ */
 function insertSettings(obj, useAll) {
   // Skip if null or undefined
   if (obj == null || obj == undefined) return;
@@ -677,6 +747,9 @@ function insertSettings(obj, useAll) {
   });
 }
 
+/**
+ * Save state.
+ */
 function saveState() {
   // Clear saved state
   state = {};
@@ -693,6 +766,9 @@ function saveState() {
   localStorage.setItem("prompt", $("#page-search").val().trim());
 }
 
+/**
+ * Generate.
+ */
 function generate() {
   // Save the current state
   saveState();
@@ -713,6 +789,9 @@ function generate() {
   displayProgress(true);
 }
 
+/**
+ * Save expansion.
+ */
 function saveExpansion() {
   const prompt = $("#page-search").val().trim();
   const fileName = $("#expansion-name-val").val().trim().replaceAll(" ", "-").toLowerCase();
@@ -739,6 +818,9 @@ function saveExpansion() {
   });
 }
 
+/**
+ * Perform random generate.
+ */
 function performRandomGenerate() {
   // Get random placeholder text
   let text = $("#page-search").attr("placeholder");
@@ -750,6 +832,9 @@ function performRandomGenerate() {
   generate();
 }
 
+/**
+ * Copy share link.
+ */
 function copyShareLink() {
   // First save state
   saveState();
