@@ -1,3 +1,10 @@
+/**
+ * @file
+ * Vite config for the React SPA: builds `web-app/src` to `dist/` (deployed to
+ * Netlify). Allows the dev server to read the repo-root `src/` engine above the
+ * web-app root, and pins `lodash` to the SPA's own copy so the build is self-contained
+ * (Vite 8 / Rolldown treats an unresolved import as a hard error).
+ */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
