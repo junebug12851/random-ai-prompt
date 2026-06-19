@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Random AI prompt + image generator for Stable Diffusion WebUI, with a CLI and a local web UI.",
   "type": "module",
   "main": "src/index.js",
