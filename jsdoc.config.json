@@ -1,0 +1,19 @@
+{
+  "plugins": ["plugins/markdown"],
+  "recurseDepth": 10,
+  "source": {
+    "include": ["src", "data", "README.md"],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules|[\\\\/]lib[\\\\/]|\\.min\\.js$)"
+  },
+  "opts": {
+    "destination": "./docs/jsdoc/",
+    "recurse": true,
+    "readme": "./README.md",
+    "encoding": "utf8"
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  }
+}

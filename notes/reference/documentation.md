@@ -7,14 +7,24 @@ comment style is, and how the living notes render into the site.
 
 ## 1. Generating the docs
 
-The doc-site is generated with **Doxygen** (Doxygen documents JavaScript as well as C/C++/Java). From
-the repo root:
+Two generators, two purposes (run from the repo root):
 
 ```
-npm run docs        # == doxygen Doxyfile
+npm run docs        # Doxygen  -> docs/html/    (the living-notes site + GitHub Pages)
+npm run docs:api    # JSDoc    -> docs/jsdoc/   (the ESM-native code API)
 ```
 
-Open `docs/html/index.html`. One command, one config file.
+- **Doxygen** (`Doxyfile`) hosts the **living notes** (this `notes/` tree, the changelog, the README)
+  as a cross-linked, navigable site — its strength here — and is what `pages.yml` deploys to GitHub
+  Pages. Open `docs/html/index.html`.
+- **JSDoc** (`jsdoc.config.json`, the `jsdoc` devDependency) builds the **code API** from the ESM
+  source, reusing the same `/** @file */` headers; one page per file, `README.md` as the homepage.
+  Open `docs/jsdoc/index.html`. JSDoc parses `export default` / ESM properly where Doxygen does not.
+  Today it renders **file-level** overviews (every file carries an `@file` header, but the functions
+  don't yet carry per-function `@param`/`@returns`); adding function-level JSDoc to the named exports
+  (helpers, `core/` factories, prompt-modules) would turn it into a true per-function API.
+
+Both output dirs are git-ignored; `Doxyfile`, `jsdoc.config.json`, and the vendored theme are tracked.
 
 Requirements on the machine running it:
 
@@ -55,11 +65,11 @@ What it provides instead, comprehensively:
   ([prompt-dsl.md](prompt-dsl.md)), the dynamic-prompt catalog ([dynamic-prompts.md](dynamic-prompts.md)),
   and the system map ([`../systems/`](../systems/README.md)).
 
-If true auto-extracted per-function JS API pages are ever wanted, the **no-TypeScript** option is
-**JSDoc the _tool_** (jsdoc.app) or **TypeDoc**, run over the same ESM source — both parse `export
-default` properly and would live *alongside* (not replace) this Doxygen notes site. Terminology note: the
-`/** … */` *comments* written here are "JSDoc comments" regardless of which generator consumes them —
-no TypeScript is involved either way.
+**JSDoc the _tool_** (jsdoc.app, `npm run docs:api`) is wired up alongside Doxygen for exactly this — a
+no-TypeScript, ESM-native code API into `docs/jsdoc/` that reuses these same `@file` headers. It renders
+file-level overviews today; per-function depth needs `@param`/`@returns` on the named exports (a future
+pass). Terminology note: the `/** … */` *comments* here are "JSDoc comments" regardless of which
+generator consumes them — no TypeScript is involved either way.
 
 ### Build inputs vs. gitignored reference
 

@@ -14,6 +14,8 @@ results.json
 /_*.log
 /_*.sh
 
-# Generated documentation (Doxygen). The Doxyfile and the vendored theme under
+# Generated documentation. The Doxyfile, jsdoc.config.json, and the vendored theme under
 # docs/doxygen-awesome/ ARE tracked; only the generated HTML is ignored.
+# Doxygen -> docs/html/ (the notes site); JSDoc -> docs/jsdoc/ (the code API).
 /docs/html/
+/docs/jsdoc/
