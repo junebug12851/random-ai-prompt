@@ -37,6 +37,12 @@ const progressVal = {
   total: null,
 };
 
+/**
+ * Reduce a word to its noun-singular or verb-infinitive form via compromise.
+ * (Currently unused — kept for reference; too slow to run per keyword.)
+ * @param {string} word The word.
+ * @returns {string} The normalized word (or the original).
+ */
 function nlpProcess(word) {
   let ret = nlp(word).nouns().toSingular().text();
 
@@ -51,6 +57,12 @@ function nlpProcess(word) {
   return word;
 }
 
+/**
+ * Tokenize a prompt into the de-duplicated, sorted keyword list used for the index
+ * (splits on word and letter boundaries; drops 1-char and pure-digit tokens).
+ * @param {string} prompt The prompt text.
+ * @returns {string[]} The keywords.
+ */
 function toKeywords(prompt) {
   // Make lowercase
   prompt = _.toLower(prompt);
@@ -100,6 +112,12 @@ function toKeywords(prompt) {
   return prompt;
 }
 
+/**
+ * Tokenize a search query into comparison keywords (word-boundary only, so `girl`
+ * and `1girl` both match), de-duplicated.
+ * @param {string} prompt The query text.
+ * @returns {string[]} The query keywords.
+ */
 function toComparitiveKeywords(prompt) {
   // Make lowercase
   prompt = _.toLower(prompt);
@@ -134,6 +152,14 @@ function toComparitiveKeywords(prompt) {
   return prompt;
 }
 
+/**
+ * Record a deep link from one file to another under a link type, creating the
+ * placeholder/array as needed.
+ * @param {string} fromName The parent file id.
+ * @param {(string|object)} toName The linked file (id or `{name, imgPath}`).
+ * @param {string} linkType The relation (`upscales` / `variations` / `rerolls` / `animationFrames` / `animations`).
+ * @returns {void}
+ */
 const deepLink = function (fromName, toName, linkType) {
   // Create file placeholder if it doesn't exist
   if (files[fromName] == undefined) files[fromName] = {};
@@ -145,6 +171,14 @@ const deepLink = function (fromName, toName, linkType) {
   files[fromName][linkType].push(toName);
 };
 
+/**
+ * Index one `output/*.json` sidecar: register its paths + keywords and wire up its
+ * deep links to parents (upscale / variation / reroll / animation). Upscales are
+ * linked to their original, not indexed as their own entry.
+ * @param {object} settings The full settings (`imageSettings.saveTo`).
+ * @param {string} filePath The sidecar path.
+ * @returns {void}
+ */
 // Index the txt files
 const indexFile = function (settings, filePath) {
   // Make sure it's a json file
@@ -276,6 +310,12 @@ const indexFile = function (settings, filePath) {
   }
 };
 
+/**
+ * Walk the output directory and index every sidecar file (non-recursive).
+ * @param {object} settings The full settings.
+ * @param {string} directoryName The output directory.
+ * @returns {void}
+ */
 // Rename legacy txt files to json
 const buildIndexes = function (settings, directoryName) {
   // get files in a directory
@@ -313,6 +353,11 @@ const buildIndexes = function (settings, directoryName) {
   }
 };
 
+/**
+ * Search the index for images matching all query keywords (set intersection).
+ * @param {string} keywords The search query.
+ * @returns {object[]} The matching file records (shuffled, de-duplicated by image).
+ */
 const query = function (keywords) {
   // Convert into keywords built for comparing against index
   keywords = toComparitiveKeywords(keywords);
@@ -364,6 +409,14 @@ let indexingHasChanged = false;
 let orphanedfiles = [];
 
 // Remove deep link from file
+/**
+ * Strip a now-invalid relationship field from a sidecar on disk (minimal rewrite)
+ * and flag that a re-index is needed.
+ * @param {object} settings The full settings.
+ * @param {string} fileName The file id.
+ * @param {string} oneToOneName The field to remove (e.g. `variationOf`).
+ * @returns {void}
+ */
 const removeDeepLink = function (settings, fileName, oneToOneName) {
   orphanedfiles.push(`${fileName}...`);
 
@@ -381,6 +434,13 @@ const removeDeepLink = function (settings, fileName, oneToOneName) {
   indexingHasChanged = true;
 };
 
+/**
+ * Drop a deep link (and its on-disk field) when its target no longer exists.
+ * @param {object} settings The full settings.
+ * @param {string} fileName The file id.
+ * @param {string} oneToOneName The relationship field to validate.
+ * @returns {void}
+ */
 const validateDeepLink = function (settings, fileName, oneToOneName) {
   // Remove variation to file if no such file exists in index or is
   // invalid
@@ -398,6 +458,13 @@ const validateDeepLink = function (settings, fileName, oneToOneName) {
 // Upscales have to be handled specially since their usually not linked
 // more, just referenced. They have to be orphaned more specially
 // We have to convert an upscale reference to a full normal index entry without a parent
+/**
+ * Orphan an upscale whose parent vanished: rename `<id>-upscaled` → `<id>` and strip
+ * its `upscaleOf` so it becomes a standalone index entry.
+ * @param {object} settings The full settings.
+ * @param {string} fileName The parent file id.
+ * @returns {void}
+ */
 const validateUpscaleDeepLink = function (settings, fileName) {
   const data = files[fileName];
 
@@ -469,6 +536,12 @@ const validateUpscaleDeepLink = function (settings, fileName) {
 // Ensures indexes are valid
 // Such as file placeholders with no file data
 // deep links that point to non-existent files
+/**
+ * Validate every indexed file: drop placeholders with no image, promote orphaned
+ * upscales, and prune dead deep links.
+ * @param {object} settings The full settings.
+ * @returns {void}
+ */
 const validateIndexes = function (settings) {
   // Get indexed files
   const fileNames = _.keys(files);
@@ -509,6 +582,10 @@ const validateIndexes = function (settings) {
 };
 
 // Does final steps that can only be done after all is said and done
+/**
+ * Final pass: compute each animation's highest frame number from its frames.
+ * @returns {void}
+ */
 const postBuildIndexes = function () {
   // Get indexed files
   const fileNames = _.keys(files);
@@ -551,6 +628,12 @@ const postBuildIndexes = function () {
   }
 };
 
+/**
+ * Rebuild the whole index from `output/*.json`: build, validate, post-process, and
+ * re-index (up to 5×) while self-healing keeps changing the data.
+ * @param {object} settings The full settings.
+ * @returns {void}
+ */
 const rebuildIndexes = function (settings) {
   console.log("Indexing images...");
 

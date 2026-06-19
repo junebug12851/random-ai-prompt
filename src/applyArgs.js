@@ -22,6 +22,17 @@
 import fs from "node:fs";
 import _ from "lodash";
 
+/**
+ * Apply presets (`data/presets`, merged in order) then per-flag CLI overrides onto
+ * the live settings, and validate that image width/height are multiples of 64.
+ * @param {object} argv The parsed yargs arguments.
+ * @param {object} settings The merged generation settings (mutated).
+ * @param {object} imageSettings The image settings (mutated).
+ * @param {object} upscaleSettings The upscale settings (mutated).
+ * @param {object} allSettings The full settings object (the preset merge target).
+ * @returns {void}
+ * @throws {Error} If image dimensions are not multiples of 64.
+ */
 export default function (argv, settings, imageSettings, upscaleSettings, allSettings) {
   ///////////////////////////////
   // Apply presets

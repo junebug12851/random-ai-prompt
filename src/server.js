@@ -56,6 +56,11 @@ app.set("views", settings().serverSettings.webFolder + "/views");
 // Use the body-parser middleware to parse incoming request bodies
 app.use(express.json());
 
+/**
+ * Open a folder in the OS file explorer (cross-platform).
+ * @param {string} dirPath The directory to open.
+ * @returns {(Buffer|undefined)} The execSync result, or undefined on (often benign) error.
+ */
 function dirOpen(dirPath) {
   dirPath = path.resolve(dirPath);
 
@@ -87,6 +92,14 @@ let args = {};
 let execAppOngoing = false;
 let execMagickOngoing = false;
 
+/**
+ * Run an ImageMagick (`magick`) command, auto-quoting args that need it.
+ * @param {object} [args] Flag→value map (rendered as `-key value`).
+ * @param {string[]} [fileNames] Input filenames.
+ * @param {string} [output] Output filename.
+ * @param {boolean} [silent] Suppress logging.
+ * @returns {Promise<object>} The exec result (`{stdout, stderr}` on success, or `{error}`).
+ */
 async function execMagick(args, fileNames, output, silent) {
   const nodeExecutable = `magick`;
   const commandArgs = [nodeExecutable];
@@ -137,6 +150,11 @@ async function execMagick(args, fileNames, output, silent) {
   return ret;
 }
 
+/**
+ * Spawn the CLI (`node . --flags`) with the current `args` to perform the actual
+ * generation, tracking `execAppOngoing`.
+ * @returns {Promise<object>} The exec result (`{stdout, stderr}` on success, or `{error}`).
+ */
 async function execApp() {
   const command = ".";
   const nodeExecutable = `"${process.argv[0]}"`;
@@ -176,6 +194,10 @@ async function execApp() {
   return ret;
 }
 
+/**
+ * Fetch generation progress from the CLI's progress server (port `portProgress`).
+ * @returns {Promise<(object|undefined)>} The progress payload, or undefined if unreachable.
+ */
 async function getProgressRequest() {
   const url = `http://localhost:${settings().serverSettings.portProgress}/api/images/progress`;
 
@@ -190,6 +212,11 @@ async function getProgressRequest() {
   return undefined;
 }
 
+/**
+ * Get generation progress (from the CLI progress server, or a stopped-state default),
+ * with the server's own `execOngoing` flag merged in.
+ * @returns {Promise<object>} The progress payload.
+ */
 async function getProgress() {
   let ret;
 

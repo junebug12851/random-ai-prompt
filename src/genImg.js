@@ -49,6 +49,11 @@ let batchProgressBar;
 let promptProgressBar;
 let samplerProgressBar;
 
+/**
+ * Poll the SD WebUI `/progress` endpoint and push the numbers into the cli-progress
+ * bars and `imageSettings.progress*`; reschedules itself while a render is ongoing.
+ * @returns {Promise<void>}
+ */
 async function updateProgress() {
   let data;
 
@@ -102,6 +107,11 @@ async function updateProgress() {
   setTimeout(updateProgress, updateFreq);
 }
 
+/**
+ * Create the four cli-progress bars (sampler / batch / total / prompts), seed the
+ * `imageSettings.progress*` fields, and begin polling.
+ * @returns {void}
+ */
 function startProgress() {
   ongoingProgress = true;
 
@@ -169,6 +179,10 @@ function startProgress() {
   setTimeout(updateProgress, updateFreq);
 }
 
+/**
+ * Tear down the progress bars and clear the `imageSettings.progress*` fields.
+ * @returns {void}
+ */
 function stopProgress() {
   ongoingProgress = false;
 
@@ -190,6 +204,18 @@ function stopProgress() {
   progressBars.stop();
 }
 
+/**
+ * Generate image(s) for one prompt: POST to the SD WebUI txt2img API (high-res fix
+ * and subseed handled), stream progress, then save each PNG + JSON sidecar — and
+ * optionally upscale.
+ * @param {string} prompt The finished prompt.
+ * @param {number} _index The 0-based prompt index in the batch.
+ * @param {number} _total The total prompt count.
+ * @param {object} settings The merged generation settings.
+ * @param {object} _imageSettings The image settings.
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {Promise<void>}
+ */
 export default async function (prompt, _index, _total, settings, _imageSettings, upscaleSettings) {
   // Copy image settings globally
   imageSettings = _imageSettings;
