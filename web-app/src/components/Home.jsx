@@ -25,6 +25,7 @@ const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshe
 export default function Home({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
+  const [activeCat, setActiveCat] = useState("");
   const [preview, setPreview] = useState("");
   const [shareMsg, setShareMsg] = useState("");
   const [expName, setExpName] = useState("");
@@ -110,37 +111,49 @@ export default function Home({ settings, setSettings }) {
     }))
     .filter((b) => b.items.length);
 
+  // The active category (falls back to the first available when the current
+  // selection is filtered away or unset).
+  const active = filtered.find((b) => b.title === activeCat) || filtered[0] || null;
+  const activeItems = active ? active.items : [];
+
   return (
     <div className="workspace">
-      {/* ---- Left pane: building blocks ---- */}
-      <aside className="sidebar card">
-        <div className="blocks-head">
-          <h3 className="section-title">Building blocks</h3>
+      {/* ---- Left panel: building-block palette ---- */}
+      <aside className="sidebar">
+        <div className="panel-head">
+          <h3 className="panel-title">Building blocks</h3>
+          <input className="picker-filter" placeholder="Search blocks…" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
-        <input className="picker-filter" placeholder="Search keywords, lists, expansions…" value={query} onChange={(e) => setQuery(e.target.value)} />
 
         {filtered.length === 0 ? (
           <p className="empty">No building blocks match “{query}”.</p>
         ) : (
-          <div className="blocks">
-            {filtered.map((b, idx) => (
-              <details key={b.title} className="block" open={idx === 0 || !!q}>
-                <summary>
-                  {b.title}
-                  {b.hint && <span className="tag">— {b.hint}</span>}
+          <>
+            <nav className="cat-tabs">
+              {filtered.map((b) => (
+                <button
+                  key={b.title}
+                  className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
+                  onClick={() => setActiveCat(b.title)}
+                >
+                  <span className="cat-name">{b.title}</span>
                   <span className="count-pill">{b.items.length}</span>
-                </summary>
-                <div className="picker-list">
-                  {b.items.slice(0, 300).map((i) => (
-                    <button key={i.token} className="chip" title={i.token} onClick={() => insert(i.token)}>
-                      {i.label}
-                    </button>
-                  ))}
-                  {b.items.length > 300 && <span className="picker-more">+{b.items.length - 300} more — keep typing</span>}
-                </div>
-              </details>
-            ))}
-          </div>
+                </button>
+              ))}
+            </nav>
+
+            <div className="chip-area">
+              {active && active.hint && <p className="cat-hint">{active.hint}</p>}
+              <div className="picker-list">
+                {activeItems.slice(0, 400).map((i) => (
+                  <button key={i.token} className="chip" title={i.token} onClick={() => insert(i.token)}>
+                    {i.label}
+                  </button>
+                ))}
+                {activeItems.length > 400 && <span className="picker-more">+{activeItems.length - 400} more — keep typing to filter</span>}
+              </div>
+            </div>
+          </>
         )}
       </aside>
 
