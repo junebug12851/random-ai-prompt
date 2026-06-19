@@ -85,6 +85,13 @@ local-only providers.
 
 ## Not done yet (intentional)
 
+- **No deployments yet — too early in the rewrite/re-adapt (owner's call, 2026-06-18).** All three
+  pipelines are wired but deliberately dormant: `master` is held at the old `241a148` (work stays on
+  `dev`, which only runs CI — build/test, not a deploy), **GitHub Pages is not enabled** on the repo
+  (Settings → Pages → Source still unset), and **no Netlify site is connected**. Advancing `master` is
+  the single trigger for both the Pages docs deploy and the software Release, so nothing ships until the
+  owner says go. Planned homes when ready: **GitHub Pages for the docs** (like the sibling project),
+  **Netlify for the app** (functions).
 - The hosted BYOK provider dispatch in `web-app/netlify/functions/generate.js` is a stub (migration
   phase 2). Local generation works today; the hosted path is wired but not yet pointed at a provider.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged
