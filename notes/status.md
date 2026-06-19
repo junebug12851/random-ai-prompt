@@ -3,7 +3,7 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.0.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.0.2` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
 ## Current state (read this first)
@@ -33,10 +33,13 @@ root (its parent) so every cwd-relative path keeps working.
 **3. Started the web migration — a React + Vite SPA** (`web-app/`, usable online BYOK or locally). The
 real prompt engine was ported to a browser-safe `core/` driven by an **injected loader** (Node: fs +
 `createRequire`; browser: Vite `import.meta.glob`), so there is one engine, no duplicated prompt logic.
-The SPA has a Settings editor, a Prompt **Build**er (blocks cloud, share links, custom
-expansions/presets, chaos), and a Generate gallery — though **only the Build tab is currently shown**
-while the rest of the UI is reworked. Build tooling is **Vite 8 / @vitejs/plugin-react 6**. The classic
-Express + Pug server and the CLI are untouched and still work.
+As of **2.0.2** the SPA front-end is a single **redesigned home page** (`Home.jsx`) styled after the
+pre-revival generate screen — dark charcoal + mint brand, Rokkitt/Maven Pro, a hero, and one composer
+that unifies prompt building (blocks cloud, share links, custom expansions/presets, chaos,
+Normal/Anime toggle, live preview) **and** generation (provider line, generate prompts/images,
+in-session gallery). The full settings form lives in a right-side slide-over drawer
+(`SettingsDrawer.jsx`). Build tooling is **Vite 8 / @vitejs/plugin-react 6**. The classic Express + Pug
+server and the CLI are untouched and still work.
 
 **4. Documented the whole repo in one JSDoc doc-site.** `npm run docs` (`scripts/build-docs.mjs`) builds
 a single **JSDoc + docdash** site that unifies the per-function **code API** (every authored `.js`,

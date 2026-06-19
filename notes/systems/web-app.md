@@ -9,8 +9,8 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 
 | File | Role |
 |------|------|
-| `src/main.jsx` / `src/App.jsx` | Entry + shell. |
-| `src/components/` | `Builder`, `Field`, `Gallery`, `Generate`, `Settings`, `TokenPicker` — the UI. |
+| `src/main.jsx` / `src/App.jsx` | Entry + shell (brand top-bar, hero, footer; opens the settings drawer). |
+| `src/components/` | `Home` (the unified compose-and-generate page), `SettingsDrawer` (slide-over wrapping `Settings`), `Settings`, `Field`, `Gallery` — the UI. (The old separate `Builder` / `Generate` were folded into `Home` in 2.0.2.) |
 | `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
 | `src/lib/catalog.js` | The token catalog (lists / expansions / dynamic prompts) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |

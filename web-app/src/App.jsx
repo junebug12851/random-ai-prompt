@@ -1,34 +1,23 @@
 /**
- * The SPA shell: top-bar tab nav (currently just Build while the UI is reworked) + a
- * local/online mode badge, applies a shared-link (`#s=…`) to settings on load, and
- * renders the active tab.
+ * The SPA shell: a compact brand top-bar (logo + wordmark, local/online badge, Settings
+ * button), a centered hero, the unified Home composer, a slide-over Settings drawer, and
+ * a privacy footer. A shared link (`#s=…`) seeds settings on load.
  * @module web-app/App
  */
 import { useEffect, useState } from "react";
 import { useSettings } from "./lib/settings.js";
 import { ONLINE } from "./lib/providers/index.js";
 import { readSharedSettings } from "./lib/share.js";
-import Builder from "./components/Builder.jsx";
-// Generate and Settings are temporarily hidden from the nav while the UI is
-// being reworked. Their components still live in ./components/ — to bring a tab
-// back, re-import it and add its entry to TABS below.
-// import Generate from "./components/Generate.jsx";
-// import Settings from "./components/Settings.jsx";
-
-const TABS = [
-  // { id: "generate", label: "Generate", Component: Generate },
-  { id: "build", label: "Build", Component: Builder },
-  // { id: "settings", label: "Settings", Component: Settings },
-];
+import Home from "./components/Home.jsx";
+import SettingsDrawer from "./components/SettingsDrawer.jsx";
 
 /**
  * The application shell component.
- * @returns {JSX.Element} The app (header nav + active tab + footer).
+ * @returns {JSX.Element} The app (top bar + hero + Home + settings drawer + footer).
  */
 export default function App() {
   const [settings, setSettings] = useSettings();
-  const [tab, setTab] = useState("build");
-  const Active = TABS.find((t) => t.id === tab).Component;
+  const [drawer, setDrawer] = useState(false);
 
   // A shared link (#s=...) seeds settings on load, then the hash is cleared.
   useEffect(() => {
@@ -43,22 +32,30 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Random AI Prompt</h1>
-        <nav>
-          {TABS.map((t) => (
-            <button key={t.id} className={tab === t.id ? "active" : ""} onClick={() => setTab(t.id)}>
-              {t.label}
-            </button>
-          ))}
-        </nav>
-        <span className="mode" title={ONLINE ? "deployed build" : "local build"}>
+        <div className="brand">
+          <img src="/logo.png" alt="" />
+          <span className="wordmark">Random AI Prompt</span>
+        </div>
+        <div className="spacer" />
+        <span className={`mode${ONLINE ? " is-online" : ""}`} title={ONLINE ? "deployed build" : "local build"}>
           {ONLINE ? "online" : "local"}
         </span>
+        <button className="ghost icon-btn" onClick={() => setDrawer(true)} title="Open all generation settings">
+          ⚙ Settings
+        </button>
       </header>
 
+      <div className="hero">
+        <img className="logo" src="/logo.png" alt="Random AI Prompt" />
+        <h1>Random AI Prompt</h1>
+        <p className="subtitle">The random generator — compose a prompt, roll the dice, make art.</p>
+      </div>
+
       <main>
-        <Active settings={settings} setSettings={setSettings} />
+        <Home settings={settings} setSettings={setSettings} />
       </main>
+
+      <SettingsDrawer open={drawer} onClose={() => setDrawer(false)} settings={settings} setSettings={setSettings} />
 
       <footer>Stored only in this browser · bring your own API key · nothing saved on a server</footer>
     </div>
