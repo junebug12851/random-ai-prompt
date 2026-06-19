@@ -56,6 +56,13 @@ const { settings, defSettings, reloadSettings, saveSettings, replaceSettings, us
 // Ensure lastCmd is removed
 settings().imageSettings.lastCmd = undefined;
 
+/**
+ * Build one prompt through the prompt-module pipeline and, when `generateImages` is
+ * on and mode is StableDiffusion, generate its image(s).
+ * @param {number} index The 0-based prompt index in the batch.
+ * @param {number} total The total prompt count.
+ * @returns {Promise<void>}
+ */
 async function processBatch(index, total) {
   // Copy over prompt from settings
   let prompt = settings().settings.prompt;
@@ -130,6 +137,11 @@ async function processBatch(index, total) {
   delete settings().imageSettings.autoIncludedArtists;
 }
 
+/**
+ * Upscale an already-generated image by file id.
+ * @param {(string|number)} fileId The image file id.
+ * @returns {Promise<void>}
+ */
 async function upscale(fileId) {
   console.log(`Upscaling File ID: ${fileId.toString()}`);
 
@@ -144,6 +156,11 @@ async function upscale(fileId) {
   return;
 }
 
+/**
+ * Run the full generate loop: clear results, then build `promptCount` prompts
+ * (reloading lists between prompts as configured), awaiting each batch in turn.
+ * @returns {Promise<void>}
+ */
 // Runs the code, this is in it's own function because we use asyc/await
 // to make sure the first batch is done before we send another
 async function run() {
@@ -170,6 +187,10 @@ async function run() {
 
 let legacyTxtNotice = false;
 
+/**
+ * Print the legacy-txt conversion notice once per process.
+ * @returns {void}
+ */
 function sendLegacyTxtNotice() {
   if (legacyTxtNotice) return;
 
@@ -177,6 +198,11 @@ function sendLegacyTxtNotice() {
   legacyTxtNotice = true;
 }
 
+/**
+ * Recursively copy legacy `.txt` output sidecars to `.json` and remove the `.txt`.
+ * @param {string} directoryName The directory to walk.
+ * @returns {void}
+ */
 // Rename legacy txt files to json
 const updateFiles = function (directoryName) {
   // get files in a directory

@@ -24,6 +24,14 @@ import fs from "node:fs";
 import doUpscale from "./helpers/imageUpscaler.js";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 
+/**
+ * Re-run the upscaler over an already-saved PNG (reads the file + its sidecar).
+ * @param {string} name The image file id to upscale.
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings The image settings.
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {Promise<void>}
+ */
 export default async function (name, settings, imageSettings, upscaleSettings) {
   // Read file
   let png = fs.readFileSync(`${imageSettings.saveTo}/${name}.png`);

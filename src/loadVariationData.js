@@ -22,6 +22,15 @@
 import fs from "node:fs";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 
+/**
+ * Load a saved image's metadata sidecar and apply it (seed, size, prompts) so the
+ * next run produces subseed variations of that image. Forces `generateImages`.
+ * @param {string} name The source image file id.
+ * @param {object} settings The merged generation settings (mutated).
+ * @param {object} imageSettings The image settings (mutated).
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {void}
+ */
 export default function (name, settings, imageSettings, upscaleSettings) {
   console.log(`Loading Settings from File ID: ${name}`);
 

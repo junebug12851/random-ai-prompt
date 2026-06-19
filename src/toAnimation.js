@@ -21,6 +21,15 @@
 
 import loadVariationData from "./loadVariationData.js";
 
+/**
+ * Run mode: turn a single image into a new salt-marched animation (epoch-named),
+ * recording the source image as the animation's parent.
+ * @param {string} name The source image file id.
+ * @param {object} settings The merged generation settings (mutated).
+ * @param {object} imageSettings The image settings (mutated).
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {void}
+ */
 export default function (name, settings, imageSettings, upscaleSettings) {
   // Load variation data
   loadVariationData(name, settings, imageSettings, upscaleSettings);

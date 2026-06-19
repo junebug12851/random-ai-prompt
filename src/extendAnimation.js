@@ -21,6 +21,15 @@
 
 import loadVariationData from "./loadVariationData.js";
 
+/**
+ * Run mode: continue an existing animation, appending more salt-marched frames
+ * (reuses the animation's variation data; forces salt + frame count).
+ * @param {string} name The animation file id to extend.
+ * @param {object} settings The merged generation settings (mutated).
+ * @param {object} imageSettings The image settings (mutated).
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {void}
+ */
 export default function (name, settings, imageSettings, upscaleSettings) {
   // Load variation data
   loadVariationData(name, settings, imageSettings, upscaleSettings);

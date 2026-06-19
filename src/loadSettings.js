@@ -41,6 +41,11 @@ const defSettings = _.cloneDeep({
 
 let settings;
 
+/**
+ * (Re)build the live settings object: clone the defaults, merge `user-settings.json`,
+ * and migrate a legacy `user-settings.js` if present.
+ * @returns {void}
+ */
 // Does a complicated process of reloading settings
 function reloadSettings() {
   // Load "user-settings.json"
@@ -82,6 +87,11 @@ function reloadSettings() {
 // Do initial settings load now
 reloadSettings();
 
+/**
+ * Compute the settings that differ from defaults, with internal-only / runtime
+ * fields (progress, lastCmd, animation bookkeeping, …) stripped.
+ * @returns {object} The persistable user settings.
+ */
 // Allows obtaining the user dettings that differ from the main settings
 function userSettings() {
   // Get diff between default and user settings
@@ -120,6 +130,10 @@ function userSettings() {
   return ret;
 }
 
+/**
+ * Persist `userSettings()` to `user-settings.json`.
+ * @returns {void}
+ */
 // Save User Settings
 function saveSettings() {
   // Save user settings as user-settings.json

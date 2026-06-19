@@ -21,6 +21,13 @@
 
 import fs from "node:fs";
 
+/**
+ * Match a regex against a string and return its first capture group, or a default.
+ * @param {RegExp} regex The pattern (capture group 1 is returned).
+ * @param {string} str The string to search.
+ * @param {*} [def] The fallback when there is no match.
+ * @returns {*} The captured value, or `def`.
+ */
 function find(regex, str, def) {
   let ret = str.match(regex);
 
@@ -40,6 +47,16 @@ function find(regex, str, def) {
  * they can be on one line or spread out
  */
 
+/**
+ * Parse the lines of an AUTOMATIC1111 parameters block into the JSON sidecar shape
+ * (prompt, negative prompt, steps, sampler, cfg, seed, size, model, denoising, …).
+ * @param {string[]} txt The metadata lines (prompt first, negative second).
+ * @param {string} name The file id (stored as `job_timestamp`).
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings The image settings.
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {object} The reconstructed sidecar JSON.
+ */
 function breakdownData(txt, name, settings, imageSettings, upscaleSettings) {
   // Ret object to build
   const ret = {};
@@ -150,6 +167,16 @@ function breakdownData(txt, name, settings, imageSettings, upscaleSettings) {
   return ret;
 }
 
+/**
+ * Convert a legacy `.txt` metadata sidecar to `.json` (replacing the file on disk),
+ * or parse provided text.
+ * @param {string} name The image file id.
+ * @param {(string|undefined)} txt Raw metadata text, or undefined to read `<name>.txt`.
+ * @param {object} settings The merged generation settings.
+ * @param {object} imageSettings The image settings (`saveTo`).
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {object} The converted sidecar JSON.
+ */
 function convert(name, txt, settings, imageSettings, upscaleSettings) {
   console.log(`Converting Plain Data from File ID: ${name} to JSON Data...`);
 
@@ -173,6 +200,11 @@ function convert(name, txt, settings, imageSettings, upscaleSettings) {
   return txt;
 }
 
+/**
+ * @param {string} name The image file id.
+ * @param {object} imageSettings The image settings (`saveTo`).
+ * @returns {boolean} Whether an unconverted `<name>.txt` sidecar exists.
+ */
 function check(name, imageSettings) {
   // If there's a txt file there then it's unconverted
   return fs.existsSync(`${imageSettings.saveTo}/${name}.txt`);

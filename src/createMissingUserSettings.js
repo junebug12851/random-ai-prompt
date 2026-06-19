@@ -21,6 +21,10 @@
 
 import fs from "node:fs";
 
+/**
+ * Create `user-settings.json` from `default-user-settings.json` if it is missing.
+ * @returns {void}
+ */
 function userSettings() {
   // Check for existence of user-settings.js
   try {
@@ -35,6 +39,10 @@ function userSettings() {
   fs.writeFileSync("./user-settings.json", file);
 }
 
+/**
+ * Ensure `user-settings.json` exists, seeding it on first run.
+ * @returns {void}
+ */
 export default function () {
   // Ensure user settings exists
   userSettings();

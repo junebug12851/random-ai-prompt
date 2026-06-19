@@ -22,6 +22,16 @@
 import fs from "node:fs";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 
+/**
+ * Load a saved image and copy one of its prompt fields into `settings.prompt` to
+ * re-generate it fresh (a reroll, not a variation). Forces `generateImages`.
+ * @param {string} name The source image file id.
+ * @param {string} field The field to reroll (`prompt` / `origPrompt` / `origPostPrompt` / `origRandomPrompt`).
+ * @param {object} settings The merged generation settings (mutated).
+ * @param {object} imageSettings The image settings (mutated).
+ * @param {object} upscaleSettings The upscale settings.
+ * @returns {void}
+ */
 export default function (name, field, settings, imageSettings, upscaleSettings) {
   console.log(`Re-Rolling ${field} from File ID: ${name}`);
 
