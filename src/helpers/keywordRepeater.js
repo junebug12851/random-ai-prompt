@@ -24,7 +24,7 @@ import { keywordAlias, artistAlias } from "./aliases.js";
 
 // Maps the `keyword`/`artist` repeat targets to their alias list name. Kept here
 // (instead of indexing the fs-backed listFiles object) so this module stays
-// browser-safe â€” see helpers/aliases.js.
+// browser-safe — see helpers/aliases.js.
 const ALIASES = { keyword: keywordAlias, artist: artistAlias };
 
 function processRepeat(count, keyword, alias) {
