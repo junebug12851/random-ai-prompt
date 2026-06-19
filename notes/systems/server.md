@@ -33,6 +33,41 @@ It **self-heals**: invalid deep links and orphaned upscales are pruned, the affe
 **minimally rewritten** (byte-respectful — only what changed), and it re-indexes up to 5×. This matters
 because the index is the source of truth for the feed/search UI.
 
+## Image lifecycle & the metadata deep-link graph
+
+Every generated image is a PNG plus a sibling `.json` **metadata sidecar** (`helpers/saveImage.js`),
+epoch-named (`<epoch>.png` / `<epoch>-upscaled.png`). The sidecar carries the WebUI generation params
+(seed, sampler, cfg, size, …) **plus relationship + provenance fields** that turn a flat folder into a
+graph:
+
+| Sidecar field | Meaning |
+|---------------|---------|
+| `variationOf` / `rerollOf` / `upscaleOf` | this image is a variation / reroll / upscale of that file id |
+| `animationFrameOf` + `animatonFrameNumber` | this image is a frame of that animation (number from the salt) |
+| `animationOf` / `isAnimation` | the stitched APNG and its parent image link |
+| `origPrompt` / `origPostPrompt` / `origRandomPrompt` | the prompt before list-expansion / before any expansion / the random seed prompt — used by **reroll** |
+| `cmd` | the exact `node . …` command that produced it (shown + copyable in the UI) |
+
+`indexImages.js` reads those fields and builds the inverse **deep-link** map (`upscales`, `variations`,
+`rerolls`, `animationFrames`, `animations`) hanging off each parent, plus a keyword→files index and
+stats. Upscales are *not* indexed as their own entries — they attach to the original; an orphaned upscale
+(parent deleted) is "promoted" by renaming `-upscaled` off and stripping `upscaleOf`. The **single**
+page (`web/frontend/single.js`) renders this graph: the metadata table, the prompt-selection dropdown
+(prompt / negative / original / post / random / cmd / info-md / info-txt), the popularity-sized keyword
+cloud, the related-image galleries, and the action menu.
+
+The five generation **run modes** all flow CLI-side and write sidecars the index then links:
+
+- **variation** (`loadVariationData.js`) — reuse a saved image's seed/size and vary via subseed.
+- **reroll** (`loadRerollData.js`) — re-generate a chosen prompt field (prompt/orig/post/random) fresh.
+- **upscale** (`upscaleExisting.js` → `helpers/imageUpscaler.js`) — `extra-single-image` API.
+- **to-animation** (`toAnimation.js`) and **extend-animation** (`extendAnimation.js`) — salt-marched
+  frames stitched into an APNG (`helpers/makeApng.js`), extendable, and **externalizable** (the server
+  copies numbered frames + an `info.txt` to a folder for AI-interpolation tools like FlowFrames / DAIN).
+
+ImageMagick (optional, detected via `magick -version`) converts animations to gif/webp/mp4/mng and
+single images to gif/webp/jpg on demand (`/api/magick-*`).
+
 ## Verification
 
 Like the CLI, the server is verified by lint + `node --check` + Express-5-safe route patterns + the

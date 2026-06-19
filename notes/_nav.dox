@@ -90,6 +90,7 @@ background, the **System Map**, the **Reference** lookups, the **Decisions**, an
 \brief Quick lookups, no story — patterns, dependencies, and conventions.
 
 \subpage md_notes_2reference_2prompt-dsl <br>
+\subpage md_notes_2reference_2dynamic-prompts <br>
 \subpage md_notes_2reference_2esm-patterns <br>
 \subpage md_notes_2reference_2dependencies <br>
 \subpage md_notes_2reference_2fix-patterns <br>

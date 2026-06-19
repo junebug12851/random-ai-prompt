@@ -1,0 +1,111 @@
+# Reference — The dynamic-prompt catalog & data-build pipeline
+
+The `#name` generators in `src/dynamic-prompts/` are where most of the original creative effort went:
+~113 little plugins that each return a prompt fragment, composed through the DSL
+([prompt-dsl.md](prompt-dsl.md)). This page is the **catalog and authoring idiom** — how the generators
+are built, how they compose, the v1→v2 story, and how the word-lists they pull from are generated from
+raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the engine see
+[../systems/core-engine.md](../systems/core-engine.md).
+
+## The authoring idiom
+
+A generator is `export default function (settings, imageSettings, upscaleSettings) { … return string }`,
+plus optional `export const full` / `export const suggestion_exclude`. The house style is **probabilistic
+accretion**: start from a base phrase, then append fragments under independent coin-flips, mixing literal
+text with nested DSL tokens. E.g. `city.js`:
+
+```js
+let prompt = "city, streetview, {city}";
+if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cityscape";
+prompt += ", #nature, #weather, reflective street, wide shot";
+return prompt;            // export const full = true
+```
+
+Because the output is re-fed through the pipeline (expansion/dynamic-prompt run twice, then list), a
+generator freely emits `#other-prompt`, `{list}`, and `<expansion>` tokens and lets the engine resolve
+them. This is the composition backbone: **full** scene prompts pull in **partial** helpers.
+
+## Full vs partial (the classification that drives everything)
+
+`export const full = true` marks a prompt that stands alone as a complete scene; its absence marks a
+**partial** fragment meant to garnish other prompts. `promptFilesAndSuggestions.js` reads this flag to
+split the catalog, and it drives both `#random`-style suggestions and the web Generate page's grouped
+token picker ("Full Dynamic Prompts" vs "Partial Dynamic Prompts"). `suggestion_exclude` keeps a valid
+prompt out of random suggestions.
+
+- **Full scene generators** (≈full): `landscape`, `city`, `castle`, `cave`, `mountains`, `space`,
+  `ship`, `vehicle`, `ruins`, `room`, `school-room`, `store-interior`, `storefront`, `house`,
+  `log-cabin`, `great-tree`, `great-bridge`, `beach`, `park`, `zoo`, `underwaterscape`, `knight`,
+  `futuristic`, the `portrait-*` family, `retro-poster`, `vibrant-art`, and the publicprompts.art set.
+- **Partial fragment helpers** (no `full`): `color`, `glow`, `neon`, `eerie`, `mystical`, `nature`,
+  `weather`, `water`, `wildlife`, `fx`, `expressive`, `general-state`, `room-state`, `ice`, `lava`,
+  `crystal`, `settlement`, `spaceship`, `portrait`. These return `, fragment` strings and are the
+  building blocks fulls compose from (and the garnish `prePrompt()` sprinkles into suggestions).
+
+## The entity polymorphism
+
+`entity.js` is a small type system: it picks one of {animal, danbooru character, colored flower,
+instrument, mythological creature, tree, person} and optionally adds emotion/hair/clothes for humanlike
+results, gated by an entity-class filter. Thin wrappers specialize it: `animal.js` (`"animal"`),
+`person.js` (`"human"`), `living-entity.js` (`"living"`), `entity-name.js` (name-only). The
+publicprompts.art templates embed `#entity` / `#person` / `#living-entity` / `#entity-name` as their
+"`<name>`" slot, so one template yields wildly different subjects each run.
+
+## The three random engines
+
+| Prompt | File | Behavior |
+|--------|------|----------|
+| `#random` (the default `settings.prompt`) | `random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
+| composite suggestion | `random-prompt.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
+| simple suggestion | `simple-random-prompt.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
+| total-random dict | `extra-random-prompt.js` | Forces `keywordsFilename`/`artistFilename = false` then runs the random prompt — any list, maximum chaos. |
+
+`artists.js` and `fx.js` are the two prompts the pipeline **auto-appends** (`#artists`, `#fx`) when
+`autoAddArtists` / `autoAddFx` are on; `danbooru.js` composes anime tag streams (`{d-general}` +
+`{d-character}` + `{d-meta}`).
+
+## v1 vs v2 — the decomposition story
+
+`src/dynamic-prompts/v1/` (33 frozen modules, addressed as `#name-v1`, always treated as `full`, and
+they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
+generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
+`entityBasicKeywords()` and hard-bake color/weather/time. The top-level (v2) set is the **refactor**: the
+same scenes re-expressed by *extracting* those into shared composable sub-prompts (`#color`, `#weather`,
+`#nature`, `#general-state`, `#room-state`, the `entity` family). v1 is kept verbatim so old looks stay
+reproducible — reading a v1/v2 pair side by side is the clearest window into the project's "compose from
+building blocks" design turn (Jan 2023; see [../context/history.md](../context/history.md)).
+
+`user-submitted/` holds community contributions (addressed `#user-name`, always `full`) — currently
+`beach-merk.js` by Merk, which notably composes siblings as **direct function imports**
+(`${city()}`, `${nature()}`) rather than `#city` tokens, an alternative to token-based composition.
+
+Provenance worth preserving: the `3d-*`, `comic`, `sticker`, `funko-3d-print`, `fluffy-animal`,
+`needle-felt`, `silhouette`, `psychedelic`, `space-hologram`, `gold-pendant`, `lowpoly-3d-isometric`,
+`sports-logo`, `anime-irl` templates are credited "taken from publicprompts.art and modified to be more
+dynamic" — the original swapped their fixed `<name>` subject for the `#entity` system. Keep these credits
+(also in `list-credits.md`).
+
+## The data-build pipeline (lists from raw sources)
+
+The `{list}` word-lists in `data/lists/*.txt` are **generated**, not hand-maintained, by one-off scripts
+in `data/` from large raw sources (kept under version control as the inputs):
+
+| Script | Source | Output | Notes |
+|--------|--------|--------|-------|
+| `process-artists-csv.js` | `artists.csv` (AUTOMATIC1111 artist-score CSV) | `artist.txt` + `artist-{anime,bw,cartoon,dlow,dmed,dhigh,digipa,fareast,fineart,nudity,scribbles,special,ukioe,weird}.txt` | Filters by `minScore = 0.4`; buckets by category; `artist.txt` is the union. |
+| `process-danbooru-csv.js` | `danbooru.csv` (tag,type,count) | `d-general/d-artist/d-character{,-c,-nc}/d-meta/d-keyword/danbooru.txt` | Filters `count >= 500`; buckets by type; cleans `_`/`/`/parens; combined lists for character & keyword. |
+| `process-nai-tag-expirement.js` | `nai-tag-expirement.json` (NovelAI tag categories) | `artist2.txt`, `image-effect.txt`, `anime-name.txt`, and many category lists | kebab-cases keys, merges `artist*`→`artist2`, skips danbooru, de-pluralizes, renames `photo-effect`→`image-effect` and `anime`→`anime-name`, appends a few custom effects. |
+
+These run manually (they `process.chdir` to the repo root and write into `settings.listFiles`); they are
+not part of normal generation. The raw sources and their licenses are credited in `list-credits.md`. The
+hand-authored lists (cities, building styles, rooms, clothes, etc.) live alongside the generated ones in
+`data/lists/`.
+
+## Expansions (`<name>`) the generators rely on
+
+`data/expansions/` holds the text macros generators splice in: `dap` (`deviantart, art station,
+pixiv`), `legacy-detail` (`masterpiece, highres, … HDR`), `rays` (`god ray, light shaft, volumetric
+lighting`), `legacy-person-detail`, `pixelart`, `candlelight`, `coffecup`, `flower-pic` (itself
+`{flower}, {flower}, {artist}`), and `underwater-anime-irl` (which nests `#anime-irl`) — proof that
+expansions can themselves contain lists and dynamic prompts.
