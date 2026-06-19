@@ -5,7 +5,7 @@ How the project ships. There are three independent pipelines, each with one home
 | Pipeline | Where | What it does |
 |----------|-------|--------------|
 | **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + the import smoke test; builds the React SPA. |
-| **Docs site** | `.github/workflows/pages.yml` | Builds the Doxygen site and deploys it to **GitHub Pages** on every push to `master`. |
+| **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `master`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
 | **Web app deploy** | `netlify.toml` | Builds + hosts the `web-app/` SPA on **Netlify** (separate from the GitHub release). |
 
@@ -18,10 +18,11 @@ here means the same thing as green locally — it's the CI mirror of the Default
 
 ## Docs site — `.github/workflows/pages.yml`
 
-On every push to `master`, installs current Doxygen (from the official GitHub release — apt's is too
-old; see [`documentation.md`](documentation.md)), runs `doxygen Doxyfile`, and deploys `docs/html` to
-GitHub Pages. The Doxygen home is the Pages root (`USE_MDFILE_AS_MAINPAGE = README.md`), so the site is
-the README + the full living notes + the JS API docs.
+On every push to `master`, runs `npm ci` then `npm run docs` (`scripts/build-docs.mjs` → **JSDoc** with
+the **docdash** template) and deploys `docs/jsdoc` to GitHub Pages. `README.md` is the home
+(jsdoc `opts.readme`), so the site is the README + the **code API** (per-function JSDoc) + the **full
+living notes** wired in as tutorial pages (hierarchy mirrors the `notes/` tree). See
+[`documentation.md`](documentation.md).
 
 **One-time repo setup:** Settings → Pages → Build and deployment → Source = **GitHub Actions**. The
 workflow needs `pages: write` + `id-token: write` and the `github-pages` environment (already declared
@@ -45,7 +46,7 @@ Trigger: **push to `master`** (FF-only from green `dev`, so always all-green). G
 - **`random-ai-prompt-<v>.tar.gz`** — a clean source tarball via `git archive` (tracked files only;
   no `node_modules`, `output/`, or build junk). Run it with Node 24: `npm install` then `npm start` /
   `npm run server`.
-- **`random-ai-prompt-<v>-docs.zip`** — the generated Doxygen site (archival snapshot; the live site
+- **`random-ai-prompt-<v>-docs.zip`** — the generated JSDoc doc-site (archival snapshot; the live site
   is on Pages).
 
 The release body is composed automatically: a plain-English "what it is", a prerelease note, **"What's

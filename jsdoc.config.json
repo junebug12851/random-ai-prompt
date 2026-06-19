@@ -10,10 +10,36 @@
     "destination": "./docs/jsdoc/",
     "recurse": true,
     "readme": "./README.md",
-    "encoding": "utf8"
+    "encoding": "utf8",
+    "template": "node_modules/docdash",
+    "tutorials": "./tmp/jsdoc-tutorials"
   },
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": false
+  },
+  "docdash": {
+    "search": true,
+    "collapse": true,
+    "wrap": true,
+    "typedefs": true,
+    "sectionOrder": [
+      "Tutorials",
+      "Modules",
+      "Namespaces",
+      "Classes",
+      "Interfaces",
+      "Events",
+      "Mixins",
+      "Externals",
+      "Global"
+    ],
+    "menu": {
+      "GitHub": {
+        "href": "https://github.com/junebug12851/random-ai-prompt",
+        "target": "_blank",
+        "class": "menu-item"
+      }
+    }
   }
 }

@@ -14,8 +14,8 @@ results.json
 /_*.log
 /_*.sh
 
-# Generated documentation. The Doxyfile, jsdoc.config.json, and the vendored theme under
-# docs/doxygen-awesome/ ARE tracked; only the generated HTML is ignored.
-# Doxygen -> docs/html/ (the notes site); JSDoc -> docs/jsdoc/ (the code API).
-/docs/html/
+# Generated documentation. jsdoc.config.json + scripts/build-docs.mjs ARE tracked;
+# the generated site is not. JSDoc (docdash) builds the unified doc-site (code API +
+# the notes wired in as tutorials) into docs/jsdoc/; build-docs.mjs stages the note
+# tutorial pages under tmp/jsdoc-tutorials/ (tmp/ is already ignored).
 /docs/jsdoc/

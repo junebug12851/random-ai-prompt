@@ -5,7 +5,7 @@ name: Release
 # the last release. A master push that did NOT bump VERSION is a no-op (the tag already exists).
 #
 # Each release attaches a clean source tarball (the runnable CLI + web UI, tracked files only) and a
-# docs zip (the generated Doxygen site). The web SPA deploys separately via Netlify (netlify.toml).
+# docs zip (the generated JSDoc doc-site). The web SPA deploys separately via Netlify (netlify.toml).
 #
 # workflow_dispatch with dry_run=true builds + uploads as workflow artifacts WITHOUT publishing.
 # See notes/reference/deployment.md and notes/reference/versioning.md.
@@ -75,22 +75,12 @@ jobs:
           git archive --format=tar.gz --prefix="random-ai-prompt-$v/" -o "random-ai-prompt-$v.tar.gz" HEAD
           ls -la random-ai-prompt-*.tar.gz
 
-      - name: Install Doxygen 1.14.0
+      - name: Build docs zip (JSDoc + notes)
         if: steps.ver.outputs.should_release == 'true'
         run: |
           set -euo pipefail
-          ver=1.14.0
-          url="https://github.com/doxygen/doxygen/releases/download/Release_${ver//./_}/doxygen-${ver}.linux.bin.tar.gz"
-          curl -fsSL "$url" -o /tmp/doxygen.tar.gz
-          tar -xzf /tmp/doxygen.tar.gz -C /tmp
-          sudo cp "/tmp/doxygen-${ver}/bin/doxygen" /usr/local/bin/doxygen
-
-      - name: Build docs zip
-        if: steps.ver.outputs.should_release == 'true'
-        run: |
-          set -euo pipefail
-          doxygen Doxyfile
-          (cd docs/html && zip -qr "../../random-ai-prompt-${{ steps.ver.outputs.version }}-docs.zip" .)
+          npm run docs
+          (cd docs/jsdoc && zip -qr "../../random-ai-prompt-${{ steps.ver.outputs.version }}-docs.zip" .)
 
       - name: Compose release notes
         if: steps.ver.outputs.should_release == 'true'

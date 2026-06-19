@@ -1,0 +1,144 @@
+/**
+ * @file
+ * Build the unified JSDoc doc-site.
+ *
+ * JSDoc is the project's single documentation generator: it produces the code API
+ * (from the `@file` / per-function JSDoc comments) AND renders the whole `notes/`
+ * tree (plus the repo docs) as navigable **tutorial** pages, with the docdash
+ * template. This script is the wiring that turns the nested `notes/` folders into
+ * JSDoc tutorials (a flat dir of pages + a `tutorials.json` hierarchy that mirrors
+ * the old Doxygen `_nav.dox`), rewriting inter-note Markdown links so they resolve
+ * to the generated tutorial pages. Run via `npm run docs`.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const notesDir = path.join(root, "notes");
+const outDir = path.join(root, "tmp", "jsdoc-tutorials");
+
+const REPO_DOCS = ["list-credits.md", "list-help.md", "Upgrade-2-0.md"];
+
+const humanize = (s) => s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const titleOf = (md, fallback) => {
+  const m = md.match(/^\s*#\s+(.+?)\s*$/m);
+  return m ? m[1].replace(/\{#.*?\}/g, "").trim() : fallback;
+};
+const dirId = (absDir) =>
+  (absDir === notesDir
+    ? "notes"
+    : "notes__" + path.relative(notesDir, absDir).split(path.sep).join("__")) + "__index";
+const fileId = (absFile) => {
+  const rel = path.relative(root, absFile).split(path.sep).join("/");
+  return rel.replace(/\.md$/i, "").split("/").join("__");
+};
+
+// ---- Pass 1: map every source path (and dir / README) to its tutorial id ----
+const linkMap = new Map(); // absolute path (no ext normalization) -> tutorial id
+const sources = []; // { abs, id, isHub, title (later) }
+
+function scan(absDir) {
+  const entries = fs.readdirSync(absDir, { withFileTypes: true });
+  const readme = entries.find((e) => e.isFile() && e.name.toLowerCase() === "readme.md");
+  const id = dirId(absDir);
+  linkMap.set(absDir, id); // link to the directory
+  if (readme) linkMap.set(path.join(absDir, readme.name), id); // link to its README
+  sources.push({
+    abs: absDir,
+    id,
+    isHub: true,
+    readme: readme ? path.join(absDir, readme.name) : null,
+  });
+  for (const e of entries
+    .filter((e) => e.isDirectory())
+    .sort((a, b) => a.name.localeCompare(b.name)))
+    scan(path.join(absDir, e.name));
+  for (const e of entries.filter(
+    (e) => e.isFile() && e.name.endsWith(".md") && !(readme && e.name === readme.name),
+  ))
+    linkMap.set(path.join(absDir, e.name), fileId(path.join(absDir, e.name)));
+}
+scan(notesDir);
+for (const f of REPO_DOCS) {
+  const abs = path.join(root, f);
+  if (fs.existsSync(abs)) linkMap.set(abs, fileId(abs));
+}
+
+// ---- Rewrite inter-note Markdown links to tutorial-<id>.html ----
+function rewriteLinks(md, srcAbs) {
+  const baseDir = fs.statSync(srcAbs).isDirectory() ? srcAbs : path.dirname(srcAbs);
+  return md.replace(/\]\(([^)]+)\)/g, (whole, target) => {
+    if (/^(https?:|#|mailto:)/i.test(target)) return whole;
+    const hashIdx = target.indexOf("#");
+    const linkPath = hashIdx >= 0 ? target.slice(0, hashIdx) : target;
+    if (linkPath === "") return whole; // pure anchor
+    const cleaned = linkPath.replace(/\/$/, "");
+    const abs = path.resolve(baseDir, cleaned);
+    const id = linkMap.get(abs) ?? linkMap.get(abs.replace(/[/\\]$/, ""));
+    return id ? `](tutorial-${id}.html)` : whole;
+  });
+}
+
+// ---- Pass 2: write tutorial files + build tutorials.json ----
+fs.rmSync(outDir, { recursive: true, force: true });
+fs.mkdirSync(outDir, { recursive: true });
+const write = (id, content) => fs.writeFileSync(path.join(outDir, `${id}.md`), content, "utf8");
+
+function buildDir(absDir) {
+  const entries = fs.readdirSync(absDir, { withFileTypes: true });
+  const readme = entries.find((e) => e.isFile() && e.name.toLowerCase() === "readme.md");
+  const id = dirId(absDir);
+  let title;
+  if (readme) {
+    const c = fs.readFileSync(path.join(absDir, readme.name), "utf8");
+    title = titleOf(c, humanize(path.basename(absDir)));
+    write(id, rewriteLinks(c, path.join(absDir, readme.name)));
+  } else {
+    title = absDir === notesDir ? "Project Notes" : humanize(path.basename(absDir));
+    write(id, `# ${title}\n\nSection index — see the pages nested under this entry.\n`);
+  }
+  const children = {};
+  for (const e of entries
+    .filter((e) => e.isDirectory())
+    .sort((a, b) => a.name.localeCompare(b.name))) {
+    const sub = buildDir(path.join(absDir, e.name));
+    children[sub.id] = sub.node;
+  }
+  for (const e of entries
+    .filter((e) => e.isFile() && e.name.endsWith(".md") && !(readme && e.name === readme.name))
+    .sort((a, b) => a.name.localeCompare(b.name))) {
+    const abs = path.join(absDir, e.name);
+    const c = fs.readFileSync(abs, "utf8");
+    const fid = fileId(abs);
+    write(fid, rewriteLinks(c, abs));
+    children[fid] = { title: titleOf(c, humanize(e.name.replace(/\.md$/, ""))), children: {} };
+  }
+  return { id, node: { title, children } };
+}
+
+const tutorials = {};
+const notesRoot = buildDir(notesDir);
+tutorials[notesRoot.id] = notesRoot.node;
+
+const repoChildren = {};
+for (const f of REPO_DOCS) {
+  const abs = path.join(root, f);
+  if (!fs.existsSync(abs)) continue;
+  const c = fs.readFileSync(abs, "utf8");
+  const fid = fileId(abs);
+  write(fid, rewriteLinks(c, abs));
+  repoChildren[fid] = { title: titleOf(c, humanize(f.replace(/\.md$/, ""))), children: {} };
+}
+write(
+  "project-repo__index",
+  "# Project & Repository\n\nRepository-level docs that aren't development notes.\n",
+);
+tutorials["project-repo__index"] = { title: "Project & Repository", children: repoChildren };
+
+fs.writeFileSync(path.join(outDir, "tutorials.json"), JSON.stringify(tutorials, null, 2), "utf8");
+
+console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
+execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
+console.log("Done → docs/jsdoc/index.html");

@@ -26,7 +26,7 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/reference/esm-patterns.md` | **The Node/ESM landmine catalog** — CJS→ESM gotchas hit during the migration (import ordering vs `process.chdir`, `require(ESM)` for config-driven plugin loading, default vs named exports, JSON imports, dropping `node-fetch`). Read before touching module wiring |
 | `notes/reference/dependencies.md` | Every runtime/dev dependency, why it's there, and the breaking-change notes for the current majors |
 | `notes/reference/fix-patterns.md` | Error → fix lookup table |
-| `notes/reference/documentation.md` | **The doc-site** — generating the Doxygen site (`npm run docs`), the JSDoc comment house-style, and the `_nav.dox` rule. Read before adding a note page |
+| `notes/reference/documentation.md` | **The doc-site** — generating the JSDoc site (`npm run docs` → code API + the notes wired in as tutorials), and the JSDoc comment house-style. Read before adding a note page |
 | `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify web-app deploy |
 | `notes/reference/git-workflow.md` | Branch model + commit style + hard safety rules. Read before any git op |
 | `notes/reference/versioning.md` | Version-number scheme — SemVer, the `VERSION` file, keeping `package.json` in sync |
@@ -80,7 +80,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm test               # lint + smoke (the headless verification gate)
-npm run docs           # generate the Doxygen doc-site into docs/html/ (needs Doxygen on PATH)
+npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
 
 - Generating images requires a **Stable Diffusion WebUI running with `--api`** on the URL in
@@ -115,7 +115,7 @@ After making changes, run this loop without being asked:
    A `master` push that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
    the Pages docs (`pages.yml`); watch them with `gh run watch`. See `reference/deployment.md`.
 6. **Regenerate the docs after shipping (by default).** After a `master` FF, run `npm run docs` so the
-   generated `docs/html/` (git-ignored) tracks `master`; CI also rebuilds + deploys it to Pages.
+   generated `docs/jsdoc/` (git-ignored) tracks `master`; CI also rebuilds + deploys it to Pages.
 
 Hard git safety rules are absolute: never `push --force`, never rewrite pushed history, never
 `reset --hard`/`rebase`/`clean -fd`/delete a branch without an explicit request. Inspect `git status`
@@ -158,7 +158,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Made / rejected a structural decision | `notes/decisions/architecture.md` / `notes/decisions/rejected.md` |
 | Finished or unblocked a task | Update `notes/plans/next-steps.md` |
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
-| Created/renamed a Markdown note in the Doxyfile `INPUT` | Add its `\subpage` to `notes/_nav.dox` under the right hub, **same commit** — or it floats flat on the Doxygen/Pages site. See `notes/reference/documentation.md` |
+| Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
 
 If something doesn't fit an existing file, make a new one in the right folder. The goal: any AI (or

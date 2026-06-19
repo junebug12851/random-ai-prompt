@@ -1,7 +1,8 @@
 name: Docs (GitHub Pages)
 
-# Builds the Doxygen doc-site (API docs + the living notes) and deploys it to GitHub Pages on every
-# push to master. The Doxygen home is the Pages root (USE_MDFILE_AS_MAINPAGE = README.md).
+# Builds the JSDoc doc-site (the code API + the living notes wired in as tutorial pages, via
+# scripts/build-docs.mjs with the docdash template) and deploys it to GitHub Pages on every
+# push to master. README.md is the Pages home (jsdoc `opts.readme`).
 # See notes/reference/documentation.md and notes/reference/deployment.md.
 #
 # One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
@@ -28,25 +29,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # apt's Doxygen is old (1.9.1) and mis-parses some Markdown; install the current release from
-      # the official Doxygen GitHub release so CI output matches a modern local toolchain.
-      - name: Install Doxygen 1.14.0
-        run: |
-          set -euo pipefail
-          ver=1.14.0
-          url="https://github.com/doxygen/doxygen/releases/download/Release_${ver//./_}/doxygen-${ver}.linux.bin.tar.gz"
-          curl -fsSL "$url" -o /tmp/doxygen.tar.gz
-          tar -xzf /tmp/doxygen.tar.gz -C /tmp
-          sudo cp "/tmp/doxygen-${ver}/bin/doxygen" /usr/local/bin/doxygen
-          doxygen --version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
 
-      - name: Generate docs
-        run: doxygen Doxyfile
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate docs (JSDoc + notes)
+        run: npm run docs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/html
+          path: docs/jsdoc
 
   deploy:
     name: Deploy to Pages
