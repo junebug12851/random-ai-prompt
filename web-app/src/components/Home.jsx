@@ -9,7 +9,7 @@
  * @module web-app/components/Home
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getBlocks, expandPrompt, generatePrompt, generatePrompts } from "../lib/promptEngine.js";
+import { getBlocks, generatePrompt, generatePrompts } from "../lib/promptEngine.js";
 import { saveCustomExpansion } from "../lib/customStore.js";
 import { shareUrl } from "../lib/share.js";
 
@@ -26,12 +26,13 @@ export default function Home({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
-  const [preview, setPreview] = useState("");
-  const [shareMsg, setShareMsg] = useState("");
   const [expName, setExpName] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const blocks = useMemo(() => getBlocks(), [version]);
 
@@ -65,29 +66,39 @@ export default function Home({ settings, setSettings }) {
     setPrompt(`${prompt}${sep}${token}`);
   }
 
-  function surprise() {
-    setError("");
-    setPreview("");
-    setPrompts(generatePrompts({ ...settings, prompt: "#random" }));
+  // Random drops the currently-shown suggestion into the prompt box.
+  function useSuggestion() {
+    if (suggestion) setPrompt(suggestion);
   }
 
+  // Generate from whatever is typed; if the box is empty, fall back to the
+  // current suggestion (or a fresh random roll) so it's never a no-op.
   function buildPrompts() {
     setError("");
     try {
-      setPrompts(generatePrompts(settings));
+      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "#random" };
+      setPrompts(generatePrompts(base));
     } catch (e) {
       setError(e.message || String(e));
     }
   }
 
-  async function share() {
+  // Open the share panel: build the link, reveal it, and try to copy it. The
+  // link stays visible either way, so it works even if the clipboard is blocked.
+  function openShare() {
+    const url = shareUrl(settings);
+    setShareLink(url);
+    setShareOpen(true);
+    copyLink(url);
+  }
+  async function copyLink(url = shareLink) {
     try {
-      await navigator.clipboard.writeText(shareUrl(settings));
-      setShareMsg("Link copied!");
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      setShareMsg("Copy failed — check clipboard permissions");
+      setCopied(false); // leave the link visible for manual copy
     }
-    setTimeout(() => setShareMsg(""), 2500);
   }
 
   function saveExpansion() {
@@ -160,63 +171,76 @@ export default function Home({ settings, setSettings }) {
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
         <section className="card composer">
-          <label className="field">
-            <span>Prompt</span>
-            <textarea
-              className="prompt-input"
-              rows={2}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="#random — or compose with the building blocks on the left"
-            />
-          </label>
-
-          {suggestion && (
-            <button className="suggestion" onClick={() => setPrompt(suggestion)} title="Use this random suggestion">
-              <span className="suggestion-label">Try</span>
-              <span className="suggestion-text">{suggestion}</span>
-            </button>
-          )}
+          <textarea
+            className="prompt-input"
+            rows={2}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={suggestion ? `Try: ${suggestion}` : "Type a prompt, or use the building blocks on the left…"}
+          />
 
           <div className="row actions">
             <button className="primary icon-btn" onClick={buildPrompts}>
               ✦ Generate prompt{settings.promptCount > 1 ? "s" : ""}
             </button>
-            <button className="icon-btn" onClick={surprise} title="Generate from a random search suggestion">
+            <button className="icon-btn" onClick={useSuggestion} title="Drop the current suggestion into the box" disabled={!suggestion}>
               🎲 Random
-            </button>
-            <button className="ghost" onClick={() => setPreview(expandPrompt(prompt, settings))} title="Show what this prompt expands to">
-              Preview
-            </button>
-            <div className="grow" />
-            <button className="ghost" onClick={share} title="Copy a link that restores these settings">
-              Share link
             </button>
             {prompt && (
               <button className="ghost" onClick={() => setPrompt("")}>
                 Clear
               </button>
             )}
-          </div>
-
-          {shareMsg && <p className="hint share-msg">{shareMsg}</p>}
-
-          {/* ---- Quick controls ---- */}
-          <div className="row controls">
-            <div className="seg" title="Pick the keyword + artist word lists">
-              <button className={normalOn ? "on" : ""} onClick={() => set({ keywordsFilename: "keyword", artistFilename: "artist" })}>
-                Normal
-              </button>
-              <button className={animeOn ? "on" : ""} onClick={() => set({ keywordsFilename: "d-keyword", artistFilename: "d-artist" })}>
-                Anime
-              </button>
+            <button
+              className={`ghost${shareOpen ? " on" : ""}`}
+              onClick={() => (shareOpen ? setShareOpen(false) : openShare())}
+              title="Get a link that restores your current settings"
+            >
+              Share link
+            </button>
+            <div className="grow" />
+            <div className="style-toggle">
+              <span className="style-label">
+                Style
+                <span
+                  className="help"
+                  tabIndex={0}
+                  role="img"
+                  aria-label="Style help"
+                  title="Swaps the word lists the random generator pulls from. Normal = general art styles + real-world artists. Anime = danbooru-style anime tags + anime artists. Only affects the random parts — not text you type."
+                >
+                  ?
+                </span>
+              </span>
+              <div className="seg">
+                <button className={normalOn ? "on" : ""} onClick={() => set({ keywordsFilename: "keyword", artistFilename: "artist" })}>
+                  Normal
+                </button>
+                <button className={animeOn ? "on" : ""} onClick={() => set({ keywordsFilename: "d-keyword", artistFilename: "d-artist" })}>
+                  Anime
+                </button>
+              </div>
             </div>
           </div>
 
-          {preview && (
-            <div className="preview">
-              <div className="preview-label">expands to</div>
-              <div className="preview-body">{preview}</div>
+          {shareOpen && (
+            <div className="share-panel">
+              <i className="share-icon" aria-hidden="true">
+                🔗
+              </i>
+              <input
+                className="share-url"
+                readOnly
+                value={shareLink}
+                onFocus={(e) => e.target.select()}
+                aria-label="Shareable link that restores these settings"
+              />
+              <button className="primary" onClick={() => copyLink()}>
+                {copied ? "✓ Copied" : "Copy"}
+              </button>
+              <button className="ghost icon-btn" onClick={() => setShareOpen(false)} aria-label="Close share panel">
+                ✕
+              </button>
             </div>
           )}
 

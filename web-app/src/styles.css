@@ -216,6 +216,10 @@ button.ghost:hover {
   background: var(--chip);
   color: var(--fg);
 }
+button.ghost.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 button.icon-btn {
   display: inline-flex;
   align-items: center;
@@ -314,12 +318,6 @@ select {
   flex: 1;
 }
 
-.controls {
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px dashed var(--border-soft);
-  gap: 0.55rem 0.7rem;
-}
 .seg {
   display: inline-flex;
   background: var(--bg-2);
@@ -343,73 +341,68 @@ select {
   background: var(--accent-soft);
   color: var(--accent);
 }
-/* ---------- Rotating random suggestion ---------- */
-.suggestion {
-  margin-top: 0.7rem;
-  width: 100%;
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  text-align: left;
-  background: var(--panel-2);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.7rem;
-  font-weight: 500;
-  color: var(--fg-soft);
+/* ---------- Style toggle (Normal / Anime) ---------- */
+.style-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-.suggestion:hover {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.suggestion .suggestion-label {
-  flex: none;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  font-weight: 700;
-  color: var(--accent);
-}
-.suggestion .suggestion-text {
-  font-size: 0.86rem;
-  line-height: 1.4;
+.style-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
   color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
 }
-.suggestion:hover .suggestion-text {
-  color: var(--fg-soft);
+.help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: help;
 }
-.share-msg {
-  margin: 0.6rem 0 0;
+.help:hover,
+.help:focus-visible {
   color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
 }
 
-/* ---------- Preview / errors ---------- */
-.preview {
-  margin-top: 0.9rem;
+/* ---------- Share panel ---------- */
+.share-panel {
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   background: var(--panel-2);
   border: 1px solid var(--border-soft);
-  border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm);
-  padding: 0.7rem 0.85rem;
+  padding: 0.5rem 0.6rem;
 }
-.preview-label {
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  margin-bottom: 0.3rem;
-  font-weight: 600;
+.share-icon {
+  font-style: normal;
+  font-size: 0.95rem;
+  flex: none;
+  opacity: 0.8;
 }
-.preview-body {
-  font-size: 0.92rem;
-  line-height: 1.5;
+.share-url {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
   color: var(--fg-soft);
-  word-break: break-word;
+  background: var(--bg-2);
 }
+.share-panel .icon-btn {
+  padding: 0.45rem 0.6rem;
+}
+
+/* ---------- Errors ---------- */
 .error {
   margin: 0.9rem 0 0;
   color: #ff8b7d;
