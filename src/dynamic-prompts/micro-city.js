@@ -22,6 +22,11 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered
+/**
+ * Generate the `#micro-city` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

@@ -21,6 +21,10 @@
 
 import entity from "./entity.js";
 
+/**
+ * Generate the `#person` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   return entity(null, null, null, "human");
 }

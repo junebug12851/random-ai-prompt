@@ -24,6 +24,13 @@
 import _ from "lodash";
 
 // 3d fluffy <name>, closeup cute and adorable, cute big circular reflective eyes, long fuzzy fur, Pixar render, unreal engine cinematic smooth, intricate detail, cinematic
+/**
+ * Generate the `#fluffy-animal-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `3d fluffy`;

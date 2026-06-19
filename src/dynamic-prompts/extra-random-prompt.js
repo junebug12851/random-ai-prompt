@@ -21,6 +21,11 @@
 
 import randomPrompt from "./random-prompt.js";
 
+/**
+ * Generate the `#extra-random-prompt` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // Set keywords and artists to use any list file (total random)
   settings.keywordsFilename = false;

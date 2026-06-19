@@ -25,6 +25,11 @@ import _ from "lodash";
 
 // Multiple layers of silhouette <name>, with silhouette of <name>,
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
+/**
+ * Generate the `#silhouette` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

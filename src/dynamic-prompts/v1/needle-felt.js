@@ -31,6 +31,13 @@ function maybeAddColor() {
 
 // tiny cute 3D felt fiber <name>, made from Felt fibers, a 3D render, trending on cgsociety, rendered in maya, rendered in cinema4d, made of yarn, square image
 
+/**
+ * Generate the `#needle-felt-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `tiny cute 3D felt fiber `;

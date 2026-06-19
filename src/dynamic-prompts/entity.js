@@ -26,6 +26,15 @@ const humanEntity = [1, 6];
 const animalEntity = [0, 4];
 const livingEntity = [0, 1, 4, 6];
 
+/**
+ * Generate the `#entity` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @param {string} specificEntity The specificEntity.
+ * @param {boolean} nameOnly The nameOnly.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings, specificEntity, nameOnly) {
   let prompt = "";
 

@@ -24,6 +24,13 @@
 import entityBasicKeywords from "../entity.js";
 
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
+/**
+ * Generate the `#psychedelic-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `Hypnotic illustration of a `;

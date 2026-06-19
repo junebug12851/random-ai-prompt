@@ -21,6 +21,10 @@
 
 import _ from "lodash";
 
+/**
+ * Generate the `#portrait-princess` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   let prompt = `#portrait, princess, royalty`;

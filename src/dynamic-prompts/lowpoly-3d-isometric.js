@@ -22,6 +22,11 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine
+/**
+ * Generate the `#lowpoly-3d-isometric` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

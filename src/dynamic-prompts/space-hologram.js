@@ -22,6 +22,11 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
+/**
+ * Generate the `#space-hologram` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

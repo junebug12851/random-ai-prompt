@@ -19,6 +19,10 @@
  * @brief Full dynamic-prompt generator (#room): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
  */
 
+/**
+ * Generate the `#room` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   return `room, interrior, {room}, #room-state, #weather`;
 }

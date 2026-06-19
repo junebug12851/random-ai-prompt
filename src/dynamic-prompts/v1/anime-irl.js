@@ -29,6 +29,13 @@ function maybeAddColor() {
 }
 
 // Closeup face portrait of a <name>, smooth soft skin, big dreamy eyes, beautiful intricate colored hair, symmetrical, anime wide eyes, soft lighting, detailed face, by makoto shinkai, stanley artgerm lau, wlop, rossdraws, concept art, digital painting, looking into camera
+/**
+ * Generate the `#anime-irl-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `Closeup face portrait of a`;

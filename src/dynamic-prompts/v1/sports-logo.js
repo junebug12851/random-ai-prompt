@@ -29,6 +29,13 @@ function maybeAddColor() {
 }
 
 // 2d ferocious <name>, vector illustration, angry eyes, football team emblem logo, 2d flat, centered
+/**
+ * Generate the `#sports-logo-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `2d ferocious`;

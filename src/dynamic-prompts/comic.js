@@ -22,6 +22,11 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
+/**
+ * Generate the `#comic` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

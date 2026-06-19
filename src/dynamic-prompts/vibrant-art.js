@@ -31,6 +31,11 @@ function colorful() {
   return colorful;
 }
 
+/**
+ * Generate the `#vibrant-art` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

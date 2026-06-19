@@ -21,6 +21,10 @@
 
 import _ from "lodash";
 
+/**
+ * Generate the `#great-tree` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   let prompt = "((a beautiful";

@@ -24,6 +24,10 @@ import _ from "lodash";
 // Keeps track of what dynamic prompts have been used
 let data = {};
 
+/**
+ * Generate the `#futuristic` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Ensure their reset
   data = {};

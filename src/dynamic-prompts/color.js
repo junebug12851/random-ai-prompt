@@ -21,6 +21,10 @@
 
 import _ from "lodash";
 
+/**
+ * Generate the `#color` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   if (_.random(0.0, 1.0, true) < 0.5) return "";
   else return _.random(0.0, 1.0, true) < 0.5 ? "multi-color" : "{color}";

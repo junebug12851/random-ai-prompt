@@ -32,6 +32,10 @@ import ice from "../ice.js";
 import city from "../city.js";
 import color from "../color.js";
 
+/**
+ * Generate the `#user-beach-merk` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   let prompt = "beach, palm trees";

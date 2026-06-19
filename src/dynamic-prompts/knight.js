@@ -21,6 +21,11 @@
 
 import _ from "lodash";
 
+/**
+ * Generate the `#knight` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // Disable auto fx and artists
   settings.autoAddArtists = false;

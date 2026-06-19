@@ -24,6 +24,11 @@
 // tiny cute <name> toy, standing character, soft smooth lighting, soft pastel
 // colors, skottie young, 3d blender render, polycount, modular constructivism,
 // pop surrealism, physically based rendering, square image
+/**
+ * Generate the `#3d-print` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

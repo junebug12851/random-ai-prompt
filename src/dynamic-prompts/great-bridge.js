@@ -46,6 +46,10 @@ function size() {
   return prompt;
 }
 
+/**
+ * Generate the `#great-bridge` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   let prompt = `a beautiful ${size()} bridge over a ${size()} ocean with many clouds beneath bridge, intricate detail, highly detailed, wide angle, closeup`;

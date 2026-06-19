@@ -21,6 +21,11 @@
 
 import suggestion from "../promptFilesAndSuggestions.js";
 
+/**
+ * Generate the `#simple-random-prompt` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // Init
   suggestion.init(function () {

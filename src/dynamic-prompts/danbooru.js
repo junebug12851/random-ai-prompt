@@ -24,6 +24,11 @@ import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
 // Generates a prompt containing this based on settings
 // {d-general}... {d-character}... {d-meta}...
+/**
+ * Generate the `#danbooru` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   const metaCount = _.random(0, 2, false);
   const characterCount = _.random(0, 2, false);

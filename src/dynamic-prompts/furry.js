@@ -27,6 +27,11 @@ function maybeGlow() {
 }
 
 // rabbit in Egyptian clothing style, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
+/**
+ * Generate the `#furry` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   // settings.autoAddArtists = false;

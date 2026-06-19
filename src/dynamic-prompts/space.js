@@ -25,6 +25,10 @@ function maybeAddSize() {
   return _.random(0.0, 1.0, true) < 0.5 ? "{size} " : "";
 }
 
+/**
+ * Generate the `#space` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   let prompt = `space, outer space`;

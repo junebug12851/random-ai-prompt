@@ -21,6 +21,10 @@
 
 import _ from "lodash";
 
+/**
+ * Generate the `#underwater` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   let prompt = "underwater, underwater photography";
 

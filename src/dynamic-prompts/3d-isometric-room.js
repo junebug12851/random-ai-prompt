@@ -22,6 +22,11 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Tiny cute isometric <name> in a cutaway box, soft smooth lighting, soft colors, <name> color scheme, soft colors, 100mm lens, 3d blender render
+/**
+ * Generate the `#3d-isometric-room` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

@@ -24,6 +24,11 @@
 import _ from "lodash";
 
 // 2d ferocious <name>, vector illustration, angry eyes, football team emblem logo, 2d flat, centered
+/**
+ * Generate the `#sports-logo` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings) {
   // This will not work well with added artists or fx
   settings.autoAddArtists = false;

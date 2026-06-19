@@ -24,6 +24,13 @@
 import entityBasicKeywords from "../entity.js";
 
 // Retro comic style artwork, highly detailed <name>, comic book cover, symmetrical, vibrant
+/**
+ * Generate the `#comic-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `Retro comic style artwork, highly detailed `;

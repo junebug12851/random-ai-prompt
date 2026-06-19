@@ -21,6 +21,11 @@
 
 import { artistRepeater } from "../helpers/keywordRepeater.js";
 
+/**
+ * Generate the `#artists` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function expandRandom(settings) {
   return artistRepeater("artist", true, settings);
 }

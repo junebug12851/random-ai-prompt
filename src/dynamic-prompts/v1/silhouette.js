@@ -26,6 +26,13 @@ import { artistRepeater } from "../../helpers/keywordRepeater.js";
 
 // Multiple layers of silhouette <name>, with silhouette of <name>,
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background
+/**
+ * Generate the `#silhouette-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = "Multiple layers of silhouette";

@@ -19,6 +19,10 @@
  * @brief Full dynamic-prompt generator (#zoo): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
  */
 
+/**
+ * Generate the `#zoo` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function () {
   // Start with base prompt
   return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";

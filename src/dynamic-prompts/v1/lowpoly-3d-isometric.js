@@ -24,6 +24,13 @@
 import entityBasicKeywords from "../entity.js";
 
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine
+/**
+ * Generate the `#lowpoly-3d-isometric-v1` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @param {object} imageSettings The imageSettings.
+ * @param {object} upscaleSettings The upscaleSettings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = `kawaii low poly `;

@@ -21,6 +21,11 @@
 
 import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
+/**
+ * Generate the `#random` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * @param {object} settings The settings.
+ * @returns {string} The generated prompt fragment.
+ */
 export default function expandRandom(settings) {
   return keywordRepeater("keyword", true, settings);
 }
