@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Calls the SD WebUI txt2img API (global fetch), streams progress into cli-progress and imageSettings, saves each PNG plus its JSON sidecar, and optionally upscales. Notes: notes/systems/server.md.
+ */
+
 // Imports
 import cliProgress from "cli-progress";
 

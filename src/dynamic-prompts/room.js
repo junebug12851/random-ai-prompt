@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#room): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 export default function () {
   return `room, interrior, {room}, #room-state, #weather`;
 }

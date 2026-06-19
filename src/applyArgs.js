@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Applies presets (in data/presets) then per-flag CLI overrides onto the live settings, and validates image dimensions. Notes: notes/systems/cli.md.
+ */
+
 import fs from "node:fs";
 import _ from "lodash";
 

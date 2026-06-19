@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Results page: shows the last run prompts and images and offers make-new-art.
+ */
+
 function resultsLoaded(results) {
   if (results.prompts.length > 0) {
     $("#prompts-title").show();

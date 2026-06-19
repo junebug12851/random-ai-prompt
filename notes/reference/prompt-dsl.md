@@ -49,7 +49,7 @@ tokens — e.g. `city.js` returns `"city, streetview, {city}, …, #nature, #wea
 
 - **`export default function (...) { return "…" }`** — required.
 - **`export const full = true`** — this prompt is a complete scene (vs. a partial fragment). Drives
-  `promptSuggestion()` and the web UI pickers (see [classification](#dynamic-prompt-classification)).
+  `promptSuggestion()` and the web UI pickers (see the dynamic-prompt classification section below).
 - **`export const suggestion_exclude = true`** — valid prompt, but keep it out of random suggestions.
 - **Variant namespaces:** `#name-v1` loads from `src/dynamic-prompts/v1/` (an older, frozen generation —
   always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes those in).
@@ -137,7 +137,7 @@ coin flip, `random(minArtist, maxArtist)` copies.
 commas and rejoin dropping empty segments, and fix `AND,` → `AND` (a recurring offender from
 AND-composition in suggestions). Output is the finished AUTOMATIC1111 prompt string.
 
-## Dynamic-prompt classification & `#random` {#dynamic-prompt-classification}
+## Dynamic-prompt classification and `#random`
 
 `src/promptFilesAndSuggestions.js` is loader-injected (fs loader in Node, Vite-glob loader in the
 browser). It reads every dynamic-prompt key and splits them into **full** vs **partial** (by the `full`

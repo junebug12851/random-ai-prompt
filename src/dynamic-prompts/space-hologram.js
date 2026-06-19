@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#space-hologram): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd

@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#beach): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // Orignally submitted by Merk, modified by me, junebug12851
 
 import _ from "lodash";

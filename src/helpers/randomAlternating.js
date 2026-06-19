@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Keyword randomizer: alternating kw|kw|... (StableDiffusion wraps the run in brackets).
+ */
+
 import _ from "lodash";
 
 // Adds random emphasis/de-emphasis to keywords

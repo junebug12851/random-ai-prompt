@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Run mode: append more salt-marched frames to an existing animation.
+ */
+
 import loadVariationData from "./loadVariationData.js";
 
 export default function (name, settings, imageSettings, upscaleSettings) {

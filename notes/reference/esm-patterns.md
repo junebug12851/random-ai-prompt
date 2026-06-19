@@ -41,8 +41,8 @@ a top-level statement.
 ## Landmine 2 — synchronous, config-driven plugin loading
 
 Dynamic prompts and prompt modules are loaded by a **runtime path** and called **synchronously** inside
-string-replace callbacks (`prompt.replaceAll(/#(\w+)/, (m, name) => require(...)(...))`). `await
-import()` can't be used there without rewriting the whole pipeline async.
+string-replace callbacks (`prompt.replaceAll(/#(\w+)/, (m, name) => require(...)(...))`).
+`await import()` can't be used there without rewriting the whole pipeline async.
 
 **Fix:** Node 24 can `require()` ES modules synchronously (no top-level await in the target). Use a
 scoped require:
@@ -79,8 +79,8 @@ When you convert or add a module, check **how it's consumed** before choosing de
 
 `require("./foo.json")` is gone. Two replacements:
 
-- **Data that changes at runtime** (image sidecars, presets read on demand): `JSON.parse(
-  fs.readFileSync(path, "utf8"))`. Watch the **base path** — `require` resolved relative to the *file*;
+- **Data that changes at runtime** (image sidecars, presets read on demand):
+  `JSON.parse(fs.readFileSync(path, "utf8"))`. Watch the **base path** — `require` resolved relative to the *file*;
   `fs.readFileSync` resolves relative to **cwd** (which is the project root thanks to `chdir.js`). The
   old `../${saveTo}/${name}.json` (relative to `src/`) became `${saveTo}/${name}.json` (from root).
 - **Static JSON shipped with a module:** `import data from "./file.json" with { type: "json" };`
@@ -100,11 +100,18 @@ When you convert or add a module, check **how it's consumed** before choosing de
 
 There's no unit suite. Validate ESM changes with:
 
-1. `node --check <file>` — syntax.
+1. `node --check path/to/file.js` — syntax.
 2. `npm run lint` — unresolved/undeclared issues, 0 errors expected.
-3. The **import smoke test**: a tiny script that does
-   `import common from "./common.js"`, `import promptFiles from "./src/promptFilesAndSuggestions.js"`,
-   `promptFiles.init(common.settings); promptFiles.loadAll();` and expands a prompt with
-   `dynamic-prompt.js`. This exercises the entire graph — including loading every dynamic prompt via
-   `require(ESM)` and the default/named export contracts — without starting a server or hitting the
-   network.
+3. The **import smoke test** (described next).
+
+The import smoke test is a tiny script that does:
+
+```js
+import common from "./common.js";
+import promptFiles from "./src/promptFilesAndSuggestions.js";
+promptFiles.init(common.settings);
+promptFiles.loadAll();
+// …then expand a prompt with dynamic-prompt.js
+```
+
+This exercises the entire graph — including loading every dynamic prompt via the synchronous require(ESM) path and the default/named export contracts — without starting a server or hitting the network.

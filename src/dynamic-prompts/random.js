@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#random): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
 export default function expandRandom(settings) {

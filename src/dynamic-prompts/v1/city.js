@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Legacy v1 dynamic-prompt generator (#city-v1): a frozen, monolithic version of the scene, kept for reproducibility. See notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 
 import { artistRepeater } from "../../helpers/keywordRepeater.js";

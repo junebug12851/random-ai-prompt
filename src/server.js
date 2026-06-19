@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Web UI entry point. Express 5 + Pug app on port 7861; serves the pages, the JSON API, and the output/ images, and spawns the CLI for any actual generation. Notes: notes/systems/server.md.
+ */
+
 console.log("Starting app...");
 
 import _ from "lodash";

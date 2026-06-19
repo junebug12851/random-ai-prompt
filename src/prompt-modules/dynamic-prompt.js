@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Pipeline stage: expand #name tokens via createRequire plugin loading (v1 / user-submitted, auto-fx/artists, danbooru substitution). Notes: notes/reference/prompt-dsl.md.
+ */
+
 import { createRequire } from "node:module";
 
 // Dynamic prompt files are resolved by config-driven path and expanded

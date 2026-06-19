@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Prompt-builder page: the special-token cloud, toggleable per-setting sidebar, preset / expansion save, share link, and generate.
+ */
+
 // Settings
 let settings = {};
 let lists = [];

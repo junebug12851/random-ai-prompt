@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#3d-isometric-print): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // Tiny cute isometric <name>, soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered

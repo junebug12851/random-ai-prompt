@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Call the SD WebUI extra-single-image (upscale) API and save the result.
+ */
+
 import saveImage from "./saveImage.js";
 
 export default async function doUpscale(

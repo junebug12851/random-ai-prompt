@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Build script: turn nai-tag-expirement.json (NovelAI tag categories) into category .txt lists. Run manually. See notes/reference/dynamic-prompts.md.
+ */
+
 // load imports
 import fs from "node:fs";
 import _ from "lodash";

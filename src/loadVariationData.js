@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Loads a saved image metadata to seed a subseed variation run.
+ */
+
 import fs from "node:fs";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 

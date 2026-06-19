@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Pipeline stage: inject the {salt} / [n] seed-salt (random or incrementing). Notes: notes/reference/prompt-dsl.md.
+ */
+
 import _ from "lodash";
 
 function getRndSalt() {

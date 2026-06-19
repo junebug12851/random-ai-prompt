@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#lowpoly-3d-isometric): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // kawaii low poly <name> character, 3d isometric render, white background, ambient occlusion, unity engine

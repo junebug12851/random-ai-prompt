@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief core/ port of the #name stage (loader-injected).
+ */
+
 // Dynamic-prompt stage: `#name` -> the output of dynamic-prompts/name.js.
 // Loader-injected port of prompt-modules/dynamic-prompt.js. The loader returns
 // the plugin module namespace ({ default, full, suggestion_exclude }); we call

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Stitch frame PNGs into an APNG and write its sidecar (marks isAnimation).
+ */
+
 import fs from "node:fs";
 import apng from "./makeApng.js";
 import saveResults from "./saveResults.js";

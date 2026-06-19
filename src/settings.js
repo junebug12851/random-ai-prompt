@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Default generation settings: the master object, every field CLI-overridable. Do not put per-user values here (see user-settings.json). Notes: notes/systems/overview.md.
+ */
+
 /////////////////////////////////////
 /// DONT ADJUST SETTINGS HERE
 /// ADJUST SETTINGS IN user-settings.js

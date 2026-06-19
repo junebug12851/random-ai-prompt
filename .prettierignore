@@ -2,6 +2,7 @@ node_modules/
 output/
 docs/
 tmp/
+assets/
 src/web/frontend/lib/
 web-app/
 data/*.csv

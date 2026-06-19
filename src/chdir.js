@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Side-effect module: process.chdir to the repo root (the parent of src/). MUST be imported before any module that reads a cwd-relative file. Notes: notes/reference/esm-patterns.md.
+ */
+
 // Side-effect module: make every relative path in the app resolve from the
 // project root, no matter where `node` was launched from. This MUST be imported
 // before any module that reads cwd-relative files (settings loading, output

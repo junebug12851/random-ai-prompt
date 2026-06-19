@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief In-memory image index: builds a keyword to files map and the deep-link graph from the output/ JSON sidecars, and self-heals invalid links (re-indexing up to 5x). Notes: notes/systems/server.md.
+ */
+
 import fs from "node:fs";
 import path from "node:path";
 import _ from "lodash";

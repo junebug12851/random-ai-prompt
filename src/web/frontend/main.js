@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Browser shared helpers: URL params, epoch-to-date, ajaxGet, and the re-index / progress navigation used across pages.
+ */
+
 function getUrlParameters() {
   var params = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {

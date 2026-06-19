@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Pipeline stage: expand <name> tokens from data/expansions, recursively and LoRA-safe. Notes: notes/reference/prompt-dsl.md.
+ */
+
 import fs from "node:fs";
 import _ from "lodash";
 

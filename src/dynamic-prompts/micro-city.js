@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#micro-city): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // 100mm photo of isometric floating island in the sky, surreal <name>, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered

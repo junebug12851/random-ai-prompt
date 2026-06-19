@@ -14,12 +14,17 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Emit N {keyword} / {artist} tokens for generators that want a variable count. Named exports on purpose (do not flip to default).
+ */
+
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 
 // Maps the `keyword`/`artist` repeat targets to their alias list name. Kept here
 // (instead of indexing the fs-backed listFiles object) so this module stays
-// browser-safe — see helpers/aliases.js.
+// browser-safe â€” see helpers/aliases.js.
 const ALIASES = { keyword: keywordAlias, artist: artistAlias };
 
 function processRepeat(count, keyword, alias) {

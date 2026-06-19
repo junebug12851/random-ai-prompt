@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Re-index page: triggers a rebuild of the image index and polls its progress.
+ */
+
 let backUrl = "/";
 
 function initiateReindex() {

@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Run mode: turn a single image into a new salt-marched animation.
+ */
+
 import loadVariationData from "./loadVariationData.js";
 
 export default function (name, settings, imageSettings, upscaleSettings) {

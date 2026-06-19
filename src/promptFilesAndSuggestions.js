@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Loader-injected dynamic-prompt classifier (full vs partial) and random promptSuggestion() builder; also feeds the web file pickers. Notes: notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 
 import cleanup from "./prompt-modules/cleanup.js";

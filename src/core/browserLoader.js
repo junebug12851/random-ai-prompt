@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Loader implementation (browser): Vite import.meta.glob bundles prompts / lists / expansions / presets at build time.
+ */
+
 // Browser loader: bundles the prompt data at build time via Vite's
 // `import.meta.glob`. The dynamic prompts are already ESM default-export modules,
 // so they bundle directly; the lists and expansions are imported as raw text.

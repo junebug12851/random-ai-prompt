@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Loads a saved image to re-generate one chosen prompt field (prompt / orig / post / random).
+ */
+
 import fs from "node:fs";
 import convertMetaToJSON from "./convertMetaToJSON.js";
 

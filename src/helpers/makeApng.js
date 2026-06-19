@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Vendored APNG encoder (TomasHubelbauer / node-apng, MIT): build an animated PNG from frame buffers via acTL / fcTL / fdAT chunks and crc.
+ */
+
 import crc from "crc";
 
 // CREDIT: Github TomasHubelbauer / node-apng

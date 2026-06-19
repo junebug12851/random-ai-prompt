@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#danbooru): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 import { keywordRepeater } from "../helpers/keywordRepeater.js";
 

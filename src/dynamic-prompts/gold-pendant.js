@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#gold-pendant): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 // This was taken from publicprompts.art and modified to be more dynamic
 
 // gold <name> pendant, intricate 2d vector geometric, cutout shape pendant, blueprint frame lines sharp edges, svg vector style, product studio shoot

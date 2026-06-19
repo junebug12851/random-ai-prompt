@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#great-bridge): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 
 function size() {

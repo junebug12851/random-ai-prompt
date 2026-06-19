@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief User-submitted dynamic-prompt generator (#user-beach-merk). See notes/reference/dynamic-prompts.md.
+ */
+
 // User submitted dynamic prompt by Merk
 
 import _ from "lodash";

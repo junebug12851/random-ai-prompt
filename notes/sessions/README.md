@@ -5,8 +5,8 @@ calendar day, grouped into **month folders**: `sessions/YYYY-MM/YYYY-MM-DD.md` (
 `sessions/2026-06/2026-06-18.md`).
 
 [`../status.md`](../status.md) holds the *current* state (health, open issues). These files hold the
-*story* of how it got there. Reusable lessons live in [`../reference/`](../reference/) and
-[`../decisions/`](../decisions/); the session logs are the narrative and the pointer.
+*story* of how it got there. Reusable lessons live in the `reference/` and `decisions/` notes; the
+session logs are the narrative and the pointer.
 
 ## The system (how to keep this updated)
 

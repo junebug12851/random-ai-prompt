@@ -35,6 +35,7 @@ RECURSIVE              = YES
 FILE_PATTERNS          = *.js *.mjs *.jsx *.md *.dox VERSION LICENSE
 EXTENSION_MAPPING      = no_extension=md
 EXCLUDE                = output \
+                         assets \
                          tmp \
                          node_modules \
                          web-app/node_modules \

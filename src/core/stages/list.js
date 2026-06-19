@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief core/ port of the {name} stage (loader-injected).
+ */
+
 import _ from "lodash";
 import randomEmphasis from "../../helpers/randomEmphasis.js";
 import randomEditing from "../../helpers/randomEditing.js";

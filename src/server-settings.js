@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Default server settings: the web port (7861), the progress port (7862), and the served web folder.
+ */
+
 /////////////////////////////////////
 /// DONT ADJUST SETTINGS HERE
 /// ADJUST SETTINGS IN user-settings.js

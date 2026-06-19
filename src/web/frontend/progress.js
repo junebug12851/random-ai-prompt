@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Generation-progress page: polls /api/images/progress and streams in finished prompts and images.
+ */
+
 let backUrl = "/results";
 
 function dataRefreshComplete(data) {

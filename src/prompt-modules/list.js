@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Pipeline stage: replace {name} with a random list line plus emphasis / editing / alternating randomization. Notes: notes/reference/prompt-dsl.md.
+ */
+
 import fs from "node:fs";
 import _ from "lodash";
 

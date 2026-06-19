@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Loader implementation (Node): filesystem reads plus createRequire dynamic-prompt loading.
+ */
+
 // Node loader: reads the prompt data from the filesystem and loads dynamic-prompt
 // plugins with createRequire (Node 24 can require() ES modules synchronously).
 // Used for Node-side verification of the engine today, and the path by which the

@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#zoo): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 export default function () {
   // Start with base prompt
   return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";

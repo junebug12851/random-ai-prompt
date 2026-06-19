@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Default image / txt2img settings: WebUI url, sampler, size, steps, cfg, seed, and the default negative prompt.
+ */
+
 /////////////////////////////////////
 /// DONT ADJUST SETTINGS HERE
 /// ADJUST SETTINGS IN user-settings.js

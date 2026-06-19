@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief core/ port of the <name> stage (loader-injected).
+ */
+
 // Expansion stage: `<name>` -> contents of expansions/name.txt.
 // Loader-injected port of prompt-modules/expansion.js (no fs); the loader
 // supplies the expansion text so the same logic runs in Node and the browser.

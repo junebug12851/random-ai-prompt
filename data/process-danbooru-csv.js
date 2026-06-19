@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Build script: turn danbooru.csv into the d-*.txt tag lists, filtered by count and bucketed by type. Run manually. See notes/reference/dynamic-prompts.md.
+ */
+
 // load imports
 import fs from "node:fs";
 

@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Seeds user-settings.json from default-user-settings.json on first run.
+ */
+
 import fs from "node:fs";
 
 function userSettings() {

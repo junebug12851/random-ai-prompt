@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Default upscale / extras settings: upscalers, face restore (GFPGAN / CodeFormer), and target size vs multiplier.
+ */
+
 /////////////////////////////////////
 /// DONT ADJUST SETTINGS HERE
 /// ADJUST SETTINGS IN user-settings.js

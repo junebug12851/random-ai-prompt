@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Browser-safe list store: once-only depletion and alias resolution behind the injected loader.
+ */
+
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "../helpers/aliases.js";
 
@@ -66,7 +71,7 @@ export function createListStore(loader) {
     return entry;
   }
 
-  // Clear depletion state — call once per generated prompt so each prompt draws
+  // Clear depletion state â€” call once per generated prompt so each prompt draws
   // from a full set of list entries.
   function reset() {
     for (const k of Object.keys(lists)) delete lists[k];

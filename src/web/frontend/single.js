@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Image-detail page: metadata table, prompt-field selector + copy, popularity keyword cloud, related-image galleries, and the action menu (variations / upscale / animate / reroll / convert / delete).
+ */
+
 let name = "";
 let imageData = {};
 let curImgUrl = "";

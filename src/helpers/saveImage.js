@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Write a PNG plus its JSON metadata sidecar (the relationship and provenance fields) and track results. Notes: notes/systems/server.md.
+ */
+
 import fs from "node:fs";
 import saveResults from "./saveResults.js";
 

@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief CLI entry point. Parses argv, hosts the progress server on 7862, loads optional variation/reroll/animation run data, applies presets and arg overrides, then drives the generate loop. Notes: notes/systems/cli.md.
+ */
+
 // Load common code
 import common from "./common.js";
 

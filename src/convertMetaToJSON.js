@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Parses AUTOMATIC1111 plain-text generation parameters into the JSON sidecar shape, and converts legacy .txt sidecars to .json.
+ */
+
 import fs from "node:fs";
 
 function find(regex, str, def) {

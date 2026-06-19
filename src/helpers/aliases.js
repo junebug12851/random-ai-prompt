@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief The two built-in list aliases (keyword / artist), kept dependency-free so the dynamic-prompt chain stays browser-safe.
+ */
+
 // The two built-in list aliases, kept in their own tiny, dependency-free module.
 //
 // Splitting these out matters for the browser build: `keywordRepeater.js` only

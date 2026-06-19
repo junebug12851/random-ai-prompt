@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Run mode: re-run the upscaler over an already-saved image.
+ */
+
 import fs from "node:fs";
 
 import doUpscale from "./helpers/imageUpscaler.js";

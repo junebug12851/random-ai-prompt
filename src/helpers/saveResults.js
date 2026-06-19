@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Write results.json: the last run prompts and image names.
+ */
+
 import fs from "node:fs";
 
 export default function (imageSettings) {

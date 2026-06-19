@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief In-memory list store: pull with once-only depletion and keyword/artist alias resolution. Default-export object, indexed dynamically (do not flip to named).
+ */
+
 import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";

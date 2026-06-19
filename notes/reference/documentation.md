@@ -30,9 +30,43 @@ Requirements on the machine running it:
   the landing page (`USE_MDFILE_AS_MAINPAGE`).
 - **Also covered:** the `notes/` tree is in `INPUT`, so the living notes build as cross-linked doc-site
   pages, and the changelog (`version.md` + `version/`) renders under Related Pages.
-- **Not covered:** `node_modules/`, generated `output/`, `tmp/`, the built `web-app/dist/`, vendored
-  `*.min.js`, and the Pug templates / classic `web/frontend/` browser scripts (not run through a doc
-  generator — they carry plain inline comments).
+- **Not covered:** `node_modules/`, generated `output/`, `tmp/`, the local-only `assets/`, the built
+  `web-app/dist/`, vendored `*.min.js`, and the Pug templates (Doxygen can't parse Pug).
+
+### How JavaScript is documented (the file-level model)
+
+Doxygen's JavaScript parser does **not** extract this code's symbols: the dynamic-prompt generators are
+anonymous `export default function () {…}`, and Doxygen attaches no documentation to an anonymous default
+export (it also doesn't reliably surface module-scope `function`/`const`). Verified empirically —
+`city.js`'s File Reference page lists zero functions. So per-function API extraction is **not** what this
+site provides, and chasing it (e.g. rewriting ~120 plugins to named exports just to satisfy the parser)
+is out of bounds — a doc pass changes only comments.
+
+What it provides instead, comprehensively:
+
+- **A `/** @file @brief */` header on every authored `.js`** — all 165 under `src/` plus the 3
+  `data/process-*.js` build scripts; the vendored `lib/*.min.js` are left untouched. Doxygen renders
+  these in the **File List**, so every file has a one/two-line description — the tool-honest form of
+  "every file documented."
+- **Richer multi-line module headers** on the files with real logic (entry points, settings, loaders,
+  `genImg`, the prompt-modules, helpers, `core/`, `indexImages`), each pointing to the relevant notes
+  page for the how/why.
+- **The notes pages carry the conceptual depth** Doxygen can't pull from the code — the prompt DSL
+  ([prompt-dsl.md](prompt-dsl.md)), the dynamic-prompt catalog ([dynamic-prompts.md](dynamic-prompts.md)),
+  and the system map ([`../systems/`](../systems/README.md)).
+
+If true auto-extracted per-function JS API pages are ever wanted, the **no-TypeScript** option is
+**JSDoc the _tool_** (jsdoc.app) or **TypeDoc**, run over the same ESM source — both parse `export
+default` properly and would live *alongside* (not replace) this Doxygen notes site. Terminology note: the
+`/** … */` *comments* written here are "JSDoc comments" regardless of which generator consumes them —
+no TypeScript is involved either way.
+
+### Build inputs vs. gitignored reference
+
+`assets/` (the local-only reference area — e.g. the pinned pre-revival source snapshot) is **gitignored,
+but ESLint / Prettier / Doxygen still walk the filesystem**, so it must be excluded in all three
+(`eslint.config.js` `ignores`, `.prettierignore`, `Doxyfile` `EXCLUDE`) or it pollutes lint, format, and
+the doc-site. **Gitignored ≠ tool-ignored.** See [`fix-patterns.md`](fix-patterns.md).
 
 ### Files (the entire doc footprint)
 
@@ -88,7 +122,15 @@ The conventions documentation passes follow, so comments read as one consistent 
 
 ## 3. Status
 
-The doc-site builds (`npm run docs`) and renders both the API docs and the living notes. The
-project-wide JSDoc comment pass is **ongoing** — `core/` is the style reference; other layers gain
-module/function docs as they're studied (mirror the system-map deep-dives in
-[`../systems/`](../systems/README.md)). Record progress here as layers are completed.
+The doc-site builds (`npm run docs`, exit 0) and renders both the file-level API docs and the living
+notes. **The file-level JSDoc pass is complete** (2026-06-18): every authored `.js` (165 under `src/` +
+3 `data/` build scripts) carries a `@file @brief`, with richer module headers on the core-logic files;
+`core/` remains the prose style reference. Per-function symbol extraction is intentionally not pursued
+(see "the file-level model" above).
+
+Three build warnings remain and are **benign** (`WARN_AS_ERROR = NO`, so the build stays clean):
+
+- `esm-patterns.md` — a Doxygen markdown backtick-pairing quirk; the page renders fully and correctly,
+  and it's pre-existing. Not worth restructuring the notes prose to silence.
+- `README.md` ×2 — the README's own TOC anchors (`#faq`, `#automattic1111-…`) resolve on GitHub but not
+  in Doxygen, which would need `{#}` braces that GitHub renders literally. The public README is left as-is.

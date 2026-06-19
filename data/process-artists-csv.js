@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Build script: turn artists.csv (AUTOMATIC1111 artist-score CSV) into the artist-*.txt lists, filtered by score and bucketed by category. Run manually. See notes/reference/dynamic-prompts.md.
+ */
+
 // load imports
 import fs from "node:fs";
 

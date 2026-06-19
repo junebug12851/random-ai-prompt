@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Shared core imported by both entry points. Owns the batch loop (run / processBatch / upscale) and the settings() accessors. Imports chdir.js FIRST so cwd is pinned to the repo root before any settings load. Notes: notes/systems/overview.md.
+ */
+
 // Ensure all relative paths resolve from the project root. Imported first so
 // the chdir happens before settings loading reads cwd-relative files.
 import "./chdir.js";

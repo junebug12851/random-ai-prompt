@@ -88,7 +88,7 @@ in the public domain.
 The 70 level also included the 5desk list from version 4.0 of
 the 12Dics package which is in the public domain.
 
-The ENABLE package, mainted by M\Cooper <thegrendel@theriver.com>,
+The ENABLE package, mainted by M\\Cooper <thegrendel@theriver.com>,
 is in the Public Domain:
 
   The ENABLE master word list, WORD.LST, is herewith formally released

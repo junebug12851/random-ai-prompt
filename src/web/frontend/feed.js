@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Feed (home) page: lazy-load masonry gallery, keyword search and random suggestions, and the New-art action.
+ */
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {

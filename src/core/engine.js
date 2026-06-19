@@ -1,8 +1,13 @@
+/**
+ * @file
+ * @brief Framework-agnostic prompt engine: createEngine(loader) runs the same pipeline as the CLI over a prompt string. Notes: notes/systems/core-engine.md.
+ */
+
 // The framework-agnostic prompt engine.
 //
 // `createEngine(loader)` returns an engine that runs the prompt-module pipeline
 // (the same stages and order as the Node CLI) over a prompt string. All data
-// access — expansions, lists, dynamic prompts — goes through the injected
+// access â€” expansions, lists, dynamic prompts â€” goes through the injected
 // `loader`, so the identical engine runs in Node (fs + createRequire loader) and
 // in the browser (Vite import.meta.glob loader). See notes/plans/web-migration.md.
 //
@@ -13,7 +18,7 @@
 //   loadDynamicPrompt(key)   -> { default, full?, suggestion_exclude? } | null
 //
 // The pure stages (prompt-salt, cleanup) and the random* helpers are imported
-// and reused directly — only the file/plugin access is reimplemented behind the
+// and reused directly â€” only the file/plugin access is reimplemented behind the
 // loader, so there is no duplicated prompt logic.
 import baseSettings from "../settings.js";
 import promptSalt from "../prompt-modules/prompt-salt.js";

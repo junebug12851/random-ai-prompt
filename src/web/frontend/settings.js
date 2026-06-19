@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Settings page: two-way binds data-path controls to /api/setting (queued), number steppers, multiple-of-64 rounding, and list pickers.
+ */
+
 // Settings
 let settings = {};
 

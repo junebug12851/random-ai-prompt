@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Partial dynamic-prompt fragment (#lava): a building block composed into full prompts. See notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 
 export default function (settings, imageSettings, upscaleSettings) {

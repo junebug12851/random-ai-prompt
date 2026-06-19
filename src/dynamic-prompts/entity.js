@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Partial dynamic-prompt fragment (#entity): a building block composed into full prompts. See notes/reference/dynamic-prompts.md.
+ */
+
 import _ from "lodash";
 
 const anyEntity = [0, 1, 2, 3, 4, 5, 6];

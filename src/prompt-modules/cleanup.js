@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Pipeline stage: the final whitespace / comma / AND tidy. Notes: notes/reference/prompt-dsl.md.
+ */
+
 import _ from "lodash";
 
 /*

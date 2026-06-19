@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Builds the live settings object: clone defaults, merge user-settings.json, migrate any legacy user-settings.js. Exposes settings() / userSettings() / save / reload / replace. Notes: notes/systems/cli.md.
+ */
+
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import _ from "lodash";

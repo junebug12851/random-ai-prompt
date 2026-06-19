@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Keyword randomizer: per-engine emphasis / de-emphasis (SD parens-brackets, NAI braces, Midjourney ::factor). Notes: notes/reference/prompt-dsl.md.
+ */
+
 import _ from "lodash";
 
 function processSd(settings, lessEmphasis, keyword) {

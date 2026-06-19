@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Keyword randomizer (StableDiffusion only): prompt-editing forms edit-in / swap / edit-out.
+ */
+
 import _ from "lodash";
 
 function editIn(settings, keyword) {

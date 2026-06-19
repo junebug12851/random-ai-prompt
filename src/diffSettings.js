@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Computes the diff between the live settings and the defaults; this is what userSettings() persists.
+ */
+
 import _ from "lodash";
 
 function processGroup(settings, defSettings, groupName, diff) {

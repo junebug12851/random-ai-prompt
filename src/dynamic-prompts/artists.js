@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Partial dynamic-prompt fragment (#artists): a building block composed into full prompts. See notes/reference/dynamic-prompts.md.
+ */
+
 import { artistRepeater } from "../helpers/keywordRepeater.js";
 
 export default function expandRandom(settings) {

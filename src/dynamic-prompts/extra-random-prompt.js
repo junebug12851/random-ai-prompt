@@ -14,6 +14,11 @@
     limitations under the License.
 */
 
+/**
+ * @file
+ * @brief Full dynamic-prompt generator (#extra-random-prompt): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
+ */
+
 import randomPrompt from "./random-prompt.js";
 
 export default function (settings) {
