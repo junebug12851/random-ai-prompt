@@ -98,8 +98,10 @@ fs.mkdirSync(dDir, { recursive: true });
 // "general" genuinely mixes SFW/NSFW -> split into EXCLUSIVE lists (the full
 // version is the d/general-all group, which imports both). The other atomics are
 // written whole. No runtime filtering, no duplication.
+// general genuinely mixes -> exclusive general-sfw + general-nsfw files; the
+// plain {d/general} is the general.group (static) that imports both.
 const general = [...generalKeywords, ...unknownKeywords];
-fs.writeFileSync(`${dDir}/general.txt`, general.filter((l) => !isNsfw(l)).join("\n"));
+fs.writeFileSync(`${dDir}/general-sfw.txt`, general.filter((l) => !isNsfw(l)).join("\n"));
 fs.writeFileSync(`${dDir}/general-nsfw.txt`, general.filter((l) => isNsfw(l)).join("\n"));
 fs.writeFileSync(`${dDir}/artist.txt`, artistKeywords.join("\n"));
 fs.writeFileSync(`${dDir}/character-c.txt`, copyrightKeywords.join("\n"));

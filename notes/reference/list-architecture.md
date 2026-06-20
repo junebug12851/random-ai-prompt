@@ -11,10 +11,10 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 "collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
 gated exactly like lists. Groups are pure unions — there is no runtime content filtering. SFW/NSFW are kept
-as EXCLUSIVE lists: when a list genuinely mixes both it is split into `<name>` (SFW) + `<name>-nsfw` (NSFW)
-with a `<name>-all` group importing both (e.g. `danbooru/d/general`, `danbooru/d/general-nsfw`,
-`danbooru/d/general-all`); lists that are entirely one type are left whole. The CSV build script performs
-the general split. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard. Groups live in their
+as EXCLUSIVE lists: when a list genuinely mixes both it is split into `<name>-sfw` + `<name>-nsfw`, plus a
+`<name>.group` importing both — so plain `{name}` = both, `{name-sfw}` = SFW-only, `{name-nsfw}` = NSFW-only
+(e.g. `danbooru/d/general-sfw`, `danbooru/d/general-nsfw`, `danbooru/d/general.group`). Lists entirely one
+type are left whole. The CSV build script writes the `-sfw`/`-nsfw` general files. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard. Groups live in their
 folders like any list: `danbooru/danbooru.group` (all `d/*`), `danbooru/d-character.group`,
 `danbooru/d-keyword.group`, `danbooru/danbooru-sfw.group` (`@filter sfw`), `artist/artist.group`,
 `artist/artist-digipa.group`, `name/name.group` — referenced terse as `{danbooru}`, `{artist}`, etc. via

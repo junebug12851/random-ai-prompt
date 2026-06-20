@@ -1,6 +1,6 @@
 # Group: the clean (SFW) danbooru anime list. Imports the SFW-exclusive lists
 # directly (general is now SFW-only; its NSFW lines live in d/general-nsfw).
-d/general
+d/general-sfw
 d/artist
 d/character-c
 d/character-nc

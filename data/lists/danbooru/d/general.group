@@ -1,0 +1,4 @@
+# Group: full danbooru general = SFW + NSFW. Referencing {general} (or {d/general})
+# gives BOTH; use {general-sfw} for SFW-only or {general-nsfw} for NSFW-only.
+general-sfw
+general-nsfw

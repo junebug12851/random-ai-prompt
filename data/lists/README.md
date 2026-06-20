@@ -41,10 +41,11 @@ just like a list (`{danbooru}`). Groups can live anywhere in the tree.
 - Lines starting with `#` are comments.
 - Groups are pure unions — there is **no runtime content filtering**.
 - **SFW/NSFW are exclusive lists.** When a list genuinely mixes both, it is split
-  into `<name>` (SFW-only) and `<name>-nsfw` (NSFW-only), and a `<name>-all.group`
-  imports both for the full version. Example: `danbooru/d/general` (SFW),
-  `danbooru/d/general-nsfw` (NSFW), `danbooru/d/general-all.group` (both). Lists
-  that are entirely one or the other are left whole (no split, no group).
+  into `<name>-sfw.txt` (SFW-only) and `<name>-nsfw.txt` (NSFW-only), plus a
+  `<name>.group` that imports both. So the plain `{name}` means BOTH, `{name-sfw}`
+  is the only SFW-only reference, and `{name-nsfw}` is NSFW-only. Example:
+  `danbooru/d/general-sfw`, `danbooru/d/general-nsfw`, and `danbooru/d/general.group`
+  (so `{d/general}` = both). Lists that are entirely one type are left whole.
 - Groups may include other groups, up to **3 levels deep** (a recursion cutoff,
   plus a cycle guard).
 

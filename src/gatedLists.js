@@ -24,8 +24,8 @@
 // List files that are only drawn from when `includeAdult` is enabled.
 export const gatedLists = [
   "danbooru/danbooru",
+  "danbooru/d/general",
   "danbooru/d/general-nsfw",
-  "danbooru/d/general-all",
   "danbooru/d-keyword",
   "artist/nudity",
   "keyword/keyword-adult",
