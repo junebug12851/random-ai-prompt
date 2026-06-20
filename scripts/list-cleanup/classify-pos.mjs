@@ -102,7 +102,9 @@ for (const rawLine of lines) {
   // POS via compromise (isolated-word tagging — best effort)
   const doc = nlp(word);
   let bucket;
-  if (doc.has("#Adverb") || /ly$/.test(word)) bucket = "dict-adverb";
+  // NOTE: do NOT treat a bare "-ly" ending as an adverb — that wrongly catches
+  // -ly nouns/verbs (holly, lily, assembly, supply). Require the #Adverb tag.
+  if (doc.has("#Adverb")) bucket = "dict-adverb";
   else if (doc.has("#Adjective")) bucket = "dict-adjective";
   else if (doc.has("#Verb")) bucket = "dict-verb";
   else if (doc.has("#Noun")) bucket = "dict-noun";

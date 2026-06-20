@@ -63,6 +63,7 @@ export const listTags = {
   "dict-verb": { category: "pos", anime: false, nsfw: false },
   "dict-adverb": { category: "pos", anime: false, nsfw: false },
   "dict-misc": { category: "pos", anime: false, nsfw: false },
+  demonym: { category: "subject", anime: false, nsfw: false },
 };
 
 /**
@@ -91,8 +92,8 @@ export const virtualLists = {
   },
 
   // --- curated + dictionary, combined (quality default stays separate) ---
-  "adjective-all": { union: ["adjective", "dict-adjective"] },
-  "noun-all": { union: ["noun", "dict-noun"] },
+  "adjective-all": { union: ["adjective", "dict-adjective", "demonym"] },
+  "noun-all": { union: ["noun", "dict-noun", "demonym"] },
   "verb-all": { union: ["verb", "dict-verb"] },
   "adverb-all": { union: ["adverb", "dict-adverb"] },
 };

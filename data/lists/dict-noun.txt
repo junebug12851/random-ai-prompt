@@ -568,6 +568,7 @@ allurement
 allusion
 allusiveness
 alluvium
+ally
 almanac
 almond
 almoner
@@ -814,6 +815,7 @@ anode
 anodyne
 anoint
 anointment
+anomaly
 anon
 anonymity
 anopheles
@@ -1218,6 +1220,7 @@ assay
 assayer
 assemblage
 assembler
+assembly
 assemblyman
 assemblymen
 assemblywoman
@@ -1969,6 +1972,7 @@ bellman
 bellmen
 bellow
 bellwether
+belly
 bellyache
 bellybutton
 beltway
@@ -2121,6 +2125,7 @@ billiard
 billionaire
 billow
 billowy
+billy
 billycan
 bimbo
 bimetallism
@@ -3004,6 +3009,7 @@ buttercream
 buttercup
 butterfat
 butterfingers
+butterfly
 buttermilk
 butternut
 butterscotch
@@ -6255,6 +6261,7 @@ dirtball
 dirtiness
 dis
 disablement
+disassembly
 disbandment
 disbarment
 disbursal
@@ -6457,12 +6464,14 @@ dognapper
 dogsbody
 dogtrot
 dogwood
+doily
 doldrums
 dolefulness
 doll
 dollar
 dollhouse
 dollop
+dolly
 dolmen
 dolomite
 dolor
@@ -6621,6 +6630,7 @@ draftswomen
 drafty
 dragnet
 dragon
+dragonfly
 dragoon
 dragster
 drainage
@@ -6771,6 +6781,7 @@ dunnest
 duo
 duodena
 duodenum
+duopoly
 dupe
 duper
 duple
@@ -7835,6 +7846,7 @@ falsity
 fame
 familiarity
 familiarization
+family
 famine
 fan
 fanaticism
@@ -8122,6 +8134,7 @@ firecracker
 firedamp
 firefight
 firefighter
+firefly
 fireguard
 firehouse
 firelight
@@ -8854,6 +8867,7 @@ gabfest
 gable
 gadabout
 gadder
+gadfly
 gadget
 gadgetry
 gadolinium
@@ -9319,6 +9333,7 @@ goldsmith
 golf
 golfer
 golliwog
+golly
 gonad
 gondola
 gondolier
@@ -9659,6 +9674,7 @@ gulf
 gull
 gullet
 gullibility
+gully
 gulper
 gum
 gumball
@@ -10376,6 +10392,7 @@ holiness
 holism
 holler
 hollowness
+holly
 hollyhock
 holmium
 holocaust
@@ -10384,6 +10401,7 @@ holograph
 holography
 hols
 holster
+holy
 homage
 hombre
 homburg
@@ -11614,6 +11632,7 @@ jejune
 jejunum
 jell
 jello
+jelly
 jellybean
 jellyfish
 jellylike
@@ -12451,6 +12470,7 @@ lilac
 lilliputian
 lilo
 lilt
+lily
 limb
 limber
 limberness
@@ -13237,6 +13257,7 @@ maxima
 maximization
 mayday
 mayflower
+mayfly
 mayhem
 mayo
 mayonnaise
@@ -13330,6 +13351,7 @@ meiosis
 melamine
 melancholia
 melancholic
+melancholy
 melange
 melanin
 melanoma
@@ -13824,6 +13846,7 @@ modulator
 module
 modulo
 modulus
+moe
 mogul
 mohair
 moi
@@ -13849,6 +13872,7 @@ moll
 mollification
 molluscan
 mollusk
+molly
 mollycoddle
 molt
 molter
@@ -13907,6 +13931,7 @@ monoplane
 monopolist
 monopolization
 monopolizer
+monopoly
 monorail
 monotheism
 monotone
@@ -14997,6 +15022,7 @@ olfactory
 oligarch
 oligarchy
 oligonucleotide
+oligopoly
 olive
 om
 ombudsman
@@ -15481,6 +15507,7 @@ panelist
 pang
 panhandle
 panhandler
+panoply
 panorama
 panpipes
 pansy
@@ -18627,6 +18654,7 @@ salivary
 salivation
 sallow
 sallowness
+sally
 salmon
 salmonella
 salmonellae
@@ -23420,6 +23448,7 @@ wallflower
 wallop
 wallow
 wallpaper
+wally
 walnut
 walrus
 waltz
@@ -23804,6 +23833,7 @@ williwaw
 willow
 willowy
 willpower
+willy
 wilt
 wimp
 wimple

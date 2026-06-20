@@ -26,7 +26,8 @@ adverb-all          (virtual) adverb.txt + dict-adverb.txt
 
 Proper nouns & subjects
 ============================
-keyword.txt         Proper nouns — people, places, brands, nationalities (was the dictionary dump)
+keyword.txt         Proper nouns — people, places, brands (was the dictionary dump)
+demonym.txt         Nationality / demonym words (American, Japanese, ...)
 city.txt            City / place names
 anime-name.txt      Anime titles / character names
 animal.txt, flower.txt, tree.txt, mythological-creature.txt, planet.txt, ...

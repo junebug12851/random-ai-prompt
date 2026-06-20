@@ -764,6 +764,7 @@ chief
 chiffonier
 childish
 childless
+chilly
 chimeric
 chimerical
 chinless
@@ -1136,6 +1137,7 @@ crystallographic
 cubic
 cubical
 cubist
+cuddly
 culinary
 culpable
 cultivable
@@ -1175,6 +1177,7 @@ dactylic
 dadaist
 daemonic
 daffy
+daily
 damageable
 damp
 damper
@@ -1983,6 +1986,7 @@ frictional
 friendless
 frightful
 frigid
+frilly
 fringe
 frisky
 frivolous
@@ -2081,6 +2085,7 @@ germinal
 gerontological
 gestational
 gestural
+ghastly
 ghoulish
 giant
 gibberish
@@ -2168,6 +2173,7 @@ grievous
 grim
 grimmer
 grimy
+grisly
 gritty
 groggy
 groovy
@@ -2296,6 +2302,7 @@ hieroglyphic
 high
 highfalutin
 hilarious
+hilly
 hippy
 historic
 historical
@@ -2325,6 +2332,7 @@ homophobic
 homosexual
 honest
 honky
+honorable
 honorary
 honorific
 hootenanny
@@ -2769,6 +2777,7 @@ jocular
 joist
 jokier
 jokiest
+jolly
 journalistic
 jovial
 joyful
@@ -3650,6 +3659,7 @@ officiant
 officious
 offline
 offsetting
+oily
 old
 oldish
 oleaginous
@@ -4745,6 +4755,7 @@ semiconductor
 semiconscious
 semidarkness
 semifinal
+semimonthly
 seminal
 seminary
 semiofficial
@@ -4761,6 +4772,8 @@ semisweet
 semitransparent
 semitropical
 semivowel
+semiweekly
+semiyearly
 senatorial
 senior
 sensational
@@ -4836,6 +4849,7 @@ significant
 silent
 siliceous
 silky
+silly
 silver
 similar
 simple
@@ -4893,9 +4907,11 @@ slumberous
 slummy
 slushy
 sluttish
+sly
 small
 smallish
 smart
+smelly
 smithy
 smoggy
 smokeless
@@ -5022,6 +5038,7 @@ sportive
 spotless
 spotted
 spotty
+sprightly
 springy
 spry
 spunky
@@ -5198,6 +5215,7 @@ supremacist
 supreme
 sure
 surgical
+surly
 surmountable
 surreal
 surrealistic
@@ -5532,6 +5550,7 @@ tyrannical
 tyrannicidal
 tyrannous
 ubiquitous
+ugly
 ulcerous
 ultimate
 ultra
@@ -5623,6 +5642,7 @@ unfitting
 unflappable
 unflattering
 unfortunate
+unfriendly
 unfruitful
 unfunny
 ungenerous
@@ -5657,6 +5677,7 @@ unkind
 unknowable
 unknown
 unlovable
+unlovely
 unloving
 unlucky
 unmarried
@@ -5692,12 +5713,15 @@ unrepresentative
 unrevealing
 unripe
 unromantic
+unruly
 unsafe
 unsaleable
+unseemly
 unseen
 unsentimental
 unshakable
 unshockable
+unsightly
 unsmiling
 unsociable
 unsocial
@@ -5715,6 +5739,7 @@ unsuspecting
 unsymmetrical
 untactful
 untidy
+untimely
 untiring
 untouchable
 untrue
@@ -5748,6 +5773,7 @@ useful
 useless
 usual
 usurious
+utopian
 utter
 uttermost
 uvular
@@ -5830,6 +5856,7 @@ vindictive
 vinous
 violable
 violent
+violet
 violinist
 violoncellist
 viperous
@@ -5928,6 +5955,7 @@ widespread
 wifeless
 wild
 willful
+wily
 wimpish
 wimpy
 windless

@@ -527,6 +527,7 @@ bulldoze
 bullring
 bullshitted
 bullshitting
+bully
 bummed
 bumming
 bump
@@ -1635,6 +1636,7 @@ flubbing
 fluctuate
 flung
 fluster
+fly
 fobbed
 fobbing
 focus
@@ -2537,6 +2539,7 @@ minus
 mirror
 misaddress
 misaligned
+misapply
 misapprehend
 misbegotten
 misbehave
@@ -2653,6 +2656,7 @@ mugging
 mull
 multicolored
 multilayered
+multiply
 multiprocessing
 multipurpose
 multivariate
@@ -2973,6 +2977,7 @@ overstepping
 overstimulate
 overstretch
 oversubscribe
+oversupply
 overtake
 overtaken
 overthink
@@ -3400,6 +3405,7 @@ rain
 rainmaking
 raise
 rake
+rally
 ramble
 ramify
 rammed
@@ -3432,6 +3438,7 @@ reach
 reacquire
 react
 read
+reading
 readmitted
 realize
 reap
@@ -3526,6 +3533,7 @@ relinquish
 relish
 relist
 relocate
+rely
 remain
 remapping
 remark
@@ -3598,6 +3606,7 @@ restring
 restructuring
 result
 resume
+resupply
 resurrect
 resuscitate
 retake
@@ -4394,6 +4403,7 @@ tailor
 take
 taken
 talk
+tally
 tamper
 tan
 tangle
