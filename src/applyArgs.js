@@ -191,6 +191,8 @@ export default function (argv, settings, imageSettings, upscaleSettings, allSett
 
   if (argv.useArtists !== undefined) settings.includeArtist = argv.useArtists == true;
 
+  if (argv.useAdult !== undefined) settings.includeAdult = argv.useAdult == true;
+
   if (argv.minArtist !== undefined) settings.minArtist = parseInt(argv.minArtist);
 
   if (argv.maxArtist !== undefined) settings.maxArtist = parseInt(argv.maxArtist);

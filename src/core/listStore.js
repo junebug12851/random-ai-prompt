@@ -5,6 +5,7 @@
 
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "../helpers/aliases.js";
+import { isGatedList } from "../gatedLists.js";
 
 // Loader-backed port of helpers/listFiles.js's pull/depletion logic, made
 // data-source-agnostic: the working list copies come from `loader.readListLines`
@@ -42,9 +43,17 @@ export function createListStore(loader) {
     if (name == artistAlias && String(settings.artistFilename) != "false")
       return settings.artistFilename;
     if (name == keywordAlias && String(settings.keywordsFilename) == "false")
-      return _.sample(loader.listNames().filter((n) => !isArtistName(settings, n)));
+      return _.sample(
+        loader
+          .listNames()
+          .filter((n) => !isArtistName(settings, n) && (settings.includeAdult || !isGatedList(n))),
+      );
     if (name == artistAlias && String(settings.artistFilename) == "false")
-      return _.sample(loader.listNames().filter((n) => isArtistName(settings, n)));
+      return _.sample(
+        loader
+          .listNames()
+          .filter((n) => isArtistName(settings, n) && (settings.includeAdult || !isGatedList(n))),
+      );
     return name;
   }
 
@@ -66,6 +75,7 @@ export function createListStore(loader) {
     if (name === undefined || name === null) return "";
 
     if (isArtistName(settings, name) && !settings.includeArtist) return "";
+    if (isGatedList(name) && !settings.includeAdult) return "";
 
     const target = ensureLoaded(settings, name);
     let list = target[name];

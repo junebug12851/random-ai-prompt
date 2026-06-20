@@ -11519,7 +11519,6 @@ antonym
 antonymous
 antrum
 antsy
-anus
 anvil
 anxiety
 anxious
@@ -11558,7 +11557,6 @@ aphid
 aphorism
 aphoristic
 aphoristically
-aphrodisiac
 apiarist
 apiary
 apical
@@ -13688,7 +13686,6 @@ blowfly
 blowgun
 blowhard
 blowhole
-blowjob
 blowlamp
 blown
 blowout
@@ -13958,7 +13955,6 @@ bop
 bopped
 bopping
 borax
-bordello
 border
 borderland
 borderline
@@ -14350,7 +14346,6 @@ brooklet
 broom
 broomstick
 broth
-brothel
 brother
 brotherhood
 brotherliness
@@ -15116,7 +15111,6 @@ carload
 carmaker
 carmine
 carnage
-carnal
 carnality
 carnation
 carnelian
@@ -16281,10 +16275,7 @@ clique
 cliquey
 cliquish
 cliquishness
-clit
-clitoral
 clitorides
-clitoris
 clix
 cloaca
 cloacae
@@ -16565,7 +16556,6 @@ coiner
 coinsurance
 coir
 coital
-coitus
 coke
 col
 cola
@@ -17024,7 +17014,6 @@ concreteness
 concretion
 concubinage
 concubine
-concupiscence
 concupiscent
 concur
 concurred
@@ -17548,8 +17537,6 @@ copra
 copse
 copter
 copula
-copulate
-copulation
 copulative
 copy's
 copy
@@ -18319,7 +18306,6 @@ cultural
 culture
 cultured
 culvert
-cum
 cumber
 cumbersome
 cumbersomeness
@@ -18333,9 +18319,7 @@ cumulonimbi
 cumulonimbus
 cumulus
 cuneiform
-cunnilingus
 cunning
-cunt
 cup
 cupboard
 cupcake
@@ -19517,7 +19501,6 @@ dilate
 dilation
 dilator
 dilatory
-dildo
 dilemma
 dilettante
 dilettantish
@@ -20035,7 +20018,6 @@ dominant
 dominate
 domination
 dominatrices
-dominatrix
 domineer
 domineering
 dominion
@@ -20830,9 +20812,6 @@ eighty
 einsteinium
 eisteddfod
 either
-ejaculate
-ejaculation
-ejaculatory
 eject
 ejection
 ejector
@@ -21538,7 +21517,6 @@ erogenous
 erosion
 erosive
 erotic
-erotica
 erotically
 eroticism
 err
@@ -22512,7 +22490,6 @@ felicity
 feline
 fell
 fella
-fellatio
 fellow
 fellowman
 fellowmen
@@ -22589,7 +22566,6 @@ fetching
 fete
 fetid
 fetidness
-fetish
 fetishism
 fetishist
 fetishistic
@@ -23454,9 +23430,6 @@ formulate
 formulated
 formulation
 formulator
-fornicate
-fornication
-fornicator
 forsake
 forsaken
 forsook
@@ -24227,9 +24200,6 @@ geniality
 geniculate
 genie
 genii
-genital
-genitalia
-genitals
 genitive
 genitourinary
 genius
@@ -26355,7 +26325,6 @@ hornet
 hornless
 hornlike
 hornpipe
-horny
 horologic
 horological
 horologist
@@ -29464,8 +29433,6 @@ levitate
 levitation
 levity
 levy
-lewd
-lewdness
 lexer
 lexical
 lexicographer
@@ -30682,9 +30649,6 @@ mastiff
 mastitis
 mastodon
 mastoid
-masturbate
-masturbation
-masturbatory
 mat
 matador
 match
@@ -33380,8 +33344,6 @@ nylons
 nymph
 nymphet
 nympho
-nymphomania
-nymphomaniac
 nymphs
 o'clock
 o'er
@@ -33884,8 +33846,6 @@ organize
 organized
 organizer
 organza
-orgasm
-orgasmic
 orgiastic
 orgy
 oriel
@@ -35164,7 +35124,6 @@ penicillin
 penile
 peninsula
 peninsular
-penis
 penitence
 penitent
 penitential
@@ -36400,11 +36359,8 @@ pork
 porker
 porky
 porn
-porno
 pornographer
-pornographic
 pornographically
-pornography
 porosity
 porous
 porousness
@@ -37247,8 +37203,6 @@ prostate
 prostheses
 prosthesis
 prosthetic
-prostitute
-prostitution
 prostrate
 prostration
 prosy
@@ -40146,7 +40100,6 @@ scroll
 scrooge
 scrota
 scrotal
-scrotum
 scrounge
 scrounger
 scroungy
@@ -40427,7 +40380,6 @@ semanticist
 semantics
 semaphore
 semblance
-semen
 semester
 semi
 semiannual
@@ -41635,9 +41587,7 @@ slurry
 slush
 slushiness
 slushy
-slut
 sluttish
-slutty
 sly
 slyness
 smack
@@ -41901,9 +41851,6 @@ sodded
 sodden
 sodding
 sodium
-sodomite
-sodomize
-sodomy
 soever
 sofa
 soft
@@ -46853,9 +46800,7 @@ vagabond
 vagabondage
 vagarious
 vagary
-vagina
 vaginae
-vaginal
 vaginitis
 vagrancy
 vagrant
@@ -47463,7 +47408,6 @@ vulnerably
 vulpine
 vulture
 vulturous
-vulva
 vulvae
 vuvuzela
 vying
@@ -48067,8 +48011,6 @@ whop
 whopped
 whopper
 whopping
-whore
-whorehouse
 whoreish
 whorish
 whorl

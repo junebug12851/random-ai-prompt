@@ -116,6 +116,12 @@ export default {
   /*--use-artists <true/false>*/
   includeArtist: true,
 
+  // Whether to additionally allow adult/explicit lists and dynamic prompts.
+  // Off by default; when off they are kept out of random suggestions and
+  // resolve to "" if referenced directly.
+  /*--use-adult <true/false>*/
+  includeAdult: false,
+
   // Minimum artists to add in
   /*--min-artists <number>*/
   minArtist: 0,

@@ -6,6 +6,7 @@
 import _ from "lodash";
 
 import cleanup from "./prompt-modules/cleanup.js";
+import { gatedLists, gatedDynPrompts } from "./gatedLists.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
 //
@@ -171,16 +172,37 @@ function loadAll() {
  * @param {number} maxCount How many garnish rounds to roll.
  * @returns {string} The garnish string.
  */
+/**
+ * @returns {boolean} Whether adult/explicit lists and prompts are enabled.
+ */
+function adultAllowed() {
+  const ctx = settings ? settings() : {};
+  return !!(ctx.settings && ctx.settings.includeAdult === true);
+}
+
+/**
+ * Drop gated (adult) names from a pool unless `includeAdult` is on.
+ * @param {string[]} names The candidate names.
+ * @param {string[]} gated The gated names to remove when adult is off.
+ * @returns {string[]} The filtered pool.
+ */
+function gatePool(names, gated) {
+  return adultAllowed() ? names : names.filter((n) => !gated.includes(n));
+}
+
 function prePrompt(maxCount) {
   let prePrompt = "";
 
   // Randomly add stuff to the start of the prompt
   if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, <${_.sample(expansionFiles)}>`;
 
-  for (let i = 0; i < maxCount; i++) {
-    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, #${_.sample(partialNoArtistFx)}`;
+  const partialPool = gatePool(partialNoArtistFx, gatedDynPrompts);
+  const listPool = gatePool(listFilesNoArtist, gatedLists);
 
-    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {${_.sample(listFilesNoArtist)}}`;
+  for (let i = 0; i < maxCount; i++) {
+    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, #${_.sample(partialPool)}`;
+
+    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {${_.sample(listPool)}}`;
   }
 
   return prePrompt;
@@ -196,25 +218,28 @@ function promptSuggestion(full) {
   // Prepare building final prompt
   let ret = "";
 
+  // Keep gated (adult) dynamic prompts out unless explicitly enabled
+  const fullPool = gatePool(fullDynPrompt, gatedDynPrompts);
+
   let maxOptions = full == true ? 3 : 0;
   let maxCount = full == true ? 3 : 1;
 
   switch (_.random(0, maxOptions, false)) {
     // Option 0: Pick 1 full dynamic prompt
     case 0:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)}`;
       break;
 
     case 1:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :1.1`;
       break;
 
     case 2:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)} :0.50`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.50`;
       break;
 
     case 3:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}, ${prePrompt(maxCount)}, #${_.sample(fullDynPrompt)}`;
+      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)}, ${prePrompt(maxCount)}, #${_.sample(fullPool)}`;
       break;
   }
 

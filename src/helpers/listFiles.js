@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
+import { isGatedList } from "../gatedLists.js";
 
 // All-lists in memory
 const lists = {};
@@ -148,6 +149,9 @@ function pull(settings, name) {
 
   // Immidiately stop if artist are disabled when an artist is requested
   if (data.isArtistList && !settings.includeArtist) return "";
+
+  // Keep adult/explicit lists out unless explicitly enabled
+  if (isGatedList(name) && !settings.includeAdult) return "";
 
   // If list is empty, reload
   // We have to also re-update the list pointer
