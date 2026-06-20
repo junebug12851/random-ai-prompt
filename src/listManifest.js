@@ -57,12 +57,8 @@ export const listTags = {
   "name/anime-name": { category: "subject", anime: true, nsfw: false },
   "artist/nudity": { category: "artist", anime: false, nsfw: true },
 
-  // dictionary-derived part-of-speech lists (general English, sfw)
-  "word/dict-adjective": { category: "pos", anime: false, nsfw: false },
-  "word/dict-noun": { category: "pos", anime: false, nsfw: false },
-  "word/dict-verb": { category: "pos", anime: false, nsfw: false },
-  "word/dict-adverb": { category: "pos", anime: false, nsfw: false },
-  "word/dict-misc": { category: "pos", anime: false, nsfw: false },
+  // uncategorized leftover words (function words, obscure terms WordNet lacks)
+  "word/misc": { category: "pos", anime: false, nsfw: false },
 
   // proper-noun categories (hand-classified from the old keyword.txt dump)
   "name/demonym": { category: "subject", anime: false, nsfw: false },
@@ -79,6 +75,7 @@ export const listTags = {
 
   // face/expression/pose tags + gated adult relocations
   "look/expression": { category: "expression", anime: false, nsfw: false },
+  "look/action": { category: "action", anime: false, nsfw: false },
   "look/clothes-adult": { category: "look", anime: false, nsfw: true },
   "word/adult": { category: "pos", anime: false, nsfw: true },
 };
@@ -115,14 +112,8 @@ export const virtualLists = {
     ],
   },
 
-  // --- curated + dictionary, combined (quality default stays separate) ---
   // any human name (first names + notable people)
   name: { union: ["name/given-name", "name/person"] },
-
-  "adjective-all": { union: ["word/adjective", "word/dict-adjective", "name/demonym"] },
-  "noun-all": { union: ["word/noun", "word/dict-noun", "name/demonym"] },
-  "verb-all": { union: ["word/verb", "word/dict-verb"] },
-  "adverb-all": { union: ["word/adverb", "word/dict-adverb"] },
 };
 
 /**

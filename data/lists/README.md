@@ -56,12 +56,12 @@ Slurs, minor-sexualizing, and extreme shock/gore content are filtered by
 |--------|--------------|
 | `danbooru/d/` | Danbooru tags: general, artist, character-c, character-nc, meta, person |
 | `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity, scribbles, special, ukioe, weird, secondary |
-| `word/` | Parts of speech — curated (adjective, adverb, noun, verb, preposition, interjection) and dictionary-derived (`dict-*`); `adult` (gated sexual terms moved out of the SFW word lists) |
+| `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words) and `adult` (gated sexual terms). Curated + dictionary merged. |
 | `name/` | given-name, person, demonym, anime-name |
 | `place/` | city, place (countries/regions/landmarks) |
 | `lore/` | mythology, astronomy, religion, history, work, people-group |
 | `nature/` | animal, flower, tree, planet, mythological-creature |
-| `look/` | color, size, hair, clothes, weather, time, mood, emotion, view, image-effect, instrument, expression; `clothes-adult` (gated lingerie/fetish) |
+| `look/` | color, size, hair, clothes, weather, time, mood, emotion, view, image-effect, instrument, expression (faces), action (poses/activities); `clothes-adult` (gated lingerie/fetish) |
 | `style/` | art-movement, art-technique, general-style, construct-style, building-style |
 | `scene/` | room, school-room, shed-type, ship-type, store-type, vehicle-type |
 | `brand/` | organization |
