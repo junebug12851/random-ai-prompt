@@ -3,8 +3,15 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.0.2` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.1.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Keyword lists (2.1.0, branch `cleanup/list-reorg`):** the `data/lists/` corpus was purged of slurs /
+minor-sexualizing / extreme-shock content via a new `src/contentSafety.js` filter (wired into the CSV
+build scripts), the 48k-line `keyword.txt` dictionary was sorted by part of speech into `dict-*` lists
+(`keyword.txt` is now proper nouns), and duplicated composites were collapsed into **virtual lists**
+(`src/listManifest.js`: `danbooru`, `d-keyword`, `d-character`, `artist`, `artist-digipa`, plus new
+`danbooru-sfw` and `*-all`). See [`reference/list-architecture.md`](reference/list-architecture.md).
 
 ## Current state (read this first)
 

@@ -1,43 +1,85 @@
-Standard Artists
+Keyword lists
 ============================
-artist-anime.txt		Standard Anime Artists
-artist-bw.txt			Standard Black and White Artists
-artist-cartoon.txt 		Standard Cartoon Artists
-artist-dhigh.txt 		Standard Digipa High Impact Artists
-artist-dmed.txt 		Standard Digipa Medium Impact Artists
-artist-dlow.txt 		Standard Digipa Low Impact Artists
-artist-digipa.txt 		Standard Digipa Artists
-artist-fareast.txt 		Standard Far East Artists
-artist-fineart.txt 		Standard Fineart Artists
-artist-nudity.txt 		Standard Nudity Artists
-artist-scribbles.txt 	Standard Scribbles Artists
-artist-special.txt 		Standard Special Artists
-artist-ukioe.txt	 	Standard Ukioe Artists
-artist-weird.txt 		Standard Weird Artists
-artist.txt          	Stable Diffusion list of all artists
+Each `.txt` in `data/lists/` is one keyword per line. Reference a list in a prompt
+with `{name}`. Some names are **virtual lists** (no file on disk) — composites
+assembled on demand from other lists (see "Virtual lists" below and
+`src/listManifest.js`). Adult/extreme content is filtered by `src/contentSafety.js`
+and gated behind the `includeAdult` setting; see `notes/reference/list-architecture.md`.
 
-Danbooru Artists, Characters, General, and Meta
+Parts of speech
 ============================
-d-artist.txt        Danbooru list of artists
-d-character-c.txt   Danbooru list of copyright characters
-d-character-nc.txt  Danbooru list of non-copyright characters
-d-character.txt     Danbooru list of both copyright and non-copyright characters
-d-general.txt       Danbooru list of general keywords for prompt building
-d-meta.txt          Danbooru list of keywords for stuff like effects
-danbooru.txt        All danbooru keywords across all categories
+adjective.txt       Curated, hand-picked evocative adjectives
+adverb.txt          Curated adverbs
+noun.txt            Curated nouns
+verb.txt            Curated verbs
+preposition.txt     Prepositions
+interjection.txt    Interjections
+dict-adjective.txt  Adjectives sorted from the English dictionary (keyword.txt)
+dict-noun.txt       Nouns sorted from the dictionary
+dict-verb.txt       Verbs sorted from the dictionary
+dict-adverb.txt     Adverbs sorted from the dictionary
+dict-misc.txt       Function words / numbers / interjections the sorter couldn't bucket
+adjective-all       (virtual) adjective.txt + dict-adjective.txt
+noun-all            (virtual) noun.txt + dict-noun.txt
+verb-all            (virtual) verb.txt + dict-verb.txt
+adverb-all          (virtual) adverb.txt + dict-adverb.txt
 
-Dictionaries in order of word count
+Proper nouns & subjects
 ============================
-vocab1.txt          1st largest english dictionary I wanted to add
-vocab2.txt          2nd largest english dictionary I wanted to add
-vocab3.txt          3rd largest english dictionary I wanted to add
-vocab4.txt          4th largest english dictionary I wanted to add
-vocab5.txt          5th largest english dictionary I wanted to add
-vocab6.txt          6th largest english dictionary I wanted to add
+keyword.txt         Proper nouns — people, places, brands, nationalities (was the dictionary dump)
+city.txt            City / place names
+anime-name.txt      Anime titles / character names
+animal.txt, flower.txt, tree.txt, mythological-creature.txt, planet.txt, ...
+
+Standard Artists (AUTOMATIC1111)
+============================
+artist-anime.txt    Anime artists
+artist-bw.txt       Black and white artists
+artist-cartoon.txt  Cartoon artists
+artist-dhigh.txt    Digipa high-impact artists
+artist-dmed.txt     Digipa medium-impact artists
+artist-dlow.txt     Digipa low-impact artists
+artist-fareast.txt  Far East artists
+artist-fineart.txt  Fine-art artists
+artist-nudity.txt   Nudity artists (NSFW-gated)
+artist-scribbles.txt, artist-special.txt, artist-ukioe.txt, artist-weird.txt
+artist2.txt         Secondary artist list
+artist-digipa       (virtual) artist-dhigh + artist-dmed + artist-dlow
+artist              (virtual) union of all artist-* category lists
+
+Danbooru tags
+============================
+d-general.txt       General danbooru tags (anime; NSFW-gated)
+d-artist.txt        Danbooru artists
+d-character-c.txt   Copyright (branded) characters
+d-character-nc.txt  Non-copyright characters
+d-meta.txt          Meta tags (effects, etc.)
+d-person.txt        Person tags
+d-character          (virtual) d-character-nc + d-character-c
+d-keyword            (virtual) d-general + d-character-c + d-character-nc + d-meta (NSFW-gated)
+danbooru             (virtual) all of the above, incl. d-artist (NSFW-gated)
+danbooru-sfw         (virtual) danbooru with NSFW-lexicon lines filtered out — the clean anime list
+
+Keywords
+============================
+keyword-adult.txt   Adult keywords (NSFW-gated)
 
 Misc lists
 ============================
-flower.txt          List of keywords for flowers
-time.txt            List of keywords for time
-tree.txt            List of keywords for trees
-weather.txt         List of weather keywords
+color, clothes, hair, emotion, mood, weather, time, size, view, room, building-style,
+art-movement, art-technique, general-style, image-effect, instrument, vehicle-type,
+ship-type, store-type, shed-type, school-room, construct-style
+
+Virtual lists
+============================
+A virtual list is defined in `src/listManifest.js` as a union of other lists, with
+cross-list de-duplication and an optional sfw/nsfw filter. They let lists "collapse
+into" one another (so big duplicate files don't sit on disk) and let curated lists
+combine with the dictionary lists. Reference them by name like any other list.
+
+Content safety
+============================
+`src/contentSafety.js` holds the removal blocklist (slurs, content sexualizing minors,
+extreme shock/gore/non-consensual) and the NSFW lexicon (ordinary adult terms, kept but
+gated). It is applied by the CSV build scripts and the one-time cleanup tooling in
+`scripts/list-cleanup/`. The blocklist is plain, editable data — add or remove terms there.

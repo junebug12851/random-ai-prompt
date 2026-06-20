@@ -87,37 +87,15 @@ for (let i = 0; i < csv.length; i++) {
   else unknownKeywords.push(keyword);
 }
 
-// Write out files
-// Copyright just seems like branded character so create a 2nd list containing both.
-// Also create a master list containing everything
-// And a list containing all but artists for use in settings
-fs.writeFileSync(`${settings.listFiles}/d-general.txt`, generalKeywords.join("\n"));
+// Write out ONLY the atomic lists. The composite lists that used to be written
+// here (d-character, d-keyword, danbooru) are now VIRTUAL lists assembled on
+// demand from these atomics — see src/listManifest.js. Uncategorized ("unknown")
+// tags are folded into d-general so nothing is lost.
+fs.writeFileSync(
+  `${settings.listFiles}/d-general.txt`,
+  [...generalKeywords, ...unknownKeywords].join("\n"),
+);
 fs.writeFileSync(`${settings.listFiles}/d-artist.txt`, artistKeywords.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/d-character-c.txt`, copyrightKeywords.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/d-character-nc.txt`, characterKeywords.join("\n"));
-fs.writeFileSync(
-  `${settings.listFiles}/d-character.txt`,
-  [...characterKeywords, ...copyrightKeywords].join("\n"),
-);
 fs.writeFileSync(`${settings.listFiles}/d-meta.txt`, metaKeywords.join("\n"));
-fs.writeFileSync(
-  `${settings.listFiles}/d-keyword.txt`,
-  [
-    ...generalKeywords,
-    ...copyrightKeywords,
-    ...characterKeywords,
-    ...metaKeywords,
-    ...unknownKeywords,
-  ].join("\n"),
-);
-fs.writeFileSync(
-  `${settings.listFiles}/danbooru.txt`,
-  [
-    ...generalKeywords,
-    ...artistKeywords,
-    ...copyrightKeywords,
-    ...characterKeywords,
-    ...metaKeywords,
-    ...unknownKeywords,
-  ].join("\n"),
-);

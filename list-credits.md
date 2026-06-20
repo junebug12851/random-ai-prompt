@@ -14,7 +14,14 @@ me (junebug12851) and are licensed public domain.
 
 Internally developed files atrtributed to Merk and me (juenbug12851)
 
-All list files have been modified to work with this software by being cleaned up
+All list files have been modified to work with this software by being cleaned up.
+As of 2.1.0 they were also passed through a content-safety filter
+(`src/contentSafety.js`) that removes slurs, content sexualizing minors, and
+extreme shock/gore/non-consensual material; ordinary adult terms are kept but
+NSFW-gated. The original `keyword.txt` SCOWL dictionary was sorted by part of
+speech into the `dict-*` lists using the `compromise` NLP library
+(https://github.com/spencermountain/compromise, MIT), leaving `keyword.txt` as a
+proper-noun list. Composite/"virtual" lists are defined in `src/listManifest.js`.
 
 SCOWL Licenses
 ==================================================================================================

@@ -108,10 +108,6 @@ fs.writeFileSync(`${settings.listFiles}/artist-cartoon.txt`, cartoon.join("\n"))
 fs.writeFileSync(`${settings.listFiles}/artist-dlow.txt`, digipaLowImpact.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-dmed.txt`, digipaMedImpact.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-dhigh.txt`, digipaHighImpact.join("\n"));
-fs.writeFileSync(
-  `${settings.listFiles}/artist-digipa.txt`,
-  [...digipaHighImpact, ...digipaMedImpact, ...digipaLowImpact].join("\n"),
-);
 fs.writeFileSync(`${settings.listFiles}/artist-fareast.txt`, fareast.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-fineart.txt`, fineart.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-nudity.txt`, nudity.join("\n"));
@@ -119,22 +115,11 @@ fs.writeFileSync(`${settings.listFiles}/artist-scribbles.txt`, scribbles.join("\
 fs.writeFileSync(`${settings.listFiles}/artist-special.txt`, special.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-ukioe.txt`, ukioe.join("\n"));
 fs.writeFileSync(`${settings.listFiles}/artist-weird.txt`, weird.join("\n"));
-fs.writeFileSync(
-  `${settings.listFiles}/artist.txt`,
-  [
-    ...anime,
-    ...blackWhite,
-    ...cartoon,
-    ...digipaHighImpact,
-    ...digipaMedImpact,
-    ...digipaLowImpact,
-    ...fareast,
-    ...fineart,
-    ...nudity,
-    ...scribbles,
-    ...special,
-    ...ukioe,
-    ...weird,
-    ...unknown,
-  ].join("\n"),
-);
+
+// The composite "artist-digipa" and "artist" lists that used to be written here
+// are now VIRTUAL lists assembled on demand from the atomic artist-* lists —
+// see src/listManifest.js. "unknown"-category artists are appended to
+// artist-special so they are still drawn.
+if (unknown.length) {
+  fs.appendFileSync(`${settings.listFiles}/artist-special.txt`, "\n" + unknown.join("\n"));
+}

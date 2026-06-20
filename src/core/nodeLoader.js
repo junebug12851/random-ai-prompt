@@ -11,9 +11,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { resolveListLines, allListNames } from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
+
+// Read a single physical list file's lines (or null when missing).
+function readPhysicalList(name) {
+  try {
+    return fs.readFileSync(path.join(rootDir, "data", "lists", `${name}.txt`), "utf8").split("\n");
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
@@ -30,21 +40,16 @@ export const nodeLoader = {
     }
   },
   readListLines(name) {
-    try {
-      return fs
-        .readFileSync(path.join(rootDir, "data", "lists", `${name}.txt`), "utf8")
-        .split("\n");
-    } catch {
-      return null;
-    }
+    return resolveListLines(name, readPhysicalList);
   },
   listNames() {
     try {
-      return fs
+      const phys = fs
         .readdirSync(path.join(rootDir, "data", "lists"))
         .map((f) => f.replace(/\.[^./]+$/, ""));
+      return allListNames(phys);
     } catch {
-      return [];
+      return allListNames([]);
     }
   },
   expansionNames() {

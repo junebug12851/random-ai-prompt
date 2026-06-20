@@ -96,6 +96,21 @@ const NSFW_LEXICON = [
   "fetish", "futanari", "futa", "yaoi", "yuri sex", "pubic hair", "condom",
   "dildo", "vibrator", "sex toy", "strapon", "fishnet", "garter",
   "spread legs", "presenting", "after sex", "cum on body", "facial",
+  // explicit acts / anatomy / fluids / fetish — broadened for the danbooru SFW
+  // filter (better to drop a questionable tag than leak an explicit one)
+  "vaginal", "oral", "deepthroat", "paizuri", "titjob", "footjob",
+  "cumdrip", "precum", "ejaculating", "squirting", "pussy juice",
+  "penetration", "double penetration", "gangbang", "threesome", "orgy",
+  "testicles", "scrotum", "foreskin", "glans", "veiny penis", "erection",
+  "erect nipples", "nipple slip", "see-through", "wardrobe malfunction",
+  "exhibitionism", "naked apron", "no bra", "no panties", "panty pull",
+  "panties aside", "clothes lift", "skirt lift", "shirt lift", "undressing",
+  "partially undressed", "spread pussy", "spread anus", "anal beads",
+  "buttplug", "cameltoe", "downblouse", "upskirt", "groping", "molestation",
+  "tentacle sex", "x-ray", "cross-section", "cum inside", "cum in mouth",
+  "facial cumshot", "gokkun", "nsfw", "explicit", "uncensored", "censored",
+  "pubic", "anal hair", "armpit sex", "thigh sex", "naked ribbon",
+  "completely nude", "nipple tweak", "breast grab", "breast sucking",
 ];
 
 /**

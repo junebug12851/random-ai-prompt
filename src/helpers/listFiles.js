@@ -23,6 +23,7 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
+import { isVirtualList, resolveListLines, allListNames } from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
@@ -54,10 +55,22 @@ function getListFiles(settings) {
  * @param {string} name The list name.
  * @returns {void}
  */
+// Read a single physical list file's lines (or null when missing).
+function readPhysicalList(settings, name) {
+  try {
+    return fs.readFileSync(`${settings.listFiles}/${name}.txt`).toString().split("\n");
+  } catch {
+    return null;
+  }
+}
+
 // Reload file into the list in-memory
 function reloadListFile(settings, name) {
-  // Load list into memory as an array
-  const list = fs.readFileSync(`${settings.listFiles}/${name}.txt`).toString().split("\n");
+  // Load list into memory as an array. Virtual (composite) lists are assembled
+  // from their member lists; physical lists are read straight from disk.
+  const list = isVirtualList(name)
+    ? resolveListLines(name, (n) => readPhysicalList(settings, n)) || []
+    : readPhysicalList(settings, name) || [];
 
   // Save into memory under proper list category
   if (name == settings.artistFilename || name.includes("artist")) artists[name] = list;
@@ -82,16 +95,13 @@ function lazyReloadListFile(settings, name) {
  */
 // Reload all lists into memory
 function reloadListFiles(settings) {
-  // Get list files
-  const files = getListFiles(settings);
+  // Get list files (physical), then add virtual/composite list names so they
+  // are registered for lazy assembly on first pull.
+  const physical = getListFiles(settings).map(removeExtension);
 
-  // Add-in real lists
-  // Loop through all lists
-  for (let i = 0; i < files.length; i++) {
-    // Convert filename.txt to filename
-    const key = removeExtension(files[i]);
-
-    // Re-load into memory
+  // Loop through all lists (physical + virtual)
+  for (const key of allListNames(physical)) {
+    // Re-load into memory (lazy — marks the slot empty)
     lazyReloadListFile(settings, key);
   }
 }
