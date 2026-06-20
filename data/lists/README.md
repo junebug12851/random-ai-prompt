@@ -57,8 +57,13 @@ suggested, and resolve to nothing if referenced.
 
 A list that mixes both is stored as **two** files: `<name>-sfw.txt` (the SFW lines)
 and `<name>-nsfw.txt` (only the NSFW lines). There is **no `<name>.txt`** — the bare
-`{name}` is an implicit name the resolver synthesizes by combining them per mode (a
-plain `<name>.txt` is still honored if you prefer that layout):
+`{name}` is an implicit name the resolver synthesizes by combining them per mode.
+
+**Safety rule:** a plain `<name>.txt` is honored only as a standalone SFW list with no
+NSFW half. The moment a `<name>-nsfw.txt` exists, any `<name>.txt` beside it is
+**ignored entirely** (never loaded, never listed) — the SFW half must be
+`<name>-sfw.txt`. So a lone `<name>.txt` + `<name>-nsfw.txt` is treated as NSFW-only.
+This enforces the split so SFW content can never accidentally leak from a misnamed file.
 
 - `{name}` → SFW when adult is off; SFW + NSFW when on.
 - `{name-sfw}` → the SFW lines only (always; the explicit safe reference).

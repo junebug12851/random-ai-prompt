@@ -94,14 +94,19 @@ const SFW_SUFFIX = /-sfw$/i;
 const NSFW_SUFFIX = /-nsfw$/i;
 
 /**
- * Read a plain list's SFW base lines: the `<base>.txt` file, or `<base>-sfw.txt`
- * when no plain file exists. Returns `null` only when neither exists (so a missing
- * plain list still reports null), else an array (possibly empty).
+ * Read a plain list's SFW base lines. **Safety rule:** when a `<base>-nsfw` sibling
+ * exists, a plain `<base>.txt` is IGNORED — the SFW source must be the explicit
+ * `<base>-sfw.txt`. This enforces the naming split so a stray `<base>.txt` can never
+ * leak as SFW alongside NSFW (a lone `<base>.txt` beside `<base>-nsfw.txt` is thus
+ * treated as NSFW-only). With no `<base>-nsfw` sibling, a plain `<base>.txt` is a
+ * normal SFW list (with `<base>-sfw.txt` as a fallback). Returns `null` when no SFW
+ * source exists, else an array (possibly empty).
  * @param {string} base Canonical base name (no sfw/nsfw suffix).
- * @param {{readListFile:(n:string)=>(string[]|null)}} readers
+ * @param {{names:string[], readListFile:(n:string)=>(string[]|null)}} readers
  * @returns {string[]|null}
  */
 function readSfwBase(base, readers) {
+  if (readers.names.includes(`${base}-nsfw`)) return readers.readListFile(`${base}-sfw`);
   return readers.readListFile(base) ?? readers.readListFile(`${base}-sfw`);
 }
 
@@ -258,32 +263,36 @@ export function hasVariantSuffix(name) {
 /**
  * Turn the physical on-disk names into the LOGICAL reference set, the names the rest
  * of the app sees. A mixed list is stored as two files, `<base>-sfw` and `<base>-nsfw`,
- * with NO `<base>` file — the bare `{base}` is implicit. For every such pair this
- * exposes all three references (`base`, `base-sfw`, `base-nsfw`); for a list stored as
- * a plain `<base>` plus `<base>-nsfw`, it also synthesizes `base-sfw`. A standalone
- * `<base>-nsfw` with no SFW counterpart stays as-is (referenced only by its gated name),
- * and plain lists pass through unchanged.
+ * with NO `<base>` file — the bare `{base}` is implicit, and this exposes all three
+ * references (`base`, `base-sfw`, `base-nsfw`). A standalone `<base>-nsfw` with no
+ * `<base>-sfw` counterpart is exposed only by its gated `-nsfw` name (NSFW-only).
+ *
+ * **Safety rule:** a plain `<p>` file is only a normal SFW list when it has NO
+ * `<p>-nsfw` sibling; if such a sibling exists the plain file is IGNORED (not exposed,
+ * not loaded), to force the explicit `-sfw`/`-nsfw` split. Only `<base>-sfw` counts as
+ * an SFW source — a stray `<base>` next to `<base>-nsfw` does not.
  * @param {string[]} physical The on-disk list + group names (no extension).
  * @returns {string[]} Logical names, de-duplicated, in guaranteed natural order.
  */
 export function logicalListNames(physical) {
   const P = new Set(physical);
   const out = new Set();
-  const hasSfwSource = (base) => P.has(base) || P.has(`${base}-sfw`);
   for (const p of physical) {
     if (SFW_SUFFIX.test(p)) {
       const base = p.replace(SFW_SUFFIX, "");
       out.add(base);
       out.add(`${base}-sfw`);
-      out.add(`${base}-nsfw`);
+      if (P.has(`${base}-nsfw`)) out.add(`${base}-nsfw`);
     } else if (NSFW_SUFFIX.test(p)) {
       const base = p.replace(NSFW_SUFFIX, "");
       out.add(p);
-      if (hasSfwSource(base)) {
+      if (P.has(`${base}-sfw`)) {
+        // genuine mixed pair -> also expose the implicit base + explicit SFW ref
         out.add(base);
         out.add(`${base}-sfw`);
       }
-    } else {
+    } else if (!P.has(`${p}-nsfw`)) {
+      // plain SFW list; ignored entirely if a `${p}-nsfw` sibling exists (safety rule)
       out.add(p);
     }
   }

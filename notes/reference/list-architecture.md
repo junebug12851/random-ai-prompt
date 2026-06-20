@@ -22,8 +22,10 @@ Any name with an `nsfw` token (a word delimited by `/`, `-`, `.`, `_`, or string
 as nonexistent (not listed, not suggested, resolve to nothing). A list that mixes is stored as two files —
 `<name>-sfw.txt` (SFW lines) + `<name>-nsfw.txt` (NSFW-only lines), with **no `<name>.txt`**; the bare
 `{name}` is implicit. `logicalListNames()` derives the reference set the app sees: for each `-sfw`/`-nsfw`
-pair it exposes `{name}`, `{name-sfw}`, `{name-nsfw}` (and a plain `<name>.txt` is still honored as the SFW
-source if present). The resolver combines them by mode: `{name}` = SFW (off) / SFW+NSFW (on); `{name-sfw}` =
+pair it exposes `{name}`, `{name-sfw}`, `{name-nsfw}`. **Safety rule:** a plain `<name>.txt` is honored
+only when it has NO `<name>-nsfw.txt` sibling; if such a sibling exists the plain file is ignored entirely
+(not listed, not loaded — `readSfwBase` and `logicalListNames` both enforce this), so SFW content can never
+leak from a misnamed file and a lone `<name>.txt` + `<name>-nsfw.txt` is treated as NSFW-only. The resolver combines them by mode: `{name}` = SFW (off) / SFW+NSFW (on); `{name-sfw}` =
 SFW-only always; `{name-nsfw}` = nothing (off) / SFW+NSFW (on, the SFW base auto-tacked on, so no combined
 file is ever stored). `resolveListLines` takes `includeAdult`, re-resolves the suffix-stripped base, and
 propagates the resolved variant into group members — so one `danbooru.group` is SFW when off and
