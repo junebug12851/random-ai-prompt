@@ -81,6 +81,19 @@ export const defaultSettings = {
   negativePrompt: "",
 };
 
+// The anime ("d-keyword"/"d-artist") word lists are Danbooru tag dumps that mix
+// SFW and explicit adult tags with no clean separation. The Style toggle that
+// selected them was removed pending a proper SFW/adult split (see
+// notes/plans/removed-pending-readd.md). This migration pulls any browser that
+// was left on those lists back to the safe defaults so no one is stranded on
+// adult content with no UI to switch off.
+function migrate(settings) {
+  const s = { ...settings };
+  if (s.keywordsFilename === "d-keyword") s.keywordsFilename = "keyword";
+  if (s.artistFilename === "d-artist") s.artistFilename = "artist";
+  return s;
+}
+
 /**
  * @returns {object} The settings from localStorage merged over the defaults.
  */
@@ -88,7 +101,7 @@ export function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...defaultSettings };
-    return { ...defaultSettings, ...JSON.parse(raw) };
+    return migrate({ ...defaultSettings, ...JSON.parse(raw) });
   } catch {
     return { ...defaultSettings };
   }

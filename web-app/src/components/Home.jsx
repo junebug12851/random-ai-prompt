@@ -1,11 +1,14 @@
 /**
  * The Home composer — a focused two-pane prompt workspace. The left pane is the
  * building-block cloud (keywords, lists, expansions, dynamic prompts); the right
- * pane is the composer: prompt box with a rotating random suggestion, generate /
- * random / preview / share actions, the generated-prompt list, and save-expansion.
+ * pane is an editor-style composer: a prompt box that fills its space with a
+ * rotating random suggestion, a compact action toolbar (generate / random /
+ * clear / save / share), inline save + share panels, and the generated-prompt
+ * list.
  *
  * Temporarily removed (see notes/plans/removed-pending-readd.md): image
- * generation, the chaos knob, and presets (apply + save).
+ * generation, the chaos knob, presets, and the Normal/Anime style toggle (the
+ * anime word lists mix SFW + explicit adult tags and need a proper split first).
  * @module web-app/components/Home
  */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -30,7 +33,7 @@ export default function Home({ settings, setSettings }) {
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
-  const [shareOpen, setShareOpen] = useState(false);
+  const [panel, setPanel] = useState(""); // "" | "save" | "share"
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -38,10 +41,6 @@ export default function Home({ settings, setSettings }) {
 
   const prompt = settings.prompt;
   const setPrompt = (p) => setSettings({ ...settings, prompt: p });
-  const set = (patch) => setSettings({ ...settings, ...patch });
-
-  const animeOn = settings.keywordsFilename === "d-keyword" && settings.artistFilename === "d-artist";
-  const normalOn = settings.keywordsFilename === "keyword" && settings.artistFilename === "artist";
 
   // A fresh random prompt suggestion that cycles every few seconds. The latest
   // settings live in a ref so the interval reads current word lists without
@@ -88,8 +87,15 @@ export default function Home({ settings, setSettings }) {
   function openShare() {
     const url = shareUrl(settings);
     setShareLink(url);
-    setShareOpen(true);
+    setPanel("share");
     copyLink(url);
+  }
+  function toggleShare() {
+    if (panel === "share") setPanel("");
+    else openShare();
+  }
+  function toggleSave() {
+    setPanel((p) => (p === "save" ? "" : "save"));
   }
   async function copyLink(url = shareLink) {
     try {
@@ -106,6 +112,7 @@ export default function Home({ settings, setSettings }) {
     if (!name || !prompt.trim()) return;
     saveCustomExpansion(name, prompt);
     setExpName("");
+    setPanel("");
     setVersion((v) => v + 1);
   }
 
@@ -171,65 +178,51 @@ export default function Home({ settings, setSettings }) {
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
         <section className="card composer">
-          <textarea
-            className="prompt-input"
-            rows={2}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={suggestion ? `Try: ${suggestion}` : "Type a prompt, or use the building blocks on the left…"}
-          />
-
-          <div className="row actions">
-            <button className="primary icon-btn" onClick={buildPrompts}>
-              ✦ Generate prompt{settings.promptCount > 1 ? "s" : ""}
-            </button>
-            <button className="icon-btn" onClick={useSuggestion} title="Drop the current suggestion into the box" disabled={!suggestion}>
-              🎲 Random
-            </button>
+          <div className="editor">
+            <textarea
+              className="prompt-input"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={suggestion ? `Try: ${suggestion}` : "Type a prompt, or use the building blocks on the left…"}
+            />
             {prompt && (
-              <button className="ghost" onClick={() => setPrompt("")}>
-                Clear
+              <button className="clear-x" onClick={() => setPrompt("")} title="Clear the prompt" aria-label="Clear the prompt">
+                ✕
               </button>
             )}
-            <button
-              className={`ghost${shareOpen ? " on" : ""}`}
-              onClick={() => (shareOpen ? setShareOpen(false) : openShare())}
-              title="Get a link that restores your current settings"
-            >
-              Share link
-            </button>
-            <div className="grow" />
-            <div className="style-toggle">
-              <span className="style-label">
-                Style
-                <span
-                  className="help"
-                  tabIndex={0}
-                  role="img"
-                  aria-label="Style help"
-                  title="Swaps the word lists the random generator pulls from. Normal = general art styles + real-world artists. Anime = danbooru-style anime tags + anime artists. Only affects the random parts — not text you type."
-                >
-                  ?
-                </span>
-              </span>
-              <div className="seg">
-                <button className={normalOn ? "on" : ""} onClick={() => set({ keywordsFilename: "keyword", artistFilename: "artist" })}>
-                  Normal
-                </button>
-                <button className={animeOn ? "on" : ""} onClick={() => set({ keywordsFilename: "d-keyword", artistFilename: "d-artist" })}>
-                  Anime
-                </button>
-              </div>
-            </div>
           </div>
 
-          {shareOpen && (
-            <div className="share-panel">
-              <i className="share-icon" aria-hidden="true">
+          {/* Inline panels (save / share) sit between the editor and the toolbar */}
+          {panel === "save" && (
+            <div className="inline-panel">
+              <i className="panel-icon" aria-hidden="true">
+                ✎
+              </i>
+              <input
+                className="panel-input"
+                placeholder="Name this prompt as a reusable expansion…"
+                value={expName}
+                onChange={(e) => setExpName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveExpansion()}
+                aria-label="Expansion name"
+                autoFocus
+              />
+              <button className="primary" onClick={saveExpansion} disabled={!expName.trim() || !prompt.trim()}>
+                Save
+              </button>
+              <button className="ghost icon-only" onClick={() => setPanel("")} aria-label="Close save panel">
+                ✕
+              </button>
+            </div>
+          )}
+
+          {panel === "share" && (
+            <div className="inline-panel">
+              <i className="panel-icon" aria-hidden="true">
                 🔗
               </i>
               <input
-                className="share-url"
+                className="panel-input"
                 readOnly
                 value={shareLink}
                 onFocus={(e) => e.target.select()}
@@ -238,17 +231,45 @@ export default function Home({ settings, setSettings }) {
               <button className="primary" onClick={() => copyLink()}>
                 {copied ? "✓ Copied" : "Copy"}
               </button>
-              <button className="ghost icon-btn" onClick={() => setShareOpen(false)} aria-label="Close share panel">
+              <button className="ghost icon-only" onClick={() => setPanel("")} aria-label="Close share panel">
                 ✕
               </button>
             </div>
           )}
 
           {error && <p className="error">{error}</p>}
+
+          {/* ---- Compact action toolbar ---- */}
+          <div className="composer-toolbar">
+            <button className="primary generate-btn" onClick={buildPrompts}>
+              ✦ Generate prompt{settings.promptCount > 1 ? "s" : ""}
+            </button>
+            <button className="tool-btn" onClick={useSuggestion} title="Drop the current random suggestion into the box" disabled={!suggestion}>
+              🎲 <span className="tool-label">Random</span>
+            </button>
+
+            <div className="grow" />
+
+            <button
+              className={`tool-btn ghost${panel === "save" ? " on" : ""}`}
+              onClick={toggleSave}
+              disabled={!prompt.trim()}
+              title="Save this prompt as a reusable expansion"
+            >
+              ✎ <span className="tool-label">Save</span>
+            </button>
+            <button
+              className={`tool-btn ghost${panel === "share" ? " on" : ""}`}
+              onClick={toggleShare}
+              title="Get a link that restores your current settings"
+            >
+              🔗 <span className="tool-label">Share</span>
+            </button>
+          </div>
         </section>
 
         {prompts.length > 0 && (
-          <section className="card">
+          <section className="card results-card">
             <div className="results-head">
               <h2>Prompts</h2>
               <span className="count">{prompts.length} generated</span>
@@ -266,16 +287,6 @@ export default function Home({ settings, setSettings }) {
             </ul>
           </section>
         )}
-
-        {/* ---- Save ---- */}
-        <section className="card">
-          <div className="row save-row">
-            <input placeholder="Save prompt as expansion…" value={expName} onChange={(e) => setExpName(e.target.value)} />
-            <button onClick={saveExpansion} disabled={!expName.trim() || !prompt.trim()}>
-              Save expansion
-            </button>
-          </div>
-        </section>
       </div>
     </div>
   );
