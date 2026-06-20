@@ -20,3 +20,5 @@ results.json
 # tutorial pages under tmp/jsdoc-tutorials/ (tmp/ is already ignored). The whole
 # /docs/ tree is generated output (the retired Doxygen build used /docs/html/).
 /docs/
+# list-cleanup audit artifacts (generated)
+scripts/list-cleanup/out/

@@ -25,6 +25,9 @@ import fs from "node:fs";
 // load settings
 import settings from "../src/settings.js";
 
+// content-safety filter (see src/contentSafety.js)
+import { classifyRemoval } from "../src/contentSafety.js";
+
 // Ensure we're within this directory
 process.chdir(import.meta.dirname);
 process.chdir("..");
@@ -75,6 +78,9 @@ for (let i = 1; i < csv.length; i++) {
   if (score < minScore) continue;
 
   const keyword = artist;
+
+  // Drop disallowed content before it ever reaches a list
+  if (classifyRemoval(keyword, { listType: "proper" })) continue;
 
   // Sort into correct file based on category
   if (category == "anime") anime.push(keyword);

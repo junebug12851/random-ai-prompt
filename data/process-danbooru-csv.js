@@ -25,6 +25,10 @@ import fs from "node:fs";
 // load settings
 import settings from "../src/settings.js";
 
+// content-safety filter (keeps regeneration free of slurs / minor-sexual /
+// extreme-shock content — see src/contentSafety.js)
+import { classifyRemoval } from "../src/contentSafety.js";
+
 // Ensure we're within this directory
 process.chdir(import.meta.dirname);
 process.chdir("..");
@@ -70,6 +74,9 @@ for (let i = 0; i < csv.length; i++) {
     .replaceAll(/[\/\\_]/gm, " ")
     .replaceAll(/[\(\)]/gm, "")
     .replaceAll(/^(\W) (\W)$/gm, "$1_$2");
+
+  // Drop disallowed content before it ever reaches a list
+  if (classifyRemoval(keyword, { listType: "content" })) continue;
 
   // Sort into correct file based on keyword type
   if (type == 0) generalKeywords.push(keyword);

@@ -6375,7 +6375,6 @@ Mongol
 Mongolia
 Mongolian
 Mongolic
-Mongoloid
 Monica
 Monique
 Monk
@@ -15819,7 +15818,6 @@ china
 chinaware
 chinchilla
 chine
-chink
 chinless
 chinned
 chinning
@@ -17502,7 +17500,6 @@ coolant
 cooler
 coolie
 coolness
-coon
 coonskin
 coop
 cooper
@@ -18592,7 +18589,6 @@ daring
 dark
 darken
 darkener
-darkie
 darkness
 darkroom
 darling
@@ -20519,7 +20515,6 @@ dyeing
 dyer
 dyestuff
 dying
-dyke
 dynamic
 dynamical
 dynamics
@@ -22217,8 +22212,6 @@ faff
 fag
 fagged
 fagging
-faggot
-fagot
 faience
 fail
 failing
@@ -24663,7 +24656,6 @@ google
 googly
 gooier
 gooiest
-gook
 goon
 goop
 goose
@@ -28713,7 +28705,6 @@ kidney
 kidskin
 kielbasa
 kielbasi
-kike
 kill
 killdeer
 killer
@@ -31745,7 +31736,6 @@ moneymaking
 monger
 mongol
 mongolism
-mongoloid
 mongoose
 mongrel
 monies
@@ -32704,11 +32694,9 @@ nifedipine
 niff
 niffy
 nifty
-nigga
 niggard
 niggardliness
 niggaz
-nigger
 niggle
 niggler
 nigh
@@ -36832,7 +36820,6 @@ presumptuousness
 presuppose
 presupposition
 pretax
-preteen
 pretend
 pretender
 pretense
@@ -38820,7 +38807,6 @@ retake
 retaliate
 retaliation
 retaliatory
-retard
 retardant
 retardation
 retarder
@@ -42160,7 +42146,6 @@ spartan
 spasm
 spasmodic
 spasmodically
-spastic
 spat
 spate
 spathe
@@ -42272,7 +42257,6 @@ spheroid
 spheroidal
 sphincter
 sphinx
-spic
 spice
 spicily
 spiciness
@@ -47826,7 +47810,6 @@ westernize
 westernmost
 westward
 wet
-wetback
 wetland
 wetness
 wetter
