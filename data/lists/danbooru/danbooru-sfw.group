@@ -1,8 +1,7 @@
-# Group: the clean (SFW) danbooru anime list. These are PREPROCESSED SFW-only
-# files (danbooru/d-sfw/*), split from the full lists at build time — not filtered
-# at runtime. See scripts/list-cleanup/split-danbooru-nsfw.mjs.
-d-sfw/general
-d-sfw/artist
-d-sfw/character-c
-d-sfw/character-nc
-d-sfw/meta
+# Group: the clean (SFW) danbooru anime list. Imports the SFW-exclusive lists
+# directly (general is now SFW-only; its NSFW lines live in d/general-nsfw).
+d/general
+d/artist
+d/character-c
+d/character-nc
+d/meta

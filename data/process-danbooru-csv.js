@@ -93,18 +93,15 @@ for (let i = 0; i < csv.length; i++) {
 // src/listManifest.js. Uncategorized ("unknown") tags are folded into general so
 // nothing is lost.
 const dDir = `${settings.listFiles}/danbooru/d`;
-const sfwDir = `${settings.listFiles}/danbooru/d-sfw`;
 fs.mkdirSync(dDir, { recursive: true });
-fs.mkdirSync(sfwDir, { recursive: true });
 
-// Write the full atomic list AND a preprocessed SFW-only copy (no runtime
-// filtering — the danbooru-sfw group reads the d-sfw/ copies directly).
-function writeDanbooru(name, arr) {
-  fs.writeFileSync(`${dDir}/${name}.txt`, arr.join("\n"));
-  fs.writeFileSync(`${sfwDir}/${name}.txt`, arr.filter((l) => !isNsfw(l)).join("\n"));
-}
-writeDanbooru("general", [...generalKeywords, ...unknownKeywords]);
-writeDanbooru("artist", artistKeywords);
-writeDanbooru("character-c", copyrightKeywords);
-writeDanbooru("character-nc", characterKeywords);
-writeDanbooru("meta", metaKeywords);
+// "general" genuinely mixes SFW/NSFW -> split into EXCLUSIVE lists (the full
+// version is the d/general-all group, which imports both). The other atomics are
+// written whole. No runtime filtering, no duplication.
+const general = [...generalKeywords, ...unknownKeywords];
+fs.writeFileSync(`${dDir}/general.txt`, general.filter((l) => !isNsfw(l)).join("\n"));
+fs.writeFileSync(`${dDir}/general-nsfw.txt`, general.filter((l) => isNsfw(l)).join("\n"));
+fs.writeFileSync(`${dDir}/artist.txt`, artistKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/character-c.txt`, copyrightKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/character-nc.txt`, characterKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/meta.txt`, metaKeywords.join("\n"));

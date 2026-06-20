@@ -1,6 +1,6 @@
-# Group: all danbooru tags (anime). Gated as adult.
-# Each line is a list reference, resolved like any {name}.
-d/general
+# Group: all danbooru tags (anime), SFW + NSFW. Gated as adult.
+# Uses the full general (general-all = general + general-nsfw).
+d/general-all
 d/artist
 d/character-c
 d/character-nc
