@@ -296,25 +296,88 @@ select {
   gap: 1rem;
 }
 
-/* ---------- Composer / editor ---------- */
-/* The editor wrapper grows to fill the composer; the textarea fills it and the
-   clear button floats in the corner so the box reads like a real editor. */
-.editor {
+/* ---------- Composer field (chat-style input) ---------- */
+/* A bordered container that reads as the input: a borderless textarea on top,
+   the action bar docked along the bottom edge. The whole field lights up on
+   focus. */
+.composer-field {
   position: relative;
   display: flex;
+  flex-direction: column;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
-.prompt-input {
+.composer-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+.composer-field .prompt-input {
   flex: 1;
   width: 100%;
+  border: none;
+  background: transparent;
   resize: vertical;
   font-size: 1.05rem;
   line-height: 1.55;
-  border-radius: var(--radius);
-  padding: 0.95rem 1.05rem;
+  padding: 0.95rem 1.05rem 0.5rem;
   min-height: 8.5rem;
   max-height: 50vh;
   font-family: var(--font-body);
 }
+.composer-field .prompt-input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* The action bar along the bottom of the field */
+.field-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem;
+}
+.field-bar .grow {
+  flex: 1;
+}
+/* Combined Save / Share entry point */
+.field-util {
+  padding: 0.34rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
+}
+.field-util:hover {
+  background: var(--chip);
+  color: var(--fg);
+}
+.field-util.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* Round icon actions: Random (subtle) + Generate (primary green) */
+.field-act {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  line-height: 1;
+  border-radius: 50%;
+}
+.field-act.primary {
+  font-size: 1.1rem;
+}
+
 .clear-x {
   position: absolute;
   top: 0.5rem;
@@ -328,13 +391,16 @@ select {
   font-size: 0.78rem;
   line-height: 1;
   border-radius: 50%;
-  background: var(--bg-2);
+  background: var(--panel);
   border: 1px solid var(--border);
   color: var(--muted);
   opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
-.editor:hover .clear-x,
+.composer-field:hover .clear-x,
 .clear-x:focus-visible {
   opacity: 1;
 }
@@ -343,43 +409,22 @@ select {
   border-color: var(--accent);
 }
 
-/* ---------- Composer toolbar ---------- */
-.composer-toolbar {
+/* ---------- Combined Save / Share panel ---------- */
+.action-panel {
+  margin-top: 0.7rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.85rem;
-  flex: none;
-  flex-wrap: wrap;
-}
-.composer-toolbar .grow {
-  flex: 1;
-}
-.generate-btn {
-  font-size: 0.98rem;
-  padding: 0.62rem 1.2rem;
-}
-.tool-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.tool-btn.ghost.on {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ---------- Inline panels (save / share) ---------- */
-.inline-panel {
-  margin-top: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
   background: var(--panel-2);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.6rem;
+  padding: 0.7rem 0.75rem;
   flex: none;
+}
+.ap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 .panel-icon {
   font-style: normal;

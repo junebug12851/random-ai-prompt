@@ -33,7 +33,7 @@ export default function Home({ settings, setSettings }) {
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
-  const [panel, setPanel] = useState(""); // "" | "save" | "share"
+  const [panelOpen, setPanelOpen] = useState(false); // the combined Save / Share panel
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -82,20 +82,15 @@ export default function Home({ settings, setSettings }) {
     }
   }
 
-  // Open the share panel: build the link, reveal it, and try to copy it. The
-  // link stays visible either way, so it works even if the clipboard is blocked.
-  function openShare() {
-    const url = shareUrl(settings);
-    setShareLink(url);
-    setPanel("share");
-    copyLink(url);
-  }
-  function toggleShare() {
-    if (panel === "share") setPanel("");
-    else openShare();
-  }
-  function toggleSave() {
-    setPanel((p) => (p === "save" ? "" : "save"));
+  // The combined Save / Share panel. Opening it builds a fresh share link so it's
+  // ready to copy; the link stays visible even if the clipboard is blocked.
+  function togglePanel() {
+    if (panelOpen) {
+      setPanelOpen(false);
+    } else {
+      setShareLink(shareUrl(settings));
+      setPanelOpen(true);
+    }
   }
   async function copyLink(url = shareLink) {
     try {
@@ -112,7 +107,7 @@ export default function Home({ settings, setSettings }) {
     if (!name || !prompt.trim()) return;
     saveCustomExpansion(name, prompt);
     setExpName("");
-    setPanel("");
+    setPanelOpen(false);
     setVersion((v) => v + 1);
   }
 
@@ -178,7 +173,9 @@ export default function Home({ settings, setSettings }) {
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
         <section className="card composer">
-          <div className="editor">
+          {/* The prompt box is a chat-style field: a textarea with the actions
+              docked along its bottom edge. */}
+          <div className="composer-field">
             <textarea
               className="prompt-input"
               value={prompt}
@@ -190,82 +187,71 @@ export default function Home({ settings, setSettings }) {
                 ✕
               </button>
             )}
-          </div>
 
-          {/* Inline panels (save / share) sit between the editor and the toolbar */}
-          {panel === "save" && (
-            <div className="inline-panel">
-              <i className="panel-icon" aria-hidden="true">
-                ✎
-              </i>
-              <input
-                className="panel-input"
-                placeholder="Name this prompt as a reusable expansion…"
-                value={expName}
-                onChange={(e) => setExpName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && saveExpansion()}
-                aria-label="Expansion name"
-                autoFocus
-              />
-              <button className="primary" onClick={saveExpansion} disabled={!expName.trim() || !prompt.trim()}>
-                Save
+            <div className="field-bar">
+              <button
+                className={`field-util${panelOpen ? " on" : ""}`}
+                onClick={togglePanel}
+                title="Save this prompt as an expansion, or get a shareable link"
+              >
+                Save / Share
               </button>
-              <button className="ghost icon-only" onClick={() => setPanel("")} aria-label="Close save panel">
-                ✕
+
+              <div className="grow" />
+
+              <button className="field-act" onClick={useSuggestion} disabled={!suggestion} title="Random — drop a suggestion in" aria-label="Random suggestion">
+                🎲
+              </button>
+              <button
+                className="field-act primary"
+                onClick={buildPrompts}
+                title={`Generate prompt${settings.promptCount > 1 ? "s" : ""}`}
+                aria-label="Generate prompt"
+              >
+                ✦
               </button>
             </div>
-          )}
+          </div>
 
-          {panel === "share" && (
-            <div className="inline-panel">
-              <i className="panel-icon" aria-hidden="true">
-                🔗
-              </i>
-              <input
-                className="panel-input"
-                readOnly
-                value={shareLink}
-                onFocus={(e) => e.target.select()}
-                aria-label="Shareable link that restores these settings"
-              />
-              <button className="primary" onClick={() => copyLink()}>
-                {copied ? "✓ Copied" : "Copy"}
-              </button>
-              <button className="ghost icon-only" onClick={() => setPanel("")} aria-label="Close share panel">
-                ✕
-              </button>
+          {/* Combined Save / Share panel, opened from the field bar */}
+          {panelOpen && (
+            <div className="action-panel">
+              <div className="ap-row">
+                <i className="panel-icon" aria-hidden="true">
+                  ✎
+                </i>
+                <input
+                  className="panel-input"
+                  placeholder="Save this prompt as a reusable expansion…"
+                  value={expName}
+                  onChange={(e) => setExpName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && saveExpansion()}
+                  aria-label="Expansion name"
+                  autoFocus
+                />
+                <button className="primary" onClick={saveExpansion} disabled={!expName.trim() || !prompt.trim()}>
+                  Save
+                </button>
+              </div>
+              <div className="ap-row">
+                <i className="panel-icon" aria-hidden="true">
+                  🔗
+                </i>
+                <input
+                  className="panel-input"
+                  readOnly
+                  value={shareLink}
+                  onFocus={(e) => e.target.select()}
+                  aria-label="Shareable link that restores these settings"
+                />
+                <button className="primary" onClick={() => copyLink()}>
+                  {copied ? "✓ Copied" : "Copy"}
+                </button>
+              </div>
             </div>
           )}
 
           {error && <p className="error">{error}</p>}
-
-          {/* ---- Compact action toolbar ---- */}
-          <div className="composer-toolbar">
-            <button className="primary generate-btn" onClick={buildPrompts}>
-              ✦ Generate prompt{settings.promptCount > 1 ? "s" : ""}
-            </button>
-            <button className="tool-btn" onClick={useSuggestion} title="Drop the current random suggestion into the box" disabled={!suggestion}>
-              🎲 <span className="tool-label">Random</span>
-            </button>
-
-            <div className="grow" />
-
-            <button
-              className={`tool-btn ghost${panel === "save" ? " on" : ""}`}
-              onClick={toggleSave}
-              disabled={!prompt.trim()}
-              title="Save this prompt as a reusable expansion"
-            >
-              ✎ <span className="tool-label">Save</span>
-            </button>
-            <button
-              className={`tool-btn ghost${panel === "share" ? " on" : ""}`}
-              onClick={toggleShare}
-              title="Get a link that restores your current settings"
-            >
-              🔗 <span className="tool-label">Share</span>
-            </button>
-          </div>
         </section>
 
         {prompts.length > 0 && (
