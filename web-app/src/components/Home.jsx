@@ -18,6 +18,40 @@ import { shareUrl } from "../lib/share.js";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
+// Crisp monochrome action icons (stroke = currentColor) so the four field
+// buttons read as one cohesive set.
+const ico = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+const SaveIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+    <path d="M17 21v-8H7v8M7 3v5h8" />
+  </svg>
+);
+const ShareIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+const ShuffleIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <polyline points="16 3 21 3 21 8" />
+    <line x1="4" y1="20" x2="21" y2="3" />
+    <polyline points="21 16 21 21 16 21" />
+    <line x1="15" y1="15" x2="21" y2="21" />
+    <line x1="4" y1="4" x2="9" y2="9" />
+  </svg>
+);
+const SparkleIcon = () => (
+  <svg {...ico} fill="currentColor" stroke="none" aria-hidden="true">
+    <path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" />
+    <path d="M19 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
+  </svg>
+);
+
 /**
  * The compose workspace.
  * @param {object} props
@@ -33,7 +67,7 @@ export default function Home({ settings, setSettings }) {
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
-  const [panelOpen, setPanelOpen] = useState(false); // the combined Save / Share panel
+  const [panel, setPanel] = useState(""); // "" | "save" | "share"
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -82,14 +116,17 @@ export default function Home({ settings, setSettings }) {
     }
   }
 
-  // The combined Save / Share panel. Opening it builds a fresh share link so it's
-  // ready to copy; the link stays visible even if the clipboard is blocked.
-  function togglePanel() {
-    if (panelOpen) {
-      setPanelOpen(false);
+  function toggleSave() {
+    setPanel((p) => (p === "save" ? "" : "save"));
+  }
+  // Opening Share builds a fresh link so it's ready to copy; the link stays
+  // visible even if the clipboard is blocked.
+  function toggleShare() {
+    if (panel === "share") {
+      setPanel("");
     } else {
       setShareLink(shareUrl(settings));
-      setPanelOpen(true);
+      setPanel("share");
     }
   }
   async function copyLink(url = shareLink) {
@@ -107,7 +144,7 @@ export default function Home({ settings, setSettings }) {
     if (!name || !prompt.trim()) return;
     saveCustomExpansion(name, prompt);
     setExpName("");
-    setPanelOpen(false);
+    setPanel("");
     setVersion((v) => v + 1);
   }
 
@@ -189,18 +226,29 @@ export default function Home({ settings, setSettings }) {
             )}
 
             <div className="field-bar">
-              <button
-                className={`field-util${panelOpen ? " on" : ""}`}
-                onClick={togglePanel}
-                title="Save this prompt as an expansion, or get a shareable link"
-              >
-                Save / Share
-              </button>
-
               <div className="grow" />
 
+              <button
+                className={`field-act${panel === "save" ? " on" : ""}`}
+                onClick={toggleSave}
+                disabled={!prompt.trim()}
+                title="Save as expansion"
+                aria-label="Save as expansion"
+                aria-pressed={panel === "save"}
+              >
+                <SaveIcon />
+              </button>
+              <button
+                className={`field-act${panel === "share" ? " on" : ""}`}
+                onClick={toggleShare}
+                title="Share link"
+                aria-label="Share link"
+                aria-pressed={panel === "share"}
+              >
+                <ShareIcon />
+              </button>
               <button className="field-act" onClick={useSuggestion} disabled={!suggestion} title="Random — drop a suggestion in" aria-label="Random suggestion">
-                🎲
+                <ShuffleIcon />
               </button>
               <button
                 className="field-act primary"
@@ -208,17 +256,17 @@ export default function Home({ settings, setSettings }) {
                 title={`Generate prompt${settings.promptCount > 1 ? "s" : ""}`}
                 aria-label="Generate prompt"
               >
-                ✦
+                <SparkleIcon />
               </button>
             </div>
           </div>
 
-          {/* Combined Save / Share panel, opened from the field bar */}
-          {panelOpen && (
+          {/* Save / Share panels, opened from the field bar */}
+          {panel === "save" && (
             <div className="action-panel">
               <div className="ap-row">
                 <i className="panel-icon" aria-hidden="true">
-                  ✎
+                  <SaveIcon />
                 </i>
                 <input
                   className="panel-input"
@@ -233,9 +281,13 @@ export default function Home({ settings, setSettings }) {
                   Save
                 </button>
               </div>
+            </div>
+          )}
+          {panel === "share" && (
+            <div className="action-panel">
               <div className="ap-row">
                 <i className="panel-icon" aria-hidden="true">
-                  🔗
+                  <ShareIcon />
                 </i>
                 <input
                   className="panel-input"

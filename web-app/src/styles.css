@@ -344,25 +344,7 @@ select {
 .field-bar .grow {
   flex: 1;
 }
-/* Combined Save / Share entry point */
-.field-util {
-  padding: 0.34rem 0.75rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--fg-soft);
-}
-.field-util:hover {
-  background: var(--chip);
-  color: var(--fg);
-}
-.field-util.on {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-/* Round icon actions: Random (subtle) + Generate (primary green) */
+/* Round icon actions: Save / Share / Random (subtle) + Generate (primary green) */
 .field-act {
   width: 38px;
   height: 38px;
@@ -370,12 +352,22 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.05rem;
   line-height: 1;
   border-radius: 50%;
+  color: var(--fg-soft);
+}
+.field-act:hover {
+  color: var(--fg);
+}
+.field-act.on {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .field-act.primary {
-  font-size: 1.1rem;
+  color: var(--accent-ink);
+}
+.field-act.primary:hover {
+  color: var(--accent-ink);
 }
 
 .clear-x {
@@ -427,10 +419,10 @@ select {
   gap: 0.45rem;
 }
 .panel-icon {
-  font-style: normal;
-  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
   flex: none;
-  opacity: 0.8;
+  color: var(--muted);
 }
 .panel-input {
   flex: 1;
