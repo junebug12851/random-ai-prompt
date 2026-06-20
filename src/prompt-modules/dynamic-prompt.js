@@ -44,7 +44,7 @@ function danbooruReplacer(prompt, settings) {
 
   // Person (Case-Insensitive) followed by word-boundry, replace with
   // {d-person} and carry over word boundry
-  prompt = prompt.replaceAll(/, ?Person/gim, "{d-person}");
+  prompt = prompt.replaceAll(/, ?Person/gim, "{d/person}");
 
   return prompt;
 }

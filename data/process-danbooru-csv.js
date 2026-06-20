@@ -87,15 +87,15 @@ for (let i = 0; i < csv.length; i++) {
   else unknownKeywords.push(keyword);
 }
 
-// Write out ONLY the atomic lists. The composite lists that used to be written
-// here (d-character, d-keyword, danbooru) are now VIRTUAL lists assembled on
-// demand from these atomics — see src/listManifest.js. Uncategorized ("unknown")
-// tags are folded into d-general so nothing is lost.
-fs.writeFileSync(
-  `${settings.listFiles}/d-general.txt`,
-  [...generalKeywords, ...unknownKeywords].join("\n"),
-);
-fs.writeFileSync(`${settings.listFiles}/d-artist.txt`, artistKeywords.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/d-character-c.txt`, copyrightKeywords.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/d-character-nc.txt`, characterKeywords.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/d-meta.txt`, metaKeywords.join("\n"));
+// Write out ONLY the atomic lists, into the danbooru/d/ shortcode folder. The
+// composite lists that used to be written here (d-character, d-keyword, danbooru)
+// are now VIRTUAL lists assembled on demand from these atomics — see
+// src/listManifest.js. Uncategorized ("unknown") tags are folded into general so
+// nothing is lost.
+const dDir = `${settings.listFiles}/danbooru/d`;
+fs.mkdirSync(dDir, { recursive: true });
+fs.writeFileSync(`${dDir}/general.txt`, [...generalKeywords, ...unknownKeywords].join("\n"));
+fs.writeFileSync(`${dDir}/artist.txt`, artistKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/character-c.txt`, copyrightKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/character-nc.txt`, characterKeywords.join("\n"));
+fs.writeFileSync(`${dDir}/meta.txt`, metaKeywords.join("\n"));

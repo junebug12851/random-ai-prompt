@@ -35,7 +35,7 @@ export default function (settings) {
 
   let str = [];
 
-  str.push(keywordRepeater("d-general", false, settings));
+  str.push(keywordRepeater("d/general", false, settings));
 
   if (_.random(0.0, 1.0, true) < 0.2)
     for (let i = 0; i < characterCount; i++) {
@@ -43,7 +43,7 @@ export default function (settings) {
     }
 
   for (let i = 0; i < metaCount; i++) {
-    str.push(`{d-meta}`);
+    str.push(`{d/meta}`);
   }
 
   return str.join(", ");

@@ -32,6 +32,22 @@ the two engine loaders [`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) 
 so `listManifest.js` itself stays browser-safe (no Node imports), like `gatedLists.js`. `listNames()`
 returns physical + virtual names, so virtual lists are suggestible and gateable like any other.
 
+## Folder organization & name resolution
+
+Lists live in folders under `data/lists/` (danbooru, artist, word, name, place, lore,
+nature, look, style, scene, brand, keyword) — see `data/lists/README.md`. The danbooru
+group keeps a `d/` short-code subfolder so old `d-general` → `danbooru/d/general`,
+referenced terse as `{d/general}`.
+
+References resolve by **path suffix** via `resolveName()` (listManifest.js): exact match
+wins, else any name ending `/<ref>`, choosing the **shallowest** path (folders act as
+defaults), ties broken by `compareNames()` — a guaranteed natural order (symbols, then
+numeric-order numbers, then letters) so users can force a default by prefixing a name.
+All three loaders walk `data/lists` recursively and resolve through this, so bare
+filenames, partial paths, and full paths all work and folders can nest arbitrarily.
+Basenames were kept unique during the move so the ~78 existing `{name}` references in
+dynamic prompts still resolve; only the danbooru `d-*` string references were updated.
+
 ## Content safety
 
 [`../../src/contentSafety.js`](../../src/contentSafety.js) (also browser-safe) is the single source of the

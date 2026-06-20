@@ -22,7 +22,13 @@
  */
 
 // List files that are only drawn from when `includeAdult` is enabled.
-export const gatedLists = ["danbooru", "d-general", "d-keyword", "artist-nudity", "keyword-adult"];
+export const gatedLists = [
+  "danbooru",
+  "danbooru/d/general",
+  "d-keyword",
+  "artist/nudity",
+  "keyword/keyword-adult",
+];
 
 // Dynamic prompts that are only suggested when `includeAdult` is enabled.
 export const gatedDynPrompts = ["danbooru"];

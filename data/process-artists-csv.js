@@ -101,25 +101,27 @@ for (let i = 1; i < csv.length; i++) {
   else unknown.push(keyword);
 }
 
-// Write out files
-fs.writeFileSync(`${settings.listFiles}/artist-anime.txt`, anime.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-bw.txt`, blackWhite.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-cartoon.txt`, cartoon.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-dlow.txt`, digipaLowImpact.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-dmed.txt`, digipaMedImpact.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-dhigh.txt`, digipaHighImpact.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-fareast.txt`, fareast.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-fineart.txt`, fineart.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-nudity.txt`, nudity.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-scribbles.txt`, scribbles.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-special.txt`, special.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-ukioe.txt`, ukioe.join("\n"));
-fs.writeFileSync(`${settings.listFiles}/artist-weird.txt`, weird.join("\n"));
+// Write out files into the artist/ folder (prefix dropped).
+const aDir = `${settings.listFiles}/artist`;
+fs.mkdirSync(aDir, { recursive: true });
+fs.writeFileSync(`${aDir}/anime.txt`, anime.join("\n"));
+fs.writeFileSync(`${aDir}/bw.txt`, blackWhite.join("\n"));
+fs.writeFileSync(`${aDir}/cartoon.txt`, cartoon.join("\n"));
+fs.writeFileSync(`${aDir}/dlow.txt`, digipaLowImpact.join("\n"));
+fs.writeFileSync(`${aDir}/dmed.txt`, digipaMedImpact.join("\n"));
+fs.writeFileSync(`${aDir}/dhigh.txt`, digipaHighImpact.join("\n"));
+fs.writeFileSync(`${aDir}/fareast.txt`, fareast.join("\n"));
+fs.writeFileSync(`${aDir}/fineart.txt`, fineart.join("\n"));
+fs.writeFileSync(`${aDir}/nudity.txt`, nudity.join("\n"));
+fs.writeFileSync(`${aDir}/scribbles.txt`, scribbles.join("\n"));
+fs.writeFileSync(`${aDir}/special.txt`, special.join("\n"));
+fs.writeFileSync(`${aDir}/ukioe.txt`, ukioe.join("\n"));
+fs.writeFileSync(`${aDir}/weird.txt`, weird.join("\n"));
 
 // The composite "artist-digipa" and "artist" lists that used to be written here
-// are now VIRTUAL lists assembled on demand from the atomic artist-* lists —
+// are now VIRTUAL lists assembled on demand from the atomic artist/* lists —
 // see src/listManifest.js. "unknown"-category artists are appended to
-// artist-special so they are still drawn.
+// artist/special so they are still drawn.
 if (unknown.length) {
-  fs.appendFileSync(`${settings.listFiles}/artist-special.txt`, "\n" + unknown.join("\n"));
+  fs.appendFileSync(`${aDir}/special.txt`, "\n" + unknown.join("\n"));
 }

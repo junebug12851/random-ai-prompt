@@ -82,7 +82,7 @@ export default function (argv, settings, imageSettings, upscaleSettings, allSett
 
   // Switch to anime artists/keywords if specified
   if (argv.animeWords !== undefined || argv.danbooruWords !== undefined) {
-    settings.artistFilename = "d-artist";
+    settings.artistFilename = "d/artist";
     settings.keywordsFilename = "d-keyword";
   }
 

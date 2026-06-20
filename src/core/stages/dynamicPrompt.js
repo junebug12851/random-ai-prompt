@@ -22,7 +22,7 @@ export function makeDynamicPromptStage(loader) {
     ) {
       return prompt;
     }
-    return prompt.replaceAll(/, ?Person/gim, "{d-person}");
+    return prompt.replaceAll(/, ?Person/gim, "{d/person}");
   }
 
   function convertToPath(name) {

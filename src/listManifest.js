@@ -41,41 +41,41 @@ import { isNsfw } from "./contentSafety.js";
  * @type {Object<string,{category?:string,anime?:boolean,nsfw?:boolean}>}
  */
 export const listTags = {
-  // danbooru / anime content
+  // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>")
   danbooru: { category: "danbooru", anime: true, nsfw: true },
   "danbooru-sfw": { category: "danbooru", anime: true, nsfw: false },
-  "d-general": { category: "danbooru", anime: true, nsfw: true },
-  "d-artist": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/general": { category: "danbooru", anime: true, nsfw: true },
+  "danbooru/d/artist": { category: "danbooru", anime: true, nsfw: false },
   "d-character": { category: "danbooru", anime: true, nsfw: false },
-  "d-character-c": { category: "danbooru", anime: true, nsfw: false },
-  "d-character-nc": { category: "danbooru", anime: true, nsfw: false },
-  "d-meta": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/character-c": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/character-nc": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/meta": { category: "danbooru", anime: true, nsfw: false },
   "d-keyword": { category: "danbooru", anime: true, nsfw: true },
-  "d-person": { category: "danbooru", anime: true, nsfw: false },
-  "keyword-adult": { category: "keyword", anime: false, nsfw: true },
-  "artist-anime": { category: "artist", anime: true, nsfw: false },
-  "anime-name": { category: "subject", anime: true, nsfw: false },
-  "artist-nudity": { category: "artist", anime: false, nsfw: true },
+  "danbooru/d/person": { category: "danbooru", anime: true, nsfw: false },
+  "keyword/keyword-adult": { category: "keyword", anime: false, nsfw: true },
+  "artist/anime": { category: "artist", anime: true, nsfw: false },
+  "name/anime-name": { category: "subject", anime: true, nsfw: false },
+  "artist/nudity": { category: "artist", anime: false, nsfw: true },
 
   // dictionary-derived part-of-speech lists (general English, sfw)
-  "dict-adjective": { category: "pos", anime: false, nsfw: false },
-  "dict-noun": { category: "pos", anime: false, nsfw: false },
-  "dict-verb": { category: "pos", anime: false, nsfw: false },
-  "dict-adverb": { category: "pos", anime: false, nsfw: false },
-  "dict-misc": { category: "pos", anime: false, nsfw: false },
+  "word/dict-adjective": { category: "pos", anime: false, nsfw: false },
+  "word/dict-noun": { category: "pos", anime: false, nsfw: false },
+  "word/dict-verb": { category: "pos", anime: false, nsfw: false },
+  "word/dict-adverb": { category: "pos", anime: false, nsfw: false },
+  "word/dict-misc": { category: "pos", anime: false, nsfw: false },
 
   // proper-noun categories (hand-classified from the old keyword.txt dump)
-  demonym: { category: "subject", anime: false, nsfw: false },
-  "given-name": { category: "name", anime: false, nsfw: false },
-  person: { category: "name", anime: false, nsfw: false },
-  place: { category: "place", anime: false, nsfw: false },
-  organization: { category: "brand", anime: false, nsfw: false },
-  mythology: { category: "subject", anime: false, nsfw: false },
-  astronomy: { category: "subject", anime: false, nsfw: false },
-  "people-group": { category: "subject", anime: false, nsfw: false },
-  religion: { category: "subject", anime: false, nsfw: false },
-  history: { category: "subject", anime: false, nsfw: false },
-  work: { category: "subject", anime: false, nsfw: false },
+  "name/demonym": { category: "subject", anime: false, nsfw: false },
+  "name/given-name": { category: "name", anime: false, nsfw: false },
+  "name/person": { category: "name", anime: false, nsfw: false },
+  "place/place": { category: "place", anime: false, nsfw: false },
+  "brand/organization": { category: "brand", anime: false, nsfw: false },
+  "lore/mythology": { category: "subject", anime: false, nsfw: false },
+  "lore/astronomy": { category: "subject", anime: false, nsfw: false },
+  "lore/people-group": { category: "subject", anime: false, nsfw: false },
+  "lore/religion": { category: "subject", anime: false, nsfw: false },
+  "lore/history": { category: "subject", anime: false, nsfw: false },
+  "lore/work": { category: "subject", anime: false, nsfw: false },
 };
 
 /**
@@ -85,32 +85,39 @@ export const listTags = {
  * @type {Object<string,{union:string[],filter?:("sfw"|"nsfw")}>}
  */
 export const virtualLists = {
-  // --- collapsed danbooru composites (were duplicated files on disk) ---
-  "d-character": { union: ["d-character-nc", "d-character-c"] },
-  "d-keyword": { union: ["d-general", "d-character-c", "d-character-nc", "d-meta"] },
-  danbooru: { union: ["d-general", "d-artist", "d-character-c", "d-character-nc", "d-meta"] },
+  // --- collapsed danbooru composites (members live under danbooru/d/) ---
+  "d-character": { union: ["danbooru/d/character-nc", "danbooru/d/character-c"] },
+  "d-keyword": {
+    union: ["danbooru/d/general", "danbooru/d/character-c", "danbooru/d/character-nc", "danbooru/d/meta"],
+  },
+  danbooru: {
+    union: [
+      "danbooru/d/general", "danbooru/d/artist", "danbooru/d/character-c",
+      "danbooru/d/character-nc", "danbooru/d/meta",
+    ],
+  },
   // SFW view of danbooru — the clean anime list, no second file to maintain
   "danbooru-sfw": { union: ["danbooru"], filter: "sfw" },
 
   // --- collapsed artist composites ---
-  "artist-digipa": { union: ["artist-dhigh", "artist-dmed", "artist-dlow"] },
+  "artist-digipa": { union: ["artist/dhigh", "artist/dmed", "artist/dlow"] },
   artist: {
     union: [
-      "artist-anime", "artist-bw", "artist-cartoon", "artist-dhigh",
-      "artist-dmed", "artist-dlow", "artist-fareast", "artist-fineart",
-      "artist-nudity", "artist-scribbles", "artist-special", "artist-ukioe",
-      "artist-weird",
+      "artist/anime", "artist/bw", "artist/cartoon", "artist/dhigh",
+      "artist/dmed", "artist/dlow", "artist/fareast", "artist/fineart",
+      "artist/nudity", "artist/scribbles", "artist/special", "artist/ukioe",
+      "artist/weird",
     ],
   },
 
   // --- curated + dictionary, combined (quality default stays separate) ---
   // any human name (first names + notable people)
-  name: { union: ["given-name", "person"] },
+  name: { union: ["name/given-name", "name/person"] },
 
-  "adjective-all": { union: ["adjective", "dict-adjective", "demonym"] },
-  "noun-all": { union: ["noun", "dict-noun", "demonym"] },
-  "verb-all": { union: ["verb", "dict-verb"] },
-  "adverb-all": { union: ["adverb", "dict-adverb"] },
+  "adjective-all": { union: ["word/adjective", "word/dict-adjective", "name/demonym"] },
+  "noun-all": { union: ["word/noun", "word/dict-noun", "name/demonym"] },
+  "verb-all": { union: ["word/verb", "word/dict-verb"] },
+  "adverb-all": { union: ["word/adverb", "word/dict-adverb"] },
 };
 
 /**
@@ -155,11 +162,64 @@ export function resolveListLines(name, readPhysical, seen = new Set()) {
 }
 
 /**
+ * Class rank for a single character: symbols (0) sort before digits (1) before
+ * letters (2). Gives a guaranteed, predictable ordering.
+ * @param {string} ch A single character.
+ * @returns {number} 0 symbol, 1 digit, 2 letter.
+ */
+function charRank(ch) {
+  if (ch >= "0" && ch <= "9") return 1;
+  const l = ch.toLowerCase();
+  if (l >= "a" && l <= "z") return 2;
+  return 0;
+}
+
+/**
+ * Natural-order comparator giving a GUARANTEED load/precedence order: symbols
+ * first, then numbers in true numeric order (so `2` before `10`), then letters
+ * alphabetically. Lets users engineer a deterministic default by prefixing a
+ * name with a symbol or number.
+ * @param {string} a First name.
+ * @param {string} b Second name.
+ * @returns {number} Negative, zero, or positive.
+ */
+export function compareNames(a, b) {
+  a = String(a);
+  b = String(b);
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    const ca = a[i];
+    const cb = b[j];
+    if (ca >= "0" && ca <= "9" && cb >= "0" && cb <= "9") {
+      let ni = i;
+      let nj = j;
+      while (ni < a.length && a[ni] >= "0" && a[ni] <= "9") ni++;
+      while (nj < b.length && b[nj] >= "0" && b[nj] <= "9") nj++;
+      const na = parseInt(a.slice(i, ni), 10);
+      const nb = parseInt(b.slice(j, nj), 10);
+      if (na !== nb) return na - nb;
+      i = ni;
+      j = nj;
+      continue;
+    }
+    const ra = charRank(ca);
+    const rb = charRank(cb);
+    if (ra !== rb) return ra - rb;
+    if (ca !== cb) return ca < cb ? -1 : 1;
+    i++;
+    j++;
+  }
+  return a.length - i - (b.length - j);
+}
+
+/**
  * @param {string[]} physicalNames The on-disk list names.
- * @returns {string[]} Physical names plus all virtual-list names (de-duplicated).
+ * @returns {string[]} Physical names plus all virtual-list names (de-duplicated),
+ *   in the guaranteed natural order (see compareNames).
  */
 export function allListNames(physicalNames) {
-  return Array.from(new Set([...physicalNames, ...Object.keys(virtualLists)]));
+  return Array.from(new Set([...physicalNames, ...Object.keys(virtualLists)])).sort(compareNames);
 }
 
 /**
@@ -178,10 +238,12 @@ export function resolveName(ref, names) {
   const suffix = `/${ref}`;
   const matches = names.filter((n) => n.endsWith(suffix));
   if (!matches.length) return ref;
+  // Shallowest path wins (folders act as defaults); ties broken by the
+  // guaranteed natural order (symbols < numbers < letters).
   matches.sort((a, b) => {
     const da = a.split("/").length;
     const db = b.split("/").length;
-    return da !== db ? da - db : a.localeCompare(b);
+    return da !== db ? da - db : compareNames(a, b);
   });
   return matches[0];
 }
