@@ -1,5 +1,5 @@
-# Group: all danbooru tags (anime), SFW + NSFW. Gated as adult.
-# Uses the full general (general-all = general + general-nsfw).
+# Group: all danbooru tags (anime), SFW by default. {danbooru} = SFW;
+# {danbooru-nsfw} includes NSFW.
 d/general
 d/artist
 d/character-c

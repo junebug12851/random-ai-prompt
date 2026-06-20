@@ -22,11 +22,13 @@
  */
 
 // List files that are only drawn from when `includeAdult` is enabled.
+// Naming convention: plain `<name>` is SFW (ungated); `<name>-nsfw-only` is the
+// NSFW-only list and `<name>-nsfw` is the group that imports both — both gated.
 export const gatedLists = [
-  "danbooru/danbooru",
-  "danbooru/d/general",
+  "danbooru/danbooru-nsfw",
+  "danbooru/d-keyword-nsfw",
   "danbooru/d/general-nsfw",
-  "danbooru/d-keyword",
+  "danbooru/d/general-nsfw-only",
   "artist/nudity",
   "keyword/keyword-adult",
   "look/clothes-adult",

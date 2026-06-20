@@ -1,4 +1,5 @@
-# Group: danbooru, everything except artists (SFW + NSFW). Gated as adult.
+# Group: danbooru, everything except artists, SFW. {d-keyword} = SFW;
+# {d-keyword-nsfw} includes NSFW.
 d/general
 d/character-c
 d/character-nc

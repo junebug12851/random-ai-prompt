@@ -40,17 +40,19 @@ just like a list (`{danbooru}`). Groups can live anywhere in the tree.
 
 - Lines starting with `#` are comments.
 - Groups are pure unions — there is **no runtime content filtering**.
-- **SFW/NSFW are exclusive lists.** When a list genuinely mixes both, it is split
-  into `<name>-sfw.txt` (SFW-only) and `<name>-nsfw.txt` (NSFW-only), plus a
-  `<name>.group` that imports both. So the plain `{name}` means BOTH, `{name-sfw}`
-  is the only SFW-only reference, and `{name-nsfw}` is NSFW-only. Example:
-  `danbooru/d/general-sfw`, `danbooru/d/general-nsfw`, and `danbooru/d/general.group`
-  (so `{d/general}` = both). Lists that are entirely one type are left whole.
+- **SFW/NSFW are exclusive lists.** When a list genuinely mixes both, the plain
+  `<name>.txt` holds the **SFW** content (so `{name}` is safe by default — no typing
+  needed), `<name>-nsfw-only.txt` holds the NSFW-only content, and `<name>-nsfw.group`
+  imports both. So `{name}` = SFW, `{name-nsfw-only}` = NSFW-only, and `{name-nsfw}`
+  = everything. Example: `danbooru/d/general` (SFW), `danbooru/d/general-nsfw-only`,
+  and `danbooru/d/general-nsfw.group` (both). Lists that are entirely one type are
+  left whole.
 - Groups may include other groups, up to **3 levels deep** (a recursion cutoff,
   plus a cycle guard).
 
-Current groups: `danbooru` (all `d/*`), `danbooru-sfw`, `d-character`, `d-keyword`,
-`artist` (all artist styles), `artist-digipa`, `name` (given-name + person).
+Current groups: `danbooru` (SFW `d/*`), `danbooru-nsfw` (incl. NSFW), `d-keyword`
+(SFW), `d-keyword-nsfw`, `d/general-nsfw`, `d-character`, `artist` (all artist
+styles), `artist-digipa`, `name` (given-name + person).
 
 ## Content safety & gating
 

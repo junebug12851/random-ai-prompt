@@ -19,13 +19,13 @@
  * @brief List metadata + virtual (composite) lists. Pure data + a tiny resolver,
  * no Node-only imports (browser-safe, like gatedLists.js / contentSafety.js).
  *
- * A VIRTUAL list is one defined as a union of other lists (physical or virtual)
- * rather than a file on disk. This is how the project "collapses lists into
- * others": the big duplicated files the build scripts used to emit (danbooru,
+ * A COMPOSITE list is a `.group` file: a union of other lists (resolved like any
+ * reference) rather than a file on disk. This is how the project "collapses lists
+ * into others": the big duplicated files the build scripts used to emit (danbooru,
  * d-keyword, d-character, artist, artist-digipa) are now computed on demand from
- * their atomic parts, with cross-member de-duplication. A virtual list may also
- * carry a `filter` ("sfw"/"nsfw") applied via the contentSafety NSFW lexicon —
- * that is how `danbooru-sfw` is produced without a second hand-maintained file.
+ * their atomic parts, with cross-member de-duplication. There is NO runtime content
+ * filtering — SFW/NSFW are preprocessed into exclusive files: plain `<name>.txt` is
+ * SFW, `<name>-nsfw-only.txt` is NSFW-only, and `<name>-nsfw.group` imports both.
  *
  * `listTags` records per-list metadata (category + anime/nsfw flags) for the UI
  * and for documentation; it does not gate anything by itself (gating stays in
@@ -39,16 +39,20 @@
  * @type {Object<string,{category?:string,anime?:boolean,nsfw?:boolean}>}
  */
 export const listTags = {
-  // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>")
-  danbooru: { category: "danbooru", anime: true, nsfw: true },
-  "danbooru-sfw": { category: "danbooru", anime: true, nsfw: false },
-  "danbooru/d/general": { category: "danbooru", anime: true, nsfw: true },
+  // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>").
+  // Plain names are SFW; `-nsfw` / `-nsfw-only` carry NSFW and are gated.
+  danbooru: { category: "danbooru", anime: true, nsfw: false },
+  "danbooru-nsfw": { category: "danbooru", anime: true, nsfw: true },
+  "danbooru/d/general": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/general-nsfw": { category: "danbooru", anime: true, nsfw: true },
+  "danbooru/d/general-nsfw-only": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/artist": { category: "danbooru", anime: true, nsfw: false },
   "d-character": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/character-c": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/character-nc": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/meta": { category: "danbooru", anime: true, nsfw: false },
-  "d-keyword": { category: "danbooru", anime: true, nsfw: true },
+  "d-keyword": { category: "danbooru", anime: true, nsfw: false },
+  "d-keyword-nsfw": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/person": { category: "danbooru", anime: true, nsfw: false },
   "keyword/keyword-adult": { category: "keyword", anime: false, nsfw: true },
   "artist/anime": { category: "artist", anime: true, nsfw: false },
