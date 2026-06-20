@@ -19,9 +19,12 @@ As of 2.1.0 they were also passed through a content-safety filter
 (`src/contentSafety.js`) that removes slurs, content sexualizing minors, and
 extreme shock/gore/non-consensual material; ordinary adult terms are kept but
 NSFW-gated. The original `keyword.txt` SCOWL dictionary was sorted by part of
-speech into the `dict-*` lists using the `compromise` NLP library
-(https://github.com/spencermountain/compromise, MIT), leaving `keyword.txt` as a
-proper-noun list. Composite/"virtual" lists are defined in `src/listManifest.js`.
+speech into the `dict-*` lists by looking each word up in WordNet (via the `wordpos`
+/ `wordnet-db` packages — WordNet © Princeton University, license below), so a word
+lands in the list(s) for the part(s) of speech the dictionary actually assigns it.
+Words WordNet does not know remain in `keyword.txt` (proper nouns) or `dict-misc`
+(uncategorized); demonyms are split to `demonym.txt`. Composite/"virtual" lists are
+defined in `src/listManifest.js`.
 
 SCOWL Licenses
 ==================================================================================================

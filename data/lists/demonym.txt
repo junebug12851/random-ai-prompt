@@ -65,12 +65,10 @@ Jamaican
 Japanese
 Jordanian
 Kazakh
-Kazakhs
 Kenyan
 Korean
 Kuwaiti
 Lao
-Laos
 Latvian
 Lebanese
 Liberian
@@ -94,7 +92,6 @@ Panamanian
 Paraguayan
 Peruvian
 Philippine
-Philippines
 Portuguese
 Qatari
 Romanian

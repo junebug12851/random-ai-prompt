@@ -68,8 +68,20 @@ tokens and review anything the denylist missed — is the way to raise confidenc
 
 ## The dictionary reorg
 
-`keyword.txt` was a 48,750-line SCOWL English-dictionary dump. `scripts/list-cleanup/classify-pos.mjs`
-sorted it with `compromise`: capitalized entries stayed in `keyword.txt` (now ~10k proper nouns), lowercase
-words were routed to `dict-adjective/noun/verb/adverb/misc`, and junk (possessives, redundant inflected
-forms, non-alphabetic) was dropped. Conservation: 46,500 sorted + 2,250 dropped = 48,750. Isolated-word POS
-tagging is best-effort; `dict-noun` is the catch-all for anything `compromise` didn't recognize.
+`keyword.txt` was a 48,750-line SCOWL English-dictionary dump. `scripts/list-cleanup/pos-dictionary.mjs`
+sorts it **authoritatively by looking each word up in WordNet** (the `wordpos` / `wordnet-db` dev
+dependency — index files read directly): a word is added to the `dict-*` list(s) for the part(s) of speech
+the dictionary assigns it, so `bond` lands in both `dict-noun` and `dict-verb`. Rules:
+
+- a word WordNet knows → its real POS list(s);
+- a **capitalized** word WordNet knows *only* as a noun → kept in `keyword.txt` (it is almost certainly a
+  proper noun WordNet happens to list, e.g. *America*, *Paris*, *December*);
+- a capitalized word WordNet doesn't know → `keyword.txt` (proper noun);
+- a lowercase word WordNet doesn't know → `dict-misc` (obscure / function words, and `-ally` adverbs WordNet
+  doesn't index — a known WordNet gap);
+- demonyms (compromise `#Demonym`) → `demonym.txt`;
+- junk (possessives, non-alphabetic, redundant inflected forms) → dropped.
+
+Conservation: 31,840 classified + 8,859 proper + 124 demonym + 5,451 misc + 2,476 dropped = 48,750. This
+replaced an earlier `compromise` guess-from-spelling pass that mislabeled isolated words (e.g. treated any
+`-ly` ending as an adverb); WordNet lookup is ground truth, not a guess.
