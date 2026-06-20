@@ -23,7 +23,7 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
-import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
@@ -52,7 +52,7 @@ function getListFiles(settings) {
 // reference resolution. Rebuilt by reloadListFiles().
 let allNamesCache = null;
 function getAllNames(settings) {
-  if (!allNamesCache) allNamesCache = allListNames(getListFiles(settings));
+  if (!allNamesCache) allNamesCache = logicalListNames(getListFiles(settings));
   return allNamesCache;
 }
 
@@ -86,7 +86,7 @@ function reloadListFile(settings, name) {
     readListFile: (n) => readListFile(settings, n),
     readGroupFile: (n) => readGroupFile(settings, n),
   };
-  const list = resolveListLines(name, readers) || [];
+  const list = resolveListLines(name, readers, settings.includeAdult) || [];
 
   // Save into memory under proper list category
   if (name == settings.artistFilename || name.includes("artist")) artists[name] = list;
@@ -114,7 +114,7 @@ function reloadListFiles(settings) {
   // Get list files (physical), then add virtual/composite list names so they
   // are registered for lazy assembly on first pull.
   const physical = getListFiles(settings);
-  allNamesCache = allListNames(physical);
+  allNamesCache = logicalListNames(physical);
 
   // Loop through all lists (physical + virtual)
   for (const key of allNamesCache) {

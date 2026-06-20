@@ -95,13 +95,14 @@ for (let i = 0; i < csv.length; i++) {
 const dDir = `${settings.listFiles}/danbooru/d`;
 fs.mkdirSync(dDir, { recursive: true });
 
-// "general" genuinely mixes SFW/NSFW -> split into EXCLUSIVE lists. Convention:
-// plain {d/general} is SFW (general.txt, the no-typing default); general-nsfw-only.txt
-// is NSFW-only; the both-version is the static d/general-nsfw.group importing both.
-// No runtime filtering, no duplication.
+// "general" genuinely mixes SFW/NSFW -> split into two explicit files: general-sfw.txt
+// (SFW lines) and general-nsfw.txt (ONLY the NSFW lines). The bare {d/general} is an
+// IMPLICIT name with no file of its own: the resolver combines these by mode
+// ({d/general} = SFW off / both on, {d/general-sfw} = SFW only, {d/general-nsfw} = both,
+// gated). No group file, no runtime filtering, no duplication.
 const general = [...generalKeywords, ...unknownKeywords];
-fs.writeFileSync(`${dDir}/general.txt`, general.filter((l) => !isNsfw(l)).join("\n"));
-fs.writeFileSync(`${dDir}/general-nsfw-only.txt`, general.filter((l) => isNsfw(l)).join("\n"));
+fs.writeFileSync(`${dDir}/general-sfw.txt`, general.filter((l) => !isNsfw(l)).join("\n"));
+fs.writeFileSync(`${dDir}/general-nsfw.txt`, general.filter((l) => isNsfw(l)).join("\n"));
 fs.writeFileSync(`${dDir}/artist.txt`, artistKeywords.join("\n"));
 fs.writeFileSync(`${dDir}/character-c.txt`, copyrightKeywords.join("\n"));
 fs.writeFileSync(`${dDir}/character-nc.txt`, characterKeywords.join("\n"));

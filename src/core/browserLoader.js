@@ -13,7 +13,7 @@
 // content (lists/expansions/presets) lives under the repo-root data/ folder
 // (../../data/...).
 
-import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
@@ -79,17 +79,21 @@ export const browserLoader = {
   readExpansion(name) {
     return expansionText[name] ?? null;
   },
-  readListLines(name) {
-    const names = allListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+  readListLines(name, includeAdult = false) {
+    const names = logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
     const canonical = resolveName(name, names);
-    return resolveListLines(canonical, {
-      names,
-      readListFile: (n) => listLines[n] ?? null,
-      readGroupFile: (n) => groupLines[n] ?? null,
-    });
+    return resolveListLines(
+      canonical,
+      {
+        names,
+        readListFile: (n) => listLines[n] ?? null,
+        readGroupFile: (n) => groupLines[n] ?? null,
+      },
+      includeAdult,
+    );
   },
   listNames() {
-    return allListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+    return logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
   },
   expansionNames() {
     return Object.keys(expansionText);

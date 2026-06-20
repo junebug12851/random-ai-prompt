@@ -1,5 +1,6 @@
-# Group: all danbooru tags (anime), SFW by default. {danbooru} = SFW;
-# {danbooru-nsfw} includes NSFW.
+# Group: all danbooru tags (anime). Mode-aware via its members: SFW when adult is
+# off, NSFW included when on. {danbooru} = default, {danbooru-sfw} = force SFW,
+# {danbooru-nsfw} = force NSFW-inclusive (only resolves when adult is enabled).
 d/general
 d/artist
 d/character-c

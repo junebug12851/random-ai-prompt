@@ -6,7 +6,8 @@
 import _ from "lodash";
 
 import cleanup from "./prompt-modules/cleanup.js";
-import { gatedLists, gatedDynPrompts } from "./gatedLists.js";
+import { isGatedList, hasNsfwToken, gatedDynPrompts } from "./gatedLists.js";
+import { hasVariantSuffix } from "./listManifest.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
 //
@@ -150,10 +151,30 @@ function loadListFileList() {
   listFiles.push(...l.listNames());
   for (const name of listFiles) {
     if (name.includes("artist")) continue;
+    // Skip explicit `-sfw`/`-nsfw` variants: the random pool draws only the bare base
+    // name, which already resolves SFW (adult off) or SFW+NSFW (adult on). This avoids
+    // double-weighting a base against its variants. (A standalone `-nsfw` list with no
+    // base is dropped here too; it is reachable only by its explicit gated name.)
+    if (hasVariantSuffix(name)) continue;
     listFilesNoArtist.push(name);
   }
 
   return listFiles;
+}
+
+/**
+ * The list names to show in the web picker, honoring adult mode. When adult is off,
+ * every name carrying an `nsfw` token is hidden (the app behaves as if it doesn't
+ * exist). When on, each base that has a `<base>-nsfw` sibling also offers the explicit
+ * `<base>-sfw` reference, so the picker shows all three (default / SFW-only / NSFW).
+ * @returns {string[]} The picker-facing list names, in load order.
+ */
+function pickerListNames() {
+  const names = requireLoader().listNames(); // logical names (base + -sfw/-nsfw variants)
+  if (adultAllowed()) return names; // show default + explicit SFW + explicit NSFW
+  // Adult off: behave as if NSFW doesn't exist. Hide every `-nsfw` name and the
+  // redundant `-sfw` variants, leaving just the bare/default names (which are SFW).
+  return names.filter((n) => !hasNsfwToken(n) && !hasVariantSuffix(n));
 }
 
 /**
@@ -183,11 +204,11 @@ function adultAllowed() {
 /**
  * Drop gated (adult) names from a pool unless `includeAdult` is on.
  * @param {string[]} names The candidate names.
- * @param {string[]} gated The gated names to remove when adult is off.
+ * @param {(name: string) => boolean} isGated Predicate: true if a name is adult-gated.
  * @returns {string[]} The filtered pool.
  */
-function gatePool(names, gated) {
-  return adultAllowed() ? names : names.filter((n) => !gated.includes(n));
+function gatePool(names, isGated) {
+  return adultAllowed() ? names : names.filter((n) => !isGated(n));
 }
 
 function prePrompt(maxCount) {
@@ -196,8 +217,8 @@ function prePrompt(maxCount) {
   // Randomly add stuff to the start of the prompt
   if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, <${_.sample(expansionFiles)}>`;
 
-  const partialPool = gatePool(partialNoArtistFx, gatedDynPrompts);
-  const listPool = gatePool(listFilesNoArtist, gatedLists);
+  const partialPool = gatePool(partialNoArtistFx, (n) => gatedDynPrompts.includes(n));
+  const listPool = gatePool(listFilesNoArtist, isGatedList);
 
   for (let i = 0; i < maxCount; i++) {
     if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, #${_.sample(partialPool)}`;
@@ -219,7 +240,7 @@ function promptSuggestion(full) {
   let ret = "";
 
   // Keep gated (adult) dynamic prompts out unless explicitly enabled
-  const fullPool = gatePool(fullDynPrompt, gatedDynPrompts);
+  const fullPool = gatePool(fullDynPrompt, (n) => gatedDynPrompts.includes(n));
 
   let maxOptions = full == true ? 3 : 0;
   let maxCount = full == true ? 3 : 1;
@@ -259,6 +280,7 @@ export default {
   loadDynPromptList,
   loadExpansionFileList,
   loadListFileList,
+  pickerListNames,
   loadAll,
   promptSuggestion,
 };

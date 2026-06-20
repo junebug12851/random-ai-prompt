@@ -20,13 +20,13 @@ const KEEP = new Set([
 
 // SFW list -> where its NSFW lines should be relocated (gated).
 const ROUTES = {
-  "look/clothes": "look/clothes-adult",
-  "word/adjective": "word/adult",
-  "word/dict-adjective": "word/adult",
-  "word/dict-noun": "word/adult",
-  "word/dict-verb": "word/adult",
-  "word/noun": "word/adult",
-  "word/verb": "word/adult",
+  "look/clothes": "look/clothes-nsfw",
+  "word/adjective": "word/adult-nsfw",
+  "word/dict-adjective": "word/adult-nsfw",
+  "word/dict-noun": "word/adult-nsfw",
+  "word/dict-verb": "word/adult-nsfw",
+  "word/noun": "word/adult-nsfw",
+  "word/verb": "word/adult-nsfw",
 };
 
 const read = (rel) => {

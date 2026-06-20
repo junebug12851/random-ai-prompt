@@ -24,8 +24,9 @@
  * into others": the big duplicated files the build scripts used to emit (danbooru,
  * d-keyword, d-character, artist, artist-digipa) are now computed on demand from
  * their atomic parts, with cross-member de-duplication. There is NO runtime content
- * filtering — SFW/NSFW are preprocessed into exclusive files: plain `<name>.txt` is
- * SFW, `<name>-nsfw-only.txt` is NSFW-only, and `<name>-nsfw.group` imports both.
+ * filtering — SFW/NSFW are preprocessed into separate files: `<name>-sfw.txt` (SFW)
+ * and `<name>-nsfw.txt` (NSFW-only), with the bare `{name}` implicit. `logicalListNames`
+ * derives the reference set; `resolveListLines` combines the files per `includeAdult`.
  *
  * `listTags` records per-list metadata (category + anime/nsfw flags) for the UI
  * and for documentation; it does not gate anything by itself (gating stays in
@@ -45,7 +46,6 @@ export const listTags = {
   "danbooru-nsfw": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/general": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/general-nsfw": { category: "danbooru", anime: true, nsfw: true },
-  "danbooru/d/general-nsfw-only": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/artist": { category: "danbooru", anime: true, nsfw: false },
   "d-character": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/character-c": { category: "danbooru", anime: true, nsfw: false },
@@ -54,10 +54,10 @@ export const listTags = {
   "d-keyword": { category: "danbooru", anime: true, nsfw: false },
   "d-keyword-nsfw": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/person": { category: "danbooru", anime: true, nsfw: false },
-  "keyword/keyword-adult": { category: "keyword", anime: false, nsfw: true },
+  "keyword/keyword-nsfw": { category: "keyword", anime: false, nsfw: true },
   "artist/anime": { category: "artist", anime: true, nsfw: false },
   "name/anime-name": { category: "subject", anime: true, nsfw: false },
-  "artist/nudity": { category: "artist", anime: false, nsfw: true },
+  "artist/nudity-nsfw": { category: "artist", anime: false, nsfw: true },
 
   // uncategorized leftover words (function words, obscure terms WordNet lacks)
   "word/misc": { category: "pos", anime: false, nsfw: false },
@@ -78,52 +78,113 @@ export const listTags = {
   // face/expression/pose tags + gated adult relocations
   "look/expression": { category: "expression", anime: false, nsfw: false },
   "look/action": { category: "action", anime: false, nsfw: false },
-  "look/clothes-adult": { category: "look", anime: false, nsfw: true },
-  "word/adult": { category: "pos", anime: false, nsfw: true },
+  "look/clothes-nsfw": { category: "look", anime: false, nsfw: true },
+  "word/adult-nsfw": { category: "pos", anime: false, nsfw: true },
 };
 
-// Composite lists are now plain files: a `<name>.group` file whose lines are each
-// a list reference (resolved like any {name}). Groups may include groups up to
-// MAX_GROUP_DEPTH levels deep, with a cycle guard. A `@filter sfw|nsfw` directive
-// line filters the assembled union via the NSFW lexicon. See data/lists/README.md.
+// Composite lists are plain files: a `<name>.group` file whose lines are each a
+// list reference (resolved like any {name}). Groups may include groups up to
+// MAX_GROUP_DEPTH levels deep, with a cycle guard. See data/lists/README.md.
 
 /** Recursion cutoff for group-includes-group nesting. */
 export const MAX_GROUP_DEPTH = 3;
 
+/** Suffix tokens that select an exclusive SFW or NSFW-inclusive variant. */
+const SFW_SUFFIX = /-sfw$/i;
+const NSFW_SUFFIX = /-nsfw$/i;
+
 /**
- * Resolve a list/group name to its lines. A `.group` file is a composite: each
- * non-comment line is itself a list reference (resolved via resolveName) whose
- * lines are unioned + de-duplicated. Plain lists fall through to readListFile.
- * There is no runtime content filtering — SFW/NSFW are separate preprocessed
- * files. Environment access is injected so this stays browser-safe.
- * @param {string} name Canonical list/group name.
+ * Read a plain list's SFW base lines: the `<base>.txt` file, or `<base>-sfw.txt`
+ * when no plain file exists. Returns `null` only when neither exists (so a missing
+ * plain list still reports null), else an array (possibly empty).
+ * @param {string} base Canonical base name (no sfw/nsfw suffix).
+ * @param {{readListFile:(n:string)=>(string[]|null)}} readers
+ * @returns {string[]|null}
+ */
+function readSfwBase(base, readers) {
+  return readers.readListFile(base) ?? readers.readListFile(`${base}-sfw`);
+}
+
+/**
+ * Resolve a list/group reference to its lines, honoring the SFW/NSFW naming model
+ * and the `includeAdult` mode. No runtime content filtering — NSFW is a separate
+ * preprocessed `<base>-nsfw.txt` file that is simply included or not.
+ *
+ * Semantics (per reference):
+ * - `{name}`        → SFW only when adult is off; SFW + `<name>-nsfw` when on.
+ * - `{name-sfw}`    → SFW base only (always; the explicit SFW-exclusive reference).
+ * - `{name-nsfw}`   → nothing when adult is off (acts as if it doesn't exist);
+ *                     SFW + `<name>-nsfw` when on (the SFW base is auto-tacked on).
+ *
+ * Groups propagate the resolved variant to their members, so `{danbooru}` (off) is
+ * all-SFW, `{danbooru}` (on) includes NSFW, and `{danbooru-sfw}` is SFW even when on.
+ *
+ * @param {string} name Canonical list/group name (may carry a `-sfw`/`-nsfw` suffix).
  * @param {{names:string[], readListFile:(n:string)=>(string[]|null), readGroupFile:(n:string)=>(string[]|null)}} readers
+ * @param {boolean} [includeAdult] Whether adult/NSFW content is enabled.
+ * @param {("sfw"|"full"|null)} [forced] Variant forced by a parent group (internal).
  * @param {number} [depth] Current group-nesting depth (internal).
  * @param {Set<string>} [seen] Cycle guard (internal).
  * @returns {string[]|null} Resolved lines, or null if a plain list is missing.
  */
-export function resolveListLines(name, readers, depth = 0, seen = new Set()) {
-  const groupLines = readers.readGroupFile(name);
-  if (groupLines == null) return readers.readListFile(name); // plain list
-  if (seen.has(name) || depth >= MAX_GROUP_DEPTH) return [];
-  seen.add(name);
-
-  const out = [];
-  const seenLine = new Set();
-  for (const raw of groupLines) {
-    const line = raw.replace(/\r$/, "").trim();
-    // skip blanks, comments, and reserved @-directive lines
-    if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
-    const member = resolveName(line, readers.names);
-    const lines = resolveListLines(member, readers, depth + 1, seen) || [];
-    for (const l of lines) {
-      const t = l.replace(/\r$/, "");
-      if (t.trim() === "" || seenLine.has(t)) continue;
-      seenLine.add(t);
-      out.push(t);
-    }
+export function resolveListLines(
+  name,
+  readers,
+  includeAdult = false,
+  forced = null,
+  depth = 0,
+  seen = new Set(),
+) {
+  // Determine the base name and the variant ("sfw" = SFW only, "full" = SFW+NSFW).
+  let base = name;
+  let variant;
+  if (NSFW_SUFFIX.test(name)) {
+    base = name.replace(NSFW_SUFFIX, "");
+    // An explicit -nsfw reference is invisible unless adult is on, and a parent
+    // forcing SFW excludes it entirely.
+    if (forced === "sfw" || !includeAdult) return [];
+    variant = "full";
+  } else if (SFW_SUFFIX.test(name)) {
+    base = name.replace(SFW_SUFFIX, "");
+    variant = "sfw";
+  } else {
+    variant = forced ?? (includeAdult ? "full" : "sfw");
   }
-  return out;
+
+  // Re-resolve the (suffix-stripped) base to its canonical name, so an explicit
+  // variant like {danbooru-sfw} maps to the group/list path {danbooru} resolves to.
+  base = resolveName(base, readers.names);
+
+  // Group? Union of members, each resolved with the inherited variant.
+  const groupLines = readers.readGroupFile(base);
+  if (groupLines != null) {
+    if (seen.has(base) || depth >= MAX_GROUP_DEPTH) return [];
+    seen.add(base);
+
+    const out = [];
+    const seenLine = new Set();
+    for (const raw of groupLines) {
+      const line = raw.replace(/\r$/, "").trim();
+      if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
+      const member = resolveName(line, readers.names);
+      const lines =
+        resolveListLines(member, readers, includeAdult, variant, depth + 1, seen) || [];
+      for (const l of lines) {
+        const t = l.replace(/\r$/, "");
+        if (t.trim() === "" || seenLine.has(t)) continue;
+        seenLine.add(t);
+        out.push(t);
+      }
+    }
+    return out;
+  }
+
+  // Plain list. SFW base + (NSFW extra when the variant is full).
+  const sfw = readSfwBase(base, readers);
+  if (variant === "sfw") return sfw == null ? null : [...sfw];
+  const nsfw = readers.readListFile(`${base}-nsfw`) ?? [];
+  if (sfw == null && nsfw.length === 0) return null;
+  return [...(sfw ?? []), ...nsfw];
 }
 
 /**
@@ -184,6 +245,49 @@ export function compareNames(a, b) {
  */
 export function allListNames(names) {
   return Array.from(new Set(names)).sort(compareNames);
+}
+
+/**
+ * @param {string} name A list/group name.
+ * @returns {boolean} Whether it ends in an explicit `-sfw`/`-nsfw` variant suffix.
+ */
+export function hasVariantSuffix(name) {
+  return SFW_SUFFIX.test(name) || NSFW_SUFFIX.test(name);
+}
+
+/**
+ * Turn the physical on-disk names into the LOGICAL reference set, the names the rest
+ * of the app sees. A mixed list is stored as two files, `<base>-sfw` and `<base>-nsfw`,
+ * with NO `<base>` file — the bare `{base}` is implicit. For every such pair this
+ * exposes all three references (`base`, `base-sfw`, `base-nsfw`); for a list stored as
+ * a plain `<base>` plus `<base>-nsfw`, it also synthesizes `base-sfw`. A standalone
+ * `<base>-nsfw` with no SFW counterpart stays as-is (referenced only by its gated name),
+ * and plain lists pass through unchanged.
+ * @param {string[]} physical The on-disk list + group names (no extension).
+ * @returns {string[]} Logical names, de-duplicated, in guaranteed natural order.
+ */
+export function logicalListNames(physical) {
+  const P = new Set(physical);
+  const out = new Set();
+  const hasSfwSource = (base) => P.has(base) || P.has(`${base}-sfw`);
+  for (const p of physical) {
+    if (SFW_SUFFIX.test(p)) {
+      const base = p.replace(SFW_SUFFIX, "");
+      out.add(base);
+      out.add(`${base}-sfw`);
+      out.add(`${base}-nsfw`);
+    } else if (NSFW_SUFFIX.test(p)) {
+      const base = p.replace(NSFW_SUFFIX, "");
+      out.add(p);
+      if (hasSfwSource(base)) {
+        out.add(base);
+        out.add(`${base}-sfw`);
+      }
+    } else {
+      out.add(p);
+    }
+  }
+  return Array.from(out).sort(compareNames);
 }
 
 /**

@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
@@ -66,13 +66,13 @@ export const nodeLoader = {
       return null;
     }
   },
-  readListLines(name) {
-    const names = allListNames(physicalListNames());
+  readListLines(name, includeAdult = false) {
+    const names = logicalListNames(physicalListNames());
     const canonical = resolveName(name, names);
-    return resolveListLines(canonical, { names, readListFile, readGroupFile });
+    return resolveListLines(canonical, { names, readListFile, readGroupFile }, includeAdult);
   },
   listNames() {
-    return allListNames(physicalListNames());
+    return logicalListNames(physicalListNames());
   },
   expansionNames() {
     try {

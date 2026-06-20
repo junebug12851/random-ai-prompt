@@ -112,7 +112,7 @@ fs.writeFileSync(`${aDir}/dmed.txt`, digipaMedImpact.join("\n"));
 fs.writeFileSync(`${aDir}/dhigh.txt`, digipaHighImpact.join("\n"));
 fs.writeFileSync(`${aDir}/fareast.txt`, fareast.join("\n"));
 fs.writeFileSync(`${aDir}/fineart.txt`, fineart.join("\n"));
-fs.writeFileSync(`${aDir}/nudity.txt`, nudity.join("\n"));
+fs.writeFileSync(`${aDir}/nudity-nsfw.txt`, nudity.join("\n"));
 fs.writeFileSync(`${aDir}/scribbles.txt`, scribbles.join("\n"));
 fs.writeFileSync(`${aDir}/special.txt`, special.join("\n"));
 fs.writeFileSync(`${aDir}/ukioe.txt`, ukioe.join("\n"));

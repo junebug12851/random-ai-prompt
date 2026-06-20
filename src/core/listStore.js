@@ -31,7 +31,7 @@ export function createListStore(loader) {
   function ensureLoaded(settings, name) {
     const target = bucket(settings, name);
     if (target[name] === undefined) {
-      const lines = loader.readListLines(name);
+      const lines = loader.readListLines(name, settings.includeAdult);
       target[name] = lines ? [...lines] : [];
     }
     return target;
@@ -59,7 +59,7 @@ export function createListStore(loader) {
 
   function reload(settings, name) {
     const target = bucket(settings, name);
-    const lines = loader.readListLines(name);
+    const lines = loader.readListLines(name, settings.includeAdult);
     target[name] = lines ? [...lines] : [];
     return target[name];
   }

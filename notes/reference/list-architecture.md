@@ -10,18 +10,27 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 `{name}`), and the group resolves to the de-duplicated union of those lists. This is how the project
 "collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
-gated exactly like lists. Groups are pure unions — there is no runtime content filtering. SFW/NSFW are kept
-as EXCLUSIVE lists: when a list genuinely mixes both, the plain `<name>.txt` holds the **SFW** content (so
-`{name}` is safe with no typing — good UX), `<name>-nsfw-only.txt` holds NSFW-only, and `<name>-nsfw.group`
-imports both — so `{name}` = SFW, `{name-nsfw-only}` = NSFW-only, `{name-nsfw}` = everything (e.g.
-`danbooru/d/general`, `danbooru/d/general-nsfw-only`, `danbooru/d/general-nsfw.group`). Lists entirely one
-type are left whole. The CSV build script writes the `general.txt`/`general-nsfw-only.txt` files. Groups may
-include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard. Groups live in their folders like any
-list: `danbooru/danbooru.group` (SFW `d/*`), `danbooru/danbooru-nsfw.group` (incl. NSFW),
-`danbooru/d-keyword.group` (SFW), `danbooru/d-keyword-nsfw.group`, `danbooru/d/general-nsfw.group`,
+gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard.
+Current groups: `danbooru/danbooru.group` (all `d/*`), `danbooru/d-keyword.group` (danbooru minus artists),
 `danbooru/d-character.group`, `artist/artist.group`, `artist/artist-digipa.group`, `name/name.group` —
 referenced terse as `{danbooru}`, `{artist}`, etc. via suffix resolution. (Curated + dictionary POS lists
 were merged into one list each, so the former `*-all` virtuals are gone.)
+
+**SFW/NSFW is keyed off the filename and resolved by mode — no runtime content filtering, no group files.**
+Any name with an `nsfw` token (a word delimited by `/`, `-`, `.`, `_`, or string ends — e.g.
+`d/general-nsfw`, `clothes-nsfw`) is adult content; while `includeAdult` is off the app treats those files
+as nonexistent (not listed, not suggested, resolve to nothing). A list that mixes is stored as two files —
+`<name>-sfw.txt` (SFW lines) + `<name>-nsfw.txt` (NSFW-only lines), with **no `<name>.txt`**; the bare
+`{name}` is implicit. `logicalListNames()` derives the reference set the app sees: for each `-sfw`/`-nsfw`
+pair it exposes `{name}`, `{name-sfw}`, `{name-nsfw}` (and a plain `<name>.txt` is still honored as the SFW
+source if present). The resolver combines them by mode: `{name}` = SFW (off) / SFW+NSFW (on); `{name-sfw}` =
+SFW-only always; `{name-nsfw}` = nothing (off) / SFW+NSFW (on, the SFW base auto-tacked on, so no combined
+file is ever stored). `resolveListLines` takes `includeAdult`, re-resolves the suffix-stripped base, and
+propagates the resolved variant into group members — so one `danbooru.group` is SFW when off and
+NSFW-inclusive when on, and `{danbooru-sfw}` / `{danbooru-nsfw}` force a variant on the whole group. A
+fully-adult list is just a single `-nsfw` file (`artist/nudity-nsfw`, `word/adult-nsfw`,
+`keyword/keyword-nsfw`, `look/clothes-nsfw`), reachable only by its gated name. The CSV build script writes
+`general-sfw.txt` + `general-nsfw.txt` via the `isNsfw` lexicon.
 
 ### The loader seam
 
@@ -60,9 +69,9 @@ safety vocabulary:
   set; on **proper-noun** lists it matches EXACT whole entries only (so `Coon Rapids`, the hamlet `Dyke`,
   `Rio Negro` survive while a bare slur entry does not). A `WHITELIST` covers remaining false positives.
 - **NSFW lexicon** — `isNsfw(line)` flags ordinary adult/nudity terms. This is **not** a removal set; the
-  CSV build script uses it once to split a mixed list into the SFW `<name>.txt` and `<name>-nsfw-only.txt`
-  files (no runtime filtering). It is a lexicon, not a guarantee — tightening the SFW split means adding
-  terms here and rerunning the build.
+  CSV build script uses it once to split a mixed list into the `<name>-sfw.txt` and `<name>-nsfw.txt` files
+  (no runtime filtering). It is a lexicon, not a guarantee — tightening the SFW split means adding terms
+  here and rerunning the build.
 
 The filter is applied in two places: the CSV build scripts (`data/process-danbooru-csv.js`,
 `data/process-artists-csv.js`) skip disallowed keywords so **regeneration stays clean**, and the one-time
@@ -80,11 +89,13 @@ tokens and review anything the denylist missed — is the way to raise confidenc
 
 ## Gating
 
-[`../../src/gatedLists.js`](../../src/gatedLists.js) lists names only drawn when `includeAdult` is on — the
-NSFW-bearing names: `danbooru/danbooru-nsfw`, `danbooru/d-keyword-nsfw`, `danbooru/d/general-nsfw` (both
-group), `danbooru/d/general-nsfw-only`, plus `artist/nudity`, `keyword/keyword-adult`, `look/clothes-adult`,
-`word/adult`. The plain SFW names (`danbooru`, `d-keyword`, `d/general`) are intentionally **not** gated.
-Gating is by name, so it applies to groups too.
+[`../../src/gatedLists.js`](../../src/gatedLists.js) gates adult content **automatically by name**:
+`isGatedList(name)` is true iff the name carries an `nsfw` token (`NSFW_TOKEN` — a word delimited by `/`,
+`-`, `.`, `_`, or string ends). So `d/general-nsfw`, `artist/nudity-nsfw`, `word/adult-nsfw` are gated while
+the plain/SFW names (`d/general`, `d/general-sfw`, `danbooru`, `color`) are not — no hardcoded list to keep
+in sync. When adult is off, gated names are dropped from the suggestion pool, hidden from the picker
+(`pickerListNames`), and `pull()` returns "" if one is referenced directly. `gatedDynPrompts` is now empty
+(`#danbooru` draws the mode-aware `d/general`, SFW when adult is off, so it needs no gating).
 
 ## The dictionary reorg
 

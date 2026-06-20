@@ -1079,7 +1079,10 @@ app.get("/api/files/expansions", (req, res) => {
 });
 
 app.get("/api/files/lists", (req, res) => {
-  res.jsonp(promptFiles.loadListFileList());
+  // Refresh the catalog, then return the adult-aware picker view (NSFW names hidden
+  // when adult is off; explicit -sfw/-nsfw variants exposed when on).
+  promptFiles.loadListFileList();
+  res.jsonp(promptFiles.pickerListNames());
 });
 
 app.get("/api/files/presets", (req, res) => {

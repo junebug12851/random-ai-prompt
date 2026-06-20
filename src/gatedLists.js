@@ -16,34 +16,39 @@
 
 /**
  * @file
- * @brief List and dynamic-prompt names gated behind the `includeAdult` setting
- * (default off). When off, these are excluded from random suggestions and resolve
- * to "" if referenced directly. Pure data — no Node-only imports, safe in browser.
+ * @brief Adult/NSFW gating behind the `includeAdult` setting (default off). Gating
+ * is AUTOMATIC by name: any list/group whose name carries an `nsfw` token (a word
+ * delimited by `/`, `-`, `.`, `_`, or the start/end of the string) is gated. When
+ * adult is off such names are excluded from suggestions, hidden from the picker, and
+ * resolve to "" if referenced directly. Pure data — no Node imports, browser-safe.
  */
-
-// List files that are only drawn from when `includeAdult` is enabled.
-// Naming convention: plain `<name>` is SFW (ungated); `<name>-nsfw-only` is the
-// NSFW-only list and `<name>-nsfw` is the group that imports both — both gated.
-export const gatedLists = [
-  "danbooru/danbooru-nsfw",
-  "danbooru/d-keyword-nsfw",
-  "danbooru/d/general-nsfw",
-  "danbooru/d/general-nsfw-only",
-  "artist/nudity",
-  "keyword/keyword-adult",
-  "look/clothes-adult",
-  "word/adult",
-];
-
-// Dynamic prompts that are only suggested when `includeAdult` is enabled.
-export const gatedDynPrompts = ["danbooru"];
 
 /**
- * @param {string} name A list name.
- * @returns {boolean} Whether the list is gated behind `includeAdult`.
+ * Matches an `nsfw` token: a standalone word in a list name, delimited by a path
+ * separator, dash, dot, underscore, or the start/end of the string. So
+ * `d/general-nsfw`, `clothes-nsfw`, `foo.nsfw.bar` all match, but `nsfwish` does not.
+ * @type {RegExp}
+ */
+export const NSFW_TOKEN = /(^|[/._-])nsfw([/._-]|$)/i;
+
+/**
+ * @param {string} name A list/group name.
+ * @returns {boolean} Whether the name carries an `nsfw` token.
+ */
+export function hasNsfwToken(name) {
+  return NSFW_TOKEN.test(String(name));
+}
+
+// Dynamic prompts gated behind `includeAdult`. Empty now that #danbooru pulls the
+// mode-aware d/general (SFW when adult is off), so nothing here needs gating.
+export const gatedDynPrompts = [];
+
+/**
+ * @param {string} name A list/group name.
+ * @returns {boolean} Whether the list is gated behind `includeAdult` (by nsfw token).
  */
 export function isGatedList(name) {
-  return gatedLists.includes(name);
+  return hasNsfwToken(name);
 }
 
 /**
