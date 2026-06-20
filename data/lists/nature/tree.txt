@@ -1,58 +1,57 @@
-palm trees
-pine trees
-bushes
-shrubs
-folliage
-parklands
-pines cones
-cactus
-Prickly pear cactus
-Saguaro
-cherry tree
-sakura tree
-maple tree
-black willow
-conifer tree
-christmas tree
-birch tree
-juniper tree
-banana tree
-Orange tree
-Lemon tree
 Apple tree
-fern tree
-Succulents
-Lilac
-Eucalyptus tree
-Redwood tree
-Cypress tree
-Tree of Life
-Cedar tree
-Chestnut tree
-Elm tree
-Bonsai tree
-Tree trunk
-Barren tree
-Snow covered tree
-Evergreen tree
-Willow tree
-Bamboo
-Coconut palm
-Golden cane palm
-Kentia palm
-Fig tree
-Walnut tree
-Mango tree
-Pear tree
 Apricot tree
-Plum tree
-Mulberry tree
-Peach tree
-Pomegranate tree
-Olive tree
-Lychee tree
+Bamboo
+banana tree
+Barren tree
+birch tree
+black willow
+Bonsai tree
+bushes
+cactus
 Carambola tree
-Papaya tree
-Pomelo tree
-Nectarine tree
+Cedar tree
+cherry tree
+Chestnut tree
+christmas tree
+Coconut palm
+conifer tree
+Cypress tree
 Elderberry tree
+Elm tree
+Eucalyptus tree
+Evergreen tree
+fern tree
+Fig tree
+Golden cane palm
+Jacaranda tree
+juniper tree
+Kentia palm
+Lemon tree
+Lilac
+Lychee tree
+Mango tree
+maple tree
+Mulberry tree
+Nectarine tree
+Olive tree
+Orange tree
+palm trees
+Papaya tree
+parklands
+Peach tree
+Pear tree
+pine trees
+Plum tree
+Pomegranate tree
+Pomelo tree
+Prickly pear cactus
+Redwood tree
+Saguaro
+sakura tree
+shrubs
+Snow covered tree
+Succulents
+Tree of Life
+Tree trunk
+Walnut tree
+Willow tree

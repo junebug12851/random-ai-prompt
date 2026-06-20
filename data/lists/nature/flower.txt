@@ -8,7 +8,7 @@ Bellflower
 Bergenia
 Bottlebrush
 Buttercup
-Calebdula
+Calendula
 Calla Lily
 Camellia
 Canna Lily
@@ -17,10 +17,10 @@ Cape Primrose
 Carnation
 Catharanthus
 Celosia
-Chiondoxa
+Chionodoxa
 Chrysanthemum
-Clover
 Clematis
+Clover
 Coneflower
 Cyclamen
 Daffodil
@@ -29,37 +29,35 @@ Dandelion
 Daylily
 Desert Rose
 Dutch Iris
-Euphorbia
 Erigeron
+Euphorbia
 Evening Primrose
 Fall Crocus
 Feverfew
 Firethorn
 Flax Flower
 Foxglove
-Fuchsia
 Frangipani Flower
-Heliotrope
+Fuchsia
 Gaillardia
 Gardenia
 Gazania
-Guzmania
 Geranium
 Goldenrod
 Grape Hyacinth
+Guzmania
 Hebe
 Helenium
 Helichrysum
+Heliotrope
 Hibiscus
 Holly Flower
 Honeysuckle
-Hyaconth
+Hyacinth
 Hydrangea
-Hyaconth
 Impatiens
 Ixia
 Ixora
-Jacaranda tree
 Jasmine flower
 Kalmia
 Laelia
@@ -67,7 +65,7 @@ Lantana
 Larkspur
 Lavatera
 Lavender
-Lewesia
+Lewisia
 Linaria
 Lotus flower
 Lupin
@@ -79,23 +77,23 @@ Mimosa
 Montbretia
 Moraea
 Nasturtium
-Neoregelia
 Nemophila
+Neoregelia
 Nolana
 Oleander
 Pansy
 Parodia
-Petunia
-Periwinkle
-Peony
 Pelargonium
+Peony
+Periwinkle
+Petunia
 Poinsettia
 Polyanthus
 Scilla
-Sun Flower
 Starflower
+Sun Flower
 Tulip
-Water lily
-Wallflower
 Viola
+Wallflower
+Water lily
 Yarrow

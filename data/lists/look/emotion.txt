@@ -120,7 +120,6 @@ glumness
 gratitude
 greed
 grief
-grinning
 grouchiness
 grumpiness
 guilt
@@ -167,7 +166,6 @@ mad
 melancholy
 miserable
 miserliness
-mixed up
 modesty
 moody
 mortified
@@ -249,7 +247,6 @@ surprise
 suspense
 suspicious
 sympathy
-tears
 tenderness
 tension
 terror
@@ -257,7 +254,6 @@ thankfulness
 thrilled
 tired
 tolerance
-tongue out
 torment
 triumphant
 troubled
@@ -279,4 +275,3 @@ woe
 worried
 worthy
 wrath
-yawning

@@ -1,4 +1,4 @@
-Aardwark
+Aardvark
 Abalone
 African Grey Parrot
 Albatross
@@ -10,7 +10,6 @@ Anglerfish
 Angora rabbit
 Anomalocaris
 Ant
-Aquatic life
 Arachnid
 Arapaima
 Arowana
@@ -26,8 +25,8 @@ Beluga whale
 Bichir
 Bird
 Bison
-Black Crowned Crane
 Black cat
+Black Crowned Crane
 Black-headed Oriole
 Black-headed Parrot
 Black-naped Oriole
@@ -44,8 +43,8 @@ Bull
 Bullfrog
 Butterfly
 Butterflyfish
-Camel spider
 Camel
+Camel spider
 Canada goose
 Capybara
 Carp
@@ -57,8 +56,8 @@ Catfish
 Cave cricket
 Centipede
 Cheetah
-Chick, bird
 Chick
+Chick, bird
 Chicken
 Chinchilla
 Chinese Pond Heron
@@ -75,9 +74,10 @@ Condor
 Coral
 Cormorant
 Cow
+Coyote
 Crab
-Crane, bird
 Crane
+Crane, bird
 Crayfish
 Crested Kingfisher
 Cricket
@@ -87,7 +87,6 @@ Crustacean
 Cuckoo
 Cuttlefish
 Cymothoa exigua
-Cyote
 Deer
 Dik Dik
 Dingo
@@ -173,8 +172,8 @@ Kangaroo
 Kea
 Kingfishers
 Kitten
-Kiwi, bird
 Kiwi
+Kiwi, bird
 Koala
 Koi
 Kookaburra
@@ -184,8 +183,8 @@ Lamb
 Lamprey
 Larva
 Leafy Seadragon
-Leopard eel
 Leopard
+Leopard eel
 Leucochloridium paradoxum
 Lilac-breasted Roller
 Lion
@@ -255,11 +254,10 @@ Puppy
 Quokka
 Rabbit
 Raccoon
-Raindeer
-Real Birds
 Red fox
 Red-crowned Crane
 Regal blue tang
+Reindeer
 Reptile
 Rhinoceros
 Rodent
@@ -308,8 +306,8 @@ Warthog
 Wasp
 Water Beetle
 Weasel
-Whale shark
 Whale
+Whale shark
 Wild Boar
 Wolf
 Xidazoon

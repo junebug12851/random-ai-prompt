@@ -1,5 +1,6 @@
 Aeneid
 Analects
+Bakemono Zukushi
 Bambi
 Barbarella
 Batman
@@ -22,6 +23,7 @@ Clouseau
 Copperfield
 Corleone
 Crusoe
+Cthulhu
 Cymbeline
 Cyrano
 Dagwood
@@ -128,6 +130,7 @@ Sherlock
 Shrek
 Shylock
 Sindbad
+Superman
 Svengali
 Tannhauser
 Tartuffe

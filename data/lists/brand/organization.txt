@@ -102,7 +102,6 @@ Clearasil
 Clojure
 Clorets
 Clorox
-Co
 Cointreau
 Compaq
 CompuServe
@@ -151,7 +150,6 @@ Epson
 Erector
 Erlang
 Ethernet
-Eu
 EverReady
 Evian
 Excedrin
@@ -215,7 +213,6 @@ Hyundai
 Illuminati
 Ilyushin
 Imodium
-Inc
 Instagram
 Instamatic
 Intel
@@ -263,7 +260,6 @@ Litton
 Lockheed
 Loews
 Lowenbrau
-Ltd
 Lucite
 Lufthansa
 Luger

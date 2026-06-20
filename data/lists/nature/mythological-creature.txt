@@ -1,9 +1,7 @@
 Abaia Melanesia
 Adar Llwch Gwin Welsh
 Adaro Solomon Islands
-Aesir Norse
 Agathodaemon Greek
-Agni Hindu
 Aigikampoi Etruscan
 Akuma Japanese
 Al-mi'raj Islamic
@@ -61,13 +59,13 @@ Centaur Greek
 Cerberus Greek
 Ceryneian Hind Greek
 Cetus
-ChOchinobake Japanese
 Chakora Hindu
 Charybdis Greek
 Cherubim Abrahamic
 Chickcharney Bahamian
 Chimaera Greek
 Chindi Navajo
+ChOchinobake Japanese
 Chrysaor Greek
 Ciguapa Dominican Republic
 Cihuateteo Aztec
@@ -76,8 +74,8 @@ Cockatrice Medieval
 Colchis bull Greek
 Crocotta Medieval
 Cthulhu Lovecraftian
-Cyclops Greek
 Cŵn Annwn Welsh
+Cyclops Greek
 Dactyl Greek
 Daemon Greek
 Dagon Lovecraftian
@@ -89,8 +87,8 @@ Dhampir Balkans
 Dimensional Shambler Lovecraftian
 Diwata Philippine
 Djall Albanian
-Dragon turtle Chinese
 Dragon
+Dragon turtle Chinese
 Draugr Norse
 Drop Bear Australian
 Drow Scottish
@@ -121,7 +119,6 @@ Futakuchi-onna Japanese
 Gargouille French
 Garmr Norse
 Gashadokuro Japanese
-Geb Egyptian
 Geryon Greek
 Ghast Lovecraftian
 Ghillie Dhu Scottish
@@ -141,7 +138,6 @@ Gremlin
 Griffin Heraldic
 Grim Reaper
 Gumiho Korean
-Hades Greek
 Hag
 Half-elf Norse
 Hamadryad Greek
@@ -174,8 +170,8 @@ Jengu Sawa
 Jersey Devil American
 Jiangshi Chinese
 Jinn Arabian
-JorOgumo Japanese
 Jörmungandr Norse
+JorOgumo Japanese
 Jötunn Norse
 Kabouter Dutch
 Kachina Hopi and Puebloan
@@ -207,7 +203,6 @@ Leviathan Jewish
 Libyan Satyr Medieval
 Lindworm Germanic
 Loch Ness Monster Scottish
-Loki Norse
 Lutin French
 Manananggal Philippine
 Manticore Persian
@@ -230,7 +225,6 @@ Naga Buddhist and Hindu
 Naiad Greek
 Namahage Japanese
 Nephilim Abrahamic
-Neptune Roman
 Nereid Greek
 Night hag
 Night-gaunt Lovecraftian
@@ -238,12 +232,12 @@ Nisse Scandinavian
 Nuckelavee Scottish
 Nyarlathotep Lovecraftian
 Oceanid Greek
-Odin Norse
 Ogopogo Canadian
 Ogre Medieval
 Oni Japanese
 OnryO Japanese
 Ophanim Abrahamic
+Ördög  Hungarian
 Oshun Nigeria
 Ouroboros
 Owlman Cornish
@@ -254,7 +248,6 @@ Peryton Allegedly Medieval
 Phoenix Phoenician
 Psychopomp Greek
 Qilin Chinese
-Quetzalcoatl Aztec
 Rakshasa Buddhist and Hindu
 Reptilian humanoid
 Revenant Medieval
@@ -263,7 +256,7 @@ Rougarou French America
 Rusalka Slavic
 Santa Claus North Pole-European
 Sarimanok Philippine
-Satan Heaven-Abrahamic
+Sasquatch
 Satori Japanese
 Satyr Greek
 Scorpion Man Sumerian
@@ -271,8 +264,8 @@ Sea monster
 Sea serpent
 Sea-Wyvern Heraldic
 Seraphim Abrahamic
-Serpent Men Lovecraftian
 Serpent
+Serpent Men Lovecraftian
 Serpopard Ancient Egypt
 Shade
 Shadow People American
@@ -299,7 +292,7 @@ Talos Greek
 Taniwha Maori
 Tanuki Japanese
 Tatzelwurm
-Thor Norse
+Thunderbird
 Tomte Scandinavian
 Tritons Greek
 Troll Norse
@@ -311,7 +304,6 @@ Ushi-oni Japanese
 Valkyrie Norse
 Valravn Danish
 Vampire Slavic
-Venus Lovecraftian
 Vision Serpent Mayan
 Warg English and Scandinavian
 Warlock
@@ -323,15 +315,13 @@ Will-o'-the-Wisp
 Wolpertinger German
 Wraith Scottish
 Wulver Scottish
-YOkai Japanese
 Yeti Himalayan
 Yig Lovecraftian
 Yog-Sothoth Lovecraftian
+YOkai Japanese
 Yuggoth Lovecraftian
 Yurei Japanese
 Zashiki-warashi Japanese
-Zeus Greek
 Zombie
 Zorigami Japanese
 Zunbera-bO Japanese
-Ördög  Hungarian

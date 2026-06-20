@@ -1,4 +1,3 @@
-2d dating
 adjusting
 admiring
 advising
@@ -18,6 +17,7 @@ arriving
 assisting
 attaching
 avoiding
+ballet
 bathing
 battling
 beating
@@ -98,6 +98,7 @@ dodging
 drafting
 drawing on another's face
 dreaming
+dressing
 drinking
 dripping
 drooling
@@ -120,7 +121,6 @@ examining
 exchanging
 exercising
 face stretching
-faceing
 fading
 fainting
 fanning
@@ -148,7 +148,6 @@ gardening
 giggling
 gliding
 glove biting
-gnawling
 goldfish scooping
 greeting
 grilling
@@ -233,7 +232,6 @@ nail biting
 negotiating
 nose picking
 noticing
-operateing
 ordering
 overtaking
 packing
@@ -260,7 +258,6 @@ poking
 pole dancing
 polishing
 posing
-poting
 pouncing
 pouting
 pov feeding
@@ -318,7 +315,6 @@ shopping
 shouting
 showering
 shushing
-shuting
 signing
 sinking
 sizing
@@ -344,12 +340,10 @@ spraying
 spying
 squatting
 squeezing
-stabling
 stacking
 stalking
 stepping
 stomping
-stoping
 straddling
 strangling
 streaking
@@ -398,5 +392,6 @@ whisking
 whistling
 wrestling
 wringing
+yawning
 yelling
 zipping

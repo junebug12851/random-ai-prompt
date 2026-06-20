@@ -1,36 +1,36 @@
-Department Store
-Movie Rental Store
-Tattoo Shop
-Photo Shop
-Smoothie Shop
-Thrift Store
-Flea Market
-Bakery
-Restaurant
-Hair Salon
-Cosmetic Store
-Grocery Store
-Fast Food Store
-Candy Store
-Chocolate Store
-Cake Shop
-Gift Shop
+Antique Shop
+Apparel Shop
 Art Store
 Art Supply Store
-Paint Store
-Kitchenware Store
-Apparel Shop
-Glasses Store
 Athletic Store
-Electronics Store
-Sporting Equipment Store
-Pawnshop
-Book Store
-Phone Store
-Jewelry Shop
-Purfume Shop
+Bakery
 Bedding Store
-Retail Store
+Book Store
+Cake Shop
+Candy Store
+Chocolate Store
 Computer Store
-Antique Shop
+Cosmetic Store
+Department Store
+Electronics Store
+Fast Food Store
+Flea Market
+Gift Shop
+Glasses Store
+Grocery Store
+Hair Salon
+Jewelry Shop
+Kitchenware Store
+Movie Rental Store
+Paint Store
+Pawnshop
+Perfume Shop
 Pet Store
+Phone Store
+Photo Shop
+Restaurant
+Retail Store
+Smoothie Shop
+Sporting Equipment Store
+Tattoo Shop
+Thrift Store

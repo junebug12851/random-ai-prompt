@@ -1,3 +1,4 @@
+accented colors
 Airbrush
 Astrophotography
 Asymmetrical Balance
@@ -25,13 +26,14 @@ Cylindrical perspective
 Deep focus
 Defocus Control
 Depth of Field
+desaturated look
 Diagonal method
 Digiscoping
 Digital Blending
 Duotone
 Dutch angle
-Exposure Stacking
 Exposure compensation
+Exposure Stacking
 False color
 Fill flash
 Fill light
@@ -46,16 +48,15 @@ Ghost imaging
 Gigapixel image
 Golden Ratio
 Golden triangle
-HDR
 Halftone
 Hand colored photo
-Head shot
+HDR
 Headroom
 Hemispherical photography
-High Grain Film
-High Key Lighting
 High contrast
 High dynamic range
+High Grain Film
+High Key Lighting
 Holography
 Infinity cove
 Infrared photography
@@ -81,6 +82,7 @@ Monochromatic
 Motion blur
 Multiple exposure
 Night photography
+old look
 Opalotype
 Orotone
 Painted photography backdrops
@@ -94,6 +96,7 @@ Polaroid art
 Print toning
 Redscale
 Reflection
+retro colors
 Rule of thirds
 Saturated colors
 Selective color
@@ -109,13 +112,9 @@ Steel Wool Photography
 Tiltshift
 Tinted photograph
 Ultraviolet photography
-Vingette
+Vignette
 Vintage Photography
+vivid colors
 X-ray
 Zoom Blur
 Zoom Burst
-desaturated look
-vivid colors
-accented colors
-retro colors
-old look

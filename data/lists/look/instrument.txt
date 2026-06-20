@@ -22,6 +22,7 @@ Arbajo
 Archlute
 Archtop guitar
 Autoharp
+Bağlama
 Bagpipe
 Bagpipes
 Bahian guitar
@@ -34,9 +35,9 @@ Bandolin
 Bandoneón
 Bandura
 Banhu
+Banjo
 Banjo cello
 Banjo ukulele
-Banjo
 Bansuri
 Barbat
 Baritone guitar
@@ -49,6 +50,7 @@ Baroque slide trumpet
 Baroque trumpet
 Baroque violin
 Barrel drum
+Bass
 Bass banjo
 Bass clarinet
 Bass drum
@@ -64,13 +66,11 @@ Bass tuba
 Bass ukulele
 Bass viol
 Bass violin
-Bass
 Basset clarinet
 Basset horn
 Bassoon
 Batá drum
 Bazooka
-Bağlama
 Bellows pipe
 Berimbau
 Bladder pipe
@@ -94,13 +94,13 @@ Cavaquinho
 Cello
 Chango
 Chapman stick
-Charango mediano
 Charango
-ChenGong harmonica
+Charango mediano
 Chenda
+ChenGong harmonica
 Chillador
-Chitarra Italiana
 Chitarra battente
+Chitarra Italiana
 Chromatic button accordion
 Chromatic harmonica
 Cigar box guitar
@@ -114,7 +114,7 @@ Clarinets
 Classical guitar
 Claves
 Clavichord
-Concert ukulele[3]
+Concert ukulele
 Concert zither
 Conch
 Conga
@@ -155,14 +155,13 @@ Dobro
 Double bass
 Double-neck guitar
 Doulophone
+Drum
 Drum kit
 Drum machine
-Drum
 Dubreq stylophone
 Duduk
 Dulcimer
 Dutar
-EWI
 Eigenharp
 Eight-neck guitar
 Eight-string guitar
@@ -181,6 +180,7 @@ Eleven-string alto guitar
 English guitar
 Erhu
 Euphonium
+EWI
 Extended-range guitars
 Fiddle
 Firebird trumpet
@@ -205,11 +205,12 @@ Gayageum
 Ghatam
 Glockenspiel
 Goblet drum
-Gong bass drum
 Gong
-Great bass violone
+Gong bass drum
 Great bass
+Great bass violone
 Guan
+Güiro
 Guitar synthesizer
 Guitar zither
 Guitarra de golpe
@@ -220,20 +221,19 @@ Guitarra quinta huapanguera
 Guitarra séptima
 Guitarro
 Guitarrón
-Guitars:
+Guitars
 Guqin
 Gut-stringed guitars
 Guzheng
-Güiro
 Hammered dulcimer
 Hammond organ
 Handpan
 Hardanger fiddle
 Harmonica
 Harmonium
+Harp
 Harp guitar
 Harp ukulele
-Harp
 Harpsichord
 Hatun charango
 Heckelphone
@@ -268,18 +268,16 @@ Lambeg drum
 Lap steel guitars
 Lap steel ukulele
 Laser harp
-Lute guitar
 Lute
+Lute guitar
 Lyra viol
-Lyre-guitar
 Lyre
-MIDI controller
-MIDI keyboard
+Lyre-guitar
 Mandobass
 Mandocello
 Mandola
-Mandolin-banjo
 Mandolin
+Mandolin-banjo
 Mandolute
 Mandora
 Mandore
@@ -293,6 +291,8 @@ Mellotron
 Melodeon
 Melodica
 Mexican vihuela
+MIDI controller
+MIDI keyboard
 Modular synthesizer
 Mohan veena
 Morin khuur
@@ -309,9 +309,9 @@ Nose flute
 Nulophone
 Nyckelharpa
 O-daiko
+Oboe
 Oboe d'amore
 Oboe da caccia
-Oboe
 Ocarina
 Octa-Vibraphone
 Octave guitar
@@ -334,7 +334,6 @@ Pea whistle
 Pedal piano
 Pedal steel guitar
 Pendant ocarina
-Piano pianoforte
 Piano accordion
 Picco pipe
 Pipa
@@ -406,10 +405,10 @@ Slide trumpet
 Slide whistle
 Slit drum
 Snare drum
+Sopranino
 Sopranino clarinet
 Sopranino sarrusophone
 Sopranino saxophone
-Sopranino
 Soprano clarinet
 Soprano sarrusophone
 Soprano saxophone
@@ -470,7 +469,6 @@ Triple-neck guitar
 Tromba marina
 Trombones
 Trompeta china
-Trumpet marine:tromba marina
 Trumpets
 Tsukeshime-daiko
 Tsuri-daiko
@@ -515,6 +513,6 @@ Wheelharp
 Whip
 Willow flute
 Xylophone
-Zither banjo
 Zither
+Zither banjo
 Zurna

@@ -3,6 +3,7 @@ Adonis
 Aeneas
 Aeolus
 Aesculapius
+Aesir
 Agamemnon
 Aglaia
 Agni
@@ -84,12 +85,14 @@ Galatea
 Ganesha
 Ganymede
 Gawain
+Geb
 Gilgamesh
 Gog
 Gorgon
 Grail
 Grendel
 Guinevere
+Hades
 Harpy
 Hebe
 Hecate
@@ -150,9 +153,11 @@ Mordred
 Morpheus
 Narcissus
 Nemesis
+Neptune
 Nereid
 Nibelung
 Oceanus
+Odin
 Odysseus
 Oedipus
 Olympus
@@ -179,7 +184,6 @@ Pygmalion
 Quetzalcoatl
 Ra
 Ragnarok
-Sasquatch
 Satan
 Scylla
 Sedna
@@ -198,8 +202,8 @@ Terpsichore
 Terra
 Tethys
 Theseus
+Thor
 Thoth
-Thunderbird
 Tiresias
 Titan
 Titania
@@ -208,6 +212,7 @@ Triton
 Troilus
 Uriel
 Valkyrie
+Venus
 Vishnu
 Walpurgisnacht
 Wotan
