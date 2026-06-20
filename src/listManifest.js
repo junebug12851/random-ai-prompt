@@ -32,8 +32,6 @@
  * gatedLists.js).
  */
 
-import { isNsfw } from "./contentSafety.js";
-
 /**
  * Per-list metadata. Any list not listed here defaults to
  * { anime:false, nsfw:false }. `nsfw:true` means the list as a whole leans
@@ -91,9 +89,9 @@ export const MAX_GROUP_DEPTH = 3;
 /**
  * Resolve a list/group name to its lines. A `.group` file is a composite: each
  * non-comment line is itself a list reference (resolved via resolveName) whose
- * lines are unioned + de-duplicated; an optional `@filter sfw|nsfw` line filters
- * the result. Plain lists fall through to readListFile. Environment access is
- * injected so this stays browser-safe.
+ * lines are unioned + de-duplicated. Plain lists fall through to readListFile.
+ * There is no runtime content filtering — SFW/NSFW are separate preprocessed
+ * files. Environment access is injected so this stays browser-safe.
  * @param {string} name Canonical list/group name.
  * @param {{names:string[], readListFile:(n:string)=>(string[]|null), readGroupFile:(n:string)=>(string[]|null)}} readers
  * @param {number} [depth] Current group-nesting depth (internal).
@@ -106,18 +104,12 @@ export function resolveListLines(name, readers, depth = 0, seen = new Set()) {
   if (seen.has(name) || depth >= MAX_GROUP_DEPTH) return [];
   seen.add(name);
 
-  let filter = null;
   const out = [];
   const seenLine = new Set();
   for (const raw of groupLines) {
     const line = raw.replace(/\r$/, "").trim();
-    if (line === "" || line.startsWith("#")) continue;
-    if (line.startsWith("@")) {
-      const d = line.slice(1).trim().toLowerCase();
-      if (d === "filter sfw" || d === "sfw") filter = "sfw";
-      else if (d === "filter nsfw" || d === "nsfw") filter = "nsfw";
-      continue;
-    }
+    // skip blanks, comments, and reserved @-directive lines
+    if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
     const member = resolveName(line, readers.names);
     const lines = resolveListLines(member, readers, depth + 1, seen) || [];
     for (const l of lines) {
@@ -127,8 +119,6 @@ export function resolveListLines(name, readers, depth = 0, seen = new Set()) {
       out.push(t);
     }
   }
-  if (filter === "sfw") return out.filter((l) => !isNsfw(l));
-  if (filter === "nsfw") return out.filter((l) => isNsfw(l));
   return out;
 }
 

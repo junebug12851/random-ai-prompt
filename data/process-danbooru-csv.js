@@ -27,7 +27,7 @@ import settings from "../src/settings.js";
 
 // content-safety filter (keeps regeneration free of slurs / minor-sexual /
 // extreme-shock content — see src/contentSafety.js)
-import { classifyRemoval } from "../src/contentSafety.js";
+import { classifyRemoval, isNsfw } from "../src/contentSafety.js";
 
 // Ensure we're within this directory
 process.chdir(import.meta.dirname);
@@ -93,9 +93,18 @@ for (let i = 0; i < csv.length; i++) {
 // src/listManifest.js. Uncategorized ("unknown") tags are folded into general so
 // nothing is lost.
 const dDir = `${settings.listFiles}/danbooru/d`;
+const sfwDir = `${settings.listFiles}/danbooru/d-sfw`;
 fs.mkdirSync(dDir, { recursive: true });
-fs.writeFileSync(`${dDir}/general.txt`, [...generalKeywords, ...unknownKeywords].join("\n"));
-fs.writeFileSync(`${dDir}/artist.txt`, artistKeywords.join("\n"));
-fs.writeFileSync(`${dDir}/character-c.txt`, copyrightKeywords.join("\n"));
-fs.writeFileSync(`${dDir}/character-nc.txt`, characterKeywords.join("\n"));
-fs.writeFileSync(`${dDir}/meta.txt`, metaKeywords.join("\n"));
+fs.mkdirSync(sfwDir, { recursive: true });
+
+// Write the full atomic list AND a preprocessed SFW-only copy (no runtime
+// filtering — the danbooru-sfw group reads the d-sfw/ copies directly).
+function writeDanbooru(name, arr) {
+  fs.writeFileSync(`${dDir}/${name}.txt`, arr.join("\n"));
+  fs.writeFileSync(`${sfwDir}/${name}.txt`, arr.filter((l) => !isNsfw(l)).join("\n"));
+}
+writeDanbooru("general", [...generalKeywords, ...unknownKeywords]);
+writeDanbooru("artist", artistKeywords);
+writeDanbooru("character-c", copyrightKeywords);
+writeDanbooru("character-nc", characterKeywords);
+writeDanbooru("meta", metaKeywords);

@@ -39,8 +39,10 @@ resolves to the de-duplicated union of all those lists. Reference a group by nam
 just like a list (`{danbooru}`). Groups can live anywhere in the tree.
 
 - Lines starting with `#` are comments.
-- A line `@filter sfw` (or `@filter nsfw`) filters the assembled union through the
-  NSFW lexicon — e.g. `danbooru-sfw.group` is just `@filter sfw` + `danbooru`.
+- Groups are pure unions — there is **no runtime content filtering**. SFW/NSFW are
+  separate, preprocessed files: `danbooru-sfw` reads `danbooru/d-sfw/*` (SFW-only
+  copies split from the full `danbooru/d/*` at build time), while `danbooru` reads
+  the full lists.
 - Groups may include other groups, up to **3 levels deep** (a recursion cutoff,
   plus a cycle guard).
 
