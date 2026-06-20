@@ -66,14 +66,14 @@ bite-sized
 biting
 bitter
 bizarre
-black-and-white
 black
+black-and-white
 bland
 bleeding
 blood sucking
 bloody
-blue-eyed
 blue
+blue-eyed
 blushing
 boiling
 bored
@@ -159,7 +159,6 @@ courageous
 cowardly
 crabby
 craven
-crazy smile
 crazy
 creepy
 crossing
@@ -227,7 +226,6 @@ disturbed
 dividing
 diving
 dizzy
-doyagao
 drab
 drained
 driving
@@ -238,7 +236,6 @@ earsplitting
 earthy
 eatable
 eating
-ecchi
 economic
 ecstatic
 educated
@@ -263,8 +260,6 @@ erect
 erotic
 erratic
 ethereal
-evil grin
-evil smile
 evil
 exasperated
 excited
@@ -272,8 +267,6 @@ expensive
 expressionless
 exuberant
 fabulous
-face stretching
-faceing
 faded
 faint
 faithful
@@ -281,7 +274,6 @@ fallacious
 false
 famous
 fancy
-fanning face
 far-flung
 farming
 fast
@@ -298,8 +290,6 @@ festive
 fierce
 fighting
 filthy
-finger biting
-finger sucking
 flat
 floating
 floppy
@@ -309,7 +299,6 @@ flying
 focusing
 folding
 following
-forced smile
 forced
 forcing
 fragile
@@ -341,11 +330,8 @@ glittering
 gloomy
 glorious
 glossy
-glove biting
 glowing
-gnawling
 godly
-goldfish scooping
 goofy
 gorgeous
 graceful
@@ -359,12 +345,9 @@ gritty
 grotesque
 grubby
 grumpy
-hair tucking
-hair twirling
 half
 hallowed
 halting
-hand biting
 handsome
 hanging
 hapless
@@ -374,8 +357,6 @@ harebrained
 harmonious
 harsh
 hateful
-head biting
-headpating
 heady
 healthy
 hearing
@@ -469,8 +450,6 @@ lazy
 leading
 legal
 lethal
-lewd
-light smile
 listening
 little
 lively
@@ -548,7 +527,6 @@ mysterious
 naive
 narrow
 natural
-naughty face
 naughty
 nauseating
 neat
@@ -565,7 +543,6 @@ nonchalant
 nondescript
 nonsensical
 nonstop
-nose blush
 nostalgic
 nosy
 noxious
@@ -584,11 +561,9 @@ obsolete
 obtainable
 oceanic
 odd
-old-fashioned
 old
+old-fashioned
 omniscient
-one eye closed
-operateing
 orange
 ordinary
 organic
@@ -643,7 +618,6 @@ ragged
 rainy
 rambunctious
 rampant
-rape face
 rapid
 raspy
 ratty
@@ -690,7 +664,6 @@ scintillating
 scrawny
 screaming
 screwing
-seductive smile
 selfish
 serious
 serving
@@ -716,7 +689,6 @@ slippery
 small
 smarmy
 smiling
-smirk
 smoggy
 smoking
 smug
@@ -772,8 +744,8 @@ tasty
 tawdry
 taxing
 tearful
-teeny-tiny
 teeny
+teeny-tiny
 telling
 tender
 tense
@@ -787,7 +759,6 @@ tickling
 tight
 timely
 tired
-torogao
 touching
 tough
 touring
@@ -795,7 +766,6 @@ trading
 travelling
 tricky
 tripping
-troll face
 troubled
 troubling
 twisting
@@ -824,7 +794,6 @@ upsetting
 uptight
 utopian
 uttermost
-v-shaped eyebrows
 vacuous
 vagabond
 vague
@@ -854,7 +823,6 @@ warm
 wary
 wasteful
 watery
-wavy mouth
 weak
 wealthy
 weary
@@ -869,8 +837,8 @@ white
 wholesome
 whopping
 wicked
-wide-eyed
 wide
+wide-eyed
 wiggly
 wild
 windy

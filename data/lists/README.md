@@ -56,12 +56,12 @@ Slurs, minor-sexualizing, and extreme shock/gore content are filtered by
 |--------|--------------|
 | `danbooru/d/` | Danbooru tags: general, artist, character-c, character-nc, meta, person |
 | `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity, scribbles, special, ukioe, weird, secondary |
-| `word/` | Parts of speech — curated (adjective, adverb, noun, verb, preposition, interjection) and dictionary-derived (`dict-*`) |
+| `word/` | Parts of speech — curated (adjective, adverb, noun, verb, preposition, interjection) and dictionary-derived (`dict-*`); `adult` (gated sexual terms moved out of the SFW word lists) |
 | `name/` | given-name, person, demonym, anime-name |
 | `place/` | city, place (countries/regions/landmarks) |
 | `lore/` | mythology, astronomy, religion, history, work, people-group |
 | `nature/` | animal, flower, tree, planet, mythological-creature |
-| `look/` | color, size, hair, clothes, weather, time, mood, emotion, view, image-effect, instrument |
+| `look/` | color, size, hair, clothes, weather, time, mood, emotion, view, image-effect, instrument, expression; `clothes-adult` (gated lingerie/fetish) |
 | `style/` | art-movement, art-technique, general-style, construct-style, building-style |
 | `scene/` | room, school-room, shed-type, ship-type, store-type, vehicle-type |
 | `brand/` | organization |

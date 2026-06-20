@@ -28,6 +28,8 @@ export const gatedLists = [
   "d-keyword",
   "artist/nudity",
   "keyword/keyword-adult",
+  "look/clothes-adult",
+  "word/adult",
 ];
 
 // Dynamic prompts that are only suggested when `includeAdult` is enabled.

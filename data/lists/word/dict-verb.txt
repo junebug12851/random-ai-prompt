@@ -635,7 +635,6 @@ bong
 bonk
 bonnet
 boo
-boob
 boogie
 book
 boom
@@ -2414,7 +2413,6 @@ garnish
 garnishee
 garrison
 garrote
-garter
 gas
 gash
 gasp

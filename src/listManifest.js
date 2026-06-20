@@ -76,6 +76,11 @@ export const listTags = {
   "lore/religion": { category: "subject", anime: false, nsfw: false },
   "lore/history": { category: "subject", anime: false, nsfw: false },
   "lore/work": { category: "subject", anime: false, nsfw: false },
+
+  // face/expression/pose tags + gated adult relocations
+  "look/expression": { category: "expression", anime: false, nsfw: false },
+  "look/clothes-adult": { category: "look", anime: false, nsfw: true },
+  "word/adult": { category: "pos", anime: false, nsfw: true },
 };
 
 /**

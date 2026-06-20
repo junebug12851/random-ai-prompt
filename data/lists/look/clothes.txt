@@ -32,7 +32,6 @@ armored dress
 asymmetrical sleeves
 asymmetrical wings
 aviator sunglasses
-back-print panties
 back-seamed legwear
 backless dress
 backless outfit
@@ -68,7 +67,6 @@ black apron
 black armor
 black bikini
 black bowtie
-black bra
 black capelet
 black choker
 black cloak
@@ -78,7 +76,6 @@ black collar
 black corset
 black dress
 black footwear
-black garter belt
 black gloves
 black headwear
 black jacket
@@ -86,7 +83,6 @@ black legwear
 black leotard
 black neckerchief
 black necktie
-black panties
 black pants
 black pantyhose
 black robe
@@ -96,7 +92,6 @@ black shirt
 black shorts
 black skirt
 black socks
-black sports bra
 black suit
 black sweater
 black tank top
@@ -113,7 +108,6 @@ blue bag
 blue bikini
 blue bodysuit
 blue bowtie
-blue bra
 blue cape
 blue capelet
 blue choker
@@ -129,7 +123,6 @@ blue jacket
 blue necktie
 blue neckwear
 blue one-piece swimsuit
-blue panties
 blue pantyhose
 blue ribbon
 blue sailor collar
@@ -152,14 +145,10 @@ bonnet
 boots
 borrowed garments
 bow
-bow bra
 bow hairband
 bowl hat
 bowtie
-bra
-bra visible through clothes
 bracelet
-bridal garter
 bridal legwear
 brooch
 brown apron
@@ -176,7 +165,6 @@ brown headwear
 brown hoodie
 brown jacket
 brown leotard
-brown panties
 brown pants
 brown ribbon
 brown sailor collar
@@ -201,7 +189,6 @@ cardigan
 cardigan vest
 cargo pants
 carrot necklace
-cat ear panties
 catsuit
 chaldea uniform
 champion uniform
@@ -219,7 +206,6 @@ circle skirt
 clog sandals
 clothes
 clothes around waist
-clothes lift
 clothes pull
 clothes writing
 clothing aside
@@ -249,7 +235,6 @@ cropped shirt
 cropped sweater
 cropped vest
 cross choker
-crotchless panties
 crown
 denim
 denim jacket
@@ -280,11 +265,6 @@ feather-trimmed sleeves
 feathered wings
 fedora
 fingerless gloves
-fishnet bodysuit
-fishnet legwear
-fishnet pantyhose
-fishnet thighhighs
-fishnet top
 fishnets
 flower bracelet
 flower necklace
@@ -299,7 +279,6 @@ frilled hairband
 frilled hat
 frilled legwear
 frilled leotard
-frilled panties
 frilled ribbon
 frilled shirt
 frilled shirt collar
@@ -339,7 +318,6 @@ green bag
 green belt
 green bikini
 green bowtie
-green bra
 green cape
 green capelet
 green coat
@@ -366,7 +344,6 @@ green wings
 green-tinted eyewear
 grey belt
 grey bikini
-grey bra
 grey capelet
 grey coat
 grey dress
@@ -376,7 +353,6 @@ grey legwear
 grey leota
 grey neckerchief
 grey necktie
-grey panties
 grey pants
 grey pantyhose
 grey sailor collar
@@ -459,7 +435,6 @@ knee boots
 kneehighs
 korean clothes
 lace
-lace panties
 lace trim
 lace-trimmed
 lace-trimmed hairband
@@ -483,7 +458,6 @@ leather pants
 leg ribbon
 leg warmers
 leggings
-legwear garter
 legwear under shorts
 leotard
 leotard under clothes
@@ -505,8 +479,6 @@ mechanical wings
 medium dress
 medium skirt
 metal boots
-micro bra
-micro panties
 microdress
 microskirt
 midriff
@@ -521,7 +493,6 @@ mismatched legwear
 mittens
 moon ornament
 multi-strapped bikini
-multi-strapped panties
 multicolored bikini
 multicolored bodysuit
 multicolored dress
@@ -576,7 +547,6 @@ orange kimono
 orange legwear
 orange leotard
 orange necktie
-orange panties
 orange ribbon
 orange scarf
 orange skirt
@@ -617,7 +587,6 @@ pink legwear
 pink leotard
 pink neckerchief
 pink necktie
-pink panties
 pink pantyhose
 pink sailor collar
 pink scarf
@@ -632,7 +601,6 @@ pinstripe suit
 pirate hat
 plaid
 plaid bikini
-plaid bra
 plaid headwear
 plaid jacket
 plaid neckwear
@@ -645,10 +613,8 @@ pleated skirt
 pointy footwear
 police uniform
 polka dot bikini
-polka dot bra
 polka dot dress
 polka dot legwear
-polka dot panties
 polka dot ribbon
 polka dot scrunchie
 polka dot shirt
@@ -671,7 +637,6 @@ puffy sleeves
 purple bikini
 purple bodysuit
 purple bow
-purple bra
 purple capelet
 purple choker
 purple dress
@@ -685,7 +650,6 @@ purple legwear
 purple leotard
 purple neckerchief
 purple necktie
-purple panties
 purple pantyhose
 purple ribbon
 purple scarf
@@ -708,7 +672,6 @@ red bikini
 red bodysuit
 red bow
 red bowtie
-red bra
 red cape
 red coat
 red dress
@@ -724,7 +687,6 @@ red mittens
 red neckerchief
 red necktie
 red neckwear
-red panties
 red pantyhose
 red ribbon
 red sailor collar
@@ -744,7 +706,6 @@ ribbed leotard
 ribbed shirt
 ribbon
 ribbon trim
-ribbon-trimmed bra
 ribbon-trimmed clothes
 ribbon-trimmed dress
 ribbon-trimmed legwear
@@ -764,12 +725,6 @@ santa hat
 sarong
 sash
 scrunchie
-see-through dress
-see-through jacket
-see-through shirt
-see-through silhouette
-see-through skirt
-see-through sleeves
 shared clothes
 shared scarf
 shell bikini
@@ -777,7 +732,6 @@ shell necklace
 shiny clothes
 shiny legwear
 shirt
-shirt lift
 shirt overhang
 shoe dangle
 shoes
@@ -796,7 +750,6 @@ showgirl skirt
 side slit shorts
 side-tie bikini bottom
 side-tie leotard
-side-tie panties
 side-tie shirt
 side-tie skirt
 sideless outfit
@@ -833,7 +786,6 @@ strawberry hair ornament
 string bikini
 striped bikini
 striped bow
-striped bra
 striped headwear
 striped jacket
 striped kimono
@@ -876,8 +828,6 @@ thigh strap
 thighband pantyhose
 thighhighs pull
 thighhighs under boots
-thong
-thong leotard
 through clothes
 tiara
 tiger costume
@@ -899,7 +849,6 @@ torn sleeves
 track jacket
 track suit
 track uniform
-training bra
 trench coat
 tress ribbon
 tube top
@@ -928,10 +877,8 @@ v-neck
 vampire costume
 veil
 vertical-striped bikini
-vertical-striped bra
 vertical-striped dress
 vertical-striped legwear
-vertical-striped panties
 vertical-striped shirt
 vertical-striped skirt
 vertical-striped thighhighs
@@ -943,7 +890,6 @@ waist cape
 waistcoat
 wand
 wedding dress
-wet panties
 wet shirt
 wet skirt
 wet swimsuit
@@ -956,13 +902,11 @@ white bloomers
 white bodysuit
 white bow
 white bowtie
-white bra
 white capelet
 white cardigan
 white coat
 white collar
 white dress
-white garter straps
 white gloves
 white headwear
 white jacket
@@ -972,7 +916,6 @@ white male underwear
 white neckerchief
 white necktie
 white outline
-white panties
 white pants
 white pantyhose
 white ribbon

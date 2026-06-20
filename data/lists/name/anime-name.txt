@@ -14,13 +14,13 @@ Assassination Classroom
 Asteroid in Love
 Astra Lost in Space
 Attack on Titan
-BECK: Mongolian Chop Squad
 Baby Steps 2
 Baccano
 Bakuman
 Banana Fish
 Barakamon
 Battle Angel Alita
+BECK: Mongolian Chop Squad
 Berserk
 Black Butler
 Black Clover
@@ -57,15 +57,15 @@ Dororo
 Dou Po Cangqiong
 Doukyuusei
 Dr. Stone
-Dragon Ball Z
 Dragon Ball
+Dragon Ball Z
 Durarara
 ERASED
 Escaflowne
 Excel Saga
 Fairy Tail
-Fate Zero
 Fate stay night
+Fate Zero
 Fire Force
 Food Wars
 Free! Eternal Summer
@@ -141,8 +141,8 @@ Mo Dao Zu Shi
 Mob Psycho 100
 Mobile Suit Gundam
 Monogatari
-Mononoke Hime
 Mononoke
+Mononoke Hime
 Mushishi
 Mushoku Tensei:
 My Dress-Up Darling
@@ -163,16 +163,16 @@ No Game No Life
 Nodame Cantabile
 Noir
 Non Non Biyori
-Noragami Aragoto
 Noragami
+Noragami Aragoto
 Nura: Rise of the Youkai Clan
 One Piece
 One-Punch Man
 Ouran High School Host Club
 Overlord
 Owarimonogatari
-Parasyte -the maxim-
 Parasyte
+Parasyte -the maxim-
 Patema Inverted
 Phantom Quest Corp
 Ping Pong The Animation
@@ -186,19 +186,17 @@ Quanzhi Gaoshou
 Rainbow: Nisha Rokubou no Shichinin
 Ranking of Kings
 Ranma
-Rascal Does Not Dream of Bunny Girl Senpai
 Rascal Does Not Dream of a Dreaming Girl
+Rascal Does Not Dream of Bunny Girl Senpai
 Re:ZERO
-ReLIFE
 Red Riding Hood Chacha
 Redline
+ReLIFE
 Riding Bean
 Road of Naruto
 Romantic Killer
 Run with the Wind
 Rurouni Kenshin
-SK8 the Infinity
-SPY x FAMILY
 Saekano: How to Raise a Boring Girlfriend Fine
 Saga of Tanya the Evil
 Sailor Moon
@@ -212,6 +210,7 @@ Sekai-ichi Hatsukoi
 Senyuu
 Shouwa Genroku Rakugo Shinjuu
 Silver Spoon
+SK8 the Infinity
 Skip Beat!
 Slayers
 Sleepy Princess in the Demon Castle
@@ -219,6 +218,7 @@ Snow White with the Red Hair
 Space Brothers
 Spice and Wolf
 Spirited Away
+SPY x FAMILY
 Star Blazers: Space Battleship Yamato 2199
 Stars Align
 Steins;Gate
@@ -229,7 +229,6 @@ Swallowed Star
 Sweet Blue Flowers
 Sword Art Online
 Sword of the Stranger
-TONIKAWA
 Teasing Master Takagi-san
 Tenchi Muyo
 Tengen Toppa Gurren Lagann
@@ -256,6 +255,7 @@ Toilet-Bound Hanako-kun
 Tokyo Ghoul
 Tokyo Godfathers
 Tokyo Revengers
+TONIKAWA
 Toradora!
 Trigun
 Tsubasa Reservoir Chronicle: Tokyo Revelations
@@ -273,12 +273,12 @@ World Trigger
 Wotakoi: Love is Hard for Otaku
 Wu Dong Qiankun
 Xingchen Bian
+xxxHOLiC
 Ya Boy Kongming!
 Yoh Kamiyama: YELLOW
 Yona of the Dawn
 Your lie in April
+your name
 Yowamushi Pedal: Grande Road
 Yuri!!! on Ice
 Zoku Owarimonogatari
-xxxHOLiC
-your name
