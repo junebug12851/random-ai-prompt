@@ -13,10 +13,10 @@
 // content (lists/expansions/presets) lives under the repo-root data/ folder
 // (../../data/...).
 
-import { resolveListLines, allListNames } from "../listManifest.js";
+import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
-const listRaw = import.meta.glob("../../data/lists/*.txt", {
+const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -70,7 +70,8 @@ export const browserLoader = {
     return expansionText[name] ?? null;
   },
   readListLines(name) {
-    return resolveListLines(name, (n) => listLines[n] ?? null);
+    const canonical = resolveName(name, allListNames(Object.keys(listLines)));
+    return resolveListLines(canonical, (n) => listLines[n] ?? null);
   },
   listNames() {
     return allListNames(Object.keys(listLines));

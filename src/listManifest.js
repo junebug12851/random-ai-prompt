@@ -161,3 +161,27 @@ export function resolveListLines(name, readPhysical, seen = new Set()) {
 export function allListNames(physicalNames) {
   return Array.from(new Set([...physicalNames, ...Object.keys(virtualLists)]));
 }
+
+/**
+ * Resolve a list reference to a canonical list name by PATH-SUFFIX matching, so a
+ * prompt can use a bare filename (`general`), a partial path (`danbooru/general`),
+ * or a full path — and folders can be nested arbitrarily deep. An exact match wins;
+ * otherwise any name whose path ends with `/<ref>` matches, and the shallowest
+ * (fewest folders), then alphabetically-first, match is chosen for determinism.
+ * @param {string} ref The reference as written in the prompt.
+ * @param {string[]} names All known canonical names (physical paths + virtual names).
+ * @returns {string} The resolved canonical name (or `ref` unchanged if nothing matches).
+ */
+export function resolveName(ref, names) {
+  if (!ref) return ref;
+  if (names.includes(ref)) return ref; // exact path or virtual name
+  const suffix = `/${ref}`;
+  const matches = names.filter((n) => n.endsWith(suffix));
+  if (!matches.length) return ref;
+  matches.sort((a, b) => {
+    const da = a.split("/").length;
+    const db = b.split("/").length;
+    return da !== db ? da - db : a.localeCompare(b);
+  });
+  return matches[0];
+}

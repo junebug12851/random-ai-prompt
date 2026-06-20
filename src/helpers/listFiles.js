@@ -23,30 +23,36 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
-import { isVirtualList, resolveListLines, allListNames } from "../listManifest.js";
+import { isVirtualList, resolveListLines, allListNames, resolveName } from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
 const artists = {};
 
 /**
- * Strip a file extension (`name.txt` → `name`).
- * @param {string} filename The filename.
- * @returns {string} The name without its extension.
+ * Recursively list every `.txt` under the list dir as a "/"-joined relative name
+ * (e.g. `danbooru/general`), so lists can be organized into nested folders.
+ * @param {object} settings The merged generation settings (`listFiles` dir).
+ * @returns {string[]} The list names (no extension), full relative paths.
  */
-// Convert filename.txt -> filename
-function removeExtension(filename) {
-  return filename.substring(0, filename.lastIndexOf(".")) || filename;
+function getListFiles(settings) {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
+      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+    }
+  };
+  walk(settings.listFiles, "");
+  return out;
 }
 
-/**
- * @param {object} settings The merged generation settings (`listFiles` dir).
- * @returns {string[]} The list filenames in the list directory.
- */
-// Get list of filenames.txt
-function getListFiles(settings) {
-  // Get all list files
-  return fs.readdirSync(settings.listFiles);
+// Cached canonical-name index (physical paths + virtual names), for suffix-based
+// reference resolution. Rebuilt by reloadListFiles().
+let allNamesCache = null;
+function getAllNames(settings) {
+  if (!allNamesCache) allNamesCache = allListNames(getListFiles(settings));
+  return allNamesCache;
 }
 
 /**
@@ -97,10 +103,11 @@ function lazyReloadListFile(settings, name) {
 function reloadListFiles(settings) {
   // Get list files (physical), then add virtual/composite list names so they
   // are registered for lazy assembly on first pull.
-  const physical = getListFiles(settings).map(removeExtension);
+  const physical = getListFiles(settings);
+  allNamesCache = allListNames(physical);
 
   // Loop through all lists (physical + virtual)
-  for (const key of allListNames(physical)) {
+  for (const key of allNamesCache) {
     // Re-load into memory (lazy — marks the slot empty)
     lazyReloadListFile(settings, key);
   }
@@ -126,6 +133,10 @@ function nameToData(settings, name, skipAliasCheck) {
       name = _.sample(_.keys(lists));
     else if (name == artistAlias && settings.artistFilename.toString() == "false")
       name = _.sample(_.keys(artists));
+
+    // Resolve a bare filename / partial path to its canonical list path so
+    // folder-organized lists can be referenced by just their filename.
+    name = resolveName(name, getAllNames(settings));
   }
 
   // Save pointer to list

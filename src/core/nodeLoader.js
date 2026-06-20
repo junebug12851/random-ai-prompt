@@ -11,18 +11,37 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { resolveListLines, allListNames } from "../listManifest.js";
+import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
+const listsRoot = path.join(rootDir, "data", "lists");
 
-// Read a single physical list file's lines (or null when missing).
+// Read a single physical list file's lines (or null when missing). `name` may be a
+// nested path like "danbooru/general".
 function readPhysicalList(name) {
   try {
-    return fs.readFileSync(path.join(rootDir, "data", "lists", `${name}.txt`), "utf8").split("\n");
+    return fs.readFileSync(path.join(listsRoot, `${name}.txt`), "utf8").split("\n");
   } catch {
     return null;
   }
+}
+
+// Recursively list every .txt under data/lists as a "/"-joined relative name.
+function physicalListNames() {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
+      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+    }
+  };
+  try {
+    walk(listsRoot, "");
+  } catch {
+    // ignore
+  }
+  return out;
 }
 
 /**
@@ -40,17 +59,11 @@ export const nodeLoader = {
     }
   },
   readListLines(name) {
-    return resolveListLines(name, readPhysicalList);
+    const canonical = resolveName(name, allListNames(physicalListNames()));
+    return resolveListLines(canonical, readPhysicalList);
   },
   listNames() {
-    try {
-      const phys = fs
-        .readdirSync(path.join(rootDir, "data", "lists"))
-        .map((f) => f.replace(/\.[^./]+$/, ""));
-      return allListNames(phys);
-    } catch {
-      return allListNames([]);
-    }
+    return allListNames(physicalListNames());
   },
   expansionNames() {
     try {
