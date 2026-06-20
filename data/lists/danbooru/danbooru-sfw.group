@@ -1,0 +1,4 @@
+# Group: danbooru with NSFW lines filtered out — the clean anime list.
+# @filter sfw drops lines that match the NSFW lexicon (src/contentSafety.js).
+@filter sfw
+danbooru

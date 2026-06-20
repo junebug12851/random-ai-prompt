@@ -14,7 +14,7 @@ list by **path suffix**, so all of these work:
 
 Resolution rules (deterministic):
 
-1. An exact match (full path or a virtual-list name) wins.
+1. An exact match (full path, or a group name) wins.
 2. Otherwise any list whose path ends with `/<your-ref>` matches.
 3. Among matches, the **shallowest** path wins — so a file higher in the tree acts
    as the default for that name.
@@ -31,17 +31,21 @@ terse form still works and old names translate 1:1:
 
 - old `d-general` → file `danbooru/d/general` → reference `{d/general}`
 
-## Virtual lists (composites)
+## Group files (`.group`) — composites
 
-Defined in `../../src/listManifest.js`, not files on disk — unions of other lists
-with de-duplication and an optional sfw/nsfw filter. Reference them by their short
-name:
+A `<name>.group` file is a composite list: each line is itself a list reference
+(resolved exactly like a `{name}` — bare, partial, or full path), and the group
+resolves to the de-duplicated union of all those lists. Reference a group by name
+just like a list (`{danbooru}`). Groups can live anywhere in the tree.
 
-- `danbooru` — all danbooru tags (`d/*`); `d-character`, `d-keyword` — danbooru subsets
-- `danbooru-sfw` — danbooru with NSFW-lexicon lines filtered out
-- `artist` — all artist styles; `artist-digipa` — the three digipa lists
-- `name` — given-name + person
-- `adjective-all` / `noun-all` / `verb-all` / `adverb-all` — curated + dictionary (+ demonym)
+- Lines starting with `#` are comments.
+- A line `@filter sfw` (or `@filter nsfw`) filters the assembled union through the
+  NSFW lexicon — e.g. `danbooru-sfw.group` is just `@filter sfw` + `danbooru`.
+- Groups may include other groups, up to **3 levels deep** (a recursion cutoff,
+  plus a cycle guard).
+
+Current groups: `danbooru` (all `d/*`), `danbooru-sfw`, `d-character`, `d-keyword`,
+`artist` (all artist styles), `artist-digipa`, `name` (given-name + person).
 
 ## Content safety & gating
 

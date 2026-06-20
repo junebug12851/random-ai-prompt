@@ -1,36 +1,32 @@
-# Keyword lists — architecture, content safety, and virtual lists
+# Keyword lists — architecture, content safety, and group files
 
 How `data/lists/` is structured after the 2.1.0 cleanup, and the three systems that govern it.
 
-## Physical vs virtual lists
+## Lists and group files
 
-A **physical list** is a `data/lists/<name>.txt` file, one keyword per line, referenced in a prompt as
-`{name}`. A **virtual list** has no file — it is defined in [`../../src/listManifest.js`](../../src/listManifest.js)
-as a union of other lists (physical or virtual), assembled on demand with cross-member de-duplication and
-an optional `sfw`/`nsfw` filter. Virtual lists are how the project "collapses lists into others": the big
-duplicated files the build scripts used to emit are gone, computed instead from their atomic parts.
+A **list** is a `data/lists/<name>.txt` file, one keyword per line, referenced in a prompt as `{name}`.
 
-Current virtual lists:
-
-| Virtual | Built from | Notes |
-|---------|-----------|-------|
-| `d-character` | `d-character-nc` + `d-character-c` | |
-| `d-keyword` | `d-general` + `d-character-c` + `d-character-nc` + `d-meta` | NSFW-gated |
-| `danbooru` | the above + `d-artist` | NSFW-gated |
-| `danbooru-sfw` | `danbooru`, filtered `sfw` | NSFW lexicon lines removed |
-| `artist-digipa` | `artist-dhigh` + `artist-dmed` + `artist-dlow` | |
-| `artist` | all `artist-*` category lists | |
-| `adjective-all` | `adjective` + `dict-adjective` | curated + dictionary |
-| `noun-all` / `verb-all` / `adverb-all` | curated + matching `dict-*` | |
+A **group** is a `<name>.group` file: each non-comment line is itself a list reference (resolved like any
+`{name}`), and the group resolves to the de-duplicated union of those lists. This is how the project
+"collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
+on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
+gated exactly like lists. A `@filter sfw|nsfw` directive line filters the union via the NSFW lexicon, and
+groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard. Groups live in their
+folders like any list: `danbooru/danbooru.group` (all `d/*`), `danbooru/d-character.group`,
+`danbooru/d-keyword.group`, `danbooru/danbooru-sfw.group` (`@filter sfw`), `artist/artist.group`,
+`artist/artist-digipa.group`, `name/name.group` — referenced terse as `{danbooru}`, `{artist}`, etc. via
+suffix resolution. (Curated + dictionary POS lists were merged into one list each, so the former `*-all`
+virtuals are gone.)
 
 ### The loader seam
 
-Three consumers resolve lists, all via `resolveListLines(name, readPhysical)` from `listManifest.js`:
-the two engine loaders [`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) (fs) and
+Three consumers resolve lists, all via `resolveListLines(name, readers)` from `listManifest.js`: the two
+engine loaders [`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) (fs) and
 [`src/core/browserLoader.js`](../../src/core/browserLoader.js) (Vite glob), and the classic runtime store
-[`src/helpers/listFiles.js`](../../src/helpers/listFiles.js). `readPhysical` is injected per environment,
-so `listManifest.js` itself stays browser-safe (no Node imports), like `gatedLists.js`. `listNames()`
-returns physical + virtual names, so virtual lists are suggestible and gateable like any other.
+[`src/helpers/listFiles.js`](../../src/helpers/listFiles.js). `readers` (`{ names, readListFile,
+readGroupFile }`) is injected per environment, so `listManifest.js` stays browser-safe (no Node imports),
+like `gatedLists.js`. `listNames()` returns list + group names, so groups are suggestible and gateable like
+any list.
 
 ## Folder organization & name resolution
 

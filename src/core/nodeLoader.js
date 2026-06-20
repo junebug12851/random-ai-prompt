@@ -17,23 +17,31 @@ const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
 
-// Read a single physical list file's lines (or null when missing). `name` may be a
-// nested path like "danbooru/general".
-function readPhysicalList(name) {
+// Read a list file's lines (`name.txt`) or a group file's lines (`name.group`),
+// or null when missing. `name` may be a nested path like "danbooru/d/general".
+function readListFile(name) {
   try {
     return fs.readFileSync(path.join(listsRoot, `${name}.txt`), "utf8").split("\n");
   } catch {
     return null;
   }
 }
+function readGroupFile(name) {
+  try {
+    return fs.readFileSync(path.join(listsRoot, `${name}.group`), "utf8").split("\n");
+  } catch {
+    return null;
+  }
+}
 
-// Recursively list every .txt under data/lists as a "/"-joined relative name.
+// Recursively list every .txt and .group under data/lists as a "/"-joined name.
 function physicalListNames() {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+      else if (/\.(txt|group)$/.test(entry.name))
+        out.push(`${prefix}${entry.name.replace(/\.(txt|group)$/, "")}`);
     }
   };
   try {
@@ -59,8 +67,9 @@ export const nodeLoader = {
     }
   },
   readListLines(name) {
-    const canonical = resolveName(name, allListNames(physicalListNames()));
-    return resolveListLines(canonical, readPhysicalList);
+    const names = allListNames(physicalListNames());
+    const canonical = resolveName(name, names);
+    return resolveListLines(canonical, { names, readListFile, readGroupFile });
   },
   listNames() {
     return allListNames(physicalListNames());

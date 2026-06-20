@@ -23,7 +23,7 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
-import { isVirtualList, resolveListLines, allListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, allListNames, resolveName } from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
@@ -40,7 +40,8 @@ function getListFiles(settings) {
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
-      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+      else if (/\.(txt|group)$/.test(entry.name))
+        out.push(`${prefix}${entry.name.replace(/\.(txt|group)$/, "")}`);
     }
   };
   walk(settings.listFiles, "");
@@ -61,22 +62,31 @@ function getAllNames(settings) {
  * @param {string} name The list name.
  * @returns {void}
  */
-// Read a single physical list file's lines (or null when missing).
-function readPhysicalList(settings, name) {
+// Read a single list file's (`.txt`) or group file's (`.group`) lines, or null.
+function readListFile(settings, name) {
   try {
     return fs.readFileSync(`${settings.listFiles}/${name}.txt`).toString().split("\n");
   } catch {
     return null;
   }
 }
+function readGroupFile(settings, name) {
+  try {
+    return fs.readFileSync(`${settings.listFiles}/${name}.group`).toString().split("\n");
+  } catch {
+    return null;
+  }
+}
 
-// Reload file into the list in-memory
+// Reload a list/group into the in-memory store. `.group` files are assembled from
+// their member lists (recursively, with a depth cap); `.txt` are read from disk.
 function reloadListFile(settings, name) {
-  // Load list into memory as an array. Virtual (composite) lists are assembled
-  // from their member lists; physical lists are read straight from disk.
-  const list = isVirtualList(name)
-    ? resolveListLines(name, (n) => readPhysicalList(settings, n)) || []
-    : readPhysicalList(settings, name) || [];
+  const readers = {
+    names: getAllNames(settings),
+    readListFile: (n) => readListFile(settings, n),
+    readGroupFile: (n) => readGroupFile(settings, n),
+  };
+  const list = resolveListLines(name, readers) || [];
 
   // Save into memory under proper list category
   if (name == settings.artistFilename || name.includes("artist")) artists[name] = list;

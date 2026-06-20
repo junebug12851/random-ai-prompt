@@ -1,0 +1,7 @@
+# Group: all danbooru tags (anime). Gated as adult.
+# Each line is a list reference, resolved like any {name}.
+d/general
+d/artist
+d/character-c
+d/character-nc
+d/meta

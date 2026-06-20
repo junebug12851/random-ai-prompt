@@ -80,80 +80,55 @@ export const listTags = {
   "word/adult": { category: "pos", anime: false, nsfw: true },
 };
 
-/**
- * Virtual (composite) lists, computed from other lists.
- * `union` lists the member lists (de-duplicated, in order). `filter` optionally
- * keeps only sfw or only nsfw lines.
- * @type {Object<string,{union:string[],filter?:("sfw"|"nsfw")}>}
- */
-export const virtualLists = {
-  // --- collapsed danbooru composites (members live under danbooru/d/) ---
-  "d-character": { union: ["danbooru/d/character-nc", "danbooru/d/character-c"] },
-  "d-keyword": {
-    union: ["danbooru/d/general", "danbooru/d/character-c", "danbooru/d/character-nc", "danbooru/d/meta"],
-  },
-  danbooru: {
-    union: [
-      "danbooru/d/general", "danbooru/d/artist", "danbooru/d/character-c",
-      "danbooru/d/character-nc", "danbooru/d/meta",
-    ],
-  },
-  // SFW view of danbooru — the clean anime list, no second file to maintain
-  "danbooru-sfw": { union: ["danbooru"], filter: "sfw" },
+// Composite lists are now plain files: a `<name>.group` file whose lines are each
+// a list reference (resolved like any {name}). Groups may include groups up to
+// MAX_GROUP_DEPTH levels deep, with a cycle guard. A `@filter sfw|nsfw` directive
+// line filters the assembled union via the NSFW lexicon. See data/lists/README.md.
 
-  // --- collapsed artist composites ---
-  "artist-digipa": { union: ["artist/dhigh", "artist/dmed", "artist/dlow"] },
-  artist: {
-    union: [
-      "artist/anime", "artist/bw", "artist/cartoon", "artist/dhigh",
-      "artist/dmed", "artist/dlow", "artist/fareast", "artist/fineart",
-      "artist/nudity", "artist/scribbles", "artist/special", "artist/ukioe",
-      "artist/weird",
-    ],
-  },
-
-  // any human name (first names + notable people)
-  name: { union: ["name/given-name", "name/person"] },
-};
+/** Recursion cutoff for group-includes-group nesting. */
+export const MAX_GROUP_DEPTH = 3;
 
 /**
- * @param {string} name A list name.
- * @returns {boolean} Whether the name is a virtual (composite) list.
- */
-export function isVirtualList(name) {
-  return Object.prototype.hasOwnProperty.call(virtualLists, name);
-}
-
-/**
- * Resolve a list name to its lines. Physical lists are read via the injected
- * `readPhysical` (so this stays environment-agnostic / browser-safe); virtual
- * lists are assembled from their members with cross-member de-duplication and
- * an optional sfw/nsfw filter.
- * @param {string} name List name (physical or virtual).
- * @param {(n:string)=>(string[]|null)} readPhysical Reads a physical list's lines.
+ * Resolve a list/group name to its lines. A `.group` file is a composite: each
+ * non-comment line is itself a list reference (resolved via resolveName) whose
+ * lines are unioned + de-duplicated; an optional `@filter sfw|nsfw` line filters
+ * the result. Plain lists fall through to readListFile. Environment access is
+ * injected so this stays browser-safe.
+ * @param {string} name Canonical list/group name.
+ * @param {{names:string[], readListFile:(n:string)=>(string[]|null), readGroupFile:(n:string)=>(string[]|null)}} readers
+ * @param {number} [depth] Current group-nesting depth (internal).
  * @param {Set<string>} [seen] Cycle guard (internal).
- * @returns {string[]|null} The resolved lines, or null if a physical list is missing.
+ * @returns {string[]|null} Resolved lines, or null if a plain list is missing.
  */
-export function resolveListLines(name, readPhysical, seen = new Set()) {
-  if (!isVirtualList(name)) return readPhysical(name);
-  if (seen.has(name)) return [];
+export function resolveListLines(name, readers, depth = 0, seen = new Set()) {
+  const groupLines = readers.readGroupFile(name);
+  if (groupLines == null) return readers.readListFile(name); // plain list
+  if (seen.has(name) || depth >= MAX_GROUP_DEPTH) return [];
   seen.add(name);
 
-  const def = virtualLists[name];
+  let filter = null;
   const out = [];
   const seenLine = new Set();
-  for (const member of def.union) {
-    const lines = resolveListLines(member, readPhysical, seen) || [];
-    for (const raw of lines) {
-      const line = raw.replace(/\r$/, "");
-      if (line.trim() === "") continue;
-      if (seenLine.has(line)) continue;
-      seenLine.add(line);
-      out.push(line);
+  for (const raw of groupLines) {
+    const line = raw.replace(/\r$/, "").trim();
+    if (line === "" || line.startsWith("#")) continue;
+    if (line.startsWith("@")) {
+      const d = line.slice(1).trim().toLowerCase();
+      if (d === "filter sfw" || d === "sfw") filter = "sfw";
+      else if (d === "filter nsfw" || d === "nsfw") filter = "nsfw";
+      continue;
+    }
+    const member = resolveName(line, readers.names);
+    const lines = resolveListLines(member, readers, depth + 1, seen) || [];
+    for (const l of lines) {
+      const t = l.replace(/\r$/, "");
+      if (t.trim() === "" || seenLine.has(t)) continue;
+      seenLine.add(t);
+      out.push(t);
     }
   }
-  if (def.filter === "sfw") return out.filter((l) => !isNsfw(l));
-  if (def.filter === "nsfw") return out.filter((l) => isNsfw(l));
+  if (filter === "sfw") return out.filter((l) => !isNsfw(l));
+  if (filter === "nsfw") return out.filter((l) => isNsfw(l));
   return out;
 }
 
@@ -210,12 +185,11 @@ export function compareNames(a, b) {
 }
 
 /**
- * @param {string[]} physicalNames The on-disk list names.
- * @returns {string[]} Physical names plus all virtual-list names (de-duplicated),
- *   in the guaranteed natural order (see compareNames).
+ * @param {string[]} names The on-disk list + group names (no extension).
+ * @returns {string[]} De-duplicated, in the guaranteed natural order (compareNames).
  */
-export function allListNames(physicalNames) {
-  return Array.from(new Set([...physicalNames, ...Object.keys(virtualLists)])).sort(compareNames);
+export function allListNames(names) {
+  return Array.from(new Set(names)).sort(compareNames);
 }
 
 /**

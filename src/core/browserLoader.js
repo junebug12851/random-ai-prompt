@@ -21,6 +21,11 @@ const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
   import: "default",
   eager: true,
 });
+const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
   import: "default",
@@ -49,6 +54,11 @@ for (const [path, raw] of Object.entries(listRaw)) {
   listLines[keyFor(path, "lists")] = String(raw).split("\n");
 }
 
+const groupLines = {};
+for (const [path, raw] of Object.entries(groupRaw)) {
+  groupLines[keyFor(path, "lists")] = String(raw).split("\n");
+}
+
 const expansionText = {};
 for (const [path, raw] of Object.entries(expansionRaw)) {
   expansionText[keyFor(path, "expansions")] = String(raw);
@@ -70,11 +80,16 @@ export const browserLoader = {
     return expansionText[name] ?? null;
   },
   readListLines(name) {
-    const canonical = resolveName(name, allListNames(Object.keys(listLines)));
-    return resolveListLines(canonical, (n) => listLines[n] ?? null);
+    const names = allListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+    const canonical = resolveName(name, names);
+    return resolveListLines(canonical, {
+      names,
+      readListFile: (n) => listLines[n] ?? null,
+      readGroupFile: (n) => groupLines[n] ?? null,
+    });
   },
   listNames() {
-    return allListNames(Object.keys(listLines));
+    return allListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
   },
   expansionNames() {
     return Object.keys(expansionText);
