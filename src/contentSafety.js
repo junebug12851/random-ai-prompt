@@ -51,6 +51,7 @@ const SLURS_CORE = [
   "faggot", "faggots", "fagot", "fagots", "tranny", "trannies", "shemale",
   "shemales", "dyke", "dykes",
   "retard", "retards", "retarded", "spastic", "mongoloid",
+  "jap", "japs", "negress", "negresses", "negroid", "negroids",
 ];
 
 // Category 1b: AMBIGUOUS slurs — content lists only.

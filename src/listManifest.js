@@ -63,7 +63,19 @@ export const listTags = {
   "dict-verb": { category: "pos", anime: false, nsfw: false },
   "dict-adverb": { category: "pos", anime: false, nsfw: false },
   "dict-misc": { category: "pos", anime: false, nsfw: false },
+
+  // proper-noun categories (hand-classified from the old keyword.txt dump)
   demonym: { category: "subject", anime: false, nsfw: false },
+  "given-name": { category: "name", anime: false, nsfw: false },
+  person: { category: "name", anime: false, nsfw: false },
+  place: { category: "place", anime: false, nsfw: false },
+  organization: { category: "brand", anime: false, nsfw: false },
+  mythology: { category: "subject", anime: false, nsfw: false },
+  astronomy: { category: "subject", anime: false, nsfw: false },
+  "people-group": { category: "subject", anime: false, nsfw: false },
+  religion: { category: "subject", anime: false, nsfw: false },
+  history: { category: "subject", anime: false, nsfw: false },
+  work: { category: "subject", anime: false, nsfw: false },
 };
 
 /**
@@ -92,6 +104,9 @@ export const virtualLists = {
   },
 
   // --- curated + dictionary, combined (quality default stays separate) ---
+  // any human name (first names + notable people)
+  name: { union: ["given-name", "person"] },
+
   "adjective-all": { union: ["adjective", "dict-adjective", "demonym"] },
   "noun-all": { union: ["noun", "dict-noun", "demonym"] },
   "verb-all": { union: ["verb", "dict-verb"] },

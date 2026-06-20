@@ -85,3 +85,20 @@ the dictionary assigns it, so `bond` lands in both `dict-noun` and `dict-verb`. 
 Conservation: 31,840 classified + 8,859 proper + 124 demonym + 5,451 misc + 2,476 dropped = 48,750. This
 replaced an earlier `compromise` guess-from-spelling pass that mislabeled isolated words (e.g. treated any
 `-ly` ending as an adverb); WordNet lookup is ground truth, not a guess.
+
+## Proper-noun categorization
+
+WordNet doesn't know proper nouns, so the ~8,859 names it left in `keyword.txt` were split further:
+
+1. An automatic first pass (`split-proper.mjs`, using `compromise` + `city.txt` membership) pulled out
+   `given-name`, `place`, `organization`, and de-duplicated confirmed cities into `city.txt`.
+2. The remaining ~4,422 were then **hand-classified individually** (AI world-knowledge, in batches under
+   `scripts/list-cleanup/cat/`, distributed by `build-categories.mjs`) into `person`, `place`,
+   `organization`, `mythology`, `astronomy`, `people-group`, `religion`, `history`, and `work`. This is the
+   one place individual judgment beats both dictionaries and POS rules — there is no lookup table that
+   knows *Achernar* is a star or *Accenture* a company. `build-categories.mjs` enforces a coverage check
+   (moved + remainder == base) so nothing is ever lost; anything not confidently classified stays in
+   `keyword.txt` (now ~593 abbreviations / fragments). `keyword.txt` went 8,859 → 593.
+
+Slurs surfaced during this pass (`Jap`, `Negress`, `Negroid`) were added to `contentSafety.js` and purged
+rather than categorized.

@@ -26,8 +26,23 @@ adverb-all          (virtual) adverb.txt + dict-adverb.txt
 
 Proper nouns & subjects
 ============================
-keyword.txt         Proper nouns — people, places, brands (was the dictionary dump)
+The old keyword.txt proper-noun dump was hand-classified (individually) into the
+category lists below; keyword.txt now holds only the leftover that didn't fit a
+category (abbreviations, -isms, fragments).
+
+keyword.txt         Leftover / uncategorized proper nouns
+given-name.txt      First names (Aaron, Abigail, ...)
+person.txt          Notable people & surnames (Einstein, Mozart, Dostoevsky, ...)
+place.txt           Countries, regions, landmarks (folded confirmed cities into city.txt)
+organization.txt    Companies, brands, products (Adidas, Boeing, Crayola, ...)
+mythology.txt       Gods & mythological figures (Zeus, Loki, Anubis, ...)
+astronomy.txt       Stars & constellations (Betelgeuse, Orion's stars, Cassiopeia, ...)
+people-group.txt    Ethnicities, tribes, peoples (Sioux, Berber, Maori, ...)
+religion.txt        Religious terms, texts, holidays (Torah, Easter, Nirvana, ...)
+history.txt         Eras, dynasties, events (Renaissance, Abbasid, Watergate, ...)
+work.txt            Fictional characters & titles (Gandalf, Hamlet, Pikachu, ...)
 demonym.txt         Nationality / demonym words (American, Japanese, ...)
+name                (virtual) given-name + person
 city.txt            City / place names
 anime-name.txt      Anime titles / character names
 animal.txt, flower.txt, tree.txt, mythological-creature.txt, planet.txt, ...

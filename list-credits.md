@@ -23,7 +23,9 @@ speech into the `dict-*` lists by looking each word up in WordNet (via the `word
 / `wordnet-db` packages — WordNet © Princeton University, license below), so a word
 lands in the list(s) for the part(s) of speech the dictionary actually assigns it.
 Words WordNet does not know remain in `keyword.txt` (proper nouns) or `dict-misc`
-(uncategorized); demonyms are split to `demonym.txt`. Composite/"virtual" lists are
+(uncategorized); demonyms are split to `demonym.txt`. The proper nouns were then
+hand-classified into category lists (person, place, organization, mythology,
+astronomy, people-group, religion, history, work). Composite/"virtual" lists are
 defined in `src/listManifest.js`.
 
 SCOWL Licenses
