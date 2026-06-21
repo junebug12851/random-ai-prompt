@@ -11,7 +11,7 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 "collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
 gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard.
-Current groups: `danbooru/d/d.group` (all `d/*`, ref `{d}`), `danbooru/d/keyword.group` (danbooru minus
+Current groups: `danbooru/d.group` (all `d/*`, ref `{d}`), `danbooru/d/keyword.group` (danbooru minus
 artists, `{d/keyword}`), `danbooru/d/character.group` (`{d/character}`), `artist/artist.group`,
 `artist/artist-digipa.group`, `name/name.group` — referenced terse as `{d}`, `{artist}`, etc. via suffix
 resolution. The danbooru groups live inside the `d/` folder to match the `{d/...}` reference convention. (Curated + dictionary POS lists

@@ -42,7 +42,7 @@
 export const listTags = {
   // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>").
   // Plain names are SFW; `-nsfw` / `-nsfw-only` carry NSFW and are gated.
-  "danbooru/d/d": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/general": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/general-nsfw": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/artist": { category: "danbooru", anime: true, nsfw: false },
