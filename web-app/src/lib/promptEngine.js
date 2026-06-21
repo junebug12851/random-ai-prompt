@@ -141,6 +141,42 @@ const listItems = () => {
   return out;
 };
 
+// Build the Expansions block as folder categories, mirroring the Lists block: an
+// alphabetical run of expansions per category folder, each preceded by a category pill
+// (the folder name + its description as the tooltip). Expansions are deterministic
+// copy/paste snippets, not random-draw lists, so the pills are plain labels (not
+// clickable groups). The button shows the shortest unambiguous token ({rays}-style),
+// and its `<name>.json` description becomes the tooltip.
+const expDisplay = computeButtonNames(browserLoader.expansionNames());
+const expDescFor = (n) => browserLoader.readExpansionMeta(n)?.description;
+const expansionItems = () => {
+  const names = browserLoader.expansionNames();
+  const byFolder = new Map();
+  for (const n of names) {
+    const i = n.lastIndexOf("/");
+    const folder = i < 0 ? "" : n.slice(0, i);
+    if (!byFolder.has(folder)) byFolder.set(folder, []);
+    byFolder.get(folder).push(n);
+  }
+  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
+  const cats = [];
+  for (const [folder, members] of byFolder) {
+    cats.push({
+      label: lastSeg(folder),
+      description: expDescFor(folder),
+      entries: members
+        .map((n) => ({ token: `<${expDisplay[n]}>`, label: expDisplay[n], description: expDescFor(n) }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    });
+  }
+  cats.sort((a, b) => a.label.localeCompare(b.label));
+  const out = [];
+  for (const c of cats) {
+    out.push({ category: true, label: c.label, description: c.description }, ...c.entries);
+  }
+  return out;
+};
+
 /**
  * @returns {object[]} The categorized building-block groups for the token cloud
  *   (full / partial dynamic prompts, expansions, lists, user, v1, special, plus the
@@ -161,7 +197,7 @@ export function getBlocks() {
     {
       title: "Expansions",
       hint: "Insert a fixed snippet (can contain prompts/lists)",
-      items: toItems(browserLoader.expansionNames(), (n) => `<${n}>`),
+      items: expansionItems(),
     },
     { title: "Lists", hint: "A random entry from a list", items: listItems() },
     { title: "User dynamic prompts", items: toItems(dyn.userFiles, (n) => `#${n}`) },

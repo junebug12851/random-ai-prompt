@@ -17,11 +17,33 @@ import {
   allListNames,
   autoGroupListDirs,
   resolveName,
+  compareNames,
 } from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
+const expansionsRoot = path.join(rootDir, "data", "expansions");
+
+// Recursively list names under a root as "/"-joined paths; `re` picks the extension.
+// Files starting with `_` are internal/config (markers etc.) and never content. Used
+// for the expansion tree (which nests into category folders just like data/lists).
+function namesUnder(base, re) {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
+      else if (!entry.name.startsWith("_") && re.test(entry.name))
+        out.push(`${prefix}${entry.name.replace(re, "")}`);
+    }
+  };
+  try {
+    walk(base, "");
+  } catch {
+    // ignore
+  }
+  return out;
+}
 
 // Read a list file's lines (`name.txt`) or a group file's lines (`name.group`),
 // or null when missing. `name` may be a nested path like "danbooru/d/general".
@@ -101,8 +123,11 @@ const groupListDirs = () =>
  */
 export const nodeLoader = {
   readExpansion(name) {
+    // Expansions nest into category folders; resolve a bare/partial `<name>` by path
+    // suffix (same rule as lists) so `<rays>` still finds `lighting/rays`.
+    const canonical = resolveName(name, namesUnder(expansionsRoot, /\.txt$/));
     try {
-      return fs.readFileSync(path.join(rootDir, "data", "expansions", `${name}.txt`), "utf8");
+      return fs.readFileSync(path.join(expansionsRoot, `${canonical}.txt`), "utf8");
     } catch {
       return null;
     }
@@ -130,13 +155,15 @@ export const nodeLoader = {
     return readListMeta(name);
   },
   expansionNames() {
+    return namesUnder(expansionsRoot, /\.txt$/).sort(compareNames);
+  },
+  // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to an
+  // expansion file or category folder, for the editor button/category tooltip; null if absent.
+  readExpansionMeta(name) {
     try {
-      return fs
-        .readdirSync(path.join(rootDir, "data", "expansions"))
-        .filter((f) => f.endsWith(".txt"))
-        .map((f) => f.replace(/\.[^./]+$/, ""));
+      return JSON.parse(fs.readFileSync(path.join(expansionsRoot, `${name}.json`), "utf8"));
     } catch {
-      return [];
+      return null;
     }
   },
   loadDynamicPrompt(key) {

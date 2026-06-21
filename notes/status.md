@@ -3,8 +3,15 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.1.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.2.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Expansions (2.2.0):** `data/expansions/` was brought to parity with the list system — the 9 snippets nest
+into category folders (`detail`, `style`, `lighting`, `subject`, `scene`) with shared path-suffix resolution
+(existing `<name>` references unchanged), each has a `<name>.json` description sidecar (folders too), and the
+SPA token cloud groups them by folder with tooltips. Random-union groups / clickable folder pills / SFW-NSFW
+splitting were intentionally left out (they don't fit deterministic copy/paste snippets). See
+[`reference/expansions-architecture.md`](reference/expansions-architecture.md).
 
 **Keyword lists (2.1.0, branch `cleanup/list-reorg`):** the `data/lists/` corpus was purged of slurs /
 minor-sexualizing / extreme-shock content via a new `src/contentSafety.js` filter (wired into the CSV

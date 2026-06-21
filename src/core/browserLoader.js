@@ -38,10 +38,14 @@ const forcePrefixFiles = import.meta.glob("../../data/lists/**/_force-prefix", {
 const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", { eager: true });
 const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list", { eager: true });
 const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
-const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
+const expansionRaw = import.meta.glob("../../data/expansions/**/*.txt", {
   query: "?raw",
   import: "default",
   eager: true,
+});
+const expansionMetaModules = import.meta.glob("../../data/expansions/**/*.json", {
+  eager: true,
+  import: "default",
 });
 const presetModules = import.meta.glob("../../data/presets/*.json", {
   eager: true,
@@ -78,7 +82,14 @@ for (const [path, raw] of Object.entries(groupRaw)) {
 
 const expansionText = {};
 for (const [path, raw] of Object.entries(expansionRaw)) {
-  expansionText[keyFor(path, "expansions")] = String(raw);
+  const key = keyFor(path, "expansions");
+  if (!isInternal(key)) expansionText[key] = String(raw);
+}
+
+const expansionMetaMap = {};
+for (const [path, obj] of Object.entries(expansionMetaModules)) {
+  const key = keyFor(path, "expansions");
+  if (!isInternal(key)) expansionMetaMap[key] = obj;
 }
 
 const presets = {};
@@ -114,7 +125,9 @@ const groupListDirs = autoGroupListDirs(
  */
 export const browserLoader = {
   readExpansion(name) {
-    return expansionText[name] ?? null;
+    // Expansions nest into category folders; resolve a bare/partial `<name>` by path
+    // suffix (same rule as lists) so `<rays>` still finds `lighting/rays`.
+    return expansionText[resolveName(name, Object.keys(expansionText))] ?? null;
   },
   readListLines(name, includeAdult = false) {
     const names = allListNames([
@@ -150,6 +163,9 @@ export const browserLoader = {
   },
   expansionNames() {
     return Object.keys(expansionText);
+  },
+  readExpansionMeta(name) {
+    return expansionMetaMap[name] ?? null;
   },
   loadDynamicPrompt(key) {
     return dynamicPrompts[key] ?? null;
