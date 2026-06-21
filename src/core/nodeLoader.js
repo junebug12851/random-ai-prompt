@@ -34,6 +34,23 @@ function readGroupFile(name) {
   }
 }
 
+// Folders (relative "/"-joined paths) that contain a `.force-prefix` marker file.
+function forcedPrefixDirs() {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
+      else if (entry.name === ".force-prefix") out.push(prefix.replace(/\/$/, ""));
+    }
+  };
+  try {
+    walk(listsRoot, "");
+  } catch {
+    // ignore
+  }
+  return out;
+}
+
 // Recursively list every .txt and .group under data/lists as a "/"-joined name.
 function physicalListNames() {
   const out = [];
@@ -73,6 +90,9 @@ export const nodeLoader = {
   },
   listNames() {
     return logicalListNames(physicalListNames());
+  },
+  forcedPrefixDirs() {
+    return forcedPrefixDirs();
   },
   expansionNames() {
     try {

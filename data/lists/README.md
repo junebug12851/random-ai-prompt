@@ -76,6 +76,19 @@ Example: `danbooru/d/general-sfw.txt` + `danbooru/d/general-nsfw.txt` →
 suffixes work on a group too (`{d-sfw}`, `{d-nsfw}`). A list that is
 entirely adult (e.g. `artist/nudity-nsfw`, `word/adult-nsfw`) is just one `-nsfw` file.
 
+## Editor button names & `.force-prefix`
+
+In the editor, a list's button shows the **shortest unambiguous name** — just the
+filename by default (`{color}`, `{noun}`), growing a folder prefix only when two
+lists would otherwise collide (then both step out folder-by-folder until distinct).
+
+A folder containing an empty **`.force-prefix`** file is exempt: its entries always
+show the path from that folder down (e.g. `danbooru/d/` has one, so its lists show as
+`{d/general}`, `{d/character}`). Forced entries are also left out of the auto-prefix
+collision check, so they never push a prefix onto other lists. The marker inherits
+downward — a `.force-prefix` in a parent folder forces more of the path on everything
+beneath it. This is display-only; references still resolve by path suffix as usual.
+
 ## Reserved name: `keyword`
 
 `keyword` is a **reserved wildcard**, not a file. `{keyword}` draws a random word from

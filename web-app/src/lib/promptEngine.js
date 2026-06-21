@@ -14,6 +14,7 @@ import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
 import { browserLoader } from "../../../src/core/browserLoader.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
+import { computeButtonNames } from "../../../src/listManifest.js";
 import { getCustomExpansions, getCustomPresets } from "./customStore.js";
 
 // Composite loader: custom expansions (localStorage) shadow/extend the bundled
@@ -81,6 +82,13 @@ const dyn = promptFiles.loadDynPromptList(); // { fullRegular, partialRegular, u
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
+// Shortest unambiguous display token per list (filename only, unless a conflict or a
+// `.force-prefix` folder like danbooru/d requires more of the path). The button shows
+// and inserts this token (e.g. {color}, {d/general}) rather than the full path.
+const listDisplay = computeButtonNames(browserLoader.listNames(), browserLoader.forcedPrefixDirs());
+const listItems = () =>
+  browserLoader.listNames().map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n] }));
+
 /**
  * @returns {object[]} The categorized building-block groups for the token cloud
  *   (full / partial dynamic prompts, expansions, lists, user, v1, special, plus the
@@ -103,7 +111,7 @@ export function getBlocks() {
       hint: "Insert a fixed snippet (can contain prompts/lists)",
       items: toItems(browserLoader.expansionNames(), (n) => `<${n}>`),
     },
-    { title: "Lists", hint: "A random entry from a list", items: toItems(browserLoader.listNames(), (n) => `{${n}}`) },
+    { title: "Lists", hint: "A random entry from a list", items: listItems() },
     { title: "User dynamic prompts", items: toItems(dyn.userFiles, (n) => `#${n}`) },
     { title: "V1 dynamic prompts", hint: "Legacy themed prompts", items: toItems(dyn.v1Files, (n) => `#${n}`) },
     { title: "Special", items: [{ token: "{salt}", label: "Force salt here" }] },

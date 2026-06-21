@@ -371,3 +371,74 @@ export function resolveName(ref, names) {
   });
   return matches[0];
 }
+
+/**
+ * Compute the SHORTEST unambiguous display token for each list, for editor buttons.
+ * By default a list shows just its filename; a name only grows a folder prefix when
+ * it would otherwise be ambiguous.
+ *
+ * Two stages:
+ * 1. **Manual prefix (`.force-prefix`)** — any name under a folder marked with a
+ *    `.force-prefix` file shows its path from the highest such ancestor down (e.g.
+ *    `danbooru/d/general` → `d/general`). These are excluded from the auto step, so
+ *    they never push a prefix onto anyone else.
+ * 2. **Auto prefix** — the rest start at the bare filename; whenever two share a
+ *    token they each step out one more folder until distinct.
+ *
+ * A final pass guarantees every token `resolveName()`s back to its own canonical
+ * name (lengthening if a forced/other name would otherwise shadow it).
+ * @param {string[]} names Canonical (logical) list names.
+ * @param {string[]} [forcedDirs] Folders that contain a `.force-prefix` marker.
+ * @returns {Object<string,string>} Map of canonical name → display token.
+ */
+export function computeButtonNames(names, forcedDirs = []) {
+  const forced = new Set(forcedDirs);
+  const result = {};
+  const auto = [];
+
+  for (const name of names) {
+    const segs = name.split("/");
+    let start = -1; // index of highest (closest-to-root) forced ancestor folder
+    for (let k = 0; k < segs.length - 1; k++) {
+      if (forced.has(segs.slice(0, k + 1).join("/"))) {
+        start = k;
+        break;
+      }
+    }
+    if (start >= 0) result[name] = segs.slice(start).join("/");
+    else auto.push(name);
+  }
+
+  // Auto: bare filename, lengthened by one folder per round while any collide.
+  const shown = new Map(auto.map((n) => [n, 1]));
+  const tok = (n) => {
+    const s = n.split("/");
+    return s.slice(s.length - shown.get(n)).join("/");
+  };
+  for (let changed = true; changed; ) {
+    changed = false;
+    const groups = {};
+    for (const n of auto) (groups[tok(n)] ||= []).push(n);
+    for (const members of Object.values(groups)) {
+      if (members.length < 2) continue;
+      for (const n of members) {
+        if (shown.get(n) < n.split("/").length) {
+          shown.set(n, shown.get(n) + 1);
+          changed = true;
+        }
+      }
+    }
+  }
+  for (const n of auto) result[n] = tok(n);
+
+  // Guarantee each token resolves back to its own name (vs forced/other shadows).
+  for (const name of names) {
+    const segs = name.split("/");
+    let len = result[name].split("/").length;
+    while (resolveName(result[name], names) !== name && len < segs.length) {
+      len++;
+      result[name] = segs.slice(segs.length - len).join("/");
+    }
+  }
+  return result;
+}

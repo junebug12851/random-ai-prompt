@@ -45,6 +45,21 @@ readGroupFile }`) is injected per environment, so `listManifest.js` stays browse
 like `gatedLists.js`. `listNames()` returns list + group names, so groups are suggestible and gateable like
 any list.
 
+## Editor button names (`computeButtonNames` + `.force-prefix`)
+
+The editor shows the shortest unambiguous token per list, not the full path.
+`computeButtonNames(names, forcedDirs)` (in `listManifest.js`) does this in two stages:
+**manual** — any list under a folder marked with an empty `.force-prefix` file shows
+its path from the highest such ancestor down (so `danbooru/d/general` → `{d/general}`),
+and these are excluded from the auto stage so they never push prefixes onto others;
+**auto** — every other list starts at its bare filename and only grows a folder
+segment when two collide, both stepping out until distinct. A final pass guarantees
+each token `resolveName()`s back to its own canonical name. The loaders expose
+`forcedPrefixDirs()` (nodeLoader walks for `.force-prefix`; browserLoader globs
+`**/.force-prefix` — Vite bundles the dotfile). The SPA's `getBlocks` uses this for the
+"Lists" token cloud. It is display-only; resolution is unchanged. Only `danbooru/d` is
+forced today (the `d/` short-code convention); everything else shows a bare filename.
+
 ## Folder organization & name resolution
 
 Lists live in folders under `data/lists/` (danbooru, artist, word, name, place, lore,

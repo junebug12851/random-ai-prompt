@@ -26,6 +26,7 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   import: "default",
   eager: true,
 });
+const forcePrefixFiles = import.meta.glob("../../data/lists/**/.force-prefix", { eager: true });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
   import: "default",
@@ -69,6 +70,12 @@ for (const [path, obj] of Object.entries(presetModules)) {
   presets[keyFor(path, "presets")] = obj;
 }
 
+// Folders (relative to data/lists) that contain a `.force-prefix` marker.
+const forcedDirs = Object.keys(forcePrefixFiles).map((p) => {
+  const i = p.indexOf("/lists/");
+  return p.slice(i + "/lists/".length).replace(/\/\.force-prefix$/, "");
+});
+
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
  * `readExpansion`, `readListLines`, `listNames`, `expansionNames`, `loadDynamicPrompt`,
@@ -94,6 +101,9 @@ export const browserLoader = {
   },
   listNames() {
     return logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+  },
+  forcedPrefixDirs() {
+    return forcedDirs;
   },
   expansionNames() {
     return Object.keys(expansionText);
