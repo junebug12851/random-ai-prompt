@@ -132,10 +132,15 @@ const dynCatItems = (keys) => {
   return out;
 };
 
-// The {#any} wildcard family — pick one random generator from the whole catalog.
+// The {#any} wildcard family — like the lists' `keyword` pill: a clickable "any" category
+// (inserts {#any}) with its sfw/nsfw variants as entries.
 const dynWildcardItems = () => [
-  { category: true, label: "wildcard", description: "Pick one random generator from the whole catalog." },
-  { token: "{#any}", label: "any", description: "One random generator (SFW; +NSFW when adult is on)." },
+  {
+    category: true,
+    label: "any",
+    token: "{#any}",
+    description: "Pick one random generator from the whole catalog (SFW; +NSFW when adult is on).",
+  },
   { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
   {
     token: "{#any-nsfw}",

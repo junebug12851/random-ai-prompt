@@ -97,8 +97,8 @@ The SPA ([`web-app/src/lib/promptEngine.js`](../../web-app/src/lib/promptEngine.
 [`Home.jsx`](../../web-app/src/components/Home.jsx)) splits dynamic prompts into two navbar tabs —
 **"Dynamic prompts"** (full generators) and **"Partial prompts"** (partials) — each grouped under
 category-folder pills. A folder pill is a **clickable group button** when the folder is an implied group
-(inserts `{#folder}` = a random generator of that folder); the `{#any}` family sits in a "wildcard" pill at
-the top of the full tab. **v1/v2 are superset links on the navbar** (`dynVer` state, v2 default): each
+(inserts `{#folder}` = a random generator of that folder); the `{#any}` family is a clickable "any" pill
+(inserts `{#any}`) with `{#any-sfw}` / `{#any-nsfw}` entries, exactly like the lists' `keyword` pill. **v1/v2 are superset links on the navbar** (`dynVer` state, v2 default): each
 dynamic block is `dynVersioned` and carries `variants.v2` / `variants.v1`, and the links switch the whole
 catalog (v1 is all-full, so its Partial tab is empty). The classifier
 [`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js) still classifies full/partial
