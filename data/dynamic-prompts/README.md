@@ -27,7 +27,6 @@ Special suffixes/aliases:
 - **`{#name-v1}`** → the frozen original under `v1/` (see below).
 - **`{#name-v2}`** → forces the v2 form (the default; the suffix is just explicit).
 - **`{#user-name}`** → back-compat alias for a community generator under `v2/user/`.
-- **`{#any}`** → a reserved wildcard: run ONE random generator from the whole v2 catalog.
 
 ## Folders
 

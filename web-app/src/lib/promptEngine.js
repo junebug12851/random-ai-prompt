@@ -95,8 +95,7 @@ const v1DynNames = allDynNames.filter((n) => n.startsWith("v1/"));
 const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
 const dynBtn = computeButtonNames(v2DynNames, browserLoader.dynPromptForcedPrefixDirs());
 
-// v2 generators grouped into category-folder sections (plain-label pills + entries),
-// prefixed by the {#any} wildcard.
+// v2 generators grouped into category-folder sections (plain-label pills + entries).
 const dynV2Items = () => {
   const byFolder = new Map();
   for (const k of v2DynNames) {
@@ -115,14 +114,7 @@ const dynV2Items = () => {
         .sort((a, b) => compareNames(a.label, b.label)),
     }))
     .sort((a, b) => compareNames(a.label, b.label));
-  const out = [
-    { category: true, label: "wildcard" },
-    {
-      token: "{#any}",
-      label: "any",
-      description: "Run one random generator from the whole catalog.",
-    },
-  ];
+  const out = [];
   for (const c of cats) {
     out.push({ category: true, label: c.label, description: c.description }, ...c.entries);
   }

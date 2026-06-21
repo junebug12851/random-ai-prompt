@@ -3,8 +3,8 @@
 How `data/dynamic-prompts/` is structured after the modernization that brought it to parity with
 the keyword-list ([`list-architecture.md`](list-architecture.md)) and expansion
 ([`expansions-architecture.md`](expansions-architecture.md)) systems — **2.3.0** (the `v2/` reorg,
-suffix resolution, sidecars) and **2.4.0** (the `{#name}` sigil, name-token gating, the `{#any}`
-wildcard, and the uniform SPA). Only the parts that *make sense* for code generators were ported;
+suffix resolution, sidecars) and **2.4.0** (the `{#name}` sigil, name-token gating, and the uniform
+SPA). Only the parts that *make sense* for code generators were ported;
 what was intentionally left out is noted at the end. For the catalog / authoring idiom see
 [`dynamic-prompts.md`](dynamic-prompts.md); for the engine see
 [../systems/core-engine.md](../systems/core-engine.md).
@@ -51,9 +51,9 @@ were kept unique during the move, so every pre-existing `{#beach}` / `{#fx}` / `
 still resolves with no edits, and categories never have to be typed. The stage splits the catalog
 once per run into `v1/` (reached only via `{#name-v1}`) and the rest (v2, reached bare), resolving
 each against its own subset so `{#comic}` finds `v2/style/comic`, never `v1/comic`. `{#user-name}` is
-a back-compat alias that strips `user-` and resolves into `v2/user/`. `{#any}` is a reserved wildcard
-([`dynPromptManifest.js`](../../src/dynPromptManifest.js)) — it runs one random generator from the
-whole v2 catalog (gate-aware). Gating is automatic by name token: `isGatedDynPrompt(name)` in
+a back-compat alias that strips `user-` and resolves into `v2/user/`. There is no wildcard or
+`{#folder}` "random member" token — every `{#name}` names one specific generator. Gating is automatic
+by name token: `isGatedDynPrompt(name)` in
 [`gatedLists.js`](../../src/gatedLists.js) is true when the name carries an `nsfw` token, so such a
 generator resolves to "" (and is hidden in the picker) while `includeAdult` is off — the same rule
 lists/expansions use, no hardcoded list.
@@ -87,8 +87,7 @@ pills (scene/subject/fragment/style/engine/user), each `{#name}` chip carrying i
 The folder pills are **plain labels, not clickable groups** — a dynamic prompt is a script with
 specific behavior, so there is no "insert a random member of this folder" action (owner's call). v1
 and v2 are collapsed into one block with a **v1/v2 toggle** on the header (`dynMode` state; `getBlocks`
-carries both `items` (v2) and `itemsV1`). The `{#any}` wildcard sits in a small "wildcard" group at
-the top. The classifier [`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js)
+carries both `items` (v2) and `itemsV1`). The classifier [`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js)
 still classifies full/partial (for the `{#random}` suggestion builder) and applies the same
 name-token gating to its pools.
 
@@ -102,11 +101,11 @@ reorg (repointed to `../v2/subject/entity.js`).
 
 ## What was intentionally NOT ported
 
-- **Group entry lists / implied `{#folder}` groups** — explicitly rejected (owner, 2.4.0): a folder
-  is organization only, never a "random member" pool, because a dynamic prompt is a script with a
-  specific input→output, not a list of words. (The `{#any}` wildcard is the one deliberate
-  random-pick, and it still runs one concrete generator.) No `.group` files or `_enable/_disable-group`
-  markers for dynamic prompts.
+- **Group entry lists / implied `{#folder}` groups AND a random-pick wildcard** — explicitly rejected
+  (owner, 2.4.0): a folder is organization only, never a "random member" pool, and there is no
+  catalog-wide random-pick token either, because a dynamic prompt is a script with a specific
+  input→output, not a list of words you pick an entry from. Every `{#name}` names one concrete
+  generator. No `.group` files, `_enable/_disable-group` markers, or `{#any}` wildcard.
 - **SFW/NSFW file splitting** — there is nothing to split (a generator is code, not lines); adult
   content is gated by the `nsfw` **name token** instead (see above), which is the portable half of
   the list NSFW model.

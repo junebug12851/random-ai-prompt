@@ -12,9 +12,7 @@
 // `#name` is resolved by PATH SUFFIX (the same rule lists/expansions use) against the v2
 // catalog, so references stay short and folder-independent. `#name-v1` resolves against
 // the frozen v1/ tree; `#user-name` is a back-compat alias for the v2/user/ generators.
-import _ from "lodash";
 import { resolveName } from "../../listManifest.js";
-import { isReservedAny } from "../../dynPromptManifest.js";
 import { isGatedDynPrompt } from "../../gatedLists.js";
 
 /**
@@ -52,18 +50,11 @@ export function makeDynamicPromptStage(loader) {
     // adult is on — the same automatic rule lists/expansions use.
     const gateOk = (key) => includeAdult || !isGatedDynPrompt(key);
 
+    // Each {#name} names ONE specific generator script — there are no folder/wildcard
+    // "pick a random one of many" tokens (a dynamic prompt is a script, not a word pool).
     function expandV2(name) {
       name = name.replace(/-v2$/, "");
       if (name.startsWith("user-")) name = name.slice("user-".length); // back-compat alias
-
-      // {#any} wildcard: run ONE random generator from the whole v2 catalog (gate-aware).
-      // (Folders are organization only — there is no `{#folder}` "random member" group;
-      // dynamic prompts are scripts with specific behavior, not word pools.)
-      if (isReservedAny(name)) {
-        const ok = v2Names.filter(gateOk);
-        return ok.length ? run(_.sample(ok), settings, imageSettings, upscaleSettings) : "";
-      }
-
       const canonical = resolveName(name, v2Names);
       if (!gateOk(canonical)) return ""; // gated (nsfw) when adult is off
       return run(canonical, settings, imageSettings, upscaleSettings);

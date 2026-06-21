@@ -1,30 +1,12 @@
 /**
  * @file
- * @brief Dynamic-prompt metadata + group/wildcard resolution helpers — the analog of
- * listManifest.js for the `data/dynamic-prompts/` catalog. Pure data + tiny resolvers,
- * browser-safe (no Node-only imports), so it runs in Node and the Vite SPA alike.
+ * @brief Dynamic-prompt metadata — the analog of `listTags` in listManifest.js for the
+ * `data/dynamic-prompts/` catalog. Pure data, browser-safe (no Node-only imports).
  *
- * Unlike lists, dynamic prompts are NOT word pools you draw from, so there are no group
- * entry lists — a category folder is organization only, never a `{#folder}` "random
- * member" group. The single exception is the reserved `{#any}` wildcard, which runs one
- * random generator from the whole v2 catalog (a deliberate "surprise me", parity with the
- * lists' reserved `{keyword}`). Gating is automatic by name token via gatedLists.js.
+ * Unlike lists, dynamic prompts are NOT word pools you draw from: every `{#name}` names ONE
+ * specific generator script. There are no group entry lists, no `{#folder}` "random member"
+ * groups, and no random-pick wildcard. Adult gating is automatic by name token (gatedLists.js).
  */
-
-/**
- * Reserved wildcard base: `{#any}` is not a file — it runs a random generator drawn from
- * the whole v2 catalog (mode/gate-aware). Reserved like the lists' `{keyword}`.
- * @type {string}
- */
-export const RESERVED_ANY = "any";
-
-/**
- * @param {string} name A dynamic-prompt reference.
- * @returns {boolean} Whether it is the reserved `{#any}` wildcard.
- */
-export function isReservedAny(name) {
-  return String(name) === RESERVED_ANY;
-}
 
 /**
  * Per-generator tag metadata (the analog of `listTags`): a category plus anime/nsfw

@@ -12,8 +12,8 @@ category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`e
 frozen; resolution by **path suffix**, `<name>.json` description sidecars, `_`-internal / `_force-prefix` /
 `compareNames`. **2.4.0:** the sigil became **`{#name}`** (brace-delimited like `{list}`/`<expansion>`,
 `/`-path capable; bare `#name` retired — 204 internal refs migrated, v1 untouched); automatic NSFW gating
-by name token (`isGatedDynPrompt`); a reserved **`{#any}`** wildcard; tag metadata
-(`src/dynPromptManifest.js`); and a **uniform SPA** — one Dynamic-prompts block with category-folder pills
+by name token (`isGatedDynPrompt`); tag metadata (`src/dynPromptManifest.js`); and a **uniform SPA** — one
+Dynamic-prompts block with category-folder pills
 (plain labels — folders are organization, **not** groups: a generator is a script, not a word pool) and a
 **v1/v2 toggle**. Only the **new** engine (core loaders/stage, classifier, SPA) was touched — the classic
 server + `prompt-modules/` are read-only legacy reference. See

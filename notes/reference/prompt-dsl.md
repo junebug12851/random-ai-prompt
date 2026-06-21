@@ -30,7 +30,7 @@ function loaded by config-driven path from `src/prompt-modules/`.
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
 | `<name>` | `expansion.js` | `data/expansions/**/name.txt` | Splice the file's text in verbatim. |
-| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. (`{#any}` = a random generator; `{#name-v1}` = frozen v1.) |
+| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. (`{#name-v1}` = frozen v1.) |
 | `{name}` | `list.js` | `data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
@@ -60,8 +60,8 @@ script with specific behavior, not a word pool). Conventions:
 - **Variant namespaces / aliases:** `{#name-v1}` loads from `data/dynamic-prompts/v1/` (an older, frozen
   generation — always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes
   those in). `{#user-foo}` is a back-compat alias for `data/dynamic-prompts/v2/user/foo.js` (community
-  contributions, always `full`). `{#any}` is a reserved wildcard — run one random generator from the whole
-  v2 catalog.
+  contributions, always `full`). Every `{#name}` names one specific generator — there is no `{#folder}`
+  group or catalog-wide random-pick wildcard (a generator is a script, not a word pool).
 - **Gating:** a generator whose name carries an `nsfw` token is hidden (resolves to "") unless
   `includeAdult` is on — the same automatic name-token rule lists/expansions use (`isGatedDynPrompt`).
 - **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `{#fx}`,
