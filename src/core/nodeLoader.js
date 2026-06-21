@@ -173,14 +173,14 @@ export const nodeLoader = {
   },
   loadDynamicPrompt(key) {
     try {
-      return require(path.join(rootDir, "src", "dynamic-prompts", `${key}.js`));
+      return require(path.join(rootDir, "data", "dynamic-prompts", `${key}.js`));
     } catch {
       return null;
     }
   },
   dynamicPromptNames() {
     const out = [];
-    const base = path.join(rootDir, "src", "dynamic-prompts");
+    const base = path.join(rootDir, "data", "dynamic-prompts");
     const walk = (dir, prefix) => {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);

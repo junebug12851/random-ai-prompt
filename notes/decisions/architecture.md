@@ -2,6 +2,25 @@
 
 Key structural choices and why. (Things tried and rejected live in [`rejected.md`](rejected.md).)
 
+## `dynamic-prompts/` lives under `data/`, not `src/` (2026-06-21)
+
+The `#name` generators were moved from `src/dynamic-prompts/` to `data/dynamic-prompts/`. They are
+executable `.js` (they `import` helpers and run logic), so the June reorg first placed them with the
+rest of the code under `src/`. But conceptually they are **prompt content** — authored and extended
+exactly like `lists/`, `expansions/`, and `presets/` (the project's "drop a file in to add content"
+philosophy applies to them too). Keeping all the content the user edits in one place (`data/`) won the
+tradeoff over the "all code in `src/`" tidiness rule, so this is the **one deliberate exception** to
+that rule.
+
+Mechanically the move only required path edits in the loaders, because the directory name is
+config-driven (`settings.dynamicPromptFiles = "dynamic-prompts"`): the legacy
+`src/prompt-modules/dynamic-prompt.js` now prefixes the require with `../../data/`; `core/nodeLoader.js`
+joins `rootDir/data/dynamic-prompts`; `core/browserLoader.js` globs `../../data/dynamic-prompts/**/*.js`.
+The generator files still import shared helpers out of `src/` (`../../src/helpers/…` for top-level,
+`../../../src/helpers/…` for `v1/`). Verified green with `npm run smoke` (node + legacy loaders) and
+`npm --prefix web-app run build` (browser glob). Note both loaders must stay in sync — see
+[`../../CLAUDE.md`](../../CLAUDE.md) "Critical Things Not to Get Wrong".
+
 ## Full ES modules, not a CJS/ESM hybrid (2026-06-18)
 
 The whole codebase is ESM (`"type": "module"`). We did **not** leave the dynamic-prompt plugins or any

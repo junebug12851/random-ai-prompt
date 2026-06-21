@@ -1,6 +1,6 @@
 # Reference — The dynamic-prompt catalog & data-build pipeline
 
-The `#name` generators in `src/dynamic-prompts/` are where most of the original creative effort went:
+The `#name` generators in `data/dynamic-prompts/` are where most of the original creative effort went:
 ~113 little plugins that each return a prompt fragment, composed through the DSL
 ([prompt-dsl.md](prompt-dsl.md)). This page is the **catalog and authoring idiom** — how the generators
 are built, how they compose, the v1→v2 story, and how the word-lists they pull from are generated from
@@ -67,7 +67,7 @@ publicprompts.art templates embed `#entity` / `#person` / `#living-entity` / `#e
 
 ## v1 vs v2 — the decomposition story
 
-`src/dynamic-prompts/v1/` (33 frozen modules, addressed as `#name-v1`, always treated as `full`, and
+`data/dynamic-prompts/v1/` (33 frozen modules, addressed as `#name-v1`, always treated as `full`, and
 they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
 generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
 `entityBasicKeywords()` and hard-bake color/weather/time. The top-level (v2) set is the **refactor**: the

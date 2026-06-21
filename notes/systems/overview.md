@@ -42,8 +42,8 @@ prompt → expansion → dynamic-prompt → expansion → dynamic-prompt → pro
 ```
 
 - **expansion** (`<name>`): splice in `data/expansions/name.txt`.
-- **dynamic-prompt** (`#name`): expand by calling `src/dynamic-prompts/name.js`'s default export.
-  Supports nesting (re-runs up to 10x), `-v1` variants (`src/dynamic-prompts/v1/`), `user-` prefixed
+- **dynamic-prompt** (`#name`): expand by calling `data/dynamic-prompts/name.js`'s default export.
+  Supports nesting (re-runs up to 10x), `-v1` variants (`data/dynamic-prompts/v1/`), `user-` prefixed
   user-submitted prompts, and auto-appended `#fx` / `#artists`. Danbooru keyword substitution is applied.
 - **prompt-salt** (`{salt}`): inject a random or incrementing number (a subseed alternative).
 - **list** (`{name}`): pull a random line from `data/lists/name.txt`, with emphasis/editing/alternating
@@ -60,7 +60,7 @@ Two loaders make this work synchronously: `src/prompt-modules/dynamic-prompt.js`
 
 ## Dynamic-prompt classification
 
-`src/promptFilesAndSuggestions.js` scans `src/dynamic-prompts/` (+ `v1/`, `user-submitted/`) and splits the
+`src/promptFilesAndSuggestions.js` scans `data/dynamic-prompts/` (+ `v1/`, `user-submitted/`) and splits the
 files into **full** vs **partial** prompts by reading each module's `full` export, excluding ones with
 `suggestion_exclude`. It uses these to build random `promptSuggestion()`s and to populate the web UI's
 file pickers. The scan loads each module via the same `createRequire` mechanism.

@@ -52,7 +52,7 @@ exactly like lists. The loaders expose `expansionForcedPrefixDirs()` (a `markedD
 redundant "detail" is now carried by the folder) and the folder is force-prefixed, so they read
 `<detail/legacy>` / `<detail/legacy-person>`. As with lists this is display-only — suffix resolution still
 works — so it surfaces the folder for context rather than hard-requiring it. The lone code reference
-(`src/dynamic-prompts/futuristic.js`) was updated to `<detail/legacy>`.
+(`data/dynamic-prompts/futuristic.js`) was updated to `<detail/legacy>`.
 
 The classic Pug editor lists expansions flat with a single section tooltip — the same treatment
 lists get there (`/api/files/expansions` returns the canonical names, so nested paths render

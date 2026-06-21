@@ -1,7 +1,10 @@
 # Architecture
 
 ES modules (`"type": "module"`), Node 24. **All code lives under `src/`; all prompt content (data)
-lives under `data/`.** Everything runs with the current working directory pinned to the project root by
+lives under `data/`.** The one deliberate exception is `data/dynamic-prompts/` — the `#name`
+generators are executable `.js` but are treated as prompt *content* (authored like lists/expansions),
+so they live with the rest of the content under `data/`. Everything runs with the current working
+directory pinned to the project root by
 `src/chdir.js` (which `chdir`s to its parent), so the many `./output`, `./data/lists`, `./results.json`
 style paths resolve from the root regardless of where `node` was launched.
 
@@ -21,11 +24,9 @@ src/                ALL code
   loadVariationData.js / loadRerollData.js / upscaleExisting.js / extendAnimation.js / toAnimation.js
   promptFilesAndSuggestions.js   scan/classify dynamic prompts, build suggestions
   prompt-modules/   The prompt pipeline stages
-    dynamic-prompt.js  expand #name tokens (loads dynamic-prompts/* via createRequire)
+    dynamic-prompt.js  expand #name tokens (loads data/dynamic-prompts/* via createRequire)
     expansion.js       expand <name> tokens   list.js  expand {name} tokens
     prompt-salt.js     {salt} handling        cleanup.js  whitespace/comma cleanup
-  dynamic-prompts/  ~113 plugin modules: export default fn (+ export const full / suggestion_exclude)
-    v1/  user-submitted/   variant sets
   helpers/          saveImage, saveApng, makeApng, saveResults, listFiles, keywordRepeater,
                     imageUpscaler, randomEmphasis/Editing/Alternating
   core/             the isomorphic engine (engine.js, stages/, node/browserLoader) — see systems/core-engine.md
@@ -33,6 +34,8 @@ src/                ALL code
 
 data/               ALL prompt content
   lists/  expansions/  presets/   data files for {name}, <name>, and presets
+  dynamic-prompts/  ~113 #name plugin modules: export default fn (+ export const full / suggestion_exclude)
+    v1/  user-submitted/   variant sets
   artists.csv / danbooru.csv / nai-tag-expirement.json   raw sources
   process-*.js      one-off scripts that build the lists/ files from the CSV/JSON sources
 
@@ -42,9 +45,10 @@ user-settings.json / results.json   runtime user data (root, gitignored)
 ```
 
 The directory names code consumes are centralized in `src/settings.js` (`listFiles: "./data/lists"`,
-`expansionFiles: "./data/expansions"`, `presetFiles: "./data/presets"`; `dynamicPromptFiles`/
-`promptModuleFiles` stay relative to `src/`). The web UI's served folder is `serverSettings.webFolder`
-= `"./src/web"`.
+`expansionFiles: "./data/expansions"`, `presetFiles: "./data/presets"`; `dynamicPromptFiles:
+"dynamic-prompts"` now resolves under `data/` — the loaders prefix it with `../../data/` (legacy
+`prompt-modules/dynamic-prompt.js`) or `data/` (`core/nodeLoader.js`); `promptModuleFiles` stays
+relative to `src/`). The web UI's served folder is `serverSettings.webFolder` = `"./src/web"`.
 
 ## Data flow — CLI generate
 

@@ -29,7 +29,7 @@ function loaded by config-driven path from `src/prompt-modules/`.
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
 | `<name>` | `expansion.js` | `data/expansions/name.txt` | Splice the file's text in verbatim. |
-| `#name` | `dynamic-prompt.js` | `src/dynamic-prompts/name.js` | Call the plugin's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. |
+| `#name` | `dynamic-prompt.js` | `data/dynamic-prompts/name.js` | Call the plugin's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. |
 | `{name}` | `list.js` | `data/lists/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
@@ -51,9 +51,9 @@ tokens — e.g. `city.js` returns `"city, streetview, {city}, …, #nature, #wea
 - **`export const full = true`** — this prompt is a complete scene (vs. a partial fragment). Drives
   `promptSuggestion()` and the web UI pickers (see the dynamic-prompt classification section below).
 - **`export const suggestion_exclude = true`** — valid prompt, but keep it out of random suggestions.
-- **Variant namespaces:** `#name-v1` loads from `src/dynamic-prompts/v1/` (an older, frozen generation —
+- **Variant namespaces:** `#name-v1` loads from `data/dynamic-prompts/v1/` (an older, frozen generation —
   always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes those in).
-  `#user-foo` loads from `src/dynamic-prompts/user-submitted/foo.js` (community contributions, always
+  `#user-foo` loads from `data/dynamic-prompts/user-submitted/foo.js` (community contributions, always
   `full`).
 - **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `#fx`,
   one is appended; same for `#artists` via `autoAddArtists`. The "already included" check also trips on
@@ -158,7 +158,7 @@ those buckets it builds:
 | Stages | `src/prompt-modules/{expansion,dynamic-prompt,prompt-salt,list,cleanup}.js` |
 | List store (in-memory, depletion, aliases) | `src/helpers/listFiles.js`, `src/helpers/aliases.js` |
 | Randomization | `src/helpers/random{Emphasis,Editing,Alternating}.js`, `keywordRepeater.js` |
-| Plugins | `src/dynamic-prompts/*.js` (+ `v1/`, `user-submitted/`) |
+| Plugins | `data/dynamic-prompts/*.js` (+ `v1/`, `user-submitted/`) |
 | Content | `data/lists/*.txt`, `data/expansions/*.txt`, `data/presets/*.json` |
 | Classification / suggestions | `src/promptFilesAndSuggestions.js` |
 | Browser re-port | `src/core/engine.js`, `src/core/stages/*` |

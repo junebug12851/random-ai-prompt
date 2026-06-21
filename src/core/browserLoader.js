@@ -9,9 +9,8 @@
 // This is what lets the real engine run in the browser with no Node `fs`.
 //
 // Only used by the Vite SPA. The patterns are relative to THIS file (src/core/):
-// the dynamic-prompts are code under src/ (../dynamic-prompts); the prompt
-// content (lists/expansions/presets) lives under the repo-root data/ folder
-// (../../data/...).
+// the dynamic-prompts and the rest of the prompt content (lists/expansions/
+// presets) all live under the repo-root data/ folder (../../data/...).
 
 import {
   resolveListLines,
@@ -21,7 +20,7 @@ import {
   resolveName,
 } from "../listManifest.js";
 
-const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
+const dpModules = import.meta.glob("../../data/dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
   query: "?raw",
   import: "default",

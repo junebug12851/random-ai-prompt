@@ -4,10 +4,12 @@ A structured account of how random-ai-prompt is built — the macro picture and 
 deep-dives. This is the "understand the whole machine" reference; it grows alongside the code.
 
 > **Layout (June 2026 reorg):** all code lives under **`src/`** (entry points, settings, loaders,
-> `helpers/`, `core/`, `prompt-modules/`, `dynamic-prompts/`, `web/`); all prompt content lives under
-> **`data/`** (`lists/`, `expansions/`, `presets/`, the CSV sources); runtime/user data (`output/`,
-> `user-settings.json`, `results.json`) stays at the repo root. Where a doc below names a bare path like
-> `prompt-modules/` or `lists/`, read it as `src/prompt-modules/` / `data/lists/` accordingly.
+> `helpers/`, `core/`, `prompt-modules/`, `web/`); all prompt content lives under
+> **`data/`** (`lists/`, `expansions/`, `presets/`, the CSV sources, and `dynamic-prompts/` — the
+> `#name` generators are executable `.js` but are treated as content, the one deliberate `src/`→`data/`
+> exception); runtime/user data (`output/`, `user-settings.json`, `results.json`) stays at the repo
+> root. Where a doc below names a bare path like `prompt-modules/` or `lists/`, read it as
+> `src/prompt-modules/` / `data/lists/` accordingly, and `dynamic-prompts/` as `data/dynamic-prompts/`.
 
 Read in this order:
 

@@ -4,8 +4,12 @@ Random AI prompt + image generator for the Stable Diffusion WebUI. Node.js (ES m
 yargs **CLI** (`src/index.js`) and a local **Express + Pug web UI** (`src/server.js`) that share one
 core (`src/common.js`). Open source, by junebug12851. Originally CommonJS (2022); modernized to ES
 modules on Node 24 LTS in June 2026. **All code lives under `src/`; all prompt content (lists,
-expansions, presets, the CSV sources) lives under `data/`; runtime/user data (`output/`,
-`user-settings.json`, `results.json`) stays at the repo root.**
+expansions, presets, the CSV sources, and the `#name` dynamic-prompt generators) lives under `data/`;
+runtime/user data (`output/`, `user-settings.json`, `results.json`) stays at the repo root.** The
+**one deliberate exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators
+are executable `.js`, but they're authored as prompt *content* (like lists/expansions), so they live
+with the rest of the content under `data/`. The loaders prefix the `dynamicPromptFiles` setting
+accordingly — see "Critical Things Not to Get Wrong".
 
 ## Start Here
 
@@ -48,12 +52,21 @@ The full notes system is in `notes/`, organized by topic:
   order, importing it first guarantees the chdir happens before any module reads a cwd-relative file.
   Don't reorder it below the settings imports, and don't drop the `".."`. See `decisions/architecture.md`.
 - **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
-  modules are loaded by a runtime path (`require(\`./${settings.dynamicPromptFiles}/${name}\`)`),
-  synchronously, inside string-replace callbacks. Node 24 can `require()` ES modules synchronously, so
-  `createRequire(import.meta.url)` is the correct tool — do **not** try to convert these to
-  `await import()` (the call sites are synchronous and can't be made async without rewriting the prompt
-  pipeline). The loaded module is a namespace: call `.default(...)` and read `.full` /
-  `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
+  modules are loaded by a runtime path, synchronously, inside string-replace callbacks. Node 24 can
+  `require()` ES modules synchronously, so `createRequire(import.meta.url)` is the correct tool — do
+  **not** try to convert these to `await import()` (the call sites are synchronous and can't be made
+  async without rewriting the prompt pipeline). The loaded module is a namespace: call `.default(...)`
+  and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
+- **Dynamic prompts live under `data/dynamic-prompts/` (the documented `src/`→`data/` exception), and
+  TWO loaders resolve them — keep both in sync.** (1) The legacy pipeline
+  `src/prompt-modules/dynamic-prompt.js` does `require(\`../../data/${settings.dynamicPromptFiles}/…\`)`
+  (the `../../data/` prefix is what makes the move work — `dynamicPromptFiles` stays `"dynamic-prompts"`).
+  (2) The isomorphic engine loaders: `src/core/nodeLoader.js` (`path.join(rootDir, "data",
+  "dynamic-prompts", …)`) and `src/core/browserLoader.js` (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
+  The generator files themselves still import helpers back out of `src/` — top-level files use
+  `../../src/helpers/…` and `../../src/promptFilesAndSuggestions.js`; `v1/` files use `../../../src/helpers/…`.
+  Verify any change to this with **both** `npm run smoke` (node + legacy paths) **and**
+  `npm --prefix web-app run build` (browser glob).
 - **Dynamic-prompt files export a default function + optional `full` / `suggestion_exclude` flags.**
   `export default function (settings, imageSettings, upscaleSettings) {…}`, plus
   `export const full = true;` / `export const suggestion_exclude = true;` where applicable. Keep that

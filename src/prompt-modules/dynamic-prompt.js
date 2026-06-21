@@ -24,7 +24,9 @@ import { createRequire } from "node:module";
 // Dynamic prompt files are resolved by config-driven path and expanded
 // synchronously (inside string-replace callbacks). Node 24 can `require()` ES
 // modules synchronously, so a scoped require is the right tool for this
-// plugin-style loading.
+// plugin-style loading. The catalog lives under the repo-root data/ folder (an
+// intentional exception to "code lives in src/" — these are prompt content);
+// this file is in src/prompt-modules/, so the require base is `../../data/`.
 const require = createRequire(import.meta.url);
 
 /**
@@ -75,7 +77,7 @@ function expandDynamicPromptV2(name, settings, imageSettings, upscaleSettings) {
 
   // Read expansion file contents
   return danbooruReplacer(
-    require(`../${settings.dynamicPromptFiles}/${convertToPath(name)}`).default(
+    require(`../../data/${settings.dynamicPromptFiles}/${convertToPath(name)}`).default(
       settings,
       imageSettings,
       upscaleSettings,
@@ -103,7 +105,7 @@ function expandDynamicPromptV1(name, settings, imageSettings, upscaleSettings) {
 
   // Read expansion file contents
   return danbooruReplacer(
-    require(`../${settings.dynamicPromptFiles}/v1/${convertToPath(name)}`).default(
+    require(`../../data/${settings.dynamicPromptFiles}/v1/${convertToPath(name)}`).default(
       settings,
       imageSettings,
       upscaleSettings,
