@@ -86,8 +86,16 @@ const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: labe
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
 // and inserts this token (e.g. {color}, {d/general}) rather than the full path.
 const listDisplay = computeButtonNames(browserLoader.listNames(), browserLoader.forcedPrefixDirs());
+// Optional `<list>.json` sidecar description for the button tooltip. For an implicit
+// base ({d/general}) the SFW file carries it, so fall back to `<name>-sfw`.
+const listMetaFor = (n) => loader.readListMeta(n) || loader.readListMeta(`${n}-sfw`) || null;
 const listItems = () =>
-  browserLoader.listNames().map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n] }));
+  browserLoader.listNames().map((n) => {
+    const item = { token: `{${listDisplay[n]}}`, label: listDisplay[n] };
+    const desc = listMetaFor(n)?.description;
+    if (desc) item.description = desc;
+    return item;
+  });
 
 /**
  * @returns {object[]} The categorized building-block groups for the token cloud

@@ -196,7 +196,7 @@ export default function Home({ settings, setSettings }) {
               {active && active.hint && <p className="cat-hint">{active.hint}</p>}
               <div className="picker-list">
                 {activeItems.slice(0, 400).map((i) => (
-                  <button key={i.token} className="chip" title={i.token} onClick={() => insert(i.token)}>
+                  <button key={i.token} className="chip" title={i.description ? `${i.token} — ${i.description}` : i.token} onClick={() => insert(i.token)}>
                     {i.label}
                   </button>
                 ))}

@@ -33,6 +33,14 @@ function readGroupFile(name) {
     return null;
   }
 }
+// Optional `<name>.json` sidecar metadata (currently `{ description }`), or null.
+function readListMeta(name) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(listsRoot, `${name}.json`), "utf8"));
+  } catch {
+    return null;
+  }
+}
 
 // Folders (relative "/"-joined paths) that contain a given marker file.
 function markedDirs(marker) {
@@ -103,6 +111,9 @@ export const nodeLoader = {
   },
   groupListDirs() {
     return groupListDirs();
+  },
+  readListMeta(name) {
+    return readListMeta(name);
   },
   expansionNames() {
     try {

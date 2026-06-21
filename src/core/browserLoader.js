@@ -28,6 +28,7 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
 });
 const forcePrefixFiles = import.meta.glob("../../data/lists/**/.force-prefix", { eager: true });
 const forceGroupListFiles = import.meta.glob("../../data/lists/**/.force-group-list", { eager: true });
+const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
   import: "default",
@@ -69,6 +70,11 @@ for (const [path, raw] of Object.entries(expansionRaw)) {
 const presets = {};
 for (const [path, obj] of Object.entries(presetModules)) {
   presets[keyFor(path, "presets")] = obj;
+}
+
+const listMetaMap = {};
+for (const [path, obj] of Object.entries(metaModules)) {
+  listMetaMap[keyFor(path, "lists")] = obj;
 }
 
 // Folders (relative to data/lists) that contain a marker file.
@@ -118,6 +124,9 @@ export const browserLoader = {
   },
   groupListDirs() {
     return groupListDirs;
+  },
+  readListMeta(name) {
+    return listMetaMap[name] ?? null;
   },
   expansionNames() {
     return Object.keys(expansionText);

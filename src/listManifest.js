@@ -22,7 +22,7 @@
  * A COMPOSITE list is a `.group` file: a union of other lists (resolved like any
  * reference) rather than a file on disk. This is how the project "collapses lists
  * into others": the big duplicated files the build scripts used to emit (danbooru,
- * d/keyword, d/character, artist, artist-digipa) are now computed on demand from
+ * d/keyword, d/character, artist, digipa) are now computed on demand from
  * their atomic parts, with cross-member de-duplication. There is NO runtime content
  * filtering — SFW/NSFW are preprocessed into separate files: `<name>-sfw.txt` (SFW)
  * and `<name>-nsfw.txt` (NSFW-only), with the bare `{name}` implicit. `logicalListNames`

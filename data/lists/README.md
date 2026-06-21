@@ -94,6 +94,19 @@ collision check, so they never push a prefix onto other lists. The marker inheri
 downward — a `.force-prefix` in a parent folder forces more of the path on everything
 beneath it. This is display-only; references still resolve by path suffix as usual.
 
+## List metadata (`<list>.json`)
+
+Each list may have an optional `<list>.json` sidecar next to it (e.g. `word/noun.json`)
+holding metadata — currently just a `description` used for the editor button tooltip:
+
+```json
+{ "description": "Common nouns (things and concepts)." }
+```
+
+They're optional, but the project ships one for every built-in list, group, and implied
+group (implied-group / mixed-list tooltips fall back to the folder's or the `-sfw`
+file's JSON). They're not lists themselves — never drawn or shown as buttons.
+
 ## Reserved name: `keyword`
 
 `keyword` is a **reserved wildcard**, not a file. `{keyword}` draws a random word from
