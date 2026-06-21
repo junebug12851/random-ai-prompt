@@ -63,8 +63,10 @@ and these are excluded from the auto stage so they never push prefixes onto othe
 **auto** — every other list starts at its bare filename and only grows a folder
 segment when two collide, both stepping out until distinct. A final pass guarantees
 each token `resolveName()`s back to its own canonical name. The loaders expose
-`forcedPrefixDirs()` (nodeLoader walks for `.force-prefix`; browserLoader globs
-`**/.force-prefix` — Vite bundles the dotfile). The SPA's `getBlocks` uses this for the
+`forcedPrefixDirs()` (nodeLoader/listFiles walk for `.force-prefix` via fs; the browser
+gets the marker dirs from a `virtual:list-markers` module — a small Vite plugin in
+`web-app/vite.config.js` fs-scans for the dotfile markers, because `import.meta.glob`
+silently skips dotfiles). The SPA's `getBlocks` uses this for the
 "Lists" token cloud. It is display-only; resolution is unchanged. `danbooru/d`, `artist`, `scene`, and
 `style` are `.force-prefix` folders (so e.g. `{style/building}`, `{scene/ship}`, `{artist/anime}`);
 everything else shows a bare filename.

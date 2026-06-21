@@ -20,6 +20,9 @@ import {
   autoGroupListDirs,
   resolveName,
 } from "../listManifest.js";
+// Folder markers (dotfiles). Provided by the `list-markers` Vite plugin, because
+// `import.meta.glob` cannot see dotfiles. See web-app/vite.config.js.
+import { forcePrefixDirs, enableGroupDirs, disableGroupDirs } from "virtual:list-markers";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
@@ -32,9 +35,6 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   import: "default",
   eager: true,
 });
-const forcePrefixFiles = import.meta.glob("../../data/lists/**/.force-prefix", { eager: true });
-const enableGroupFiles = import.meta.glob("../../data/lists/**/.enable-group-list", { eager: true });
-const disableGroupFiles = import.meta.glob("../../data/lists/**/.disable-group-list", { eager: true });
 const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
@@ -84,18 +84,13 @@ for (const [path, obj] of Object.entries(metaModules)) {
   listMetaMap[keyFor(path, "lists")] = obj;
 }
 
-// Folders (relative to data/lists) that contain a marker file.
-const markerDirs = (files, marker) =>
-  Object.keys(files).map((p) => {
-    const i = p.indexOf("/lists/");
-    return p.slice(i + "/lists/".length).replace(new RegExp(`/${marker}$`), "");
-  });
-const forcedDirs = markerDirs(forcePrefixFiles, "\\.force-prefix");
+// Marker folders come from the virtual module (dotfiles; see vite.config.js).
+const forcedDirs = forcePrefixDirs;
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
-  markerDirs(enableGroupFiles, "\\.enable-group-list"),
-  markerDirs(disableGroupFiles, "\\.disable-group-list"),
+  enableGroupDirs,
+  disableGroupDirs,
 );
 
 /**
