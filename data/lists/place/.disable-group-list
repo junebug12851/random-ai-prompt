@@ -1,2 +1,0 @@
-# Opt this folder OUT of being an implied group (it has 2+ lists but {place} should
-# mean the place list, not a city+place union). Empty marker; presence is all.

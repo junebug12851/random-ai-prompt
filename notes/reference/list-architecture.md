@@ -16,8 +16,8 @@ gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) 
 = the union of that folder's OWN lists (mode-aware), no `.group` file. `autoGroupListDirs(listNames, enable,
 disable)` computes them (counting distinct base lists per dir, variants collapsed); it does NOT stack (only a
 folder's own direct files, never subfolders — so `{d}` is a group but `{danbooru}` is not), and `brand/` (one
-list) is not a group. Empty marker files override: `.enable-group-list` forces a folder on, `.disable-group-
-list` forces it off. Loaders expose `groupListDirs()`; `resolveListLines` synthesizes the member list via
+list) is not a group. Empty marker files override: `_enable-group-list` forces a folder on,
+`_disable-group-list` forces it off. Loaders expose `groupListDirs()`; `resolveListLines` synthesizes the member list via
 `impliedGroupMembers` (direct children only, real groups excluded) then runs the normal union. The implied
 group folder-names are added to `listNames()` so they resolve and the auto-prefixer (`computeButtonNames`)
 disambiguates them against same-named lists (e.g. group `{place}` vs list `{place/place}`). Explicit `.group`
@@ -53,23 +53,23 @@ readGroupFile }`) is injected per environment, so `listManifest.js` stays browse
 like `gatedLists.js`. `listNames()` returns list + group names, so groups are suggestible and gateable like
 any list.
 
-## Editor button names (`computeButtonNames` + `.force-prefix`)
+## Editor button names (`computeButtonNames` + `_force-prefix`)
 
 The editor shows the shortest unambiguous token per list, not the full path.
 `computeButtonNames(names, forcedDirs)` (in `listManifest.js`) does this in two stages:
-**manual** — any list under a folder marked with an empty `.force-prefix` file shows
+**manual** — any list under a folder marked with an empty `_force-prefix` file shows
 its path from the highest such ancestor down (so `danbooru/d/general` → `{d/general}`),
 and these are excluded from the auto stage so they never push prefixes onto others;
 **auto** — every other list starts at its bare filename and only grows a folder
 segment when two collide, both stepping out until distinct. A final pass guarantees
 each token `resolveName()`s back to its own canonical name. The loaders expose
-`forcedPrefixDirs()` (nodeLoader/listFiles walk for `.force-prefix` via fs; the browser
-gets the marker dirs from a `virtual:list-markers` module — a small Vite plugin in
-`web-app/vite.config.js` fs-scans for the dotfile markers, because `import.meta.glob`
-silently skips dotfiles). The SPA's `getBlocks` uses this for the
-"Lists" token cloud. It is display-only; resolution is unchanged. `danbooru/d`, `artist`, `scene`, and
-`style` are `.force-prefix` folders (so e.g. `{style/building}`, `{scene/ship}`, `{artist/anime}`);
-everything else shows a bare filename.
+`forcedPrefixDirs()` (nodeLoader/listFiles walk for the `_force-prefix` marker via fs; browserLoader
+`import.meta.glob`s `**/_force-prefix`). **Markers are `_`-prefixed regular files, NOT dotfiles** — Vite's
+`import.meta.glob` silently skips dotfiles, so `.force-prefix` was invisible in the SPA; the `_` convention
+(any `_`-prefixed file is internal/config, never a list) makes them ordinary, glob-visible empty files. The
+SPA's `getBlocks` uses this for the "Lists" token cloud. It is display-only; resolution is unchanged.
+`danbooru/d`, `artist`, `lore`, `name`, `scene`, and `style` are `_force-prefix` folders (so e.g.
+`{style/building}`, `{scene/ship}`, `{artist/anime}`); everything else shows a bare filename.
 
 ## Folder organization & name resolution
 

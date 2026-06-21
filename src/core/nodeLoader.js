@@ -64,15 +64,17 @@ function markedDirs(marker) {
   }
   return out;
 }
-const forcedPrefixDirs = () => markedDirs(".force-prefix");
+const forcedPrefixDirs = () => markedDirs("_force-prefix");
 
 // Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
+// Files starting with `_` are internal/config (markers etc.) and never lists.
 function physicalNames(re) {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (re.test(entry.name)) out.push(`${prefix}${entry.name.replace(re, "")}`);
+      else if (!entry.name.startsWith("_") && re.test(entry.name))
+        out.push(`${prefix}${entry.name.replace(re, "")}`);
     }
   };
   try {
@@ -87,8 +89,8 @@ const physicalListNames = () => physicalNames(/\.(txt|group)$/);
 const groupListDirs = () =>
   autoGroupListDirs(
     logicalListNames(physicalNames(/\.txt$/)),
-    markedDirs(".enable-group-list"),
-    markedDirs(".disable-group-list"),
+    markedDirs("_enable-group-list"),
+    markedDirs("_disable-group-list"),
   );
 
 /**

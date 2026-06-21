@@ -20,9 +20,6 @@ import {
   autoGroupListDirs,
   resolveName,
 } from "../listManifest.js";
-// Folder markers (dotfiles). Provided by the `list-markers` Vite plugin, because
-// `import.meta.glob` cannot see dotfiles. See web-app/vite.config.js.
-import { forcePrefixDirs, enableGroupDirs, disableGroupDirs } from "virtual:list-markers";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
@@ -35,6 +32,11 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   import: "default",
   eager: true,
 });
+// Marker files are empty (extension-less); an empty file is a valid empty module, so
+// the eager glob parses fine. We only use the keys (which folders contain a marker).
+const forcePrefixFiles = import.meta.glob("../../data/lists/**/_force-prefix", { eager: true });
+const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", { eager: true });
+const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list", { eager: true });
 const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
@@ -59,14 +61,19 @@ for (const [path, mod] of Object.entries(dpModules)) {
   dynamicPrompts[keyFor(path, "dynamic-prompts")] = mod;
 }
 
+// Files whose basename starts with `_` are internal/config (markers etc.), not lists.
+const isInternal = (key) => key.split("/").pop().startsWith("_");
+
 const listLines = {};
 for (const [path, raw] of Object.entries(listRaw)) {
-  listLines[keyFor(path, "lists")] = String(raw).split("\n");
+  const key = keyFor(path, "lists");
+  if (!isInternal(key)) listLines[key] = String(raw).split("\n");
 }
 
 const groupLines = {};
 for (const [path, raw] of Object.entries(groupRaw)) {
-  groupLines[keyFor(path, "lists")] = String(raw).split("\n");
+  const key = keyFor(path, "lists");
+  if (!isInternal(key)) groupLines[key] = String(raw).split("\n");
 }
 
 const expansionText = {};
@@ -81,16 +88,22 @@ for (const [path, obj] of Object.entries(presetModules)) {
 
 const listMetaMap = {};
 for (const [path, obj] of Object.entries(metaModules)) {
-  listMetaMap[keyFor(path, "lists")] = obj;
+  const key = keyFor(path, "lists");
+  if (!isInternal(key)) listMetaMap[key] = obj;
 }
 
-// Marker folders come from the virtual module (dotfiles; see vite.config.js).
-const forcedDirs = forcePrefixDirs;
+// Folders (relative to data/lists) that contain a `_`-prefixed marker file.
+const markerDirs = (files, marker) =>
+  Object.keys(files).map((p) => {
+    const i = p.indexOf("/lists/");
+    return p.slice(i + "/lists/".length).replace(new RegExp(`/${marker}$`), "");
+  });
+const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
-  enableGroupDirs,
-  disableGroupDirs,
+  markerDirs(enableGroupFiles, "_enable-group-list"),
+  markerDirs(disableGroupFiles, "_disable-group-list"),
 );
 
 /**

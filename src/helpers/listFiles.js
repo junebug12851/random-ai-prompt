@@ -46,7 +46,7 @@ function getListFiles(settings) {
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
-      else if (/\.(txt|group)$/.test(entry.name))
+      else if (!entry.name.startsWith("_") && /\.(txt|group)$/.test(entry.name))
         out.push(`${prefix}${entry.name.replace(/\.(txt|group)$/, "")}`);
     }
   };
@@ -55,6 +55,7 @@ function getListFiles(settings) {
 }
 
 // Folders containing a given marker file, and `.txt`-only logical list names.
+// (Files starting with `_` are internal/config — markers etc. — never lists.)
 function markedDirs(settings, marker) {
   const out = [];
   const walk = (dir, prefix) => {
@@ -71,7 +72,8 @@ function getTxtFiles(settings) {
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
-      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+      else if (!entry.name.startsWith("_") && entry.name.endsWith(".txt"))
+        out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
     }
   };
   walk(settings.listFiles, "");
@@ -81,8 +83,8 @@ function getTxtFiles(settings) {
 function getGroupListDirs(settings) {
   return autoGroupListDirs(
     logicalListNames(getTxtFiles(settings)),
-    markedDirs(settings, ".enable-group-list"),
-    markedDirs(settings, ".disable-group-list"),
+    markedDirs(settings, "_enable-group-list"),
+    markedDirs(settings, "_disable-group-list"),
   );
 }
 
