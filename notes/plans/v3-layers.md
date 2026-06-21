@@ -37,15 +37,21 @@ where something lands by giving it a weight, not by where it sits in the text.
   each child (recursing), and concatenate. A layer therefore renders as a **contiguous, internally-sorted
   run**; its position among *its* siblings is set by the weight its parent gave it. The point: authors can
   write lines in whatever order reads best / is best commented, and the render reorders within the layer —
-  **document order stops dictating output order.** *(open: what layer-aware "smarter management" / dedup does,
-  given words can't migrate between layers.)*
+  **document order stops dictating output order.**
+- **No de-duplication, by design.** The engine does **not** try to merge or shave duplicate words. The v2
+  duplication problem wasn't repeated words per se — it was that **every "full" prompt auto-emitted its own
+  start/end framing**, so stacking fulls piled up that framing. v3 removes that source (no full prompts; no
+  auto start/end — see below). If a user deliberately stacks two blocks that both say "ocean," that's their
+  choice, not a defect for the engine to fix.
 
 ## Retiring "full prompts" + start/end boilerplate
 
-A central goal: **remove the "full prompt" concept** (the v2 `full` flag) and the duplicated start/end
-material that every full scene currently carries. Instead the **engine supplies the beginning and ending
-blocks**, so building blocks mostly provide the "middle." Benefits: less duplication, faster authoring,
-consistent framing.
+**The** central goal, and the main v2 pain point. In v2 every "full" scene re-emits its own start
+(quality/composition) and end (fx/artists/weather) framing, so stringing fulls together piles up that framing
+and the author has to shave the duplicates by hand. v3 **removes the "full prompt" concept** (the v2 `full`
+flag) entirely: regular blocks no longer generate start/end material. Instead the **engine supplies the
+beginning and ending blocks once**, so building blocks are just "middle." That single change removes the v2
+duplication source — the engine never *de-duplicates*; it just stops *manufacturing* the duplicates.
 
 Because weights are local, this works at the **root layer**: the engine's start block (low weight) and end
 block (high weight) are sibling children of the root alongside the user's "middle" building blocks, so they
@@ -83,12 +89,12 @@ prompt engine** itself rather than bolted on as string-rewriting stages.
 
 1. **Auto-weight start value** — what number the first line of a section starts at, and whether explicit
    weights and auto weights can collide (and if so, how — document order?).
-2. **Smarter management** — beyond sorting, what the layer-aware engine does about duplication, given words
-   can't migrate between layers (dedup within a layer? collapse repeats across sibling layers? cap per layer?).
-3. **Start/end UX** — preset vs 3 boxes vs settings page; how the engine is told which blocks are start/end.
-4. **Weight syntax in DPL** — how an explicit weight is written at the start of a line/block and how it
+2. **Start/end UX** — preset vs 3 boxes vs settings page; how the engine is told which blocks are start/end.
+3. **Weight syntax in DPL** — how an explicit weight is written at the start of a line/block and how it
    coexists with the gate/repeat prefixes (`25%`, `repeat …`).
-5. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
+4. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
+
+(De-duplication is **not** an open question — it is explicitly a non-goal; see "Retiring full prompts".)
 
 ## See also
 
