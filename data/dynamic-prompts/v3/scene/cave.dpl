@@ -1,0 +1,32 @@
+---
+type: full
+description: A cave of different types and seasons
+---
+cave-type
+===
+- one of:
+    - sea cave, {#underwater}
+    - lava cave, {#lava}
+    - ice cave, {#ice}
+    - crystal cave, {#crystal}
+
+Start
+===
+cave, cave walls
+- subterranean
+- interior
+- 50% +cave-type
+- cavern
+- glow
+- bioluminescent
+- structures
+- {#color} crystal
+- {#color} gemstone
+- stalagmite
+- stalactite
+- {#settlement}
+- tunnels
+- underground
+- {color}
+
+{#nature}, {#wildlife}, {#water}, {#eerie}, {#mystical}, {#weather}

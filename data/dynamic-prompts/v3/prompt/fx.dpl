@@ -1,0 +1,10 @@
+---
+type: partial
+description: Art movement / technique / image-effect garnish
+---
+Start
+===
+- {art-movement}
+- {art-technique}
+- 50% repeat 0 to 3 times: {image-effect}
+- <rays>

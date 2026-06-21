@@ -158,10 +158,11 @@ Pick **one** option (the `select`/`switch` idiom):
     - crystal cave, {#crystal}
 ```
 
-Pick **more than one** — a fixed count or a range, chosen without repeats:
+Pick **more than one** — a fixed count or a range, chosen without repeats. Counts are **digits** (`one of`
+is the only word form — the natural singular); there are no `two`/`three` number-words:
 
 ```
-- two of:
+- 2 of:
     - gold trim
     - silver inlay
     - jeweled hilt
@@ -219,7 +220,9 @@ logic; do it in JS, §6).
 
 ## 5. Flow: reuse and jumps
 
-Generation runs **line by line, top to bottom, starting at `Start`**. Two kinds of movement:
+Generation runs **line by line, top to bottom, starting at `Start`**. Section names are **case-sensitive** —
+a `+name` / `go to name` must match the heading's casing exactly, otherwise it falls through to a `{#name}`
+token (resolved as another generator downstream). Two kinds of movement:
 
 **Reuse another section (it returns afterward):**
 
