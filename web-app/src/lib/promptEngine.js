@@ -268,7 +268,7 @@ export function getBlocks() {
     {
       title: "Full prompts",
       subLabel: "full",
-      hint: "Full generator scripts — {#name} (a folder pill picks one at random)",
+      hint: "Complete, self-contained generators — each builds a whole image concept on its own.",
       dynVersioned: true,
       variants: { v2: [...dynWildcardItems(), ...dynCatItems(v2Full)], v1: dynV1Items() },
       items: [],
@@ -276,17 +276,17 @@ export function getBlocks() {
     {
       title: "Partial prompts",
       subLabel: "partial",
-      hint: "Garnish generators that complement other parts of a prompt",
+      hint: "Accents and modifiers that enrich a fuller prompt rather than stand alone.",
       dynVersioned: true,
       variants: { v2: dynCatItems(v2Partial), v1: [] },
       items: [],
     },
     {
       title: "Expansions",
-      hint: "Insert a fixed snippet (a folder pill picks one at random)",
+      hint: "Fixed text snippets spliced in verbatim (they can contain prompts and lists).",
       items: expansionItems(),
     },
-    { title: "Lists", hint: "A random entry from a list", items: listItems() },
+    { title: "Lists", hint: "Word lists — each insertion becomes one random entry from the list.", items: listItems() },
     { title: "Special", items: [{ token: "{salt}", label: "Force salt here" }] },
   ];
 
