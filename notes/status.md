@@ -3,8 +3,18 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.2.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.3.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Dynamic prompts (2.3.0):** `data/dynamic-prompts/` was brought to parity with the list/expansion systems.
+The 79 v2 generators (+ the user-submitted one) were reorganized into category folders under a new `v2/`
+root (`scene`/`subject`/`fragment`/`style`/`engine`/`user`), with `v1/` left frozen; `#name` now resolves by
+**path suffix** (shared `resolveName`, so every existing reference still works), each generator/folder has a
+`<name>.json` description sidecar, and `_`-internal / `_force-prefix` / `compareNames` sorting are wired. The
+SPA token cloud keeps its Full/Partial/User/V1 sections but gained description tooltips, natural-order
+sorting, and shortest-`#token` display. Only the **new** engine (core loaders/stage, classifier, SPA) was
+touched — the classic server + `prompt-modules/dynamic-prompt.js` are read-only legacy reference. See
+[`reference/dynamic-prompts-architecture.md`](reference/dynamic-prompts-architecture.md).
 
 **Expansions (2.2.0):** `data/expansions/` was brought to parity with the list system — the 9 snippets nest
 into category folders (`detail`, `style`, `lighting`, `subject`, `scene`) with shared path-suffix resolution
@@ -82,7 +92,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | Issue | Where | Status / notes |
 |-------|-------|----------------|
 | No automated test suite | whole repo | Verification is lint + `node --check` + the import smoke test. A real suite is a future task — see [`plans/testing.md`](plans/testing.md). |
-| `no-dupe-else-if` warnings (dead branches) | several `dynamic-prompts/*.js` (e.g. `portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
+| `no-dupe-else-if` warnings (dead branches) | several `dynamic-prompts/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
 | `no-useless-escape` warnings | a few prompt/data regexes | Harmless redundant escapes; kept as warnings (changing regexes risks changing output). |
 | Live generation unverified | `src/genImg.js`, `helpers/imageUpscaler.js`, `server.js` | Needs a running SD WebUI to confirm the `fetch` migration end to end. |
 

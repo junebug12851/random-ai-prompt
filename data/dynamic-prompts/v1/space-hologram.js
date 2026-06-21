@@ -20,7 +20,7 @@
  */
 
 // This was taken from publicprompts.art and modified to be more dynamic
-import entityBasicKeywords from "../entity.js";
+import entityBasicKeywords from "../v2/subject/entity.js";
 
 // hologram of a <name> floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd
 /**

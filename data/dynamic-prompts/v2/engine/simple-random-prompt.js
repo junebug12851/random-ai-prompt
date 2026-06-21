@@ -16,16 +16,34 @@
 
 /**
  * @file
- * @brief Partial dynamic-prompt fragment (#artists): a building block composed into full prompts. See notes/reference/dynamic-prompts.md.
+ * @brief Full dynamic-prompt generator (#simple-random-prompt): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
  */
 
-import { artistRepeater } from "../../src/helpers/keywordRepeater.js";
+import suggestion from "../../../../src/promptFilesAndSuggestions.js";
 
 /**
- * Generate the `#artists` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
+ * Generate the `#simple-random-prompt` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
  * @param {object} settings The settings.
  * @returns {string} The generated prompt fragment.
  */
-export default function expandRandom(settings) {
-  return artistRepeater("artist", true, settings);
+export default function (settings) {
+  // Init
+  suggestion.init(function () {
+    return { settings };
+  });
+
+  // Load All
+  suggestion.loadAll();
+
+  // Execute a simple suggestion
+  const prompt = suggestion.promptSuggestion();
+
+  // Save into settings
+  settings.randomPrompt = prompt;
+
+  // Return
+  return prompt;
 }
+
+export const full = true;
+export const suggestion_exclude = true;

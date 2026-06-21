@@ -21,7 +21,7 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-import entityBasicKeywords from "../entity.js";
+import entityBasicKeywords from "../v2/subject/entity.js";
 
 // Tiny cute isometric <name>, soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered
 /**

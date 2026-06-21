@@ -7,7 +7,7 @@ import _ from "lodash";
 
 import cleanup from "./prompt-modules/cleanup.js";
 import { isGatedList, hasNsfwToken, gatedDynPrompts } from "./gatedLists.js";
-import { hasVariantSuffix } from "./listManifest.js";
+import { hasVariantSuffix, computeButtonNames } from "./listManifest.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
 //
@@ -85,29 +85,38 @@ function loadDynPromptList() {
   partialNoArtistFx.length = 0;
 
   // The loader returns catalog keys relative to the dynamic-prompts root:
-  //   "beach"  |  "v1/castle"  |  "user-submitted/beach-merk"
-  // V1 and user-submitted prompts are always "full"; top-level ones declare it.
+  //   "v2/scene/beach"  |  "v1/castle"  |  "v2/user/beach-merk"
+  // V1 and user prompts are always "full"; the rest declare it via `export const full`.
+  // We store each v2 generator by its SHORTEST unambiguous token (computeButtonNames —
+  // basenames are unique, so this is just the filename), so `#token` resolves by suffix.
+  const v2Keys = [];
   for (const key of l.dynamicPromptNames()) {
     if (key.startsWith("v1/")) {
       v1Files.push(`${key.slice("v1/".length)}-v1`);
       continue;
     }
-    if (key.startsWith("user-submitted/")) {
-      userFiles.push(`user-${key.slice("user-submitted/".length)}`);
+    if (key.startsWith("v2/user/")) {
+      userFiles.push(`user-${key.slice("v2/user/".length)}`);
       continue;
     }
+    v2Keys.push(key);
+  }
 
+  const forced = l.dynPromptForcedPrefixDirs ? l.dynPromptForcedPrefixDirs() : [];
+  const buttonNames = computeButtonNames(v2Keys, forced);
+  for (const key of v2Keys) {
     const mod = l.loadDynamicPrompt(key);
     if (!mod) continue;
 
+    const token = buttonNames[key];
     const isFull = mod.full === true;
     const exclude = mod.suggestion_exclude === true;
 
     if (isFull) {
-      fullRegular.push(key);
-      if (!exclude) fullRegularExcluded.push(key);
+      fullRegular.push(token);
+      if (!exclude) fullRegularExcluded.push(token);
     } else {
-      partialRegular.push(key);
+      partialRegular.push(token);
     }
   }
 

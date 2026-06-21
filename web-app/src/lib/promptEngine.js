@@ -14,7 +14,7 @@ import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
 import { browserLoader } from "../../../src/core/browserLoader.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
-import { computeButtonNames } from "../../../src/listManifest.js";
+import { computeButtonNames, compareNames, resolveName } from "../../../src/listManifest.js";
 import { getCustomExpansions, getCustomPresets } from "./customStore.js";
 
 // Composite loader: custom expansions (localStorage) shadow/extend the bundled
@@ -81,6 +81,20 @@ export function expandPrompt(prompt, settings) {
 const dyn = promptFiles.loadDynPromptList(); // { fullRegular, partialRegular, userFiles, v1Files }
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
+
+// Dynamic prompts now live under data/dynamic-prompts/v2/<category>/ (v1/ frozen). The
+// SPA keeps the behavior-based sections (Full / Partial / User / V1) rather than folder
+// pills, but — like the Lists/Expansions blocks — each entry gets a description tooltip
+// (from its <name>.json sidecar), natural-order sorting, and the shortest #token.
+const v2DynNames = browserLoader.dynamicPromptNames().filter((n) => !n.startsWith("v1/"));
+const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
+// Build {token, label, description} items for a section, sorted by natural order. `keyOf`
+// maps a section token back to its canonical catalog key for the sidecar lookup.
+const dynItems = (tokens, keyOf) =>
+  tokens
+    .slice()
+    .sort(compareNames)
+    .map((t) => ({ token: `#${t}`, label: label(t), description: dpDescFor(keyOf(t)) }));
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -190,12 +204,12 @@ export function getBlocks() {
     {
       title: "Full dynamic prompts",
       hint: "Stand on their own around a theme",
-      items: toItems(dyn.fullRegular, (n) => `#${n}`),
+      items: dynItems(dyn.fullRegular, (t) => resolveName(t, v2DynNames)),
     },
     {
       title: "Partial dynamic prompts",
       hint: "Complement other parts of a prompt",
-      items: toItems(dyn.partialRegular, (n) => `#${n}`),
+      items: dynItems(dyn.partialRegular, (t) => resolveName(t, v2DynNames)),
     },
     {
       title: "Expansions",
@@ -203,8 +217,15 @@ export function getBlocks() {
       items: expansionItems(),
     },
     { title: "Lists", hint: "A random entry from a list", items: listItems() },
-    { title: "User dynamic prompts", items: toItems(dyn.userFiles, (n) => `#${n}`) },
-    { title: "V1 dynamic prompts", hint: "Legacy themed prompts", items: toItems(dyn.v1Files, (n) => `#${n}`) },
+    {
+      title: "User dynamic prompts",
+      items: dynItems(dyn.userFiles, (t) => `v2/user/${t.slice("user-".length)}`),
+    },
+    {
+      title: "V1 dynamic prompts",
+      hint: "Legacy themed prompts",
+      items: dynItems(dyn.v1Files, (t) => `v1/${t.replace(/-v1$/, "")}`),
+    },
     { title: "Special", items: [{ token: "{salt}", label: "Force salt here" }] },
   ];
 

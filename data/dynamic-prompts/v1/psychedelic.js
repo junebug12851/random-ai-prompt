@@ -21,7 +21,7 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-import entityBasicKeywords from "../entity.js";
+import entityBasicKeywords from "../v2/subject/entity.js";
 
 // Hypnotic illustration of a <name>, hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance
 /**

@@ -19,7 +19,7 @@
  * @brief Full dynamic-prompt generator (#random): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
  */
 
-import { keywordRepeater } from "../../src/helpers/keywordRepeater.js";
+import { keywordRepeater } from "../../../../src/helpers/keywordRepeater.js";
 
 /**
  * Generate the `#random` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.

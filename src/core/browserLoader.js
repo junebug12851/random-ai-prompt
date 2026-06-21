@@ -18,9 +18,17 @@ import {
   allListNames,
   autoGroupListDirs,
   resolveName,
+  compareNames,
 } from "../listManifest.js";
 
 const dpModules = import.meta.glob("../../data/dynamic-prompts/**/*.js", { eager: true });
+const dpMetaModules = import.meta.glob("../../data/dynamic-prompts/**/*.json", {
+  eager: true,
+  import: "default",
+});
+const dpForcePrefixFiles = import.meta.glob("../../data/dynamic-prompts/**/_force-prefix", {
+  eager: true,
+});
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
   query: "?raw",
   import: "default",
@@ -34,9 +42,16 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
 // Marker files are empty (extension-less); an empty file is a valid empty module, so
 // the eager glob parses fine. We only use the keys (which folders contain a marker).
 const forcePrefixFiles = import.meta.glob("../../data/lists/**/_force-prefix", { eager: true });
-const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", { eager: true });
-const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list", { eager: true });
-const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
+const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", {
+  eager: true,
+});
+const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list", {
+  eager: true,
+});
+const metaModules = import.meta.glob("../../data/lists/**/*.json", {
+  eager: true,
+  import: "default",
+});
 const expansionRaw = import.meta.glob("../../data/expansions/**/*.txt", {
   query: "?raw",
   import: "default",
@@ -64,7 +79,8 @@ function keyFor(path, dir) {
 
 const dynamicPrompts = {};
 for (const [path, mod] of Object.entries(dpModules)) {
-  dynamicPrompts[keyFor(path, "dynamic-prompts")] = mod;
+  const key = keyFor(path, "dynamic-prompts");
+  if (!key.split("/").pop().startsWith("_")) dynamicPrompts[key] = mod;
 }
 
 // Files whose basename starts with `_` are internal/config (markers etc.), not lists.
@@ -105,6 +121,12 @@ for (const [path, obj] of Object.entries(metaModules)) {
   if (!isInternal(key)) listMetaMap[key] = obj;
 }
 
+const dpMetaMap = {};
+for (const [path, obj] of Object.entries(dpMetaModules)) {
+  const key = keyFor(path, "dynamic-prompts");
+  if (!isInternal(key)) dpMetaMap[key] = obj;
+}
+
 // Folders (relative to data/lists) that contain a `_`-prefixed marker file.
 const markerDirs = (files, marker, seg = "lists") =>
   Object.keys(files).map((p) => {
@@ -113,6 +135,7 @@ const markerDirs = (files, marker, seg = "lists") =>
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
 const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions");
+const dpForcedDirs = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
@@ -177,7 +200,13 @@ export const browserLoader = {
     return dynamicPrompts[key] ?? null;
   },
   dynamicPromptNames() {
-    return Object.keys(dynamicPrompts);
+    return Object.keys(dynamicPrompts).sort(compareNames);
+  },
+  readDynPromptMeta(name) {
+    return dpMetaMap[name] ?? null;
+  },
+  dynPromptForcedPrefixDirs() {
+    return dpForcedDirs;
   },
   presetNames() {
     return Object.keys(presets);

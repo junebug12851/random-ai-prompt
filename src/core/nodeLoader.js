@@ -24,6 +24,7 @@ const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
 const expansionsRoot = path.join(rootDir, "data", "expansions");
+const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 
 // Recursively list names under a root as "/"-joined paths; `re` picks the extension.
 // Files starting with `_` are internal/config (markers etc.) and never content. Used
@@ -173,26 +174,27 @@ export const nodeLoader = {
   },
   loadDynamicPrompt(key) {
     try {
-      return require(path.join(rootDir, "data", "dynamic-prompts", `${key}.js`));
+      return require(path.join(dynPromptsRoot, `${key}.js`));
     } catch {
       return null;
     }
   },
+  // Dynamic-prompt catalog keys ("v2/scene/beach", "v1/castle", "v2/user/beach-merk"),
+  // recursively, skipping `_`-prefixed internal files, in the guaranteed natural order.
   dynamicPromptNames() {
-    const out = [];
-    const base = path.join(rootDir, "data", "dynamic-prompts");
-    const walk = (dir, prefix) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-        else if (entry.name.endsWith(".js"))
-          out.push(`${prefix}${entry.name.replace(/\.js$/, "")}`);
-      }
-    };
+    return namesUnder(dynPromptsRoot, /\.js$/).sort(compareNames);
+  },
+  // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
+  // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
+  readDynPromptMeta(name) {
     try {
-      walk(base, "");
+      return JSON.parse(fs.readFileSync(path.join(dynPromptsRoot, `${name}.json`), "utf8"));
     } catch {
-      // ignore
+      return null;
     }
-    return out;
+  },
+  // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
+  dynPromptForcedPrefixDirs() {
+    return markedDirs("_force-prefix", dynPromptsRoot);
   },
 };

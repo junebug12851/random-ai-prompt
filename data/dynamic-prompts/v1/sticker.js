@@ -22,7 +22,7 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 import _ from "lodash";
-import entityBasicKeywords from "../entity.js";
+import entityBasicKeywords from "../v2/subject/entity.js";
 
 function maybeAddColor() {
   if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";

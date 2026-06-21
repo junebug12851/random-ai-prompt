@@ -21,7 +21,7 @@
 
 // This was taken from publicprompts.art and modified to be more dynamic
 
-import entityBasicKeywords from "../entity.js";
+import entityBasicKeywords from "../v2/subject/entity.js";
 
 // tiny cute <name> toy, standing character, soft smooth lighting, soft pastel
 // colors, skottie young, 3d blender render, polycount, modular constructivism,

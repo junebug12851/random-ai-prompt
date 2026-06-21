@@ -7,6 +7,12 @@ are built, how they compose, the v1→v2 story, and how the word-lists they pull
 raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the engine see
 [../systems/core-engine.md](../systems/core-engine.md).
 
+As of **2.3.0** the v2 generators are sorted into category folders under `data/dynamic-prompts/v2/`
+(`scene` / `subject` / `fragment` / `style` / `engine` / `user`), `v1/` stays frozen, and `#name` resolves
+by **path suffix** (shared `resolveName`) so every reference stays short and category-independent. The full
+parity design (sidecars, `_force-prefix`, the verification seam) is in
+[dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).
+
 ## The authoring idiom
 
 A generator is `export default function (settings, imageSettings, upscaleSettings) { … return string }`,
@@ -56,29 +62,31 @@ publicprompts.art templates embed `#entity` / `#person` / `#living-entity` / `#e
 
 | Prompt | File | Behavior |
 |--------|------|----------|
-| `#random` (the default `settings.prompt`) | `random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
-| composite suggestion | `random-prompt.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
-| simple suggestion | `simple-random-prompt.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
-| total-random dict | `extra-random-prompt.js` | Forces `keywordsFilename`/`artistFilename = false` then runs the random prompt — any list, maximum chaos. |
+| `#random` (the default `settings.prompt`) | `v2/engine/random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
+| composite suggestion | `v2/engine/random-prompt.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
+| simple suggestion | `v2/engine/simple-random-prompt.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
+| total-random dict | `v2/engine/extra-random-prompt.js` | Forces `keywordsFilename`/`artistFilename = false` then runs the random prompt — any list, maximum chaos. |
 
-`artists.js` and `fx.js` are the two prompts the pipeline **auto-appends** (`#artists`, `#fx`) when
-`autoAddArtists` / `autoAddFx` are on; `danbooru.js` composes anime tag streams (`{d-general}` +
-`{d-character}` + `{d-meta}`).
+`v2/engine/artists.js` and `v2/engine/fx.js` are the two prompts the pipeline **auto-appends** (`#artists`,
+`#fx`) when `autoAddArtists` / `autoAddFx` are on (resolved by suffix, so their category is irrelevant);
+`v2/engine/danbooru.js` composes anime tag streams (`{d-general}` + `{d-character}` + `{d-meta}`).
 
 ## v1 vs v2 — the decomposition story
 
 `data/dynamic-prompts/v1/` (33 frozen modules, addressed as `#name-v1`, always treated as `full`, and
 they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
 generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
-`entityBasicKeywords()` and hard-bake color/weather/time. The top-level (v2) set is the **refactor**: the
+`entityBasicKeywords()` and hard-bake color/weather/time (several import the shared `entityBasicKeywords`
+from `../v2/subject/entity.js`). The categorized `v2/` set is the **refactor**: the
 same scenes re-expressed by *extracting* those into shared composable sub-prompts (`#color`, `#weather`,
 `#nature`, `#general-state`, `#room-state`, the `entity` family). v1 is kept verbatim so old looks stay
 reproducible — reading a v1/v2 pair side by side is the clearest window into the project's "compose from
 building blocks" design turn (Jan 2023; see [../context/history.md](../context/history.md)).
 
-`user-submitted/` holds community contributions (addressed `#user-name`, always `full`) — currently
+`v2/user/` holds community contributions (addressed `#user-name`, always `full`) — currently
 `beach-merk.js` by Merk, which notably composes siblings as **direct function imports**
-(`${city()}`, `${nature()}`) rather than `#city` tokens, an alternative to token-based composition.
+(`${city()}` from `../scene/city.js`, `${nature()}` from `../fragment/nature.js`) rather than `#city`
+tokens, an alternative to token-based composition.
 
 Provenance worth preserving: the `3d-*`, `comic`, `sticker`, `funko-3d-print`, `fluffy-animal`,
 `needle-felt`, `silhouette`, `psychedelic`, `space-hologram`, `gold-pendant`, `lowpoly-3d-isometric`,

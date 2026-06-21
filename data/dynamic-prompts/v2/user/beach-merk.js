@@ -22,15 +22,15 @@
 // User submitted dynamic prompt by Merk
 
 import _ from "lodash";
-import nature from "../nature.js";
-import water from "../water.js";
-import mystical from "../mystical.js";
-import weather from "../weather.js";
-import underwater from "../underwater.js";
-import lava from "../lava.js";
-import ice from "../ice.js";
-import city from "../city.js";
-import color from "../color.js";
+import nature from "../fragment/nature.js";
+import water from "../fragment/water.js";
+import mystical from "../fragment/mystical.js";
+import weather from "../fragment/weather.js";
+import underwater from "../fragment/underwater.js";
+import lava from "../fragment/lava.js";
+import ice from "../fragment/ice.js";
+import city from "../scene/city.js";
+import color from "../fragment/color.js";
 
 /**
  * Generate the `#user-beach-merk` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.

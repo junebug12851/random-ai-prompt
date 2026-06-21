@@ -19,7 +19,7 @@
  * @brief Full dynamic-prompt generator (#random-prompt): a complete, self-standing scene. See notes/reference/dynamic-prompts.md.
  */
 
-import suggestion from "../../src/promptFilesAndSuggestions.js";
+import suggestion from "../../../../src/promptFilesAndSuggestions.js";
 
 /**
  * Generate the `#random-prompt` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
