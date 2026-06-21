@@ -30,7 +30,7 @@ function loaded by config-driven path from `src/prompt-modules/`.
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
 | `<name>` | `expansion.js` | `data/expansions/**/name.txt` | Splice the file's text in verbatim. |
-| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(...)`; insert its returned string. (`{#name-v1}` = frozen v1; `{#folder}` / `{#any}` = run one random generator.) |
+| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v3/<cat>/name.dpl` | Call the generator's `default(...)`; insert its returned string. v3 is the DEFAULT catalog (bare `{#name}`); `{#v1/…}` / `{#v2/…}` reach the frozen older generations by path prefix; `{#folder}` / `{#any}` = run one random generator. |
 | `{name}` | `list.js` | `data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
@@ -59,10 +59,13 @@ script with specific behavior, not a word pool). Conventions:
 - **`export const full = true`** — this prompt is a complete scene (vs. a partial fragment). Drives
   `promptSuggestion()` and the web UI sections (see the dynamic-prompt classification section below).
 - **`export const suggestion_exclude = true`** — valid prompt, but keep it out of random suggestions.
-- **Variant namespaces / aliases:** `{#name-v1}` loads from `data/dynamic-prompts/v1/` (an older, frozen
-  generation — always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes
-  those in). `{#user-foo}` is a back-compat alias for `data/dynamic-prompts/v2/user/foo.js` (community
-  contributions, always `full`).
+- **Generation namespaces (path prefixes):** `data/dynamic-prompts/v3/` is the **default** catalog reached
+  by a bare `{#name}` (suffix-resolved). The two older generations are **frozen** and reached only by their
+  path prefix: `{#v1/castle}` and `{#v2/scene/cave}` (a shorter `{#v2/cave}` resolves by suffix *within* v2).
+  There is **no** `-v1`/`-v2` suffix form. Frozen generations force `autoAddFx`/`autoAddArtists` off (they
+  bake those in) and stay out of the random-suggestion pools. `{#user-foo}` is a back-compat alias for
+  `v3/user/foo`. As of v3 a generator is authored as a `.dpl` file (DPL — see [`dpl-design.md`](dpl-design.md))
+  with an optional same-name `.js` sidecar for logic; v1/v2 remain `.js`.
 - **Pick-one groups:** a category folder with 2+ generators is an implied group — `{#scene}` runs ONE
   random scene generator (`.group` files + `_enable/_disable-group-list` markers work too). `{#any}` (and
   `{#any-sfw}` / `{#any-nsfw}`) picks one generator from the whole catalog. The unit is one GENERATOR that

@@ -19,12 +19,72 @@ import {
   resolveName,
   compareNames,
 } from "../listManifest.js";
+import compileDpl from "./dpl/dpl.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
 const expansionsRoot = path.join(rootDir, "data", "expansions");
 const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
+
+// --- v3 DPL support -------------------------------------------------------
+// The active dynamic-prompt catalog is v3 (`.dpl`, with optional same-name `.js` sidecars)
+// plus the frozen v1 (`.js`, addressed `#name-v1`). The v2 tree stays on disk as frozen
+// reference but is NOT loaded. A `.dpl` compiles to the same `{ default, full,
+// suggestion_exclude }` module a JS generator exports, so the engine/classifier are untouched.
+const dplCache = new Map();
+
+// Bridge handed to a compiled `.dpl`: resolves JS sidecars (`script:` / `{js:}` / `insert js:`)
+// relative to the `.dpl` file (or root-absolute with a leading `/`), and lets JS hand control
+// back to the engine (prompt/list/expand resolve as tokens the pipeline finishes downstream).
+function makeDplBridge(fileDir) {
+  return {
+    resolveJs(p, ctx) {
+      const abs = p.startsWith("/") ? path.join(rootDir, p.slice(1)) : path.resolve(fileDir, p);
+      try {
+        const mod = require(abs);
+        const fn = mod && (mod.default || mod);
+        return typeof fn === "function"
+          ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings) ?? "")
+          : "";
+      } catch {
+        return "";
+      }
+    },
+    runPrompt: (name) => `{#${String(name).replace(/^#/, "")}}`,
+    runList: (name) => `{${name}}`,
+    expand: (s) => s,
+  };
+}
+
+// Generator keys across all generations: v3/** (active, `.dpl`), v2/** and v1/** (frozen, `.js`),
+// skipping `_`-prefixed internals. A `.dpl` is the generator; a `.js` is a generator only when no
+// same-name `.dpl` exists (otherwise it is that `.dpl`'s sidecar). The stage decides which
+// generation a `{#…}` reaches (bare → v3; `v1/`/`v2/` prefix or `-v1`/`-v2` suffix → frozen).
+function dynGeneratorNames() {
+  const dpl = new Set();
+  const js = new Set();
+  const walk = (dir, prefix) => {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.isDirectory()) {
+        walk(path.join(dir, e.name), `${prefix}${e.name}/`);
+      } else if (!e.name.startsWith("_")) {
+        if (e.name.endsWith(".dpl")) dpl.add(prefix + e.name.slice(0, -4));
+        else if (e.name.endsWith(".js")) js.add(prefix + e.name.slice(0, -3));
+      }
+    }
+  };
+  walk(dynPromptsRoot, "");
+  const names = new Set(dpl);
+  for (const n of js) if (!dpl.has(n)) names.add(n);
+  return [...names];
+}
 
 // Recursively list names under a root as "/"-joined paths; `re` picks the extension.
 // Files starting with `_` are internal/config (markers etc.) and never content. Used
@@ -173,16 +233,25 @@ export const nodeLoader = {
     return expansionForcedPrefixDirs();
   },
   loadDynamicPrompt(key) {
+    if (dplCache.has(key)) return dplCache.get(key);
+    const dplPath = path.join(dynPromptsRoot, `${key}.dpl`);
+    if (fs.existsSync(dplPath)) {
+      const mod = compileDpl(fs.readFileSync(dplPath, "utf8"), makeDplBridge(path.dirname(dplPath)));
+      dplCache.set(key, mod);
+      return mod;
+    }
     try {
-      return require(path.join(dynPromptsRoot, `${key}.js`));
+      const mod = require(path.join(dynPromptsRoot, `${key}.js`));
+      dplCache.set(key, mod);
+      return mod;
     } catch {
       return null;
     }
   },
-  // Dynamic-prompt catalog keys ("v2/scene/beach", "v1/castle", "v2/user/beach-merk"),
-  // recursively, skipping `_`-prefixed internal files, in the guaranteed natural order.
+  // Active dynamic-prompt catalog keys: v3/** (`.dpl`, sidecar `.js` excluded) + v1/** (`.js`),
+  // skipping the frozen v2/** tree and `_`-prefixed internals, in the guaranteed natural order.
   dynamicPromptNames() {
-    return namesUnder(dynPromptsRoot, /\.js$/).sort(compareNames);
+    return dynGeneratorNames().sort(compareNames);
   },
   // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
   // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
@@ -193,17 +262,17 @@ export const nodeLoader = {
       return null;
     }
   },
-  // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
+  // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token) — active (v3) only.
   dynPromptForcedPrefixDirs() {
-    return markedDirs("_force-prefix", dynPromptsRoot);
+    return markedDirs("_force-prefix", dynPromptsRoot).filter((d) => d.startsWith("v3/"));
   },
-  // Implied-group folders for dynamic prompts: a v2 category folder with 2+ generators
+  // Implied-group folders for dynamic prompts: an active (v3) category folder with 2+ generators
   // (so `{#scene}` picks one random scene generator), with enable/disable marker overrides.
   dynPromptGroupDirs() {
     return autoGroupListDirs(
-      namesUnder(dynPromptsRoot, /\.js$/).filter((n) => !n.startsWith("v1/")),
-      markedDirs("_enable-group-list", dynPromptsRoot),
-      markedDirs("_disable-group-list", dynPromptsRoot),
+      dynGeneratorNames().filter((n) => n.startsWith("v3/")),
+      markedDirs("_enable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
+      markedDirs("_disable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
     );
   },
   // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.

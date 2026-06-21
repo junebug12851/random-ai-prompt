@@ -33,6 +33,7 @@ const fullRegularExcluded = [];
 const partialRegular = [];
 const userFiles = [];
 const v1Files = [];
+const v2Files = [];
 const allDynPrompts = [];
 
 const listFiles = [];
@@ -80,31 +81,37 @@ function loadDynPromptList() {
   partialRegular.length = 0;
   userFiles.length = 0;
   v1Files.length = 0;
+  v2Files.length = 0;
   allDynPrompts.length = 0;
   fullDynPrompt.length = 0;
   partialNoArtistFx.length = 0;
 
-  // The loader returns catalog keys relative to the dynamic-prompts root:
-  //   "v2/scene/beach"  |  "v1/castle"  |  "v2/user/beach-merk"
-  // V1 and user prompts are always "full"; the rest declare it via `export const full`.
-  // We store each v2 generator by its SHORTEST unambiguous token (computeButtonNames —
-  // basenames are unique, so this is just the filename), so `#token` resolves by suffix.
-  const v2Keys = [];
+  // The loader returns catalog keys relative to the dynamic-prompts root, e.g.
+  //   "v3/scene/cave"  |  "v3/user/beach-merk"  |  "v2/scene/beach"  |  "v1/castle"
+  // v3 is the DEFAULT (active) catalog; v1 and v2 are FROZEN, addressed only by their path
+  // prefix ({#v1/castle}, {#v2/scene/cave}) and kept out of the random-suggestion pools.
+  // Active generators are stored by their SHORTEST unambiguous token (computeButtonNames —
+  // basenames are unique), so a bare `{#token}` resolves by suffix.
+  const activeKeys = [];
   for (const key of l.dynamicPromptNames()) {
     if (key.startsWith("v1/")) {
-      v1Files.push(`${key.slice("v1/".length)}-v1`);
+      v1Files.push(key); // frozen — token is the full path; {#v1/castle}
       continue;
     }
-    if (key.startsWith("v2/user/")) {
-      userFiles.push(`user-${key.slice("v2/user/".length)}`);
+    if (key.startsWith("v2/")) {
+      v2Files.push(key); // frozen — {#v2/scene/cave}
       continue;
     }
-    v2Keys.push(key);
+    if (key.startsWith("v3/user/")) {
+      userFiles.push(`user-${key.slice("v3/user/".length)}`);
+      continue;
+    }
+    activeKeys.push(key); // active v3 catalog
   }
 
   const forced = l.dynPromptForcedPrefixDirs ? l.dynPromptForcedPrefixDirs() : [];
-  const buttonNames = computeButtonNames(v2Keys, forced);
-  for (const key of v2Keys) {
+  const buttonNames = computeButtonNames(activeKeys, forced);
+  for (const key of activeKeys) {
     const mod = l.loadDynamicPrompt(key);
     if (!mod) continue;
 
@@ -127,7 +134,7 @@ function loadDynPromptList() {
     partialNoArtistFx.push(name);
   }
 
-  allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles, ...v1Files);
+  allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles, ...v1Files, ...v2Files);
   fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {
@@ -135,7 +142,8 @@ function loadDynPromptList() {
     partialRegular,
     userFiles,
     v1Files,
-    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files],
+    v2Files,
+    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files, ...v2Files],
   };
 }
 
