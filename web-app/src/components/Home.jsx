@@ -63,7 +63,7 @@ export default function Home({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
-  const [dynVer, setDynVer] = useState("v2"); // "v2" | "v1" superset for the dynamic blocks
+  const [dynVer, setDynVer] = useState("v3"); // "v3" (default) | "v2" | "v1" superset for the dynamic blocks
   const [expName, setExpName] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
@@ -110,8 +110,14 @@ export default function Home({ settings, setSettings }) {
   function buildPrompts() {
     setError("");
     try {
-      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "{#random-words}" };
-      setPrompts(generatePrompts(base));
+      // Frame the prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
+      const text = prompt && prompt.trim() ? prompt : suggestion || "{#random-words}";
+      const w = settings.wrapper || {};
+      const wrapped = [w.start, text, w.end]
+        .map((s) => (s || "").trim())
+        .filter(Boolean)
+        .join(", ");
+      setPrompts(generatePrompts({ ...settings, prompt: wrapped }));
     } catch (e) {
       setError(e.message || String(e));
     }
@@ -214,11 +220,15 @@ export default function Home({ settings, setSettings }) {
                       <div key="__prompts" className="cat-head">
                         <span className="cat-name">Prompts</span>
                         <span className="ver-links">
-                          {["v1", "v2"].map((v) => (
+                          {["v3", "v2", "v1"].map((v) => (
                             <button
                               key={v}
                               className={`ver-link${dynVer === v ? " on" : ""}`}
-                              title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
+                              title={
+                                v === "v3"
+                                  ? "Current generators (default)"
+                                  : `Frozen legacy (${v}) generators`
+                              }
                               onClick={() => setDynVer(v)}
                             >
                               {v}

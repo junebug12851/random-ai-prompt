@@ -44,14 +44,15 @@ Ordered, roughly by priority. Update as items are done or added.
    are settled (weights `[n]` auto-from-1000, local recursive sort, `go to`/`go back`, `one of`/`N of`,
    repetition modes); remaining: indentation strictness, exact `ctx` bridge surface, file layout.
 
-7a. **DPL build status (in progress).** Engine (`src/core/dpl/dpl.js`) + 25 tests done; entire v2 catalog
-   converted to `data/dynamic-prompts/v3/` (`.dpl` + JS sidecars); node + browser loaders + the
-   dynamic-prompt stage + the classifier now load v3 as the **default** catalog, with v1/v2 frozen and
-   addressed by `{#v1/…}` / `{#v2/…}` path prefixes (no `-v1`/`-v2` suffix). smoke + web build + an
-   end-to-end engine check (`scripts/dpl-engine-check.mjs`) all green. **Remaining:** Phase 4 UI (DPL prompt
-   box + open/close wrapper-preset boxes); optional `.dpl` checks in `npm test`; the v3 weighted-layer
-   *render* (local weight sort) is implemented in the DPL engine but the broader engine still appends
-   auto-fx/artists — revisit per the v3 "no auto fx/artists" intent.
+7a. **DPL build status.** Engine (`src/core/dpl/dpl.js`) + 25 tests; entire v2 catalog converted to
+   `data/dynamic-prompts/v3/` (`.dpl` + JS sidecars); node + browser loaders + the dynamic-prompt stage +
+   the classifier load v3 as the **default** catalog, v1/v2 frozen and addressed by `{#v1/…}` / `{#v2/…}`
+   path prefixes (no suffix). The SPA has the **wrapper** UI (bottom-right button → preset list → Manage
+   modal with two Start/End boxes; frames generation) and v3-default building blocks. smoke + web build
+   (597 modules) + `scripts/dpl-engine-check.mjs` all green. **Remaining/optional:** wire `.dpl`/engine
+   checks into `npm test`; the broader engine still auto-appends fx/artists — revisit per the v3
+   "no auto fx/artists" intent; persist wrapper presets across the share-link if desired; image-gen etc.
+   (the older removed features in `removed-pending-readd.md`).
 
 8. **v3 — the weighted-layer prompt engine.** Direction in [`v3-layers.md`](v3-layers.md): ordering-by-weight
    over a layer tree (file/section/line are layers; the prompt box is the root); weights are **local** (sort

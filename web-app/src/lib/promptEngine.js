@@ -88,19 +88,20 @@ const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: labe
 // which picks ONE random generator in that folder) + each {#name} chip with its sidecar
 // tooltip. Full vs partial are separate navbar tabs; v1/v2 is a navbar superset toggle.
 const allDynNames = browserLoader.dynamicPromptNames();
-const v2DynNames = allDynNames.filter((n) => !n.startsWith("v1/"));
-const v1DynNames = allDynNames.filter((n) => n.startsWith("v1/"));
+const v3Names = allDynNames.filter((n) => n.startsWith("v3/")); // active default catalog
+const v2Names = allDynNames.filter((n) => n.startsWith("v2/")); // frozen, addressed {#v2/…}
+const v1Names = allDynNames.filter((n) => n.startsWith("v1/")); // frozen, addressed {#v1/…}
 const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
-const dynBtn = computeButtonNames(v2DynNames, browserLoader.dynPromptForcedPrefixDirs());
+const dynBtn = computeButtonNames(v3Names, browserLoader.dynPromptForcedPrefixDirs());
 const dynGroupSet = new Set(browserLoader.dynPromptGroupDirs());
 const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
 
-// Split v2 generators into full vs partial (user-submitted are always full).
-const v2Full = [];
-const v2Partial = [];
-for (const k of v2DynNames) {
+// Split the active (v3) generators into full vs partial (user-submitted are always full).
+const v3Full = [];
+const v3Partial = [];
+for (const k of v3Names) {
   const mod = browserLoader.loadDynamicPrompt(k);
-  ((mod && mod.full === true) || k.startsWith("v2/user/") ? v2Full : v2Partial).push(k);
+  ((mod && mod.full === true) || k.startsWith("v3/user/") ? v3Full : v3Partial).push(k);
 }
 
 // Folder-grouped items for a set of generator keys; the folder pill is a clickable
@@ -149,12 +150,13 @@ const dynWildcardItems = () => [
   },
 ];
 
-// v1 generators: flat chips, addressed {#name-v1}.
-const dynV1Items = () =>
-  v1DynNames
+// Frozen generations (v1 / v2): flat chips addressed by path prefix, e.g. {#v1/castle},
+// {#v2/scene/cave}. (v3 is the default and uses bare {#name}.)
+const dynFrozenItems = (keys, gen) =>
+  keys
     .map((k) => {
-      const base = k.slice("v1/".length);
-      return { token: `{#${base}-v1}`, label: base, description: dpDescFor(k) };
+      const base = k.slice(`${gen}/`.length);
+      return { token: `{#${gen}/${base}}`, label: base, description: dpDescFor(k) };
     })
     .sort((a, b) => compareNames(a.label, b.label));
 
@@ -270,7 +272,11 @@ export function getBlocks() {
       subLabel: "full",
       hint: "Complete, self-contained generators — each builds a whole image concept on its own.",
       dynVersioned: true,
-      variants: { v2: [...dynWildcardItems(), ...dynCatItems(v2Full)], v1: dynV1Items() },
+      variants: {
+        v3: [...dynWildcardItems(), ...dynCatItems(v3Full)],
+        v2: dynFrozenItems(v2Names, "v2"),
+        v1: dynFrozenItems(v1Names, "v1"),
+      },
       items: [],
     },
     {
@@ -278,7 +284,7 @@ export function getBlocks() {
       subLabel: "partial",
       hint: "Accents and modifiers that enrich a fuller prompt rather than stand alone.",
       dynVersioned: true,
-      variants: { v2: dynCatItems(v2Partial), v1: [] },
+      variants: { v3: dynCatItems(v3Partial), v2: [], v1: [] },
       items: [],
     },
     {
