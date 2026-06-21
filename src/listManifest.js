@@ -126,12 +126,12 @@ function readSfwBase(base, readers) {
 }
 
 /**
- * Member reference lines for an IMPLIED group (a `.force-group-list` folder): every
- * list at or under `dir`, de-duplicated to base names (so `-sfw`/`-nsfw` pairs become
- * one member resolved mode-aware), excluding nested real groups and nested implied
- * dirs. The result feeds the normal group-union path.
+ * Member reference lines for an IMPLIED group (a `.force-group-list` folder): the
+ * folder's OWN direct list files only (NOT descendants — implied groups don't stack),
+ * de-duplicated to base names (so `-sfw`/`-nsfw` pairs become one member resolved
+ * mode-aware), excluding real groups. The result feeds the normal group-union path.
  * @param {string} dir The folder path.
- * @param {{names:string[], readGroupFile:(n:string)=>(string[]|null), groupListDirs?:string[]}} readers
+ * @param {{names:string[], readGroupFile:(n:string)=>(string[]|null)}} readers
  * @returns {string[]} Member reference lines.
  */
 function impliedGroupMembers(dir, readers) {
@@ -139,8 +139,8 @@ function impliedGroupMembers(dir, readers) {
   const out = [];
   for (const n of readers.names) {
     if (!n.startsWith(`${dir}/`)) continue;
-    if (readers.readGroupFile(n) != null) continue; // skip nested real groups
-    if (readers.groupListDirs && readers.groupListDirs.includes(n)) continue; // nested implied
+    if (n.slice(dir.length + 1).includes("/")) continue; // direct children only
+    if (readers.readGroupFile(n) != null) continue; // skip real groups
     const b = n.replace(/-(sfw|nsfw)$/i, "");
     if (!seen.has(b)) {
       seen.add(b);
@@ -148,6 +148,36 @@ function impliedGroupMembers(dir, readers) {
     }
   }
   return out;
+}
+
+/**
+ * Folders that are IMPLIED groups: a folder with **2+ direct list files** is auto-marked
+ * (referenceable as `{folder}` = union of its own lists). An `enable-group-list` marker
+ * forces a folder on (even with one list); a `disable-group-list` marker forces it off.
+ * Does NOT stack — only the folder's own direct lists count, not its subfolders.
+ * @param {string[]} listNames Logical LIST names (txt-derived; groups excluded).
+ * @param {string[]} [enableDirs] Folders forced on (`.enable-group-list`).
+ * @param {string[]} [disableDirs] Folders forced off (`.disable-group-list`).
+ * @returns {string[]} The implied-group folder paths.
+ */
+export function autoGroupListDirs(listNames, enableDirs = [], disableDirs = []) {
+  const byDir = new Map(); // dir -> set of distinct base list names (variants collapsed)
+  for (const n of listNames) {
+    const base = n.replace(/-(sfw|nsfw)$/i, "");
+    const i = base.lastIndexOf("/");
+    if (i < 0) continue;
+    const dir = base.slice(0, i);
+    if (!byDir.has(dir)) byDir.set(dir, new Set());
+    byDir.get(dir).add(base);
+  }
+  const dis = new Set(disableDirs);
+  const en = new Set(enableDirs);
+  const out = new Set();
+  for (const [dir, bases] of byDir) {
+    if (dis.has(dir)) continue;
+    if (bases.size >= 2 || en.has(dir)) out.add(dir);
+  }
+  return [...out];
 }
 
 /**

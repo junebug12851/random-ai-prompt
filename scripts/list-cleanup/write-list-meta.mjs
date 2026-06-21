@@ -98,6 +98,14 @@ const D = {
   "word/preposition": "Prepositions.",
   "word/verb": "Verbs (actions).",
   "word/adult-nsfw": "Explicit sexual terms (adult-gated).",
+  // implied groups (folders with 2+ lists)
+  look: "Any visual descriptor — color, hair, mood, pose, view, weather, and more.",
+  lore: "Any lore subject — mythology, astronomy, religion, history, peoples, works.",
+  nature: "Anything from nature — animals, flowers, trees, planets, mythical creatures.",
+  place: "Any place — cities, countries, regions, and landmarks.",
+  scene: "Any scene / setting type — rooms, ships, stores, vehicles, and more.",
+  style: "Any style — art movements and techniques, building/construction/general.",
+  word: "Any word — every part of speech and vocabulary list combined.",
 };
 
 let wrote = 0;

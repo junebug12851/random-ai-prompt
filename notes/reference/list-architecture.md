@@ -12,12 +12,16 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
 gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard.
 
-**Implied groups (`.force-group-list`).** A folder with an empty `.force-group-list` marker *is* a group:
-`{<folder>}` resolves to the union of every list under it (mode-aware), no `.group` file required. Markers on
-`artist/`, `danbooru/d/`, and `name/` make `{artist}`, `{d}`, `{name}` implied groups. Loaders expose
-`groupListDirs()`; `resolveListLines` synthesizes the member list via `impliedGroupMembers` (base names under
-the dir, nested real/implied groups excluded) then runs the normal union. Explicit `.group` files now exist
-only for **subsets** that aren't a whole folder: `artist/digipa.group` (dhigh+dmed+dlow),
+**Implied groups (automatic).** A folder with **2+ direct list files** is automatically a group: `{<folder>}`
+= the union of that folder's OWN lists (mode-aware), no `.group` file. `autoGroupListDirs(listNames, enable,
+disable)` computes them (counting distinct base lists per dir, variants collapsed); it does NOT stack (only a
+folder's own direct files, never subfolders — so `{d}` is a group but `{danbooru}` is not), and `brand/` (one
+list) is not a group. Empty marker files override: `.enable-group-list` forces a folder on, `.disable-group-
+list` forces it off. Loaders expose `groupListDirs()`; `resolveListLines` synthesizes the member list via
+`impliedGroupMembers` (direct children only, real groups excluded) then runs the normal union. The implied
+group folder-names are added to `listNames()` so they resolve and the auto-prefixer (`computeButtonNames`)
+disambiguates them against same-named lists (e.g. group `{place}` vs list `{place/place}`). Explicit `.group`
+files exist only for **subsets** that aren't a whole folder: `artist/digipa.group` (dhigh+dmed+dlow),
 `danbooru/d/character.group` (c + nc), `danbooru/d/keyword.group` (danbooru minus artists). (Curated +
 dictionary POS lists were merged into one list each, so the former `*-all` virtuals are gone.)
 

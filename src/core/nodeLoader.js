@@ -11,7 +11,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
+import {
+  resolveListLines,
+  logicalListNames,
+  allListNames,
+  autoGroupListDirs,
+  resolveName,
+} from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
@@ -59,16 +65,14 @@ function markedDirs(marker) {
   return out;
 }
 const forcedPrefixDirs = () => markedDirs(".force-prefix");
-const groupListDirs = () => markedDirs(".force-group-list");
 
-// Recursively list every .txt and .group under data/lists as a "/"-joined name.
-function physicalListNames() {
+// Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
+function physicalNames(re) {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (/\.(txt|group)$/.test(entry.name))
-        out.push(`${prefix}${entry.name.replace(/\.(txt|group)$/, "")}`);
+      else if (re.test(entry.name)) out.push(`${prefix}${entry.name.replace(re, "")}`);
     }
   };
   try {
@@ -78,6 +82,14 @@ function physicalListNames() {
   }
   return out;
 }
+const physicalListNames = () => physicalNames(/\.(txt|group)$/);
+// Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
+const groupListDirs = () =>
+  autoGroupListDirs(
+    logicalListNames(physicalNames(/\.txt$/)),
+    markedDirs(".enable-group-list"),
+    markedDirs(".disable-group-list"),
+  );
 
 /**
  * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt

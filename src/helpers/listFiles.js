@@ -23,7 +23,13 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
-import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
+import {
+  resolveListLines,
+  logicalListNames,
+  allListNames,
+  autoGroupListDirs,
+  resolveName,
+} from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
@@ -48,17 +54,36 @@ function getListFiles(settings) {
   return out;
 }
 
-// Folders (relative "/"-joined) that contain a `.force-group-list` marker (implied groups).
-function getGroupListDirs(settings) {
+// Folders containing a given marker file, and `.txt`-only logical list names.
+function markedDirs(settings, marker) {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
-      else if (entry.name === ".force-group-list") out.push(prefix.replace(/\/$/, ""));
+      else if (entry.name === marker) out.push(prefix.replace(/\/$/, ""));
     }
   };
   walk(settings.listFiles, "");
   return out;
+}
+function getTxtFiles(settings) {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
+      else if (entry.name.endsWith(".txt")) out.push(`${prefix}${entry.name.replace(/\.txt$/, "")}`);
+    }
+  };
+  walk(settings.listFiles, "");
+  return out;
+}
+// Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
+function getGroupListDirs(settings) {
+  return autoGroupListDirs(
+    logicalListNames(getTxtFiles(settings)),
+    markedDirs(settings, ".enable-group-list"),
+    markedDirs(settings, ".disable-group-list"),
+  );
 }
 
 // Cached canonical-name index (physical paths + virtual names), for suffix-based

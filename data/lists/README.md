@@ -43,16 +43,19 @@ just like a list (`{d}`, `{artist}`). Groups can live anywhere in the tree.
   a group's members resolve SFW-only or NSFW-inclusive following the same rule as a
   bare reference, so one group covers both modes.
 
-### Implied groups (`.force-group-list`)
+### Implied groups (automatic)
 
-A folder containing an empty **`.force-group-list`** file *is* a group: `{<folder>}`
-resolves to the union of every list under it (mode-aware), with no `.group` file to
-maintain. `artist/`, `danbooru/d/`, and `name/` are marked, so `{artist}`, `{d}`, and
-`{name}` are implied groups. Use an explicit `.group` file only for a **subset** that
-isn't a whole folder — the remaining ones are `artist/digipa.group` (the 3 digital-
-painting lists), `danbooru/d/character.group` (c + nc), and `danbooru/d/keyword.group`
-(danbooru minus artists). Groups may nest up to **3 levels deep** (recursion cutoff +
-cycle guard).
+A folder with **2 or more direct list files** is automatically a group: `{<folder>}`
+resolves to the union of that folder's **own** lists (mode-aware), with no `.group` file
+to maintain. So `{word}`, `{look}`, `{place}`, `{name}`, `{artist}`, `{d}`, etc. all
+work. It does **not** stack — only the folder's own direct files count, never its
+subfolders (so `{danbooru}` is not a group, but `{d}` is). A single-list folder like
+`brand/` is not a group. Override with an empty marker file in the folder:
+`.enable-group-list` forces it on (even with one list), `.disable-group-list` forces it
+off. Use an explicit `.group` file only for a **subset** that isn't a whole folder —
+the remaining ones are `artist/digipa.group` (the 3 digital-painting lists),
+`danbooru/d/character.group` (c + nc), and `danbooru/d/keyword.group` (danbooru minus
+artists). Groups may nest up to **3 levels deep** (recursion cutoff + cycle guard).
 
 ## SFW / NSFW
 
@@ -127,8 +130,8 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 
 | Folder | What's in it |
 |--------|--------------|
-| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person. `.force-prefix` (→ `{d/...}`) + `.force-group-list` (→ `{d}` = all). Subset groups: `keyword` (no artists), `character` (c + nc) |
-| `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary. `.force-prefix` (→ `{artist/...}`) + `.force-group-list` (→ `{artist}` = all). Subset group: `digipa` (dhigh+dmed+dlow) |
+| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person. `.force-prefix` (→ `{d/...}`); implied group `{d}` (2+ files). Subset groups: `keyword` (no artists), `character` (c + nc) |
+| `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary. `.force-prefix` (→ `{artist/...}`); implied group `{artist}`. Subset group: `digipa` (dhigh+dmed+dlow) |
 | `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words), `language` (languages/scripts), and `adult-nsfw` (gated sexual terms). Curated + dictionary merged. |
 | `name/` | given, person, demonym, anime (implied group `{name}`) |
 | `place/` | city, place (countries/regions/landmarks) |

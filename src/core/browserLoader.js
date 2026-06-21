@@ -13,7 +13,13 @@
 // content (lists/expansions/presets) lives under the repo-root data/ folder
 // (../../data/...).
 
-import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
+import {
+  resolveListLines,
+  logicalListNames,
+  allListNames,
+  autoGroupListDirs,
+  resolveName,
+} from "../listManifest.js";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
@@ -27,7 +33,8 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   eager: true,
 });
 const forcePrefixFiles = import.meta.glob("../../data/lists/**/.force-prefix", { eager: true });
-const forceGroupListFiles = import.meta.glob("../../data/lists/**/.force-group-list", { eager: true });
+const enableGroupFiles = import.meta.glob("../../data/lists/**/.enable-group-list", { eager: true });
+const disableGroupFiles = import.meta.glob("../../data/lists/**/.disable-group-list", { eager: true });
 const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
@@ -84,7 +91,12 @@ const markerDirs = (files, marker) =>
     return p.slice(i + "/lists/".length).replace(new RegExp(`/${marker}$`), "");
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "\\.force-prefix");
-const groupListDirs = markerDirs(forceGroupListFiles, "\\.force-group-list");
+// Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
+const groupListDirs = autoGroupListDirs(
+  logicalListNames(Object.keys(listLines)),
+  markerDirs(enableGroupFiles, "\\.enable-group-list"),
+  markerDirs(disableGroupFiles, "\\.disable-group-list"),
+);
 
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
