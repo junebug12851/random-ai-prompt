@@ -138,14 +138,16 @@ const dynCatItems = (keys, genKey) => {
       label: lastSeg(folder),
       token: g.groupSet.has(folder) ? `{#${pre}${lastSeg(folder)}}` : null,
       description: dpDescFor(folder),
+      // The chip label IS the token you'd type (its inner text): bare for v3, prefixed for v1/v2.
       entries: members
-        .map((k) => ({ token: `{#${pre}${g.btn[k]}}`, label: g.btn[k], description: dpDescFor(k) }))
+        .map((k) => ({ token: `{#${pre}${g.btn[k]}}`, label: `${pre}${g.btn[k]}`, description: dpDescFor(k) }))
         .sort((a, b) => compareNames(a.label, b.label)),
     }))
     .sort((a, b) => compareNames(a.label, b.label));
   const out = [];
   for (const c of cats) {
-    const pill = { category: true, label: c.label, description: c.description };
+    // A clickable group pill shows its full {#…} inner text too; a plain header shows the folder.
+    const pill = { category: true, label: c.token ? `${pre}${c.label}` : c.label, description: c.description };
     if (c.token) pill.token = c.token;
     out.push(pill, ...c.entries);
   }
@@ -171,7 +173,8 @@ const dynWildcardItems = (genKey) => {
   ];
 };
 
-const fp = { v3: splitFP("v3"), v2: splitFP("v2"), v1: splitFP("v1") };
+// v3 has no full/partial — it's one "Prompts" list. v1/v2 keep their frozen full/partial split.
+const fp = { v2: splitFP("v2"), v1: splitFP("v1") };
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -281,12 +284,24 @@ const expansionItems = () => {
 export function getBlocks() {
   const blocks = [
     {
-      title: "Full prompts",
-      subLabel: "full",
-      hint: "Complete, self-contained generators — each builds a whole image concept on its own.",
+      title: "Prompts",
+      subLabel: "prompts",
+      hint: "Every current (v3) generator — pick any building block. v3 has no full/partial split.",
       dynVersioned: true,
       variants: {
-        v3: [...dynWildcardItems("v3"), ...dynCatItems(fp.v3.full, "v3")],
+        v3: [...dynWildcardItems("v3"), ...dynCatItems(GENS.v3.names, "v3")],
+        v2: [],
+        v1: [],
+      },
+      items: [],
+    },
+    {
+      title: "Full prompts",
+      subLabel: "full",
+      hint: "Complete, self-contained generators (frozen generations).",
+      dynVersioned: true,
+      variants: {
+        v3: [],
         v2: [...dynWildcardItems("v2"), ...dynCatItems(fp.v2.full, "v2")],
         v1: [...dynWildcardItems("v1"), ...dynCatItems(fp.v1.full, "v1")],
       },
@@ -295,12 +310,12 @@ export function getBlocks() {
     {
       title: "Partial prompts",
       subLabel: "partial",
-      hint: "Accents and modifiers that enrich a fuller prompt rather than stand alone.",
+      hint: "Accents and modifiers (frozen generations).",
       dynVersioned: true,
       variants: {
-        v3: dynCatItems(fp.v3.partial, "v3"),
+        v3: [],
         v2: dynCatItems(fp.v2.partial, "v2"),
-        v1: dynCatItems(fp.v1.partial, "v1"),
+        v1: [],
       },
       items: [],
     },

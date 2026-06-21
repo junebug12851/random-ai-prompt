@@ -33,7 +33,6 @@ in a real language.
 
 ```
 ---
-type: full              ; full | partial   (partial is the default)
 description: A beach with a city nearby    ; → the .json tooltip sidecar
 suggestions: off        ; → keep out of {#random} suggestions (suggestion_exclude)
 script: beach.js        ; optional whole-file JS delegation (see §6)
@@ -42,10 +41,14 @@ script: beach.js        ; optional whole-file JS delegation (see §6)
 
 | Front-matter | JS equivalent |
 |--------------|---------------|
-| `type: full` | `export const full = true` |
 | `description:` | `<name>.json` sidecar |
 | `suggestions: off` | `export const suggestion_exclude = true` |
 | `script:` | delegate the whole body to a `.js` (§6) |
+
+**No `type:` in v3.** v3 retired the full/partial distinction — every v3 generator is just a "prompt"
+(the wrapper supplies the start/end framing, so "full vs partial" no longer means anything). The frozen v1
+and v2 generations keep their `export const full` flag (the classifier still splits *them* into full/partial,
+and the SPA shows v3 as one "Prompts" list but v1/v2 with Full/Partial tabs).
 
 **No `auto-fx` / `auto-artists`** (v2 settings, out of scope for v3) and **no `adult` key** — NSFW gating is
 inferred from the **name token only** (the existing `isGatedDynPrompt` rule), so gating can never disagree

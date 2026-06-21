@@ -1,5 +1,4 @@
 ---
-type: partial
 description: A person subject
 script: person.js
 ---

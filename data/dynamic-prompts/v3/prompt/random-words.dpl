@@ -1,5 +1,4 @@
 ---
-type: full
 description: A pile of completely random keywords
 script: random-words.js
 ---

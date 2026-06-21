@@ -115,16 +115,11 @@ function loadDynPromptList() {
     const mod = l.loadDynamicPrompt(key);
     if (!mod) continue;
 
+    // v3 has no full/partial distinction — every active generator is just a "prompt". The whole
+    // active set is the suggestion pool (minus any `suggestions: off`); `partialRegular` stays empty.
     const token = buttonNames[key];
-    const isFull = mod.full === true;
-    const exclude = mod.suggestion_exclude === true;
-
-    if (isFull) {
-      fullRegular.push(token);
-      if (!exclude) fullRegularExcluded.push(token);
-    } else {
-      partialRegular.push(token);
-    }
+    fullRegular.push(token);
+    if (mod.suggestion_exclude !== true) fullRegularExcluded.push(token);
   }
 
   // Partial prompts, minus artists and the fx one
