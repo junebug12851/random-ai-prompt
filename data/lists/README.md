@@ -98,7 +98,7 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 | `style/` | art-movement, art-technique, general-style, construct-style, building-style |
 | `scene/` | room, school-room, shed-type, ship-type, store-type, vehicle-type |
 | `brand/` | organization |
-| `keyword/` | keyword (uncategorized leftover), keyword-nsfw (gated) |
+| `keyword/` | keyword-sfw (uncategorized leftover, ref `{keyword}`), keyword-nsfw (gated) |
 
 See `../../notes/reference/list-architecture.md` for the full design, and
 `../../list-help.md` for a per-file description.

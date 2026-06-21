@@ -20,7 +20,7 @@ const KEEP = new Set([
 
 // SFW list -> where its NSFW lines should be relocated (gated).
 const ROUTES = {
-  "look/clothes": "look/clothes-nsfw",
+  "look/clothes-sfw": "look/clothes-nsfw",
   "word/adjective": "word/adult-nsfw",
   "word/dict-adjective": "word/adult-nsfw",
   "word/dict-noun": "word/adult-nsfw",
