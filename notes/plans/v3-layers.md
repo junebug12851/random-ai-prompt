@@ -23,14 +23,22 @@ where something lands by giving it a weight, not by where it sits in the text.
 - **Weights are plain numbers** (not AUTOMATIC1111 attention) — a **sort key**. **Lower = higher priority =
   rendered closer to the front (left); higher = lower priority = further back (right).** A line at the bottom
   of a file with weight `2` renders near the top.
-- **Auto-assigned weights:** a line with no explicit weight gets **the next number** in document order.
-  Explicit weight is written at the **start of the line/block** *(open: exact syntax)*.
+- **Weights are LOCAL to the containing layer — they never propagate to the parent.** A layer's weights only
+  reorder *that layer's own contents*; words **do not leave their containing layer**. This is what keeps
+  blocks modular: a block can never reach up and reorder its siblings or the parent. (So there is **no global
+  weight scale** — my earlier guess was wrong.)
+- **Auto-assigned weights:** a line with no explicit weight gets **the next weight after the line before it**
+  (incrementing within its section). A **section's** placement weight is **assigned by the code that includes
+  it** — the section has no intrinsic weight; the includer decides where it sits among its siblings. Explicit
+  weight is written at the **start of the line/block** *(open: exact syntax; and the auto-start value)*.
 - **Files have no weight** — that would break modularity (a file must drop into any prompt). Only the
-  **sections/lines inside** a file carry weights.
-- **Render:** collect the tree → flatten → **sort by weight** → emit left(low)→right(high). Full
-  de-duplication may not be fully achievable, but a **layer-aware engine allows smarter management** (merging
-  / grouping / less duplication) than blind string concatenation. *(open: exactly what "smarter management"
-  does beyond sorting.)*
+  **sections/lines inside** a file carry weights, and only relative to their own container.
+- **Render is recursive, depth-first:** at each layer, **sort its direct children by their weights**, render
+  each child (recursing), and concatenate. A layer therefore renders as a **contiguous, internally-sorted
+  run**; its position among *its* siblings is set by the weight its parent gave it. The point: authors can
+  write lines in whatever order reads best / is best commented, and the render reorders within the layer —
+  **document order stops dictating output order.** *(open: what layer-aware "smarter management" / dedup does,
+  given words can't migrate between layers.)*
 
 ## Retiring "full prompts" + start/end boilerplate
 
@@ -38,6 +46,10 @@ A central goal: **remove the "full prompt" concept** (the v2 `full` flag) and th
 material that every full scene currently carries. Instead the **engine supplies the beginning and ending
 blocks**, so building blocks mostly provide the "middle." Benefits: less duplication, faster authoring,
 consistent framing.
+
+Because weights are local, this works at the **root layer**: the engine's start block (low weight) and end
+block (high weight) are sibling children of the root alongside the user's "middle" building blocks, so they
+sort to the front and back of the whole prompt — without any words migrating out of the blocks themselves.
 
 - **Delivery mechanism** *(open, leaning preset):* a **preset** holding the start + end blocks is more
   flexible and customizable and fits the app, versus a **settings page** (feels permanent / off-to-the-side).
@@ -58,21 +70,25 @@ DPL is the **default** authoring language for v3 layers, with **JavaScript still
 bridge in [../reference/dpl-design.md §6](../reference/dpl-design.md)). v3 wants layers wired **through the
 prompt engine** itself rather than bolted on as string-rewriting stages.
 
-## Open questions (the mechanics that decide the rest)
+## Resolved mechanics
 
-1. **Weight comparison scope** — when building blocks A and B both pour their lines into the root, do their
-   weights compare on **one global scale** (so every weight-0 line clusters at the very front regardless of
-   source — the mechanism that would unify start/end material), or are weights **per-file** and then combined
-   with the parent's position somehow?
-2. **Effective sort key** — is a flattened line's order a **single number**, or a **tuple** (section weight,
-   then line weight, …) walked down the tree? "Weight within the layer above it" hinted at combining down the
-   chain; "files have no weight" simplifies it.
-3. **Tie-breaking** — when two layers share a weight, what decides order (document order, building-block
-   order, merge)?
-4. **Smarter management** — beyond sort: dedup exact repeats? collapse near-duplicates? cap per band?
-5. **Start/end UX** — preset vs 3 boxes vs settings; how the engine knows which blocks are start/end.
-6. **Weight syntax in DPL** — how an author writes an explicit weight at the start of a line/block, and how
-   it coexists with the gate/repeat prefixes (`25%`, `repeat …`).
+- **Weight scope = local.** Weights sort only within the containing layer; nothing propagates up; words never
+  leave their layer. No global scale.
+- **Sort = recursive depth-first** — each layer orders its own children, renders contiguously.
+- **Auto weight** = next number after the previous line within the section; a section's placement weight comes
+  from its includer.
+- **Tie-break** = document order (general default).
+
+## Open questions (still to decide)
+
+1. **Auto-weight start value** — what number the first line of a section starts at, and whether explicit
+   weights and auto weights can collide (and if so, how — document order?).
+2. **Smarter management** — beyond sorting, what the layer-aware engine does about duplication, given words
+   can't migrate between layers (dedup within a layer? collapse repeats across sibling layers? cap per layer?).
+3. **Start/end UX** — preset vs 3 boxes vs settings page; how the engine is told which blocks are start/end.
+4. **Weight syntax in DPL** — how an explicit weight is written at the start of a line/block and how it
+   coexists with the gate/repeat prefixes (`25%`, `repeat …`).
+5. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
 
 ## See also
 
