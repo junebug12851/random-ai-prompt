@@ -17,7 +17,7 @@ export function makeDynamicPromptStage(loader) {
   function danbooruReplacer(prompt, settings) {
     if (
       settings.keywordsFilename == false ||
-      (!String(settings.keywordsFilename).startsWith("d-") &&
+      (!String(settings.keywordsFilename).startsWith("d/") &&
         settings.keywordsFilename != "danbooru")
     ) {
       return prompt;

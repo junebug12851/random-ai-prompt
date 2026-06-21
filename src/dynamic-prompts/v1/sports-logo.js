@@ -47,7 +47,7 @@ export default function (settings, imageSettings, upscaleSettings) {
       prompt += ` {animal}`;
       break;
     case 1:
-      prompt += ` {d-character}`;
+      prompt += ` {d/character}`;
       human = true;
       break;
     case 2:

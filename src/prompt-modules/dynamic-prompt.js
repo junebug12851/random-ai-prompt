@@ -38,7 +38,7 @@ const require = createRequire(import.meta.url);
 function danbooruReplacer(prompt, settings) {
   if (
     settings.keywordsFilename == false ||
-    (!settings.keywordsFilename.startsWith("d-") && settings.keywordsFilename != "danbooru")
+    (!String(settings.keywordsFilename).startsWith("d/") && settings.keywordsFilename != "danbooru")
   )
     return prompt;
 

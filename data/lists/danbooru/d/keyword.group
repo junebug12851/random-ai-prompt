@@ -1,0 +1,7 @@
+# Group: danbooru, everything except artists. Reference as {d/keyword}. Mode-aware
+# via its members: SFW when adult is off, NSFW included when on. {d/keyword-sfw} =
+# force SFW, {d/keyword-nsfw} = force NSFW-inclusive (only when adult is enabled).
+d/general
+d/character-c
+d/character-nc
+d/meta

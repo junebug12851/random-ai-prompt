@@ -22,7 +22,7 @@
  * A COMPOSITE list is a `.group` file: a union of other lists (resolved like any
  * reference) rather than a file on disk. This is how the project "collapses lists
  * into others": the big duplicated files the build scripts used to emit (danbooru,
- * d-keyword, d-character, artist, artist-digipa) are now computed on demand from
+ * d/keyword, d/character, artist, artist-digipa) are now computed on demand from
  * their atomic parts, with cross-member de-duplication. There is NO runtime content
  * filtering — SFW/NSFW are preprocessed into separate files: `<name>-sfw.txt` (SFW)
  * and `<name>-nsfw.txt` (NSFW-only), with the bare `{name}` implicit. `logicalListNames`
@@ -42,17 +42,15 @@
 export const listTags = {
   // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>").
   // Plain names are SFW; `-nsfw` / `-nsfw-only` carry NSFW and are gated.
-  danbooru: { category: "danbooru", anime: true, nsfw: false },
-  "danbooru-nsfw": { category: "danbooru", anime: true, nsfw: true },
+  "danbooru/d/d": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/general": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/general-nsfw": { category: "danbooru", anime: true, nsfw: true },
   "danbooru/d/artist": { category: "danbooru", anime: true, nsfw: false },
-  "d-character": { category: "danbooru", anime: true, nsfw: false },
+  "danbooru/d/character": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/character-c": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/character-nc": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/meta": { category: "danbooru", anime: true, nsfw: false },
-  "d-keyword": { category: "danbooru", anime: true, nsfw: false },
-  "d-keyword-nsfw": { category: "danbooru", anime: true, nsfw: true },
+  "danbooru/d/keyword": { category: "danbooru", anime: true, nsfw: false },
   "danbooru/d/person": { category: "danbooru", anime: true, nsfw: false },
   "keyword/keyword-nsfw": { category: "keyword", anime: false, nsfw: true },
   "artist/anime": { category: "artist", anime: true, nsfw: false },
@@ -121,8 +119,8 @@ function readSfwBase(base, readers) {
  * - `{name-nsfw}`   → nothing when adult is off (acts as if it doesn't exist);
  *                     SFW + `<name>-nsfw` when on (the SFW base is auto-tacked on).
  *
- * Groups propagate the resolved variant to their members, so `{danbooru}` (off) is
- * all-SFW, `{danbooru}` (on) includes NSFW, and `{danbooru-sfw}` is SFW even when on.
+ * Groups propagate the resolved variant to their members, so `{d}` (off) is
+ * all-SFW, `{d}` (on) includes NSFW, and `{d-sfw}` is SFW even when on.
  *
  * @param {string} name Canonical list/group name (may carry a `-sfw`/`-nsfw` suffix).
  * @param {{names:string[], readListFile:(n:string)=>(string[]|null), readGroupFile:(n:string)=>(string[]|null)}} readers
@@ -157,7 +155,7 @@ export function resolveListLines(
   }
 
   // Re-resolve the (suffix-stripped) base to its canonical name, so an explicit
-  // variant like {danbooru-sfw} maps to the group/list path {danbooru} resolves to.
+  // variant like {d-sfw} maps to the group/list path {d} resolves to.
   base = resolveName(base, readers.names);
 
   // Group? Union of members, each resolved with the inherited variant.

@@ -11,9 +11,10 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 "collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
 gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard.
-Current groups: `danbooru/danbooru.group` (all `d/*`), `danbooru/d-keyword.group` (danbooru minus artists),
-`danbooru/d-character.group`, `artist/artist.group`, `artist/artist-digipa.group`, `name/name.group` —
-referenced terse as `{danbooru}`, `{artist}`, etc. via suffix resolution. (Curated + dictionary POS lists
+Current groups: `danbooru/d/d.group` (all `d/*`, ref `{d}`), `danbooru/d/keyword.group` (danbooru minus
+artists, `{d/keyword}`), `danbooru/d/character.group` (`{d/character}`), `artist/artist.group`,
+`artist/artist-digipa.group`, `name/name.group` — referenced terse as `{d}`, `{artist}`, etc. via suffix
+resolution. The danbooru groups live inside the `d/` folder to match the `{d/...}` reference convention. (Curated + dictionary POS lists
 were merged into one list each, so the former `*-all` virtuals are gone.)
 
 **SFW/NSFW is keyed off the filename and resolved by mode — no runtime content filtering, no group files.**
@@ -28,8 +29,8 @@ only when it has NO `<name>-nsfw.txt` sibling; if such a sibling exists the plai
 leak from a misnamed file and a lone `<name>.txt` + `<name>-nsfw.txt` is treated as NSFW-only. The resolver combines them by mode: `{name}` = SFW (off) / SFW+NSFW (on); `{name-sfw}` =
 SFW-only always; `{name-nsfw}` = nothing (off) / SFW+NSFW (on, the SFW base auto-tacked on, so no combined
 file is ever stored). `resolveListLines` takes `includeAdult`, re-resolves the suffix-stripped base, and
-propagates the resolved variant into group members — so one `danbooru.group` is SFW when off and
-NSFW-inclusive when on, and `{danbooru-sfw}` / `{danbooru-nsfw}` force a variant on the whole group. A
+propagates the resolved variant into group members — so one `d.group` (`{d}`) is SFW when off and
+NSFW-inclusive when on, and `{d-sfw}` / `{d-nsfw}` force a variant on the whole group. A
 fully-adult list is just a single `-nsfw` file (`artist/nudity-nsfw`, `word/adult-nsfw`,
 `keyword/keyword-nsfw`, `look/clothes-nsfw`), reachable only by its gated name. The CSV build script writes
 `general-sfw.txt` + `general-nsfw.txt` via the `isNsfw` lexicon.

@@ -36,17 +36,18 @@ terse form still works and old names translate 1:1:
 A `<name>.group` file is a composite list: each line is itself a list reference
 (resolved exactly like a `{name}` — bare, partial, or full path), and the group
 resolves to the de-duplicated union of all those lists. Reference a group by name
-just like a list (`{danbooru}`). Groups can live anywhere in the tree.
+just like a list (`{d}`, `{artist}`). Groups can live anywhere in the tree.
 
 - Lines starting with `#` are comments.
 - Groups are pure unions, but the resolver is **mode-aware** (see SFW/NSFW below):
   a group's members resolve SFW-only or NSFW-inclusive following the same rule as a
   bare reference, so one group covers both modes.
 
-Current groups: `danbooru` (all `d/*`), `d-keyword` (danbooru minus artists),
-`d-character`, `artist` (all artist styles), `artist-digipa`, `name` (given-name +
-person). Groups may include other groups up to **3 levels deep** (recursion cutoff +
-cycle guard).
+Current groups: `d` (all danbooru `d/*`, ref `{d}`), `d/keyword` (danbooru minus
+artists), `d/character`, `artist` (all artist styles), `artist-digipa`, `name`
+(given-name + person). The danbooru groups live inside the `d/` folder to match the
+`{d/...}` reference convention. Groups may include other groups up to **3 levels
+deep** (recursion cutoff + cycle guard).
 
 ## SFW / NSFW
 
@@ -72,7 +73,7 @@ This enforces the split so SFW content can never accidentally leak from a misnam
 
 Example: `danbooru/d/general-sfw.txt` + `danbooru/d/general-nsfw.txt` →
 `{d/general}` / `{d/general-sfw}` / `{d/general-nsfw}`. The same `-sfw`/`-nsfw`
-suffixes work on a group too (`{danbooru-sfw}`, `{danbooru-nsfw}`). A list that is
+suffixes work on a group too (`{d-sfw}`, `{d-nsfw}`). A list that is
 entirely adult (e.g. `artist/nudity-nsfw`, `word/adult-nsfw`) is just one `-nsfw` file.
 
 ## Content safety & gating
@@ -86,7 +87,7 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 
 | Folder | What's in it |
 |--------|--------------|
-| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person |
+| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person; plus the groups `d` (everything, ref `{d}`), `keyword` (no artists), `character` |
 | `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary |
 | `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words) and `adult-nsfw` (gated sexual terms). Curated + dictionary merged. |
 | `name/` | given-name, person, demonym, anime-name |

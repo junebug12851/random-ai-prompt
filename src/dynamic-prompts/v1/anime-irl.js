@@ -42,7 +42,7 @@ export default function (settings, imageSettings, upscaleSettings) {
 
   switch (_.random(0, 1, false)) {
     case 0:
-      prompt += ` {d-character}`;
+      prompt += ` {d/character}`;
       break;
 
     case 1:

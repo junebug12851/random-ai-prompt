@@ -89,8 +89,10 @@ export const defaultSettings = {
 // adult content with no UI to switch off.
 function migrate(settings) {
   const s = { ...settings };
-  if (s.keywordsFilename === "d-keyword") s.keywordsFilename = "keyword";
-  if (s.artistFilename === "d-artist") s.artistFilename = "artist";
+  if (s.keywordsFilename === "d-keyword" || s.keywordsFilename === "d/keyword")
+    s.keywordsFilename = "keyword";
+  if (s.artistFilename === "d-artist" || s.artistFilename === "d/artist")
+    s.artistFilename = "artist";
   return s;
 }
 

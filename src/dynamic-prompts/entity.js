@@ -55,7 +55,7 @@ export default function (settings, imageSettings, upscaleSettings, specificEntit
       prompt += `{animal}`;
       break;
     case 1:
-      prompt += `{d-character}`;
+      prompt += `{d/character}`;
       emotion = true;
       human = true;
       break;

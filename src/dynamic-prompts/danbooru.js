@@ -23,7 +23,7 @@ import _ from "lodash";
 import { keywordRepeater } from "../helpers/keywordRepeater.js";
 
 // Generates a prompt containing this based on settings
-// {d-general}... {d-character}... {d-meta}...
+// {d-general}... {d/character}... {d-meta}...
 /**
  * Generate the `#danbooru` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.
  * @param {object} settings The settings.
@@ -39,7 +39,7 @@ export default function (settings) {
 
   if (_.random(0.0, 1.0, true) < 0.2)
     for (let i = 0; i < characterCount; i++) {
-      str.push(`{d-character}`);
+      str.push(`{d/character}`);
     }
 
   for (let i = 0; i < metaCount; i++) {
