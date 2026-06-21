@@ -266,7 +266,7 @@ const expansionItems = () => {
 export function getBlocks() {
   const blocks = [
     {
-      title: "Dynamic prompts",
+      title: "Full prompts",
       hint: "Full generator scripts — {#name} (a folder pill picks one at random)",
       dynVersioned: true,
       variants: { v2: [...dynWildcardItems(), ...dynCatItems(v2Full)], v1: dynV1Items() },

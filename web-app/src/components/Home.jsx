@@ -187,7 +187,6 @@ export default function Home({ settings, setSettings }) {
   // selection is filtered away or unset).
   const active = filtered.find((b) => b.title === activeCat) || filtered[0] || null;
   const activeItems = active ? active.items : [];
-  const showVerLinks = filtered.some((b) => b.dynVersioned);
 
   return (
     <div className="workspace">
@@ -204,31 +203,37 @@ export default function Home({ settings, setSettings }) {
           <>
             <nav className="cat-tabs">
               {filtered.map((b) => (
-                <button
+                <div
                   key={b.title}
                   className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setActiveCat(b.title)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveCat(b.title)}
                 >
                   <span className="cat-name">{b.title}</span>
+                  {/* v1/v2 superset links sit right next to the dynamic tab labels (v2 default). */}
+                  {b.dynVersioned && (
+                    <span className="ver-links" style={{ display: "inline-flex", gap: "2px", marginLeft: "6px" }}>
+                      {["v2", "v1"].map((v) => (
+                        <button
+                          key={v}
+                          className={`ver-link${dynVer === v ? " on" : ""}`}
+                          style={{ textTransform: "uppercase", fontWeight: 700, fontSize: "0.72em", opacity: dynVer === v ? 1 : 0.45, background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
+                          title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDynVer(v);
+                          }}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </span>
+                  )}
                   <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
-                </button>
+                </div>
               ))}
-              {/* v1/v2 superset links — switch the whole dynamic-prompt catalog (v2 default). */}
-              {showVerLinks && (
-                <span className="ver-links" style={{ marginLeft: "auto", display: "inline-flex", gap: "4px", alignItems: "center" }}>
-                  {["v2", "v1"].map((v) => (
-                    <button
-                      key={v}
-                      className={`ver-link${dynVer === v ? " on" : ""}`}
-                      style={{ textTransform: "uppercase", fontWeight: 700, opacity: dynVer === v ? 1 : 0.5, background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}
-                      title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
-                      onClick={() => setDynVer(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </span>
-              )}
             </nav>
 
             <div className="chip-area">

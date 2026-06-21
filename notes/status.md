@@ -10,8 +10,8 @@ see [`reference/versioning.md`](reference/versioning.md)).
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
 expansions (`<lighting>` splices one random expansion). Added the `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
 wildcard (one random generator from the whole catalog, `{keyword}`-style mode variants). Reworked the SPA
-navbar: **"Dynamic prompts" (full) and "Partial prompts" (partial)** tabs with clickable folder-group pills,
-and **v1/v2 superset links** on the navbar (v2 default) replacing the old inline toggle. The "pick one"
+navbar: **"Full prompts" and "Partial prompts"** tabs with clickable folder-group pills, and **v1/v2
+superset links inline next to each tab label** (v2 default). The "pick one"
 always resolves to ONE concrete generator/snippet, never a line union.
 
 **Dynamic prompts (2.3.0 + 2.4.0):** `data/dynamic-prompts/` was brought to full parity with the
