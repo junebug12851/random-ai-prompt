@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getBlocks, generatePrompt, generatePrompts } from "../lib/promptEngine.js";
 import { saveCustomExpansion } from "../lib/customStore.js";
 import { shareUrl } from "../lib/share.js";
+import WrapperButton from "./WrapperFab.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -311,6 +312,7 @@ export default function Home({ settings, setSettings }) {
             <div className="field-bar">
               <div className="grow" />
 
+              <WrapperButton settings={settings} setSettings={setSettings} />
               <button
                 className={`field-act${panel === "save" ? " on" : ""}`}
                 onClick={toggleSave}

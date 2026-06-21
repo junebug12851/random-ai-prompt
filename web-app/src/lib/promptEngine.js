@@ -83,30 +83,49 @@ promptFiles.loadAll();
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
-// Dynamic prompts live under data/dynamic-prompts/v2/<category>/ (v1/ frozen). The SPA
-// shows them uniformly with Lists: category-folder pills (clickable -> the {#folder} group,
-// which picks ONE random generator in that folder) + each {#name} chip with its sidecar
-// tooltip. Full vs partial are separate navbar tabs; v1/v2 is a navbar superset toggle.
+// Dynamic prompts live under data/dynamic-prompts/{v3 (default),v2,v1}/<category>/. Every
+// generation is browsed FIRST CLASS and identically: category-folder pills (clickable -> the
+// {#folder} group, which picks ONE random generator in that folder) + each chip with its
+// sidecar tooltip, split into full / partial. The only difference is the token prefix — v3 is
+// bare ({#cave}, {#scene}), v1/v2 carry their path ({#v2/cave}, {#v2/scene}).
 const allDynNames = browserLoader.dynamicPromptNames();
-const v3Names = allDynNames.filter((n) => n.startsWith("v3/")); // active default catalog
-const v2Names = allDynNames.filter((n) => n.startsWith("v2/")); // frozen, addressed {#v2/…}
-const v1Names = allDynNames.filter((n) => n.startsWith("v1/")); // frozen, addressed {#v1/…}
 const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
-const dynBtn = computeButtonNames(v3Names, browserLoader.dynPromptForcedPrefixDirs());
-const dynGroupSet = new Set(browserLoader.dynPromptGroupDirs());
 const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
 
-// Split the active (v3) generators into full vs partial (user-submitted are always full).
-const v3Full = [];
-const v3Partial = [];
-for (const k of v3Names) {
-  const mod = browserLoader.loadDynamicPrompt(k);
-  ((mod && mod.full === true) || k.startsWith("v3/user/") ? v3Full : v3Partial).push(k);
+// Per-generation browse data. `tag` is the token prefix ("" = v3 default, "v1"/"v2" = frozen).
+const allForced = browserLoader.dynPromptForcedPrefixDirsAll
+  ? browserLoader.dynPromptForcedPrefixDirsAll()
+  : browserLoader.dynPromptForcedPrefixDirs();
+const allGroups = browserLoader.dynPromptGroupDirsAll
+  ? browserLoader.dynPromptGroupDirsAll()
+  : browserLoader.dynPromptGroupDirs();
+const GENS = { v3: { tag: "" }, v2: { tag: "v2" }, v1: { tag: "v1" } };
+for (const [k, g] of Object.entries(GENS)) {
+  g.names = allDynNames.filter((n) => n.startsWith(`${k}/`));
+  g.forced = allForced.filter((d) => d.startsWith(`${k}/`));
+  g.groupSet = new Set(allGroups.filter((d) => d.startsWith(`${k}/`)));
+  g.btn = computeButtonNames(g.names, g.forced);
 }
 
-// Folder-grouped items for a set of generator keys; the folder pill is a clickable
-// `{#folder}` group button when the folder is an implied group (2+ generators).
-const dynCatItems = (keys) => {
+// Split one generation's keys into full vs partial (v1 has no partials — all full).
+function splitFP(genKey) {
+  const g = GENS[genKey];
+  if (genKey === "v1") return { full: g.names, partial: [] };
+  const full = [];
+  const partial = [];
+  for (const k of g.names) {
+    const mod = browserLoader.loadDynamicPrompt(k);
+    ((mod && mod.full === true) || k.startsWith(`${genKey}/user/`) ? full : partial).push(k);
+  }
+  return { full, partial };
+}
+
+// Folder-grouped chips for a set of generator keys within one generation. The chip token is
+// `{#<tag>/<short>}` (bare for v3); the folder pill is a clickable `{#<tag>/<folder>}` group
+// when that folder is an implied group (2+ generators).
+const dynCatItems = (keys, genKey) => {
+  const g = GENS[genKey];
+  const pre = g.tag ? `${g.tag}/` : "";
   const byFolder = new Map();
   for (const k of keys) {
     const i = k.lastIndexOf("/");
@@ -117,10 +136,10 @@ const dynCatItems = (keys) => {
   const cats = [...byFolder.entries()]
     .map(([folder, members]) => ({
       label: lastSeg(folder),
-      token: dynGroupSet.has(folder) ? `{#${lastSeg(folder)}}` : null,
+      token: g.groupSet.has(folder) ? `{#${pre}${lastSeg(folder)}}` : null,
       description: dpDescFor(folder),
       entries: members
-        .map((k) => ({ token: `{#${dynBtn[k]}}`, label: dynBtn[k], description: dpDescFor(k) }))
+        .map((k) => ({ token: `{#${pre}${g.btn[k]}}`, label: g.btn[k], description: dpDescFor(k) }))
         .sort((a, b) => compareNames(a.label, b.label)),
     }))
     .sort((a, b) => compareNames(a.label, b.label));
@@ -133,32 +152,26 @@ const dynCatItems = (keys) => {
   return out;
 };
 
-// The {#any} wildcard family — like the lists' `keyword` pill: a clickable "any" category
-// (inserts {#any}) with its sfw/nsfw variants as entries.
-const dynWildcardItems = () => [
-  {
-    category: true,
-    label: "any",
-    token: "{#any}",
-    description: "Pick one random generator from the whole catalog (SFW; +NSFW when adult is on).",
-  },
-  { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
-  {
-    token: "{#any-nsfw}",
-    label: "any-nsfw",
-    description: "One random generator, including NSFW (adult mode only).",
-  },
-];
+// The {#any} wildcard family for a generation — a clickable "any" category + sfw/nsfw variants.
+const dynWildcardItems = (genKey) => {
+  const pre = GENS[genKey].tag ? `${GENS[genKey].tag}/` : "";
+  return [
+    {
+      category: true,
+      label: "any",
+      token: `{#${pre}any}`,
+      description: "Pick one random generator from this generation (SFW; +NSFW when adult is on).",
+    },
+    { token: `{#${pre}any-sfw}`, label: "any-sfw", description: "One random generator, SFW only." },
+    {
+      token: `{#${pre}any-nsfw}`,
+      label: "any-nsfw",
+      description: "One random generator, including NSFW (adult mode only).",
+    },
+  ];
+};
 
-// Frozen generations (v1 / v2): flat chips addressed by path prefix, e.g. {#v1/castle},
-// {#v2/scene/cave}. (v3 is the default and uses bare {#name}.)
-const dynFrozenItems = (keys, gen) =>
-  keys
-    .map((k) => {
-      const base = k.slice(`${gen}/`.length);
-      return { token: `{#${gen}/${base}}`, label: base, description: dpDescFor(k) };
-    })
-    .sort((a, b) => compareNames(a.label, b.label));
+const fp = { v3: splitFP("v3"), v2: splitFP("v2"), v1: splitFP("v1") };
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -273,9 +286,9 @@ export function getBlocks() {
       hint: "Complete, self-contained generators — each builds a whole image concept on its own.",
       dynVersioned: true,
       variants: {
-        v3: [...dynWildcardItems(), ...dynCatItems(v3Full)],
-        v2: dynFrozenItems(v2Names, "v2"),
-        v1: dynFrozenItems(v1Names, "v1"),
+        v3: [...dynWildcardItems("v3"), ...dynCatItems(fp.v3.full, "v3")],
+        v2: [...dynWildcardItems("v2"), ...dynCatItems(fp.v2.full, "v2")],
+        v1: [...dynWildcardItems("v1"), ...dynCatItems(fp.v1.full, "v1")],
       },
       items: [],
     },
@@ -284,7 +297,11 @@ export function getBlocks() {
       subLabel: "partial",
       hint: "Accents and modifiers that enrich a fuller prompt rather than stand alone.",
       dynVersioned: true,
-      variants: { v3: dynCatItems(v3Partial), v2: [], v1: [] },
+      variants: {
+        v3: dynCatItems(fp.v3.partial, "v3"),
+        v2: dynCatItems(fp.v2.partial, "v2"),
+        v1: dynCatItems(fp.v1.partial, "v1"),
+      },
       items: [],
     },
     {

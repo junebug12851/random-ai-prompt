@@ -18,6 +18,10 @@ const cases = [
   "{#v1/castle}", // frozen v1 by prefix
   "{#v2/scene/cave}", // frozen v2 by full path
   "{#v2/cave}", // frozen v2 by suffix within v2
+  "{#scene}", // v3 implied folder group (pick one scene)
+  "{#v2/scene}", // v2 implied folder group — frozen generations are first-class
+  "{#any}", // v3 wildcard
+  "{#v2/any}", // v2 wildcard
 ];
 
 let failed = 0;

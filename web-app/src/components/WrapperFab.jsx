@@ -129,14 +129,13 @@ export default function WrapperFab({ settings, setSettings }) {
   return (
     <>
       <button
-        className={`wrap-fab${activeName ? " on" : ""}`}
-        onClick={() => setView(view ? "" : "list")}
-        title="Wrapper — frame every prompt with a start and end"
+        className={`field-act wrap-trigger${activeName ? " on" : ""}`}
+        onClick={() => setView(view === "list" ? "" : "list")}
+        title={activeName ? `Wrapper: ${activeName}` : "Wrapper — frame every prompt with a start and end"}
         aria-label="Wrapper presets"
-        aria-expanded={!!view}
+        aria-pressed={view === "list"}
       >
         <WrapIcon />
-        <span className="wrap-fab-label">{activeName || "Wrapper"}</span>
       </button>
 
       {view === "list" && (

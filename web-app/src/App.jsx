@@ -10,7 +10,6 @@ import { useEffect } from "react";
 import { useSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
 import Home from "./components/Home.jsx";
-import WrapperFab from "./components/WrapperFab.jsx";
 
 /**
  * The application shell component.
@@ -41,8 +40,6 @@ export default function App() {
       <main>
         <Home settings={settings} setSettings={setSettings} />
       </main>
-
-      <WrapperFab settings={settings} setSettings={setSettings} />
 
       <footer>Stored only in this browser · bring your own API key · nothing saved on a server</footer>
     </div>

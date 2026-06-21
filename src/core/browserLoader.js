@@ -219,9 +219,8 @@ const markerDirs = (files, marker, seg = "lists") =>
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
 const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions");
-const dpForcedDirs = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts").filter(
-  (d) => d.startsWith("v3/"),
-);
+const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
+const dpForcedDirs = dpForcedDirsAll.filter((d) => d.startsWith("v3/"));
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
@@ -237,6 +236,12 @@ const dpGroupDirs = autoGroupListDirs(
   markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts").filter((d) =>
     d.startsWith("v3/"),
   ),
+);
+// All generations (v1/v2/v3) — the engine/UI filter by prefix so each generation is first-class.
+const dpGroupDirsAll = autoGroupListDirs(
+  [...dynamicPromptKeys],
+  markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
+  markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
 );
 const expGroupDirs = autoGroupListDirs(
   Object.keys(expansionText),
@@ -321,8 +326,14 @@ export const browserLoader = {
   dynPromptForcedPrefixDirs() {
     return dpForcedDirs;
   },
+  dynPromptForcedPrefixDirsAll() {
+    return dpForcedDirsAll;
+  },
   dynPromptGroupDirs() {
     return dpGroupDirs;
+  },
+  dynPromptGroupDirsAll() {
+    return dpGroupDirsAll;
   },
   readDynPromptGroup(name) {
     return dpGroupLines[name] ?? null;

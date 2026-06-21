@@ -266,6 +266,10 @@ export const nodeLoader = {
   dynPromptForcedPrefixDirs() {
     return markedDirs("_force-prefix", dynPromptsRoot).filter((d) => d.startsWith("v3/"));
   },
+  // Same, across ALL generations (v1/v2/v3) — for the UI that browses each generation first-class.
+  dynPromptForcedPrefixDirsAll() {
+    return markedDirs("_force-prefix", dynPromptsRoot);
+  },
   // Implied-group folders for dynamic prompts: an active (v3) category folder with 2+ generators
   // (so `{#scene}` picks one random scene generator), with enable/disable marker overrides.
   dynPromptGroupDirs() {
@@ -273,6 +277,15 @@ export const nodeLoader = {
       dynGeneratorNames().filter((n) => n.startsWith("v3/")),
       markedDirs("_enable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
       markedDirs("_disable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
+    );
+  },
+  // Implied-group folders across ALL generations (v1/v2/v3) — the engine/UI filter by prefix so
+  // each generation's groups ({#scene}, {#v2/scene}) resolve and display first-class.
+  dynPromptGroupDirsAll() {
+    return autoGroupListDirs(
+      dynGeneratorNames(),
+      markedDirs("_enable-group-list", dynPromptsRoot),
+      markedDirs("_disable-group-list", dynPromptsRoot),
     );
   },
   // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.
