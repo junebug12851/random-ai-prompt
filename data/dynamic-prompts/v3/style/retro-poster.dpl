@@ -1,0 +1,13 @@
+---
+type: full
+description: Retro-poster person illustration
+---
+Start
+===
+person
+- {emotion}
+- {#color} {hair}
+- 50% repeat 0 to 5 times: {#color} {clothes}
+- 10% {instrument}
+- {#weather}
+laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details

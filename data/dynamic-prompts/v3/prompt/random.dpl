@@ -1,0 +1,6 @@
+---
+type: full
+description: A full random prompt suggestion (blended scenes)
+suggestions: off
+script: random.js
+---
