@@ -34,7 +34,15 @@ Ordered, roughly by priority. Update as items are done or added.
    thing (full settings + auto-generation), not the old apply/save dropdown.
 6. **Optional: consider in-process generation** instead of the server-spawns-CLI design (see
    [`future.md`](future.md)).
-7. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
+7. **DPL (Dynamic Prompt Language).** Design done — a Markdown-shaped, non-programmer-first language for
+   authoring `{#name}` generators, with a JavaScript escape hatch for the logic-heavy ~10% (the `entity`
+   family, the keyword-pile / suggestion / danbooru builtins). Full proposal + requirements coverage in
+   [`../reference/dpl-design.md`](../reference/dpl-design.md); mockup analysis in
+   [`../reference/dpl-language.md`](../reference/dpl-language.md). Next: settle the open questions (indentation
+   rule, `+name(args)` scope, file layout) and prototype a parser that compiles `.dpl` → the existing
+   generator contract, with the `.js`/`.dpl` loaders coexisting for incremental migration.
+
+8. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
    flags benign init-then-overwrite patterns in `src/server.js` (×3), `src/web/backend/indexImages.js`
    (×2), and `src/web/frontend/single.js` (×1). Currently demoted to `warn` in `eslint.config.js`.
    Either tidy the dead stores or leave as-is (changing them is behavior-neutral here, but low value).

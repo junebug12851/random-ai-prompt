@@ -51,7 +51,8 @@ able to carry `/` paths like `{#scene/beach}`); a bare `#` in plain text is neve
 is a tiny JS module that returns a prompt fragment, usually itself full of `{list}` / `{#other}` /
 `<expansion>` tokens — e.g. `city.js` returns `"city, streetview, {city}, …, {#nature}, {#weather}, …"`.
 `{#name}` resolves by **path suffix** against the v2 catalog (so the category folder is invisible);
-folders are organization only — there is **no** `{#folder}` "random member" group (a generator is a
+folders are organization only (a proposed textual **DPL** for authoring these generators is analyzed in
+[`dpl-language.md`](dpl-language.md)) — there is **no** `{#folder}` "random member" group (a generator is a
 script with specific behavior, not a word pool). Conventions:
 
 - **`export default function (...) { return "…" }`** — required.

@@ -50,6 +50,10 @@ prompt out of random suggestions.
   `crystal`, `settlement`, `spaceship`, `portrait`. These return `, fragment` strings and are the
   building blocks fulls compose from (and the garnish `prePrompt()` sprinkles into suggestions).
 
+The proposed **textual DPL** for authoring these generators without JS — both `assets/mockup/` revisions,
+the start/middle/end layering, and the open design questions — is analyzed in
+[`dpl-language.md`](dpl-language.md).
+
 ## The entity polymorphism
 
 `entity.js` is a small type system: it picks one of {animal, danbooru character, colored flower,
