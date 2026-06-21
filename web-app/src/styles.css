@@ -623,14 +623,13 @@ select {
   padding: 0.7rem 0.8rem 1rem;
 }
 .cat-hint {
-  margin: 0 0 0.7rem;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.78rem;
-  line-height: 1.35;
-  color: var(--fg-soft);
-  background: var(--accent-soft);
-  border-left: 2px solid var(--accent);
-  border-radius: var(--radius-sm);
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+  text-align: center;
+  border-bottom: 1px solid var(--border-soft);
 }
 .picker-list {
   display: flex;
