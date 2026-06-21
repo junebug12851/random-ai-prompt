@@ -2,16 +2,15 @@
 
 Things that were tried or considered and deliberately not done. Don't re-attempt without new reasons.
 
-## Group entry lists / implied `{#folder}` groups for dynamic prompts (rejected 2026-06-21)
+## Pick-one groups + `{#any}` for dynamic prompts — rejected, then RECONSIDERED (2026-06-21)
 
-The list system makes a folder with 2+ entries an implied group (`{folder}` = a random member). This was
-ported to dynamic prompts mid-2.4.0 (`{#scene}` = a random scene generator, plus `.group` files and
-`_enable/_disable-group-list` markers) and then **removed** at the owner's direction: "no clickable group
-folders for dynamic prompts — they're not lists of words, they're scripts with a specific input and output."
-A dynamic-prompt folder is **organization only**; there is no `{#folder}` random-member token. A
-catalog-wide `{#any}` random-pick wildcard was also added in this pass and then **removed** at the owner's
-direction ("#any — this isn't a list where we need to pick out an entry among many"). Every `{#name}` names
-one concrete generator. Don't re-add folder/`.group` grouping or an `{#any}` wildcard for dynamic prompts.
+Briefly removed mid-2.4.0 on the reasoning "a dynamic prompt is a script, not a word pool," then
+**reinstated in 2.5.0** once the owner reframed it: a folder group / `{#any}` picks ONE *generator* (not one
+word) and runs it — the generator-level analog of the lists' pick-one group. So implied `{#folder}` groups,
+`.group` files, the `{#any}` / `{#any-sfw}` / `{#any-nsfw}` wildcard, and the same for expansions (`<folder>`)
+ARE implemented. See [`../reference/dynamic-prompts-architecture.md`](../reference/dynamic-prompts-architecture.md).
+The lasting decision: such a group/wildcard always resolves to **one concrete generator/snippet** (never a
+union or a UI "pool"); it is the pick-one rule, not list-style line unions.
 
 ## Converting the plugin loaders to `await import()` (rejected 2026-06-18)
 

@@ -29,6 +29,17 @@ const dpMetaModules = import.meta.glob("../../data/dynamic-prompts/**/*.json", {
 const dpForcePrefixFiles = import.meta.glob("../../data/dynamic-prompts/**/_force-prefix", {
   eager: true,
 });
+const dpGroupRaw = import.meta.glob("../../data/dynamic-prompts/**/*.group", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const dpEnableGroupFiles = import.meta.glob("../../data/dynamic-prompts/**/_enable-group-list", {
+  eager: true,
+});
+const dpDisableGroupFiles = import.meta.glob("../../data/dynamic-prompts/**/_disable-group-list", {
+  eager: true,
+});
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
   query: "?raw",
   import: "default",
@@ -62,6 +73,17 @@ const expansionMetaModules = import.meta.glob("../../data/expansions/**/*.json",
   import: "default",
 });
 const expForcePrefixFiles = import.meta.glob("../../data/expansions/**/_force-prefix", {
+  eager: true,
+});
+const expGroupRaw = import.meta.glob("../../data/expansions/**/*.group", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const expEnableGroupFiles = import.meta.glob("../../data/expansions/**/_enable-group-list", {
+  eager: true,
+});
+const expDisableGroupFiles = import.meta.glob("../../data/expansions/**/_disable-group-list", {
   eager: true,
 });
 const presetModules = import.meta.glob("../../data/presets/*.json", {
@@ -127,6 +149,18 @@ for (const [path, obj] of Object.entries(dpMetaModules)) {
   if (!isInternal(key)) dpMetaMap[key] = obj;
 }
 
+const dpGroupLines = {};
+for (const [path, raw] of Object.entries(dpGroupRaw)) {
+  const key = keyFor(path, "dynamic-prompts");
+  if (!isInternal(key)) dpGroupLines[key] = String(raw).split("\n");
+}
+
+const expGroupLines = {};
+for (const [path, raw] of Object.entries(expGroupRaw)) {
+  const key = keyFor(path, "expansions");
+  if (!isInternal(key)) expGroupLines[key] = String(raw).split("\n");
+}
+
 // Folders (relative to data/lists) that contain a `_`-prefixed marker file.
 const markerDirs = (files, marker, seg = "lists") =>
   Object.keys(files).map((p) => {
@@ -141,6 +175,17 @@ const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
   markerDirs(enableGroupFiles, "_enable-group-list"),
   markerDirs(disableGroupFiles, "_disable-group-list"),
+);
+// Implied groups for dynamic prompts (v2 folder with 2+ generators) and expansions.
+const dpGroupDirs = autoGroupListDirs(
+  Object.keys(dynamicPrompts).filter((n) => !n.startsWith("v1/")),
+  markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
+  markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
+);
+const expGroupDirs = autoGroupListDirs(
+  Object.keys(expansionText),
+  markerDirs(expEnableGroupFiles, "_enable-group-list", "expansions"),
+  markerDirs(expDisableGroupFiles, "_disable-group-list", "expansions"),
 );
 
 /**
@@ -196,6 +241,12 @@ export const browserLoader = {
   expansionForcedPrefixDirs() {
     return expForcedDirs;
   },
+  expansionGroupDirs() {
+    return expGroupDirs;
+  },
+  readExpansionGroup(name) {
+    return expGroupLines[name] ?? null;
+  },
   loadDynamicPrompt(key) {
     return dynamicPrompts[key] ?? null;
   },
@@ -207,6 +258,12 @@ export const browserLoader = {
   },
   dynPromptForcedPrefixDirs() {
     return dpForcedDirs;
+  },
+  dynPromptGroupDirs() {
+    return dpGroupDirs;
+  },
+  readDynPromptGroup(name) {
+    return dpGroupLines[name] ?? null;
   },
   presetNames() {
     return Object.keys(presets);

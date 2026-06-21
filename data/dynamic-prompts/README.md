@@ -27,13 +27,19 @@ Special suffixes/aliases:
 - **`{#name-v1}`** → the frozen original under `v1/` (see below).
 - **`{#name-v2}`** → forces the v2 form (the default; the suffix is just explicit).
 - **`{#user-name}`** → back-compat alias for a community generator under `v2/user/`.
+- **`{#folder}`** → a **pick-one group**: runs ONE random generator from that folder (e.g. `{#scene}` =
+  a random scene). Any category folder with 2+ generators is automatically a group.
+- **`{#any}`** / **`{#any-sfw}`** / **`{#any-nsfw}`** → pick one random generator from the WHOLE catalog
+  (`{#any}` = SFW, +NSFW when adult mode is on; `-sfw` always SFW; `-nsfw` only in adult mode).
+
+The "pick one" always selects a single generator and runs it — it is not a union of many (the
+generator-level analog of the lists' pick-one folder group, where the unit is one word).
 
 ## Folders
 
-`v2/` holds the current generators, sorted into category folders **purely for organization**
-(suffix resolution means the category never has to be typed). A folder is **not** a group — there
-is no `{#folder}` "random member" token, because a dynamic prompt is a script with specific
-behavior, not a word pool you draw a random entry from:
+`v2/` holds the current generators, sorted into category folders (suffix resolution means the
+category never has to be typed). A folder with 2+ generators is also a **pick-one group** —
+`{#<folder>}` runs one random generator from it:
 
 | Folder | What's in it |
 |--------|--------------|

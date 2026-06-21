@@ -27,9 +27,10 @@ is masked so it is never treated as an expansion.
 
 ## Folders
 
-Expansions are grouped into category folders purely for organization (they are **not**
-groups — there is no `<folder>` union token; expansions only ever copy/paste a single
-named snippet):
+Expansions are grouped into category folders. A folder with 2+ expansions is also a
+**pick-one group**: `<folder>` splices ONE random expansion from it (e.g. `<lighting>` →
+a random lighting snippet). It picks a single member and splices it — never a union of all
+members' text:
 
 | Folder | What's in it |
 |--------|--------------|

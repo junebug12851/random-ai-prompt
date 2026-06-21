@@ -63,9 +63,12 @@ The full notes system is in `notes/`, organized by topic:
   **`{#name}`** (brace-delimited like `{list}`/`<expansion>`; the bare `#name` form is gone — folders are
   organization only, **never** `{#folder}` groups). `{#name}` resolves by **path suffix** (the shared
   `resolveName`, same as lists/expansions), so refs stay short and folder-independent. `{#name-v1}`
-  resolves against the frozen `v1/` tree; `{#user-name}` is a back-compat alias for `v2/user/`. Every
-  `{#name}` names ONE specific generator — no `{#folder}` group, no random-pick wildcard. NSFW gating is
-  automatic by name token (`isGatedDynPrompt`). The **active** resolver is the core engine: `src/core/stages/dynamicPrompt.js`
+  resolves against the frozen `v1/` tree; `{#user-name}` is a back-compat alias for `v2/user/`. A category
+  folder with 2+ generators is an implied **pick-one group** (`{#scene}` runs one random scene generator;
+  `.group` files + `_enable/_disable-group-list` markers work too); `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
+  pick one generator from the whole catalog (the unit is one GENERATOR, never a line union). Expansions get
+  the same `<folder>` pick-one groups. NSFW gating is automatic by name token (`isGatedDynPrompt`). The
+  **active** resolver is the core engine: `src/core/stages/dynamicPrompt.js`
   (suffix resolution; splits v1 vs v2) over the two isomorphic loaders — `src/core/nodeLoader.js` (fs +
   `createRequire`) and `src/core/browserLoader.js` (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
   The classic pipeline `src/prompt-modules/dynamic-prompt.js` and `src/server.js` are **read-only legacy

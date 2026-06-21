@@ -2,9 +2,9 @@
 
 How `data/expansions/` is structured after the 2026-06-21 modernization that brought it to
 parity with the keyword-list system (see [`list-architecture.md`](list-architecture.md)).
-Only the parts that *make sense* for expansions were ported — expansions are deterministic
-copy/paste snippets, not random-draw lists, so the list-only machinery (random-union groups,
-clickable group/folder pills, SFW/NSFW file splitting) was deliberately left out.
+Only the parts that *make sense* for expansions were ported. SFW/NSFW file splitting was left out
+(snippets are hand-authored). Folder **pick-one groups** were initially skipped but **added in 2.5.0**
+(`<folder>` splices one random expansion — see below); list-style line *unions* are still not a thing.
 
 ## What an expansion is
 
@@ -58,14 +58,23 @@ The classic Pug editor lists expansions flat with a single section tooltip — t
 lists get there (`/api/files/expansions` returns the canonical names, so nested paths render
 consistently with `/api/files/lists`). The rich categorization is an SPA feature.
 
+## Pick-one folder groups (added 2.5.0)
+
+A category folder with 2+ expansions is now an IMPLIED group: `<lighting>` splices **one random
+expansion** from that folder (and `.group` files + `_enable/_disable-group-list` markers work too). This
+is the "pick one" rule — it selects a single snippet and splices it, NOT a union of all members. The
+expansion stage ([`src/core/stages/expansion.js`](../../src/core/stages/expansion.js)) resolves the
+folder, samples a member (gate-aware via `hasNsfwToken`), and splices it; the loaders expose
+`expansionGroupDirs()` / `readExpansionGroup()`. The SPA's category pills are clickable group buttons for
+these folders (inserting `<folder>`), mirroring Lists.
+
 ## What was intentionally NOT ported
 
-- **Random-union groups** (`.group` files / implied folder groups) — an expansion concatenates one
-  named snippet deterministically; there is no "random member of a folder" semantics to union.
-- **Clickable group/folder pills** — follows from the above; category pills are labels only.
-- **SFW/NSFW file splitting + gating** — the snippets are small, hand-authored, and benign, so
-  there is no CSV-driven split to maintain. A future adult snippet would still follow the `nsfw`
-  name-token convention lists use (`isGatedList` already keys off the name, not a list).
+- **List-style line unions** — a `<folder>` group picks ONE member snippet, never a union of all members'
+  text (an expansion is a discrete snippet, not a line pool).
+- **SFW/NSFW file splitting** — the snippets are small, hand-authored, and benign, so there is no
+  CSV-driven split to maintain; adult content would follow the `nsfw` name-token convention
+  (`isGatedList` / the group's gate-aware member filter key off the name).
 
 (`_force-prefix` was initially skipped — basenames are unique so `computeButtonNames()` yields bare tokens —
 but was later ported on demand for `detail/`; see above.)

@@ -30,7 +30,7 @@ function loaded by config-driven path from `src/prompt-modules/`.
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
 | `<name>` | `expansion.js` | `data/expansions/**/name.txt` | Splice the file's text in verbatim. |
-| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. (`{#name-v1}` = frozen v1.) |
+| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(...)`; insert its returned string. (`{#name-v1}` = frozen v1; `{#folder}` / `{#any}` = run one random generator.) |
 | `{name}` | `list.js` | `data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
@@ -40,7 +40,8 @@ function loaded by config-driven path from `src/prompt-modules/`.
 subtlety is **LoRA safety**: AUTOMATIC1111's `<lora:name:weight>` shares the `<...>` syntax, so before
 each pass the stage renames `<lora:` → `%%lora:` (a sentinel that the `<...>` regex won't match) and
 restores it at the end. This lets LoRA tags live inside expansions, even deeply nested, without being
-treated as expansion names.
+treated as expansion names. A folder with 2+ expansions is a **pick-one group**: `<lighting>` splices ONE
+random expansion from that folder (`.group` files work too) — a single member, not a union.
 
 ### `{#name}` — JS generator scripts
 
@@ -60,8 +61,11 @@ script with specific behavior, not a word pool). Conventions:
 - **Variant namespaces / aliases:** `{#name-v1}` loads from `data/dynamic-prompts/v1/` (an older, frozen
   generation — always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes
   those in). `{#user-foo}` is a back-compat alias for `data/dynamic-prompts/v2/user/foo.js` (community
-  contributions, always `full`). Every `{#name}` names one specific generator — there is no `{#folder}`
-  group or catalog-wide random-pick wildcard (a generator is a script, not a word pool).
+  contributions, always `full`).
+- **Pick-one groups:** a category folder with 2+ generators is an implied group — `{#scene}` runs ONE
+  random scene generator (`.group` files + `_enable/_disable-group-list` markers work too). `{#any}` (and
+  `{#any-sfw}` / `{#any-nsfw}`) picks one generator from the whole catalog. The unit is one GENERATOR that
+  is then run — never a union of many.
 - **Gating:** a generator whose name carries an `nsfw` token is hidden (resolves to "") unless
   `includeAdult` is on — the same automatic name-token rule lists/expansions use (`isGatedDynPrompt`).
 - **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `{#fx}`,

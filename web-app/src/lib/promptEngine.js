@@ -84,30 +84,39 @@ const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
 // Dynamic prompts live under data/dynamic-prompts/v2/<category>/ (v1/ frozen). The SPA
-// shows them uniformly with Lists/Expansions: category folders (scene/subject/fragment/
-// style/engine/user) as headers, each entry a `{#name}` chip with its <name>.json
-// description tooltip, natural-order sorted. Folders are organization only — the pills are
-// plain labels, NOT clickable groups (a dynamic prompt is a script with specific behavior,
-// not a word pool you draw a random member from). v1 and v2 are one block toggled in the UI.
+// shows them uniformly with Lists: category-folder pills (clickable -> the {#folder} group,
+// which picks ONE random generator in that folder) + each {#name} chip with its sidecar
+// tooltip. Full vs partial are separate navbar tabs; v1/v2 is a navbar superset toggle.
 const allDynNames = browserLoader.dynamicPromptNames();
 const v2DynNames = allDynNames.filter((n) => !n.startsWith("v1/"));
 const v1DynNames = allDynNames.filter((n) => n.startsWith("v1/"));
 const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
 const dynBtn = computeButtonNames(v2DynNames, browserLoader.dynPromptForcedPrefixDirs());
+const dynGroupSet = new Set(browserLoader.dynPromptGroupDirs());
+const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
 
-// v2 generators grouped into category-folder sections (plain-label pills + entries).
-const dynV2Items = () => {
+// Split v2 generators into full vs partial (user-submitted are always full).
+const v2Full = [];
+const v2Partial = [];
+for (const k of v2DynNames) {
+  const mod = browserLoader.loadDynamicPrompt(k);
+  ((mod && mod.full === true) || k.startsWith("v2/user/") ? v2Full : v2Partial).push(k);
+}
+
+// Folder-grouped items for a set of generator keys; the folder pill is a clickable
+// `{#folder}` group button when the folder is an implied group (2+ generators).
+const dynCatItems = (keys) => {
   const byFolder = new Map();
-  for (const k of v2DynNames) {
+  for (const k of keys) {
     const i = k.lastIndexOf("/");
     const folder = i < 0 ? "" : k.slice(0, i);
     if (!byFolder.has(folder)) byFolder.set(folder, []);
     byFolder.get(folder).push(k);
   }
-  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
   const cats = [...byFolder.entries()]
     .map(([folder, members]) => ({
       label: lastSeg(folder),
+      token: dynGroupSet.has(folder) ? `{#${lastSeg(folder)}}` : null,
       description: dpDescFor(folder),
       entries: members
         .map((k) => ({ token: `{#${dynBtn[k]}}`, label: dynBtn[k], description: dpDescFor(k) }))
@@ -116,10 +125,24 @@ const dynV2Items = () => {
     .sort((a, b) => compareNames(a.label, b.label));
   const out = [];
   for (const c of cats) {
-    out.push({ category: true, label: c.label, description: c.description }, ...c.entries);
+    const pill = { category: true, label: c.label, description: c.description };
+    if (c.token) pill.token = c.token;
+    out.push(pill, ...c.entries);
   }
   return out;
 };
+
+// The {#any} wildcard family — pick one random generator from the whole catalog.
+const dynWildcardItems = () => [
+  { category: true, label: "wildcard", description: "Pick one random generator from the whole catalog." },
+  { token: "{#any}", label: "any", description: "One random generator (SFW; +NSFW when adult is on)." },
+  { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
+  {
+    token: "{#any-nsfw}",
+    label: "any-nsfw",
+    description: "One random generator, including NSFW (adult mode only).",
+  },
+];
 
 // v1 generators: flat chips, addressed {#name-v1}.
 const dynV1Items = () =>
@@ -189,17 +212,16 @@ const listItems = () => {
   return out;
 };
 
-// Build the Expansions block as folder categories, mirroring the Lists block: an
-// alphabetical run of expansions per category folder, each preceded by a category pill
-// (the folder name + its description as the tooltip). Expansions are deterministic
-// copy/paste snippets, not random-draw lists, so the pills are plain labels (not
-// clickable groups). The button shows the shortest unambiguous token ({rays}-style),
-// and its `<name>.json` description becomes the tooltip.
+// Build the Expansions block as folder categories, mirroring the Lists block. A folder with
+// 2+ expansions is an implied group, so its category pill is clickable and inserts `<folder>`
+// — which splices ONE random expansion from that folder. Each entry shows the shortest
+// unambiguous token ({rays}-style) with its `<name>.json` description as the tooltip.
 const expDisplay = computeButtonNames(
   browserLoader.expansionNames(),
   browserLoader.expansionForcedPrefixDirs(),
 );
 const expDescFor = (n) => browserLoader.readExpansionMeta(n)?.description;
+const expGroupSet = new Set(browserLoader.expansionGroupDirs());
 const expansionItems = () => {
   const names = browserLoader.expansionNames();
   const byFolder = new Map();
@@ -209,11 +231,11 @@ const expansionItems = () => {
     if (!byFolder.has(folder)) byFolder.set(folder, []);
     byFolder.get(folder).push(n);
   }
-  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
   const cats = [];
   for (const [folder, members] of byFolder) {
     cats.push({
       label: lastSeg(folder),
+      token: expGroupSet.has(folder) ? `<${lastSeg(folder)}>` : null,
       description: expDescFor(folder),
       entries: members
         .map((n) => ({ token: `<${expDisplay[n]}>`, label: expDisplay[n], description: expDescFor(n) }))
@@ -223,28 +245,38 @@ const expansionItems = () => {
   cats.sort((a, b) => a.label.localeCompare(b.label));
   const out = [];
   for (const c of cats) {
-    out.push({ category: true, label: c.label, description: c.description }, ...c.entries);
+    const pill = { category: true, label: c.label, description: c.description };
+    if (c.token) pill.token = c.token;
+    out.push(pill, ...c.entries);
   }
   return out;
 };
 
 /**
- * @returns {object[]} The categorized building-block groups for the token cloud: one
- *   Dynamic prompts block (category folders + a v1/v2 toggle via `dynToggle`/`itemsV1`),
+ * @returns {object[]} The categorized building-block groups for the token cloud. The two
+ *   dynamic blocks (Dynamic prompts = full, Partial prompts = partial) are `dynVersioned`
+ *   and carry `variants.v2` / `variants.v1` for the navbar v1/v2 superset links; then
  *   Expansions, Lists, Special, plus the user's browser-local custom expansions.
  */
 export function getBlocks() {
   const blocks = [
     {
       title: "Dynamic prompts",
-      hint: "Run a generator script — {#name} (toggle v1/v2)",
-      dynToggle: true,
-      items: dynV2Items(),
-      itemsV1: dynV1Items(),
+      hint: "Full generator scripts — {#name} (a folder pill picks one at random)",
+      dynVersioned: true,
+      variants: { v2: [...dynWildcardItems(), ...dynCatItems(v2Full)], v1: dynV1Items() },
+      items: [],
+    },
+    {
+      title: "Partial prompts",
+      hint: "Garnish generators that complement other parts of a prompt",
+      dynVersioned: true,
+      variants: { v2: dynCatItems(v2Partial), v1: [] },
+      items: [],
     },
     {
       title: "Expansions",
-      hint: "Insert a fixed snippet (can contain prompts/lists)",
+      hint: "Insert a fixed snippet (a folder pill picks one at random)",
       items: expansionItems(),
     },
     { title: "Lists", hint: "A random entry from a list", items: listItems() },

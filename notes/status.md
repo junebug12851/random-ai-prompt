@@ -3,8 +3,16 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.4.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.5.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
+group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
+expansions (`<lighting>` splices one random expansion). Added the `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
+wildcard (one random generator from the whole catalog, `{keyword}`-style mode variants). Reworked the SPA
+navbar: **"Dynamic prompts" (full) and "Partial prompts" (partial)** tabs with clickable folder-group pills,
+and **v1/v2 superset links** on the navbar (v2 default) replacing the old inline toggle. The "pick one"
+always resolves to ONE concrete generator/snippet, never a line union.
 
 **Dynamic prompts (2.3.0 + 2.4.0):** `data/dynamic-prompts/` was brought to full parity with the
 list/expansion systems. **2.3.0:** the 79 v2 generators (+ the user-submitted one) were reorganized into

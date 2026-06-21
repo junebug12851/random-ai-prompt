@@ -51,12 +51,25 @@ were kept unique during the move, so every pre-existing `{#beach}` / `{#fx}` / `
 still resolves with no edits, and categories never have to be typed. The stage splits the catalog
 once per run into `v1/` (reached only via `{#name-v1}`) and the rest (v2, reached bare), resolving
 each against its own subset so `{#comic}` finds `v2/style/comic`, never `v1/comic`. `{#user-name}` is
-a back-compat alias that strips `user-` and resolves into `v2/user/`. There is no wildcard or
-`{#folder}` "random member" token — every `{#name}` names one specific generator. Gating is automatic
+a back-compat alias that strips `user-` and resolves into `v2/user/`. Gating is automatic
 by name token: `isGatedDynPrompt(name)` in
 [`gatedLists.js`](../../src/gatedLists.js) is true when the name carries an `nsfw` token, so such a
 generator resolves to "" (and is hidden in the picker) while `includeAdult` is off — the same rule
 lists/expansions use, no hardcoded list.
+
+## Pick-one groups + the `{#any}` wildcard (2.5.0)
+
+Like lists, a category folder with 2+ generators is an IMPLIED group, but the "pick one" picks one
+GENERATOR (not one word): `{#scene}` runs one random scene generator. `.group` files and
+`_enable/_disable-group-list` markers work too. Group dirs are added to the stage's resolution pool so a
+bare `{#scene}` suffix-matches `v2/scene`. The reserved `{#any}` wildcard
+([`dynPromptManifest.js`](../../src/dynPromptManifest.js)) picks one generator from the WHOLE v2 catalog,
+with the lists' `{keyword}`-style variants: `{#any}` = SFW (off) / +NSFW (on), `{#any-sfw}` = SFW always,
+`{#any-nsfw}` = nothing (off) / +NSFW (on). All picks are gate-aware (`hasNsfwToken`). Crucially these
+resolve to ONE concrete generator that is then run — never a union; the variant suffix is parsed only for
+`{#any}`, so a real nsfw-token generator name still resolves directly. Expansions get the same treatment:
+`<folder>` (or a `.group`) splices ONE random expansion from the folder (see
+[`expansions-architecture.md`](expansions-architecture.md)).
 
 ## Description sidecars + tooltips (ported from lists/expansions)
 
@@ -78,18 +91,18 @@ marker shows its path in the `{#token}`; the loaders expose `dynPromptForcedPref
 classifier/SPA feed it to `computeButtonNames`. No v2 folder is force-prefixed today (basenames
 are unique, so tokens are bare), but the machinery is wired for parity.
 
-## The UI: uniform category folders + a v1/v2 toggle (2.4.0)
+## The UI: Full / Partial tabs + v1/v2 superset links (2.5.0)
 
 The SPA ([`web-app/src/lib/promptEngine.js`](../../web-app/src/lib/promptEngine.js) `getBlocks` +
-[`Home.jsx`](../../web-app/src/components/Home.jsx)) presents dynamic prompts **uniformly** with
-Lists/Expansions: a single "Dynamic prompts" block whose entries are grouped under category-folder
-pills (scene/subject/fragment/style/engine/user), each `{#name}` chip carrying its sidecar tooltip.
-The folder pills are **plain labels, not clickable groups** — a dynamic prompt is a script with
-specific behavior, so there is no "insert a random member of this folder" action (owner's call). v1
-and v2 are collapsed into one block with a **v1/v2 toggle** on the header (`dynMode` state; `getBlocks`
-carries both `items` (v2) and `itemsV1`). The classifier [`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js)
-still classifies full/partial (for the `{#random}` suggestion builder) and applies the same
-name-token gating to its pools.
+[`Home.jsx`](../../web-app/src/components/Home.jsx)) splits dynamic prompts into two navbar tabs —
+**"Dynamic prompts"** (full generators) and **"Partial prompts"** (partials) — each grouped under
+category-folder pills. A folder pill is a **clickable group button** when the folder is an implied group
+(inserts `{#folder}` = a random generator of that folder); the `{#any}` family sits in a "wildcard" pill at
+the top of the full tab. **v1/v2 are superset links on the navbar** (`dynVer` state, v2 default): each
+dynamic block is `dynVersioned` and carries `variants.v2` / `variants.v1`, and the links switch the whole
+catalog (v1 is all-full, so its Partial tab is empty). The classifier
+[`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js) still classifies full/partial
+(for the `{#random}` suggestion builder) and applies the same name-token gating to its pools.
 
 ## Verification seam (important)
 
@@ -101,14 +114,13 @@ reorg (repointed to `../v2/subject/entity.js`).
 
 ## What was intentionally NOT ported
 
-- **Group entry lists / implied `{#folder}` groups AND a random-pick wildcard** — explicitly rejected
-  (owner, 2.4.0): a folder is organization only, never a "random member" pool, and there is no
-  catalog-wide random-pick token either, because a dynamic prompt is a script with a specific
-  input→output, not a list of words you pick an entry from. Every `{#name}` names one concrete
-  generator. No `.group` files, `_enable/_disable-group` markers, or `{#any}` wildcard.
 - **SFW/NSFW file splitting** — there is nothing to split (a generator is code, not lines); adult
   content is gated by the `nsfw` **name token** instead (see above), which is the portable half of
-  the list NSFW model.
+  the list NSFW model. The `{#any-sfw}` / `{#any-nsfw}` variants give the wildcard the same mode
+  semantics without any file split.
+- **List-style line unions for groups** — a `{#folder}` / `{#any}` group does NOT union members into a
+  pool of lines; it picks ONE member generator and runs it (the "pick one generator, not one word"
+  rule). See [`../decisions/rejected.md`](../decisions/rejected.md) for the back-and-forth that settled this.
 
 See [`../../data/dynamic-prompts/README.md`](../../data/dynamic-prompts/README.md) for the
 user-facing reference.

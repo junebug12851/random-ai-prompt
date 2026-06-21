@@ -12,8 +12,10 @@
 // `#name` is resolved by PATH SUFFIX (the same rule lists/expansions use) against the v2
 // catalog, so references stay short and folder-independent. `#name-v1` resolves against
 // the frozen v1/ tree; `#user-name` is a back-compat alias for the v2/user/ generators.
+import _ from "lodash";
 import { resolveName } from "../../listManifest.js";
-import { isGatedDynPrompt } from "../../gatedLists.js";
+import { isReservedAny, dynGroupMembers } from "../../dynPromptManifest.js";
+import { isGatedDynPrompt, hasNsfwToken } from "../../gatedLists.js";
 
 /**
  * Build the `#name` dynamic-prompt stage bound to a loader (loader-injected port;
@@ -45,18 +47,57 @@ export function makeDynamicPromptStage(loader) {
     const names = loader.dynamicPromptNames();
     const v1Names = names.filter((n) => n.startsWith("v1/"));
     const v2Names = names.filter((n) => !n.startsWith("v1/"));
+    const groupDirs = loader.dynPromptGroupDirs ? loader.dynPromptGroupDirs() : [];
+    // Group refs ({#scene}) are the folder's last segment; include the group-dir paths in
+    // the resolution pool so a bare ref suffix-matches "v2/scene".
+    const resolvePool = [...v2Names, ...groupDirs];
     const includeAdult = settings.includeAdult === true;
     // Gating: a generator whose name carries an `nsfw` token is hidden (empty) unless
     // adult is on — the same automatic rule lists/expansions use.
     const gateOk = (key) => includeAdult || !isGatedDynPrompt(key);
 
-    // Each {#name} names ONE specific generator script — there are no folder/wildcard
-    // "pick a random one of many" tokens (a dynamic prompt is a script, not a word pool).
+    // Pick ONE generator from a pool (a group's members, or the whole catalog for {#any}),
+    // honoring an explicit sfw/nsfw variant or the adult-mode default — the generator-level
+    // analog of the {keyword} wildcard's variant semantics.
+    function pickFrom(pool, variant) {
+      let ok;
+      if (variant === "sfw") ok = pool.filter((n) => !hasNsfwToken(n));
+      else if (variant === "nsfw")
+        ok = includeAdult ? pool : []; // -nsfw is nothing when adult off
+      else ok = includeAdult ? pool : pool.filter((n) => !hasNsfwToken(n));
+      const key = ok.length ? _.sample(ok) : null;
+      return key ? run(key, settings, imageSettings, upscaleSettings) : "";
+    }
+
     function expandV2(name) {
       name = name.replace(/-v2$/, "");
       if (name.startsWith("user-")) name = name.slice("user-".length); // back-compat alias
-      const canonical = resolveName(name, v2Names);
-      if (!gateOk(canonical)) return ""; // gated (nsfw) when adult is off
+
+      // {#any} family — one random generator from the WHOLE v2 catalog, with the optional
+      // -sfw/-nsfw variant (the only ref that takes a variant; a real generator's own
+      // nsfw-token name is resolved directly below).
+      if (isReservedAny(name)) {
+        const m = name.match(/-(sfw|nsfw)$/i);
+        return pickFrom(v2Names, m ? m[1].toLowerCase() : null);
+      }
+
+      const canonical = resolveName(name, resolvePool);
+
+      // Implied folder group ({#scene}) — pick one random member generator (gate-aware).
+      if (groupDirs.includes(canonical)) return pickFrom(dynGroupMembers(canonical, v2Names), null);
+
+      // Explicit `<name>.group` file — pick one random member.
+      const groupFile = loader.readDynPromptGroup ? loader.readDynPromptGroup(canonical) : null;
+      if (groupFile) {
+        const members = groupFile
+          .map((l) => l.replace(/\r$/, "").trim())
+          .filter((l) => l && !l.startsWith("#") && !l.startsWith("@"))
+          .map((l) => resolveName(l, v2Names));
+        return pickFrom(members, null);
+      }
+
+      // Direct generator — gated out (empty) when adult is off.
+      if (!gateOk(canonical)) return "";
       return run(canonical, settings, imageSettings, upscaleSettings);
     }
 

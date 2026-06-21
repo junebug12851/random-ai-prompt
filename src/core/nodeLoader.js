@@ -197,4 +197,38 @@ export const nodeLoader = {
   dynPromptForcedPrefixDirs() {
     return markedDirs("_force-prefix", dynPromptsRoot);
   },
+  // Implied-group folders for dynamic prompts: a v2 category folder with 2+ generators
+  // (so `{#scene}` picks one random scene generator), with enable/disable marker overrides.
+  dynPromptGroupDirs() {
+    return autoGroupListDirs(
+      namesUnder(dynPromptsRoot, /\.js$/).filter((n) => !n.startsWith("v1/")),
+      markedDirs("_enable-group-list", dynPromptsRoot),
+      markedDirs("_disable-group-list", dynPromptsRoot),
+    );
+  },
+  // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.
+  readDynPromptGroup(name) {
+    try {
+      return fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
+    } catch {
+      return null;
+    }
+  },
+  // Implied-group folders for expansions: a category folder with 2+ expansions (so `<scene>`
+  // splices one random scene expansion), with enable/disable marker overrides.
+  expansionGroupDirs() {
+    return autoGroupListDirs(
+      namesUnder(expansionsRoot, /\.txt$/),
+      markedDirs("_enable-group-list", expansionsRoot),
+      markedDirs("_disable-group-list", expansionsRoot),
+    );
+  },
+  // Lines of an explicit `<name>.group` expansion group file, or null when absent.
+  readExpansionGroup(name) {
+    try {
+      return fs.readFileSync(path.join(expansionsRoot, `${name}.group`), "utf8").split("\n");
+    } catch {
+      return null;
+    }
+  },
 };
