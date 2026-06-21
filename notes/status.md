@@ -3,7 +3,7 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.2.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.2.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
 **Expansions (2.2.0):** `data/expansions/` was brought to parity with the list system — the 9 snippets nest

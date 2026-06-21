@@ -70,8 +70,8 @@ function readListMeta(name) {
   }
 }
 
-// Folders (relative "/"-joined paths) that contain a given marker file.
-function markedDirs(marker) {
+// Folders (relative "/"-joined paths) under `base` that contain a given marker file.
+function markedDirs(marker, base = listsRoot) {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -80,13 +80,15 @@ function markedDirs(marker) {
     }
   };
   try {
-    walk(listsRoot, "");
+    walk(base, "");
   } catch {
     // ignore
   }
   return out;
 }
 const forcedPrefixDirs = () => markedDirs("_force-prefix");
+// Expansion folders marked `_force-prefix` (the prefix is shown/used, e.g. detail/legacy).
+const expansionForcedPrefixDirs = () => markedDirs("_force-prefix", expansionsRoot);
 
 // Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
 // Files starting with `_` are internal/config (markers etc.) and never lists.
@@ -165,6 +167,9 @@ export const nodeLoader = {
     } catch {
       return null;
     }
+  },
+  expansionForcedPrefixDirs() {
+    return expansionForcedPrefixDirs();
   },
   loadDynamicPrompt(key) {
     try {

@@ -97,7 +97,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <dap>";
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <legacy-detail>";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <detail/legacy>";
 
   return prompt;
 }

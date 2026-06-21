@@ -47,6 +47,9 @@ const expansionMetaModules = import.meta.glob("../../data/expansions/**/*.json",
   eager: true,
   import: "default",
 });
+const expForcePrefixFiles = import.meta.glob("../../data/expansions/**/_force-prefix", {
+  eager: true,
+});
 const presetModules = import.meta.glob("../../data/presets/*.json", {
   eager: true,
   import: "default",
@@ -104,12 +107,13 @@ for (const [path, obj] of Object.entries(metaModules)) {
 }
 
 // Folders (relative to data/lists) that contain a `_`-prefixed marker file.
-const markerDirs = (files, marker) =>
+const markerDirs = (files, marker, seg = "lists") =>
   Object.keys(files).map((p) => {
-    const i = p.indexOf("/lists/");
-    return p.slice(i + "/lists/".length).replace(new RegExp(`/${marker}$`), "");
+    const i = p.indexOf(`/${seg}/`);
+    return p.slice(i + `/${seg}/`.length).replace(new RegExp(`/${marker}$`), "");
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
+const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions");
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
@@ -166,6 +170,9 @@ export const browserLoader = {
   },
   readExpansionMeta(name) {
     return expansionMetaMap[name] ?? null;
+  },
+  expansionForcedPrefixDirs() {
+    return expForcedDirs;
   },
   loadDynamicPrompt(key) {
     return dynamicPrompts[key] ?? null;

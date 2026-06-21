@@ -33,7 +33,7 @@ named snippet):
 
 | Folder | What's in it |
 |--------|--------------|
-| `detail/` | Detail & quality boosters — `legacy-detail`, `legacy-person-detail` |
+| `detail/` | Detail & quality boosters — `legacy`, `legacy-person`. Marked `_force-prefix`, so these show/insert as `<detail/legacy>` (the folder supplies the "detail" context) |
 | `style/` | Rendering / art-site style tags — `pixelart`, `dap` |
 | `lighting/` | Lighting and atmosphere — `rays`, `candlelight` |
 | `subject/` | Subject snippets — `coffecup`, `flower-pic` |
@@ -61,6 +61,11 @@ Any file whose name starts with an underscore is **internal/config**, never an
 expansion — the loaders ignore `_`-prefixed files entirely (the same convention as
 `data/lists/`). They are plain files, not dotfiles, so Vite's `import.meta.glob` can see
 them in the SPA build.
+
+A folder containing an empty **`_force-prefix`** file shows/inserts its entries with the
+path from that folder down (e.g. `detail/` has one, so `legacy` shows as `<detail/legacy>`).
+This lets a short basename keep its folder for context instead of standing alone — the
+reference still resolves by suffix as usual, so the prefix is shown, not strictly required.
 
 ## Content
 

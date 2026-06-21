@@ -147,7 +147,10 @@ const listItems = () => {
 // copy/paste snippets, not random-draw lists, so the pills are plain labels (not
 // clickable groups). The button shows the shortest unambiguous token ({rays}-style),
 // and its `<name>.json` description becomes the tooltip.
-const expDisplay = computeButtonNames(browserLoader.expansionNames());
+const expDisplay = computeButtonNames(
+  browserLoader.expansionNames(),
+  browserLoader.expansionForcedPrefixDirs(),
+);
 const expDescFor = (n) => browserLoader.readExpansionMeta(n)?.description;
 const expansionItems = () => {
   const names = browserLoader.expansionNames();

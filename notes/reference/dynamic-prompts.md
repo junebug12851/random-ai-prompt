@@ -104,8 +104,10 @@ hand-authored lists (cities, building styles, rooms, clothes, etc.) live alongsi
 
 ## Expansions (`<name>`) the generators rely on
 
-`data/expansions/` holds the text macros generators splice in: `dap` (`deviantart, art station,
-pixiv`), `legacy-detail` (`masterpiece, highres, … HDR`), `rays` (`god ray, light shaft, volumetric
-lighting`), `legacy-person-detail`, `pixelart`, `candlelight`, `coffecup`, `flower-pic` (itself
+`data/expansions/` holds the text macros generators splice in (now nested into category folders, referenced
+by bare name via path-suffix resolution): `dap` (`deviantart, art station, pixiv`), `detail/legacy`
+(`masterpiece, highres, … HDR`; `detail/` is force-prefixed), `rays` (`god ray, light shaft, volumetric
+lighting`), `detail/legacy-person`, `pixelart`, `candlelight`, `coffecup`, `flower-pic` (itself
 `{flower}, {flower}, {artist}`), and `underwater-anime-irl` (which nests `#anime-irl`) — proof that
-expansions can themselves contain lists and dynamic prompts.
+expansions can themselves contain lists and dynamic prompts. See
+[`expansions-architecture.md`](expansions-architecture.md).

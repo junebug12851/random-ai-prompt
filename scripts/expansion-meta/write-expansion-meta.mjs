@@ -11,8 +11,8 @@ const root = path.join(import.meta.dirname, "..", "..", "data", "expansions");
 
 const D = {
   // detail / quality boosters
-  "detail/legacy-detail": "Quality boosters — masterpiece, high-res, hyper-detailed (legacy set).",
-  "detail/legacy-person-detail": "Highly detailed skin, for people (legacy).",
+  "detail/legacy": "Quality boosters — masterpiece, high-res, hyper-detailed (legacy set).",
+  "detail/legacy-person": "Highly detailed skin, for people (legacy).",
   // rendering / art-site style
   "style/pixelart": "Pixel-art look — low-res, simple, digital art.",
   "style/dap": "Art-site tags — DeviantArt, ArtStation, Pixiv.",
