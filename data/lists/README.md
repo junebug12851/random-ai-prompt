@@ -76,6 +76,15 @@ Example: `danbooru/d/general-sfw.txt` + `danbooru/d/general-nsfw.txt` →
 suffixes work on a group too (`{d-sfw}`, `{d-nsfw}`). A list that is
 entirely adult (e.g. `artist/nudity-nsfw`, `word/adult-nsfw`) is just one `-nsfw` file.
 
+## Reserved name: `keyword`
+
+`keyword` is a **reserved wildcard**, not a file. `{keyword}` draws a random word from
+**all loaded vocabulary** (every general list), mode-aware: SFW when adult is off,
+SFW+NSFW when on. `{keyword-sfw}` is always SFW; `{keyword-nsfw}` is the full set and is
+hidden when adult is off. It excludes the specialized `artist/*` and `danbooru/*`
+namespaces (those have their own modes). The name always supersedes any list literally
+called `keyword` — silently, no error. `keyword` is the default `keywordsFilename`.
+
 ## Content safety & gating
 
 Slurs, minor-sexualizing, and extreme shock/gore content are removed by
@@ -89,7 +98,7 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 |--------|--------------|
 | `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person; plus the groups `d` (everything, ref `{d}`), `keyword` (no artists), `character` |
 | `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary |
-| `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words) and `adult-nsfw` (gated sexual terms). Curated + dictionary merged. |
+| `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words), `language` (languages/scripts), and `adult-nsfw` (gated sexual terms). Curated + dictionary merged. |
 | `name/` | given-name, person, demonym, anime-name |
 | `place/` | city, place (countries/regions/landmarks) |
 | `lore/` | mythology, astronomy, religion, history, work, people-group |
@@ -98,7 +107,8 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 | `style/` | art-movement, art-technique, general-style, construct-style, building-style |
 | `scene/` | room, school-room, shed-type, ship-type, store-type, vehicle-type |
 | `brand/` | organization |
-| `keyword/` | keyword-sfw (small remainder — languages/scripts; ref `{keyword}`, the default keyword source), keyword-nsfw (gated) |
+
+(`keyword` is no longer a folder — it's the reserved wildcard described above.)
 
 See `../../notes/reference/list-architecture.md` for the full design, and
 `../../list-help.md` for a per-file description.

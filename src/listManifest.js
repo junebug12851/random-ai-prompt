@@ -92,6 +92,23 @@ const SFW_SUFFIX = /-sfw$/i;
 const NSFW_SUFFIX = /-nsfw$/i;
 
 /**
+ * Reserved wildcard base. `{keyword}` (and `{keyword-sfw}` / `{keyword-nsfw}`) are
+ * not files — they resolve to a random word drawn from ALL loaded vocabulary
+ * (mode-aware). The name is reserved: it always supersedes any list literally named
+ * `keyword`, silently (no error), the same way `nsfw` is a reserved filename token.
+ * @type {string}
+ */
+export const RESERVED_WILDCARD = "keyword";
+
+/**
+ * @param {string} name A reference (may carry a `-sfw`/`-nsfw` suffix).
+ * @returns {boolean} Whether it is the reserved `keyword` wildcard (any variant).
+ */
+export function isReservedWildcard(name) {
+  return String(name).replace(/-(sfw|nsfw)$/i, "") === RESERVED_WILDCARD;
+}
+
+/**
  * Read a plain list's SFW base lines. **Safety rule:** when a `<base>-nsfw` sibling
  * exists, a plain `<base>.txt` is IGNORED — the SFW source must be the explicit
  * `<base>-sfw.txt`. This enforces the naming split so a stray `<base>.txt` can never
@@ -152,6 +169,35 @@ export function resolveListLines(
     variant = "sfw";
   } else {
     variant = forced ?? (includeAdult ? "full" : "sfw");
+  }
+
+  // Reserved `keyword` wildcard: a random word from ALL general vocabulary, drawn
+  // mode-aware. Not a file — supersedes any list literally named `keyword`. Excludes
+  // the specialized artist/* and danbooru/* namespaces (they have their own modes),
+  // and of course excludes itself. `{keyword}` = SFW off / +NSFW on; `{keyword-sfw}`
+  // = SFW always; `{keyword-nsfw}` = SFW+NSFW (and invisible when adult is off, handled
+  // by the -nsfw suffix branch above).
+  if (base === RESERVED_WILDCARD) {
+    const out = [];
+    const seenLine = new Set();
+    const bases = new Set();
+    for (const n of readers.names) {
+      if (n.includes("artist") || n.startsWith("danbooru/")) continue;
+      if (readers.readGroupFile(n) != null) continue; // members covered via their lists
+      const b = n.replace(/-(sfw|nsfw)$/i, "");
+      if (b === RESERVED_WILDCARD) continue;
+      bases.add(b);
+    }
+    for (const b of bases) {
+      const lines = resolveListLines(b, readers, includeAdult, variant, depth + 1, seen) || [];
+      for (const l of lines) {
+        const t = l.replace(/\r$/, "");
+        if (t.trim() === "" || seenLine.has(t)) continue;
+        seenLine.add(t);
+        out.push(t);
+      }
+    }
+    return out;
   }
 
   // Re-resolve the (suffix-stripped) base to its canonical name, so an explicit
@@ -309,6 +355,9 @@ export function logicalListNames(physical) {
  */
 export function resolveName(ref, names) {
   if (!ref) return ref;
+  // Reserved `keyword` wildcard (any variant) supersedes everything — never resolve
+  // it to a file path (e.g. it must NOT match danbooru/d/keyword by suffix).
+  if (isReservedWildcard(ref)) return ref;
   if (names.includes(ref)) return ref; // exact path or virtual name
   const suffix = `/${ref}`;
   const matches = names.filter((n) => n.endsWith(suffix));

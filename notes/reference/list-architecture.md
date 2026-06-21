@@ -145,7 +145,17 @@ geologic eras, chemical symbols, month/day abbreviations, inflected junk). A sec
 354 entries to their proper lists (nature/animal, lore/mythology|astronomy|history|religion|people-group,
 place/place, name/person|given-name, style/art-movement, brand/organization, nature/flower|mythological-creature,
 look/hair|time|clothes-sfw, word/noun|adjective|verb), **dropped 219** junk entries (element symbols,
-abbreviations, inflected tech artifacts, fragments, units), and **kept 20** (languages/writing systems with
-no dedicated list). So `keyword-sfw.txt` went 593 → 20. NOTE: `keyword` is still the default
-`keywordsFilename` / `{keyword}` alias source — now thin; repointing the default to a richer list/group is an
-open follow-up.
+abbreviations, inflected tech artifacts, fragments, units), and **kept 20** (languages/writing systems).
+So `keyword-sfw.txt` went 593 → 20.
+
+### `keyword` is now a reserved wildcard
+
+After the second pass, `keyword` was promoted to a **reserved name** (`RESERVED_WILDCARD` in
+`listManifest.js`) — it is not a file. `{keyword}` resolves to a random word drawn from ALL loaded
+vocabulary, mode-aware (SFW when adult off, +NSFW on); `{keyword-sfw}` is always SFW; `{keyword-nsfw}` is
+the full set (gated). It excludes the specialized `artist/*` and `danbooru/*` namespaces. `resolveName`
+short-circuits the reserved name (so it never suffix-matches `danbooru/d/keyword`), and `resolveListLines`
+builds the union. The name always supersedes any file literally named `keyword`, silently. The 20 leftover
+languages moved to `word/language.txt`; the old `keyword-nsfw.txt` adult vocab merged into
+`word/adult-nsfw.txt`; the `keyword/` folder was deleted. `keyword` remains the default `keywordsFilename`,
+so the default generator now draws from the whole vocabulary.

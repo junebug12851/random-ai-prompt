@@ -171,10 +171,12 @@ function loadListFileList() {
  */
 function pickerListNames() {
   const names = requireLoader().listNames(); // logical names (base + -sfw/-nsfw variants)
-  if (adultAllowed()) return names; // show default + explicit SFW + explicit NSFW
+  // Reserved wildcard: {keyword} draws from all loaded vocabulary. Offered as a
+  // first-class button (its -sfw/-nsfw variants follow the same mode rules as files).
+  if (adultAllowed()) return ["keyword", "keyword-sfw", "keyword-nsfw", ...names];
   // Adult off: behave as if NSFW doesn't exist. Hide every `-nsfw` name and the
   // redundant `-sfw` variants, leaving just the bare/default names (which are SFW).
-  return names.filter((n) => !hasNsfwToken(n) && !hasVariantSuffix(n));
+  return ["keyword", ...names.filter((n) => !hasNsfwToken(n) && !hasVariantSuffix(n))];
 }
 
 /**
