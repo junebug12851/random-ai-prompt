@@ -78,6 +78,31 @@ defines the rule — no global spaces-vs-tabs mandate.)
   `{keyword}`/`{artist}`. Hand-written emphasis passes through verbatim: `(black background)`, `[[castle]]`.
 - `;` starts a comment to end of line.
 
+### Weights (v3 layers)
+
+Each line/section is a **layer** with a weight that sets its render order **within its container** (lower =
+earlier/leftmost). Weights are **local** — a layer never reorders its siblings or parent. Full model in
+[../plans/v3-layers.md](../plans/v3-layers.md).
+
+- **Auto:** a line with no weight starts at **1000**, and each following line takes the next number
+  (1001, 1002, …) within its section. So written order = render order **until** you override one.
+- **Explicit:** lead the line with the weight in **square brackets** — it comes first, before any gate/repeat:
+
+```
+[900] cinematic lighting         ; plain line at weight 900 → renders before the 1000+ lines
+- [50] 25% god rays              ; bullet: weight 50, 25% chance
+- [200] repeat 3 times: {star}   ; the repeated block sits at weight 200
+```
+
+- **On a section / its first line:** a weight there sets the **section's own** weight (its placement when it
+  is included).
+- **On a reference:** a call / insertion / jump carries a weight for its result — `- [200] +cave-type`,
+  `[100] go to Finish`, `- [300] insert js: ./detail.js`. **Precedence:** an explicit weight at the include
+  site overrides the section's declared weight, which overrides auto.
+- **Marker choice:** `[n]` is recommended (compact, reads like a tag). It only means "weight" as the
+  **leading** token; AUTOMATIC1111 brackets (`[deemph]`, `[a:b:n]`) and the salt literal `[1234567890]` live
+  *inside* payload text and pass through verbatim. Fallback if bracket overload bothers you: `@900`.
+
 ---
 
 ## 2. Probability & gating (the cheat-sheet)
@@ -475,9 +500,10 @@ file        := frontmatter? section+
 frontmatter := "---" NL (key ":" value NL)* "---" NL
 section     := TEXT NL "="{3,} NL line*            ; underline ≥3 '='
 line        := plain | bullet | flow
-plain       := TEXT                                ; always emitted
-flow        := "go to" NAME | "go back"
-bullet      := "-" [gate] [repeat] (":" NL block | choice | flow | payload)
+plain       := [weight] TEXT                       ; always emitted
+flow        := [weight] ("go to" NAME | "go back")
+bullet      := "-" [weight] [gate] [repeat] (":" NL block | choice | flow | payload)
+weight      := "[" INT "]"                         ; leading token only; auto-starts at 1000, +1 per line
 gate        := NUMBER "%" | "maybe" | NUMBER "% chance" | "otherwise" [gate]
 repeat      := "repeat" (INT | INT "to" INT) "times"
 choice      := ("one of" | INT "of" | INT "to" INT "of") ["(" NUMBER "% nothing)"] ":" NL block

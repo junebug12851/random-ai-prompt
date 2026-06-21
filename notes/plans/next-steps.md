@@ -34,19 +34,21 @@ Ordered, roughly by priority. Update as items are done or added.
    thing (full settings + auto-generation), not the old apply/save dropdown.
 6. **Optional: consider in-process generation** instead of the server-spawns-CLI design (see
    [`future.md`](future.md)).
-7. **DPL (Dynamic Prompt Language).** Design done — a Markdown-shaped, non-programmer-first language for
-   authoring `{#name}` generators, with a JavaScript escape hatch for the logic-heavy ~10% (the `entity`
-   family, the keyword-pile / suggestion / danbooru builtins). Full proposal + requirements coverage in
-   [`../reference/dpl-design.md`](../reference/dpl-design.md); mockup analysis in
-   [`../reference/dpl-language.md`](../reference/dpl-language.md). Next: settle the open questions (indentation
-   rule, `+name(args)` scope, file layout) and prototype a parser that compiles `.dpl` → the existing
-   generator contract, with the `.js`/`.dpl` loaders coexisting for incremental migration.
+7. **DPL (Dynamic Prompt Language) — the active next build.** Design done — a Markdown-shaped,
+   non-programmer-first language for authoring generators, with a two-way JS bridge for the logic-heavy ~10%
+   (the `entity` family, the keyword-pile / suggestion / danbooru builtins). Full proposal + requirements
+   coverage in [`../reference/dpl-design.md`](../reference/dpl-design.md); mockup analysis in
+   [`../reference/dpl-language.md`](../reference/dpl-language.md). **DPL is built first because it's wired into
+   the v3 engine** (item 8). Prototype a parser/compiler that turns `.dpl` → the weighted-layer render → the
+   existing generator contract, with `.js`/`.dpl` loaders coexisting for incremental migration. Most mechanics
+   are settled (weights `[n]` auto-from-1000, local recursive sort, `go to`/`go back`, `one of`/`N of`,
+   repetition modes); remaining: indentation strictness, exact `ctx` bridge surface, file layout.
 
-8. **v3 — the weighted-layer prompt engine.** Direction captured (exploratory) in
-   [`v3-layers.md`](v3-layers.md): replace ordering-by-position with ordering-by-weight over a layer tree
-   (file/section/line are layers; the prompt box is the root), retire the "full prompt" concept and have the
-   engine supply start/end blocks (likely via presets). DPL is its authoring language. Several mechanics still
-   open (weight scope, sort key, start/end UX). Shapes the DPL build (item 7) — settle these before coding.
+8. **v3 — the weighted-layer prompt engine.** Direction in [`v3-layers.md`](v3-layers.md): ordering-by-weight
+   over a layer tree (file/section/line are layers; the prompt box is the root); weights are **local** (sort
+   within container, recursive depth-first render, auto from 1000); retire the "full prompt" concept so the
+   engine — not each block — supplies start/end framing (delivery UX still open, likely presets). DPL (item 7)
+   is its authoring language and comes first. No de-duplication (non-goal).
 
 9. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
    flags benign init-then-overwrite patterns in `src/server.js` (×3), `src/web/backend/indexImages.js`

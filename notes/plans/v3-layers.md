@@ -81,18 +81,27 @@ prompt engine** itself rather than bolted on as string-rewriting stages.
 - **Weight scope = local.** Weights sort only within the containing layer; nothing propagates up; words never
   leave their layer. No global scale.
 - **Sort = recursive depth-first** — each layer orders its own children, renders contiguously.
-- **Auto weight** = next number after the previous line within the section; a section's placement weight comes
-  from its includer.
+- **Auto weight = starts at `1000`**, +1 per line within the section. So written order = render order until an
+  explicit weight overrides.
+- **Explicit weight = `[n]`** as the leading token of a line/ref (e.g. `[900]`, `[50]`), before any
+  gate/repeat. May also lead a section heading / first line to set the section's own weight. A reference
+  (`+name`, `insert`, `go to`, JS) carries a weight for its result; **include-site weight > section's declared
+  weight > auto**. (Fallback marker `@900` if brackets feel overloaded.)
 - **Tie-break** = document order (general default).
+- **No de-duplication** — a non-goal (see "Retiring full prompts").
+
+## Build order
+
+**DPL is implemented first** — it's the authoring layer wired *into* the v3 engine, so the parser/compiler and
+the weighted-layer render model come before the start/end UX. (Start/end blocks build on a working DPL.)
 
 ## Open questions (still to decide)
 
-1. **Auto-weight start value** — what number the first line of a section starts at, and whether explicit
-   weights and auto weights can collide (and if so, how — document order?).
-2. **Start/end UX** — preset vs 3 boxes vs settings page; how the engine is told which blocks are start/end.
-3. **Weight syntax in DPL** — how an explicit weight is written at the start of a line/block and how it
-   coexists with the gate/repeat prefixes (`25%`, `repeat …`).
-4. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
+1. **Start/end UX** — preset vs 3 boxes vs settings page; how the engine is told which blocks are start/end.
+   (Deferred until DPL exists.)
+2. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
+3. **Auto-weight collisions** — if an explicit `[n]` lands on an auto number, tie-break is document order;
+   confirm nothing else is needed.
 
 (De-duplication is **not** an open question — it is explicitly a non-goal; see "Retiring full prompts".)
 
