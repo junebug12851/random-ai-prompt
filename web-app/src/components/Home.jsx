@@ -202,53 +202,45 @@ export default function Home({ settings, setSettings }) {
         ) : (
           <>
             <nav className="cat-tabs">
-              {/* "Prompts" group: one v1/v2 superset switch (v2 default) over full/partial sub-tabs. */}
-              {filtered.some((b) => b.dynVersioned) && (
-                <div className="cat-group" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <div className="cat-group-head" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span className="cat-name">Prompts</span>
-                    <span className="ver-links" style={{ display: "inline-flex", gap: "2px" }}>
-                      {["v1", "v2"].map((v) => (
-                        <button
-                          key={v}
-                          className={`ver-link${dynVer === v ? " on" : ""}`}
-                          style={{ textTransform: "uppercase", fontWeight: 700, fontSize: "0.72em", opacity: dynVer === v ? 1 : 0.45, background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
-                          title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
-                          onClick={() => setDynVer(v)}
-                        >
-                          {v}
-                        </button>
-                      ))}
-                    </span>
-                  </div>
-                  <div className="cat-subtabs" style={{ display: "flex", gap: "4px", paddingLeft: "8px" }}>
-                    {filtered
-                      .filter((b) => b.dynVersioned)
-                      .map((b) => (
-                        <button
-                          key={b.title}
-                          className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
-                          onClick={() => setActiveCat(b.title)}
-                        >
-                          <span className="cat-name">{b.subLabel || b.title}</span>
-                          <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-              {filtered
-                .filter((b) => !b.dynVersioned)
-                .map((b) => (
-                  <button
-                    key={b.title}
-                    className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
-                    onClick={() => setActiveCat(b.title)}
-                  >
-                    <span className="cat-name">{b.title}</span>
-                    <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
-                  </button>
-                ))}
+              {(() => {
+                const rows = [];
+                let headDone = false;
+                for (const b of filtered) {
+                  // A single "Prompts" heading (with the v1/v2 superset switch) precedes the
+                  // full/partial sub-tabs; the sub-tabs are full-width rows, just indented.
+                  if (b.dynVersioned && !headDone) {
+                    headDone = true;
+                    rows.push(
+                      <div key="__prompts" className="cat-head">
+                        <span className="cat-name">Prompts</span>
+                        <span className="ver-links">
+                          {["v1", "v2"].map((v) => (
+                            <button
+                              key={v}
+                              className={`ver-link${dynVer === v ? " on" : ""}`}
+                              title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
+                              onClick={() => setDynVer(v)}
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </span>
+                      </div>,
+                    );
+                  }
+                  rows.push(
+                    <button
+                      key={b.title}
+                      className={`cat-tab${b.dynVersioned ? " sub" : ""}${active && active.title === b.title ? " on" : ""}`}
+                      onClick={() => setActiveCat(b.title)}
+                    >
+                      <span className="cat-name">{b.dynVersioned ? b.subLabel || b.title : b.title}</span>
+                      <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
+                    </button>,
+                  );
+                }
+                return rows;
+              })()}
             </nav>
 
             <div className="chip-area">

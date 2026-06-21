@@ -615,6 +615,42 @@ select {
   color: var(--accent);
 }
 
+/* "Prompts" section heading carrying the v1/v2 superset switch (a full-width row, not a tab) */
+.cat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.42rem 0.6rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fg-soft);
+}
+/* Sub-tabs (full / partial) sit full-width like the other tabs, just indented. */
+.cat-tab.sub {
+  padding-left: 1.5rem;
+}
+.ver-links {
+  flex: none;
+  display: inline-flex;
+  gap: 2px;
+}
+.ver-link {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.7rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+}
+.ver-link.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 /* Chips for the active category */
 .chip-area {
   flex: 1;
