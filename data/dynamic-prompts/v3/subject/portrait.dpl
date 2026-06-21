@@ -1,0 +1,11 @@
+---
+type: partial
+description: Portrait framing
+---
+Start
+===
+portrait
+- maybe: full body
+- otherwise: head and chest, upperbody
+- up-close
+- dynamic pose

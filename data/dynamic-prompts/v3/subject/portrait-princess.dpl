@@ -1,0 +1,16 @@
+---
+type: full
+description: A princess portrait
+---
+Start
+===
+{#portrait}, princess, royalty
+- maybe: girl
+- otherwise: woman
+- maybe: sceptor
+- otherwise 50% chance: staff
+- maybe: {#color} crown
+- otherwise 50% chance: {#color} tiara
+- {#color} robes
+
+{#expressive}, {#weather}

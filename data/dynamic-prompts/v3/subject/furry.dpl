@@ -1,0 +1,16 @@
+---
+type: full
+description: A furry animal character in clothing
+---
+Start
+===
+{animal}, furry
+- {#mystical}
+- {emotion}
+- in {style/general} clothing style
+- 50% repeat 0 to 5 times:
+    - one of:
+        - {#glow} {clothes}
+        - {#color} {clothes}
+- 10% {instrument}
+- {#weather}

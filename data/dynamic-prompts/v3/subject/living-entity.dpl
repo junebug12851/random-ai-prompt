@@ -1,0 +1,5 @@
+---
+type: partial
+description: A living entity (animal, character, creature, or person)
+script: living-entity.js
+---

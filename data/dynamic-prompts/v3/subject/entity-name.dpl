@@ -1,0 +1,5 @@
+---
+type: partial
+description: Just an entity name (no extras)
+script: entity-name.js
+---

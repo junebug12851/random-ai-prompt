@@ -1,0 +1,5 @@
+---
+type: partial
+description: A subject — animal, character, flower, instrument, creature, tree, or person
+script: entity.js
+---
