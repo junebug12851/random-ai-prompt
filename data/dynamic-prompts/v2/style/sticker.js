@@ -32,7 +32,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `die-cut sticker, cute kawaii, #entity sticker, white background, illustration minimalism, vector, pastel colors`;
+  return `die-cut sticker, cute kawaii, {#entity} sticker, white background, illustration minimalism, vector, pastel colors`;
 }
 
 export const full = true;

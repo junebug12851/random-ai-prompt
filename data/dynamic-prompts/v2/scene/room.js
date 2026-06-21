@@ -24,7 +24,7 @@
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  return `room, interrior, {room}, #room-state, #weather`;
+  return `room, interrior, {room}, {#room-state}, {#weather}`;
 }
 
 export const full = true;

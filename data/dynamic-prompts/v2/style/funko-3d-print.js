@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return "Funko pop #person figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
+  return "Funko pop {#person} figurine, made of plastic, product studio shot, on a white background, diffused lighting, centered";
 }
 
 export const full = true;

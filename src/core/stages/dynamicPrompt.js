@@ -12,7 +12,10 @@
 // `#name` is resolved by PATH SUFFIX (the same rule lists/expansions use) against the v2
 // catalog, so references stay short and folder-independent. `#name-v1` resolves against
 // the frozen v1/ tree; `#user-name` is a back-compat alias for the v2/user/ generators.
+import _ from "lodash";
 import { resolveName } from "../../listManifest.js";
+import { isReservedAny } from "../../dynPromptManifest.js";
+import { isGatedDynPrompt } from "../../gatedLists.js";
 
 /**
  * Build the `#name` dynamic-prompt stage bound to a loader (loader-injected port;
@@ -44,11 +47,26 @@ export function makeDynamicPromptStage(loader) {
     const names = loader.dynamicPromptNames();
     const v1Names = names.filter((n) => n.startsWith("v1/"));
     const v2Names = names.filter((n) => !n.startsWith("v1/"));
+    const includeAdult = settings.includeAdult === true;
+    // Gating: a generator whose name carries an `nsfw` token is hidden (empty) unless
+    // adult is on — the same automatic rule lists/expansions use.
+    const gateOk = (key) => includeAdult || !isGatedDynPrompt(key);
 
     function expandV2(name) {
       name = name.replace(/-v2$/, "");
       if (name.startsWith("user-")) name = name.slice("user-".length); // back-compat alias
-      return run(resolveName(name, v2Names), settings, imageSettings, upscaleSettings);
+
+      // {#any} wildcard: run ONE random generator from the whole v2 catalog (gate-aware).
+      // (Folders are organization only — there is no `{#folder}` "random member" group;
+      // dynamic prompts are scripts with specific behavior, not word pools.)
+      if (isReservedAny(name)) {
+        const ok = v2Names.filter(gateOk);
+        return ok.length ? run(_.sample(ok), settings, imageSettings, upscaleSettings) : "";
+      }
+
+      const canonical = resolveName(name, v2Names);
+      if (!gateOk(canonical)) return ""; // gated (nsfw) when adult is off
+      return run(canonical, settings, imageSettings, upscaleSettings);
     }
 
     function expandV1(name) {
@@ -60,12 +78,16 @@ export function makeDynamicPromptStage(loader) {
     }
 
     const includedArtists =
-      prompt.includes("#artists") || prompt.includes("artist") || imageSettings.autoIncludedArtists;
-    const includedFx = prompt.includes("#fx") || imageSettings.autoIncludedFx;
+      prompt.includes("{#artists}") ||
+      prompt.includes("artist") ||
+      imageSettings.autoIncludedArtists;
+    const includedFx = prompt.includes("{#fx}") || imageSettings.autoIncludedFx;
 
+    // Dynamic prompts are written `{#name}` (brace-delimited, uniform with `{list}` and
+    // `<expansion>`, and able to carry `/` paths like `{#scene/beach}`).
     const maxCount = 10;
-    for (let i = 0; i < maxCount && /#([\w\-_]+)/gm.test(prompt); i++) {
-      prompt = prompt.replaceAll(/#([\w\-_]+)/gm, (match, p1) =>
+    for (let i = 0; i < maxCount && prompt.includes("{#"); i++) {
+      prompt = prompt.replaceAll(/\{#([\w/-]+)\}/g, (match, p1) =>
         p1.endsWith("-v1") ? expandV1(p1) : expandV2(p1),
       );
     }

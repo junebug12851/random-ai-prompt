@@ -28,9 +28,9 @@ import _ from "lodash";
 export default function () {
   let prompt = "";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` #neon`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` {#neon}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` #neon`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ` {#neon}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += " {size}";
 

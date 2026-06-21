@@ -1,46 +1,51 @@
 # Dynamic prompts
 
-Each `.js` here is a **dynamic prompt**: a tiny generator function referenced in a prompt as
-`#name`. Unlike a list (one random entry from a file) or an expansion (a fixed snippet), a
+Each `.js` here is a **dynamic prompt**: a tiny generator script referenced in a prompt as
+`{#name}`. Unlike a list (one random entry from a file) or an expansion (a fixed snippet), a
 dynamic prompt **runs code** to build a fragment — usually probabilistic accretion (start from
 a base phrase, then append fragments under independent coin-flips), freely mixing literal text
-with nested `#other`, `{list}`, and `<expansion>` tokens that the engine then resolves.
+with nested `{#other}`, `{list}`, and `<expansion>` tokens that the engine then resolves.
 
 ## How to reference a dynamic prompt
 
-Write `#name` in a prompt. The name is resolved against the **v2** catalog by **path suffix** —
-the same rule lists and expansions use — so you almost never type the category folder:
+Write `{#name}` in a prompt — brace-delimited, uniform with `{list}` and `<expansion>`, and able
+to carry `/` paths. (The old bare `#name` is no longer recognized; the braces also stop a stray
+`#` in normal text from being eaten.) The name is resolved against the **v2** catalog by **path
+suffix** — the same rule lists and expansions use — so you almost never type the category folder:
 
-- **Bare name** — `#beach` → `v2/scene/beach`
-- **Short / partial path** — `#scene/beach`
-- **Full path** — `#v2/scene/beach`
+- **Bare name** — `{#beach}` → `v2/scene/beach`
+- **Short / partial path** — `{#scene/beach}`
+- **Full path** — `{#v2/scene/beach}`
 
 Resolution is deterministic: an exact path wins; otherwise any file whose path ends with
 `/<your-ref>` matches; among matches the **shallowest** path wins, ties broken by a guaranteed
 natural order (symbols, then numbers, then letters). Basenames are kept unique, so a bare
-`#name` always resolves.
+`{#name}` always resolves.
 
 Special suffixes/aliases:
 
-- **`#name-v1`** → the frozen original under `v1/` (see below).
-- **`#name-v2`** → forces the v2 form (the default; the suffix is just explicit).
-- **`#user-name`** → back-compat alias for a community generator under `v2/user/`.
+- **`{#name-v1}`** → the frozen original under `v1/` (see below).
+- **`{#name-v2}`** → forces the v2 form (the default; the suffix is just explicit).
+- **`{#user-name}`** → back-compat alias for a community generator under `v2/user/`.
+- **`{#any}`** → a reserved wildcard: run ONE random generator from the whole v2 catalog.
 
 ## Folders
 
-`v2/` holds the current generators, sorted into category folders purely for organization
-(suffix resolution means the category never has to be typed):
+`v2/` holds the current generators, sorted into category folders **purely for organization**
+(suffix resolution means the category never has to be typed). A folder is **not** a group — there
+is no `{#folder}` "random member" token, because a dynamic prompt is a script with specific
+behavior, not a word pool you draw a random entry from:
 
 | Folder | What's in it |
 |--------|--------------|
 | `v2/scene/` | Full standalone scenes & places — `city`, `castle`, `beach`, `landscape`, `room`, `space`, `ship`, … |
 | `v2/subject/` | Subjects — the `entity` polymorphism, `person`, `animal`, `knight`, the `portrait-*` family, … |
-| `v2/fragment/` | Partial modifiers / garnishes composed into fulls — `color`, `glow`, `weather`, `nature`, `fx`-style accents, … |
+| `v2/fragment/` | Partial modifiers / garnishes composed into fulls — `color`, `glow`, `weather`, `nature`, … |
 | `v2/style/` | Art-style & product-render templates (mostly publicprompts.art) — the `3d-*` set, `comic`, `sticker`, `funko-3d-print`, … |
 | `v2/engine/` | Random generators + the auto-append / special composites — `random`, `random-prompt`, `artists`, `fx`, `danbooru` |
-| `v2/user/` | Community-submitted generators (`#user-name`) |
+| `v2/user/` | Community-submitted generators (`{#user-name}`) |
 
-`v1/` is the **frozen** original monolithic set (addressed `#name-v1`). v1 generators bake in
+`v1/` is the **frozen** original monolithic set (addressed `{#name-v1}`). v1 generators bake in
 fx/artists/color and are kept verbatim so old looks stay reproducible — leave them as-is.
 
 ## Full vs partial
@@ -48,8 +53,14 @@ fx/artists/color and are kept verbatim so old looks stay reproducible — leave 
 `export const full = true` marks a generator that stands alone as a complete scene; its absence
 marks a **partial** fragment meant to garnish other prompts. `export const suggestion_exclude`
 keeps a valid prompt out of random suggestions. These flags (read by
-`src/promptFilesAndSuggestions.js`) drive `#random` suggestions and the web editor's
-Full / Partial / User / V1 sections.
+`src/promptFilesAndSuggestions.js`) drive `{#random}` suggestions and the web editor's dynamic
+sections.
+
+## Adult gating
+
+A generator whose name carries an `nsfw` token (e.g. `subject/nude-nsfw`) is automatically gated:
+while `includeAdult` is off it is hidden from the picker and resolves to nothing — the same
+name-token rule lists and expansions use (no hardcoded list to maintain).
 
 ## Metadata (`<name>.json`)
 
@@ -80,7 +91,7 @@ shown, not strictly required.
 /** @returns {string} */
 export default function (settings, imageSettings, upscaleSettings) {
   let prompt = "city, streetview, {city}";
-  if (Math.random() < 0.5) prompt += ", #weather";
+  if (Math.random() < 0.5) prompt += ", {#weather}";
   return prompt;
 }
 export const full = true; // omit for a partial fragment

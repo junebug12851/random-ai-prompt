@@ -39,15 +39,15 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", walkway";
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#ice}`;
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #room-state`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#room-state}`;
 
-  prompt += `, #wildlife, #water, #nature, #weather`;
+  prompt += `, {#wildlife}, {#water}, {#nature}, {#weather}`;
 
   return prompt;
 }

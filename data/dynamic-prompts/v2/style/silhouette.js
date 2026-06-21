@@ -37,7 +37,7 @@ export default function (settings) {
 
   // Start with base prompt
   let prompt =
-    "Multiple layers of silhouette #entity-name, with silhouette of #entity-name, sharp edges, at";
+    "Multiple layers of silhouette {#entity-name}, with silhouette of {#entity-name}, sharp edges, at";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += " {time}";
   else prompt += " sunset";

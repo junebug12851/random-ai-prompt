@@ -27,7 +27,7 @@ import _ from "lodash";
  */
 export default function () {
   // Start with base prompt
-  let prompt = `#portrait, princess, royalty`;
+  let prompt = `{#portrait}, princess, royalty`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", girl";
   else prompt += ", woman";
@@ -35,12 +35,12 @@ export default function () {
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", sceptor";
   else if (_.random(0.0, 1.0, true) < 0.5) prompt += ", staff";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color crown`;
-  else if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color tiara`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} crown`;
+  else if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} tiara`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color robes`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} robes`;
 
-  prompt += `, #expressive, #weather`;
+  prompt += `, {#expressive}, {#weather}`;
 
   return prompt;
 }

@@ -38,11 +38,11 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cozy";
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #room-state`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#room-state}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 

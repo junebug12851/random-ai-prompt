@@ -35,17 +35,17 @@ export default function (settings) {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color {hair}`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} {hair}`;
 
   const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 
   for (let i = 0; i < clothingCount; i++) {
-    prompt += `, #color {clothes}`;
+    prompt += `, {#color} {clothes}`;
   }
 
   if (_.random(0.0, 1.0, true) < 0.1) prompt += ", {instrument}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#weather}`;
 
   // Start with base prompt
   prompt += `, laurie greasley, studio ghibli, akira toriyama, james gilleard, genshin impact, acrylic palette knife, vibrant colors, low details`;

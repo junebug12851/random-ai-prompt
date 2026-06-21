@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return "Tiny cute isometric #room in a cutaway box, soft smooth lighting, soft colors, {color} color scheme, soft colors, 100mm lens, 3d blender render";
+  return "Tiny cute isometric {#room} in a cutaway box, soft smooth lighting, soft colors, {color} color scheme, soft colors, 100mm lens, 3d blender render";
 }
 
 export const full = true;

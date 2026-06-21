@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return "100mm photo of isometric floating island in the sky, surreal, city, #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+  return "100mm photo of isometric floating island in the sky, surreal, city, {#nature}, {#weather}, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 }
 
 export const full = true;

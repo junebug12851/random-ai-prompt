@@ -58,13 +58,13 @@ export default function (settings) {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", hyperrealistic";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", #mystical";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {#mystical}";
 
-  prompt += `, #landscape`;
+  prompt += `, {#landscape}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", [[castle]]";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", #general-state";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {#general-state}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", victorian";
 

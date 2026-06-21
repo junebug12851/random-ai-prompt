@@ -31,7 +31,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
-  prompt += `, #nature, #weather`;
+  prompt += `, {#nature}, {#weather}`;
 
   return prompt;
 }

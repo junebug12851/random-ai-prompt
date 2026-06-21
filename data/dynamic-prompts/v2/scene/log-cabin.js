@@ -37,15 +37,15 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cliff";
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, {#ice}`;
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, #wildlife`;
+  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, {#wildlife}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #water`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#water}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", path";
 
@@ -53,9 +53,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", weathered";
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", #room-state";
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += ", {#room-state}";
 
-  prompt += ", #nature, #weather, wide shot, upclose, <dap>";
+  prompt += ", {#nature}, {#weather}, wide shot, upclose, <dap>";
 
   return prompt;
 }

@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `Tiny cute isometric #entity soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered`;
+  return `Tiny cute isometric {#entity} soft smooth lighting, with soft colors, 100mm lens, 3d blender render, trending on polycount, modular constructivism, blue background, physically based rendering, centered`;
 }
 
 export const full = true;

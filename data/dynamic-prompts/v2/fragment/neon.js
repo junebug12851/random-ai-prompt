@@ -26,6 +26,6 @@ import _ from "lodash";
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  if (_.random(0.0, 1.0, true) < 0.5) return "#glow";
-  else return `neon #glow`;
+  if (_.random(0.0, 1.0, true) < 0.5) return "{#glow}";
+  else return `neon {#glow}`;
 }

@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `kawaii low poly, #entity, 3d isometric render, white background, ambient occlusion, unity engine`;
+  return `kawaii low poly, {#entity}, 3d isometric render, white background, ambient occlusion, unity engine`;
 }
 
 export const full = true;

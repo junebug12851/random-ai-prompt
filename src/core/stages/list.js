@@ -51,6 +51,9 @@ export function makeListStage(store) {
 
   return function list(prompt, settings) {
     return prompt.replaceAll(/\{(.*?)\}/gm, (match, p1) => {
+      // `{#name}` is a dynamic-prompt token (handled by the dynamic-prompt stage), not a
+      // list — leave any stray one intact rather than mis-pulling a list named "#name".
+      if (p1.startsWith("#")) return match;
       if (p1 == settings.artistFilename || p1.includes("artist"))
         return sampleFile(p1, settings, false);
       return sampleFile(p1, settings, settings.keywordEmphasis);

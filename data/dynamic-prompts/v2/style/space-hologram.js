@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `hologram of a #entity floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
+  return `hologram of a {#entity} floating in space, a vibrant digital illustration, dribbble, quantum wavetracing, black background, behance hd`;
 }
 
 export const full = true;

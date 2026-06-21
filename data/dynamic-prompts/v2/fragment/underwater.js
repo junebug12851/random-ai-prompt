@@ -34,13 +34,13 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", aquatic life";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color reef`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} reef`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color coral`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} coral`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color starfish`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} starfish`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color fish`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} fish`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", bioluminescent";
 

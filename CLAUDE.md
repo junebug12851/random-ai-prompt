@@ -59,10 +59,13 @@ The full notes system is in `notes/`, organized by topic:
   and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
 - **Dynamic prompts live under `data/dynamic-prompts/` (the documented `src/`→`data/` exception),
   organized into `v2/<category>/` with `v1/` frozen.** As of 2.3.0 the v2 generators are sorted into
-  category folders (`v2/{scene,subject,fragment,style,engine,user}/`) and `#name` is resolved by **path
-  suffix** (the shared `resolveName`, same as lists/expansions), so bare references stay short and
-  folder-independent. `#name-v1` resolves against the frozen `v1/` tree; `#user-name` is a back-compat
-  alias for `v2/user/`. The **active** resolver is the core engine: `src/core/stages/dynamicPrompt.js`
+  category folders (`v2/{scene,subject,fragment,style,engine,user}/`) and as of 2.4.0 are written
+  **`{#name}`** (brace-delimited like `{list}`/`<expansion>`; the bare `#name` form is gone — folders are
+  organization only, **never** `{#folder}` groups). `{#name}` resolves by **path suffix** (the shared
+  `resolveName`, same as lists/expansions), so refs stay short and folder-independent. `{#name-v1}`
+  resolves against the frozen `v1/` tree; `{#user-name}` is a back-compat alias for `v2/user/`; `{#any}`
+  is a reserved wildcard (one random generator). NSFW gating is automatic by name token
+  (`isGatedDynPrompt`). The **active** resolver is the core engine: `src/core/stages/dynamicPrompt.js`
   (suffix resolution; splits v1 vs v2) over the two isomorphic loaders — `src/core/nodeLoader.js` (fs +
   `createRequire`) and `src/core/browserLoader.js` (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
   The classic pipeline `src/prompt-modules/dynamic-prompt.js` and `src/server.js` are **read-only legacy

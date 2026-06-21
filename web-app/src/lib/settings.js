@@ -20,7 +20,7 @@ const STORAGE_KEY = "rap.settings.v2";
  */
 export const defaultSettings = {
   // Prompt
-  prompt: "#random",
+  prompt: "{#random}",
   promptCount: 1,
   mode: "StableDiffusion", // StableDiffusion | NovelAI | Midjourney
 

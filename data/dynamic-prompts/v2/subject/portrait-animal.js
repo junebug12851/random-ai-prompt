@@ -26,13 +26,13 @@ import _ from "lodash";
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  let prompt = `(((#animal))), portrait`;
+  let prompt = `((({#animal}))), portrait`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", up-close";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dynamic pose";
 
-  prompt += ", #weather";
+  prompt += ", {#weather}";
 
   return prompt;
 }

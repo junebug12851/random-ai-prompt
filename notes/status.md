@@ -3,17 +3,20 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.3.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.4.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
-**Dynamic prompts (2.3.0):** `data/dynamic-prompts/` was brought to parity with the list/expansion systems.
-The 79 v2 generators (+ the user-submitted one) were reorganized into category folders under a new `v2/`
-root (`scene`/`subject`/`fragment`/`style`/`engine`/`user`), with `v1/` left frozen; `#name` now resolves by
-**path suffix** (shared `resolveName`, so every existing reference still works), each generator/folder has a
-`<name>.json` description sidecar, and `_`-internal / `_force-prefix` / `compareNames` sorting are wired. The
-SPA token cloud keeps its Full/Partial/User/V1 sections but gained description tooltips, natural-order
-sorting, and shortest-`#token` display. Only the **new** engine (core loaders/stage, classifier, SPA) was
-touched — the classic server + `prompt-modules/dynamic-prompt.js` are read-only legacy reference. See
+**Dynamic prompts (2.3.0 + 2.4.0):** `data/dynamic-prompts/` was brought to full parity with the
+list/expansion systems. **2.3.0:** the 79 v2 generators (+ the user-submitted one) were reorganized into
+category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`engine`/`user`), `v1/` left
+frozen; resolution by **path suffix**, `<name>.json` description sidecars, `_`-internal / `_force-prefix` /
+`compareNames`. **2.4.0:** the sigil became **`{#name}`** (brace-delimited like `{list}`/`<expansion>`,
+`/`-path capable; bare `#name` retired — 204 internal refs migrated, v1 untouched); automatic NSFW gating
+by name token (`isGatedDynPrompt`); a reserved **`{#any}`** wildcard; tag metadata
+(`src/dynPromptManifest.js`); and a **uniform SPA** — one Dynamic-prompts block with category-folder pills
+(plain labels — folders are organization, **not** groups: a generator is a script, not a word pool) and a
+**v1/v2 toggle**. Only the **new** engine (core loaders/stage, classifier, SPA) was touched — the classic
+server + `prompt-modules/` are read-only legacy reference. See
 [`reference/dynamic-prompts-architecture.md`](reference/dynamic-prompts-architecture.md).
 
 **Expansions (2.2.0):** `data/expansions/` was brought to parity with the list system — the 9 snippets nest

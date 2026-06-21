@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return "Retro comic style artwork, highly detailed #entity, comic book cover, symmetrical, vibrant";
+  return "Retro comic style artwork, highly detailed {#entity}, comic book cover, symmetrical, vibrant";
 }
 
 export const full = true;

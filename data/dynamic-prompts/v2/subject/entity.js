@@ -60,7 +60,7 @@ export default function (settings, imageSettings, upscaleSettings, specificEntit
       human = true;
       break;
     case 2:
-      prompt += `#color {flower}`;
+      prompt += `{#color} {flower}`;
       break;
     case 3:
       prompt += `{instrument}`;
@@ -80,13 +80,13 @@ export default function (settings, imageSettings, upscaleSettings, specificEntit
 
   if (_.random(0.0, 1.0, true) < 0.5 && emotion && !nameOnly) prompt += ", {emotion}";
 
-  if (_.random(0.0, 1.0, true) < 0.5 && human && !nameOnly) prompt += `, #color {hair}`;
+  if (_.random(0.0, 1.0, true) < 0.5 && human && !nameOnly) prompt += `, {#color} {hair}`;
 
   const clothingCount =
     _.random(0.0, 1.0, true) < 0.5 && human && !nameOnly ? _.random(0, 5, false) : 0;
 
   for (let i = 0; i < clothingCount; i++) {
-    prompt += `, #color {clothes}`;
+    prompt += `, {#color} {clothes}`;
   }
 
   return prompt;

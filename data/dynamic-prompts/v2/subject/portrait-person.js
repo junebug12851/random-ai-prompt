@@ -27,7 +27,7 @@ import _ from "lodash";
  */
 export default function () {
   // Start with base prompt
-  let prompt = `#portrait, #person, #expressive, #weather`;
+  let prompt = `{#portrait}, {#person}, {#expressive}, {#weather}`;
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", {instrument}";
 

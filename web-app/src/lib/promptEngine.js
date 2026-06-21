@@ -14,7 +14,7 @@ import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
 import { browserLoader } from "../../../src/core/browserLoader.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
-import { computeButtonNames, compareNames, resolveName } from "../../../src/listManifest.js";
+import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
 import { getCustomExpansions, getCustomPresets } from "./customStore.js";
 
 // Composite loader: custom expansions (localStorage) shadow/extend the bundled
@@ -78,23 +78,65 @@ export function expandPrompt(prompt, settings) {
 
 // ---- Building blocks (the "keyword cloud"), categorized like the original ----
 
-const dyn = promptFiles.loadDynPromptList(); // { fullRegular, partialRegular, userFiles, v1Files }
+// Populate the classifier pools (used by the {#random-prompt} suggestion builder).
+promptFiles.loadAll();
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
-// Dynamic prompts now live under data/dynamic-prompts/v2/<category>/ (v1/ frozen). The
-// SPA keeps the behavior-based sections (Full / Partial / User / V1) rather than folder
-// pills, but — like the Lists/Expansions blocks — each entry gets a description tooltip
-// (from its <name>.json sidecar), natural-order sorting, and the shortest #token.
-const v2DynNames = browserLoader.dynamicPromptNames().filter((n) => !n.startsWith("v1/"));
+// Dynamic prompts live under data/dynamic-prompts/v2/<category>/ (v1/ frozen). The SPA
+// shows them uniformly with Lists/Expansions: category folders (scene/subject/fragment/
+// style/engine/user) as headers, each entry a `{#name}` chip with its <name>.json
+// description tooltip, natural-order sorted. Folders are organization only — the pills are
+// plain labels, NOT clickable groups (a dynamic prompt is a script with specific behavior,
+// not a word pool you draw a random member from). v1 and v2 are one block toggled in the UI.
+const allDynNames = browserLoader.dynamicPromptNames();
+const v2DynNames = allDynNames.filter((n) => !n.startsWith("v1/"));
+const v1DynNames = allDynNames.filter((n) => n.startsWith("v1/"));
 const dpDescFor = (key) => browserLoader.readDynPromptMeta(key)?.description;
-// Build {token, label, description} items for a section, sorted by natural order. `keyOf`
-// maps a section token back to its canonical catalog key for the sidecar lookup.
-const dynItems = (tokens, keyOf) =>
-  tokens
-    .slice()
-    .sort(compareNames)
-    .map((t) => ({ token: `#${t}`, label: label(t), description: dpDescFor(keyOf(t)) }));
+const dynBtn = computeButtonNames(v2DynNames, browserLoader.dynPromptForcedPrefixDirs());
+
+// v2 generators grouped into category-folder sections (plain-label pills + entries),
+// prefixed by the {#any} wildcard.
+const dynV2Items = () => {
+  const byFolder = new Map();
+  for (const k of v2DynNames) {
+    const i = k.lastIndexOf("/");
+    const folder = i < 0 ? "" : k.slice(0, i);
+    if (!byFolder.has(folder)) byFolder.set(folder, []);
+    byFolder.get(folder).push(k);
+  }
+  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
+  const cats = [...byFolder.entries()]
+    .map(([folder, members]) => ({
+      label: lastSeg(folder),
+      description: dpDescFor(folder),
+      entries: members
+        .map((k) => ({ token: `{#${dynBtn[k]}}`, label: dynBtn[k], description: dpDescFor(k) }))
+        .sort((a, b) => compareNames(a.label, b.label)),
+    }))
+    .sort((a, b) => compareNames(a.label, b.label));
+  const out = [
+    { category: true, label: "wildcard" },
+    {
+      token: "{#any}",
+      label: "any",
+      description: "Run one random generator from the whole catalog.",
+    },
+  ];
+  for (const c of cats) {
+    out.push({ category: true, label: c.label, description: c.description }, ...c.entries);
+  }
+  return out;
+};
+
+// v1 generators: flat chips, addressed {#name-v1}.
+const dynV1Items = () =>
+  v1DynNames
+    .map((k) => {
+      const base = k.slice("v1/".length);
+      return { token: `{#${base}-v1}`, label: base, description: dpDescFor(k) };
+    })
+    .sort((a, b) => compareNames(a.label, b.label));
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -195,21 +237,18 @@ const expansionItems = () => {
 };
 
 /**
- * @returns {object[]} The categorized building-block groups for the token cloud
- *   (full / partial dynamic prompts, expansions, lists, user, v1, special, plus the
- *   user's browser-local custom expansions).
+ * @returns {object[]} The categorized building-block groups for the token cloud: one
+ *   Dynamic prompts block (category folders + a v1/v2 toggle via `dynToggle`/`itemsV1`),
+ *   Expansions, Lists, Special, plus the user's browser-local custom expansions.
  */
 export function getBlocks() {
   const blocks = [
     {
-      title: "Full dynamic prompts",
-      hint: "Stand on their own around a theme",
-      items: dynItems(dyn.fullRegular, (t) => resolveName(t, v2DynNames)),
-    },
-    {
-      title: "Partial dynamic prompts",
-      hint: "Complement other parts of a prompt",
-      items: dynItems(dyn.partialRegular, (t) => resolveName(t, v2DynNames)),
+      title: "Dynamic prompts",
+      hint: "Run a generator script — {#name} (toggle v1/v2)",
+      dynToggle: true,
+      items: dynV2Items(),
+      itemsV1: dynV1Items(),
     },
     {
       title: "Expansions",
@@ -217,15 +256,6 @@ export function getBlocks() {
       items: expansionItems(),
     },
     { title: "Lists", hint: "A random entry from a list", items: listItems() },
-    {
-      title: "User dynamic prompts",
-      items: dynItems(dyn.userFiles, (t) => `v2/user/${t.slice("user-".length)}`),
-    },
-    {
-      title: "V1 dynamic prompts",
-      hint: "Legacy themed prompts",
-      items: dynItems(dyn.v1Files, (t) => `v1/${t.replace(/-v1$/, "")}`),
-    },
     { title: "Special", items: [{ token: "{salt}", label: "Force salt here" }] },
   ];
 

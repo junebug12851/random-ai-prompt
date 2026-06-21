@@ -37,7 +37,7 @@ export default function (settings) {
   // Start with base prompt
   let prompt = `Closeup face portrait of a`;
 
-  prompt += ` #person, #expressive, #weather`;
+  prompt += ` {#person}, {#expressive}, {#weather}`;
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", {instrument}";
 

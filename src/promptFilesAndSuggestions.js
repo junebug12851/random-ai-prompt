@@ -6,7 +6,7 @@
 import _ from "lodash";
 
 import cleanup from "./prompt-modules/cleanup.js";
-import { isGatedList, hasNsfwToken, gatedDynPrompts } from "./gatedLists.js";
+import { isGatedList, hasNsfwToken, isGatedDynPrompt } from "./gatedLists.js";
 import { hasVariantSuffix, computeButtonNames } from "./listManifest.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
@@ -228,11 +228,11 @@ function prePrompt(maxCount) {
   // Randomly add stuff to the start of the prompt
   if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, <${_.sample(expansionFiles)}>`;
 
-  const partialPool = gatePool(partialNoArtistFx, (n) => gatedDynPrompts.includes(n));
+  const partialPool = gatePool(partialNoArtistFx, isGatedDynPrompt);
   const listPool = gatePool(listFilesNoArtist, isGatedList);
 
   for (let i = 0; i < maxCount; i++) {
-    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, #${_.sample(partialPool)}`;
+    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {#${_.sample(partialPool)}}`;
 
     if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {${_.sample(listPool)}}`;
   }
@@ -251,7 +251,7 @@ function promptSuggestion(full) {
   let ret = "";
 
   // Keep gated (adult) dynamic prompts out unless explicitly enabled
-  const fullPool = gatePool(fullDynPrompt, (n) => gatedDynPrompts.includes(n));
+  const fullPool = gatePool(fullDynPrompt, isGatedDynPrompt);
 
   let maxOptions = full == true ? 3 : 0;
   let maxCount = full == true ? 3 : 1;
@@ -259,19 +259,19 @@ function promptSuggestion(full) {
   switch (_.random(0, maxOptions, false)) {
     // Option 0: Pick 1 full dynamic prompt
     case 0:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)}`;
+      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}}`;
       break;
 
     case 1:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :1.1`;
+      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :1.1`;
       break;
 
     case 2:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.75 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :1.1 AND ${prePrompt(maxCount)}, #${_.sample(fullPool)} :0.50`;
+      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :1.1 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.50`;
       break;
 
     case 3:
-      ret = `${prePrompt(maxCount)}, #${_.sample(fullPool)}, ${prePrompt(maxCount)}, #${_.sample(fullPool)}`;
+      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}}, ${prePrompt(maxCount)}, {#${_.sample(fullPool)}}`;
       break;
   }
 

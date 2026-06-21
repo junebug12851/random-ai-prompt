@@ -41,12 +41,12 @@ export default function () {
         prompt += ", astronaut";
         break;
       case 1:
-        prompt += `, #portrait-person`;
+        prompt += `, {#portrait-person}`;
         break;
     }
   }
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #ship`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#ship}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", satellite";
 
@@ -64,22 +64,22 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cosmos";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color ${maybeAddSize()} sun`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} ${maybeAddSize()} sun`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color ${maybeAddSize()} moon`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} ${maybeAddSize()} moon`;
 
   if (_.random(0.0, 1.0, true) < 0.5) {
     switch (_.random(0, 1, false)) {
       case 0:
-        prompt += `, #color ${maybeAddSize()} planet`;
+        prompt += `, {#color} ${maybeAddSize()} planet`;
         break;
       case 1:
-        prompt += `, #color ${maybeAddSize()} {planet}`;
+        prompt += `, {#color} ${maybeAddSize()} {planet}`;
         break;
     }
   }
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color ${maybeAddSize()} star`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} ${maybeAddSize()} star`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shooting star";
 
@@ -113,7 +113,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", beautiful";
 
-  prompt += `, #mystical`;
+  prompt += `, {#mystical}`;
 
   return prompt;
 }

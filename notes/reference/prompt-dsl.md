@@ -6,8 +6,9 @@ each owning one sigil. This page documents the language and its randomization ma
 **micro** systems. For the macro flow see [`../systems/overview.md`](../systems/overview.md); for the
 build history that produced it see [`../context/history.md`](../context/history.md).
 
-The canonical implementation is `src/prompt-modules/*` (the Node CLI/server pipeline). `src/core/` is a
-later browser-safe re-port of the *same* stages behind an injected loader — same syntax, same math; see
+The **active** implementation is the loader-injected `src/core/` engine (used by the SPA and the shared
+pipeline); `src/prompt-modules/*` is the original Node CLI/server pipeline, now **frozen legacy reference**
+(being replaced — don't maintain it). Same syntax, same math; see
 [`../systems/core-engine.md`](../systems/core-engine.md).
 
 ## The pipeline order
@@ -28,9 +29,9 @@ function loaded by config-driven path from `src/prompt-modules/`.
 
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
-| `<name>` | `expansion.js` | `data/expansions/name.txt` | Splice the file's text in verbatim. |
-| `#name` | `dynamic-prompt.js` | `data/dynamic-prompts/name.js` | Call the plugin's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. |
-| `{name}` | `list.js` | `data/lists/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
+| `<name>` | `expansion.js` | `data/expansions/**/name.txt` | Splice the file's text in verbatim. |
+| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v2/<cat>/name.js` | Call the generator's `default(settings, imageSettings, upscaleSettings)`; insert its returned string. (`{#any}` = a random generator; `{#name-v1}` = frozen v1.) |
+| `{name}` | `list.js` | `data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
 ### `<expansion>` — recursive text macros
@@ -41,22 +42,30 @@ each pass the stage renames `<lora:` → `%%lora:` (a sentinel that the `<...>` 
 restores it at the end. This lets LoRA tags live inside expansions, even deeply nested, without being
 treated as expansion names.
 
-### `#dynamic-prompt` — JS plugin generators
+### `{#name}` — JS generator scripts
 
-`dynamic-prompt.js` re-expands up to **10 passes** while any `#word` remains. Each plugin is a tiny JS
-module that returns a prompt fragment, usually itself full of `{list}` / `#other` / `<expansion>`
-tokens — e.g. `city.js` returns `"city, streetview, {city}, …, #nature, #weather, …"`. Conventions:
+The dynamic-prompt stage (`src/core/stages/dynamicPrompt.js`) re-expands up to **10 passes** while any
+`{#…}` remains. The sigil is **brace-delimited** (`{#name}`, uniform with `{list}` / `<expansion>`, and
+able to carry `/` paths like `{#scene/beach}`); a bare `#` in plain text is never touched. Each generator
+is a tiny JS module that returns a prompt fragment, usually itself full of `{list}` / `{#other}` /
+`<expansion>` tokens — e.g. `city.js` returns `"city, streetview, {city}, …, {#nature}, {#weather}, …"`.
+`{#name}` resolves by **path suffix** against the v2 catalog (so the category folder is invisible);
+folders are organization only — there is **no** `{#folder}` "random member" group (a generator is a
+script with specific behavior, not a word pool). Conventions:
 
 - **`export default function (...) { return "…" }`** — required.
 - **`export const full = true`** — this prompt is a complete scene (vs. a partial fragment). Drives
-  `promptSuggestion()` and the web UI pickers (see the dynamic-prompt classification section below).
+  `promptSuggestion()` and the web UI sections (see the dynamic-prompt classification section below).
 - **`export const suggestion_exclude = true`** — valid prompt, but keep it out of random suggestions.
-- **Variant namespaces:** `#name-v1` loads from `data/dynamic-prompts/v1/` (an older, frozen generation —
-  always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes those in).
-  `#user-foo` loads from `data/dynamic-prompts/user-submitted/foo.js` (community contributions, always
-  `full`).
-- **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `#fx`,
-  one is appended; same for `#artists` via `autoAddArtists`. The "already included" check also trips on
+- **Variant namespaces / aliases:** `{#name-v1}` loads from `data/dynamic-prompts/v1/` (an older, frozen
+  generation — always treated as `full`, and forces `autoAddFx`/`autoAddArtists` off because v1 bakes
+  those in). `{#user-foo}` is a back-compat alias for `data/dynamic-prompts/v2/user/foo.js` (community
+  contributions, always `full`). `{#any}` is a reserved wildcard — run one random generator from the whole
+  v2 catalog.
+- **Gating:** a generator whose name carries an `nsfw` token is hidden (resolves to "") unless
+  `includeAdult` is on — the same automatic name-token rule lists/expansions use (`isGatedDynPrompt`).
+- **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `{#fx}`,
+  one is appended; same for `{#artists}` via `autoAddArtists`. The "already included" check also trips on
   any literal `artist` substring or the per-batch `autoIncludedFx/Artists` flags (which exist to stop
   fx/artists being appended to *every* image in a batch — see the `delete` at the end of
   `processBatch`).
@@ -137,15 +146,15 @@ coin flip, `random(minArtist, maxArtist)` copies.
 commas and rejoin dropping empty segments, and fix `AND,` → `AND` (a recurring offender from
 AND-composition in suggestions). Output is the finished AUTOMATIC1111 prompt string.
 
-## Dynamic-prompt classification and `#random`
+## Dynamic-prompt classification and `{#random}`
 
 `src/promptFilesAndSuggestions.js` is loader-injected (fs loader in Node, Vite-glob loader in the
 browser). It reads every dynamic-prompt key and splits them into **full** vs **partial** (by the `full`
 export), tracks `suggestion_exclude`, and special-cases the `v1/` and `user-submitted/` namespaces. From
 those buckets it builds:
 
-- **`promptSuggestion(full)`** — the engine behind `#random`. Optionally prepends a `prePrompt`
-  (random `<expansion>`, `#partial`, `{list}` garnish at ~25% each) and composes 1–3 full prompts,
+- **`promptSuggestion(full)`** — the engine behind `{#random}`. Optionally prepends a `prePrompt`
+  (random `<expansion>`, `{#partial}`, `{list}` garnish at ~25% each) and composes 1–3 full prompts,
   sometimes AND-weighted (`… :0.75 AND … :1.1 AND … :0.50`) for blended scenes.
 - The web UI's **file pickers** (`/api/files/dynamic-prompts|expansions|lists|presets`) and the
   building-blocks cloud.
@@ -154,11 +163,11 @@ those buckets it builds:
 
 | Concern | File |
 |---------|------|
-| Pipeline driver | `src/common.js` (`processBatch`) |
-| Stages | `src/prompt-modules/{expansion,dynamic-prompt,prompt-salt,list,cleanup}.js` |
-| List store (in-memory, depletion, aliases) | `src/helpers/listFiles.js`, `src/helpers/aliases.js` |
+| Pipeline driver (active) | `src/core/engine.js` (`createEngine`); `src/common.js` `processBatch` is legacy |
+| Stages (active) | `src/core/stages/{expansion,dynamicPrompt,list}.js` + `prompt-salt.js`/`cleanup.js`; `src/prompt-modules/*` is frozen legacy reference |
+| List store (in-memory, depletion, aliases) | `src/core/listStore.js`; `src/helpers/listFiles.js` (legacy) |
 | Randomization | `src/helpers/random{Emphasis,Editing,Alternating}.js`, `keywordRepeater.js` |
-| Plugins | `data/dynamic-prompts/*.js` (+ `v1/`, `user-submitted/`) |
-| Content | `data/lists/*.txt`, `data/expansions/*.txt`, `data/presets/*.json` |
+| Generators | `data/dynamic-prompts/v2/<cat>/*.js` (+ `v1/` frozen) |
+| Content | `data/lists/**/*.txt`, `data/expansions/**/*.txt`, `data/presets/*.json` |
 | Classification / suggestions | `src/promptFilesAndSuggestions.js` |
-| Browser re-port | `src/core/engine.js`, `src/core/stages/*` |
+| Resolution manifests | `src/listManifest.js`, `src/dynPromptManifest.js`, `src/gatedLists.js` |

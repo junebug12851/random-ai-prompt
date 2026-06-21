@@ -35,7 +35,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `2d ferocious #living-entity vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
+  return `2d ferocious {#living-entity} vector illustration, angry eyes, football team emblem logo, 2d flat, centered`;
 }
 
 export const full = true;

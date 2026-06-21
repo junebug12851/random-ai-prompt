@@ -35,7 +35,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `cute kawaii Squishy #living-entity plush toy, realistic texture, visible stitch line, soft smooth lighting, vibrant studio lighting, modular constructivism, physically based rendering, square image`;
+  return `cute kawaii Squishy {#living-entity} plush toy, realistic texture, visible stitch line, soft smooth lighting, vibrant studio lighting, modular constructivism, physically based rendering, square image`;
 }
 
 export const full = true;

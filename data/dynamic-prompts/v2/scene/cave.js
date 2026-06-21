@@ -38,16 +38,16 @@ export default function () {
   if (_.random(0.0, 1.0, true) < 0.5) {
     switch (_.random(0, 4, false)) {
       case 0:
-        prompt += `, sea cave, #underwater`;
+        prompt += `, sea cave, {#underwater}`;
         break;
       case 1:
-        prompt += `, lava cave, #lava`;
+        prompt += `, lava cave, {#lava}`;
         break;
       case 2:
-        prompt += `, ice cave, #ice`;
+        prompt += `, ice cave, {#ice}`;
         break;
       case 3:
-        prompt += `, crystal cave, #crystal`;
+        prompt += `, crystal cave, {#crystal}`;
         break;
     }
   }
@@ -60,15 +60,15 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", structures";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color crystal`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} crystal`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color gemstone`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} gemstone`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", stalagmite";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", stalactite";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", #settlement";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {#settlement}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", tunnels";
 
@@ -76,7 +76,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {color}";
 
-  prompt += `, #nature, #wildlife, #water, #eerie, #mystical, #weather`;
+  prompt += `, {#nature}, {#wildlife}, {#water}, {#eerie}, {#mystical}, {#weather}`;
 
   return prompt;
 }

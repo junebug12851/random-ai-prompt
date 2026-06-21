@@ -22,8 +22,8 @@
 import _ from "lodash";
 
 function maybeGlow() {
-  if (_.random(0.0, 1.0, true) < 0.5) return "#glow";
-  else return "#color";
+  if (_.random(0.0, 1.0, true) < 0.5) return "{#glow}";
+  else return "{#color}";
 }
 
 // rabbit in Egyptian clothing style, highly detailed, digital painting, arts station, concept art, soft, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
@@ -39,7 +39,7 @@ export default function (settings) {
 
   let prompt = `{animal}, furry`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#mystical}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
@@ -53,7 +53,7 @@ export default function (settings) {
 
   if (_.random(0.0, 1.0, true) < 0.1) prompt += ", {instrument}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#weather}`;
 
   return prompt;
 }

@@ -69,7 +69,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {size} ";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", dirty";
 
@@ -115,15 +115,15 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/general}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #wildlife`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#wildlife}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#ice}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#mystical}`;
 
-  prompt += `, #nature, #weather`;
+  prompt += `, {#nature}, {#weather}`;
 
   return prompt;
 }

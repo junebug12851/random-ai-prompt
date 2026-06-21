@@ -28,7 +28,7 @@ function winterBeach() {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", snowy beach";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, (#ice)`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, ({#ice})`;
 
   return prompt;
 }
@@ -72,13 +72,13 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {size} waves";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #nature`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#nature}`;
 
-  prompt += `, #city, #weather`;
+  prompt += `, {#city}, {#weather}`;
 
   return prompt;
 }

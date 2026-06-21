@@ -33,7 +33,7 @@ export default function () {
 
   // Add in flowers
   for (let i = 0; i < flowerCount; i++) {
-    prompt += `, #color {flower}`;
+    prompt += `, {#color} {flower}`;
   }
 
   // Add in trees
@@ -43,9 +43,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", vines";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color plants`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} plants`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color vegetation`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color} vegetation`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", lush";
 

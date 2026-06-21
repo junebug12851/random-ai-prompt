@@ -45,9 +45,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ancient";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", (#glow)";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ({#glow})";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", (#neon)";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", ({#neon})";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", night";
 
@@ -55,39 +55,39 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", mecha";
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #crystal`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#crystal}`;
 
   // Chance to include a person or animal
   if (_.random(0.0, 1.0, true) < 0.35) {
-    prompt += ", #portrait-person";
+    prompt += ", {#portrait-person}";
 
     if (_.random(0.0, 1.0, true) < 0.5) prompt += ", solo";
 
     data.weather = true;
     data.animal = true;
   } else if (_.random(0.0, 1.0, true) < 0.35) {
-    prompt += ", #portrait-animal";
+    prompt += ", {#portrait-animal}";
     data.weather = true;
   }
 
   // Don't include both ruins and city
   if (_.random(0.0, 1.0, true) < 0.15) {
-    prompt += `, #ruins`;
+    prompt += `, {#ruins}`;
     data.eerie = true;
     data.mystical = true;
     data.weather = true;
   } else if (_.random(0.0, 1.0, true) < 0.35) {
-    prompt += `, #city`;
+    prompt += `, {#city}`;
     data.weather = true;
   }
 
-  if (_.random(0.0, 1.0, true) < 0.2 && !data.animal) prompt += `, #animal`;
+  if (_.random(0.0, 1.0, true) < 0.2 && !data.animal) prompt += `, {#animal}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35 && !data.eerie) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.eerie) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35 && !data.mystical) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.mystical) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35 && !data.weather) prompt += `, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.35 && !data.weather) prompt += `, {#weather}`;
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", artifact";
 

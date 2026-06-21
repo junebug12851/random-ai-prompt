@@ -35,7 +35,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return "tiny cute #entity toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
+  return "tiny cute {#entity} toy, standing character, soft smooth lighting, soft pastel colors, skottie young, 3d blender render, polycount, modular constructivism, pop surrealism, physically based rendering, square image";
 }
 
 export const full = true;

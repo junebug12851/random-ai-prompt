@@ -27,13 +27,13 @@ import _ from "lodash";
  */
 export default function () {
   // Start with base prompt
-  let prompt = `#underwater, landscape, #water, #mystical`;
+  let prompt = `{#underwater}, landscape, {#water}, {#mystical}`;
 
   if (_.random(0.0, 1.0, true) < 0.25) prompt += ", dolphin";
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", whale";
 
-  prompt += `, #nature, #weather`;
+  prompt += `, {#nature}, {#weather}`;
 
   return prompt;
 }

@@ -33,7 +33,7 @@ export default function (settings) {
   settings.autoAddFx = false;
 
   // Start with base prompt
-  return `Hypnotic illustration of a #entity hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
+  return `Hypnotic illustration of a {#entity} hypnotic psychedelic art by Dan Mumford, pop surrealism, dark glow neon paint, mystical, Behance`;
 }
 
 export const full = true;

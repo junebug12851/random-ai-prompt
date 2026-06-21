@@ -40,7 +40,7 @@ export default function (settings) {
   if (_.random(0.0, 1.0, true) < 0.25) prompt += ", mountains";
 
   prompt +=
-    ", #nature, #weather, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
+    ", {#nature}, {#weather}, intricate, high detail, behance, microworlds smooth, macro sharp focus, centered";
 
   return prompt;
 }

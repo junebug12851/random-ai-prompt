@@ -70,21 +70,21 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.25) prompt += ", hill";
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, {#ice}`;
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#mystical}`;
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += `, water`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", bioluminescent";
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", #glow";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#glow}";
 
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", #glow";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#glow}";
 
-  prompt += `, #nature, #weather, <dap>`;
+  prompt += `, {#nature}, {#weather}, <dap>`;
 
   return prompt;
 }

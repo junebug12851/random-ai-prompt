@@ -290,10 +290,10 @@ export default async function (prompt, _index, _total, settings, _imageSettings,
   // Add fx and artists if they were automatically added
   // Skip if the orignal prompt already exists and skip if this is a random prompt
   if (imageSettings.autoIncludedFx && !settings.randomPrompt && !settings.origPrompt)
-    info.origPrompt += ", #fx";
+    info.origPrompt += ", {#fx}";
 
   if (imageSettings.autoIncludedArtists && !settings.randomPrompt && !settings.origPrompt)
-    info.origPrompt += ", #artists";
+    info.origPrompt += ", {#artists}";
 
   // Save random prompt
   if (settings.randomPrompt) info.origRandomPrompt = settings.randomPrompt;

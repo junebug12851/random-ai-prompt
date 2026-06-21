@@ -45,19 +45,19 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", rock";
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, #ice`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, winter, snow landscape, {#ice}`;
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #settlement`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#settlement}`;
 
-  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, #eerie`;
+  if (_.random(0.0, 1.0, true) < 0.2) prompt += `, {#eerie}`;
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#mystical}`;
 
-  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, #wildlife`;
+  if (_.random(0.0, 1.0, true) < 0.3) prompt += `, {#wildlife}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #water`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#water}`;
 
-  prompt += `, #nature, #weather`;
+  prompt += `, {#nature}, {#weather}`;
 
   return prompt;
 }

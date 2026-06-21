@@ -25,7 +25,7 @@
  */
 export default function () {
   // Start with base prompt
-  return "((zoo)), exhibit, (({animal})), #water, #nature, #weather";
+  return "((zoo)), exhibit, (({animal})), {#water}, {#nature}, {#weather}";
 }
 
 export const full = true;

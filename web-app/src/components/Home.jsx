@@ -63,6 +63,7 @@ export default function Home({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
+  const [dynMode, setDynMode] = useState("v2"); // "v2" | "v1" for the Dynamic prompts block
   const [expName, setExpName] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
@@ -84,7 +85,7 @@ export default function Home({ settings, setSettings }) {
   useEffect(() => {
     const roll = () => {
       try {
-        setSuggestion(generatePrompt({ ...settingsRef.current, prompt: "#random" }));
+        setSuggestion(generatePrompt({ ...settingsRef.current, prompt: "{#random}" }));
       } catch {
         /* engine not ready — skip this tick */
       }
@@ -109,7 +110,7 @@ export default function Home({ settings, setSettings }) {
   function buildPrompts() {
     setError("");
     try {
-      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "#random" };
+      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "{#random}" };
       setPrompts(generatePrompts(base));
     } catch (e) {
       setError(e.message || String(e));
@@ -178,12 +179,22 @@ export default function Home({ settings, setSettings }) {
   }
   const filtered = blocks
     .map((b) => ({ ...b, items: filterItems(b.items) }))
-    .filter((b) => b.items.some((i) => !i.category));
+    .filter(
+      (b) =>
+        b.items.some((i) => !i.category) ||
+        (b.dynToggle && filterItems(b.itemsV1 || []).some((i) => !i.category)),
+    );
 
   // The active category (falls back to the first available when the current
   // selection is filtered away or unset).
   const active = filtered.find((b) => b.title === activeCat) || filtered[0] || null;
-  const activeItems = active ? active.items : [];
+  // The Dynamic prompts block carries both variants; show the one the v1/v2 toggle selects.
+  const activeItems =
+    active && active.dynToggle && dynMode === "v1"
+      ? filterItems(active.itemsV1 || [])
+      : active
+        ? active.items
+        : [];
 
   return (
     <div className="workspace">
@@ -213,6 +224,21 @@ export default function Home({ settings, setSettings }) {
 
             <div className="chip-area">
               {active && active.hint && <p className="cat-hint">{active.hint}</p>}
+              {active && active.dynToggle && (
+                <div className="dyn-toggle" style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+                  {["v2", "v1"].map((m) => (
+                    <button
+                      key={m}
+                      className={`chip${dynMode === m ? " on" : ""}`}
+                      style={{ textTransform: "uppercase", fontWeight: 600, opacity: dynMode === m ? 1 : 0.55 }}
+                      title={m === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
+                      onClick={() => setDynMode(m)}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="picker-list">
                 {activeItems.slice(0, 400).map((i, idx) =>
                   i.category ? (

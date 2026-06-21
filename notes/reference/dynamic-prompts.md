@@ -1,6 +1,6 @@
 # Reference — The dynamic-prompt catalog & data-build pipeline
 
-The `#name` generators in `data/dynamic-prompts/` are where most of the original creative effort went:
+The `{#name}` generators in `data/dynamic-prompts/` are where most of the original creative effort went:
 ~113 little plugins that each return a prompt fragment, composed through the DSL
 ([prompt-dsl.md](prompt-dsl.md)). This page is the **catalog and authoring idiom** — how the generators
 are built, how they compose, the v1→v2 story, and how the word-lists they pull from are generated from
@@ -8,7 +8,7 @@ raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the
 [../systems/core-engine.md](../systems/core-engine.md).
 
 As of **2.3.0** the v2 generators are sorted into category folders under `data/dynamic-prompts/v2/`
-(`scene` / `subject` / `fragment` / `style` / `engine` / `user`), `v1/` stays frozen, and `#name` resolves
+(`scene` / `subject` / `fragment` / `style` / `engine` / `user`), `v1/` stays frozen, and `{#name}` resolves
 by **path suffix** (shared `resolveName`) so every reference stays short and category-independent. The full
 parity design (sidecars, `_force-prefix`, the verification seam) is in
 [dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).
@@ -24,19 +24,20 @@ text with nested DSL tokens. E.g. `city.js`:
 let prompt = "city, streetview, {city}";
 if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
 if (_.random(0.0, 1.0, true) < 0.5) prompt += ", cityscape";
-prompt += ", #nature, #weather, reflective street, wide shot";
+prompt += ", {#nature}, {#weather}, reflective street, wide shot";
 return prompt;            // export const full = true
 ```
 
 Because the output is re-fed through the pipeline (expansion/dynamic-prompt run twice, then list), a
-generator freely emits `#other-prompt`, `{list}`, and `<expansion>` tokens and lets the engine resolve
-them. This is the composition backbone: **full** scene prompts pull in **partial** helpers.
+generator freely emits `{#other-prompt}`, `{list}`, and `<expansion>` tokens and lets the engine resolve
+them. This is the composition backbone: **full** scene prompts pull in **partial** helpers. (The sigil is
+brace-delimited `{#name}` as of 2.4.0 — see [dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).)
 
 ## Full vs partial (the classification that drives everything)
 
 `export const full = true` marks a prompt that stands alone as a complete scene; its absence marks a
 **partial** fragment meant to garnish other prompts. `promptFilesAndSuggestions.js` reads this flag to
-split the catalog, and it drives both `#random`-style suggestions and the web Generate page's grouped
+split the catalog, and it drives both `{#random}`-style suggestions and the web Generate page's grouped
 token picker ("Full Dynamic Prompts" vs "Partial Dynamic Prompts"). `suggestion_exclude` keeps a valid
 prompt out of random suggestions.
 
@@ -55,43 +56,43 @@ prompt out of random suggestions.
 instrument, mythological creature, tree, person} and optionally adds emotion/hair/clothes for humanlike
 results, gated by an entity-class filter. Thin wrappers specialize it: `animal.js` (`"animal"`),
 `person.js` (`"human"`), `living-entity.js` (`"living"`), `entity-name.js` (name-only). The
-publicprompts.art templates embed `#entity` / `#person` / `#living-entity` / `#entity-name` as their
+publicprompts.art templates embed `{#entity}` / `{#person}` / `{#living-entity}` / `{#entity-name}` as their
 "`<name>`" slot, so one template yields wildly different subjects each run.
 
 ## The three random engines
 
 | Prompt | File | Behavior |
 |--------|------|----------|
-| `#random` (the default `settings.prompt`) | `v2/engine/random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
+| `{#random}` (the default `settings.prompt`) | `v2/engine/random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
 | composite suggestion | `v2/engine/random-prompt.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
 | simple suggestion | `v2/engine/simple-random-prompt.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
 | total-random dict | `v2/engine/extra-random-prompt.js` | Forces `keywordsFilename`/`artistFilename = false` then runs the random prompt — any list, maximum chaos. |
 
-`v2/engine/artists.js` and `v2/engine/fx.js` are the two prompts the pipeline **auto-appends** (`#artists`,
-`#fx`) when `autoAddArtists` / `autoAddFx` are on (resolved by suffix, so their category is irrelevant);
+`v2/engine/artists.js` and `v2/engine/fx.js` are the two prompts the pipeline **auto-appends** (`{#artists}`,
+`{#fx}`) when `autoAddArtists` / `autoAddFx` are on (resolved by suffix, so their category is irrelevant);
 `v2/engine/danbooru.js` composes anime tag streams (`{d-general}` + `{d-character}` + `{d-meta}`).
 
 ## v1 vs v2 — the decomposition story
 
-`data/dynamic-prompts/v1/` (33 frozen modules, addressed as `#name-v1`, always treated as `full`, and
+`data/dynamic-prompts/v1/` (33 frozen modules, addressed as `{#name-v1}`, always treated as `full`, and
 they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
 generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
 `entityBasicKeywords()` and hard-bake color/weather/time (several import the shared `entityBasicKeywords`
 from `../v2/subject/entity.js`). The categorized `v2/` set is the **refactor**: the
-same scenes re-expressed by *extracting* those into shared composable sub-prompts (`#color`, `#weather`,
-`#nature`, `#general-state`, `#room-state`, the `entity` family). v1 is kept verbatim so old looks stay
+same scenes re-expressed by *extracting* those into shared composable sub-prompts (`{#color}`, `{#weather}`,
+`{#nature}`, `{#general-state}`, `{#room-state}`, the `entity` family). v1 is kept verbatim so old looks stay
 reproducible — reading a v1/v2 pair side by side is the clearest window into the project's "compose from
 building blocks" design turn (Jan 2023; see [../context/history.md](../context/history.md)).
 
-`v2/user/` holds community contributions (addressed `#user-name`, always `full`) — currently
+`v2/user/` holds community contributions (addressed `{#user-name}`, always `full`) — currently
 `beach-merk.js` by Merk, which notably composes siblings as **direct function imports**
-(`${city()}` from `../scene/city.js`, `${nature()}` from `../fragment/nature.js`) rather than `#city`
+(`${city()}` from `../scene/city.js`, `${nature()}` from `../fragment/nature.js`) rather than `{#city}`
 tokens, an alternative to token-based composition.
 
 Provenance worth preserving: the `3d-*`, `comic`, `sticker`, `funko-3d-print`, `fluffy-animal`,
 `needle-felt`, `silhouette`, `psychedelic`, `space-hologram`, `gold-pendant`, `lowpoly-3d-isometric`,
 `sports-logo`, `anime-irl` templates are credited "taken from publicprompts.art and modified to be more
-dynamic" — the original swapped their fixed `<name>` subject for the `#entity` system. Keep these credits
+dynamic" — the original swapped their fixed `<name>` subject for the `{#entity}` system. Keep these credits
 (also in `list-credits.md`).
 
 ## The data-build pipeline (lists from raw sources)
@@ -116,6 +117,6 @@ hand-authored lists (cities, building styles, rooms, clothes, etc.) live alongsi
 by bare name via path-suffix resolution): `dap` (`deviantart, art station, pixiv`), `detail/legacy`
 (`masterpiece, highres, … HDR`; `detail/` is force-prefixed), `rays` (`god ray, light shaft, volumetric
 lighting`), `detail/legacy-person`, `pixelart`, `candlelight`, `coffecup`, `flower-pic` (itself
-`{flower}, {flower}, {artist}`), and `underwater-anime-irl` (which nests `#anime-irl`) — proof that
+`{flower}, {flower}, {artist}`), and `underwater-anime-irl` (which nests `{#anime-irl}`) — proof that
 expansions can themselves contain lists and dynamic prompts. See
 [`expansions-architecture.md`](expansions-architecture.md).

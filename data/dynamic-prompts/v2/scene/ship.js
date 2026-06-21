@@ -24,13 +24,13 @@ import _ from "lodash";
 function addWeatherFx(prompt) {
   switch (_.random(0, 3, false)) {
     case 0:
-      prompt += `, #ice`;
+      prompt += `, {#ice}`;
       break;
     case 1:
-      prompt += `, #lava`;
+      prompt += `, {#lava}`;
       break;
     case 2:
-      prompt += `, #underwater`;
+      prompt += `, {#underwater}`;
       break;
   }
 
@@ -47,9 +47,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += addWeatherFx(prompt);
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color}`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #color`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#color}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {size}";
 
@@ -94,20 +94,20 @@ export default function () {
 
     if (_.random(0.0, 1.0, true) < 0.5) prompt += ", wrecked";
 
-    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #eerie`;
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#eerie}`;
 
-    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #nature`;
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#nature}`;
 
-    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #wildlife`;
+    if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#wildlife}`;
   }
 
-  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
+  if (_.random(0.0, 1.0, true) < 0.25) prompt += `, {#mystical}`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/construct}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, {#weather}`;
 
   return prompt;
 }
