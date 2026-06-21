@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
 
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
@@ -34,13 +34,13 @@ function readGroupFile(name) {
   }
 }
 
-// Folders (relative "/"-joined paths) that contain a `.force-prefix` marker file.
-function forcedPrefixDirs() {
+// Folders (relative "/"-joined paths) that contain a given marker file.
+function markedDirs(marker) {
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (entry.name === ".force-prefix") out.push(prefix.replace(/\/$/, ""));
+      else if (entry.name === marker) out.push(prefix.replace(/\/$/, ""));
     }
   };
   try {
@@ -50,6 +50,8 @@ function forcedPrefixDirs() {
   }
   return out;
 }
+const forcedPrefixDirs = () => markedDirs(".force-prefix");
+const groupListDirs = () => markedDirs(".force-group-list");
 
 // Recursively list every .txt and .group under data/lists as a "/"-joined name.
 function physicalListNames() {
@@ -84,15 +86,23 @@ export const nodeLoader = {
     }
   },
   readListLines(name, includeAdult = false) {
-    const names = logicalListNames(physicalListNames());
+    const dirs = groupListDirs();
+    const names = allListNames([...logicalListNames(physicalListNames()), ...dirs]);
     const canonical = resolveName(name, names);
-    return resolveListLines(canonical, { names, readListFile, readGroupFile }, includeAdult);
+    return resolveListLines(
+      canonical,
+      { names, readListFile, readGroupFile, groupListDirs: dirs },
+      includeAdult,
+    );
   },
   listNames() {
-    return logicalListNames(physicalListNames());
+    return allListNames([...logicalListNames(physicalListNames()), ...groupListDirs()]);
   },
   forcedPrefixDirs() {
     return forcedPrefixDirs();
+  },
+  groupListDirs() {
+    return groupListDirs();
   },
   expansionNames() {
     try {

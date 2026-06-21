@@ -54,7 +54,7 @@ export const listTags = {
   "danbooru/d/person": { category: "danbooru", anime: true, nsfw: false },
   "keyword/keyword-nsfw": { category: "keyword", anime: false, nsfw: true },
   "artist/anime": { category: "artist", anime: true, nsfw: false },
-  "name/anime-name": { category: "subject", anime: true, nsfw: false },
+  "name/anime": { category: "subject", anime: true, nsfw: false },
   "artist/nudity-nsfw": { category: "artist", anime: false, nsfw: true },
 
   // uncategorized leftover words (function words, obscure terms WordNet lacks)
@@ -62,7 +62,7 @@ export const listTags = {
 
   // proper-noun categories (hand-classified from the old keyword.txt dump)
   "name/demonym": { category: "subject", anime: false, nsfw: false },
-  "name/given-name": { category: "name", anime: false, nsfw: false },
+  "name/given": { category: "name", anime: false, nsfw: false },
   "name/person": { category: "name", anime: false, nsfw: false },
   "place/place": { category: "place", anime: false, nsfw: false },
   "brand/organization": { category: "brand", anime: false, nsfw: false },
@@ -126,6 +126,31 @@ function readSfwBase(base, readers) {
 }
 
 /**
+ * Member reference lines for an IMPLIED group (a `.force-group-list` folder): every
+ * list at or under `dir`, de-duplicated to base names (so `-sfw`/`-nsfw` pairs become
+ * one member resolved mode-aware), excluding nested real groups and nested implied
+ * dirs. The result feeds the normal group-union path.
+ * @param {string} dir The folder path.
+ * @param {{names:string[], readGroupFile:(n:string)=>(string[]|null), groupListDirs?:string[]}} readers
+ * @returns {string[]} Member reference lines.
+ */
+function impliedGroupMembers(dir, readers) {
+  const seen = new Set();
+  const out = [];
+  for (const n of readers.names) {
+    if (!n.startsWith(`${dir}/`)) continue;
+    if (readers.readGroupFile(n) != null) continue; // skip nested real groups
+    if (readers.groupListDirs && readers.groupListDirs.includes(n)) continue; // nested implied
+    const b = n.replace(/-(sfw|nsfw)$/i, "");
+    if (!seen.has(b)) {
+      seen.add(b);
+      out.push(b);
+    }
+  }
+  return out;
+}
+
+/**
  * Resolve a list/group reference to its lines, honoring the SFW/NSFW naming model
  * and the `includeAdult` mode. No runtime content filtering — NSFW is a separate
  * preprocessed `<base>-nsfw.txt` file that is simply included or not.
@@ -184,6 +209,7 @@ export function resolveListLines(
     for (const n of readers.names) {
       if (n.includes("artist") || n.startsWith("danbooru/")) continue;
       if (readers.readGroupFile(n) != null) continue; // members covered via their lists
+      if (readers.groupListDirs && readers.groupListDirs.includes(n)) continue; // implied group dir
       const b = n.replace(/-(sfw|nsfw)$/i, "");
       if (b === RESERVED_WILDCARD) continue;
       bases.add(b);
@@ -204,8 +230,12 @@ export function resolveListLines(
   // variant like {d-sfw} maps to the group/list path {d} resolves to.
   base = resolveName(base, readers.names);
 
-  // Group? Union of members, each resolved with the inherited variant.
-  const groupLines = readers.readGroupFile(base);
+  // Group? Either a real `.group` file, or an IMPLIED group: a folder marked with a
+  // `.force-group-list` file resolves to the union of all lists directly/under it.
+  let groupLines = readers.readGroupFile(base);
+  if (groupLines == null && readers.groupListDirs && readers.groupListDirs.includes(base)) {
+    groupLines = impliedGroupMembers(base, readers);
+  }
   if (groupLines != null) {
     if (seen.has(base) || depth >= MAX_GROUP_DEPTH) return [];
     seen.add(base);

@@ -43,7 +43,7 @@ function addWeatherFx(prompt) {
  */
 export default function () {
   // Start with base prompt
-  let prompt = "vehicle, {vehicle-type}";
+  let prompt = "vehicle, {scene/vehicle}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt = `, ${addWeatherFx(prompt)}`;
 
@@ -101,9 +101,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.25) prompt += `, #mystical`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {construct-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/construct}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #weather`;
 

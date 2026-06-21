@@ -30,7 +30,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", shop";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {store-type}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {scene/store}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", intricate";
 
@@ -44,7 +44,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #room-state`;
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 

@@ -43,7 +43,7 @@ export default function (settings) {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {emotion}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, in {general-style} clothing style`;
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += `, in {style/general} clothing style`;
 
   const clothingCount = _.random(0.0, 1.0, true) < 0.5 ? _.random(0, 5, false) : 0;
 

@@ -26,7 +26,7 @@ import _ from "lodash";
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  let prompt = "store, storefront, {store-type}, streetview";
+  let prompt = "store, storefront, {scene/store}, streetview";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", intricate";
 
@@ -48,7 +48,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {city}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", downtown";
 

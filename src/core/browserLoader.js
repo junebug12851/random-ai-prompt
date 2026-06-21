@@ -13,7 +13,7 @@
 // content (lists/expansions/presets) lives under the repo-root data/ folder
 // (../../data/...).
 
-import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
 
 const dpModules = import.meta.glob("../dynamic-prompts/**/*.js", { eager: true });
 const listRaw = import.meta.glob("../../data/lists/**/*.txt", {
@@ -27,6 +27,7 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   eager: true,
 });
 const forcePrefixFiles = import.meta.glob("../../data/lists/**/.force-prefix", { eager: true });
+const forceGroupListFiles = import.meta.glob("../../data/lists/**/.force-group-list", { eager: true });
 const expansionRaw = import.meta.glob("../../data/expansions/*.txt", {
   query: "?raw",
   import: "default",
@@ -70,11 +71,14 @@ for (const [path, obj] of Object.entries(presetModules)) {
   presets[keyFor(path, "presets")] = obj;
 }
 
-// Folders (relative to data/lists) that contain a `.force-prefix` marker.
-const forcedDirs = Object.keys(forcePrefixFiles).map((p) => {
-  const i = p.indexOf("/lists/");
-  return p.slice(i + "/lists/".length).replace(/\/\.force-prefix$/, "");
-});
+// Folders (relative to data/lists) that contain a marker file.
+const markerDirs = (files, marker) =>
+  Object.keys(files).map((p) => {
+    const i = p.indexOf("/lists/");
+    return p.slice(i + "/lists/".length).replace(new RegExp(`/${marker}$`), "");
+  });
+const forcedDirs = markerDirs(forcePrefixFiles, "\\.force-prefix");
+const groupListDirs = markerDirs(forceGroupListFiles, "\\.force-group-list");
 
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
@@ -87,7 +91,10 @@ export const browserLoader = {
     return expansionText[name] ?? null;
   },
   readListLines(name, includeAdult = false) {
-    const names = logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+    const names = allListNames([
+      ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
+      ...groupListDirs,
+    ]);
     const canonical = resolveName(name, names);
     return resolveListLines(
       canonical,
@@ -95,15 +102,22 @@ export const browserLoader = {
         names,
         readListFile: (n) => listLines[n] ?? null,
         readGroupFile: (n) => groupLines[n] ?? null,
+        groupListDirs,
       },
       includeAdult,
     );
   },
   listNames() {
-    return logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]);
+    return allListNames([
+      ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
+      ...groupListDirs,
+    ]);
   },
   forcedPrefixDirs() {
     return forcedDirs;
+  },
+  groupListDirs() {
+    return groupListDirs;
   },
   expansionNames() {
     return Object.keys(expansionText);

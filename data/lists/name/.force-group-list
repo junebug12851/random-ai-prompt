@@ -1,0 +1,2 @@
+# Marks this folder as an implied group: {<folder>} resolves to the union of all
+# lists under it (mode-aware). Empty marker — presence is all that matters.

@@ -38,7 +38,7 @@ export default function (settings, imageSettings, upscaleSettings) {
   // Start with base prompt
   let prompt = "house";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {time}";
 

@@ -31,7 +31,7 @@ export default function () {
 
   switch (_.random(0, 5, false)) {
     case 0:
-      prompt += "ship, {ship-type}";
+      prompt += "ship, {scene/ship}";
       break;
 
     case 1:
@@ -51,7 +51,7 @@ export default function () {
       break;
 
     case 5:
-      prompt += "vehicle, {vehicle-type}";
+      prompt += "vehicle, {scene/vehicle}";
       break;
   }
 
@@ -111,9 +111,9 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", window";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {building-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/building}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {general-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {style/general}";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += `, #wildlife`;
 

@@ -1,0 +1,3 @@
+# Marks this folder as requiring its path prefix on editor buttons (so danbooru
+# entries show as {d/general} etc.). Empty marker — presence is all that matters.
+# Applies to all descendants; a marker in a parent forces more path segments.

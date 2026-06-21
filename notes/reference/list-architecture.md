@@ -11,11 +11,15 @@ A **group** is a `<name>.group` file: each non-comment line is itself a list ref
 "collapses lists into others" — the big duplicated files the build scripts used to emit are gone, computed
 on demand from their atomic parts. Groups are first-class files (can live anywhere) and are referenced and
 gated exactly like lists. Groups may include groups up to `MAX_GROUP_DEPTH` (3) levels with a cycle guard.
-Current groups: `danbooru/d.group` (all `d/*`, ref `{d}`), `danbooru/d/keyword.group` (danbooru minus
-artists, `{d/keyword}`), `danbooru/d/character.group` (`{d/character}`), `artist/artist.group`,
-`artist/artist-digipa.group`, `name/name.group` — referenced terse as `{d}`, `{artist}`, etc. via suffix
-resolution. The danbooru groups live inside the `d/` folder to match the `{d/...}` reference convention. (Curated + dictionary POS lists
-were merged into one list each, so the former `*-all` virtuals are gone.)
+
+**Implied groups (`.force-group-list`).** A folder with an empty `.force-group-list` marker *is* a group:
+`{<folder>}` resolves to the union of every list under it (mode-aware), no `.group` file required. Markers on
+`artist/`, `danbooru/d/`, and `name/` make `{artist}`, `{d}`, `{name}` implied groups. Loaders expose
+`groupListDirs()`; `resolveListLines` synthesizes the member list via `impliedGroupMembers` (base names under
+the dir, nested real/implied groups excluded) then runs the normal union. Explicit `.group` files now exist
+only for **subsets** that aren't a whole folder: `artist/digipa.group` (dhigh+dmed+dlow),
+`danbooru/d/character.group` (c + nc), `danbooru/d/keyword.group` (danbooru minus artists). (Curated +
+dictionary POS lists were merged into one list each, so the former `*-all` virtuals are gone.)
 
 **SFW/NSFW is keyed off the filename and resolved by mode — no runtime content filtering, no group files.**
 Any name with an `nsfw` token (a word delimited by `/`, `-`, `.`, `_`, or string ends — e.g.
@@ -57,8 +61,9 @@ segment when two collide, both stepping out until distinct. A final pass guarant
 each token `resolveName()`s back to its own canonical name. The loaders expose
 `forcedPrefixDirs()` (nodeLoader walks for `.force-prefix`; browserLoader globs
 `**/.force-prefix` — Vite bundles the dotfile). The SPA's `getBlocks` uses this for the
-"Lists" token cloud. It is display-only; resolution is unchanged. Only `danbooru/d` is
-forced today (the `d/` short-code convention); everything else shows a bare filename.
+"Lists" token cloud. It is display-only; resolution is unchanged. `danbooru/d`, `artist`, `scene`, and
+`style` are `.force-prefix` folders (so e.g. `{style/building}`, `{scene/ship}`, `{artist/anime}`);
+everything else shows a bare filename.
 
 ## Folder organization & name resolution
 

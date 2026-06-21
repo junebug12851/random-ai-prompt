@@ -34,7 +34,7 @@ export default function () {
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += " {size}";
 
-  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {construct-style}";
+  if (_.random(0.0, 1.0, true) < 0.5) prompt += " {style/construct}";
 
   prompt += " spaceship";
 

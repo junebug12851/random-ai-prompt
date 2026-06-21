@@ -23,7 +23,7 @@ import fs from "node:fs";
 import _ from "lodash";
 import { keywordAlias, artistAlias } from "./aliases.js";
 import { isGatedList } from "../gatedLists.js";
-import { resolveListLines, logicalListNames, resolveName } from "../listManifest.js";
+import { resolveListLines, logicalListNames, allListNames, resolveName } from "../listManifest.js";
 
 // All-lists in memory
 const lists = {};
@@ -48,11 +48,28 @@ function getListFiles(settings) {
   return out;
 }
 
+// Folders (relative "/"-joined) that contain a `.force-group-list` marker (implied groups).
+function getGroupListDirs(settings) {
+  const out = [];
+  const walk = (dir, prefix) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(`${dir}/${entry.name}`, `${prefix}${entry.name}/`);
+      else if (entry.name === ".force-group-list") out.push(prefix.replace(/\/$/, ""));
+    }
+  };
+  walk(settings.listFiles, "");
+  return out;
+}
+
 // Cached canonical-name index (physical paths + virtual names), for suffix-based
 // reference resolution. Rebuilt by reloadListFiles().
 let allNamesCache = null;
 function getAllNames(settings) {
-  if (!allNamesCache) allNamesCache = logicalListNames(getListFiles(settings));
+  if (!allNamesCache)
+    allNamesCache = allListNames([
+      ...logicalListNames(getListFiles(settings)),
+      ...getGroupListDirs(settings),
+    ]);
   return allNamesCache;
 }
 
@@ -85,6 +102,7 @@ function reloadListFile(settings, name) {
     names: getAllNames(settings),
     readListFile: (n) => readListFile(settings, n),
     readGroupFile: (n) => readGroupFile(settings, n),
+    groupListDirs: getGroupListDirs(settings),
   };
   const list = resolveListLines(name, readers, settings.includeAdult) || [];
 
@@ -114,7 +132,7 @@ function reloadListFiles(settings) {
   // Get list files (physical), then add virtual/composite list names so they
   // are registered for lazy assembly on first pull.
   const physical = getListFiles(settings);
-  allNamesCache = logicalListNames(physical);
+  allNamesCache = allListNames([...logicalListNames(physical), ...getGroupListDirs(settings)]);
 
   // Loop through all lists (physical + virtual)
   for (const key of allNamesCache) {

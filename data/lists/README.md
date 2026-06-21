@@ -43,11 +43,16 @@ just like a list (`{d}`, `{artist}`). Groups can live anywhere in the tree.
   a group's members resolve SFW-only or NSFW-inclusive following the same rule as a
   bare reference, so one group covers both modes.
 
-Current groups: `d` (all danbooru `d/*`, ref `{d}`), `d/keyword` (danbooru minus
-artists), `d/character`, `artist` (all artist styles), `artist-digipa`, `name`
-(given-name + person). The danbooru groups live inside the `d/` folder to match the
-`{d/...}` reference convention. Groups may include other groups up to **3 levels
-deep** (recursion cutoff + cycle guard).
+### Implied groups (`.force-group-list`)
+
+A folder containing an empty **`.force-group-list`** file *is* a group: `{<folder>}`
+resolves to the union of every list under it (mode-aware), with no `.group` file to
+maintain. `artist/`, `danbooru/d/`, and `name/` are marked, so `{artist}`, `{d}`, and
+`{name}` are implied groups. Use an explicit `.group` file only for a **subset** that
+isn't a whole folder — the remaining ones are `artist/digipa.group` (the 3 digital-
+painting lists), `danbooru/d/character.group` (c + nc), and `danbooru/d/keyword.group`
+(danbooru minus artists). Groups may nest up to **3 levels deep** (recursion cutoff +
+cycle guard).
 
 ## SFW / NSFW
 
@@ -109,16 +114,16 @@ Slurs, minor-sexualizing, and extreme shock/gore content are removed by
 
 | Folder | What's in it |
 |--------|--------------|
-| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person; plus the groups `d` (everything, ref `{d}`), `keyword` (no artists), `character` |
-| `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary |
+| `danbooru/d/` | Danbooru tags: general-sfw + general-nsfw (implicit `{d/general}`), artist, character-c, character-nc, meta, person. `.force-prefix` (→ `{d/...}`) + `.force-group-list` (→ `{d}` = all). Subset groups: `keyword` (no artists), `character` (c + nc) |
+| `artist/` | Stable-Diffusion artist styles: anime, bw, cartoon, dhigh/dmed/dlow, fareast, fineart, nudity-nsfw, scribbles, special, ukioe, weird, secondary. `.force-prefix` (→ `{artist/...}`) + `.force-group-list` (→ `{artist}` = all). Subset group: `digipa` (dhigh+dmed+dlow) |
 | `word/` | Parts of speech, one list each: adjective, adverb, noun, verb, preposition, interjection; plus `misc` (function/uncategorized words), `language` (languages/scripts), and `adult-nsfw` (gated sexual terms). Curated + dictionary merged. |
-| `name/` | given-name, person, demonym, anime-name |
+| `name/` | given, person, demonym, anime (implied group `{name}`) |
 | `place/` | city, place (countries/regions/landmarks) |
 | `lore/` | mythology, astronomy, religion, history, work, people-group |
 | `nature/` | animal, flower, tree, planet, mythological-creature |
 | `look/` | color, size, hair, clothes, weather, time, mood, emotion, view, image-effect, instrument, expression (faces), action (poses/activities); `clothes-nsfw` (gated lingerie/fetish) |
-| `style/` | art-movement, art-technique, general-style, construct-style, building-style |
-| `scene/` | room, school-room, shed-type, ship-type, store-type, vehicle-type |
+| `style/` | art-movement, art-technique, general, construct, building (folder is `.force-prefix` → `{style/building}` etc.) |
+| `scene/` | room, school-room, shed, ship, store, vehicle (folder is `.force-prefix` → `{scene/ship}` etc.) |
 | `brand/` | organization |
 
 (`keyword` is no longer a folder — it's the reserved wildcard described above.)
