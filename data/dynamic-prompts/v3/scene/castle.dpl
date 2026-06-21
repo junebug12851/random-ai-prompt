@@ -1,0 +1,19 @@
+---
+type: full
+description: A castle with grounds
+---
+Start
+===
+castle, {view}
+- moat
+- motte
+- courtyard
+- castle keep
+- castle wall
+- fortified tower
+- castle drawbridge
+- castle gatehouse
+- {city}
+- {style/building}
+
+{#wildlife}, {#water}, {#nature}, {#weather}

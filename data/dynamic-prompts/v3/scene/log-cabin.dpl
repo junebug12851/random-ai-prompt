@@ -1,0 +1,22 @@
+---
+type: full
+description: A log cabin in dense forest
+---
+Start
+===
+((cabin, log cabin)), dense forest, dense woods, dense trees
+- fog
+- hill
+- valley
+- cliff
+- 25% winter, snow landscape, {#ice}
+- 20% {#eerie}
+- 25% {#mystical}
+- 30% {#wildlife}
+- {#water}
+- path
+- worn down
+- weathered
+- 25% {#room-state}
+
+{#nature}, {#weather}, wide shot, upclose, <dap>

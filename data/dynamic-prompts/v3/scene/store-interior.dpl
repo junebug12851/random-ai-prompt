@@ -1,0 +1,17 @@
+---
+type: full
+description: A store interior
+---
+Start
+===
+store, interior
+- shop
+- {scene/store}
+- intricate
+- detailed
+- cozy
+- 35% {#eerie}
+- 35% {#mystical}
+- {#room-state}
+- {style/building}
+- {time}

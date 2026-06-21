@@ -1,0 +1,49 @@
+---
+type: full
+description: Ruins of a building / ship / room / city / vehicle
+---
+Start
+===
+- one of:
+    - ship, {scene/ship}
+    - room, interrior, {room}
+    - house
+    - city, streetview, {city}
+    - building
+    - vehicle, {scene/vehicle}
+- abandoned
+- ruins
+- rubble
+- {mood} atmosphere
+- detailed
+- intricate
+- {size}
+- {#color}
+- dirty
+- grunge
+- rundown
+- broken
+- torn
+- graffiti
+- cracked
+- rusted
+- damaged
+- destroyed
+- mold
+- mildew
+- shattered glass
+- holes
+- clutter
+- messy
+- furniture
+- items
+- accesories
+- window
+- {style/building}
+- {style/general}
+- {#wildlife}
+- 35% {#ice}
+- 35% {#eerie}
+- 25% {#mystical}
+
+{#nature}, {#weather}

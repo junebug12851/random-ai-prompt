@@ -1,0 +1,5 @@
+---
+type: partial
+description: A spaceship (space-joined adjectives, so JS-backed)
+script: spaceship.js
+---

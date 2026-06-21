@@ -1,0 +1,22 @@
+---
+type: full
+description: A storefront on a street
+---
+Start
+===
+store, storefront, {scene/store}, streetview
+- intricate
+- detailed
+- cozy
+{#nature}
+- 35% {#eerie}
+- 35% {#ice}
+- 35% {#mystical}
+- {#room-state}
+- city
+- {city}
+- {style/building}
+- downtown
+- reflective street
+- wide shot
+{#weather}

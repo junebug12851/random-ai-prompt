@@ -1,0 +1,27 @@
+---
+type: full
+description: A mountain landscape
+---
+Start
+===
+((mountain))
+- fog
+- rock
+- stone
+- ((mountainous horizon))
+- 25% [hill]
+- 25% [valley]
+- 25% [cliff]
+- 25% forest
+- 25% tree
+- 25% one of:
+    - volcano, {#lava}
+    - winter, snow mountain, {#ice}
+- 30% {#settlement}
+- 25% {#eerie}
+- 20% {#mystical}
+- {#wildlife}
+- 25% {#water}
+- {#nature}
+
+{#weather}

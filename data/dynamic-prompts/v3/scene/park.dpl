@@ -1,0 +1,18 @@
+---
+type: full
+description: A park
+---
+Start
+===
+((park))
+- benches
+- people
+- crowd
+- fountain
+- walkway
+- 20% {#eerie}
+- 25% {#ice}
+- 25% {#mystical}
+- 20% {#room-state}
+
+{#wildlife}, {#water}, {#nature}, {#weather}

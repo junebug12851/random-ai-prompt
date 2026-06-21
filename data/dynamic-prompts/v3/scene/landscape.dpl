@@ -1,0 +1,23 @@
+---
+type: full
+description: A natural landscape
+---
+Start
+===
+landscape
+- fog
+- hill
+- valley
+- cliff
+- forest
+- tree
+- 20% stone
+- 20% rock
+- 25% winter, snow landscape, {#ice}
+- 20% {#settlement}
+- 20% {#eerie}
+- 25% {#mystical}
+- 30% {#wildlife}
+- {#water}
+
+{#nature}, {#weather}

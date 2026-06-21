@@ -1,0 +1,7 @@
+---
+type: full
+description: An interior room
+---
+Start
+===
+room, interrior, {room}, {#room-state}, {#weather}

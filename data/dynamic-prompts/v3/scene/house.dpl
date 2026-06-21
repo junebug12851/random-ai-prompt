@@ -1,0 +1,10 @@
+---
+type: full
+description: A house in nature
+---
+Start
+===
+house
+- {style/building}
+
+{#nature}, {#weather}

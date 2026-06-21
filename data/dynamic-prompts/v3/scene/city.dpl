@@ -1,0 +1,12 @@
+---
+type: full
+description: A city streetview
+---
+Start
+===
+city, streetview, {city}
+- {style/building}
+- cityscape
+- downtown
+
+{#nature}, {#weather}, reflective street, wide shot

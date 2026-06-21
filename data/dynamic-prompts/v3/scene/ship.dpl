@@ -1,0 +1,47 @@
+---
+type: full
+description: A ship, optionally weathered or wrecked
+---
+weather-fx
+===
+- one of (25% nothing):
+    - {#ice}
+    - {#lava}
+    - {#underwater}
+
+Start
+===
+ship, {scene/ship}
+- 50% +weather-fx
+- {#color}
+- {#color}
+- {size}
+- {mood} atmosphere
+- detailed
+- maybe:
+    - reflective surface
+    - polished
+    - shiny
+- otherwise:
+    - dirty
+    - grunge
+    - rundown
+    - broken
+    - torn
+    - holes
+    - graffiti
+    - abandoned
+    - ghost ship
+    - cracked
+    - rusted
+    - damaged
+    - destroyed
+    - sunk
+    - wrecked
+    - {#eerie}
+    - {#nature}
+    - {#wildlife}
+- 25% {#mystical}
+- {style/construct}
+- {style/building}
+- {#weather}

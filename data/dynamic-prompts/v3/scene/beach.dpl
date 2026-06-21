@@ -1,0 +1,37 @@
+---
+type: full
+description: A beach with a city nearby
+---
+winter-beach
+===
+winter beach
+- snowy beach
+- ({#ice})
+
+tropical-beach
+===
+- tropical
+- maybe: palm trees
+- otherwise: palm tree
+
+Start
+===
+beach
+- 25% +winter-beach
+- otherwise +tropical-beach
+- ocean
+- oceanside
+- seaside
+- sand
+- beachside
+- sandy beach
+- ocean view
+- sea shells
+- beach sand
+- fog
+- {size} waves
+- {#eerie}
+- 20% {#mystical}
+- {#nature}
+
+{#city}, {#weather}
