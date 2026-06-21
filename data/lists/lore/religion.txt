@@ -1,3 +1,4 @@
+Adar
 Adventist
 Allah
 Allhallows
@@ -43,6 +44,7 @@ Diwali
 Easter
 Ecclesiastes
 Elohim
+Elul
 Epiphany
 Epistle
 Eucharist
@@ -63,10 +65,12 @@ Halloween
 Hanuka
 Hanukkah
 Hegira
+Heshvan
 Hinayana
 Hinduism
 Hosea
 Islam
+Iyar
 Jainism
 Jansenist
 Jataka
@@ -74,6 +78,7 @@ Jehovah
 Judaism
 Juggernaut
 Kaaba
+Kislev
 Kwanzaa
 Lamaism
 Lent
@@ -98,6 +103,7 @@ Nahum
 Nativity
 Nehemiah
 Nirvana
+Nisan
 Obadiah
 Paraclete
 Passion
@@ -135,20 +141,25 @@ Savior
 Scripture
 Seder
 Septuagint
+Shavuot
 Sheol
+Shevat
 Shintoism
 Sikhism
+Sivan
 Sufism
 Sukkot
 Tabernacle
 Talmud
 Tao
 Taoism
+Tevet
 Thanksgiving
 Theosophy
 Theravada
 Thessalonian
 Thomism
+Tishri
 Tobit
 Torah
 Trappist

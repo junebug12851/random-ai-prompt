@@ -126,6 +126,7 @@ Demerol
 Dexedrine
 Dictaphone
 Dior
+Django
 Dobro
 Doritos
 Dramamine
@@ -309,6 +310,7 @@ Moog
 Motorola
 Motown
 Motrin
+Mozilla
 Multics
 Muzak
 Mylar

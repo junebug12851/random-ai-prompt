@@ -458,6 +458,7 @@ legwear under shorts
 leotard
 leotard under clothes
 living clothes
+loafer
 long dress
 long shirt
 long skirt
@@ -928,6 +929,7 @@ white thighhighs
 white vest
 white-framed eyewear
 wide sleeves
+windbreaker
 winged footwear
 wings
 winter clothes

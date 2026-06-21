@@ -63,6 +63,7 @@ Equuleus
 Eridanus
 Fomalhaut
 Gacrux
+Galaxy
 Gemini
 Gienah
 Graffias
@@ -99,8 +100,10 @@ Quaoar
 Rasalgethi
 Rasalhague
 Rastaban
+Redshift
 Regor
 Regulus
+Rigel
 Ruchbah
 Sabik
 Sadr

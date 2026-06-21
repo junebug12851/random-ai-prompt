@@ -1,4 +1,3 @@
-ASCII art
 Abstract art
 Abstract expressionism
 Abstract illusionism
@@ -7,9 +6,9 @@ Aestheticism
 Afrofuturism
 Altermodern
 American Barbizon school
-American Scene Painting
 American impressionism
 American realism
+American Scene Painting
 Analytical art
 Ancient Art
 Anti-art
@@ -22,6 +21,7 @@ Art Nouveau
 Art photography
 Arte Povera
 Arts and Crafts movement
+ASCII art
 Ashcan School
 Assemblage
 Australian Tonalism
@@ -45,6 +45,7 @@ Cubism
 Cubo-Futurism
 Cyberpunk
 Cynical realism
+Dada
 Dadaism
 Dansaekhwa
 Dau-al-Set
@@ -65,8 +66,8 @@ Fluxus
 Folk Art
 Funk art
 Futurism
-Geometric Art
 Geometric abstract art
+Geometric Art
 Glitch art
 Gothic Art
 Graffiti
@@ -102,10 +103,10 @@ Modular constructivism
 Naive Art
 Nature Art
 Neo-Dadaism
-Neo-Fauvism
-Neo-Impressionism
 Neo-expressionism
+Neo-Fauvism
 Neo-figurative
+Neo-Impressionism
 Neo-primitivism
 Neo-romanticism
 Neoclassicism

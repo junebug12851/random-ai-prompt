@@ -354,6 +354,7 @@ afghani
 aficionado
 afrikaans
 afrikaner
+afrocentrism
 afterbirth
 afterburner
 aftercare
@@ -600,6 +601,9 @@ amenability
 amendment
 amenity
 amercement
+americana
+americanism
+americanization
 americium
 amerind
 amethyst
@@ -713,7 +717,9 @@ angler
 angleworm
 anglican
 anglicism
+anglicization
 anglophile
+anglophobe
 angora
 angostura
 angst
@@ -960,6 +966,7 @@ arabesque
 arabian
 arabic
 arability
+arabist
 arachnid
 arachnophobia
 aramaic
@@ -1030,6 +1037,7 @@ ark
 arm
 armada
 armadillo
+armagnac
 armament
 armature
 armband
@@ -1257,6 +1265,7 @@ audience
 audio
 audiology
 audiometer
+audion
 audiotape
 audiovisual
 audit
@@ -1352,11 +1361,13 @@ axolotl
 axon
 ayah
 ayatollah
+ayurveda
 azalea
 azerbaijani
 azimuth
 azure
 baa
+baathist
 babbitt
 babble
 babbler
@@ -1709,6 +1720,7 @@ beanstalk
 bear
 beard
 bearer
+bearnaise
 bearskin
 beast
 beastliness
@@ -1717,6 +1729,7 @@ beater
 beatification
 beating
 beatitude
+beatlemania
 beatnik
 beau
 beaut
@@ -2228,6 +2241,7 @@ bolero
 bolivar
 boll
 bollard
+bollywood
 bologna
 bolshevik
 bolshevist
@@ -2544,6 +2558,7 @@ brisket
 briskness
 bristle
 britches
+briticism
 british
 briton
 brittle
@@ -2765,6 +2780,7 @@ busboy
 busby
 bush
 bushel
+bushido
 bushman
 bushwhacker
 business
@@ -2835,6 +2851,7 @@ cabaret
 cabbage
 cabby
 cabdriver
+cabernet
 cabin
 cabinet
 cabinetmaker
@@ -2936,6 +2953,7 @@ camcorder
 camel
 camelhair
 camellia
+camembert
 cameo
 camera
 cameraman
@@ -2954,6 +2972,7 @@ campsite
 campus
 camshaft
 can
+canadianism
 canal
 canalization
 canape
@@ -4294,6 +4313,7 @@ concomitant
 concord
 concordance
 concordat
+concorde
 concourse
 concrete
 concreteness
@@ -5293,6 +5313,8 @@ dart
 dartboard
 darter
 darwinian
+darwinism
+darwinist
 dash
 dashboard
 dashiki
@@ -6454,6 +6476,7 @@ eater
 eatery
 eavesdropper
 ebb
+ebola
 ebony
 ebullience
 ebullition
@@ -6550,6 +6573,7 @@ egotism
 egotist
 egress
 egret
+egyptology
 eider
 eiderdown
 eigenvalue
@@ -6960,6 +6984,7 @@ escargot
 escarole
 escarpment
 eschatology
+escherichia
 escort
 escritoire
 escrow
@@ -7031,6 +7056,7 @@ euphoria
 eurasian
 eureka
 euro
+eurodollar
 europium
 eutectic
 euthanasia
@@ -7144,6 +7170,7 @@ existentialism
 existentialist
 exit
 exobiology
+exocet
 exodus
 exon
 exoneration
@@ -7933,6 +7960,7 @@ foolery
 foolhardiness
 foolishness
 foolscap
+foosball
 foot
 footage
 football
@@ -8102,6 +8130,7 @@ franc
 franchise
 franciscan
 francium
+francophile
 frangibility
 frank
 frankfurter
@@ -8112,8 +8141,10 @@ frat
 fraternity
 fraternization
 fratricide
+frau
 fraud
 fraudulence
+fraulein
 fray
 frazzle
 freak
@@ -8341,6 +8372,7 @@ galleon
 galleria
 gallery
 galley
+gallicism
 gallimaufry
 gallium
 gallon
@@ -8352,6 +8384,7 @@ galosh
 galvanism
 galvanization
 galvanometer
+gamay
 gambit
 gamble
 gambler
@@ -8425,6 +8458,7 @@ gasp
 gassing
 gastritis
 gastroenteritis
+gastroenterology
 gastronome
 gastronomy
 gastropod
@@ -8550,6 +8584,7 @@ getaway
 getting
 getup
 gewgaw
+gewurztraminer
 geyser
 ghastliness
 ghat
@@ -8824,6 +8859,7 @@ graininess
 gram
 grammar
 grammarian
+grammy
 gramophone
 grampus
 gran
@@ -9366,6 +9402,7 @@ haulier
 haunch
 haunt
 hauteur
+havarti
 have
 haven
 haversack
@@ -9469,6 +9506,7 @@ heaver
 heaviness
 heavy
 heavyweight
+hebraism
 hebrew
 heckle
 heckler
@@ -9497,6 +9535,7 @@ heir
 heiress
 heirloom
 heist
+helicobacter
 helicopter
 heliotrope
 heliport
@@ -9506,6 +9545,9 @@ hell
 hellcat
 hellebore
 hellenic
+hellenism
+hellenist
+hellenization
 hellfire
 hellhole
 hellion
@@ -9576,6 +9618,7 @@ heron
 herpes
 herpetologist
 herpetology
+herr
 herringbone
 hertz
 hesitance
@@ -10758,6 +10801,9 @@ irritation
 irruption
 ischemia
 isinglass
+islamism
+islamist
+islamophobia
 island
 islander
 isle
@@ -10835,6 +10881,7 @@ jape
 jar
 jarful
 jargon
+jarlsberg
 jasmine
 jasper
 jaundice
@@ -11111,6 +11158,7 @@ kilometer
 kiloton
 kilovolt
 kilowatt
+kilroy
 kilt
 kilter
 kimono
@@ -11197,6 +11245,7 @@ knuckle
 knucklehead
 koala
 koan
+kohinoor
 kohl
 kohlrabi
 kola
@@ -11208,9 +11257,13 @@ kowtow
 kph
 kraal
 kraut
+kremlinologist
+kremlinology
 krill
+kringle
 krona
 krone
+krugerrand
 krypton
 kt
 kubrick stare
@@ -11243,6 +11296,7 @@ lacrosse
 lactate
 lactation
 lacteal
+lactobacillus
 lactose
 lacuna
 lad
@@ -11275,6 +11329,7 @@ lamb
 lambda
 lambency
 lambkin
+lambrusco
 lambskin
 lame
 lameness
@@ -11309,6 +11364,7 @@ landlubber
 landmark
 landmass
 landowner
+landsat
 landscape
 landscaper
 landslide
@@ -11357,6 +11413,7 @@ lasciviousness
 laser
 lash
 lass
+lassa
 lassie
 lassitude
 lasso
@@ -11523,6 +11580,8 @@ length
 lengthiness
 lenience
 leniency
+leninism
+leninist
 lenitive
 lent
 lentil
@@ -11602,6 +11661,7 @@ licorice
 lid
 lido
 lie
+liebfraumilch
 liechtensteiner
 liege
 lien
@@ -11649,6 +11709,7 @@ lily
 limb
 limber
 limbo
+limburger
 lime
 limeade
 limelight
@@ -12065,6 +12126,7 @@ magyar
 maharajah
 maharani
 mahatma
+mahayanist
 mahogany
 mahout
 maid
@@ -12234,6 +12296,7 @@ manumission
 manure
 manuscript
 manx
+maoism
 maoist
 map
 maple
@@ -12316,6 +12379,7 @@ martini
 martyr
 martyrdom
 marvel
+marxism
 marxist
 marzipan
 mascara
@@ -12423,6 +12487,7 @@ mayoress
 maypole
 maze
 mazurka
+mcjob
 me
 mead
 meadow
@@ -12576,6 +12641,7 @@ merino
 merit
 meritocracy
 meritoriousness
+merlot
 mermaid
 merman
 merovingian
@@ -12599,6 +12665,7 @@ mess
 message
 messenger
 messiah
+messieurs
 messiness
 messmate
 mestizo
@@ -12837,6 +12904,7 @@ minuteman
 minuteness
 minutia
 minx
+mir
 miracle
 mirage
 mire
@@ -12909,9 +12977,11 @@ missive
 misstatement
 misstep
 missus
+missy
 mist
 mistake
 mistaking
+mister
 mistiness
 mistletoe
 mistral
@@ -13019,6 +13089,7 @@ monastery
 monastic
 monasticism
 monegasque
+monera
 monetarism
 monetarist
 monetization
@@ -13078,6 +13149,7 @@ monstrosity
 montage
 month
 monthly
+montrachet
 monument
 moo
 mooch
@@ -13188,6 +13260,7 @@ mountaineer
 mountainside
 mountebank
 mounter
+mountie
 mourner
 mournfulness
 mouse
@@ -13532,6 +13605,7 @@ nerd
 nerve
 nervelessness
 nervousness
+nesselrode
 nest
 nestle
 net
@@ -13666,6 +13740,7 @@ nitwit
 nix
 no
 nob
+nobelist
 nobelium
 nobility
 noble
@@ -13879,6 +13954,7 @@ oatcake
 oath
 oatmeal
 ob
+obamacare
 obbligato
 obduracy
 obedience
@@ -13940,6 +14016,7 @@ obviation
 obviousness
 ocarina
 occasion
+occident
 occidental
 occlusion
 occlusive
@@ -14023,6 +14100,7 @@ ointment
 okapi
 okay
 okra
+oktoberfest
 old
 oldie
 oldness
@@ -14035,6 +14113,7 @@ oligarchy
 oligonucleotide
 oligopoly
 olive
+olympiad
 olympian
 ombudsman
 omega
@@ -14156,6 +14235,7 @@ organizer
 organza
 oriel
 orient
+orientalism
 orientalist
 orientation
 orifice
@@ -14581,6 +14661,7 @@ parity
 park
 parka
 parking
+parkinsonism
 parkland
 parkway
 parlance
@@ -14589,6 +14670,7 @@ parley
 parliament
 parliamentarian
 parlor
+parmesan
 parochialism
 parodist
 parody
@@ -15371,6 +15453,8 @@ platform
 plating
 platinum
 platitude
+platonism
+platonist
 platoon
 platter
 platy
@@ -15482,6 +15566,7 @@ pod
 podiatrist
 podiatry
 podium
+podunk
 poem
 poesy
 poet
@@ -15783,6 +15868,7 @@ prawn
 prayer
 preacher
 preachment
+preakness
 preamble
 prearrangement
 precariousness
@@ -16471,6 +16557,7 @@ quitclaim
 quittance
 quitter
 quiver
+quixotism
 quiz
 quizzer
 quoin
@@ -16694,6 +16781,7 @@ readiness
 reading
 readout
 ready
+reaganomics
 real
 realism
 realist
@@ -16702,6 +16790,7 @@ realization
 realm
 realness
 realpolitik
+realtor
 realty
 ream
 reamer
@@ -17181,6 +17270,7 @@ ridgepole
 ridicule
 ridiculousness
 riding
+riesling
 riff
 riffle
 riffraff
@@ -17330,6 +17420,7 @@ rooter
 rootlet
 rope
 roper
+roquefort
 rosary
 rose
 rosebud
@@ -17344,6 +17435,7 @@ roster
 rostrum
 rot
 rota
+rotarian
 rotary
 rotation
 rote
@@ -17589,6 +17681,7 @@ salvation
 salve
 salver
 salvo
+salyut
 samarium
 samba
 same
@@ -17789,6 +17882,7 @@ schizophrenic
 schlemiel
 schlep
 schlock
+schloss
 schmaltz
 schmo
 schmooze
@@ -17825,6 +17919,7 @@ schwa
 sciatica
 science
 scientist
+scientologist
 scimitar
 scintilla
 scintillation
@@ -18447,6 +18542,7 @@ shrike
 shrillness
 shrimp
 shrine
+shriner
 shrink
 shrinkage
 shroud
@@ -18682,6 +18778,7 @@ skunk
 sky
 skycap
 skydiver
+skylab
 skylark
 skylight
 skyline
@@ -18944,6 +19041,7 @@ soapiness
 soapstone
 soapsuds
 soar
+soave
 sob
 sobbing
 soberness
@@ -19114,6 +19212,7 @@ sow
 sower
 soy
 soybean
+soyuz
 spa
 space
 spacecraft
@@ -19928,6 +20027,7 @@ sucker
 sucrose
 suction
 suddenness
+sudoku
 suds
 sue
 suede
@@ -20020,6 +20120,7 @@ sup
 super
 superabundance
 superannuation
+superbowl
 supercargo
 supercharger
 superciliousness
@@ -20029,6 +20130,7 @@ superego
 supererogation
 superficiality
 superfluity
+superfund
 supergrass
 superhighway
 superintendence
@@ -20340,6 +20442,7 @@ tallboy
 tallness
 tallow
 tally
+talmudist
 talon
 talus
 tam
@@ -20637,6 +20740,7 @@ tern
 ternary
 terrace
 terrain
+terran
 terrapin
 terrarium
 terribleness
@@ -20666,6 +20770,7 @@ testimony
 testiness
 testis
 testosterone
+tet
 tetanus
 tether
 tetra
@@ -20975,6 +21080,7 @@ toiler
 toilet
 toiletry
 toilette
+tokay
 toke
 token
 tole
@@ -21067,6 +21173,7 @@ tortuousness
 torture
 torturer
 torus
+tory
 tosh
 toss
 tossup
@@ -21274,6 +21381,7 @@ treetop
 trefoil
 trek
 trekker
+trekkie
 trellis
 trematode
 tremble
@@ -22011,6 +22119,7 @@ victim
 victimization
 victor
 victorian
+victorianism
 victory
 victual
 vicuna
@@ -22626,6 +22735,7 @@ wine
 wineglass
 winemaker
 winery
+winesap
 wing
 wingspan
 wingspread
@@ -22946,6 +23056,7 @@ zest
 zestfulness
 zeta
 zigzag
+zika
 zilch
 zillion
 zinc

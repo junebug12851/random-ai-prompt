@@ -79,6 +79,11 @@ Aquinas
 Aquino
 Araceli
 Arafat
+Ariosto
+Aristarchus
+Aristides
+Aristophanes
+Arius
 Arkwright
 Arline
 Arminius
@@ -127,6 +132,7 @@ Barabbas
 Barack
 Barbarossa
 Bardeen
+Barents
 Barkley
 Barnabas
 Barnaby
@@ -252,6 +258,7 @@ Brecht
 Brennan
 Brenner
 Brezhnev
+Brillouin
 Britten
 Browne
 Brubeck
@@ -288,6 +295,7 @@ Cagney
 Caiaphas
 Cain
 Calderon
+Caligula
 Callaghan
 Camacho
 Camoens
@@ -341,8 +349,10 @@ Chandragupta
 Chandrasekhar
 Chaney
 Chang
+Charlemagne
 Chasity
 Chateaubriand
+Chatterley
 Chatterton
 Chaucer
 Chavez
@@ -387,6 +397,7 @@ Comte
 Condillac
 Condorcet
 Confucius
+Congreve
 Connery
 Connolly
 Connors
@@ -474,6 +485,8 @@ Dillinger
 DiMaggio
 Diocletian
 Diogenes
+Dirac
+Dirichlet
 Disraeli
 Doctorow
 Dodgson
@@ -850,7 +863,9 @@ Imus
 Inge
 Ingres
 Inonu
+Ionesco
 Iqbal
+Iscariot
 Isherwood
 Ishmael
 Isidro
@@ -1417,6 +1432,7 @@ Phipps
 Piaf
 Piaget
 Picasso
+Pilate
 Pincus
 Pindar
 Pinochet
@@ -1450,6 +1466,10 @@ Praxiteles
 Preminger
 Presley
 Priestley
+Prokofiev
+Protagoras
+Proudhon
+Proust
 Pruitt
 Ptolemy
 Puccini
@@ -1616,6 +1636,7 @@ Schwarzenegger
 Schwarzkopf
 Schweitzer
 Schwinger
+Scorsese
 Scriabin
 Scruggs
 Sculley
@@ -1783,6 +1804,7 @@ Tiberius
 Tillich
 Timur
 Tintoretto
+Titian
 Tito
 Tojo
 Tokugawa

@@ -1,18 +1,33 @@
-daytime
-day light
 afternoon
-evening
-dusk
-twilight
+christmastime
 dawn
+day light
+daytime
+december
+dusk
+early evening
+early morning
+evening
+february
+friday
+january
+july
+late afternoon
+late evening
+late morning
+midday
+middle of the night
+midnight
+monday
 morning
 night
-early morning
-late morning
 noon
-midday
-late afternoon
-early evening
-late evening
-midnight
-middle of the night
+november
+october
+saturday
+september
+sunday
+thursday
+tuesday
+twilight
+wednesday

@@ -351,9 +351,11 @@ Kiribati
 Kirinyaga
 Kisangani
 Kishinev
+Knossos
 Kolyma
 Kommunizma
 Korea
+Krakatoa
 Kuibyshev
 Kurdistan
 Kuznetsk
@@ -364,6 +366,7 @@ Lancashire
 Lanka
 Lapland
 Lascaux
+Lateran
 Latvia
 Laurasia
 Leningrad
@@ -377,6 +380,7 @@ Limpopo
 Lithuania
 Loire
 Lombardy
+Louvre
 Loyang
 Lusitania
 Luzon
@@ -443,6 +447,7 @@ Myanmar
 Mycenae
 Namibia
 Nanchang
+Narmada
 Nauru
 Nazca
 Ndjamena
@@ -461,6 +466,7 @@ Nigeria
 Nile
 Nippon
 Novokuznetsk
+Nubia
 Nunavut
 Nyasa
 Oahu
@@ -506,15 +512,19 @@ Pentagon
 Persepolis
 Philly
 Phrygia
+Piccadilly
 Pickwick
 Pilcomayo
 Pinatubo
 Pocono
+Polynesia
+Pomerania
 Pontchartrain
 Poona
 Popocatepetl
 Portugal
 Prado
+Pribilof
 Principe
 Provence
 Prussia
@@ -593,6 +603,7 @@ Somalia
 Somme
 Songhua
 Spain
+Spitsbergen
 St
 Stalingrad
 Staten
@@ -628,6 +639,7 @@ Tarkington
 Tartary
 Tasmania
 Tenn
+Tenochtitlan
 Teotihuacan
 Tetons
 Tex

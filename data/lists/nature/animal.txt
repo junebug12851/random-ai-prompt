@@ -10,9 +10,12 @@ Anglerfish
 Angora rabbit
 Anomalocaris
 Ant
+Apatosaurus
+Appaloosa
 Arachnid
 Arapaima
 Arowana
+Australopithecus
 Axolotl
 Azure-winged Magpie
 Bald Eagle
@@ -38,6 +41,7 @@ Blue-eyed Cockatoo
 Blue-footed Booby
 Bluebird
 Boar
+Brontosaurus
 Bug
 Bull
 Bullfrog
@@ -46,6 +50,7 @@ Butterflyfish
 Camel
 Camel spider
 Canada goose
+Capuchin
 Capybara
 Carp
 Carrion Crow
@@ -55,6 +60,8 @@ Caterpillar
 Catfish
 Cave cricket
 Centipede
+Charbray
+Charolais
 Cheetah
 Chick
 Chick, bird
@@ -87,10 +94,13 @@ Crustacean
 Cuckoo
 Cuttlefish
 Cymothoa exigua
+Debouillet
 Deer
 Dik Dik
 Dingo
+Doberman
 Dodo
+Doe
 Dog
 Dolphin
 Dolphins
@@ -98,6 +108,7 @@ Dragonfly
 Duck
 Duckling
 Dunkleosteus
+Duroc
 Dusky Thrush
 Eagle
 Earthworm
@@ -127,12 +138,15 @@ Frill-necked lizard
 Frog
 Frogmouth
 Galapagos Giant Tortoise
+Gelbvieh
+Gentoo
 Giraffe
 Goat
 Goblin shark
 Golden Parakeet
 Goldfish
 Goose
+Gopher
 Gorilla
 Goshawk
 Grasshopper
@@ -183,11 +197,13 @@ Lamb
 Lamprey
 Larva
 Leafy Seadragon
+Leghorn
 Leopard
 Leopard eel
 Leucochloridium paradoxum
 Lilac-breasted Roller
 Lion
+Lipizzaner
 Little Egret
 Lizard
 Lobster
@@ -213,6 +229,7 @@ Mouse
 Naked mole rat
 Narcissus Flycatcher
 Narwhal
+Nautilus
 Needlefish
 Nightingale
 Northern Cardinal
@@ -238,14 +255,17 @@ Panther
 Parakeet
 Parrot
 Peacock
+Pekingese
 Pelican
 Penguin
+Percheron
 Peregrine Falcon
 Pig
 Piglet
 Pillbug
 Piranha
 Platypus
+Pomeranian
 Porcupine
 Praying Mantis
 Puffer fish
@@ -263,12 +283,14 @@ Rhinoceros
 Rodent
 Rooster
 Rose-ringed Parakeet
+Rottweiler
 Sailfish
 Salamander
 Salmon
 Saury
 Saw shark
 Sawfish
+Schnauzer
 Scorpion
 Sea anemone
 Sea cucumber
@@ -278,9 +300,11 @@ Seahorse
 Seal
 Shark
 Sheep
+Shorthorn
 Shrimp
 Siamese fighting fish
 Siberian Crane
+Simmental
 Snake
 South Island Giant Moa
 Southern Boobook
@@ -316,4 +340,5 @@ Yellow tang
 Yellow-headed Amazon
 Yellow-rumped Flycatcher
 Yellowtip Cockatoo
+Yorkie
 Zebra

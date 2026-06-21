@@ -49,6 +49,7 @@ Bokkenrijders Dutch
 Bokrug Lovecraftian
 Bonnacon Medieval
 Boo Hag American
+Brownie
 Brownie English and Scottish
 Bucca Cornish
 Bugbear English
@@ -285,6 +286,7 @@ Spectre
 Sphinx Greek
 Spider of Leng Lovecraftian
 Spriggan Cornish
+Sprite
 Strix Roman
 Succubus Medieval
 Sylph

@@ -131,8 +131,21 @@ WordNet doesn't know proper nouns, so the ~8,859 names it left in `keyword.txt` 
    `organization`, `mythology`, `astronomy`, `people-group`, `religion`, `history`, and `work`. This is the
    one place individual judgment beats both dictionaries and POS rules — there is no lookup table that
    knows *Achernar* is a star or *Accenture* a company. `build-categories.mjs` enforces a coverage check
-   (moved + remainder == base) so nothing is ever lost; anything not confidently classified stays in
-   `keyword.txt` (now ~593 abbreviations / fragments). `keyword.txt` went 8,859 → 593.
+   (moved + remainder == base) so nothing is ever lost; anything not confidently classified stayed in
+   `keyword.txt`. `keyword.txt` went 8,859 → 593.
 
 Slurs surfaced during this pass (`Jap`, `Negress`, `Negroid`) were added to `contentSafety.js` and purged
 rather than categorized.
+
+### Second keyword pass (2026-06-20)
+
+The ~593 remainder was still a grab-bag (gods, dinosaurs, dog/cattle breeds, wines, cheeses, languages,
+geologic eras, chemical symbols, month/day abbreviations, inflected junk). A second hand-classification
+(`scripts/list-cleanup/reclassify-keyword.mjs`, explicit decision per entry + coverage assertion) relocated
+354 entries to their proper lists (nature/animal, lore/mythology|astronomy|history|religion|people-group,
+place/place, name/person|given-name, style/art-movement, brand/organization, nature/flower|mythological-creature,
+look/hair|time|clothes-sfw, word/noun|adjective|verb), **dropped 219** junk entries (element symbols,
+abbreviations, inflected tech artifacts, fragments, units), and **kept 20** (languages/writing systems with
+no dedicated list). So `keyword-sfw.txt` went 593 → 20. NOTE: `keyword` is still the default
+`keywordsFilename` / `{keyword}` alias source — now thin; repointing the default to a richer list/group is an
+open follow-up.

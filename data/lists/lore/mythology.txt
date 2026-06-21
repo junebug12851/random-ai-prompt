@@ -13,6 +13,8 @@ Alcmena
 Amaterasu
 Andromache
 Antaeus
+Antigone
+Anubis
 Aphrodite
 Argo
 Argonaut
@@ -22,12 +24,16 @@ Arjuna
 Artemis
 Asgard
 Astarte
+Atalanta
 Athene
+Atlantes
 Atreus
 Atropos
 Avernus
 Azazel
 Baal
+Babel
+Bacchanalia
 Bacchus
 Balder
 Beelzebub
@@ -113,6 +119,7 @@ Hyperion
 Iapetus
 Iblis
 Icarus
+Indra
 Io
 Iphigenia
 Iris
