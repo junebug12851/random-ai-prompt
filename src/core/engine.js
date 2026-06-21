@@ -87,7 +87,7 @@ export function createEngine(loader) {
     const settings = { ...baseSettings, ...userSettings };
     const imageSettings = {};
     const upscaleSettings = {};
-    return expand(settings.prompt ?? "{#random}", settings, imageSettings, upscaleSettings);
+    return expand(settings.prompt ?? "{#random-words}", settings, imageSettings, upscaleSettings);
   }
 
   /**

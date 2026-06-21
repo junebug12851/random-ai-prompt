@@ -47,7 +47,7 @@ category never has to be typed). A folder with 2+ generators is also a **pick-on
 | `v2/subject/` | Subjects — the `entity` polymorphism, `person`, `animal`, `knight`, the `portrait-*` family, … |
 | `v2/fragment/` | Partial modifiers / garnishes composed into fulls — `color`, `glow`, `weather`, `nature`, … |
 | `v2/style/` | Art-style & product-render templates (mostly publicprompts.art) — the `3d-*` set, `comic`, `sticker`, `funko-3d-print`, … |
-| `v2/engine/` | Random generators + the auto-append / special composites — `random`, `random-prompt`, `artists`, `fx`, `danbooru` |
+| `v2/prompt/` | Whole-prompt builders & tag streams (force-prefixed → `{#prompt/…}`) — `random` (composite), `random-words`, `simple-random`, `extra-random`, `artists`, `fx`, `d` (danbooru) |
 | `v2/user/` | Community-submitted generators (`{#user-name}`) |
 
 `v1/` is the **frozen** original monolithic set (addressed `{#name-v1}`). v1 generators bake in

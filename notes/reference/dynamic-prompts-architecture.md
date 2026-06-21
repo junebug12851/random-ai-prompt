@@ -37,7 +37,7 @@ being replaced — nothing active imports the legacy stage, and it is not kept i
 ## The v2/ reorg (ported from lists/expansions)
 
 The generators are sorted into category folders under a new `v2/` root —
-`v2/{scene,subject,fragment,style,engine,user}/` — purely for organization, with `v1/` left
+`v2/{scene,subject,fragment,style,prompt,user}/` — purely for organization, with `v1/` left
 frozen. The move + import rewrites are scripted in
 [`scripts/reorg-dynprompts-v2.mjs`](../../scripts/reorg-dynprompts-v2.mjs), which resolves each
 import's old→new absolute path so both `src/` helper imports (now `../../../../src/…` from a v2
@@ -94,15 +94,14 @@ are unique, so tokens are bare), but the machinery is wired for parity.
 ## The UI: Full / Partial tabs + v1/v2 superset links (2.5.0)
 
 The SPA ([`web-app/src/lib/promptEngine.js`](../../web-app/src/lib/promptEngine.js) `getBlocks` +
-[`Home.jsx`](../../web-app/src/components/Home.jsx)) splits dynamic prompts into two navbar tabs —
-**"Full prompts"** (full generators) and **"Partial prompts"** (partials) — each grouped under
-category-folder pills. A folder pill is a **clickable group button** when the folder is an implied group
-(inserts `{#folder}` = a random generator of that folder; the lone `v2/user/` folder is force-enabled via
-an `_enable-group-list` marker so `{#user}` works); the `{#any}` family is a clickable "any" pill
-(inserts `{#any}`) with `{#any-sfw}` / `{#any-nsfw}` entries, exactly like the lists' `keyword` pill. **v1/v2
-are superset links rendered inline next to each tab's label** (`dynVer` state, v2 default): each
-dynamic block is `dynVersioned` and carries `variants.v2` / `variants.v1`, and the links switch the whole
-catalog (v1 is all-full, so its Partial tab is empty). The classifier
+[`Home.jsx`](../../web-app/src/components/Home.jsx)) groups dynamic prompts under a single **"Prompts"**
+navbar heading that carries one **v1/v2 superset switch** (`dynVer` state; rendered `v1 v2`, v2 selected by
+default) and two sub-tabs — **full** and **partial**. Within a sub-tab, generators sit under category-folder
+pills; a folder pill is a **clickable group button** when the folder is an implied group (inserts
+`{#folder}` = a random generator of that folder), and the `{#any}` family is a clickable "any" pill
+(inserts `{#any}`) with `{#any-sfw}` / `{#any-nsfw}` entries, exactly like the lists' `keyword` pill. Each
+dynamic block is `dynVersioned` and carries `variants.v2` / `variants.v1`, so the switch swaps the whole
+catalog (v1 is all-full, so its partial sub-tab is empty). The classifier
 [`src/promptFilesAndSuggestions.js`](../../src/promptFilesAndSuggestions.js) still classifies full/partial
 (for the `{#random}` suggestion builder) and applies the same name-token gating to its pools.
 

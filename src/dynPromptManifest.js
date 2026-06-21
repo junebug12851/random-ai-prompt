@@ -37,7 +37,7 @@ export function isReservedAny(name) {
  * @type {Object<string,{category?:string,anime?:boolean,nsfw?:boolean}>}
  */
 export const dynPromptTags = {
-  "v2/engine/danbooru": { category: "engine", anime: true, nsfw: false },
+  "v2/prompt/d": { category: "prompt", anime: true, nsfw: false },
 };
 
 /**

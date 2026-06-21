@@ -9,14 +9,16 @@ see [`reference/versioning.md`](reference/versioning.md)).
 **Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
 expansions (`<lighting>` splices one random expansion). Added the `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
-wildcard (one random generator from the whole catalog, `{keyword}`-style mode variants). Reworked the SPA
-navbar: **"Full prompts" and "Partial prompts"** tabs with clickable folder-group pills, and **v1/v2
-superset links inline next to each tab label** (v2 default). The "pick one"
-always resolves to ONE concrete generator/snippet, never a line union.
+wildcard (one random generator from the whole catalog, `{keyword}`-style mode variants). Renamed the
+`engine/` category to **`prompt/`** (force-prefixed → `{#prompt/…}`): `danbooru`→`d`, `random`→`random-words`,
+and `*-prompt`→`*` (so `{#prompt/random}` is the composite; the default `settings.prompt` is now
+`{#random-words}`). Reworked the SPA navbar into a single **"Prompts"** heading with one **v1/v2 superset
+switch** (v2 default) over **full** / **partial** sub-tabs; folder-group and `{#any}` pills are clickable.
+The "pick one" always resolves to ONE concrete generator/snippet, never a line union.
 
 **Dynamic prompts (2.3.0 + 2.4.0):** `data/dynamic-prompts/` was brought to full parity with the
 list/expansion systems. **2.3.0:** the 79 v2 generators (+ the user-submitted one) were reorganized into
-category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`engine`/`user`), `v1/` left
+category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`prompt`/`user`), `v1/` left
 frozen; resolution by **path suffix**, `<name>.json` description sidecars, `_`-internal / `_force-prefix` /
 `compareNames`. **2.4.0:** the sigil became **`{#name}`** (brace-delimited like `{list}`/`<expansion>`,
 `/`-path capable; bare `#name` retired — 204 internal refs migrated, v1 untouched); automatic NSFW gating

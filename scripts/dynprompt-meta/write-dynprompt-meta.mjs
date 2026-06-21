@@ -11,15 +11,19 @@ import path from "node:path";
 const root = path.join(import.meta.dirname, "..", "..", "data", "dynamic-prompts");
 
 const D = {
-  // ---- category folders (tooltip on the category, for future folder views) ----
-  v2: "Version-2 generators — the composable refactor, organized into categories.",
-  "v2/scene": "Full standalone scenes & places.",
-  "v2/subject": "Subjects — entities, people, creatures, portraits.",
-  "v2/fragment": "Partial modifiers / garnishes composed into full prompts.",
-  "v2/style": "Art-style & product-render templates (mostly publicprompts.art).",
-  "v2/engine": "Random generators plus the auto-append / special composites.",
-  "v2/user": "Community-submitted generators (#user-name).",
-  v1: "Frozen original (v1) generators — addressed #name-v1, fx/artists baked in.",
+  // ---- category folders (the category-pill tooltip; describe the category itself) ----
+  v2: "The current generators, organized by what they produce.",
+  "v2/scene":
+    "Complete scenes and places — landscapes, cityscapes, interiors, vehicles, and other full settings.",
+  "v2/subject": "Subjects to depict — people, animals, creatures, and portraits.",
+  "v2/fragment":
+    "Garnishes that flavor a prompt — colors, lighting, weather, moods, and material accents.",
+  "v2/style":
+    "Art styles and product-render looks — 3D / isometric, stickers, figurines, comic, poster, and more.",
+  "v2/prompt":
+    "Whole-prompt builders and tag streams — random prompt generators, auto-added artists & fx, and danbooru anime tags.",
+  "v2/user": "Community-submitted generators.",
+  v1: "The original frozen generators (addressed -v1), kept so old looks stay reproducible.",
 
   // ---- v2/scene ----
   "v2/scene/beach": "A beach / coastal scene — palm trees, sand, ocean.",
@@ -102,14 +106,14 @@ const D = {
   "v2/style/retro-poster": "Retro travel-poster style.",
   "v2/style/vibrant-art": "Vivid, saturated art style.",
 
-  // ---- v2/engine ----
-  "v2/engine/random": "The default #random — a pile of random {keyword} pulls (maximum chaos).",
-  "v2/engine/random-prompt": "A composite random suggestion (full, AND-weighted blends).",
-  "v2/engine/simple-random-prompt": "A single, lighter random suggestion.",
-  "v2/engine/extra-random-prompt": "A total-random suggestion drawing from every list.",
-  "v2/engine/artists": "Auto-appended artist tags (#artists).",
-  "v2/engine/fx": "Auto-appended visual-effect / quality tags (#fx).",
-  "v2/engine/danbooru": "An anime tag stream — danbooru general / character / meta tags.",
+  // ---- v2/prompt ----
+  "v2/prompt/random": "A composite random prompt — full scenes in AND-weighted blends.",
+  "v2/prompt/random-words": "A pile of completely random keywords (maximum chaos).",
+  "v2/prompt/simple-random": "A single, lighter random prompt suggestion.",
+  "v2/prompt/extra-random": "A total-random prompt drawing from every list.",
+  "v2/prompt/artists": "Auto-appended artist tags.",
+  "v2/prompt/fx": "Auto-appended visual-effect / quality tags.",
+  "v2/prompt/d": "Danbooru anime tag stream (general / character / meta).",
 
   // ---- v2/user ----
   "v2/user/beach-merk": "Community beach scene by Merk (composes siblings as direct imports).",

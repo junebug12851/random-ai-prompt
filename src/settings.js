@@ -226,11 +226,11 @@ export default {
   promptSaltStart: -1,
 
   // The prompt to use
-  // {#random} is replaced with the random prompt generated here
+  // {#random-words} is replaced with the random prompt generated here
   // {#name} runs a dynamic-prompt generator; {keyword} is the selected keywords list
   // file; {artist} is the selected artist list file
   // You can alternatively use {keyword} or {artist} or any other file in
   // ./data for a single random element from that file
   /*--prompt <prompt>*/
-  prompt: "{#random}",
+  prompt: "{#random-words}",
 };

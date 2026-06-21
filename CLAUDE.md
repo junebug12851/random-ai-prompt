@@ -59,7 +59,7 @@ The full notes system is in `notes/`, organized by topic:
   and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
 - **Dynamic prompts live under `data/dynamic-prompts/` (the documented `src/`→`data/` exception),
   organized into `v2/<category>/` with `v1/` frozen.** As of 2.3.0 the v2 generators are sorted into
-  category folders (`v2/{scene,subject,fragment,style,engine,user}/`) and as of 2.4.0 are written
+  category folders (`v2/{scene,subject,fragment,style,prompt,user}/`; `prompt/` is `_force-prefix`ed) and as of 2.4.0 are written
   **`{#name}`** (brace-delimited like `{list}`/`<expansion>`; the bare `#name` form is gone — folders are
   organization only, **never** `{#folder}` groups). `{#name}` resolves by **path suffix** (the shared
   `resolveName`, same as lists/expansions), so refs stay short and folder-independent. `{#name-v1}`

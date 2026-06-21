@@ -85,7 +85,7 @@ export default function Home({ settings, setSettings }) {
   useEffect(() => {
     const roll = () => {
       try {
-        setSuggestion(generatePrompt({ ...settingsRef.current, prompt: "{#random}" }));
+        setSuggestion(generatePrompt({ ...settingsRef.current, prompt: "{#random-words}" }));
       } catch {
         /* engine not ready — skip this tick */
       }
@@ -110,7 +110,7 @@ export default function Home({ settings, setSettings }) {
   function buildPrompts() {
     setError("");
     try {
-      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "{#random}" };
+      const base = prompt && prompt.trim() ? settings : { ...settings, prompt: suggestion || "{#random-words}" };
       setPrompts(generatePrompts(base));
     } catch (e) {
       setError(e.message || String(e));
@@ -202,38 +202,53 @@ export default function Home({ settings, setSettings }) {
         ) : (
           <>
             <nav className="cat-tabs">
-              {filtered.map((b) => (
-                <div
-                  key={b.title}
-                  className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setActiveCat(b.title)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveCat(b.title)}
-                >
-                  <span className="cat-name">{b.title}</span>
-                  {/* v1/v2 superset links sit right next to the dynamic tab labels (v2 default). */}
-                  {b.dynVersioned && (
-                    <span className="ver-links" style={{ display: "inline-flex", gap: "2px", marginLeft: "6px" }}>
-                      {["v2", "v1"].map((v) => (
+              {/* "Prompts" group: one v1/v2 superset switch (v2 default) over full/partial sub-tabs. */}
+              {filtered.some((b) => b.dynVersioned) && (
+                <div className="cat-group" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <div className="cat-group-head" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span className="cat-name">Prompts</span>
+                    <span className="ver-links" style={{ display: "inline-flex", gap: "2px" }}>
+                      {["v1", "v2"].map((v) => (
                         <button
                           key={v}
                           className={`ver-link${dynVer === v ? " on" : ""}`}
                           style={{ textTransform: "uppercase", fontWeight: 700, fontSize: "0.72em", opacity: dynVer === v ? 1 : 0.45, background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
                           title={v === "v2" ? "Current generators" : "Frozen legacy (v1) generators"}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDynVer(v);
-                          }}
+                          onClick={() => setDynVer(v)}
                         >
                           {v}
                         </button>
                       ))}
                     </span>
-                  )}
-                  <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
+                  </div>
+                  <div className="cat-subtabs" style={{ display: "flex", gap: "4px", paddingLeft: "8px" }}>
+                    {filtered
+                      .filter((b) => b.dynVersioned)
+                      .map((b) => (
+                        <button
+                          key={b.title}
+                          className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
+                          onClick={() => setActiveCat(b.title)}
+                        >
+                          <span className="cat-name">{b.subLabel || b.title}</span>
+                          <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
+                        </button>
+                      ))}
+                  </div>
                 </div>
-              ))}
+              )}
+              {filtered
+                .filter((b) => !b.dynVersioned)
+                .map((b) => (
+                  <button
+                    key={b.title}
+                    className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
+                    onClick={() => setActiveCat(b.title)}
+                  >
+                    <span className="cat-name">{b.title}</span>
+                    <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
+                  </button>
+                ))}
             </nav>
 
             <div className="chip-area">

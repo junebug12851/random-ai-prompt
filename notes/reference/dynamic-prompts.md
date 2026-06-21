@@ -8,7 +8,7 @@ raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the
 [../systems/core-engine.md](../systems/core-engine.md).
 
 As of **2.3.0** the v2 generators are sorted into category folders under `data/dynamic-prompts/v2/`
-(`scene` / `subject` / `fragment` / `style` / `engine` / `user`), `v1/` stays frozen, and `{#name}` resolves
+(`scene` / `subject` / `fragment` / `style` / `prompt` / `user`), `v1/` stays frozen, and `{#name}` resolves
 by **path suffix** (shared `resolveName`) so every reference stays short and category-independent. The full
 parity design (sidecars, `_force-prefix`, the verification seam) is in
 [dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).
@@ -59,18 +59,21 @@ results, gated by an entity-class filter. Thin wrappers specialize it: `animal.j
 publicprompts.art templates embed `{#entity}` / `{#person}` / `{#living-entity}` / `{#entity-name}` as their
 "`<name>`" slot, so one template yields wildly different subjects each run.
 
-## The three random engines
+## The random prompt generators
 
-| Prompt | File | Behavior |
-|--------|------|----------|
-| `{#random}` (the default `settings.prompt`) | `v2/engine/random.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
-| composite suggestion | `v2/engine/random-prompt.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
-| simple suggestion | `v2/engine/simple-random-prompt.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
-| total-random dict | `v2/engine/extra-random-prompt.js` | Forces `keywordsFilename`/`artistFilename = false` then runs the random prompt — any list, maximum chaos. |
+These live in the **`v2/prompt/`** category (force-prefixed, so they show/insert as `{#prompt/…}`).
 
-`v2/engine/artists.js` and `v2/engine/fx.js` are the two prompts the pipeline **auto-appends** (`{#artists}`,
-`{#fx}`) when `autoAddArtists` / `autoAddFx` are on (resolved by suffix, so their category is irrelevant);
-`v2/engine/danbooru.js` composes anime tag streams (`{d-general}` + `{d-character}` + `{d-meta}`).
+| Token | File | Behavior |
+|-------|------|----------|
+| `{#prompt/random-words}` (the default `settings.prompt`) | `v2/prompt/random-words.js` | A pile of random `{keyword}` pulls via `keywordRepeater` — the "completely random keywords" mode. |
+| `{#prompt/random}` (composite) | `v2/prompt/random.js` | Calls the suggestion builder `promptSuggestion(true)` (full, AND-weighted blends); stores `settings.randomPrompt`. |
+| `{#prompt/simple-random}` | `v2/prompt/simple-random.js` | `promptSuggestion()` (single full prompt, lighter garnish). |
+| `{#prompt/extra-random}` | `v2/prompt/extra-random.js` | Forces `keywordsFilename`/`artistFilename = false` then runs `random` — any list, maximum chaos. |
+
+`v2/prompt/artists.js` and `v2/prompt/fx.js` are the two prompts the pipeline **auto-appends** (`{#artists}`,
+`{#fx}`) when `autoAddArtists` / `autoAddFx` are on (resolved by suffix, so the force-prefix is display-only);
+`v2/prompt/d.js` composes danbooru anime tag streams (`{d-general}` + `{d-character}` + `{d-meta}`). (Renamed
+from the old `engine/` folder in 2.5.0: `danbooru`→`d`, `random`→`random-words`, and `*-prompt`→`*`.)
 
 ## v1 vs v2 — the decomposition story
 

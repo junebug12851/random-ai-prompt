@@ -267,6 +267,7 @@ export function getBlocks() {
   const blocks = [
     {
       title: "Full prompts",
+      subLabel: "full",
       hint: "Full generator scripts — {#name} (a folder pill picks one at random)",
       dynVersioned: true,
       variants: { v2: [...dynWildcardItems(), ...dynCatItems(v2Full)], v1: dynV1Items() },
@@ -274,6 +275,7 @@ export function getBlocks() {
     },
     {
       title: "Partial prompts",
+      subLabel: "partial",
       hint: "Garnish generators that complement other parts of a prompt",
       dynVersioned: true,
       variants: { v2: dynCatItems(v2Partial), v1: [] },
