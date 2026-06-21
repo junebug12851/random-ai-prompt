@@ -42,7 +42,13 @@ Ordered, roughly by priority. Update as items are done or added.
    rule, `+name(args)` scope, file layout) and prototype a parser that compiles `.dpl` → the existing
    generator contract, with the `.js`/`.dpl` loaders coexisting for incremental migration.
 
-8. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
+8. **v3 — the weighted-layer prompt engine.** Direction captured (exploratory) in
+   [`v3-layers.md`](v3-layers.md): replace ordering-by-position with ordering-by-weight over a layer tree
+   (file/section/line are layers; the prompt box is the root), retire the "full prompt" concept and have the
+   engine supply start/end blocks (likely via presets). DPL is its authoring language. Several mechanics still
+   open (weight scope, sort key, start/end UX). Shapes the DPL build (item 7) — settle these before coding.
+
+9. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
    flags benign init-then-overwrite patterns in `src/server.js` (×3), `src/web/backend/indexImages.js`
    (×2), and `src/web/frontend/single.js` (×1). Currently demoted to `warn` in `eslint.config.js`.
    Either tidy the dead stores or leave as-is (changing them is behavior-neutral here, but low value).

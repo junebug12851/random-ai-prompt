@@ -11,8 +11,9 @@ DPL**; it lives in referenced JavaScript. This keeps the language usable by non-
 in a real language.
 
 > **Scope note.** This describes the *language*, not the v2 "start / middle / end" prompt shape — that was a
-> v2 habit and **v3 will be structured differently**. DPL enforces no anchor/tail; lines run in document
-> order. `Start` is kept only as the **entry point** (where generation begins).
+> v2 habit and **v3 will be structured differently** (a weighted-layer engine — see
+> [../plans/v3-layers.md](../plans/v3-layers.md)). DPL enforces no anchor/tail; lines run in document order.
+> `Start` is kept only as the **entry point** (where generation begins).
 
 ## Design goals
 
