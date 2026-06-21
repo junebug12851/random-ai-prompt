@@ -646,6 +646,34 @@ select {
   border-color: var(--accent);
   color: var(--fg);
 }
+/* Category marker in the Lists block — an inline pill (flows with the chips, no line
+   break) before each folder's entries. A plain folder is a static label; a group
+   folder is a clickable pill (marked ⊕) that inserts the whole-folder group. */
+.cat-pill {
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px dashed var(--faint);
+}
+button.cat-pill-group {
+  cursor: pointer;
+  color: var(--fg-soft);
+  border-style: solid;
+  border-color: var(--accent);
+}
+button.cat-pill-group::after {
+  content: " ⊕";
+  color: var(--accent);
+  font-weight: 400;
+}
+button.cat-pill-group:hover {
+  color: var(--accent);
+}
 .picker-more {
   font-size: 0.76rem;
   color: var(--faint);

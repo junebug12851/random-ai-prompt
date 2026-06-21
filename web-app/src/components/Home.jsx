@@ -152,14 +152,33 @@ export default function Home({ settings, setSettings }) {
     navigator.clipboard?.writeText(p).catch(() => {});
   }
 
-  // Filter blocks by the single search box (matches token or label).
+  // Filter blocks by the single search box (matches token or label). Category pills
+  // (the Lists folder headers) are kept only when a following entry survives.
   const q = query.trim().toLowerCase();
+  const matchItem = (i) =>
+    (i.token || "").toLowerCase().includes(q) || (i.label || "").toLowerCase().includes(q);
+  function filterItems(items) {
+    if (!q) return items;
+    const out = [];
+    for (let k = 0; k < items.length; k++) {
+      const i = items[k];
+      if (i.category) {
+        let any = false;
+        for (let j = k + 1; j < items.length && !items[j].category; j++)
+          if (matchItem(items[j])) {
+            any = true;
+            break;
+          }
+        if (any) out.push(i);
+      } else if (matchItem(i)) {
+        out.push(i);
+      }
+    }
+    return out;
+  }
   const filtered = blocks
-    .map((b) => ({
-      ...b,
-      items: q ? b.items.filter((i) => i.token.toLowerCase().includes(q) || i.label.toLowerCase().includes(q)) : b.items,
-    }))
-    .filter((b) => b.items.length);
+    .map((b) => ({ ...b, items: filterItems(b.items) }))
+    .filter((b) => b.items.some((i) => !i.category));
 
   // The active category (falls back to the first available when the current
   // selection is filtered away or unset).
@@ -187,7 +206,7 @@ export default function Home({ settings, setSettings }) {
                   onClick={() => setActiveCat(b.title)}
                 >
                   <span className="cat-name">{b.title}</span>
-                  <span className="count-pill">{b.items.length}</span>
+                  <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
                 </button>
               ))}
             </nav>
@@ -195,11 +214,33 @@ export default function Home({ settings, setSettings }) {
             <div className="chip-area">
               {active && active.hint && <p className="cat-hint">{active.hint}</p>}
               <div className="picker-list">
-                {activeItems.slice(0, 400).map((i) => (
-                  <button key={i.token} className="chip" title={i.description ? `${i.token} — ${i.description}` : i.token} onClick={() => insert(i.token)}>
-                    {i.label}
-                  </button>
-                ))}
+                {activeItems.slice(0, 400).map((i, idx) =>
+                  i.category ? (
+                    i.token ? (
+                      <button
+                        key={`cat-${i.label}-${idx}`}
+                        className="cat-pill cat-pill-group"
+                        title={i.description ? `${i.token} — ${i.description}` : i.token}
+                        onClick={() => insert(i.token)}
+                      >
+                        {i.label}
+                      </button>
+                    ) : (
+                      <span key={`cat-${i.label}-${idx}`} className="cat-pill" title={i.description || i.label}>
+                        {i.label}
+                      </span>
+                    )
+                  ) : (
+                    <button
+                      key={i.token}
+                      className="chip"
+                      title={i.description ? `${i.token} — ${i.description}` : i.token}
+                      onClick={() => insert(i.token)}
+                    >
+                      {i.label}
+                    </button>
+                  ),
+                )}
                 {activeItems.length > 400 && <span className="picker-more">+{activeItems.length - 400} more — keep typing to filter</span>}
               </div>
             </div>

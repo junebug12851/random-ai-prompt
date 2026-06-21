@@ -87,15 +87,39 @@ const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: labe
 // and inserts this token (e.g. {color}, {d/general}) rather than the full path.
 const listDisplay = computeButtonNames(browserLoader.listNames(), browserLoader.forcedPrefixDirs());
 // Optional `<list>.json` sidecar description for the button tooltip. For an implicit
-// base ({d/general}) the SFW file carries it, so fall back to `<name>-sfw`.
-const listMetaFor = (n) => loader.readListMeta(n) || loader.readListMeta(`${n}-sfw`) || null;
-const listItems = () =>
-  browserLoader.listNames().map((n) => {
-    const item = { token: `{${listDisplay[n]}}`, label: listDisplay[n] };
-    const desc = listMetaFor(n)?.description;
-    if (desc) item.description = desc;
-    return item;
-  });
+// base ({d/general}) or a folder, the SFW file carries it, so fall back to `<name>-sfw`.
+const descFor = (n) => (loader.readListMeta(n) || loader.readListMeta(`${n}-sfw`) || null)?.description;
+
+// Build the Lists block as folder categories: an alphabetical run of lists per folder,
+// each preceded by a category pill (the folder's last-segment name + its description as
+// the tooltip). When the folder is itself an implied group, the pill is clickable and
+// inserts that group ({word}, {d}, ...) — merging the header and the group button.
+const listItems = () => {
+  const names = browserLoader.listNames();
+  const groupDirs = new Set(browserLoader.groupListDirs());
+  const byFolder = new Map();
+  for (const n of names) {
+    if (groupDirs.has(n)) continue; // folder-group names become pills, not entries
+    const i = n.lastIndexOf("/");
+    const folder = i < 0 ? "" : n.slice(0, i);
+    if (!byFolder.has(folder)) byFolder.set(folder, []);
+    byFolder.get(folder).push(n);
+  }
+  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
+  const folders = [...byFolder.keys()].sort((a, b) => lastSeg(a).localeCompare(lastSeg(b)));
+  const out = [];
+  for (const folder of folders) {
+    const pill = { category: true, label: lastSeg(folder), description: descFor(folder) };
+    if (groupDirs.has(folder)) pill.token = `{${listDisplay[folder]}}`; // clickable group
+    out.push(pill);
+    const entries = byFolder
+      .get(folder)
+      .map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n], description: descFor(n) }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+    out.push(...entries);
+  }
+  return out;
+};
 
 /**
  * @returns {object[]} The categorized building-block groups for the token cloud
