@@ -86,7 +86,11 @@ export function makeDynamicPromptStage(loader) {
       }
       const resolvePool = [...g.pool, ...g.groups];
 
-      // {#any} family — one random generator from the whole generation.
+      // {#any-ver} — one random generator from ALL generations (a global wildcard; unprefixed).
+      const anyVer = name.match(/^any-ver(?:-(sfw|nsfw))?$/i);
+      if (anyVer) return pickFrom(names, anyVer[1] ? anyVer[1].toLowerCase() : null);
+
+      // {#any} family — one random generator from this generation (the default v3 unless prefixed).
       if (isReservedAny(name)) {
         const m = name.match(/-(sfw|nsfw)$/i);
         return pickFrom(g.pool, m ? m[1].toLowerCase() : null);

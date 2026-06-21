@@ -20,8 +20,8 @@ const cases = [
   "{#v2/cave}", // frozen v2 by suffix within v2
   "{#scene}", // v3 implied folder group (pick one scene)
   "{#v2/scene}", // v2 implied folder group — frozen generations are first-class
-  "{#any}", // v3 wildcard
-  "{#v2/any}", // v2 wildcard
+  "{#any}", // v3 wildcard (current version)
+  "{#any-ver}", // global wildcard — any generator from ANY version
 ];
 
 let failed = 0;

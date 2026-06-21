@@ -12,8 +12,9 @@
  * @module web-app/components/Home
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getBlocks, generatePrompt, generatePrompts } from "../lib/promptEngine.js";
+import { getBlocks, generatePrompt, renderWrapperPart } from "../lib/promptEngine.js";
 import { saveCustomExpansion } from "../lib/customStore.js";
+import { DEFAULT_WRAPPER } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import WrapperButton from "./WrapperFab.jsx";
 
@@ -111,14 +112,20 @@ export default function Home({ settings, setSettings }) {
   function buildPrompts() {
     setError("");
     try {
-      // Frame the prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
+      // Frame each prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
+      // The wrapper boxes are DPL, so render them (probability/bullets) per prompt before joining.
       const text = prompt && prompt.trim() ? prompt : suggestion || "{#random-words}";
-      const w = settings.wrapper || {};
-      const wrapped = [w.start, text, w.end]
-        .map((s) => (s || "").trim())
-        .filter(Boolean)
-        .join(", ");
-      setPrompts(generatePrompts({ ...settings, prompt: wrapped }));
+      const w = settings.wrapper ?? DEFAULT_WRAPPER;
+      const count = Math.max(1, Number(settings.promptCount) || 1);
+      const out = [];
+      for (let i = 0; i < count; i++) {
+        const wrapped = [renderWrapperPart(w.start, settings), text, renderWrapperPart(w.end, settings)]
+          .map((s) => (s || "").trim())
+          .filter(Boolean)
+          .join(", ");
+        out.push(generatePrompt({ ...settings, prompt: wrapped }));
+      }
+      setPrompts(out);
     } catch (e) {
       setError(e.message || String(e));
     }
@@ -219,7 +226,7 @@ export default function Home({ settings, setSettings }) {
                     headDone = true;
                     rows.push(
                       <div key="__prompts" className="cat-head">
-                        <span className="cat-name">Prompts</span>
+                        <span className="cat-name">Blocks</span>
                         <span className="ver-links">
                           {["v3", "v2", "v1"].map((v) => (
                             <button

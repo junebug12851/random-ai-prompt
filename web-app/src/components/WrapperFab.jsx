@@ -8,7 +8,13 @@
  * @module web-app/components/WrapperFab
  */
 import { useEffect, useState } from "react";
-import { getWrappers, saveWrapper, removeWrapper, renameWrapper } from "../lib/wrapperStore.js";
+import {
+  getWrappers,
+  saveWrapper,
+  removeWrapper,
+  renameWrapper,
+  DEFAULT_WRAPPER,
+} from "../lib/wrapperStore.js";
 
 const ico = {
   width: 18,
@@ -45,7 +51,9 @@ export default function WrapperFab({ settings, setSettings }) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
 
-  const activeName = settings.wrapperName || "";
+  // No explicit choice yet → the built-in Default is in effect. "None" means "no wrapper".
+  const activeName = settings.wrapperName ?? "Default";
+  const isActive = activeName !== "None";
   const names = Object.keys(wrappers).sort((a, b) => a.localeCompare(b));
 
   // Close on Escape.
@@ -57,11 +65,10 @@ export default function WrapperFab({ settings, setSettings }) {
   }, [view]);
 
   function applyWrapper(n) {
-    if (!n) {
-      const next = { ...settings };
-      delete next.wrapper;
-      delete next.wrapperName;
-      setSettings(next);
+    if (n === "None") {
+      setSettings({ ...settings, wrapper: { start: "", end: "" }, wrapperName: "None" });
+    } else if (n === "Default") {
+      setSettings({ ...settings, wrapper: { ...DEFAULT_WRAPPER }, wrapperName: "Default" });
     } else {
       const w = wrappers[n] || { start: "", end: "" };
       setSettings({ ...settings, wrapper: { start: w.start, end: w.end }, wrapperName: n });
@@ -111,27 +118,16 @@ export default function WrapperFab({ settings, setSettings }) {
     removeWrapper(n);
     refresh();
     if (sel === n) newPreset();
-    if (activeName === n) applyWrapperSilent("");
-  }
-  // Clear the applied wrapper without closing the modal.
-  function applyWrapperSilent(n) {
-    if (!n) {
-      const next = { ...settings };
-      delete next.wrapper;
-      delete next.wrapperName;
-      setSettings(next);
-    } else {
-      const w = getWrappers()[n] || { start: "", end: "" };
-      setSettings({ ...settings, wrapper: { start: w.start, end: w.end }, wrapperName: n });
-    }
+    // If the deleted preset was applied, fall back to the built-in Default.
+    if (activeName === n) setSettings({ ...settings, wrapper: { ...DEFAULT_WRAPPER }, wrapperName: "Default" });
   }
 
   return (
     <>
       <button
-        className={`field-act wrap-trigger${activeName ? " on" : ""}`}
+        className={`field-act wrap-trigger${isActive ? " on" : ""}`}
         onClick={() => setView(view === "list" ? "" : "list")}
-        title={activeName ? `Wrapper: ${activeName}` : "Wrapper — frame every prompt with a start and end"}
+        title={`Wrapper: ${activeName} — frames every prompt with a start and end`}
         aria-label="Wrapper presets"
         aria-pressed={view === "list"}
       >
@@ -150,13 +146,20 @@ export default function WrapperFab({ settings, setSettings }) {
             </div>
             <div className="wrap-pop-list">
               <button
-                className={`wrap-pop-item${!activeName ? " on" : ""}`}
-                onClick={() => applyWrapper("")}
+                className={`wrap-pop-item${activeName === "Default" ? " on" : ""}`}
+                onClick={() => applyWrapper("Default")}
+              >
+                <span className="wrap-pop-name">Default</span>
+                {activeName === "Default" && <span className="wrap-check">✓</span>}
+              </button>
+              <button
+                className={`wrap-pop-item${activeName === "None" ? " on" : ""}`}
+                onClick={() => applyWrapper("None")}
               >
                 <span className="wrap-pop-name">None</span>
-                {!activeName && <span className="wrap-check">✓</span>}
+                {activeName === "None" && <span className="wrap-check">✓</span>}
               </button>
-              {names.length === 0 && <p className="wrap-empty">No wrappers yet — Manage presets to add one.</p>}
+              {names.length === 0 && <p className="wrap-empty">No saved wrappers — Manage presets to add one.</p>}
               {names.map((n) => (
                 <button
                   key={n}

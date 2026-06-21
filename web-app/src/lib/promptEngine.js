@@ -13,6 +13,7 @@
 import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
 import { browserLoader } from "../../../src/core/browserLoader.js";
+import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
 import { getCustomExpansions, getCustomPresets } from "./customStore.js";
@@ -74,6 +75,23 @@ export function generatePrompts(settings) {
  */
 export function expandPrompt(prompt, settings) {
   return engine.generate({ ...withChaos(settings), prompt });
+}
+
+/**
+ * Render one wrapper box (a DPL snippet — the user can use bullets/probability) into a flat token
+ * string. Tokens it emits ({#…}, {list}, <exp>) are resolved later by the generation pipeline.
+ * @param {string} text The wrapper box's DPL text.
+ * @param {object} [settings] The generation settings (passed to any JS the snippet calls).
+ * @returns {string} The rendered token string (or "" when blank).
+ */
+export function renderWrapperPart(text, settings = {}) {
+  if (!text || !text.trim()) return "";
+  try {
+    const mod = compileDpl(`Start\n===\n${text}`, { resolveJs: () => "" });
+    return mod.default(settings, {}, {}) || "";
+  } catch {
+    return text; // fall back to the raw text if it isn't valid DPL
+  }
 }
 
 // ---- Building blocks (the "keyword cloud"), categorized like the original ----
@@ -154,24 +172,29 @@ const dynCatItems = (keys, genKey) => {
   return out;
 };
 
-// The {#any} wildcard family for a generation — a clickable "any" category + sfw/nsfw variants.
-const dynWildcardItems = (genKey) => {
-  const pre = GENS[genKey].tag ? `${GENS[genKey].tag}/` : "";
-  return [
-    {
-      category: true,
-      label: "any",
-      token: `{#${pre}any}`,
-      description: "Pick one random generator from this generation (SFW; +NSFW when adult is on).",
-    },
-    { token: `{#${pre}any-sfw}`, label: "any-sfw", description: "One random generator, SFW only." },
-    {
-      token: `{#${pre}any-nsfw}`,
-      label: "any-nsfw",
-      description: "One random generator, including NSFW (adult mode only).",
-    },
-  ];
-};
+// The {#any} wildcard family — GLOBAL (no version prefix). `any` is locked to the current (v3)
+// set; `any-ver` spans ALL versions. Shown under one "any" category on every version tab.
+const dynWildcardItems = () => [
+  {
+    category: true,
+    label: "any",
+    token: "{#any}",
+    description: "One random generator from the current (v3) set (SFW; +NSFW when adult is on).",
+  },
+  { token: "{#any-sfw}", label: "any-sfw", description: "One random current generator, SFW only." },
+  {
+    token: "{#any-nsfw}",
+    label: "any-nsfw",
+    description: "One random current generator, including NSFW (adult mode only).",
+  },
+  { token: "{#any-ver}", label: "any-ver", description: "One random generator from ANY version (v1/v2/v3)." },
+  { token: "{#any-ver-sfw}", label: "any-ver-sfw", description: "Any version, SFW only." },
+  {
+    token: "{#any-ver-nsfw}",
+    label: "any-ver-nsfw",
+    description: "Any version, including NSFW (adult mode only).",
+  },
+];
 
 // v3 has no full/partial — it's one "Prompts" list. v1/v2 keep their frozen full/partial split.
 const fp = { v2: splitFP("v2"), v1: splitFP("v1") };
@@ -284,12 +307,12 @@ const expansionItems = () => {
 export function getBlocks() {
   const blocks = [
     {
-      title: "Prompts",
-      subLabel: "prompts",
-      hint: "Every current (v3) generator — pick any building block. v3 has no full/partial split.",
+      title: "Blocks",
+      subLabel: "blocks",
+      hint: "Every current (v3) building block — v3 has no full/partial split.",
       dynVersioned: true,
       variants: {
-        v3: [...dynWildcardItems("v3"), ...dynCatItems(GENS.v3.names, "v3")],
+        v3: [...dynWildcardItems(), ...dynCatItems(GENS.v3.names, "v3")],
         v2: [],
         v1: [],
       },
@@ -302,8 +325,8 @@ export function getBlocks() {
       dynVersioned: true,
       variants: {
         v3: [],
-        v2: [...dynWildcardItems("v2"), ...dynCatItems(fp.v2.full, "v2")],
-        v1: [...dynWildcardItems("v1"), ...dynCatItems(fp.v1.full, "v1")],
+        v2: [...dynWildcardItems(), ...dynCatItems(fp.v2.full, "v2")],
+        v1: [...dynWildcardItems(), ...dynCatItems(fp.v1.full, "v1")],
       },
       items: [],
     },

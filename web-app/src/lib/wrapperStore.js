@@ -7,6 +7,15 @@
 
 const KEY = "rap.wrappers.v1";
 
+// The built-in default wrapper, used when the user hasn't chosen one. Derived from the most
+// common v2 prompt framing: a quality lead-in as the START, and the auto fx/artists + the
+// recurring finishing tags (intricate, sharp focus, wide shot, volumetric light, dap) as the
+// END — written in DPL so the probabilities apply. See notes/plans/v3-layers.md.
+export const DEFAULT_WRAPPER = {
+  start: "masterpiece, best quality, highly detailed",
+  end: "{#fx}, {#artists}\n- intricate detail\n- sharp focus\n- 50% wide shot\n- <rays>\n- 35% <dap>",
+};
+
 /** @returns {object} The wrapper presets (`{ name: { start, end } }`). */
 function read() {
   try {
