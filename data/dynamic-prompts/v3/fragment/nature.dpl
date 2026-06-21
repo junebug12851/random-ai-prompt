@@ -1,0 +1,13 @@
+---
+type: partial
+description: Flowers, trees, and greenery
+---
+Start
+===
+- 50% repeat 1 to 3 times: {#color} {flower}
+- 50% repeat 1 to 3 times: {tree}
+- vines
+- {#color} plants
+- {#color} vegetation
+- lush
+- 25% oasis

@@ -91,9 +91,9 @@ function runs(src, n = 400, bridge = null) {
   check("repeat range within 2..4", ok);
 }
 
-// 8. maybe / otherwise are mutually exclusive.
+// 8. maybe / otherwise are mutually exclusive (plain lines inside are always-on when the block runs).
 {
-  const all = runs("Start\n===\n- maybe:\n    - A\n- otherwise:\n    - B\n");
+  const all = runs("Start\n===\n- maybe:\n    A\n- otherwise:\n    B\n");
   check(
     "maybe/otherwise never both",
     all.every((o) => !(o.includes("A") && o.includes("B"))),
@@ -123,10 +123,25 @@ function runs(src, n = 400, bridge = null) {
 // 9b. Case-sensitive: a ref whose case differs from the heading does NOT call the local section.
 {
   const src = "Cave-Type\n===\n- sea cave\n\nStart\n===\nrock\n- +cave-type\n";
-  const all = runs(src, 30);
+  const all = runs(src);
   check(
-    "mismatched-case ref falls through to a token",
-    all.every((o) => o.includes("{#cave-type}") && !o.includes("sea cave")),
+    "mismatched-case ref never calls local section",
+    all.every((o) => !o.includes("sea cave")),
+  );
+  check(
+    "mismatched-case ref becomes a token (when its 50% bullet fires)",
+    all.some((o) => o.includes("{#cave-type}")),
+  );
+}
+
+// 9c. A bare bullet defaults to ~50% (not always, not never).
+{
+  const all = runs("Start\n===\n- coin\n");
+  const hits = all.filter((o) => o.includes("coin")).length;
+  check("bare bullet ~50% (present sometimes)", hits > 120 && hits < 280);
+  check(
+    "bare bullet absent sometimes",
+    all.some((o) => o === ""),
   );
 }
 

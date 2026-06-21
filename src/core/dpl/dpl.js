@@ -271,12 +271,20 @@ function renderNodes(nodes, ctx) {
     const weight = node.weight ?? auto;
     auto = (node.weight ?? auto) + 1;
 
-    // Gate handling (incl. the otherwise chain).
+    // Effective gate: an explicit gate (NN%/maybe/NN% chance/otherwise) always wins. A bare
+    // *simple-clause* bullet (plain text / token / ref) defaults to 50%. Structural bullets
+    // (one of / repeat / block) and plain (non-bullet) lines are unconditional. `gateBearing`
+    // (an authored gate, not the default) is what an `otherwise` pairs against.
+    const gateBearing = node.gate != null || node.otherwise === true;
+    let gate = node.gate;
+    if (gate == null && !node.otherwise) {
+      const structural = node.choice || node.repeat || node.flow || node.block;
+      if (node.bullet && !structural) gate = 0.5;
+    }
     let run = true;
     if (node.otherwise) run = prevGateFailed;
-    if (run && node.gate != null) run = ctx.rng.chance(node.gate);
-    if (node.gate != null || node.otherwise) prevGateFailed = !run;
-    else prevGateFailed = false;
+    if (run && gate != null) run = ctx.rng.chance(gate);
+    prevGateFailed = gateBearing ? !run : false;
     if (!run) continue;
 
     const text = renderNode(node, ctx);

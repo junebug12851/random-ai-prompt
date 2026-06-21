@@ -1,0 +1,9 @@
+---
+type: partial
+description: A color, optionally glowing
+---
+Start
+===
+- one of:
+    - {#color}
+    - glow {#color}

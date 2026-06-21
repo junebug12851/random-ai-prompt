@@ -1,0 +1,36 @@
+---
+type: partial
+description: Room condition — clean/reflective or dirty/rundown, plus furnishings
+---
+Start
+===
+- {mood} atmosphere
+- detailed
+- maybe:
+    - reflective surface
+    - polished
+    - shiny
+- otherwise:
+    - dirty
+    - cobweb
+    - spider web
+    - grunge
+    - rundown
+    - broken
+    - broken floor
+    - torn wallpaper
+    - mold
+    - mildew
+    - shattered glass
+    - holes
+    - floor hole
+    - ceiling hole
+- clutter
+- messy
+- furniture
+- items
+- accesories
+- window
+- furnished
+- {style/building}
+- {style/general}

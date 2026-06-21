@@ -1,0 +1,14 @@
+---
+type: partial
+description: Crystals and gemstones
+---
+Start
+===
+- glowing
+- {#glow} crystal walls
+- {#glow} crystal floor
+- {#glow} giant crystals
+- ruby
+- diamond
+- emerald
+- {#glow} crystals

@@ -1,0 +1,10 @@
+---
+type: partial
+description: Random adjectives / nouns / adverbs / a verb
+---
+Start
+===
+- 50% repeat 0 to 3 times: {adjective}
+- 50% repeat 0 to 3 times: {noun}
+- 50% repeat 0 to 3 times: {adverb}
+- {verb}

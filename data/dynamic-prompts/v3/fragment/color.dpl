@@ -1,0 +1,9 @@
+---
+type: partial
+description: Optional color (or multi-color)
+---
+Start
+===
+- one of (50% nothing):
+    - multi-color
+    - {color}
