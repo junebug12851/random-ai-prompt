@@ -22,7 +22,7 @@
 // This was taken from publicprompts.art and modified to be more dynamic
 
 import _ from "lodash";
-import { artistRepeater } from "../../helpers/keywordRepeater.js";
+import { artistRepeater } from "../../../src/helpers/keywordRepeater.js";
 
 // Multiple layers of silhouette <name>, with silhouette of <name>,
 // sharp edges, at sunset, with heavy fog in air, vector style, horizon silhouette Landscape wallpaper by Alena Aenami, firewatch game style, vector style background

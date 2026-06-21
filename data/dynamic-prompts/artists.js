@@ -19,7 +19,7 @@
  * @brief Partial dynamic-prompt fragment (#artists): a building block composed into full prompts. See notes/reference/dynamic-prompts.md.
  */
 
-import { artistRepeater } from "../helpers/keywordRepeater.js";
+import { artistRepeater } from "../../src/helpers/keywordRepeater.js";
 
 /**
  * Generate the `#artists` dynamic-prompt fragment. See notes/reference/dynamic-prompts.md.

@@ -20,7 +20,7 @@
  */
 
 import _ from "lodash";
-import { keywordRepeater } from "../helpers/keywordRepeater.js";
+import { keywordRepeater } from "../../src/helpers/keywordRepeater.js";
 
 // Generates a prompt containing this based on settings
 // {d-general}... {d/character}... {d-meta}...

@@ -21,7 +21,7 @@
 
 import _ from "lodash";
 
-import { artistRepeater } from "../../helpers/keywordRepeater.js";
+import { artistRepeater } from "../../../src/helpers/keywordRepeater.js";
 
 function maybeAddColor() {
   if (_.random(0.0, 1.0, true) < 0.5) return "{color} ";

@@ -21,7 +21,7 @@
 
 import _ from "lodash";
 
-import { artistRepeater } from "../../helpers/keywordRepeater.js";
+import { artistRepeater } from "../../../src/helpers/keywordRepeater.js";
 import personSimple from "./person-simple.js";
 
 function maybeAddColor(fx) {

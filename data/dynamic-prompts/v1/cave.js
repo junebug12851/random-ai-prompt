@@ -20,7 +20,7 @@
  */
 
 import _ from "lodash";
-import { artistRepeater } from "../../helpers/keywordRepeater.js";
+import { artistRepeater } from "../../../src/helpers/keywordRepeater.js";
 
 function maybeAddColor() {
   let glow = "";
