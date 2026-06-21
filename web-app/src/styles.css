@@ -623,9 +623,14 @@ select {
   padding: 0.7rem 0.8rem 1rem;
 }
 .cat-hint {
-  margin: 0 0 0.6rem;
-  font-size: 0.76rem;
-  color: var(--muted);
+  margin: 0 0 0.7rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--fg-soft);
+  background: var(--accent-soft);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
 }
 .picker-list {
   display: flex;
@@ -665,11 +670,6 @@ button.cat-pill-group {
   color: var(--fg-soft);
   border-style: solid;
   border-color: var(--accent);
-}
-button.cat-pill-group::after {
-  content: " ⊕";
-  color: var(--accent);
-  font-weight: 400;
 }
 button.cat-pill-group:hover {
   color: var(--accent);

@@ -106,17 +106,37 @@ const listItems = () => {
     byFolder.get(folder).push(n);
   }
   const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
-  const folders = [...byFolder.keys()].sort((a, b) => lastSeg(a).localeCompare(lastSeg(b)));
+  const cats = [];
+  for (const [folder, members] of byFolder) {
+    cats.push({
+      label: lastSeg(folder),
+      token: groupDirs.has(folder) ? `{${listDisplay[folder]}}` : null,
+      description: descFor(folder),
+      entries: members
+        .map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n], description: descFor(n) }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    });
+  }
+  // The reserved `keyword` wildcard isn't a folder/file — give it its own category.
+  cats.push({
+    label: "keyword",
+    token: "{keyword}",
+    description: "A random word drawn from ALL loaded vocabulary (every list).",
+    entries: [
+      { token: "{keyword-sfw}", label: "keyword-sfw", description: "All vocabulary, SFW only." },
+      {
+        token: "{keyword-nsfw}",
+        label: "keyword-nsfw",
+        description: "All vocabulary, including NSFW (adult mode only).",
+      },
+    ],
+  });
+  cats.sort((a, b) => a.label.localeCompare(b.label));
   const out = [];
-  for (const folder of folders) {
-    const pill = { category: true, label: lastSeg(folder), description: descFor(folder) };
-    if (groupDirs.has(folder)) pill.token = `{${listDisplay[folder]}}`; // clickable group
-    out.push(pill);
-    const entries = byFolder
-      .get(folder)
-      .map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n], description: descFor(n) }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-    out.push(...entries);
+  for (const c of cats) {
+    const pill = { category: true, label: c.label, description: c.description };
+    if (c.token) pill.token = c.token;
+    out.push(pill, ...c.entries);
   }
   return out;
 };
