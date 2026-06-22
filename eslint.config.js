@@ -12,6 +12,11 @@ export default [
       "output/**",
       "docs/**",
       "tmp/**",
+      // Test artifacts (coverage reports, Playwright runs/snapshots).
+      "coverage/**",
+      "playwright-report/**",
+      "test-results/**",
+      "tests/e2e/**/__screenshots__/**",
       // assets/ is local-only reference material (e.g. the pinned pre-revival
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",

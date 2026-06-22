@@ -30,6 +30,31 @@ remove, or bump a dependency.
 | `prettier` | 3 | Formatting (`.prettierrc.json`). |
 | `eslint-config-prettier` | 10 | Turns off ESLint rules that conflict with Prettier. |
 
+### Test tooling (added 2.6.0)
+
+Root `package.json`:
+
+| Package | Major | Purpose |
+|---------|-------|---------|
+| `vitest` | 4 | Test runner for the Node-side suite (`tests/`, `vitest.config.js`, environment `node`). |
+| `@vitest/coverage-v8` | 4 | V8 coverage for `*:coverage` scripts. |
+| `@playwright/test` | 1 | E2E / visual-regression / a11y runner (`playwright.config.js`, `tests/e2e/`). Browser installed once with `npx playwright install chromium`. |
+| `@axe-core/playwright` | 4 | axe accessibility scans inside the Playwright specs. |
+
+`web-app/package.json` (the SPA's own jsdom suite, `web-app/vitest.config.js`):
+
+| Package | Major | Purpose |
+|---------|-------|---------|
+| `vitest` + `@vitest/coverage-v8` | 4 | SPA test runner/coverage (environment `jsdom`). |
+| `jsdom` | 29 | DOM for component tests. |
+| `@testing-library/react` | 16 | Render/query React components. |
+| `@testing-library/jest-dom` | 6 | DOM matchers (`toBeInTheDocument`, …). |
+| `@testing-library/user-event` | 14 | User-interaction simulation. |
+
+The SPA Vitest config reuses `vite.config.js`, so `import.meta.glob` (the browser loader's data bundle) and
+the `lodash` alias resolve exactly as in the real build. **Landmine:** lodash captures `Math.random` at
+import — `_.random/_.sample/_.shuffle` can't be RNG-stubbed (see `notes/plans/testing.md`).
+
 ## Bumping deps
 
 - Update `package.json`, run `npm install`, then **re-run the verification** in

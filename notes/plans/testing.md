@@ -1,45 +1,87 @@
 # Testing
 
-## The reality
+## The reality (as of 2026-06-22)
 
-There is **no automated test suite** today. This is the honest state, not a blueprint.
+The project now has a **full automated test suite** built on **Vitest** (Node + jsdom)
+and **Playwright** (browser). It covers the active engine and the SPA across every
+standard test type; the legacy classic server (`src/server.js`, `src/web/frontend/**`,
+`src/prompt-modules/**`) is intentionally **out of scope** — it is being phased out, so
+only the pure stages the active core engine still imports (`cleanup.js`, `prompt-salt.js`)
+are tested from that folder.
 
-## How verification is done now
+## Layout
 
-Until a suite exists, changes are verified with:
+```
+tests/                         # Node-side suite (Vitest, environment: node)
+  helpers/                     # seededRandom.js (mulberry32 + withSeed), fakeLoader.js
+  unit/                        # pure-module unit tests
+  integration/                 # engine pipeline over a fake loader
+  contract/                    # (provider/API contracts live in web-app — see below)
+  snapshot/                    # seeded, reproducible output snapshots
+  regression/                  # bug-regression guards (one per fixed defect)
+  e2e/                         # Playwright specs: home.spec, visual.spec, accessibility.spec
+                               #   + __screenshots__/ (committed visual baselines)
+vitest.config.js               # root (node) config
+playwright.config.js           # builds the SPA + serves dist via `vite preview`
 
-1. **`npm run lint`** — ESLint 9 flat config. 0 errors expected; the ~160 warnings are pre-existing
-   unused-vars/style and are tracked, not blocking.
-2. **`node --check <file>`** — syntax check on changed files. (The whole tree was checked during the
-   2.0.0 migration: 152 files, 0 errors.)
-3. **The import smoke test** — the most valuable check for module-wiring changes. A short script:
+web-app/
+  tests/                       # SPA suite (Vitest, environment: jsdom)
+    *.test.js                  # unit (share, settings, customStore) + contract (providers)
+    *.test.jsx                 # component/UI (Field, TokenPicker) via Testing Library
+    promptEngine.integration.test.js  # real browser engine over the bundled data
+    setup.js                   # jest-dom matchers + localStorage reset + RTL cleanup
+  vitest.config.js             # jsdom config (reuses vite.config: react plugin, lodash alias)
+```
 
-   ```js
-   import common from "./common.js";
-   import promptFiles from "./src/promptFilesAndSuggestions.js";
-   import dynamicPrompt from "./prompt-modules/dynamic-prompt.js";
-   const s = common.settings();
-   promptFiles.init(common.settings);
-   promptFiles.loadAll();                 // loads ALL ~113 dynamic prompts via require(ESM)
-   promptFiles.promptSuggestion();        // exercises the cleanup module
-   dynamicPrompt("#random", s.settings, s.imageSettings, s.upscaleSettings); // plugin .default()
-   ```
+## Test types covered
 
-   If this runs without throwing, the entire ES-module graph resolves, every dynamic prompt loads, and
-   the default/named export contracts hold — without starting a server or touching the network.
+| Type | Where | Notes |
+|------|-------|-------|
+| **Unit** | `tests/unit/**`, `web-app/tests/*.test.js` | contentSafety, diffSettings, keywordRepeater, gatedLists, listManifest, DPL compiler, cleanup, prompt-salt; SPA share/settings/customStore |
+| **Component / UI** | `web-app/tests/*.test.jsx` | Field controls, TokenPicker — React Testing Library + jsdom |
+| **Integration** | `tests/integration/**`, `web-app/tests/promptEngine.integration.test.js` | full stage pipeline via a fake loader (Node) and via the real bundled-data browser loader (SPA) |
+| **E2E** | `tests/e2e/home.spec.js` | Playwright drives the built SPA: type → generate → results; block search |
+| **Visual regression** | `tests/e2e/visual.spec.js` | `toHaveScreenshot` of stable chrome (topbar, sidebar, full page with the random suggestion masked) |
+| **Accessibility** | `tests/e2e/accessibility.spec.js` | `@axe-core/playwright`, WCAG 2 A/AA, fails on serious/critical (color-contrast excluded — tracked) |
+| **Snapshot** | `tests/snapshot/**` | seeded (Math.random) DPL + pipeline output |
+| **Contract / API** | `web-app/tests/providers.test.js` | SD WebUI `txt2img` request/response contract, `fetch` mocked |
+| **Smoke** | `scripts/smoke-test.mjs` (`npm run smoke`) | the original import-graph smoke, still the fast gate |
+| **Bug regression** | `tests/regression/bugRegressions.test.js` | one guard per fixed defect / documented landmine |
 
-   Run it with `node` from the repo root (write it to a scratch `.mjs`, run, delete — keep scratch files
-   out of git and out of the lint path).
+## Running
 
-4. **Live run** (manual) — needs a Stable Diffusion WebUI with `--api`. See
-   [`next-steps.md`](next-steps.md) item 1.
+```
+npm test            # lint + smoke + Node unit/integration/snapshot/regression + SPA suite
+npm run test:unit   # Node-side Vitest only
+npm run test:web    # SPA Vitest only (jsdom)
+npm run test:e2e    # Playwright E2E + visual + a11y (builds the SPA, serves dist)
+npm run test:all    # everything, including E2E
+npm run test:coverage / test:web:coverage   # with coverage
+npm run test:e2e:update                      # refresh committed visual baselines
+```
 
-## Gaps / what a real suite should cover
+`npm run test:e2e` needs the Playwright browser once: `npx playwright install chromium`. The config sets
+`channel: "chromium"` so the full chromium build is used (no separate `chromium-headless-shell` download).
 
-- Promote the smoke test into a committed `npm test`.
-- Unit-test the pure prompt stages: `prompt-modules/cleanup.js`, `list.js`, `prompt-salt.js`,
-  `helpers/keywordRepeater.js`, `src/diffSettings.js`.
-- Test settings merge (`loadSettings` + `applyArgs` + presets) without touching the network.
-- The image index (`web/backend/indexImages.js`) against a small fixture `output/` folder.
-- A mocked-`fetch` test of `genImg.js` / `imageUpscaler.js` so the WebUI contract is covered without a
-  real WebUI.
+**Windows runtime prerequisite:** Chrome-for-Testing needs the **Microsoft Visual C++ Redistributable**.
+Without it, the browser fails to launch with `spawn UNKNOWN` → "side-by-side configuration is incorrect".
+Install the VC++ Redistributable (or run the E2E tier on CI / a machine that has it); the Vitest suites
+(`npm test`) have no such dependency. First `test:e2e` run writes the visual baselines under
+`tests/e2e/**/__screenshots__`.
+
+## Gotchas baked into the suite
+
+- **lodash captures `Math.random` at import**, so `_.random` / `_.sample` / `_.shuffle`
+  cannot be stubbed by overriding `Math.random`. Tests that touch lodash randomness assert
+  **invariants** (token counts, value shape) or use **single-entry lists**; only the DPL
+  renderer (its own `Math.random`-based RNG) is made deterministic with `withSeed`.
+- The SPA Vitest config reuses `vite.config.js` so `import.meta.glob` (the browser loader's
+  data bundle) and the `lodash` alias resolve exactly as in the real build.
+- Visual baselines are committed under `tests/e2e/**/__screenshots__`; regenerate them on a
+  deliberate UI change with `npm run test:e2e:update`.
+
+## Adding a bug-regression test
+
+When you fix a bug, add an `it("regression: …")` to
+`tests/regression/bugRegressions.test.js` that fails on the old behaviour and passes on the
+fix, with a one-line note on the original symptom. That permanently locks the fix.

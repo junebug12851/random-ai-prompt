@@ -109,19 +109,32 @@ npm run lint           # eslint . (flat config; 0 errors expected, warnings are 
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
-npm test               # lint + smoke (the headless verification gate)
+npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
+npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under web-app/tests/
+npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
+npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
+npm test               # lint + smoke + test:unit + test:web (the headless verification gate)
+npm run test:all       # npm test + test:e2e
 npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
 
 - Generating images requires a **Stable Diffusion WebUI running with `--api`** on the URL in
   `imageSettings.url` (default `http://127.0.0.1:7860`). Without it, prompt generation still runs but
   the image calls fail — that's expected, not a bug.
-- There is **no full automated test suite yet** (see `notes/plans/testing.md`). Verification today is:
-  `npm run lint`, `node --check` on changed files, and the **import smoke test** (`npm run smoke` →
-  `scripts/smoke-test.mjs`) — it loads `src/common.js` + `src/promptFilesAndSuggestions.js` the way the
-  server boots, forces every dynamic prompt to load via `require(ESM)`, and expands a prompt, confirming
-  the whole ES module graph resolves without starting a server or touching the network. `npm test` runs
-  lint + smoke together. The same checks run in CI (`.github/workflows/ci.yml`).
+- There is a **full automated test suite** (added 2.6.0 — see `notes/plans/testing.md`): **Vitest** drives
+  a Node-side suite (`tests/`: unit, integration, snapshot, contract, bug-regression) and a jsdom SPA suite
+  (`web-app/tests/`: unit, component/UI, contract, integration), and **Playwright** drives E2E + visual-
+  regression + `@axe-core` accessibility specs (`tests/e2e/`). It targets the **active** engine + SPA only;
+  the legacy classic server is out of scope (only the pure stages the core engine still imports —
+  `cleanup.js`, `prompt-salt.js` — are covered). The **import smoke test** (`npm run smoke` →
+  `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `src/common.js` +
+  `src/promptFilesAndSuggestions.js` the way the server boots, forces every dynamic prompt to load via
+  `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
+  suite is separate (`npm run test:e2e`, browser via `npx playwright install chromium`). The headless
+  checks run in CI (`.github/workflows/ci.yml`).
+- **Testing landmine:** lodash captures `Math.random` at import, so `_.random/_.sample/_.shuffle` can't be
+  RNG-stubbed; tests assert invariants or use single-entry lists, and only the DPL renderer is seeded
+  (`tests/helpers/seededRandom.js`). See `notes/plans/testing.md`.
 
 ## Default Workflow — Do These By Default (a standing instruction)
 

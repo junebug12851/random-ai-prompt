@@ -104,7 +104,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 
 | Issue | Where | Status / notes |
 |-------|-------|----------------|
-| No automated test suite | whole repo | Verification is lint + `node --check` + the import smoke test. A real suite is a future task — see [`plans/testing.md`](plans/testing.md). |
+| ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — 118 Vitest tests green. See [`plans/testing.md`](plans/testing.md). |
 | `no-dupe-else-if` warnings (dead branches) | several `dynamic-prompts/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
 | `no-useless-escape` warnings | a few prompt/data regexes | Harmless redundant escapes; kept as warnings (changing regexes risks changing output). |
 | Live generation unverified | `src/genImg.js`, `helpers/imageUpscaler.js`, `server.js` | Needs a running SD WebUI to confirm the `fetch` migration end to end. |
@@ -117,6 +117,9 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 88 passed |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 30 passed |
+| `npm run test:e2e` (Playwright — E2E/visual/a11y) | ⏳ authored + configured; build + server + browser-resolution verified. Browser won't launch on this machine — Chrome-for-Testing needs the **MS Visual C++ Redistributable** (missing → `spawn UNKNOWN` / SxS error). Run on a machine/CI with VC++ to generate baselines. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `web-app` SPA `vite build` | ✅ green |
 | CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |
