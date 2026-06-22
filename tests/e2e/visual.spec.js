@@ -1,6 +1,6 @@
 /**
  * @file Visual-regression specs. Baselines are committed under
- * tests/e2e/__screenshots__ and refreshed with `npm run test:e2e:update`. Dynamic
+ * tests/e2e/visual.spec.js-snapshots/ and refreshed with `npm run test:e2e:update`. Dynamic
  * regions (the random suggestion in the prompt box, generated results) are masked so
  * only stable chrome is compared.
  */

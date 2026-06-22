@@ -20,7 +20,7 @@ tests/                         # Node-side suite (Vitest, environment: node)
   snapshot/                    # seeded, reproducible output snapshots
   regression/                  # bug-regression guards (one per fixed defect)
   e2e/                         # Playwright specs: home.spec, visual.spec, accessibility.spec
-                               #   + __screenshots__/ (committed visual baselines)
+                               #   + visual.spec.js-snapshots/ (committed visual baselines)
 vitest.config.js               # root (node) config
 playwright.config.js           # builds the SPA + serves dist via `vite preview`
 
@@ -65,9 +65,11 @@ npm run test:e2e:update                      # refresh committed visual baseline
 
 **Windows runtime prerequisite:** Chrome-for-Testing needs the **Microsoft Visual C++ Redistributable**.
 Without it, the browser fails to launch with `spawn UNKNOWN` → "side-by-side configuration is incorrect".
-Install the VC++ Redistributable (or run the E2E tier on CI / a machine that has it); the Vitest suites
-(`npm test`) have no such dependency. First `test:e2e` run writes the visual baselines under
-`tests/e2e/**/__screenshots__`.
+On this machine the bundled Chrome-for-Testing build hit the SxS error even with the VC++ runtime present,
+so the config uses **`channel: "chrome"`** (the system-installed Google Chrome, version-matched to the
+Chromium Playwright targets). CI can drop that `channel` to use the bundled browser. The Vitest suites
+(`npm test`) have no browser dependency. First `test:e2e` run writes the visual baselines under
+`tests/e2e/visual.spec.js-snapshots/` (committed).
 
 ## Gotchas baked into the suite
 
@@ -77,7 +79,7 @@ Install the VC++ Redistributable (or run the E2E tier on CI / a machine that has
   renderer (its own `Math.random`-based RNG) is made deterministic with `withSeed`.
 - The SPA Vitest config reuses `vite.config.js` so `import.meta.glob` (the browser loader's
   data bundle) and the `lodash` alias resolve exactly as in the real build.
-- Visual baselines are committed under `tests/e2e/**/__screenshots__`; regenerate them on a
+- Visual baselines are committed under `tests/e2e/visual.spec.js-snapshots/`; regenerate them on a
   deliberate UI change with `npm run test:e2e:update`.
 
 ## Adding a bug-regression test

@@ -16,7 +16,7 @@ export default [
       "coverage/**",
       "playwright-report/**",
       "test-results/**",
-      "tests/e2e/**/__screenshots__/**",
+      "tests/e2e/**/*-snapshots/**",
       // assets/ is local-only reference material (e.g. the pinned pre-revival
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",

@@ -22,10 +22,11 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  // `channel: "chromium"` runs the full chromium build (installed via
-  // `npx playwright install chromium`) in headless mode, so the separate
-  // chromium-headless-shell download is not required.
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chromium" } }],
+  // Use the system-installed Google Chrome (`channel: "chrome"`). The bundled
+  // Chrome-for-Testing build fails to launch on some Windows machines with a
+  // side-by-side ("SxS") configuration error; the system Chrome has the correct
+  // runtime. CI can drop this `channel` to use the bundled browser instead.
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chrome" } }],
   webServer: {
     command: `npm run web:build && npm --prefix web-app run preview -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,

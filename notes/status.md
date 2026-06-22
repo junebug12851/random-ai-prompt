@@ -119,7 +119,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
 | `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 88 passed |
 | `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 30 passed |
-| `npm run test:e2e` (Playwright — E2E/visual/a11y) | ⏳ authored + configured; build + server + browser-resolution verified. Browser won't launch on this machine — Chrome-for-Testing needs the **MS Visual C++ Redistributable** (missing → `spawn UNKNOWN` / SxS error). Run on a machine/CI with VC++ to generate baselines. |
+| `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `web-app` SPA `vite build` | ✅ green |
 | CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |

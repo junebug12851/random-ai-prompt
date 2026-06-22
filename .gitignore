@@ -24,7 +24,7 @@ results.json
 scripts/list-cleanup/out/
 
 # Test artifacts (coverage, Playwright report/results). Vitest/Playwright CONFIGS,
-# the tests/ suite, and the committed visual baselines (tests/e2e/**/__screenshots__)
+# the tests/ suite, and the committed visual baselines (tests/e2e/*-snapshots/)
 # ARE tracked; only the generated reports below are not.
 /coverage/
 web-app/coverage/
