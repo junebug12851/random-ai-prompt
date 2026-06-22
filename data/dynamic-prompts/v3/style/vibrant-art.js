@@ -19,5 +19,5 @@ function colorful() {
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  return `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines), very detailed`;
+  return `${colorful()} {flower}, ${colorful()} {animal}, (black background), (black paper), (ink outlines)`;
 }

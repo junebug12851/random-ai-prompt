@@ -56,8 +56,11 @@ export function makeExpansionStage(loader) {
           .map((l) => resolveName(l, names));
         return pickText(members);
       }
+      // Expansions are unified into dynamic prompts (DPL): `<name>` is now an ALIAS for `{#name}`.
+      // A loader that still has the expansion (a user's saved custom `<name>`) splices it; anything
+      // else routes to the dynamic-prompt of the same name, which the next pipeline pass resolves.
       const text = loader.readExpansion(ref, settings);
-      return text == null ? "" : text;
+      return text == null ? `{#${ref}}` : text;
     }
 
     // Lora syntax (<lora:name:weight>) collides with expansion syntax; mask it.

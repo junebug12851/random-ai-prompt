@@ -4,8 +4,6 @@ description: A storefront on a street
 Start
 ===
 store, storefront, {scene/store}, streetview
-- intricate
-- detailed
 - cozy
 {#nature}
 - 35% {#eerie}
@@ -17,5 +15,4 @@ store, storefront, {scene/store}, streetview
 - {style/building}
 - downtown
 - reflective street
-- wide shot
 {#weather}

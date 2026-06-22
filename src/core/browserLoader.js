@@ -69,27 +69,27 @@ const metaModules = import.meta.glob("../../data/lists/**/*.json", {
   eager: true,
   import: "default",
 });
-const expansionRaw = import.meta.glob("../../data/expansions/**/*.txt", {
+const expansionRaw = import.meta.glob("../../data/expansions-obsolete/**/*.txt", {
   query: "?raw",
   import: "default",
   eager: true,
 });
-const expansionMetaModules = import.meta.glob("../../data/expansions/**/*.json", {
+const expansionMetaModules = import.meta.glob("../../data/expansions-obsolete/**/*.json", {
   eager: true,
   import: "default",
 });
-const expForcePrefixFiles = import.meta.glob("../../data/expansions/**/_force-prefix", {
+const expForcePrefixFiles = import.meta.glob("../../data/expansions-obsolete/**/_force-prefix", {
   eager: true,
 });
-const expGroupRaw = import.meta.glob("../../data/expansions/**/*.group", {
+const expGroupRaw = import.meta.glob("../../data/expansions-obsolete/**/*.group", {
   query: "?raw",
   import: "default",
   eager: true,
 });
-const expEnableGroupFiles = import.meta.glob("../../data/expansions/**/_enable-group-list", {
+const expEnableGroupFiles = import.meta.glob("../../data/expansions-obsolete/**/_enable-group-list", {
   eager: true,
 });
-const expDisableGroupFiles = import.meta.glob("../../data/expansions/**/_disable-group-list", {
+const expDisableGroupFiles = import.meta.glob("../../data/expansions-obsolete/**/_disable-group-list", {
   eager: true,
 });
 const presetModules = import.meta.glob("../../data/presets/*.json", {
@@ -172,13 +172,13 @@ for (const [path, raw] of Object.entries(groupRaw)) {
 
 const expansionText = {};
 for (const [path, raw] of Object.entries(expansionRaw)) {
-  const key = keyFor(path, "expansions");
+  const key = keyFor(path, "expansions-obsolete");
   if (!isInternal(key)) expansionText[key] = String(raw);
 }
 
 const expansionMetaMap = {};
 for (const [path, obj] of Object.entries(expansionMetaModules)) {
-  const key = keyFor(path, "expansions");
+  const key = keyFor(path, "expansions-obsolete");
   if (!isInternal(key)) expansionMetaMap[key] = obj;
 }
 
@@ -207,7 +207,7 @@ for (const [path, raw] of Object.entries(dpGroupRaw)) {
 
 const expGroupLines = {};
 for (const [path, raw] of Object.entries(expGroupRaw)) {
-  const key = keyFor(path, "expansions");
+  const key = keyFor(path, "expansions-obsolete");
   if (!isInternal(key)) expGroupLines[key] = String(raw).split("\n");
 }
 
@@ -218,7 +218,7 @@ const markerDirs = (files, marker, seg = "lists") =>
     return p.slice(i + `/${seg}/`.length).replace(new RegExp(`/${marker}$`), "");
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
-const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions");
+const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions-obsolete");
 const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
 const dpForcedDirs = dpForcedDirsAll.filter((d) => d.startsWith("v3/"));
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
@@ -245,8 +245,8 @@ const dpGroupDirsAll = autoGroupListDirs(
 );
 const expGroupDirs = autoGroupListDirs(
   Object.keys(expansionText),
-  markerDirs(expEnableGroupFiles, "_enable-group-list", "expansions"),
-  markerDirs(expDisableGroupFiles, "_disable-group-list", "expansions"),
+  markerDirs(expEnableGroupFiles, "_enable-group-list", "expansions-obsolete"),
+  markerDirs(expDisableGroupFiles, "_disable-group-list", "expansions-obsolete"),
 );
 
 /**

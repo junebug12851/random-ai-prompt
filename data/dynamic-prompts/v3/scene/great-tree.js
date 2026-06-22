@@ -41,7 +41,7 @@ export default function () {
   }
 
   prompt +=
-    " growing in the middle of an ancient forest)), intricate detail, highly detailed, wide angle, closeup";
+    " growing in the middle of an ancient forest)), wide angle, closeup";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", exotic";
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
@@ -54,6 +54,6 @@ export default function () {
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#glow}";
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#glow}";
 
-  prompt += ", {#nature}, {#weather}, <dap>";
+  prompt += ", {#nature}, {#weather}";
   return prompt;
 }

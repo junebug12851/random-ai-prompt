@@ -7,13 +7,15 @@
  * shared by the share-link); the preset library lives in localStorage.
  * @module web-app/components/WrapperFab
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getWrappers,
   saveWrapper,
   removeWrapper,
   renameWrapper,
-  DEFAULT_WRAPPER,
+  getDefaultWrapper,
+  saveDefaultWrapper,
+  DEFAULT_WRAPPER_SEED,
 } from "../lib/wrapperStore.js";
 
 const ico = {
@@ -33,6 +35,13 @@ const WrapIcon = () => (
     <path d="M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2" />
   </svg>
 );
+// Counter-clockwise arrow — "revert to default".
+const RevertIcon = () => (
+  <svg {...ico} width={15} height={15} aria-hidden="true">
+    <path d="M3 4v6h6" />
+    <path d="M3.5 10a8 8 0 1 1-.5 6" />
+  </svg>
+);
 
 /**
  * @param {object} props
@@ -45,6 +54,22 @@ export default function WrapperFab({ settings, setSettings }) {
   const [wrappers, setWrappers] = useState(() => getWrappers());
   const refresh = () => setWrappers(getWrappers());
 
+  // The popover is position:fixed (so it escapes the scrolling pane and can't clip); anchor its
+  // bottom-right to just above the trigger button.
+  const btnRef = useRef(null);
+  const [pos, setPos] = useState(null);
+  function openList() {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r)
+      setPos({
+        right: Math.round(window.innerWidth - r.right),
+        bottom: Math.round(window.innerHeight - r.top + 8),
+        // Never let the popover grow past the top of the screen — cap it to the gap above the button.
+        maxHeight: Math.max(160, Math.round(r.top - 16)),
+      });
+    setView("list");
+  }
+
   // Manage-modal editor state.
   const [sel, setSel] = useState(""); // the preset name being edited ("" = unsaved/new)
   const [name, setName] = useState("");
@@ -55,6 +80,8 @@ export default function WrapperFab({ settings, setSettings }) {
   const activeName = settings.wrapperName ?? "Default";
   const isActive = activeName !== "None";
   const names = Object.keys(wrappers).sort((a, b) => a.localeCompare(b));
+  const def = getDefaultWrapper(); // live Default — used for placeholders on a brand-new wrapper
+  const isNew = sel === ""; // editing a brand-new (unsaved) wrapper
 
   // Close on Escape.
   useEffect(() => {
@@ -68,7 +95,7 @@ export default function WrapperFab({ settings, setSettings }) {
     if (n === "None") {
       setSettings({ ...settings, wrapper: { start: "", end: "" }, wrapperName: "None" });
     } else if (n === "Default") {
-      setSettings({ ...settings, wrapper: { ...DEFAULT_WRAPPER }, wrapperName: "Default" });
+      setSettings({ ...settings, wrapper: getDefaultWrapper(), wrapperName: "Default" });
     } else {
       const w = wrappers[n] || { start: "", end: "" };
       setSettings({ ...settings, wrapper: { start: w.start, end: w.end }, wrapperName: n });
@@ -76,24 +103,34 @@ export default function WrapperFab({ settings, setSettings }) {
     setView("");
   }
 
-  function openManage(n = activeName) {
-    refresh();
+  // Load a preset (by name, "Default", or "" = a brand-new one) into the editor.
+  function loadInto(n) {
+    if (n === "Default") {
+      const w = getDefaultWrapper();
+      setSel("Default");
+      setName("Default");
+      setStart(w.start || "");
+      setEnd(w.end || "");
+      return;
+    }
     const w = (n && getWrappers()[n]) || { start: "", end: "" };
     setSel(n && getWrappers()[n] ? n : "");
-    setName(n || "");
+    setName(n && getWrappers()[n] ? n : "");
     setStart(w.start || "");
     setEnd(w.end || "");
+  }
+
+  function openManage(n = activeName) {
+    refresh();
+    loadInto(n === "None" ? "Default" : n);
     setView("manage");
   }
 
   function editPreset(n) {
-    const w = getWrappers()[n] || { start: "", end: "" };
-    setSel(n);
-    setName(n);
-    setStart(w.start || "");
-    setEnd(w.end || "");
+    loadInto(n);
   }
 
+  // A brand-new wrapper: clear the fields (the Default's text shows as placeholder instead).
   function newPreset() {
     setSel("");
     setName("");
@@ -104,7 +141,15 @@ export default function WrapperFab({ settings, setSettings }) {
   function save() {
     const n = name.trim();
     if (!n) return;
-    if (sel && sel !== n) renameWrapper(sel, n); // renamed an existing preset
+    // The Default is special: it's edited in place (you can't rename it into a normal preset).
+    if (sel === "Default" && n === "Default") {
+      saveDefaultWrapper({ start, end });
+      if (!activeName || activeName === "Default") {
+        setSettings({ ...settings, wrapper: { start, end }, wrapperName: "Default" });
+      }
+      return;
+    }
+    if (sel && sel !== "Default" && sel !== n) renameWrapper(sel, n); // renamed an existing preset
     saveWrapper(n, { start, end });
     refresh();
     setSel(n);
@@ -115,18 +160,28 @@ export default function WrapperFab({ settings, setSettings }) {
   }
 
   function del(n) {
+    if (n === "Default") return; // the Default can't be deleted (reset it instead)
     removeWrapper(n);
     refresh();
-    if (sel === n) newPreset();
+    if (sel === n) loadInto("Default");
     // If the deleted preset was applied, fall back to the built-in Default.
-    if (activeName === n) setSettings({ ...settings, wrapper: { ...DEFAULT_WRAPPER }, wrapperName: "Default" });
+    if (activeName === n) setSettings({ ...settings, wrapper: getDefaultWrapper(), wrapperName: "Default" });
+  }
+
+  // Revert ONE pane to the default: pull from the live Default file, or — when the Default itself is
+  // being edited — from the hard-coded seed (the "hard copy"). Only sets the field; Save persists it.
+  function revertPane(which) {
+    const src = sel === "Default" ? DEFAULT_WRAPPER_SEED : getDefaultWrapper();
+    if (which === "start") setStart(src.start || "");
+    else setEnd(src.end || "");
   }
 
   return (
     <>
       <button
+        ref={btnRef}
         className={`field-act wrap-trigger${isActive ? " on" : ""}`}
-        onClick={() => setView(view === "list" ? "" : "list")}
+        onClick={() => (view === "list" ? setView("") : openList())}
         title={`Wrapper: ${activeName} — frames every prompt with a start and end`}
         aria-label="Wrapper presets"
         aria-pressed={view === "list"}
@@ -137,13 +192,26 @@ export default function WrapperFab({ settings, setSettings }) {
       {view === "list" && (
         <>
           <div className="wrap-pop-scrim" onClick={() => setView("")} />
-          <div className="wrap-pop" role="menu" aria-label="Wrapper presets">
+          <div
+            className="wrap-pop"
+            role="menu"
+            aria-label="Wrapper presets"
+            style={pos ? { position: "fixed", right: pos.right, bottom: pos.bottom, maxHeight: pos.maxHeight } : undefined}
+          >
             <div className="wrap-pop-head">
               <span>Wrapper</span>
               <button className="wrap-manage-btn" onClick={() => openManage()}>
-                Manage presets
+                Manage Wrappers
               </button>
             </div>
+            <label className="wrap-auto-toggle" title="When on, blocks may add their own Auto Begin / Auto End framing to the prompt. When off, only this wrapper frames it.">
+              <input
+                type="checkbox"
+                checked={settings.useAutoSections !== false}
+                onChange={(e) => setSettings({ ...settings, useAutoSections: e.target.checked })}
+              />
+              <span>Allow used blocks to extend current wrapper</span>
+            </label>
             <div className="wrap-pop-list">
               <button
                 className={`wrap-pop-item${activeName === "Default" ? " on" : ""}`}
@@ -180,7 +248,7 @@ export default function WrapperFab({ settings, setSettings }) {
           <div className="wrap-modal-overlay" onClick={() => setView("list")} />
           <div className="wrap-modal" role="dialog" aria-label="Manage wrappers">
             <div className="wrap-modal-head">
-              <h2>Manage wrappers</h2>
+              <h2>Manage Wrappers</h2>
               <div className="grow" />
               <button className="drawer-close" onClick={() => setView("list")} aria-label="Close">
                 ×
@@ -191,7 +259,12 @@ export default function WrapperFab({ settings, setSettings }) {
               {/* Preset management row */}
               <div className="wrap-presets">
                 <div className="wrap-preset-pills">
-                  {names.length === 0 && <span className="wrap-empty">No saved wrappers yet.</span>}
+                  {/* The Default is always present and can't be deleted (use the per-pane revert to reset). */}
+                  <span className={`wrap-preset-pill${sel === "Default" ? " on" : ""}`}>
+                    <button className="wrap-preset-pick" onClick={() => editPreset("Default")} title="Edit the Default wrapper">
+                      Default
+                    </button>
+                  </span>
                   {names.map((n) => (
                     <span key={n} className={`wrap-preset-pill${sel === n ? " on" : ""}`}>
                       <button className="wrap-preset-pick" onClick={() => editPreset(n)} title={`Edit “${n}”`}>
@@ -211,6 +284,7 @@ export default function WrapperFab({ settings, setSettings }) {
                   placeholder="Wrapper name…"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  readOnly={sel === "Default"}
                   aria-label="Wrapper name"
                 />
               </div>
@@ -218,20 +292,42 @@ export default function WrapperFab({ settings, setSettings }) {
               {/* The two horizontally-grouped editors */}
               <div className="wrap-grid">
                 <label className="wrap-box">
-                  <span className="wrap-box-label">Start</span>
+                  <span className="wrap-box-head">
+                    <span className="wrap-box-label">Start</span>
+                    <button
+                      type="button"
+                      className="wrap-revert"
+                      onClick={() => revertPane("start")}
+                      title={sel === "Default" ? "Reset Start to the built-in default" : "Reset Start to the default wrapper"}
+                      aria-label="Revert Start to default"
+                    >
+                      <RevertIcon />
+                    </button>
+                  </span>
                   <textarea
                     value={start}
                     onChange={(e) => setStart(e.target.value)}
-                    placeholder="Rendered before the prompt — e.g. masterpiece, best quality"
+                    placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. masterpiece, best quality"}
                     spellCheck={false}
                   />
                 </label>
                 <label className="wrap-box">
-                  <span className="wrap-box-label">End</span>
+                  <span className="wrap-box-head">
+                    <span className="wrap-box-label">End</span>
+                    <button
+                      type="button"
+                      className="wrap-revert"
+                      onClick={() => revertPane("end")}
+                      title={sel === "Default" ? "Reset End to the built-in default" : "Reset End to the default wrapper"}
+                      aria-label="Revert End to default"
+                    >
+                      <RevertIcon />
+                    </button>
+                  </span>
                   <textarea
                     value={end}
                     onChange={(e) => setEnd(e.target.value)}
-                    placeholder="Rendered after the prompt — e.g. {#fx}, {#artists}"
+                    placeholder={isNew ? def.end || "Rendered after the prompt…" : "Rendered after the prompt — e.g. {#fx}, {#artists}"}
                     spellCheck={false}
                   />
                 </label>

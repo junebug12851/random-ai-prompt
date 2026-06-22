@@ -92,16 +92,24 @@ function lexLines(body) {
 function parseSections(lines) {
   const sections = {};
   let current = null;
+  const ensure = (name, weightLine) => {
+    if (!sections[name]) sections[name] = { name, weightLine: weightLine ?? name, lines: [] };
+    return sections[name];
+  };
   for (let i = 0; i < lines.length; i++) {
     const ln = lines[i];
     const next = lines[i + 1];
     if (next && next.depth === 0 && /^={3,}$/.test(next.text) && ln.depth === 0) {
       current = ln.text.replace(/\s*\[.*$/, "").trim() || ln.text.trim(); // name (drop a trailing weight)
-      sections[current] = { name: current, weightLine: ln.text, lines: [] };
+      ensure(current, ln.text);
       i++; // consume the underline
       continue;
     }
-    if (current) sections[current].lines.push(ln);
+    // Content before any heading is the implicit `Start` section — so a `.dpl` that is just a line
+    // (or a few lines) of content "just works" without writing `Start\n===`. An explicit `Start`
+    // heading later simply appends to the same section.
+    if (current === null) ensure("Start").lines.push(ln);
+    else sections[current].lines.push(ln);
   }
   // Build a nested tree for each section from its flat (depth-tagged) lines.
   const trees = {};
@@ -430,7 +438,26 @@ export function compileDpl(source, bridge = null) {
     return ctx.section("Start");
   }
 
-  return { default: defaultFn, full, suggestion_exclude, meta };
+  // `Auto Begin` / `Auto End`: optional sections a block can declare to contribute framing that the
+  // app folds into the START / END of the whole prompt (alongside the user wrapper). They render
+  // exactly like any section (probability, refs, JS), but are NOT part of the block's own `Start`
+  // body. See notes/plans/v3-layers.md.
+  const has = (name) => Object.prototype.hasOwnProperty.call(sections, name);
+  const renderSection = (name) => (settings = {}, imageSettings = {}, upscaleSettings = {}) => {
+    if (!has(name)) return "";
+    return makeCtx(settings, imageSettings, upscaleSettings).section(name);
+  };
+
+  return {
+    default: defaultFn,
+    full,
+    suggestion_exclude,
+    meta,
+    hasAutoBegin: has("Auto Begin"),
+    hasAutoEnd: has("Auto End"),
+    autoBegin: renderSection("Auto Begin"),
+    autoEnd: renderSection("Auto End"),
+  };
 }
 
 export default compileDpl;

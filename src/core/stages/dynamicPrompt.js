@@ -38,7 +38,23 @@ export function makeDynamicPromptStage(loader) {
   function run(key, settings, imageSettings, upscaleSettings) {
     const mod = loader.loadDynamicPrompt(key);
     if (!mod || typeof mod.default !== "function") return "";
-    return danbooruReplacer(mod.default(settings, imageSettings, upscaleSettings), settings);
+    const out = danbooruReplacer(mod.default(settings, imageSettings, upscaleSettings), settings);
+    // Hoist this block's optional `Auto Begin` / `Auto End` framing to the prompt's start/end, when
+    // the caller opted in by passing an `autoSink` collector (the SPA's "use block auto-sections"
+    // toggle). This is a V3-ONLY feature: frozen v1/v2 generations bake their own framing and must
+    // NOT be pulled into the wrapper's start/end.
+    const sink = settings.autoSink;
+    if (sink && key.startsWith("v3/")) {
+      if (mod.hasAutoBegin && typeof mod.autoBegin === "function") {
+        const b = mod.autoBegin(settings, imageSettings, upscaleSettings);
+        if (b && b.trim()) sink.begin.push(b.trim());
+      }
+      if (mod.hasAutoEnd && typeof mod.autoEnd === "function") {
+        const e = mod.autoEnd(settings, imageSettings, upscaleSettings);
+        if (e && e.trim()) sink.end.push(e.trim());
+      }
+    }
+    return out;
   }
 
   return function dynamicPrompt(prompt, settings, imageSettings, upscaleSettings) {

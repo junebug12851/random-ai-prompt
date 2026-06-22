@@ -721,6 +721,49 @@ button.cat-pill-group:hover {
   padding: 0.9rem;
 }
 
+/* ---------- Building-block hover tooltip ---------- */
+.block-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: 340px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--panel, #1b1d22);
+  border: 1px solid var(--border, #33363d);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.block-tip-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.block-tip-label {
+  font-weight: 600;
+}
+.block-tip-token {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+.block-tip-desc {
+  color: var(--text, #cfd2d8);
+  margin-bottom: 0.3rem;
+}
+.block-tip-ex {
+  color: var(--faint);
+  border-top: 1px solid var(--border, #33363d);
+  padding-top: 0.3rem;
+}
+.block-tip-ex-label {
+  font-weight: 600;
+  color: var(--text, #cfd2d8);
+}
+
 /* ---------- Settings drawer ---------- */
 .drawer-overlay {
   position: fixed;
@@ -921,12 +964,30 @@ footer {
   border-bottom: 1px solid var(--border-soft);
   font-weight: 700;
 }
+.wrap-auto-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.82rem;
+  color: var(--fg-soft);
+  cursor: pointer;
+}
+.wrap-auto-toggle input {
+  margin: 0;
+  cursor: pointer;
+}
 .wrap-manage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   border: 1px solid var(--border);
   background: var(--bg-2);
   color: var(--fg-soft);
   border-radius: var(--radius-pill);
-  padding: 5px 12px;
+  padding: 6px 12px;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -1082,12 +1143,35 @@ footer {
   flex-direction: column;
   gap: 6px;
 }
+.wrap-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .wrap-box-label {
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+.wrap-revert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--muted);
+  cursor: pointer;
+}
+.wrap-revert:hover {
+  color: var(--fg);
+  border-color: var(--border-strong, var(--border));
 }
 .wrap-box textarea {
   min-height: 160px;

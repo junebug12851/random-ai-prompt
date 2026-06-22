@@ -30,7 +30,7 @@ function size() {
  * @returns {string} The generated prompt fragment.
  */
 export default function () {
-  let prompt = `a beautiful${size()} bridge over a${size()} ocean with many clouds beneath bridge, intricate detail, highly detailed, wide angle, closeup`;
+  let prompt = `a beautiful${size()} bridge over a${size()} ocean with many clouds beneath bridge, wide angle, closeup`;
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", exotic";
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";
@@ -39,6 +39,6 @@ export default function () {
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#eerie}";
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", {#mystical}";
 
-  prompt += ", {#weather}, <dap>";
+  prompt += ", {#weather}";
   return prompt;
 }

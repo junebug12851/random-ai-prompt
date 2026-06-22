@@ -12,9 +12,9 @@
  * @module web-app/components/Home
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getBlocks, generatePrompt, renderWrapperPart } from "../lib/promptEngine.js";
+import { getBlocks, generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
 import { saveCustomExpansion } from "../lib/customStore.js";
-import { DEFAULT_WRAPPER } from "../lib/wrapperStore.js";
+import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import WrapperButton from "./WrapperFab.jsx";
 
@@ -73,6 +73,10 @@ export default function Home({ settings, setSettings }) {
   const [panel, setPanel] = useState(""); // "" | "save" | "share"
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
+  // Hover tooltip for a building block: its label, description (piped from the v3 file /
+  // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
+  const [tip, setTip] = useState(null); // { token, label, description, x, y }
+  const [tipEx, setTipEx] = useState("");
 
   const blocks = useMemo(() => getBlocks(), [version]);
 
@@ -102,6 +106,32 @@ export default function Home({ settings, setSettings }) {
     setPrompt(`${prompt}${sep}${token}`);
   }
 
+  // --- Building-block hover tooltip (label + description + a refreshing example) ---
+  const showTip = (item, e) =>
+    setTip({ token: item.token, label: item.label, description: item.description, x: e.clientX, y: e.clientY });
+  const moveTip = (e) => setTip((t) => (t ? { ...t, x: e.clientX, y: e.clientY } : t));
+  const hideTip = () => setTip(null);
+
+  // While a tip is shown, expand its token into a fresh example, re-rolling on an interval.
+  // Examples are rendered WITHOUT the auto fx/artists framing so they show just the block.
+  const tipToken = tip?.token;
+  useEffect(() => {
+    if (!tipToken) {
+      setTipEx("");
+      return undefined;
+    }
+    const roll = () => {
+      try {
+        setTipEx(expandPrompt(tipToken, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }));
+      } catch {
+        setTipEx("");
+      }
+    };
+    roll();
+    const id = setInterval(roll, 1400);
+    return () => clearInterval(id);
+  }, [tipToken]);
+
   // Random drops the currently-shown suggestion into the prompt box.
   function useSuggestion() {
     if (suggestion) setPrompt(suggestion);
@@ -115,15 +145,29 @@ export default function Home({ settings, setSettings }) {
       // Frame each prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
       // The wrapper boxes are DPL, so render them (probability/bullets) per prompt before joining.
       const text = prompt && prompt.trim() ? prompt : suggestion || "{#random-words}";
-      const w = settings.wrapper ?? DEFAULT_WRAPPER;
+      // The Default wrapper is read live (so edits to it apply); a chosen named/None wrapper uses
+      // its stored snapshot.
+      const w =
+        !settings.wrapperName || settings.wrapperName === "Default"
+          ? getDefaultWrapper()
+          : settings.wrapper ?? getDefaultWrapper();
       const count = Math.max(1, Number(settings.promptCount) || 1);
+      // Whether blocks may contribute their own `Auto Begin` / `Auto End` framing (default on). When
+      // off, only the user wrapper (or None) frames the prompt — no input from any block.
+      const useAuto = settings.useAutoSections !== false;
       const out = [];
       for (let i = 0; i < count; i++) {
         const wrapped = [renderWrapperPart(w.start, settings), text, renderWrapperPart(w.end, settings)]
           .map((s) => (s || "").trim())
           .filter(Boolean)
           .join(", ");
-        out.push(generatePrompt({ ...settings, prompt: wrapped }));
+        const sink = { begin: [], end: [] };
+        const result = generatePrompt({ ...settings, prompt: wrapped, autoSink: useAuto ? sink : null });
+        // Fold each fired block's Auto Begin / Auto End into the prompt's start / end.
+        const framed = useAuto
+          ? [sink.begin.join(", "), result, sink.end.join(", ")].map((s) => s.trim()).filter(Boolean).join(", ")
+          : result;
+        out.push(framed);
       }
       setPrompts(out);
     } catch (e) {
@@ -228,7 +272,7 @@ export default function Home({ settings, setSettings }) {
                       <div key="__prompts" className="cat-head">
                         <span className="cat-name">Blocks</span>
                         <span className="ver-links">
-                          {["v3", "v2", "v1"].map((v) => (
+                          {["v1", "v2", "v3"].map((v) => (
                             <button
                               key={v}
                               className={`ver-link${dynVer === v ? " on" : ""}`}
@@ -270,7 +314,9 @@ export default function Home({ settings, setSettings }) {
                       <button
                         key={`cat-${i.label}-${idx}`}
                         className="cat-pill cat-pill-group"
-                        title={i.description ? `${i.token} — ${i.description}` : i.token}
+                        onMouseEnter={(e) => showTip(i, e)}
+                        onMouseMove={moveTip}
+                        onMouseLeave={hideTip}
                         onClick={() => insert(i.token)}
                       >
                         {i.label}
@@ -284,7 +330,9 @@ export default function Home({ settings, setSettings }) {
                     <button
                       key={i.token}
                       className="chip"
-                      title={i.description ? `${i.token} — ${i.description}` : i.token}
+                      onMouseEnter={(e) => showTip(i, e)}
+                      onMouseMove={moveTip}
+                      onMouseLeave={hideTip}
                       onClick={() => insert(i.token)}
                     >
                       {i.label}
@@ -324,8 +372,8 @@ export default function Home({ settings, setSettings }) {
                 className={`field-act${panel === "save" ? " on" : ""}`}
                 onClick={toggleSave}
                 disabled={!prompt.trim()}
-                title="Save as expansion"
-                aria-label="Save as expansion"
+                title="Save as block"
+                aria-label="Save as block"
                 aria-pressed={panel === "save"}
               >
                 <SaveIcon />
@@ -362,7 +410,7 @@ export default function Home({ settings, setSettings }) {
                 </i>
                 <input
                   className="panel-input"
-                  placeholder="Save this prompt as a reusable expansion…"
+                  placeholder="Save this prompt as a reusable block…"
                   value={expName}
                   onChange={(e) => setExpName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveExpansion()}
@@ -418,6 +466,35 @@ export default function Home({ settings, setSettings }) {
           </section>
         )}
       </div>
+
+      {/* Hover tooltip for a building block — follows the pointer; shows a live, refreshing example.
+          Flips above the cursor when there isn't room below so it can't clip off the bottom. */}
+      {tip && (
+        <div
+          className="block-tip"
+          style={(() => {
+            const vw = typeof window !== "undefined" ? window.innerWidth : 9999;
+            const vh = typeof window !== "undefined" ? window.innerHeight : 9999;
+            const left = Math.max(8, Math.min(tip.x + 16, vw - 360));
+            // If the pointer is in the lower part of the screen, anchor the tip's bottom above it.
+            return tip.y > vh * 0.6
+              ? { left, bottom: vh - tip.y + 18, maxHeight: tip.y - 16 }
+              : { left, top: tip.y + 18, maxHeight: vh - tip.y - 28 };
+          })()}
+          role="tooltip"
+        >
+          <div className="block-tip-name">
+            <span className="block-tip-label">{tip.label}</span>
+            <code className="block-tip-token">{tip.token}</code>
+          </div>
+          {tip.description && <div className="block-tip-desc">{tip.description}</div>}
+          {tipEx && (
+            <div className="block-tip-ex">
+              <span className="block-tip-ex-label">Example:</span> {tipEx}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

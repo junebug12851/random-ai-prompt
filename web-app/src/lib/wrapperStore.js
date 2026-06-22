@@ -6,15 +6,65 @@
  */
 
 const KEY = "rap.wrappers.v1";
+const DEFAULT_KEY = "rap.wrapper.default.v1";
 
-// The built-in default wrapper, used when the user hasn't chosen one. Derived from the most
-// common v2 prompt framing: a quality lead-in as the START, and the auto fx/artists + the
-// recurring finishing tags (intricate, sharp focus, wide shot, volumetric light, dap) as the
-// END — written in DPL so the probabilities apply. See notes/plans/v3-layers.md.
-export const DEFAULT_WRAPPER = {
+// The hard-coded SEED for the built-in "Default" wrapper. Derived from the most common v2 prompt
+// framing: a quality lead-in as the START, and the auto fx/artists + the recurring finishing tags
+// (intricate, sharp focus, wide shot, volumetric light, dap) as the END — written in DPL so the
+// probabilities apply. This is the immutable fallback; the live Default (below) is a copy of this
+// that the user can edit, and which is re-created from this seed whenever it is reset/deleted.
+// See notes/plans/v3-layers.md.
+export const DEFAULT_WRAPPER_SEED = {
   start: "masterpiece, best quality, highly detailed",
-  end: "{#fx}, {#artists}\n- intricate detail\n- sharp focus\n- 50% wide shot\n- <rays>\n- 35% <dap>",
+  end: "{#fx}, {#artists}\n- intricate detail\n- sharp focus\n- 50% wide shot\n- {#rays}\n- 35% {#dap}",
 };
+
+// Back-compat alias: existing callers import DEFAULT_WRAPPER. It now reflects the *seed*; use
+// getDefaultWrapper() to read the live (possibly user-edited) Default.
+export const DEFAULT_WRAPPER = DEFAULT_WRAPPER_SEED;
+
+/**
+ * The live "Default" wrapper: the user-editable copy of the seed. It behaves like a preset you
+ * can't delete — if its backing entry is missing (never edited, or reset), it is the seed.
+ * @returns {{start: string, end: string}} The live default.
+ */
+export function getDefaultWrapper() {
+  try {
+    const raw = localStorage.getItem(DEFAULT_KEY);
+    if (raw) {
+      const o = JSON.parse(raw);
+      return { start: o.start || "", end: o.end || "" };
+    }
+  } catch {
+    // fall through to seed
+  }
+  return { ...DEFAULT_WRAPPER_SEED };
+}
+
+/**
+ * Persist edits to the live Default wrapper (kept local; never overwritten unless reset).
+ * @param {{start: string, end: string}} value The edited start/end.
+ * @returns {void}
+ */
+export function saveDefaultWrapper(value) {
+  try {
+    localStorage.setItem(DEFAULT_KEY, JSON.stringify({ start: value.start || "", end: value.end || "" }));
+  } catch {
+    // best-effort
+  }
+}
+
+/**
+ * Reset the Default wrapper back to the hard-coded seed (drops the local edit).
+ * @returns {void}
+ */
+export function resetDefaultWrapper() {
+  try {
+    localStorage.removeItem(DEFAULT_KEY);
+  } catch {
+    // best-effort
+  }
+}
 
 /** @returns {object} The wrapper presets (`{ name: { start, end } }`). */
 function read() {

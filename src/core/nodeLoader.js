@@ -24,7 +24,8 @@ import compileDpl from "./dpl/dpl.js";
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
-const expansionsRoot = path.join(rootDir, "data", "expansions");
+// Expansions are a LEGACY (v1/v2-era) concept: the folder lives on disk as `expansions-obsolete`.
+const expansionsRoot = path.join(rootDir, "data", "expansions-obsolete");
 const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 
 // --- v3 DPL support -------------------------------------------------------

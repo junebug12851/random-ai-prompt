@@ -228,16 +228,17 @@ function gatePool(names, isGated) {
 function prePrompt(maxCount) {
   let prePrompt = "";
 
-  // Randomly add stuff to the start of the prompt
-  if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, <${_.sample(expansionFiles)}>`;
-
   const partialPool = gatePool(partialNoArtistFx, isGatedDynPrompt);
   const listPool = gatePool(listFilesNoArtist, isGatedList);
 
+  // Garnish with a few partial generators and lists (each ~25%). Pools may be empty (v3 has no
+  // partials; expansions are unified into generators), so guard every sample.
   for (let i = 0; i < maxCount; i++) {
-    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {#${_.sample(partialPool)}}`;
+    if (partialPool.length && _.random(0.0, 1.0, true) < 0.25)
+      prePrompt += `, {#${_.sample(partialPool)}}`;
 
-    if (_.random(0.0, 1.0, true) < 0.25) prePrompt += `, {${_.sample(listPool)}}`;
+    if (listPool.length && _.random(0.0, 1.0, true) < 0.25)
+      prePrompt += `, {${_.sample(listPool)}}`;
   }
 
   return prePrompt;
