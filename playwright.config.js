@@ -11,6 +11,11 @@ const PORT = 4173;
 
 export default defineConfig({
   testDir: "tests/e2e",
+  // Visual-regression baselines are OS-specific and committed for Windows only
+  // (`*-win32.png`), so they can't match on Linux CI. Skip them there; the E2E and
+  // accessibility specs are rendering-independent and always run. To run visual on CI,
+  // commit Linux baselines (`test:e2e:update` on Linux) and drop this guard.
+  testIgnore: process.env.CI ? ["**/visual.spec.js"] : [],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -26,7 +31,12 @@ export default defineConfig({
   // Chrome-for-Testing build fails to launch on some Windows machines with a
   // side-by-side ("SxS") configuration error; the system Chrome has the correct
   // runtime. CI can drop this `channel` to use the bundled browser instead.
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chrome" } }],
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], channel: process.env.CI ? undefined : "chrome" },
+    },
+  ],
   webServer: {
     command: `npm run web:build && npm --prefix web-app run preview -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,

@@ -4,17 +4,23 @@ How the project ships. There are three independent pipelines, each with one home
 
 | Pipeline | Where | What it does |
 |----------|-------|--------------|
-| **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + the import smoke test; builds the React SPA. |
+| **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + smoke + Node/jsdom Vitest suites; builds the React SPA; Playwright E2E + a11y (visual skipped on CI). |
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `master`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
 | **Web app deploy** | `netlify.toml` | Builds + hosts the `web-app/` SPA on **Netlify** (separate from the GitHub release). |
 
 ## CI — `.github/workflows/ci.yml`
 
-Runs on push to `dev`/`master`, on PRs, and on demand. Node 24, `npm ci`, then `npm run lint`,
-`npm run format:check`, and `npm run smoke` (the [import smoke test](../plans/testing.md)). A second job
-runs `npm --prefix web-app ci && npm --prefix web-app run build` so the SPA is proven to build. Green
-here means the same thing as green locally — it's the CI mirror of the Default Workflow.
+Runs on push to `dev`/`master`, on PRs, and on demand. Node 24. Three jobs: (1) **check** — `npm ci`,
+then `npm run lint`, `npm run format:check`, `npm run smoke` (the [import smoke test](../plans/testing.md)),
+and `npm run test:unit` (the Node Vitest suite); (2) **web-app** — `npm --prefix web-app ci`, then
+`npm --prefix web-app run build` (the SPA is proven to build) and `npm --prefix web-app run test` (the jsdom
+Vitest suite); (3) **e2e** — installs root + web-app deps and the bundled Playwright chromium, then
+`npm run test:e2e` (E2E + accessibility). **Visual-regression is skipped on CI** (`testIgnore` guarded by
+`process.env.CI` in `playwright.config.js`) because its `toHaveScreenshot` baselines are committed for
+Windows only (`*-win32.png`) and can't match Linux rendering; to enable it, commit Linux baselines
+(`npm run test:e2e:update` on Linux) and drop the guard. Green here means the same thing as green locally —
+it's the CI mirror of `npm test` + the build + the browser specs.
 
 ## Docs site — `.github/workflows/pages.yml`
 

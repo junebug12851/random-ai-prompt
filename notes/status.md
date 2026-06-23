@@ -90,9 +90,10 @@ The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept 
 `241a148` up to the CI-green `dev` HEAD, and is kept **FF-only** (it only ever fast-forwards to a `dev` HEAD
 that has passed GitHub CI). Getting there required unbreaking CI first — both `npm ci` jobs were red on a
 lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
-(build/style only, no version bump). Active work continues on `dev`. **Note:** `ci.yml` runs only lint +
-format:check + smoke + the web-app build — not the Vitest/Playwright suites (a gap to close). See
-[`reference/deployment.md`](reference/deployment.md).
+(build/style only, no version bump). Active work continues on `dev`. **CI now runs the full gate** — lint,
+format:check, smoke, the Node + jsdom Vitest suites, the web-app build, and the Playwright E2E +
+accessibility specs; only visual-regression is skipped on CI (its baselines are committed Windows-only —
+regenerate Linux baselines to enable it). See [`reference/deployment.md`](reference/deployment.md).
 
 **Verification done:** `node --check` on all 152 server-side JS files (0 syntax errors); `npm run lint`
 (0 errors, 163 pre-existing style warnings); a Prettier pass over the codebase; and an **import smoke

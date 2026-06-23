@@ -1,7 +1,10 @@
 name: CI
 
-# Test-on-every-push. Mirrors the local Default Workflow (lint + format + the import smoke test)
-# so green here means the same thing as green locally. See notes/plans/testing.md.
+# Test-on-every-push. Mirrors the local verification gate (`npm test` = lint + format + smoke +
+# the Vitest suites) plus the web-app build and the Playwright E2E / accessibility specs, so green
+# here means the same thing as green locally. Visual-regression is skipped on CI on purpose: its
+# baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
+# playwright.config.js. See notes/plans/testing.md.
 
 on:
   push:
@@ -11,7 +14,7 @@ on:
 
 jobs:
   check:
-    name: Lint, format & smoke test
+    name: Lint, format, smoke & unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,8 +36,11 @@ jobs:
       - name: Import smoke test (full ES-module graph + all dynamic prompts)
         run: npm run smoke
 
+      - name: Unit / integration / snapshot / regression tests (Vitest, Node)
+        run: npm run test:unit
+
   web-app:
-    name: Build the React SPA
+    name: Build & unit-test the SPA
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,3 +56,28 @@ jobs:
 
       - name: Build web-app
         run: npm --prefix web-app run build
+
+      - name: Unit / component / contract tests (Vitest, jsdom)
+        run: npm --prefix web-app run test
+
+  e2e:
+    name: E2E & accessibility (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies (root + web-app)
+        run: |
+          npm ci
+          npm --prefix web-app ci
+
+      - name: Install Playwright browser (bundled chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E + accessibility (visual-regression skipped on CI)
+        run: npm run test:e2e
