@@ -11,11 +11,11 @@ const PORT = 4173;
 
 export default defineConfig({
   testDir: "tests/e2e",
-  // Visual-regression baselines are OS-specific and committed for Windows only
-  // (`*-win32.png`), so they can't match on Linux CI. Skip them there; the E2E and
-  // accessibility specs are rendering-independent and always run. To run visual on CI,
-  // commit Linux baselines (`test:e2e:update` on Linux) and drop this guard.
-  testIgnore: process.env.CI ? ["**/visual.spec.js"] : [],
+  // Visual-regression specs render pixel-exact screenshots and need per-OS baselines
+  // (`*-chromium-win32.png` / `*-chromium-linux.png`). Set `PLAYWRIGHT_SKIP_VISUAL=1` to skip
+  // them on a runner that has no committed baselines for its platform yet (the E2E and a11y
+  // specs are rendering-independent and always run).
+  testIgnore: process.env.PLAYWRIGHT_SKIP_VISUAL ? ["**/visual.spec.js"] : [],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -27,14 +27,22 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  // Use the system-installed Google Chrome (`channel: "chrome"`). The bundled
-  // Chrome-for-Testing build fails to launch on some Windows machines with a
-  // side-by-side ("SxS") configuration error; the system Chrome has the correct
-  // runtime. CI can drop this `channel` to use the bundled browser instead.
+  // Browser by OS so each platform's visual baselines stay reproducible:
+  // - Windows → system Google Chrome (`channel: "chrome"`); the bundled
+  //   Chrome-for-Testing build fails to launch on some Windows side-by-side (SxS)
+  //   setups. Baselines: `*-chromium-win32.png`.
+  // - Linux → Playwright's bundled chromium (no channel). This is exactly what the
+  //   CI e2e job uses (ubuntu-latest + `npx playwright install --with-deps chromium`),
+  //   so the committed `*-chromium-linux.png` baselines match CI. Regenerate them on
+  //   the same runner via the "Update visual baselines (Linux)" workflow
+  //   (`.github/workflows/visual-baselines.yml`), then commit the downloaded PNGs.
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"], channel: process.env.CI ? undefined : "chrome" },
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: process.platform === "win32" ? "chrome" : undefined,
+      },
     },
   ],
   webServer: {

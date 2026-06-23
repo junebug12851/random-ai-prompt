@@ -1,0 +1,41 @@
+name: Update visual baselines (Linux)
+
+# Manually-triggered helper: regenerates the Playwright visual-regression baselines on the SAME
+# environment the CI `e2e` job runs in (ubuntu-latest + Playwright's bundled chromium), so the
+# committed `*-chromium-linux.png` snapshots match CI. It does NOT commit anything — it uploads the
+# refreshed snapshots as an artifact ("linux-visual-baselines"); download it and commit the PNGs
+# under tests/e2e/visual.spec.js-snapshots/. Run this whenever the SPA's stable chrome changes.
+# See notes/plans/testing.md and notes/reference/deployment.md.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Regenerate Linux visual baselines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies (root + web-app)
+        run: |
+          npm ci
+          npm --prefix web-app ci
+
+      - name: Install Playwright browser (bundled chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Regenerate visual baselines
+        run: npx playwright test visual.spec.js --update-snapshots
+
+      - name: Upload refreshed baselines
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-visual-baselines
+          path: tests/e2e/visual.spec.js-snapshots/
+          if-no-files-found: error

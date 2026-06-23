@@ -79,5 +79,9 @@ jobs:
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: E2E + accessibility (visual-regression skipped on CI)
+      # TEMP: visual-regression skipped until Linux baselines are committed (run the
+      # "Update visual baselines (Linux)" workflow, commit the PNGs, then drop this env).
+      - name: E2E + accessibility (visual skipped until Linux baselines committed)
         run: npm run test:e2e
+        env:
+          PLAYWRIGHT_SKIP_VISUAL: "1"
