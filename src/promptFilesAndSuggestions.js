@@ -129,7 +129,15 @@ function loadDynPromptList() {
     partialNoArtistFx.push(name);
   }
 
-  allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles, ...v1Files, ...v2Files);
+  allDynPrompts.splice(
+    0,
+    0,
+    ...fullRegular,
+    ...partialRegular,
+    ...userFiles,
+    ...v1Files,
+    ...v2Files,
+  );
   fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {

@@ -26,28 +26,74 @@ function loadIndex(file) {
   }
   return set;
 }
-const wn = { adj: loadIndex("index.adj"), noun: loadIndex("index.noun"), verb: loadIndex("index.verb"), adv: loadIndex("index.adv") };
+const wn = {
+  adj: loadIndex("index.adj"),
+  noun: loadIndex("index.noun"),
+  verb: loadIndex("index.verb"),
+  adv: loadIndex("index.adv"),
+};
 
 const read = (rel) => {
-  try { return fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").split(/\r?\n/).map((l) => l.replace(/\r$/, "")).filter((l) => l.trim() !== ""); }
-  catch { return []; }
+  try {
+    return fs
+      .readFileSync(path.join(listsDir, `${rel}.txt`), "utf8")
+      .split(/\r?\n/)
+      .map((l) => l.replace(/\r$/, ""))
+      .filter((l) => l.trim() !== "");
+  } catch {
+    return [];
+  }
 };
-const writeSorted = (rel, set) => fs.writeFileSync(path.join(listsDir, `${rel}.txt`), Array.from(set).sort((a, b) => a.localeCompare(b)).join("\n") + "\n");
+const writeSorted = (rel, set) =>
+  fs.writeFileSync(
+    path.join(listsDir, `${rel}.txt`),
+    Array.from(set)
+      .sort((a, b) => a.localeCompare(b))
+      .join("\n") + "\n",
+  );
 
-const HOME = { "word/adjective": "adj", "word/noun": "noun", "word/verb": "verb", "word/adverb": "adv" };
+const HOME = {
+  "word/adjective": "adj",
+  "word/noun": "noun",
+  "word/verb": "verb",
+  "word/adverb": "adv",
+};
 const FILE = { adj: "word/adjective", noun: "word/noun", verb: "word/verb", adv: "word/adverb" };
-const result = { adj: new Set(), noun: new Set(), verb: new Set(), adv: new Set(), action: new Set() };
+const result = {
+  adj: new Set(),
+  noun: new Set(),
+  verb: new Set(),
+  adv: new Set(),
+  action: new Set(),
+};
 const log = { toAction: [], cross: [], unknownKept: 0, confirmed: 0 };
 
 for (const [rel, home] of Object.entries(HOME)) {
   for (const e of read(rel)) {
     const lc = e.toLowerCase();
-    const mem = { adj: wn.adj.has(lc), noun: wn.noun.has(lc), verb: wn.verb.has(lc), adv: wn.adv.has(lc) };
-    if (mem[home]) { result[home].add(e); log.confirmed++; continue; }
+    const mem = {
+      adj: wn.adj.has(lc),
+      noun: wn.noun.has(lc),
+      verb: wn.verb.has(lc),
+      adv: wn.adv.has(lc),
+    };
+    if (mem[home]) {
+      result[home].add(e);
+      log.confirmed++;
+      continue;
+    }
     const hasIng = lc.split(/[\s-]+/).some((w) => w.endsWith("ing"));
-    if (hasIng && !mem.adj) { result.action.add(e); log.toAction.push(`${rel}: ${e}`); continue; }
+    if (hasIng && !mem.adj) {
+      result.action.add(e);
+      log.toAction.push(`${rel}: ${e}`);
+      continue;
+    }
     const hit = ["noun", "verb", "adj", "adv"].find((k) => mem[k]);
-    if (hit) { result[hit].add(e); log.cross.push(`${rel}: ${e} -> ${FILE[hit]}`); continue; }
+    if (hit) {
+      result[hit].add(e);
+      log.cross.push(`${rel}: ${e} -> ${FILE[hit]}`);
+      continue;
+    }
     result[home].add(e); // WordNet doesn't know it — keep where it is
     log.unknownKept++;
   }
@@ -60,4 +106,15 @@ console.log("confirmed-in-place:", log.confirmed, "| unknown-kept:", log.unknown
 console.log("-> look/action:", log.toAction.length, "| cross-POS moves:", log.cross.length);
 console.log("\nsample actions:\n  " + log.toAction.slice(0, 25).join("\n  "));
 console.log("\nsample cross-POS:\n  " + log.cross.slice(0, 25).join("\n  "));
-console.log("\nfinal sizes: adjective", result.adj.size, "noun", result.noun.size, "verb", result.verb.size, "adverb", result.adv.size, "action", result.action.size);
+console.log(
+  "\nfinal sizes: adjective",
+  result.adj.size,
+  "noun",
+  result.noun.size,
+  "verb",
+  result.verb.size,
+  "adverb",
+  result.adv.size,
+  "action",
+  result.action.size,
+);

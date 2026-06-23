@@ -70,9 +70,21 @@ export function makeDynamicPromptStage(loader) {
         ? loader.dynPromptGroupDirs()
         : [];
     const GENS = {
-      "": { pool: names.filter((n) => n.startsWith("v3/")), groups: groupAll.filter((d) => d.startsWith("v3/")), frozen: false },
-      v1: { pool: names.filter((n) => n.startsWith("v1/")), groups: groupAll.filter((d) => d.startsWith("v1/")), frozen: true },
-      v2: { pool: names.filter((n) => n.startsWith("v2/")), groups: groupAll.filter((d) => d.startsWith("v2/")), frozen: true },
+      "": {
+        pool: names.filter((n) => n.startsWith("v3/")),
+        groups: groupAll.filter((d) => d.startsWith("v3/")),
+        frozen: false,
+      },
+      v1: {
+        pool: names.filter((n) => n.startsWith("v1/")),
+        groups: groupAll.filter((d) => d.startsWith("v1/")),
+        frozen: true,
+      },
+      v2: {
+        pool: names.filter((n) => n.startsWith("v2/")),
+        groups: groupAll.filter((d) => d.startsWith("v2/")),
+        frozen: true,
+      },
     };
     const includeAdult = settings.includeAdult === true;
     // Gating: a generator whose name carries an `nsfw` token is hidden (empty) unless

@@ -17,7 +17,8 @@ function withRandom(value, fn) {
   }
 }
 
-const render = (src, settings = {}) => compileDpl(src, { resolveJs: () => "" }).default(settings, {}, {});
+const render = (src, settings = {}) =>
+  compileDpl(src, { resolveJs: () => "" }).default(settings, {}, {});
 
 describe("DPL: plain text & front-matter", () => {
   it("treats plain text as an always-on layer", () => {

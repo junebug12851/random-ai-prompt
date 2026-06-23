@@ -40,7 +40,9 @@ for (const [k, v] of Object.entries(pos.summary)) {
   md += `- ${label}: ${v}\n`;
 }
 md += `\nDropped as junk (owner-approved): `;
-md += Object.entries(pos.stats).map(([k, v]) => `${k.replace("dropped_", "")} ${v}`).join(", ");
+md += Object.entries(pos.stats)
+  .map(([k, v]) => `${k.replace("dropped_", "")} ${v}`)
+  .join(", ");
 md += `.\n\nConservation check: 46,500 sorted + 2,250 dropped = 48,750 original lines. Nothing unaccounted.\n\n`;
 
 md += `## 3. Lists collapsed into virtual lists\n\n`;
@@ -53,4 +55,7 @@ md += `- \`adjective-all\`, \`noun-all\`, \`verb-all\`, \`adverb-all\` — curat
 md += `\n6 uncategorized artist entries were preserved into \`artist-special\` before deletion.\n`;
 
 fs.writeFileSync(path.join(outDir, "CHANGE-REPORT.md"), md);
-console.log("Wrote", path.relative(path.resolve(__dirname, "..", ".."), path.join(outDir, "CHANGE-REPORT.md")));
+console.log(
+  "Wrote",
+  path.relative(path.resolve(__dirname, "..", ".."), path.join(outDir, "CHANGE-REPORT.md")),
+);

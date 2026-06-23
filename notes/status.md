@@ -86,9 +86,13 @@ authored file, per-function JSDoc across all server-side code, all 113 dynamic p
 scripts, and the whole `web-app/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
-**Deployments are intentionally held.** `master` sits at the last pre-revival commit (`241a148`); GitHub
-Releases / Pages deploys are paused on purpose because the rewrite is too early to ship. Active work is on
-`dev`. See [`reference/deployment.md`](reference/deployment.md).
+**First ship (2026-06-22): the deployment hold is lifted.** `master` was fast-forwarded off the pre-revival
+`241a148` up to the CI-green `dev` HEAD, and is kept **FF-only** (it only ever fast-forwards to a `dev` HEAD
+that has passed GitHub CI). Getting there required unbreaking CI first — both `npm ci` jobs were red on a
+lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
+(build/style only, no version bump). Active work continues on `dev`. **Note:** `ci.yml` runs only lint +
+format:check + smoke + the web-app build — not the Vitest/Playwright suites (a gap to close). See
+[`reference/deployment.md`](reference/deployment.md).
 
 **Verification done:** `node --check` on all 152 server-side JS files (0 syntax errors); `npm run lint`
 (0 errors, 163 pre-existing style warnings); a Prettier pass over the codebase; and an **import smoke

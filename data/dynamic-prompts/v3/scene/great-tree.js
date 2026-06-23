@@ -40,8 +40,7 @@ export default function () {
       break;
   }
 
-  prompt +=
-    " growing in the middle of an ancient forest)), wide angle, closeup";
+  prompt += " growing in the middle of an ancient forest)), wide angle, closeup";
 
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", exotic";
   if (_.random(0.0, 1.0, true) < 0.5) prompt += ", fog";

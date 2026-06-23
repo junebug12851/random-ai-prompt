@@ -237,7 +237,10 @@ export const nodeLoader = {
     if (dplCache.has(key)) return dplCache.get(key);
     const dplPath = path.join(dynPromptsRoot, `${key}.dpl`);
     if (fs.existsSync(dplPath)) {
-      const mod = compileDpl(fs.readFileSync(dplPath, "utf8"), makeDplBridge(path.dirname(dplPath)));
+      const mod = compileDpl(
+        fs.readFileSync(dplPath, "utf8"),
+        makeDplBridge(path.dirname(dplPath)),
+      );
       dplCache.set(key, mod);
       return mod;
     }

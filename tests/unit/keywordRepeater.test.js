@@ -27,7 +27,9 @@ describe("keywordRepeater", () => {
 
   it("stays within the random range bounds", () => {
     for (let i = 0; i < 50; i++) {
-      const n = tokenCount(keywordRepeater("keyword", false, { keywordCount: 4, keywordMaxCount: 9 }));
+      const n = tokenCount(
+        keywordRepeater("keyword", false, { keywordCount: 4, keywordMaxCount: 9 }),
+      );
       expect(n).toBeGreaterThanOrEqual(4);
       expect(n).toBeLessThanOrEqual(9);
     }
@@ -46,7 +48,11 @@ describe("artistRepeater", () => {
   it("emits either nothing or exactly minArtist..maxArtist tokens when enabled", () => {
     const seen = new Set();
     for (let i = 0; i < 100; i++) {
-      const out = artistRepeater("artist", false, { includeArtist: true, minArtist: 2, maxArtist: 2 });
+      const out = artistRepeater("artist", false, {
+        includeArtist: true,
+        minArtist: 2,
+        maxArtist: 2,
+      });
       const n = tokenCount(out);
       seen.add(n);
       // gated by a 50% coin flip, then minArtist..maxArtist (here fixed at 2)

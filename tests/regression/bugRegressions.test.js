@@ -55,7 +55,12 @@ describe("regression: list stage must not swallow dynamic-prompt tokens", () => 
   // Symptom: the {name} list stage mis-pulled a list named "#scene" for {#scene}.
   it("leaves a stray {#name} token intact for the dynamic-prompt stage", () => {
     const engine = createEngine(makeFakeLoader({ lists: { color: ["red"] } }));
-    const out = engine.expand("{#scene}", { ...baseSettings, promptModules: ["list", "cleanup"] }, {}, {});
+    const out = engine.expand(
+      "{#scene}",
+      { ...baseSettings, promptModules: ["list", "cleanup"] },
+      {},
+      {},
+    );
     expect(out).toBe("{#scene}");
   });
 });
@@ -63,11 +68,27 @@ describe("regression: list stage must not swallow dynamic-prompt tokens", () => 
 describe("regression: NSFW generators are gated off unless adult mode is on", () => {
   // Symptom: an nsfw-tokened generator could leak when includeAdult was false.
   it("resolves an nsfw generator to empty when adult is off, and runs it when on", () => {
-    const loader = makeFakeLoader({ dynamicPrompts: { "nude-nsfw": { default: () => "explicit" } } });
+    const loader = makeFakeLoader({
+      dynamicPrompts: { "nude-nsfw": { default: () => "explicit" } },
+    });
     const engine = createEngine(loader);
     const modules = ["dynamic-prompt", "cleanup"];
-    expect(engine.expand("{#nude-nsfw}", { ...baseSettings, includeAdult: false, promptModules: modules }, {}, {})).toBe("");
-    expect(engine.expand("{#nude-nsfw}", { ...baseSettings, includeAdult: true, promptModules: modules }, {}, {})).toBe("explicit");
+    expect(
+      engine.expand(
+        "{#nude-nsfw}",
+        { ...baseSettings, includeAdult: false, promptModules: modules },
+        {},
+        {},
+      ),
+    ).toBe("");
+    expect(
+      engine.expand(
+        "{#nude-nsfw}",
+        { ...baseSettings, includeAdult: true, promptModules: modules },
+        {},
+        {},
+      ),
+    ).toBe("explicit");
   });
 });
 

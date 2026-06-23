@@ -24,8 +24,16 @@ const outDir = path.join(__dirname, "out");
 fs.mkdirSync(outDir, { recursive: true });
 
 const CONTENT_LISTS = new Set([
-  "danbooru", "d-keyword", "d-general", "d-character", "d-character-c",
-  "d-character-nc", "d-meta", "d-person", "keyword-adult", "clothes",
+  "danbooru",
+  "d-keyword",
+  "d-general",
+  "d-character",
+  "d-character-c",
+  "d-character-nc",
+  "d-meta",
+  "d-person",
+  "keyword-adult",
+  "clothes",
 ]);
 const EXEMPT_LISTS = new Set(["city"]);
 

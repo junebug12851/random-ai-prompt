@@ -25,8 +25,16 @@ fs.mkdirSync(outDir, { recursive: true });
 // Lists that may legitimately contain adult/extreme vocabulary -> full ruleset.
 // Everything else is treated as proper-noun/descriptive -> core slurs only.
 const CONTENT_LISTS = new Set([
-  "danbooru", "d-keyword", "d-general", "d-character", "d-character-c",
-  "d-character-nc", "d-meta", "d-person", "keyword-adult", "clothes",
+  "danbooru",
+  "d-keyword",
+  "d-general",
+  "d-character",
+  "d-character-c",
+  "d-character-nc",
+  "d-meta",
+  "d-person",
+  "keyword-adult",
+  "clothes",
 ]);
 
 // Pure-geography list: real place names that legitimately echo slurs as part
@@ -41,7 +49,8 @@ function scanLines(fileLabel, lines, listType) {
     const line = raw.replace(/\r$/, "");
     if (line.trim() === "") return;
     const r = classifyRemoval(line, { listType });
-    if (r) findings.push({ file: fileLabel, lineNo: i + 1, line, category: r.category, term: r.term });
+    if (r)
+      findings.push({ file: fileLabel, lineNo: i + 1, line, category: r.category, term: r.term });
   });
 }
 
@@ -63,7 +72,14 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
     const name = line.split(",")[0] || "";
     const keyword = name.replace(/[\/\\_]+/g, " ");
     const r = classifyRemoval(keyword, { listType: "content" });
-    if (r) findings.push({ file: "danbooru.csv", lineNo: i + 1, line: keyword, category: r.category, term: r.term });
+    if (r)
+      findings.push({
+        file: "danbooru.csv",
+        lineNo: i + 1,
+        line: keyword,
+        category: r.category,
+        term: r.term,
+      });
   });
 }
 
@@ -75,7 +91,14 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
     if (line.trim() === "") return;
     const name = line.split(",")[0] || "";
     const r = classifyRemoval(name, { listType: "proper" });
-    if (r) findings.push({ file: "artists.csv", lineNo: i + 1, line: name, category: r.category, term: r.term });
+    if (r)
+      findings.push({
+        file: "artists.csv",
+        lineNo: i + 1,
+        line: name,
+        category: r.category,
+        term: r.term,
+      });
   });
 }
 
@@ -90,7 +113,10 @@ for (const f of findings) {
   byTerm[key] = (byTerm[key] || 0) + 1;
 }
 
-fs.writeFileSync(path.join(outDir, "removals.json"), JSON.stringify({ findings, byCategory, byFile }, null, 2));
+fs.writeFileSync(
+  path.join(outDir, "removals.json"),
+  JSON.stringify({ findings, byCategory, byFile }, null, 2),
+);
 
 // human report
 let md = `# Offensive-content removal audit\n\nGenerated ${new Date().toISOString()}\n\n`;

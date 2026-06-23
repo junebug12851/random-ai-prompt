@@ -14,8 +14,19 @@ const listsDir = path.resolve(__dirname, "..", "..", "data", "lists");
 
 // Flagged but legit (SFW sense dominates) — never move/remove these.
 const KEEP = new Set([
-  "explicit", "facial", "naked", "oral", "sexual", "ass", "butt", "breast",
-  "sex", "intercourse", "presenting", "naked mole rat", "x-ray",
+  "explicit",
+  "facial",
+  "naked",
+  "oral",
+  "sexual",
+  "ass",
+  "butt",
+  "breast",
+  "sex",
+  "intercourse",
+  "presenting",
+  "naked mole rat",
+  "x-ray",
 ]);
 
 // SFW list -> where its NSFW lines should be relocated (gated).
@@ -30,10 +41,14 @@ const ROUTES = {
 };
 
 const read = (rel) => {
-  try { return fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").split(/\r?\n/); }
-  catch { return []; }
+  try {
+    return fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").split(/\r?\n/);
+  } catch {
+    return [];
+  }
 };
-const eol = (rel) => (fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").includes("\r\n") ? "\r\n" : "\n");
+const eol = (rel) =>
+  fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").includes("\r\n") ? "\r\n" : "\n";
 
 const adds = {}; // target -> Set of lines to add
 const log = { moved: [], removed: [], kept: [] };
@@ -48,9 +63,15 @@ for (const [src, target] of Object.entries(ROUTES)) {
   for (const line of lines) {
     if (line.trim() === "") continue;
     const lc = line.toLowerCase();
-    if (KEEP.has(lc)) { kept.push(line); continue; }
+    if (KEEP.has(lc)) {
+      kept.push(line);
+      continue;
+    }
     const rm = classifyRemoval(line, { listType: "content" });
-    if (rm) { log.removed.push(`${src}: ${line} (${rm.category})`); continue; } // drop extreme/slur
+    if (rm) {
+      log.removed.push(`${src}: ${line} (${rm.category})`);
+      continue;
+    } // drop extreme/slur
     if (isNsfw(line)) {
       (adds[target] ||= new Set()).add(line);
       log.moved.push(`${src} -> ${target}: ${line}`);
@@ -64,9 +85,18 @@ for (const [src, target] of Object.entries(ROUTES)) {
 // append moved lines to their gated target lists (create if needed, dedup, sort)
 for (const [target, set] of Object.entries(adds)) {
   const file = path.join(listsDir, `${target}.txt`);
-  const existing = new Set(read(target).map((l) => l.replace(/\r$/, "")).filter((l) => l.trim() !== ""));
+  const existing = new Set(
+    read(target)
+      .map((l) => l.replace(/\r$/, ""))
+      .filter((l) => l.trim() !== ""),
+  );
   for (const l of set) existing.add(l);
-  fs.writeFileSync(file, Array.from(existing).sort((a, b) => a.localeCompare(b)).join("\n") + "\n");
+  fs.writeFileSync(
+    file,
+    Array.from(existing)
+      .sort((a, b) => a.localeCompare(b))
+      .join("\n") + "\n",
+  );
 }
 
 console.log(`moved ${log.moved.length}, removed ${log.removed.length}`);

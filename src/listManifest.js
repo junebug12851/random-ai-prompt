@@ -276,8 +276,7 @@ export function resolveListLines(
       const line = raw.replace(/\r$/, "").trim();
       if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
       const member = resolveName(line, readers.names);
-      const lines =
-        resolveListLines(member, readers, includeAdult, variant, depth + 1, seen) || [];
+      const lines = resolveListLines(member, readers, includeAdult, variant, depth + 1, seen) || [];
       for (const l of lines) {
         const t = l.replace(/\r$/, "");
         if (t.trim() === "" || seenLine.has(t)) continue;

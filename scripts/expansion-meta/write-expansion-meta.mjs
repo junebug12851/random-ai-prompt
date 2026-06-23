@@ -21,7 +21,8 @@ const D = {
   "lighting/candlelight": "Candlelit, dark interior.",
   // subjects
   "subject/coffecup": "A coffee cup / mug.",
-  "subject/flower-pic": "Two random flowers in a random artist's style (pulls {flower} + {artist}).",
+  "subject/flower-pic":
+    "Two random flowers in a random artist's style (pulls {flower} + {artist}).",
   // scenes
   "scene/underwater-anime-irl": "Underwater scene with bubbles (pulls in the #anime-irl prompt).",
 

@@ -22,7 +22,10 @@ const listsDir = path.resolve(__dirname, "..", "..", "data", "lists");
 
 const read = (n) => {
   try {
-    return fs.readFileSync(path.join(listsDir, `${n}.txt`), "utf8").split(/\r?\n/).filter((l) => l.trim() !== "");
+    return fs
+      .readFileSync(path.join(listsDir, `${n}.txt`), "utf8")
+      .split(/\r?\n/)
+      .filter((l) => l.trim() !== "");
   } catch {
     return [];
   }
@@ -30,18 +33,37 @@ const read = (n) => {
 
 // composite -> { members: atomic list names, sink: atomic to receive orphans }
 const COMPOSITES = {
-  danbooru: { members: ["d-general", "d-artist", "d-character-c", "d-character-nc", "d-meta"], sink: "d-general" },
-  "d-keyword": { members: ["d-general", "d-character-c", "d-character-nc", "d-meta"], sink: "d-general" },
+  danbooru: {
+    members: ["d-general", "d-artist", "d-character-c", "d-character-nc", "d-meta"],
+    sink: "d-general",
+  },
+  "d-keyword": {
+    members: ["d-general", "d-character-c", "d-character-nc", "d-meta"],
+    sink: "d-general",
+  },
   "d-character": { members: ["d-character-nc", "d-character-c"], sink: "d-general" },
   artist: {
     members: [
-      "artist-anime", "artist-bw", "artist-cartoon", "artist-dhigh", "artist-dmed",
-      "artist-dlow", "artist-fareast", "artist-fineart", "artist-nudity",
-      "artist-scribbles", "artist-special", "artist-ukioe", "artist-weird",
+      "artist-anime",
+      "artist-bw",
+      "artist-cartoon",
+      "artist-dhigh",
+      "artist-dmed",
+      "artist-dlow",
+      "artist-fareast",
+      "artist-fineart",
+      "artist-nudity",
+      "artist-scribbles",
+      "artist-special",
+      "artist-ukioe",
+      "artist-weird",
     ],
     sink: "artist-special",
   },
-  "artist-digipa": { members: ["artist-dhigh", "artist-dmed", "artist-dlow"], sink: "artist-special" },
+  "artist-digipa": {
+    members: ["artist-dhigh", "artist-dmed", "artist-dlow"],
+    sink: "artist-special",
+  },
 };
 
 for (const [name, def] of Object.entries(COMPOSITES)) {

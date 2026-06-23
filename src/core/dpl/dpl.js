@@ -443,10 +443,12 @@ export function compileDpl(source, bridge = null) {
   // exactly like any section (probability, refs, JS), but are NOT part of the block's own `Start`
   // body. See notes/plans/v3-layers.md.
   const has = (name) => Object.prototype.hasOwnProperty.call(sections, name);
-  const renderSection = (name) => (settings = {}, imageSettings = {}, upscaleSettings = {}) => {
-    if (!has(name)) return "";
-    return makeCtx(settings, imageSettings, upscaleSettings).section(name);
-  };
+  const renderSection =
+    (name) =>
+    (settings = {}, imageSettings = {}, upscaleSettings = {}) => {
+      if (!has(name)) return "";
+      return makeCtx(settings, imageSettings, upscaleSettings).section(name);
+    };
 
   return {
     default: defaultFn,

@@ -63,8 +63,14 @@ function isRedundantInflection(word) {
   if (word.endsWith("s")) c.add(word.slice(0, -1));
   if (word.endsWith("es")) c.add(word.slice(0, -2));
   if (word.endsWith("ies")) c.add(word.slice(0, -3) + "y");
-  if (word.endsWith("ed")) { c.add(word.slice(0, -2)); c.add(word.slice(0, -1)); }
-  if (word.endsWith("ing")) { c.add(word.slice(0, -3)); c.add(word.slice(0, -3) + "e"); }
+  if (word.endsWith("ed")) {
+    c.add(word.slice(0, -2));
+    c.add(word.slice(0, -1));
+  }
+  if (word.endsWith("ing")) {
+    c.add(word.slice(0, -3));
+    c.add(word.slice(0, -3) + "e");
+  }
   for (const x of c) if (x.length >= 3 && wordSet.has(x)) return true;
   return false;
 }
@@ -78,20 +84,43 @@ const out = {
   "dict-adverb": new Set(),
   "dict-misc": new Set(),
 };
-const stats = { dropped_junk: 0, dropped_inflection: 0, dropped_unsafe: 0, in_wordnet: 0, proper: 0, misc: 0, multi: 0 };
+const stats = {
+  dropped_junk: 0,
+  dropped_inflection: 0,
+  dropped_unsafe: 0,
+  in_wordnet: 0,
+  proper: 0,
+  misc: 0,
+  multi: 0,
+};
 
 for (const w of words) {
-  if (classifyRemoval(w, { listType: "content" })) { stats.dropped_unsafe++; continue; }
-  if (/['’]/.test(w) || !/^[A-Za-z][A-Za-z -]*$/.test(w) || w.length < 2) { stats.dropped_junk++; continue; }
+  if (classifyRemoval(w, { listType: "content" })) {
+    stats.dropped_unsafe++;
+    continue;
+  }
+  if (/['’]/.test(w) || !/^[A-Za-z][A-Za-z -]*$/.test(w) || w.length < 2) {
+    stats.dropped_junk++;
+    continue;
+  }
   const lc = w.toLowerCase();
-  if (isRedundantInflection(lc)) { stats.dropped_inflection++; continue; }
+  if (isRedundantInflection(lc)) {
+    stats.dropped_inflection++;
+    continue;
+  }
 
   // demonym -> its own list
-  if (/^[A-Z]/.test(w) && nlp(w).has("#Demonym")) { out.demonym.add(w); continue; }
+  if (/^[A-Z]/.test(w) && nlp(w).has("#Demonym")) {
+    out.demonym.add(w);
+    continue;
+  }
 
-  const pos = ["dict-noun", "dict-verb", "dict-adjective", "dict-adverb"].filter((p) => wn[p].has(lc));
+  const pos = ["dict-noun", "dict-verb", "dict-adjective", "dict-adverb"].filter((p) =>
+    wn[p].has(lc),
+  );
   const cap = /^[A-Z]/.test(w);
-  const hasModifier = pos.includes("dict-verb") || pos.includes("dict-adjective") || pos.includes("dict-adverb");
+  const hasModifier =
+    pos.includes("dict-verb") || pos.includes("dict-adjective") || pos.includes("dict-adverb");
 
   if (cap && pos.length && !hasModifier) {
     // Capitalized and WordNet knows it ONLY as a noun -> almost certainly a
@@ -112,13 +141,22 @@ for (const w of words) {
 }
 
 const write = (n, set) =>
-  fs.writeFileSync(path.join(listsDir, `${n}.txt`), Array.from(set).sort((a, b) => a.localeCompare(b)).join("\n") + "\n");
+  fs.writeFileSync(
+    path.join(listsDir, `${n}.txt`),
+    Array.from(set)
+      .sort((a, b) => a.localeCompare(b))
+      .join("\n") + "\n",
+  );
 write("keyword", out.proper);
 write("demonym", out.demonym);
-for (const p of ["dict-noun", "dict-verb", "dict-adjective", "dict-adverb", "dict-misc"]) write(p, out[p]);
+for (const p of ["dict-noun", "dict-verb", "dict-adjective", "dict-adverb", "dict-misc"])
+  write(p, out[p]);
 
 const summary = Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.size]));
-fs.writeFileSync(path.join(outDir, "pos-dictionary-stats.json"), JSON.stringify({ summary, stats }, null, 2));
+fs.writeFileSync(
+  path.join(outDir, "pos-dictionary-stats.json"),
+  JSON.stringify({ summary, stats }, null, 2),
+);
 console.log("WordNet POS sort complete.");
 console.log("  list sizes:", JSON.stringify(summary));
 console.log("  stats:", JSON.stringify(stats));

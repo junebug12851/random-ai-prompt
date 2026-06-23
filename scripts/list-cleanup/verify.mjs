@@ -3,8 +3,16 @@ import { nodeLoader } from "../../src/core/nodeLoader.js";
 
 const names = nodeLoader.listNames();
 const check = [
-  "danbooru", "danbooru-sfw", "d-keyword", "d-character", "artist",
-  "artist-digipa", "adjective-all", "noun-all", "dict-adjective", "keyword",
+  "danbooru",
+  "danbooru-sfw",
+  "d-keyword",
+  "d-character",
+  "artist",
+  "artist-digipa",
+  "adjective-all",
+  "noun-all",
+  "dict-adjective",
+  "keyword",
 ];
 console.log("total list names (incl virtual):", names.length);
 for (const n of check) {

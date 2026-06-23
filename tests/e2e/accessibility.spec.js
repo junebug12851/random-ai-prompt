@@ -21,7 +21,14 @@ test.describe("accessibility", () => {
       (v) => v.impact === "serious" || v.impact === "critical",
     );
     // Surface details in the test output if this ever fails.
-    expect(blocking, JSON.stringify(blocking.map((v) => v.id), null, 2)).toEqual([]);
+    expect(
+      blocking,
+      JSON.stringify(
+        blocking.map((v) => v.id),
+        null,
+        2,
+      ),
+    ).toEqual([]);
   });
 
   test("results region is reachable after generating", async ({ page }) => {
@@ -37,6 +44,13 @@ test.describe("accessibility", () => {
     const blocking = results.violations.filter(
       (v) => v.impact === "serious" || v.impact === "critical",
     );
-    expect(blocking, JSON.stringify(blocking.map((v) => v.id), null, 2)).toEqual([]);
+    expect(
+      blocking,
+      JSON.stringify(
+        blocking.map((v) => v.id),
+        null,
+        2,
+      ),
+    ).toEqual([]);
   });
 });

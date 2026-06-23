@@ -27,11 +27,7 @@ describe("compareNames (natural order: symbols < numbers < letters)", () => {
   });
 
   it("is alphabetical among letters", () => {
-    expect(["banana", "apple", "cherry"].sort(compareNames)).toEqual([
-      "apple",
-      "banana",
-      "cherry",
-    ]);
+    expect(["banana", "apple", "cherry"].sort(compareNames)).toEqual(["apple", "banana", "cherry"]);
   });
 });
 

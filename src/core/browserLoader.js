@@ -86,12 +86,18 @@ const expGroupRaw = import.meta.glob("../../data/expansions-obsolete/**/*.group"
   import: "default",
   eager: true,
 });
-const expEnableGroupFiles = import.meta.glob("../../data/expansions-obsolete/**/_enable-group-list", {
-  eager: true,
-});
-const expDisableGroupFiles = import.meta.glob("../../data/expansions-obsolete/**/_disable-group-list", {
-  eager: true,
-});
+const expEnableGroupFiles = import.meta.glob(
+  "../../data/expansions-obsolete/**/_enable-group-list",
+  {
+    eager: true,
+  },
+);
+const expDisableGroupFiles = import.meta.glob(
+  "../../data/expansions-obsolete/**/_disable-group-list",
+  {
+    eager: true,
+  },
+);
 const presetModules = import.meta.glob("../../data/presets/*.json", {
   eager: true,
   import: "default",
