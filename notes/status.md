@@ -92,8 +92,10 @@ that has passed GitHub CI). Getting there required unbreaking CI first — both 
 lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
 (build/style only, no version bump). Active work continues on `dev`. **CI now runs the full gate** — lint,
 format:check, smoke, the Node + jsdom Vitest suites, the web-app build, and the Playwright E2E +
-accessibility specs; only visual-regression is skipped on CI (its baselines are committed Windows-only —
-regenerate Linux baselines to enable it). See [`reference/deployment.md`](reference/deployment.md).
+accessibility **+ visual-regression** specs. Visual works cross-OS: baselines are committed for both Windows
+(`*-chromium-win32.png`, system Chrome) and Linux (`*-chromium-linux.png`, bundled chromium); regenerate the
+Linux set via the "Update visual baselines (Linux)" workflow (`visual-baselines.yml`). See
+[`reference/deployment.md`](reference/deployment.md).
 
 **Verification done:** `node --check` on all 152 server-side JS files (0 syntax errors); `npm run lint`
 (0 errors, 163 pre-existing style warnings); a Prettier pass over the codebase; and an **import smoke

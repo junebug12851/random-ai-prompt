@@ -4,9 +4,10 @@ How the project ships. There are three independent pipelines, each with one home
 
 | Pipeline | Where | What it does |
 |----------|-------|--------------|
-| **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + smoke + Node/jsdom Vitest suites; builds the React SPA; Playwright E2E + a11y (visual skipped on CI). |
+| **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + smoke + Node/jsdom Vitest suites; builds the React SPA; Playwright E2E + a11y + visual-regression. |
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `master`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
+| **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
 | **Web app deploy** | `netlify.toml` | Builds + hosts the `web-app/` SPA on **Netlify** (separate from the GitHub release). |
 
 ## CI — `.github/workflows/ci.yml`
@@ -16,11 +17,23 @@ then `npm run lint`, `npm run format:check`, `npm run smoke` (the [import smoke 
 and `npm run test:unit` (the Node Vitest suite); (2) **web-app** — `npm --prefix web-app ci`, then
 `npm --prefix web-app run build` (the SPA is proven to build) and `npm --prefix web-app run test` (the jsdom
 Vitest suite); (3) **e2e** — installs root + web-app deps and the bundled Playwright chromium, then
-`npm run test:e2e` (E2E + accessibility). **Visual-regression is skipped on CI** (`testIgnore` guarded by
-`process.env.CI` in `playwright.config.js`) because its `toHaveScreenshot` baselines are committed for
-Windows only (`*-win32.png`) and can't match Linux rendering; to enable it, commit Linux baselines
-(`npm run test:e2e:update` on Linux) and drop the guard. Green here means the same thing as green locally —
-it's the CI mirror of `npm test` + the build + the browser specs.
+`npm run test:e2e` (E2E + accessibility + **visual-regression**). Visual works cross-OS because baselines
+are committed per platform — `*-chromium-win32.png` (local, system Chrome) and `*-chromium-linux.png` (CI,
+bundled chromium); `playwright.config.js` picks the browser by `process.platform` and only skips visual when
+`PLAYWRIGHT_SKIP_VISUAL` is set (an escape hatch for a platform without baselines). Regenerate the Linux set
+with the **Update visual baselines (Linux)** workflow (see below) — never hand-edit the PNGs. Green here
+means the same thing as green locally — it's the CI mirror of `npm test` + the build + the browser specs.
+
+## Visual baselines — `.github/workflows/visual-baselines.yml`
+
+Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** (Node 24, `npm ci`
++ web-app `npm ci`, `npx playwright install --with-deps chromium`), then `playwright test visual.spec.js
+--update-snapshots`, and uploads `tests/e2e/visual.spec.js-snapshots/` as the `linux-visual-baselines`
+artifact. Because it renders in the exact environment the e2e job checks against, the baselines match CI.
+Workflow: trigger it (`gh workflow run visual-baselines.yml`), download the artifact, copy the
+`*-chromium-linux.png` files into `tests/e2e/visual.spec.js-snapshots/`, and commit. Do this whenever the
+SPA's stable chrome changes (the Windows `*-win32.png` set is refreshed locally with
+`npm run test:e2e:update`).
 
 ## Docs site — `.github/workflows/pages.yml`
 
