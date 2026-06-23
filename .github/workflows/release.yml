@@ -65,7 +65,9 @@ jobs:
 
       - name: Verify (lint + smoke test)
         if: steps.ver.outputs.should_release == 'true'
-        run: npm test
+        run: |
+          npm run lint
+          npm run smoke
 
       - name: Build the source tarball
         if: steps.ver.outputs.should_release == 'true'

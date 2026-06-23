@@ -37,7 +37,7 @@
  * Per-list metadata. Any list not listed here defaults to
  * { anime:false, nsfw:false }. `nsfw:true` means the list as a whole leans
  * adult (still drawn only when includeAdult is on if it is also gated).
- * @type {Object<string,{category?:string,anime?:boolean,nsfw?:boolean}>}
+ * @type {Object<string, {category: (string|undefined), anime: (boolean|undefined), nsfw: (boolean|undefined)}>}
  */
 export const listTags = {
   // danbooru / anime content (files live under danbooru/d/, short ref "d/<name>").
@@ -117,7 +117,7 @@ export function isReservedWildcard(name) {
  * normal SFW list (with `<base>-sfw.txt` as a fallback). Returns `null` when no SFW
  * source exists, else an array (possibly empty).
  * @param {string} base Canonical base name (no sfw/nsfw suffix).
- * @param {{names:string[], readListFile:(n:string)=>(string[]|null)}} readers
+ * @param {{names: string[], readListFile: function(string): (string[]|null)}} readers
  * @returns {string[]|null}
  */
 function readSfwBase(base, readers) {
@@ -131,7 +131,7 @@ function readSfwBase(base, readers) {
  * de-duplicated to base names (so `-sfw`/`-nsfw` pairs become one member resolved
  * mode-aware), excluding real groups. The result feeds the normal group-union path.
  * @param {string} dir The folder path.
- * @param {{names:string[], readGroupFile:(n:string)=>(string[]|null)}} readers
+ * @param {{names: string[], readGroupFile: function(string): (string[]|null)}} readers
  * @returns {string[]} Member reference lines.
  */
 function impliedGroupMembers(dir, readers) {
@@ -195,7 +195,7 @@ export function autoGroupListDirs(listNames, enableDirs = [], disableDirs = []) 
  * all-SFW, `{d}` (on) includes NSFW, and `{d-sfw}` is SFW even when on.
  *
  * @param {string} name Canonical list/group name (may carry a `-sfw`/`-nsfw` suffix).
- * @param {{names:string[], readListFile:(n:string)=>(string[]|null), readGroupFile:(n:string)=>(string[]|null)}} readers
+ * @param {{names: string[], readListFile: function(string): (string[]|null), readGroupFile: function(string): (string[]|null)}} readers
  * @param {boolean} [includeAdult] Whether adult/NSFW content is enabled.
  * @param {("sfw"|"full"|null)} [forced] Variant forced by a parent group (internal).
  * @param {number} [depth] Current group-nesting depth (internal).

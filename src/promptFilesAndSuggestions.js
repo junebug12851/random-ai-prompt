@@ -226,7 +226,7 @@ function adultAllowed() {
 /**
  * Drop gated (adult) names from a pool unless `includeAdult` is on.
  * @param {string[]} names The candidate names.
- * @param {(name: string) => boolean} isGated Predicate: true if a name is adult-gated.
+ * @param {function(string): boolean} isGated Predicate: true if a name is adult-gated.
  * @returns {string[]} The filtered pool.
  */
 function gatePool(names, isGated) {

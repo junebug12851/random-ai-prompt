@@ -34,7 +34,7 @@ export function isReservedAny(name) {
  * flags, for UI badges and docs. The category is normally derivable from the folder; this
  * map only needs entries that carry extra flags. Anything absent defaults to
  * `{ anime:false, nsfw:false }`.
- * @type {Object<string,{category?:string,anime?:boolean,nsfw?:boolean}>}
+ * @type {Object<string, {category: (string|undefined), anime: (boolean|undefined), nsfw: (boolean|undefined)}>}
  */
 export const dynPromptTags = {
   "v2/prompt/d": { category: "prompt", anime: true, nsfw: false },
