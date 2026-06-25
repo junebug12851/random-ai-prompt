@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
 import Home from "./components/Home.jsx";
+import NsfwToggle from "./components/NsfwToggle.jsx";
 
 /**
  * The application shell component.
@@ -35,6 +36,8 @@ export default function App() {
           <img src="/logo.png" alt="" />
           <span className="wordmark">Random AI Prompt</span>
         </div>
+        <div className="topbar-spacer" />
+        <NsfwToggle settings={settings} setSettings={setSettings} />
       </header>
 
       <main>

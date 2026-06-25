@@ -24,6 +24,11 @@ export const defaultSettings = {
   promptCount: 1,
   mode: "StableDiffusion", // StableDiffusion | NovelAI | Midjourney
 
+  // Content rating. The whole app defaults to SFW; NSFW (adult) content is gated
+  // by the engine on this flag (see core/listStore.js, core/stages/*). The header
+  // toggle flips it, and turning it ON requires an explicit confirmation.
+  includeAdult: false,
+
   // Keyword counts
   keywordCount: 5,
   keywordMaxCount: 7,

@@ -127,6 +127,140 @@ body {
   white-space: nowrap;
 }
 
+/* Pushes everything after it (the NSFW switch) to the right edge of the bar. */
+.topbar-spacer {
+  flex: 1;
+}
+
+/* ---------- NSFW switch (right-aligned in the title bar) ---------- */
+.nsfw-toggle {
+  display: flex;
+  align-items: center;
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+.switch:hover {
+  background: var(--chip-hover);
+}
+.switch:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+.switch .switch-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.switch .switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  transition: background 0.15s ease;
+  flex: none;
+}
+.switch .switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform 0.15s ease;
+}
+.switch.is-on {
+  color: var(--fg);
+  border-color: var(--accent-strong);
+}
+.switch.is-on .switch-track {
+  background: var(--accent-strong);
+}
+.switch.is-on .switch-thumb {
+  transform: translateX(16px);
+  background: var(--accent-ink);
+}
+
+/* ---------- Confirm dialog (NSFW opt-in) ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 60;
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 61;
+  width: min(92vw, 420px);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.4rem 1.4rem 1.1rem;
+}
+.modal h2 {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+.modal p {
+  margin: 0 0 0.7rem;
+  color: var(--fg-soft);
+  line-height: 1.45;
+}
+.modal .modal-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.modal-actions button {
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.modal-actions .btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--fg-soft);
+}
+.modal-actions .btn-ghost:hover {
+  background: var(--chip-hover);
+}
+.modal-actions .btn-danger {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.modal-actions .btn-danger:hover {
+  background: var(--accent-strong);
+}
+.modal-actions button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
 /* ---------- Workspace (two-pane, fills the window) ---------- */
 main {
   flex: 1;

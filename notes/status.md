@@ -3,8 +3,16 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.5.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.6.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Content rating (2.6.1):** the SPA now defaults to **SFW** (`settings.includeAdult: false`) and carries a
+right-aligned **NSFW** toggle in the top-bar (`web-app/src/components/NsfwToggle.jsx`) — a stopgap until the
+options screen lands. Turning it ON requires a confirmation dialog; turning it OFF is immediate; the choice
+is remembered in the browser (it's part of `settings` → localStorage). The engine already gated on
+`includeAdult` (`core/listStore.js`, `core/stages/*`, `gatedLists.js`); this just exposes the switch. Still
+pending: the SFW/adult word-list split + re-adding the Style control (see
+[`plans/removed-pending-readd.md`](plans/removed-pending-readd.md)).
 
 **fairyfox mesh:** this repo is a node in the fairyfox system. Project-side onboarding is done — the
 `CLAUDE.md` mesh-awareness block ([`reference/cross-project-sync.md`](reference/cross-project-sync.md)),
