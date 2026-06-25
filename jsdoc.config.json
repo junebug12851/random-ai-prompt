@@ -23,6 +23,12 @@
     "collapse": true,
     "wrap": true,
     "typedefs": true,
+    "scripts": ["assets/docs-theme/fairyfox-docs.css", "assets/docs-theme/fairyfox-docs.js"],
+    "meta": {
+      "title": "Random AI Prompt — docs · Fairy Fox",
+      "description": "Code API and project notes for Random AI Prompt, a project under Fairy Fox (fairyfox.io).",
+      "keyword": "random-ai-prompt, Fairy Fox, JSDoc, dynamic prompts"
+    },
     "sectionOrder": [
       "Tutorials",
       "Modules",
@@ -35,6 +41,14 @@
       "Global"
     ],
     "menu": {
+      "↩ Fairy Fox": {
+        "href": "https://fairyfox.io/",
+        "class": "menu-item"
+      },
+      "Project node": {
+        "href": "https://fairyfox.io/projects/random-ai-prompt/",
+        "class": "menu-item"
+      },
       "GitHub": {
         "href": "https://github.com/junebug12851/random-ai-prompt",
         "target": "_blank",

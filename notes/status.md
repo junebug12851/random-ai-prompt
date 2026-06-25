@@ -6,6 +6,13 @@ _Current state only._ For the chronological history of what changed each session
 **Version:** `2.5.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
+**fairyfox mesh:** this repo is a node in the fairyfox system. Project-side onboarding is done — the
+`CLAUDE.md` mesh-awareness block ([`reference/cross-project-sync.md`](reference/cross-project-sync.md)),
+the notes/version/branch model, and a **fairyfox-themed docs site** ([`reference/documentation.md`](reference/documentation.md))
+are in place. The themed docs go live on the next `master` fast-forward + Pages deploy. Open (hub-side,
+for the owner): the hub `registry.yml` shows `branch: dev` (real default is `master`) and an overstated
+`adopts_hub`/docs-site flag — corrections to make in the `junebug12851.github.io` repo.
+
 **Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
 expansions (`<lighting>` splices one random expansion). Added the `{#any}` / `{#any-sfw}` / `{#any-nsfw}`

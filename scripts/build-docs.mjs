@@ -179,4 +179,19 @@ console.log(`Transpiled ${waCount} web-app files (JSX stripped) into tmp/webapp-
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
 execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
+
+// ---- Copy the fairyfox docs-theme assets into the output ----
+// docdash references these (jsdoc.config.json → docdash.scripts) but doesn't copy
+// local files itself, so we place them at the path the generated pages expect:
+// docs/jsdoc/assets/docs-theme/. This is the fairyfox.io skin + the injected
+// brand bar / breadcrumb / footer back-links (the docs-site standard's two-way
+// link requirement). See notes/reference/documentation.md.
+const themeSrc = path.join(root, "assets", "docs-theme");
+const themeDest = path.join(root, "docs", "jsdoc", "assets", "docs-theme");
+fs.mkdirSync(themeDest, { recursive: true });
+for (const f of fs.readdirSync(themeSrc)) {
+  fs.copyFileSync(path.join(themeSrc, f), path.join(themeDest, f));
+}
+console.log(`Copied fairyfox docs-theme assets → docs/jsdoc/assets/docs-theme/.`);
+
 console.log("Done → docs/jsdoc/index.html");

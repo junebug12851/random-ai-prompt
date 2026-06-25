@@ -208,6 +208,37 @@ If something doesn't fit an existing file, make a new one in the right folder. T
 human) opening this repo cold can read the notes and be fully oriented — nothing trapped in one
 person's head, nothing lost between sessions.
 
+## Cross-project standards & checking the fairyfox system for updates
+
+This project is a **node in the fairyfox system** (the hub mesh): it pulls shared standards from the
+system on request — see `notes/reference/cross-project-sync.md`. The read-only system clone lives at
+`assets/references/fairyfox.io/` (git-ignored, never committed); its `hub/standards/` and
+`hub/templates/` are the canonical sources this project reconciles in.
+
+**When the user asks you to check *the fairyfox system* for updates** — to sync the standards, get the
+latest version, or pull a particular standard/runbook — treat it as the check-for-updates flow. **To
+invoke it the request must carry the word "fairyfox"** — normally **"the fairyfox system"**, or a
+*fairyfox*-prefixed variant ("fairyfox.io", "fairyfox standards") — *paired with* an update/sync intent
+(check for updates · what changed · sync · refresh · pull the latest · get the newest). Generic handles
+— "the hub", "the mesh", "the standards", a runbook name, a bare "system", or an update verb alone — do
+**not** qualify; the word *fairyfox* must be present, or don't assume this flow.
+
+The default is **check, report, then wait**: refresh the read-only system clone under
+`assets/references/fairyfox.io/` (`git -C assets/references/fairyfox.io pull --depth 1 --ff-only origin
+dev`), diff it against what this project has adopted, and **report what changed + what adopting it would
+touch — then stop.** Apply nothing until the user clearly says go ahead; applying is a separate,
+confirmed act. Full procedure: the shared `adopting-updates` runbook (in the clone's `hub/standards/`).
+
+**Guardrails (don't break these):** on-request only — never auto-pull or schedule cross-repo syncs
+(anti-recursion); the reference clone is read-only and git-ignored; never apply changes or rewrite
+history without an explicit go-ahead; reconcile with local edits, don't clobber them. **Stay inside this
+repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
+hub-side change is needed (e.g. a `registry.yml` correction), **report it for the owner to make**, don't
+do it here.
+
+> Naming: the user calls it **the fairyfox system** in conversation; the public website calls it the
+> **hub**. Both name the same fairyfox.io mesh.
+
 ## Project Preferences
 
 - Keep the app feeling like polished software, not a dev tool.

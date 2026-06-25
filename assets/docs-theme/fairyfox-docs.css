@@ -1,0 +1,154 @@
+/* ============================================================================
+   fairyfox-docs.css — fairyfox.io skin for the JSDoc (docdash) doc-site.
+
+   This re-skins the generated API reference + the notes-as-tutorials so it reads
+   as part of fairyfox.io: the shared dark-first palette, the Fraunces/Inter/
+   JetBrains type, and the same header/footer feel. The Fairy Fox brand bar,
+   breadcrumb locator, and footer back-links are injected by fairyfox-docs.js;
+   this file styles them and re-tones docdash's own DOM.
+
+   Tokens are reproduced from the fairyfox.io master stylesheet (docs-site design
+   system, snapshot 2026-06). The generated reference is a "boundaried zone": it
+   rhymes with the theme as faithfully as the docdash stack allows, with the
+   required two-way links back to Fairy Fox.
+   ========================================================================== */
+
+:root{
+  --violet:#ff7a5e; --violet-deep:#ef6149; --pink:#ff7ab0; --amber:#f6b25a; --green:#38d3a3;
+  --coral:#ff7a5e; --honey:#f6b25a;
+  --bg:#191116; --bg-grad-top:#211622;
+  --panel:#241823; --panel-2:#2a1d29; --panel-3:#322433;
+  --line:#3a2a37; --line-2:#4a3646;
+  --text:#f7ece6; --text-soft:#cdb8c2; --text-faint:#9c8893;
+  --accent:var(--violet); --accent-ink:#ffb59f; --on-accent:#241016;
+  --link:#ffb59f; --link-hover:#ffd0c2;
+  --glow:rgba(255,122,94,.34);
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 18px 40px -24px rgba(0,0,0,.8);
+  --shadow-lg:0 34px 80px -30px rgba(0,0,0,.86);
+  --code-bg:#120c12;
+  --radius:20px; --radius-sm:13px; --radius-xs:9px;
+  --maxw:1180px; --maxw-text:43rem; --gutter:clamp(1.15rem,4vw,2.75rem);
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --violet:#ef6149; --violet-deep:#dd4f37; --pink:#e6488f; --amber:#e08a1e; --green:#1fae84;
+    --coral:#ef6149; --honey:#f0a330;
+    --bg:#fbf2ea; --bg-grad-top:#fff6ee;
+    --panel:#fffaf5; --panel-2:#fdf2e9; --panel-3:#f7e7da;
+    --line:#efddcf; --line-2:#e6cdba;
+    --text:#2c2230; --text-soft:#6a5a62; --text-faint:#9c8b92;
+    --accent:var(--violet); --accent-ink:#c8462f; --on-accent:#fff8f4;
+    --link:#c8462f; --link-hover:#bb3c25;
+    --glow:rgba(239,97,73,.26);
+    --shadow:0 1px 2px rgba(80,40,30,.05), 0 14px 34px -20px rgba(120,60,40,.28);
+    --shadow-lg:0 30px 70px -28px rgba(120,55,35,.4);
+    --code-bg:#2b2030;
+  }
+}
+
+/* ── Base / typography ─────────────────────────────────────────────────────── */
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:var(--sans); font-size:16px; line-height:1.62;
+  color:var(--text); background:var(--bg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(55% 45% at 85% -10%,color-mix(in srgb,var(--amber) 12%,transparent),transparent 70%),
+    radial-gradient(55% 45% at 8% -6%,color-mix(in srgb,var(--violet) 18%,transparent),transparent 72%),
+    linear-gradient(180deg,var(--bg-grad-top),var(--bg) 36%)}
+
+h1,h2,h3,h4,h5,h6{font-family:var(--display);font-weight:700;line-height:1.16;
+  letter-spacing:-.02em;color:var(--text)}
+h1.page-title,h1{letter-spacing:-.02em}
+a{color:var(--link);text-decoration:none}
+a:hover{color:var(--link-hover);text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:5px}
+::selection{background:color-mix(in srgb,var(--violet) 34%,transparent)}
+
+code,kbd,.type-signature,.signature{font-family:var(--mono)}
+tt,code,kbd,samp{background:var(--panel-3);color:var(--accent-ink);
+  padding:.12em .42em;border-radius:6px;font-size:.86em}
+pre,pre.prettyprint{background:var(--code-bg)!important;border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:1rem 1.1rem;overflow-x:auto}
+pre code,pre.prettyprint code{background:none;padding:0}
+.prettyprint{color:#cfc8e6}
+blockquote{margin:1.2rem 0;padding:.5rem 1.1rem;border-left:3px solid var(--accent);
+  color:var(--text-soft);background:var(--panel-2);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+table{border-collapse:collapse}
+table th,table td{border:1px solid var(--line);padding:.55rem .7rem}
+table thead tr,table th{background:var(--panel-2);color:var(--text)}
+
+/* ── Fairy Fox brand block (injected at the top of docdash's sidebar) ───────── */
+/* docdash uses a persistent fixed left sidebar (<nav>) + #main. Rather than overlay
+   a top bar on that fixed layout, the Fairy Fox brand lives at the top of the
+   always-visible sidebar — the "way home" on every page — and the breadcrumb +
+   footer live in the content column. */
+.ff-brand-block{display:flex;flex-direction:column;gap:.55rem;padding:.2rem .2rem 1rem;
+  margin-bottom:.8rem;border-bottom:1px solid var(--line)}
+.ff-brand{display:flex;align-items:center;gap:.6rem;color:var(--text);font-weight:700;
+  font-family:var(--display);font-size:1.1rem;letter-spacing:-.01em}
+.ff-brand:hover{text-decoration:none;color:var(--text)}
+.ff-brand .ff-logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--violet),var(--amber));color:#241016;font-weight:800;
+  font-family:var(--display);font-size:1rem;box-shadow:0 4px 14px -4px var(--glow);
+  border:1px solid var(--line-2);flex:none}
+.ff-sub{color:var(--text-faint);font-weight:600;font-family:var(--sans);font-size:.82rem;
+  letter-spacing:.02em}
+.ff-back{display:inline-flex;align-items:center;gap:.3rem;align-self:flex-start;
+  font-family:var(--sans);font-size:.82rem;font-weight:600;color:var(--accent-ink);
+  padding:.3rem .6rem;border-radius:999px;background:color-mix(in srgb,var(--violet) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--violet) 30%,transparent)}
+.ff-back:hover{text-decoration:none;color:var(--text);background:color-mix(in srgb,var(--violet) 22%,transparent)}
+
+/* breadcrumb locator — injected as the first row of #main (the content column) */
+#main{padding-top:.6rem;padding-left:clamp(1rem,2vw,1.6rem)}
+.ff-locator{margin:.2rem 0 1.4rem;font-family:var(--sans);font-size:.82rem;
+  color:var(--text-faint);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.ff-locator a{color:var(--text-soft)}
+.ff-locator .kind{color:var(--accent);font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;font-size:.72rem}
+.ff-locator .sep{color:var(--line-2)}
+
+/* ── docdash sidebar + main re-tone ───────────────────────────────────────── */
+nav{background:var(--panel)!important;border-right:1px solid var(--line);
+  font-family:var(--sans)}
+nav h2,nav h3,nav h4{font-family:var(--display)}
+nav a,nav a:active{color:var(--text-soft)}
+nav a:hover{color:var(--text)}
+nav ul a.active,nav > ul > li > a{color:var(--text)}
+nav .nav-heading,nav .nav-item-type{color:var(--accent-ink)}
+#main{background:transparent}
+.page-title{color:var(--text)}
+header h1,.usertext h1{font-family:var(--display)}
+.params .name,.props .name,.name code{color:var(--accent-ink)}
+.signature-attributes{color:var(--text-faint)}
+.details dt{color:var(--text-soft)}
+.important,.warning{color:var(--accent-ink)}
+footer{color:var(--text-faint);font-family:var(--sans)}
+
+/* keep docdash's own footer modest (the Fairy Fox footer is injected separately) */
+body > footer{display:none}
+
+/* ── Fairy Fox footer (injected) — links back to the main site ────────────── */
+.ff-foot{margin-top:3rem;border-top:1px solid var(--line);background:var(--panel)}
+.ff-foot .ff-foot-wrap{max-width:var(--maxw);margin-inline:auto;padding:2.2rem var(--gutter) 1.2rem;
+  display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2rem}
+.ff-foot .ff-foot-brand .ff-brand{margin-bottom:.7rem}
+.ff-foot .ff-foot-brand p{color:var(--text-faint);font-size:.88rem;max-width:24rem;margin:0}
+.ff-foot h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-faint);font-family:var(--sans);margin:0 0 .7rem}
+.ff-foot a{display:block;color:var(--text-soft);font-size:.9rem;padding:.22rem 0}
+.ff-foot-bar{border-top:1px solid var(--line)}
+.ff-foot-bar .ff-foot-wrap{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;
+  color:var(--text-faint);font-size:.83rem;padding-block:1.05rem;grid-template-columns:none}
+.ff-foot-bar .spacer{margin-left:auto}
+@media (max-width:720px){.ff-foot .ff-foot-wrap{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.ff-foot .ff-foot-wrap{grid-template-columns:1fr}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

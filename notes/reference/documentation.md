@@ -31,6 +31,28 @@ search box.
 Requirements: **Node 24** + the dev dependencies (`jsdoc`, `docdash`) from `npm install`. No Doxygen, no
 Graphviz — JSDoc parses ESM / `export default` natively, which is why it replaced Doxygen here.
 
+### The fairyfox docs-site theme
+
+The doc-site is **skinned to match fairyfox.io** (this project is a node in the fairyfox mesh — see
+[`cross-project-sync.md`](cross-project-sync.md)). The skin lives in `assets/docs-theme/`:
+
+- **`fairyfox-docs.css`** reproduces the hub's docs-site design tokens (dark-first warm palette with an
+  OS-driven light theme, Fraunces/Inter/JetBrains type, the accent + focus ring) and re-tones docdash's
+  sidebar, headings, code, tables, and method-signature blocks.
+- **`fairyfox-docs.js`** injects, on every page, the **required two-way links back to Fairy Fox**: a
+  Fairy Fox brand at the top of docdash's persistent sidebar (→ `fairyfox.io`), a
+  `Fairy Fox / Projects / Random AI Prompt` breadcrumb at the top of the content column, and a footer
+  linking to the main site's sections. It also injects the shared font `<link>` + the light/dark
+  `theme-color` metas so crossing the boundary from fairyfox.io has no visible jump.
+
+Wiring: `jsdoc.config.json` lists them under `docdash.scripts` (and adds the `↩ Fairy Fox` / `Project
+node` menu links + `docdash.meta`). docdash references those paths but does **not** copy local files, so
+`build-docs.mjs` copies `assets/docs-theme/*` into `docs/jsdoc/assets/docs-theme/` after JSDoc runs —
+both locally and in the `pages.yml` CI build. The generated API reference is a deliberately *boundaried*
+zone: it rhymes with the theme as faithfully as the docdash stack allows rather than being a bespoke
+Jekyll shell. Published at `fairyfox.io/random-ai-prompt/` (GitHub Pages inherits the user-site custom
+domain; base path = repo slug — no project `CNAME`).
+
 ### What's covered / what's not
 
 - **Code API:** every authored `.js` under `src/` + the `data/process-*.js` build scripts, **and the
