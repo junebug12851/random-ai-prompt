@@ -1,48 +1,44 @@
 /* ============================================================================
-   fairyfox-docs.css — fairyfox.io skin for the JSDoc (docdash) doc-site.
+   fairyfox-docs.css — the doc-site theme, authored from scratch.
 
-   This re-skins the generated API reference + the notes-as-tutorials so it reads
-   as part of fairyfox.io: the shared dark-first palette, the Fraunces/Inter/
-   JetBrains type, and the same header/footer feel. The Fairy Fox brand bar,
-   breadcrumb locator, and footer back-links are injected by fairyfox-docs.js;
-   this file styles them and re-tones docdash's own DOM.
-
-   Tokens are reproduced from the fairyfox.io master stylesheet (docs-site design
-   system, snapshot 2026-06). The generated reference is a "boundaried zone": it
-   rhymes with the theme as faithfully as the docdash stack allows, with the
-   required two-way links back to Fairy Fox.
+   This is NOT a set of overrides layered on docdash's stylesheet: the build
+   (scripts/build-docs.mjs) REPLACES the generated styles/jsdoc.css with this
+   file, so this is the single authoritative stylesheet that drives docdash's
+   DOM (the fixed sidebar <nav>, #main, the #nav-trigger mobile drawer, the
+   API blocks). Visuals reproduce the fairyfox.io docs-site design system
+   (dark-first warm palette, Fraunces/Inter/JetBrains, the accent + focus ring),
+   so this project's docs read as part of fairyfox.io. The Fairy Fox brand,
+   breadcrumb, and footer back-links are injected by fairyfox-docs.js.
    ========================================================================== */
 
 :root{
   --violet:#ff7a5e; --violet-deep:#ef6149; --pink:#ff7ab0; --amber:#f6b25a; --green:#38d3a3;
-  --coral:#ff7a5e; --honey:#f6b25a;
+  --plum:#b88ce8;
   --bg:#191116; --bg-grad-top:#211622;
   --panel:#241823; --panel-2:#2a1d29; --panel-3:#322433;
   --line:#3a2a37; --line-2:#4a3646;
   --text:#f7ece6; --text-soft:#cdb8c2; --text-faint:#9c8893;
-  --accent:var(--violet); --accent-ink:#ffb59f; --on-accent:#241016;
+  --accent:#ff7a5e; --accent-ink:#ffb59f; --on-accent:#241016;
   --link:#ffb59f; --link-hover:#ffd0c2;
   --glow:rgba(255,122,94,.34);
   --shadow:0 1px 0 rgba(255,255,255,.03), 0 18px 40px -24px rgba(0,0,0,.8);
   --shadow-lg:0 34px 80px -30px rgba(0,0,0,.86);
   --code-bg:#120c12;
-  --radius:20px; --radius-sm:13px; --radius-xs:9px;
-  --maxw:1180px; --maxw-text:43rem; --gutter:clamp(1.15rem,4vw,2.75rem);
+  --radius:18px; --radius-sm:12px; --radius-xs:9px;
+  --sidebar:264px; --maxw-text:46rem; --gutter:clamp(1.1rem,3vw,2.4rem);
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --display:"Fraunces",Georgia,"Times New Roman",serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --ease:cubic-bezier(.22,.61,.36,1);
 }
-
 @media (prefers-color-scheme: light){
   :root{
-    --violet:#ef6149; --violet-deep:#dd4f37; --pink:#e6488f; --amber:#e08a1e; --green:#1fae84;
-    --coral:#ef6149; --honey:#f0a330;
+    --violet:#ef6149; --violet-deep:#dd4f37; --pink:#e6488f; --amber:#e08a1e; --green:#1fae84; --plum:#8f5fd0;
     --bg:#fbf2ea; --bg-grad-top:#fff6ee;
-    --panel:#fffaf5; --panel-2:#fdf2e9; --panel-3:#f7e7da;
+    --panel:#fffaf5; --panel-2:#fdf2e9; --panel-3:#f4e3d4;
     --line:#efddcf; --line-2:#e6cdba;
     --text:#2c2230; --text-soft:#6a5a62; --text-faint:#9c8b92;
-    --accent:var(--violet); --accent-ink:#c8462f; --on-accent:#fff8f4;
+    --accent:#ef6149; --accent-ink:#c8462f; --on-accent:#fff8f4;
     --link:#c8462f; --link-hover:#bb3c25;
     --glow:rgba(239,97,73,.26);
     --shadow:0 1px 2px rgba(80,40,30,.05), 0 14px 34px -20px rgba(120,60,40,.28);
@@ -51,12 +47,13 @@
   }
 }
 
-/* ── Base / typography ─────────────────────────────────────────────────────── */
+/* ── Reset / base ──────────────────────────────────────────────────────────── */
+*{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0; font-family:var(--sans); font-size:16px; line-height:1.62;
-  color:var(--text); background:var(--bg);
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  margin:0;min-height:100vh;font-family:var(--sans);font-size:16px;line-height:1.62;
+  color:var(--text);background:var(--bg);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:radial-gradient(55% 45% at 85% -10%,color-mix(in srgb,var(--amber) 12%,transparent),transparent 70%),
@@ -64,89 +61,144 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
     linear-gradient(180deg,var(--bg-grad-top),var(--bg) 36%)}
 
 h1,h2,h3,h4,h5,h6{font-family:var(--display);font-weight:700;line-height:1.16;
-  letter-spacing:-.02em;color:var(--text)}
-h1.page-title,h1{letter-spacing:-.02em}
+  letter-spacing:-.02em;color:var(--text);margin:0 0 .5em}
+h1{font-size:clamp(2rem,3.6vw,2.7rem)}
+h2{font-size:clamp(1.45rem,2.4vw,1.9rem);margin-top:1.8rem}
+h3{font-size:1.2rem;margin-top:1.4rem}
+h4{font-size:1.02rem}
+p,ul,ol{margin:0 0 1.05rem}
 a{color:var(--link);text-decoration:none}
 a:hover{color:var(--link-hover);text-decoration:underline;text-underline-offset:3px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:5px}
 ::selection{background:color-mix(in srgb,var(--violet) 34%,transparent)}
+hr{border:none;border-top:1px solid var(--line);margin:2rem 0}
+img{max-width:100%;height:auto;border-radius:var(--radius-sm)}
 
-code,kbd,.type-signature,.signature{font-family:var(--mono)}
-tt,code,kbd,samp{background:var(--panel-3);color:var(--accent-ink);
-  padding:.12em .42em;border-radius:6px;font-size:.86em}
-pre,pre.prettyprint{background:var(--code-bg)!important;border:1px solid var(--line);
-  border-radius:var(--radius-sm);padding:1rem 1.1rem;overflow-x:auto}
-pre code,pre.prettyprint code{background:none;padding:0}
-.prettyprint{color:#cfc8e6}
+code,kbd,samp,tt{font-family:var(--mono);font-size:.86em;background:var(--panel-3);
+  color:var(--accent-ink);padding:.12em .42em;border-radius:6px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:1rem 1.1rem;overflow:auto;font-family:var(--mono);font-size:.84rem;line-height:1.55}
+pre code,pre.prettyprint{background:none;border:none;padding:0;color:#d6cce6}
+.prettyprint.linenums{box-shadow:none}
 blockquote{margin:1.2rem 0;padding:.5rem 1.1rem;border-left:3px solid var(--accent);
   color:var(--text-soft);background:var(--panel-2);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
-table{border-collapse:collapse}
-table th,table td{border:1px solid var(--line);padding:.55rem .7rem}
-table thead tr,table th{background:var(--panel-2);color:var(--text)}
 
-/* ── Fairy Fox brand block (injected at the top of docdash's sidebar) ───────── */
-/* docdash uses a persistent fixed left sidebar (<nav>) + #main. Rather than overlay
-   a top bar on that fixed layout, the Fairy Fox brand lives at the top of the
-   always-visible sidebar — the "way home" on every page — and the breadcrumb +
-   footer live in the content column. */
-.ff-brand-block{display:flex;flex-direction:column;gap:.55rem;padding:.2rem .2rem 1rem;
-  margin-bottom:.8rem;border-bottom:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;margin:0 0 1.4rem;font-size:.95rem;
+  background:transparent;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead tr,th{background:var(--panel-2);color:var(--text);font-weight:700;font-family:var(--sans)}
+tbody tr:nth-child(even){background:color-mix(in srgb,var(--panel) 55%,transparent)}
+
+/* ── Layout: docdash sidebar (<nav>) + #main ──────────────────────────────── */
+nav{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);overflow:auto;z-index:20;
+  background:var(--panel);border-right:1px solid var(--line);
+  padding:1.2rem 1rem 2.5rem;font-family:var(--sans);font-size:.92rem;color:var(--text-soft)}
+nav::-webkit-scrollbar{width:10px}
+nav::-webkit-scrollbar-thumb{background:var(--panel-3);border-radius:8px;border:3px solid var(--panel)}
+#main{margin-left:var(--sidebar);min-height:100vh;padding:1.4rem clamp(1.2rem,3.5vw,3rem) 0;
+  display:flex;flex-direction:column}
+#main > *{max-width:min(100%,calc(var(--maxw-text) + 18rem))}
+h1.page-title{margin:.2rem 0 1.4rem;font-size:clamp(2rem,3.4vw,2.7rem)}
+
+/* sidebar internals */
+nav a{color:var(--text-soft)}
+nav a:hover{color:var(--text);text-decoration:none}
+nav #nav-search{width:100%;height:34px;padding:6px 12px;margin:0 0 1rem;font-size:13px;
+  background:var(--panel-3);color:var(--text);border:1px solid var(--line);border-radius:9px}
+nav #nav-search::placeholder{color:var(--text-faint)}
+nav h2{font-family:var(--display);font-size:1rem;margin:.2rem 0 .8rem}
+nav h2 a{color:var(--text)}
+nav h3{margin:1.3rem 0 .5rem;font-family:var(--sans);font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint)}
+nav ul{list-style:none;margin:0 0 .4rem;padding:0}
+nav ul li{margin:0}
+nav > ul > li > a,nav ul a{display:block;color:var(--text-soft);padding:.26rem .5rem;
+  border-radius:7px;border-left:2px solid transparent;word-wrap:break-word}
+nav ul a:hover{background:var(--panel-3);color:var(--text)}
+nav ul a.active{color:var(--text);font-weight:650;
+  background:color-mix(in srgb,var(--violet) 15%,transparent);border-left-color:var(--accent)}
+nav .nav-heading{color:var(--text);font-weight:650}
+nav .nav-item-type{display:inline-grid;place-items:center;width:1.25em;height:1.25em;border-radius:5px;
+  font-size:.7em;font-weight:700;color:var(--on-accent);background:var(--accent)}
+nav .level-hide{display:none}
+html[data-search-mode] nav .level-hide{display:block}
+
+/* ── API content: members, signatures, params, details ────────────────────── */
+section,article,.container-overview,.class-description,.description,.details,.usertext{background:transparent}
+.subsection-title,h4.subsection-title{font-family:var(--display);border-bottom:1px solid var(--line);
+  padding-bottom:.3rem;margin-top:2rem}
+h4.name{display:block;background:linear-gradient(180deg,color-mix(in srgb,var(--violet) 20%,var(--panel-2)),var(--panel-2));
+  border:1px solid color-mix(in srgb,var(--violet) 32%,var(--line));border-radius:var(--radius-sm);
+  padding:.7rem 1rem;margin:1.6rem 0 .9rem;font-family:var(--mono);font-size:.95rem;color:var(--text);
+  box-shadow:var(--shadow);overflow-x:auto}
+h4.name .type-signature,.type-signature{color:var(--accent-ink)}
+.signature{color:var(--text-soft)}
+.signature-attributes{font-size:60%;font-style:italic;color:var(--text-faint)}
+.name,.params .name,.props .name{color:var(--accent-ink);font-family:var(--mono)}
+.important,.warning{color:var(--accent-ink)}
+.details{margin:.6rem 0 1.4rem;padding:.6rem 0 0;font-size:.92rem;color:var(--text-soft)}
+.details dt{color:var(--text-faint);font-weight:600}
+.details .tag-source a,.details a{color:var(--link)}
+dl.param-type{margin:.3rem 0}
+.param-type .param-type{color:var(--accent-ink)}
+a.button,.button{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:999px;
+  background:var(--violet-deep);color:#fff;font-weight:600;border:none;box-shadow:0 10px 26px -12px var(--glow)}
+a.button:hover{text-decoration:none;color:#fff;transform:translateY(-1px)}
+footer{margin:0;color:var(--text-faint);font-family:var(--sans);font-size:.84rem}
+
+/* ── Mobile drawer (docdash #nav-trigger + .navicon-button + .overlay) ─────── */
+.nav-trigger{position:fixed;width:1px;height:1px;opacity:0;clip:rect(0 0 0 0);overflow:hidden}
+.navicon-button{display:none}
+.overlay{display:none}
+@media (max-width:900px){
+  nav{left:calc(-1 * var(--sidebar) - 4px);width:var(--sidebar);z-index:1002;
+    box-shadow:var(--shadow-lg);transition:left .22s var(--ease)}
+  .nav-trigger:checked ~ nav{left:0}
+  #main{margin-left:0;padding-top:4.2rem}
+  .navicon-button{display:flex;align-items:center;justify-content:center;position:fixed;
+    top:12px;right:14px;z-index:1003;width:44px;height:44px;border-radius:11px;cursor:pointer;
+    background:var(--panel-2);border:1px solid var(--line-2);box-shadow:var(--shadow)}
+  .navicon-button .navicon{display:none}
+  .navicon-button::before{content:"\2630";font-size:1.35rem;color:var(--text);line-height:1}
+  .nav-trigger:checked ~ .navicon-button::before{content:"\2715";font-size:1.2rem}
+  .nav-trigger:checked ~ .overlay{display:block;position:fixed;inset:0;z-index:1001;
+    background:hsla(0,0%,0%,.5)}
+}
+
+/* ── Injected: Fairy Fox brand block (top of the sidebar) ──────────────────── */
+.ff-brand-block{display:flex;flex-direction:column;gap:.55rem;padding:.1rem .2rem 1rem;
+  margin-bottom:1rem;border-bottom:1px solid var(--line)}
 .ff-brand{display:flex;align-items:center;gap:.6rem;color:var(--text);font-weight:700;
-  font-family:var(--display);font-size:1.1rem;letter-spacing:-.01em}
+  font-family:var(--display);font-size:1.12rem;letter-spacing:-.01em}
 .ff-brand:hover{text-decoration:none;color:var(--text)}
-.ff-brand .ff-logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+.ff-brand .ff-logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;
   background:linear-gradient(135deg,var(--violet),var(--amber));color:#241016;font-weight:800;
-  font-family:var(--display);font-size:1rem;box-shadow:0 4px 14px -4px var(--glow);
-  border:1px solid var(--line-2);flex:none}
-.ff-sub{color:var(--text-faint);font-weight:600;font-family:var(--sans);font-size:.82rem;
-  letter-spacing:.02em}
-.ff-back{display:inline-flex;align-items:center;gap:.3rem;align-self:flex-start;
-  font-family:var(--sans);font-size:.82rem;font-weight:600;color:var(--accent-ink);
-  padding:.3rem .6rem;border-radius:999px;background:color-mix(in srgb,var(--violet) 14%,transparent);
+  font-family:var(--display);font-size:1rem;box-shadow:0 4px 14px -4px var(--glow);border:1px solid var(--line-2)}
+.ff-sub{color:var(--text-faint);font-weight:600;font-family:var(--sans);font-size:.82rem;letter-spacing:.02em}
+.ff-back{display:inline-flex;align-items:center;gap:.3rem;align-self:flex-start;font-family:var(--sans);
+  font-size:.82rem;font-weight:600;color:var(--accent-ink);padding:.3rem .65rem;border-radius:999px;
+  background:color-mix(in srgb,var(--violet) 14%,transparent);
   border:1px solid color-mix(in srgb,var(--violet) 30%,transparent)}
 .ff-back:hover{text-decoration:none;color:var(--text);background:color-mix(in srgb,var(--violet) 22%,transparent)}
 
-/* breadcrumb locator — injected as the first row of #main (the content column) */
-#main{padding-top:.6rem;padding-left:clamp(1rem,2vw,1.6rem)}
-.ff-locator{margin:.2rem 0 1.4rem;font-family:var(--sans);font-size:.82rem;
-  color:var(--text-faint);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+/* Injected: breadcrumb locator (top of #main) */
+.ff-locator{margin:0 0 1.4rem;font-family:var(--sans);font-size:.82rem;color:var(--text-faint);
+  display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .ff-locator a{color:var(--text-soft)}
-.ff-locator .kind{color:var(--accent);font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;font-size:.72rem}
+.ff-locator .kind{color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.72rem}
 .ff-locator .sep{color:var(--line-2)}
 
-/* ── docdash sidebar + main re-tone ───────────────────────────────────────── */
-nav{background:var(--panel)!important;border-right:1px solid var(--line);
-  font-family:var(--sans)}
-nav h2,nav h3,nav h4{font-family:var(--display)}
-nav a,nav a:active{color:var(--text-soft)}
-nav a:hover{color:var(--text)}
-nav ul a.active,nav > ul > li > a{color:var(--text)}
-nav .nav-heading,nav .nav-item-type{color:var(--accent-ink)}
-#main{background:transparent}
-.page-title{color:var(--text)}
-header h1,.usertext h1{font-family:var(--display)}
-.params .name,.props .name,.name code{color:var(--accent-ink)}
-.signature-attributes{color:var(--text-faint)}
-.details dt{color:var(--text-soft)}
-.important,.warning{color:var(--accent-ink)}
-footer{color:var(--text-faint);font-family:var(--sans)}
-
-/* keep docdash's own footer modest (the Fairy Fox footer is injected separately) */
-body > footer{display:none}
-
-/* ── Fairy Fox footer (injected) — links back to the main site ────────────── */
-.ff-foot{margin-top:3rem;border-top:1px solid var(--line);background:var(--panel)}
-.ff-foot .ff-foot-wrap{max-width:var(--maxw);margin-inline:auto;padding:2.2rem var(--gutter) 1.2rem;
-  display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2rem}
+/* Injected: footer (bottom of #main) — links back to the main site */
+.ff-foot{margin-top:auto;border-top:1px solid var(--line);background:transparent}
+.ff-foot .ff-foot-wrap{padding:2rem .2rem 1rem;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2rem}
 .ff-foot .ff-foot-brand .ff-brand{margin-bottom:.7rem}
-.ff-foot .ff-foot-brand p{color:var(--text-faint);font-size:.88rem;max-width:24rem;margin:0}
-.ff-foot h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;
-  color:var(--text-faint);font-family:var(--sans);margin:0 0 .7rem}
+.ff-foot .ff-foot-brand p{color:var(--text-faint);font-size:.86rem;max-width:24rem;margin:0}
+.ff-foot h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);
+  font-family:var(--sans);margin:0 0 .7rem}
 .ff-foot a{display:block;color:var(--text-soft);font-size:.9rem;padding:.22rem 0}
 .ff-foot-bar{border-top:1px solid var(--line)}
 .ff-foot-bar .ff-foot-wrap{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;
-  color:var(--text-faint);font-size:.83rem;padding-block:1.05rem;grid-template-columns:none}
+  color:var(--text-faint);font-size:.82rem;padding-block:1rem;grid-template-columns:none}
 .ff-foot-bar .spacer{margin-left:auto}
 @media (max-width:720px){.ff-foot .ff-foot-wrap{grid-template-columns:1fr 1fr}}
 @media (max-width:460px){.ff-foot .ff-foot-wrap{grid-template-columns:1fr}}

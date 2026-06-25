@@ -33,25 +33,29 @@ Graphviz — JSDoc parses ESM / `export default` natively, which is why it repla
 
 ### The fairyfox docs-site theme
 
-The doc-site is **skinned to match fairyfox.io** (this project is a node in the fairyfox mesh — see
-[`cross-project-sync.md`](cross-project-sync.md)). The skin lives in `assets/docs-theme/`:
+The doc-site is **themed to match fairyfox.io** (this project is a node in the fairyfox mesh — see
+[`cross-project-sync.md`](cross-project-sync.md)). The theme lives in `assets/docs-theme/` and is authored
+**from scratch — it replaces docdash's stylesheet rather than overriding it** (so there's no
+`!important` whack-a-mole against docdash's defaults, which is what leaked white backgrounds before):
 
-- **`fairyfox-docs.css`** reproduces the hub's docs-site design tokens (dark-first warm palette with an
-  OS-driven light theme, Fraunces/Inter/JetBrains type, the accent + focus ring) and re-tones docdash's
-  sidebar, headings, code, tables, and method-signature blocks.
+- **`fairyfox-docs.css`** is the single authoritative stylesheet. It reproduces the hub's docs-site
+  design tokens (dark-first warm palette with an OS-driven light theme, Fraunces/Inter/JetBrains type,
+  the accent + focus ring) **and** drives docdash's whole DOM — the fixed sidebar `<nav>`, `#main`, the
+  `#nav-trigger` mobile drawer, the API member/signature/param blocks, tables, code.
 - **`fairyfox-docs.js`** injects, on every page, the **required two-way links back to Fairy Fox**: a
-  Fairy Fox brand at the top of docdash's persistent sidebar (→ `fairyfox.io`), a
+  Fairy Fox brand at the top of the persistent sidebar (→ `fairyfox.io`), a
   `Fairy Fox / Projects / Random AI Prompt` breadcrumb at the top of the content column, and a footer
   linking to the main site's sections. It also injects the shared font `<link>` + the light/dark
   `theme-color` metas so crossing the boundary from fairyfox.io has no visible jump.
 
-Wiring: `jsdoc.config.json` lists them under `docdash.scripts` (and adds the `↩ Fairy Fox` / `Project
-node` menu links + `docdash.meta`). docdash references those paths but does **not** copy local files, so
-`build-docs.mjs` copies `assets/docs-theme/*` into `docs/jsdoc/assets/docs-theme/` after JSDoc runs —
-both locally and in the `pages.yml` CI build. The generated API reference is a deliberately *boundaried*
-zone: it rhymes with the theme as faithfully as the docdash stack allows rather than being a bespoke
-Jekyll shell. Published at `fairyfox.io/random-ai-prompt/` (GitHub Pages inherits the user-site custom
-domain; base path = repo slug — no project `CNAME`).
+Wiring (in `build-docs.mjs`, after JSDoc runs): the from-scratch `fairyfox-docs.css` is **copied over the
+generated `docs/jsdoc/styles/jsdoc.css`**, replacing docdash's default sheet entirely; `fairyfox-docs.js`
+is copied to `docs/jsdoc/assets/docs-theme/` (the path `jsdoc.config.json` → `docdash.scripts` links).
+`jsdoc.config.json` also sets `docdash.menu` (the `↩ Fairy Fox` / `Project node` back-links) and
+`docdash.meta`. This runs both locally and in the `pages.yml` CI build. The generated API reference is a
+deliberately *boundaried* zone — fully themed via our sheet rather than a bespoke Jekyll shell. Published
+at `fairyfox.io/random-ai-prompt/` (GitHub Pages inherits the user-site custom domain; base path = repo
+slug — no project `CNAME`).
 
 ### What's covered / what's not
 

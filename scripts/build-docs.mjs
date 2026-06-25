@@ -180,18 +180,26 @@ console.log(`Transpiled ${waCount} web-app files (JSX stripped) into tmp/webapp-
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
 execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
 
-// ---- Copy the fairyfox docs-theme assets into the output ----
-// docdash references these (jsdoc.config.json → docdash.scripts) but doesn't copy
-// local files itself, so we place them at the path the generated pages expect:
-// docs/jsdoc/assets/docs-theme/. This is the fairyfox.io skin + the injected
-// brand bar / breadcrumb / footer back-links (the docs-site standard's two-way
-// link requirement). See notes/reference/documentation.md.
+// ---- Install the fairyfox docs-theme into the output ----
+// The theme is authored from scratch (assets/docs-theme/fairyfox-docs.css) and
+// REPLACES docdash's default styles/jsdoc.css — it is the single authoritative
+// stylesheet driving docdash's DOM, not a set of overrides. The injected JS
+// (brand / breadcrumb / footer back-links — the docs-site standard's two-way
+// link requirement) is copied to the path docdash.scripts references. See
+// notes/reference/documentation.md.
 const themeSrc = path.join(root, "assets", "docs-theme");
-const themeDest = path.join(root, "docs", "jsdoc", "assets", "docs-theme");
-fs.mkdirSync(themeDest, { recursive: true });
-for (const f of fs.readdirSync(themeSrc)) {
-  fs.copyFileSync(path.join(themeSrc, f), path.join(themeDest, f));
-}
-console.log(`Copied fairyfox docs-theme assets → docs/jsdoc/assets/docs-theme/.`);
+const outRoot = path.join(root, "docs", "jsdoc");
+// 1) the from-scratch theme replaces docdash's generated stylesheet
+fs.copyFileSync(
+  path.join(themeSrc, "fairyfox-docs.css"),
+  path.join(outRoot, "styles", "jsdoc.css"),
+);
+// 2) the injected JS lands where jsdoc.config.json (docdash.scripts) links it
+const jsDest = path.join(outRoot, "assets", "docs-theme");
+fs.mkdirSync(jsDest, { recursive: true });
+fs.copyFileSync(path.join(themeSrc, "fairyfox-docs.js"), path.join(jsDest, "fairyfox-docs.js"));
+console.log(
+  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/fairyfox-docs.js.",
+);
 
 console.log("Done → docs/jsdoc/index.html");

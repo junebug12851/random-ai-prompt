@@ -23,7 +23,7 @@
     "collapse": true,
     "wrap": true,
     "typedefs": true,
-    "scripts": ["assets/docs-theme/fairyfox-docs.css", "assets/docs-theme/fairyfox-docs.js"],
+    "scripts": ["assets/docs-theme/fairyfox-docs.js"],
     "meta": {
       "title": "Random AI Prompt — docs · Fairy Fox",
       "description": "Code API and project notes for Random AI Prompt, a project under Fairy Fox (fairyfox.io).",
