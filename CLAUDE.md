@@ -144,32 +144,37 @@ After making changes, run this loop without being asked:
    `npm run format`.
 2. **Verify the module graph.** `node --check` changed files; run `npm run smoke` (or `npm test`) for
    anything touching module wiring, settings, or the prompt pipeline. Only proceed on green.
-3. **Commit on `dev`.** Stage specific files (never `git add -A`/`.`), focused `type: summary`
-   messages, and write the changelog entry **inside the same commit** (see below). `git push origin
-   dev` after each commit.
+3. **Commit on `dev` (or a `feature/*` branch).** This project follows the system's **git-flow**
+   standard: real features get a `feature/<name>` branch off `dev`, merged back with `--no-ff`; only a
+   genuinely trivial change goes straight on `dev`. Stage specific files (never `git add -A`/`.`),
+   focused `type: summary` messages, write the changelog entry **inside the same commit** (see below),
+   and `git push origin dev` (and feature branches, to back them up).
 4. **Keep `VERSION` + `package.json` in sync.** Bump both in the same commit when a change warrants it —
    **PATCH** for a fix/small change, **MINOR** for a feature; never **MAJOR** automatically. Docs / notes
-   / test / CI-only commits don't move the number. See `reference/versioning.md`.
-5. **Ship to `master` when green (on go-ahead).** `master` is **FF-only** from a green `dev` — never
-   commit on `master` directly. When shipping (with the owner's go-ahead, unless they've asked for it to
-   be automatic like the sibling project), confirm CI is green on the `dev` HEAD
-   (`gh run list --branch dev -L 1`), then:
-   `git checkout master && git merge --ff-only dev && git push origin master && git checkout dev`.
-   A `master` push that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
+   / test / CI-only commits don't move the number. The release path follows the SemVer level (step 5).
+   See `reference/versioning.md`.
+5. **Release when green (on go-ahead) — path set by SemVer level.** `main` is the stable branch; every
+   commit on it is a **tagged release** reached by `--no-ff` merge — never commit on `main` directly.
+   A **PATCH** goes **directly** `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch
+   (see `reference/git-workflow.md`). With the owner's go-ahead, confirm CI is green on the `dev` HEAD
+   (`gh run list --branch dev -L 1`), then for a PATCH:
+   `git checkout main && git merge --no-ff dev && git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin main --tags && git checkout dev`.
+   A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
    the Pages docs (`pages.yml`); watch them with `gh run watch`. See `reference/deployment.md`.
-6. **Regenerate the docs after shipping (by default).** After a `master` FF, run `npm run docs` so the
-   generated `docs/jsdoc/` (git-ignored) tracks `master`; CI also rebuilds + deploys it to Pages.
+6. **Regenerate the docs after shipping (by default).** After releasing to `main`, run `npm run docs` so
+   the generated `docs/jsdoc/` (git-ignored) tracks `main`; CI also rebuilds + deploys it to Pages.
 
 Hard git safety rules are absolute: never `push --force`, never rewrite pushed history, never
-`reset --hard`/`rebase`/`clean -fd`/delete a branch without an explicit request. Inspect `git status`
-before and after. Full standards: `notes/reference/git-workflow.md`.
+`reset --hard`/`rebase`/`clean -fd`/delete a **long-lived** branch (`main`/`dev`) without an explicit
+request (spent `feature/`/`release/`/`hotfix/` branches are deleted as the normal end of their merge).
+Inspect `git status` before and after. Full standards: `notes/reference/git-workflow.md`.
 
 ## GitHub Is Part of Default Management (a standing instruction)
 
 The GitHub CLI (`gh`) is the way to keep GitHub state part of the normal workflow — event-based, not on
-a timer. The trigger is **preparing `master` for shipment**, not a calendar.
+a timer. The trigger is **preparing a release to `main`**, not a calendar.
 
-- **When prepping `master` for shipment**, do a quick GitHub check: `gh run list` (CI/Pages/release
+- **When prepping a release to `main`**, do a quick GitHub check: `gh run list` (CI/Pages/release
   health — must be green), plus `gh issue list` and `gh pr list`. If there are open/new/changed issues
   or PRs, surface them as a short summary and **ask whether to work on them now or later** — don't
   silently start.

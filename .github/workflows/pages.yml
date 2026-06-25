@@ -2,14 +2,14 @@ name: Docs (GitHub Pages)
 
 # Builds the JSDoc doc-site (the code API + the living notes wired in as tutorial pages, via
 # scripts/build-docs.mjs with the docdash template) and deploys it to GitHub Pages on every
-# push to master. README.md is the Pages home (jsdoc `opts.readme`).
+# push to main. README.md is the Pages home (jsdoc `opts.readme`).
 # See notes/reference/documentation.md and notes/reference/deployment.md.
 #
 # One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

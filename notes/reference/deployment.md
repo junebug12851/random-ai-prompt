@@ -5,14 +5,14 @@ How the project ships. There are three independent pipelines, each with one home
 | Pipeline | Where | What it does |
 |----------|-------|--------------|
 | **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + smoke + Node/jsdom Vitest suites; builds the React SPA; Playwright E2E + a11y + visual-regression. |
-| **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `master`. |
+| **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `main`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
 | **Web app deploy** | `netlify.toml` | Builds + hosts the `web-app/` SPA on **Netlify** (separate from the GitHub release). |
 
 ## CI — `.github/workflows/ci.yml`
 
-Runs on push to `dev`/`master`, on PRs, and on demand. Node 24. Three jobs: (1) **check** — `npm ci`,
+Runs on push to `dev`/`main`, on PRs, and on demand. Node 24. Three jobs: (1) **check** — `npm ci`,
 then `npm run lint`, `npm run format:check`, `npm run smoke` (the [import smoke test](../plans/testing.md)),
 and `npm run test:unit` (the Node Vitest suite); (2) **web-app** — `npm --prefix web-app ci`, then
 `npm --prefix web-app run build` (the SPA is proven to build) and `npm --prefix web-app run test` (the jsdom
@@ -37,7 +37,7 @@ SPA's stable chrome changes (the Windows `*-win32.png` set is refreshed locally 
 
 ## Docs site — `.github/workflows/pages.yml`
 
-On every push to `master`, runs `npm ci` then `npm run docs` (`scripts/build-docs.mjs` → **JSDoc** with
+On every push to `main`, runs `npm ci` then `npm run docs` (`scripts/build-docs.mjs` → **JSDoc** with
 the **docdash** template) and deploys `docs/jsdoc` to GitHub Pages. `README.md` is the home
 (jsdoc `opts.readme`), so the site is the README + the **code API** (per-function JSDoc) + the **full
 living notes** wired in as tutorial pages (hierarchy mirrors the `notes/` tree). See
@@ -51,12 +51,13 @@ in the workflow).
 
 ### The version gate
 
-Trigger: **push to `master`** (FF-only from green `dev`, so always all-green). Gate: the tag
-**`v<VERSION>` must not already exist** — i.e. `VERSION` was bumped since the last release. So:
+Trigger: **push to `main`** (every commit on `main` is a tagged release reached by `--no-ff` merge from
+green `dev` or a `release/`/`hotfix/` branch, so always all-green). Gate: the tag **`v<VERSION>` must not
+already exist** — i.e. `VERSION` was bumped since the last release. So:
 
 - Bump `VERSION` (+ `package.json`, same commit; see [`versioning.md`](versioning.md)) → the next time
-  `master` advances, that commit cuts the release and creates tag `vX.Y.Z`.
-- A `master` push that did **not** bump `VERSION` → the tag already exists → no-op (no duplicate
+  `main` advances, that commit cuts the release and creates tag `vX.Y.Z`.
+- A `main` push that did **not** bump `VERSION` → the tag already exists → no-op (no duplicate
   release). This is exactly why tags key off `VERSION`.
 - A `VERSION` carrying `-alpha`/`-beta`/`-rc` marks the GitHub Release as a **prerelease**.
 

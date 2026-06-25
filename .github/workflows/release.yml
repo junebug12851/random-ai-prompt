@@ -1,8 +1,9 @@
 name: Release
 
-# Software releases, version-gated. Trigger: push to master (which is FF-only from green dev, so it is
-# always all-green). Gate: the tag v<VERSION> must not already exist -- i.e. VERSION was bumped since
-# the last release. A master push that did NOT bump VERSION is a no-op (the tag already exists).
+# Software releases, version-gated. Trigger: push to main (every commit on main is a tagged release --
+# a PATCH merged --no-ff straight from green dev, or a release/* / hotfix/* merge -- so it is always
+# all-green). Gate: the tag v<VERSION> must not already exist -- i.e. VERSION was bumped since the last
+# release. A main push that did NOT bump VERSION is a no-op (the tag already exists).
 #
 # Each release attaches a clean source tarball (the runnable CLI + web UI, tracked files only) and a
 # docs zip (the generated JSDoc doc-site). The web SPA deploys separately via Netlify (netlify.toml).
@@ -12,7 +13,7 @@ name: Release
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
     inputs:
       dry_run:

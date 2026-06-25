@@ -17,9 +17,12 @@ pending: the SFW/adult word-list split + re-adding the Style control (see
 **fairyfox mesh:** this repo is a node in the fairyfox system. Project-side onboarding is done — the
 `CLAUDE.md` mesh-awareness block ([`reference/cross-project-sync.md`](reference/cross-project-sync.md)),
 the notes/version/branch model, and a **fairyfox-themed docs site** ([`reference/documentation.md`](reference/documentation.md))
-are in place. The themed docs go live on the next `master` fast-forward + Pages deploy. Open (hub-side,
-for the owner): the hub `registry.yml` shows `branch: dev` (real default is `master`) and an overstated
-`adopts_hub`/docs-site flag — corrections to make in the `junebug12851.github.io` repo.
+are in place. The themed docs go live on the next `main` release + Pages deploy. **Branch model (adopted
+2026-06-25):** the project now follows the system's full **git-flow** standard, and `master` was renamed
+to **`main`** (see [`reference/git-workflow.md`](reference/git-workflow.md)). Open (hub-side, for the
+owner, in the `junebug12851.github.io` repo): the registry's `notes:` link still points at `tree/master/…`
+(update to `tree/main/…` after the default branch flips), and the `adopts_hub`/docs-site flag is overstated.
+The registry's `branch: dev` is **correct** — that field tracks the work branch, not the default branch.
 
 **Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
@@ -101,9 +104,11 @@ authored file, per-function JSDoc across all server-side code, all 113 dynamic p
 scripts, and the whole `web-app/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
-**First ship (2026-06-22): the deployment hold is lifted.** `master` was fast-forwarded off the pre-revival
-`241a148` up to the CI-green `dev` HEAD, and is kept **FF-only** (it only ever fast-forwards to a `dev` HEAD
-that has passed GitHub CI). Getting there required unbreaking CI first — both `npm ci` jobs were red on a
+**First ship (2026-06-22): the deployment hold is lifted.** The stable branch (then `master`, renamed to
+`main` on 2026-06-25) was first advanced off the pre-revival `241a148` up to the CI-green `dev` HEAD.
+As of the 2026-06-25 git-flow adoption it now advances by **`--no-ff` merge + tag** (PATCH straight from
+green `dev`, MINOR/MAJOR via a `release/*` branch) rather than fast-forward. Getting there required
+unbreaking CI first — both `npm ci` jobs were red on a
 lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
 (build/style only, no version bump). Active work continues on `dev`. **CI now runs the full gate** — lint,
 format:check, smoke, the Node + jsdom Vitest suites, the web-app build, and the Playwright E2E +
