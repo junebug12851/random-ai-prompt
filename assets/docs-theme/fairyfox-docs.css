@@ -181,13 +181,6 @@ footer{margin:0;color:var(--text-faint);font-family:var(--sans);font-size:.84rem
   border:1px solid color-mix(in srgb,var(--violet) 30%,transparent)}
 .ff-back:hover{text-decoration:none;color:var(--text);background:color-mix(in srgb,var(--violet) 22%,transparent)}
 
-/* Injected: breadcrumb locator (top of #main) */
-.ff-locator{margin:0 0 1.4rem;font-family:var(--sans);font-size:.82rem;color:var(--text-faint);
-  display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
-.ff-locator a{color:var(--text-soft)}
-.ff-locator .kind{color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.72rem}
-.ff-locator .sep{color:var(--line-2)}
-
 /* Injected: footer (bottom of #main) — links back to the main site */
 .ff-foot{margin-top:auto;border-top:1px solid var(--line);background:transparent}
 .ff-foot .ff-foot-wrap{padding:2rem .2rem 1rem;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2rem}

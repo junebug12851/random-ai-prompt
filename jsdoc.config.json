@@ -41,15 +41,12 @@
       "Global"
     ],
     "menu": {
-      "↩ Fairy Fox": {
-        "href": "https://fairyfox.io/",
-        "class": "menu-item"
-      },
-      "Project node": {
+      "Project node ↗": {
         "href": "https://fairyfox.io/projects/random-ai-prompt/",
+        "target": "_blank",
         "class": "menu-item"
       },
-      "GitHub": {
+      "GitHub ↗": {
         "href": "https://github.com/junebug12851/random-ai-prompt",
         "target": "_blank",
         "class": "menu-item"

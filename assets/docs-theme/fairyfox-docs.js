@@ -59,21 +59,11 @@
     var block = el("div", { class: "ff-brand-block", role: "banner" });
     block.innerHTML =
       brand() +
-      '<span class="ff-sub">' + NAME + " · docs</span>" +
+      '<span class="ff-sub">' + NAME + "</span>" +
       '<a class="ff-back" href="' + HUB + '/">↩ Back to Fairy Fox</a>';
     var nav = document.querySelector("nav");
     if (nav) nav.insertBefore(block, nav.firstChild);
     else document.body.insertBefore(block, document.body.firstChild);
-
-    // breadcrumb locator at the top of the content column (#main).
-    var loc = el("p", { class: "ff-locator", "aria-label": "Breadcrumb" });
-    loc.innerHTML =
-      '<span class="kind">Project</span><span class="sep" aria-hidden="true">·</span>' +
-      '<a href="' + HUB + '/">Fairy Fox</a><span class="sep" aria-hidden="true">/</span>' +
-      '<a href="' + HUB + '/projects/">Projects</a><span class="sep" aria-hidden="true">/</span>' +
-      '<a href="' + NODE + '">' + NAME + "</a>";
-    var main = document.getElementById("main");
-    if (main) main.insertBefore(loc, main.firstChild);
   }
 
   function injectFooter() {
