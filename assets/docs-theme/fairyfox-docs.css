@@ -98,7 +98,7 @@ nav::-webkit-scrollbar-thumb{background:var(--panel-3);border-radius:8px;border:
 #main{margin-left:var(--sidebar);min-height:100vh;padding:1.4rem clamp(1.2rem,3.5vw,3rem) 0;
   display:flex;flex-direction:column}
 #main > *{max-width:min(100%,calc(var(--maxw-text) + 18rem))}
-h1.page-title{margin:.2rem 0 1.4rem;font-size:clamp(2rem,3.4vw,2.7rem)}
+h1.page-title{margin:.2rem 0 2.4rem;font-size:clamp(2rem,3.4vw,2.7rem)}
 
 /* sidebar internals */
 nav a{color:var(--text-soft)}
