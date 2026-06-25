@@ -58,8 +58,9 @@
     // home, present on every page. Falls back to body if the sidebar isn't found.
     var block = el("div", { class: "ff-brand-block", role: "banner" });
     block.innerHTML =
-      brand() +
-      '<span class="ff-sub">' + NAME + "</span>" +
+      '<a class="ff-brand ff-project" href="index.html">' +
+      '<img class="ff-logo-img" src="assets/docs-theme/logo.png" alt="" aria-hidden="true">' +
+      "<span>" + NAME + "</span></a>" +
       '<a class="ff-back" href="' + HUB + '/">↩ Back to Fairy Fox</a>';
     var nav = document.querySelector("nav");
     if (nav) nav.insertBefore(block, nav.firstChild);

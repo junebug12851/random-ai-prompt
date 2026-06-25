@@ -198,8 +198,10 @@ fs.copyFileSync(
 const jsDest = path.join(outRoot, "assets", "docs-theme");
 fs.mkdirSync(jsDest, { recursive: true });
 fs.copyFileSync(path.join(themeSrc, "fairyfox-docs.js"), path.join(jsDest, "fairyfox-docs.js"));
+// 3) the project logo for the sidebar brand (referenced by fairyfox-docs.js)
+fs.copyFileSync(path.join(root, "assets", "icons", "512.png"), path.join(jsDest, "logo.png"));
 console.log(
-  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/fairyfox-docs.js.",
+  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png}.",
 );
 
 console.log("Done → docs/jsdoc/index.html");
