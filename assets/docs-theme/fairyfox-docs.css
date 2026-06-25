@@ -55,11 +55,6 @@ body{
   color:var(--text);background:var(--bg);
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:radial-gradient(55% 45% at 85% -10%,color-mix(in srgb,var(--amber) 12%,transparent),transparent 70%),
-    radial-gradient(55% 45% at 8% -6%,color-mix(in srgb,var(--violet) 18%,transparent),transparent 72%),
-    linear-gradient(180deg,var(--bg-grad-top),var(--bg) 36%)}
-
 h1,h2,h3,h4,h5,h6{font-family:var(--display);font-weight:700;line-height:1.16;
   letter-spacing:-.02em;color:var(--text);margin:0 0 .5em}
 h1{font-size:clamp(2rem,3.6vw,2.7rem)}
