@@ -1,6 +1,7 @@
 # Plan — Split into engine-v1-2 (frozen) + engine-v3 (the project)
 
-**Status: in progress on `feature/legacy-isolation`. Stage 1 done.** Untangle the repo into two clearly
+**Status: core split DONE & verified on `feature/legacy-isolation` (Stages 1–5). Follow-ups below.**
+Untangle the repo into two clearly
 labeled, fully disconnected trees that share **zero files**:
 
 - **`engine-v1-2/`** — the **literal pre-revival snapshot** (commit `241a148`, 2023-04-07, CommonJS),
@@ -56,6 +57,19 @@ random-ai-prompt/
   move **together** under engine-v3 (relative depth preserved).
 - The smoke test currently boots `common.js` (legacy) — retarget to the engine-v3 core path.
 - CRLF noise: the working tree shows mass `M` files with empty `git diff` (`core.autocrlf=true`) — ignore; stage only real changes.
+
+## Follow-ups (not blocking; the split is functional + green)
+- **Drop the expansion stage** — `engine-v3/data/expansions*` and the core `stages/expansion.js` + its slot
+  in `DEFAULT_ORDER` are still present. Removing them is a behavior change (snapshot tests), so it's its own
+  verified change.
+- **Sync `CLAUDE.md` + notes paths** — they still describe `src/…` at the repo root; everything is now under
+  `engine-v3/`.
+- **Doc-site paths** — `jsdoc.config.json` (left at root) + `scripts/build-docs.mjs` reference the old paths;
+  retarget for `engine-v3/` + root `notes/`.
+- **Root `VERSION` / fairyfox node** — decide whether `VERSION` lives at root or in `engine-v3/`, and how the
+  fairyfox registry tracks the relocated project.
+- **engine-v3 deps** — `express`/`pug`/`yargs`/`open`/`cli-progress` were classic-server/CLI deps; prune once
+  confirmed unused by the engine + scripts.
 
 ## See also
 - [`generate-page-triage.md`](generate-page-triage.md) — the Sweep prune this unblocks (trivial once isolated).
