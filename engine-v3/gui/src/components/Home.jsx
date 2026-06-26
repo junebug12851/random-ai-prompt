@@ -18,6 +18,7 @@ import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
+import { ingestImage } from "../lib/output.js";
 import WrapperButton from "./WrapperFab.jsx";
 import Gallery from "./Gallery.jsx";
 
@@ -136,7 +137,10 @@ export default function Home({ settings, setSettings }) {
       const generate = await provider.loadGenerate();
       const key = settings.keys?.[provider.id];
       const { images: imgs } = await generate({ prompt: promptText, settings: flat, key });
-      setImages((prev) => [...(imgs || []), ...prev]);
+      // Funnel every provider's images into the central output folder, then display the saved
+      // copies (also fixes Comfy Desktop's 403 on direct /view loads).
+      const saved = await Promise.all((imgs || []).map(ingestImage));
+      setImages((prev) => [...saved, ...prev]);
     } catch (e) {
       setImgError(e.message || String(e));
     } finally {

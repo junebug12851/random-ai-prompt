@@ -12,6 +12,17 @@ import { dispatch } from "./server/dispatch.js";
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
 const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
+// The central output folder — every provider's generated images land here on disk
+// (engine-v3/output, the project's runtime output dir), served back via /api/output/<file>.
+const OUTPUT_DIR = path.join(guiRoot, "..", "output");
+
+const IMAGE_TYPES = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+};
 
 /**
  * Read a request's JSON body.
@@ -128,6 +139,61 @@ export function apiPlugin() {
           } catch (e) {
             return send(res, 502, { error: `Could not reach ${target}: ${e.message}` });
           }
+        }
+
+        // --- ingest a generated image into the central output folder ---
+        // Accepts { src } as a data: URL (decode) or a localhost URL (fetch server-side — also
+        // sidesteps Comfy Desktop's 403 on the browser). Saves to engine-v3/output/ and returns
+        // the served path. Any provider funnels its results through this for one shared folder.
+        if (u.pathname === "/api/image" && req.method === "POST") {
+          const body = await readJson(req);
+          const src = body?.src;
+          try {
+            let buf;
+            let ext = "png";
+            const m = typeof src === "string" && src.match(/^data:([^;]+);base64,(.*)$/s);
+            if (m) {
+              ext = (m[1].split("/")[1] || "png").split("+")[0];
+              buf = Buffer.from(m[2], "base64");
+            } else {
+              let host = "";
+              try {
+                host = new URL(src).hostname;
+              } catch {
+                return send(res, 400, { error: "Invalid image src" });
+              }
+              if (!["127.0.0.1", "localhost", "0.0.0.0", "::1"].includes(host)) {
+                return send(res, 403, { error: "Image ingest is restricted to localhost / data URLs" });
+              }
+              const up = await fetch(src);
+              if (!up.ok) return send(res, up.status, { error: `Image fetch failed (${up.status})` });
+              ext = ((up.headers.get("content-type") || "image/png").split("/")[1] || "png").split("+")[0];
+              buf = Buffer.from(await up.arrayBuffer());
+            }
+            if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+            const name = `${new Date().toISOString().replace(/[:.]/g, "-")}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            fs.writeFileSync(path.join(OUTPUT_DIR, name), buf);
+            return send(res, 200, { path: `/api/output/${name}` });
+          } catch (e) {
+            return send(res, 502, { error: `Could not save image: ${e.message}` });
+          }
+        }
+
+        // --- serve a saved image from the central output folder ---
+        if (u.pathname.startsWith("/api/output/") && req.method === "GET") {
+          const name = decodeURIComponent(u.pathname.slice("/api/output/".length));
+          if (name.includes("/") || name.includes("\\") || name.includes("..")) {
+            return send(res, 400, { error: "Invalid name" });
+          }
+          const fp = path.join(OUTPUT_DIR, name);
+          if (!fs.existsSync(fp)) {
+            res.statusCode = 404;
+            return res.end();
+          }
+          const ext = path.extname(name).slice(1).toLowerCase();
+          res.statusCode = 200;
+          res.setHeader("Content-Type", IMAGE_TYPES[ext] || "application/octet-stream");
+          return res.end(fs.readFileSync(fp));
         }
 
         // --- Local-file storage tier ---
