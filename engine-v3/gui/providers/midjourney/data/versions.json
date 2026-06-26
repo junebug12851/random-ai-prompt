@@ -1,0 +1,5 @@
+{
+  "versions": ["6.1", "6", "5.2", "5.1", "5"],
+  "defaultVersion": "6.1",
+  "nijiVersions": ["6", "5"]
+}

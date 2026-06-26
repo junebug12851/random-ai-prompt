@@ -10,6 +10,7 @@ import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { apiPlugin } from "./vite-plugin-api.js";
 
 const require = createRequire(import.meta.url);
 
@@ -29,7 +30,9 @@ const lodashDir = path.dirname(require.resolve("lodash/package.json"));
 
 // Plain Vite + React SPA. Builds to dist/ as static files (deployed to Netlify).
 export default defineConfig({
-  plugins: [react()],
+  // react() for the SPA; apiPlugin() serves /api/* during local dev (hosted-generation
+  // proxy + local-file storage) — the local equivalent of the Netlify function.
+  plugins: [react(), apiPlugin()],
   resolve: {
     alias: { lodash: lodashDir },
     dedupe: ["lodash"],
