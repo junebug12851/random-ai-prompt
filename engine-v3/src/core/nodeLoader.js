@@ -24,8 +24,6 @@ import compileDpl from "./dpl/dpl.js";
 const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
-// Expansions are a LEGACY (v1/v2-era) concept: the folder lives on disk as `expansions-obsolete`.
-const expansionsRoot = path.join(rootDir, "data", "expansions-obsolete");
 const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 
 // --- v3 DPL support -------------------------------------------------------
@@ -87,26 +85,6 @@ function dynGeneratorNames() {
   return [...names];
 }
 
-// Recursively list names under a root as "/"-joined paths; `re` picks the extension.
-// Files starting with `_` are internal/config (markers etc.) and never content. Used
-// for the expansion tree (which nests into category folders just like data/lists).
-function namesUnder(base, re) {
-  const out = [];
-  const walk = (dir, prefix) => {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (!entry.name.startsWith("_") && re.test(entry.name))
-        out.push(`${prefix}${entry.name.replace(re, "")}`);
-    }
-  };
-  try {
-    walk(base, "");
-  } catch {
-    // ignore
-  }
-  return out;
-}
-
 // Read a list file's lines (`name.txt`) or a group file's lines (`name.group`),
 // or null when missing. `name` may be a nested path like "danbooru/d/general".
 function readListFile(name) {
@@ -149,8 +127,6 @@ function markedDirs(marker, base = listsRoot) {
   return out;
 }
 const forcedPrefixDirs = () => markedDirs("_force-prefix");
-// Expansion folders marked `_force-prefix` (the prefix is shown/used, e.g. detail/legacy).
-const expansionForcedPrefixDirs = () => markedDirs("_force-prefix", expansionsRoot);
 
 // Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
 // Files starting with `_` are internal/config (markers etc.) and never lists.
@@ -181,21 +157,10 @@ const groupListDirs = () =>
 
 /**
  * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
- * loading. Implements `readExpansion`, `readListLines`, `listNames`, `expansionNames`,
- * `loadDynamicPrompt`, `dynamicPromptNames`.
+ * loading. Implements `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`.
  * @type {object}
  */
 export const nodeLoader = {
-  readExpansion(name) {
-    // Expansions nest into category folders; resolve a bare/partial `<name>` by path
-    // suffix (same rule as lists) so `<rays>` still finds `lighting/rays`.
-    const canonical = resolveName(name, namesUnder(expansionsRoot, /\.txt$/));
-    try {
-      return fs.readFileSync(path.join(expansionsRoot, `${canonical}.txt`), "utf8");
-    } catch {
-      return null;
-    }
-  },
   readListLines(name, includeAdult = false) {
     const dirs = groupListDirs();
     const names = allListNames([...logicalListNames(physicalListNames()), ...dirs]);
@@ -217,21 +182,6 @@ export const nodeLoader = {
   },
   readListMeta(name) {
     return readListMeta(name);
-  },
-  expansionNames() {
-    return namesUnder(expansionsRoot, /\.txt$/).sort(compareNames);
-  },
-  // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to an
-  // expansion file or category folder, for the editor button/category tooltip; null if absent.
-  readExpansionMeta(name) {
-    try {
-      return JSON.parse(fs.readFileSync(path.join(expansionsRoot, `${name}.json`), "utf8"));
-    } catch {
-      return null;
-    }
-  },
-  expansionForcedPrefixDirs() {
-    return expansionForcedPrefixDirs();
   },
   loadDynamicPrompt(key) {
     if (dplCache.has(key)) return dplCache.get(key);
@@ -296,23 +246,6 @@ export const nodeLoader = {
   readDynPromptGroup(name) {
     try {
       return fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
-    } catch {
-      return null;
-    }
-  },
-  // Implied-group folders for expansions: a category folder with 2+ expansions (so `<scene>`
-  // splices one random scene expansion), with enable/disable marker overrides.
-  expansionGroupDirs() {
-    return autoGroupListDirs(
-      namesUnder(expansionsRoot, /\.txt$/),
-      markedDirs("_enable-group-list", expansionsRoot),
-      markedDirs("_disable-group-list", expansionsRoot),
-    );
-  },
-  // Lines of an explicit `<name>.group` expansion group file, or null when absent.
-  readExpansionGroup(name) {
-    try {
-      return fs.readFileSync(path.join(expansionsRoot, `${name}.group`), "utf8").split("\n");
     } catch {
       return null;
     }
