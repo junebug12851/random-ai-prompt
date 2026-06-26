@@ -7,9 +7,11 @@ name: Docs (GitHub Pages)
 #
 # One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
 
+# NOTE: auto-deploy on push to main is PAUSED — the doc-site build (`npm run docs`) is mid-
+# reconciliation to the engine-v3 split (build-docs.mjs resolves notes/ + assets/ at the repo root
+# while src/ + web-app/ moved under engine-v3/). Re-enable the `push: branches: [main]` trigger once
+# `npm run docs` is green from engine-v3. Until then, run manually via workflow_dispatch.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -33,17 +35,20 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          cache-dependency-path: engine-v3/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        working-directory: engine-v3
+        run: npm install --no-audit --no-fund
 
       - name: Generate docs (JSDoc + notes)
+        working-directory: engine-v3
         run: npm run docs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/jsdoc
+          path: engine-v3/docs/jsdoc
 
   deploy:
     name: Deploy to Pages

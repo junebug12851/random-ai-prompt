@@ -59,13 +59,16 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          cache-dependency-path: engine-v3/package-lock.json
 
       - name: Install dependencies
         if: steps.ver.outputs.should_release == 'true'
-        run: npm ci
+        working-directory: engine-v3
+        run: npm install --no-audit --no-fund
 
       - name: Verify (lint + smoke test)
         if: steps.ver.outputs.should_release == 'true'
+        working-directory: engine-v3
         run: |
           npm run lint
           npm run smoke
@@ -80,10 +83,12 @@ jobs:
 
       - name: Build docs zip (JSDoc + notes)
         if: steps.ver.outputs.should_release == 'true'
+        continue-on-error: true # doc-site build is mid-reconciliation to the engine-v3 split (paths)
+        working-directory: engine-v3
         run: |
           set -euo pipefail
           npm run docs
-          (cd docs/jsdoc && zip -qr "../../random-ai-prompt-${{ steps.ver.outputs.version }}-docs.zip" .)
+          (cd docs/jsdoc && zip -qr "../../../random-ai-prompt-${{ steps.ver.outputs.version }}-docs.zip" .)
 
       - name: Compose release notes
         if: steps.ver.outputs.should_release == 'true'
