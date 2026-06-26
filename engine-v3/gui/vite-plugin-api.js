@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { exec } from "node:child_process";
 import { dispatch } from "./server/dispatch.js";
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
@@ -23,6 +24,19 @@ const IMAGE_TYPES = {
   webp: "image/webp",
   gif: "image/gif",
 };
+
+/**
+ * Resolve a served image path (`/api/output/<name>` or a bare name) to a safe absolute file in
+ * the output folder. Rejects path traversal.
+ * @param {string} p The served path or filename.
+ * @returns {string|null} The absolute file path, or null if invalid.
+ */
+function resolveOutputFile(p) {
+  if (typeof p !== "string") return null;
+  const name = decodeURIComponent(p.replace(/^\/api\/output\//, ""));
+  if (!name || name.includes("/") || name.includes("\\") || name.includes("..")) return null;
+  return path.join(OUTPUT_DIR, name);
+}
 
 /**
  * Read a request's JSON body.
@@ -163,11 +177,16 @@ export function apiPlugin() {
                 return send(res, 400, { error: "Invalid image src" });
               }
               if (!["127.0.0.1", "localhost", "0.0.0.0", "::1"].includes(host)) {
-                return send(res, 403, { error: "Image ingest is restricted to localhost / data URLs" });
+                return send(res, 403, {
+                  error: "Image ingest is restricted to localhost / data URLs",
+                });
               }
               const up = await fetch(src);
-              if (!up.ok) return send(res, up.status, { error: `Image fetch failed (${up.status})` });
-              ext = ((up.headers.get("content-type") || "image/png").split("/")[1] || "png").split("+")[0];
+              if (!up.ok)
+                return send(res, up.status, { error: `Image fetch failed (${up.status})` });
+              ext = ((up.headers.get("content-type") || "image/png").split("/")[1] || "png").split(
+                "+",
+              )[0];
               buf = Buffer.from(await up.arrayBuffer());
             }
             if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -194,6 +213,31 @@ export function apiPlugin() {
           res.statusCode = 200;
           res.setHeader("Content-Type", IMAGE_TYPES[ext] || "application/octet-stream");
           return res.end(fs.readFileSync(fp));
+        }
+
+        // --- image file actions (delete from disk / reveal in Explorer / open with default app) ---
+        if (u.pathname === "/api/image/delete" && req.method === "POST") {
+          const fp = resolveOutputFile((await readJson(req))?.path);
+          if (!fp) return send(res, 400, { error: "Invalid path" });
+          try {
+            if (fs.existsSync(fp)) fs.unlinkSync(fp);
+            return send(res, 200, { ok: true });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+        if (u.pathname === "/api/image/reveal" && req.method === "POST") {
+          const fp = resolveOutputFile((await readJson(req))?.path);
+          if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Not found" });
+          // explorer /select returns a non-zero exit code even on success — ignore it.
+          exec(`explorer /select,"${fp}"`);
+          return send(res, 200, { ok: true });
+        }
+        if (u.pathname === "/api/image/open" && req.method === "POST") {
+          const fp = resolveOutputFile((await readJson(req))?.path);
+          if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Not found" });
+          exec(`cmd /c start "" "${fp}"`); // open in the OS default program
+          return send(res, 200, { ok: true });
         }
 
         // --- Local-file storage tier ---

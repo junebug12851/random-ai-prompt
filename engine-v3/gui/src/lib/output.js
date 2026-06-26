@@ -27,3 +27,32 @@ export async function ingestImage(src) {
   }
   return src;
 }
+
+/** True for a path that lives in our central output folder (so file actions apply). */
+export const isOutputFile = (p) => typeof p === "string" && p.startsWith("/api/output/");
+
+/**
+ * @param {string} action `delete` | `reveal` | `open`.
+ * @param {string} p A served `/api/output/<file>` path.
+ * @returns {Promise<boolean>} Whether the action succeeded.
+ */
+async function fileAction(action, p) {
+  if (!isOutputFile(p)) return false;
+  try {
+    const res = await fetch(`/api/image/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: p }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Delete an image file from disk. */
+export const deleteImageFile = (p) => fileAction("delete", p);
+/** Reveal an image in the OS file explorer. */
+export const revealImageFile = (p) => fileAction("reveal", p);
+/** Open an image in the OS default program. */
+export const openImageFile = (p) => fileAction("open", p);

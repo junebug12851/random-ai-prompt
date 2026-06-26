@@ -18,29 +18,11 @@ import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
-import { ingestImage } from "../lib/output.js";
+import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import WrapperButton from "./WrapperFab.jsx";
-import Gallery from "./Gallery.jsx";
 import ProviderBox from "./ProviderBox.jsx";
-
-const ImageIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-    <circle cx="8.5" cy="8.5" r="1.5" />
-    <polyline points="21 15 16 10 5 21" />
-  </svg>
-);
+import PromptResult from "./PromptResult.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -109,9 +91,9 @@ export default function Home({ settings, setSettings }) {
   const provider = getProvider(settings.provider);
   const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
   const [providerDefaults, setProviderDefaults] = useState({});
-  const [images, setImages] = useState([]);
-  const [imgBusy, setImgBusy] = useState(-1); // index currently rendering, or -1
   const [imgError, setImgError] = useState("");
+  const idCounter = useRef(0);
+  const nextId = () => ++idCounter.current;
 
   useEffect(() => {
     let alive = true;
@@ -131,10 +113,19 @@ export default function Home({ settings, setSettings }) {
   const flat = flattenForProvider(settings, providerDefaults);
   const canGenerateImages = provider?.tier === "api" && !!provider?.loadGenerate;
 
-  // Render images for one expanded prompt via the active provider's generate adapter.
-  async function makeImage(idx, promptText) {
+  // Add a fresh batch of images beneath a prompt via the active provider's generate adapter.
+  async function makeBatch(promptId) {
+    const p = prompts.find((x) => x.id === promptId);
+    if (!p) return;
+    const batchId = nextId();
     setImgError("");
-    setImgBusy(idx);
+    setPrompts((ps) =>
+      ps.map((x) =>
+        x.id === promptId
+          ? { ...x, batches: [...x.batches, { id: batchId, busy: true, images: [] }] }
+          : x,
+      ),
+    );
     try {
       const generate = await provider.loadGenerate();
       const key = effectiveKey(provider.id, settings);
@@ -142,17 +133,85 @@ export default function Home({ settings, setSettings }) {
       const negative = flat.negativePrompt
         ? expandPrompt(flat.negativePrompt, { ...settings, mode: flat.mode })
         : "";
-      const genSettings = { ...flat, negativePrompt: negative };
-      const { images: imgs } = await generate({ prompt: promptText, settings: genSettings, key });
-      // Funnel every provider's images into the central output folder, then display the saved
-      // copies (also fixes Comfy Desktop's 403 on direct /view loads).
+      const { images: imgs } = await generate({
+        prompt: p.text,
+        settings: { ...flat, negativePrompt: negative },
+        key,
+      });
+      // Funnel every provider's images into the central output folder, then display the saved copies.
       const saved = await Promise.all((imgs || []).map(ingestImage));
-      setImages((prev) => [...saved, ...prev]);
+      setPrompts((ps) =>
+        ps.map((x) =>
+          x.id === promptId
+            ? {
+                ...x,
+                batches: x.batches.map((b) =>
+                  b.id === batchId ? { ...b, busy: false, images: saved } : b,
+                ),
+              }
+            : x,
+        ),
+      );
     } catch (e) {
       setImgError(e.message || String(e));
-    } finally {
-      setImgBusy(-1);
+      setPrompts((ps) =>
+        ps.map((x) =>
+          x.id === promptId ? { ...x, batches: x.batches.filter((b) => b.id !== batchId) } : x,
+        ),
+      );
     }
+  }
+
+  // Remove a single image — optionally deleting the file from disk.
+  function removeImage(promptId, batchId, img) {
+    if (
+      isOutputFile(img) &&
+      confirm(
+        "Delete this image from disk too?\n\nOK = delete the file\nCancel = just remove it from view",
+      )
+    ) {
+      deleteImageFile(img);
+    }
+    setPrompts((ps) =>
+      ps.map((x) =>
+        x.id === promptId
+          ? {
+              ...x,
+              batches: x.batches
+                .map((b) =>
+                  b.id === batchId ? { ...b, images: b.images.filter((i) => i !== img) } : b,
+                )
+                .filter((b) => b.busy || b.images.length),
+            }
+          : x,
+      ),
+    );
+  }
+
+  // Remove a whole batch — optionally deleting its files from disk.
+  function removeBatch(promptId, batchId) {
+    const b = prompts.find((x) => x.id === promptId)?.batches.find((y) => y.id === batchId);
+    const imgs = b?.images || [];
+    if (imgs.some(isOutputFile) && confirm("Delete this batch's image files from disk too?")) {
+      imgs.forEach(deleteImageFile);
+    }
+    setPrompts((ps) =>
+      ps.map((x) =>
+        x.id === promptId ? { ...x, batches: x.batches.filter((y) => y.id !== batchId) } : x,
+      ),
+    );
+  }
+
+  // Clear all of a prompt's images — optionally deleting from disk.
+  function clearImages(promptId) {
+    const imgs = (prompts.find((x) => x.id === promptId)?.batches || []).flatMap((b) => b.images);
+    if (
+      imgs.some(isOutputFile) &&
+      confirm("Delete all of this prompt's image files from disk too?")
+    ) {
+      imgs.forEach(deleteImageFile);
+    }
+    setPrompts((ps) => ps.map((x) => (x.id === promptId ? { ...x, batches: [] } : x)));
   }
 
   const prompt = settings.prompt;
@@ -267,7 +326,7 @@ export default function Home({ settings, setSettings }) {
               .filter(Boolean)
               .join(", ")
           : result;
-        out.push(framed);
+        out.push({ id: nextId(), text: framed, batches: [] });
       }
       setPrompts(out);
     } catch (e) {
@@ -518,6 +577,7 @@ export default function Home({ settings, setSettings }) {
           {error && <p className="error">{error}</p>}
         </section>
 
+        {imgError && <p className="error">{imgError}</p>}
         {prompts.length > 0 && (
           <section className="card results-card">
             <div className="results-head">
@@ -528,40 +588,19 @@ export default function Home({ settings, setSettings }) {
             </div>
             <ul className="prompts">
               {prompts.map((p, i) => (
-                <li key={i}>
-                  <span className="idx">{String(i + 1).padStart(2, "0")}</span>
-                  <span>{p}</span>
-                  {canGenerateImages && (
-                    <button
-                      className="copy-mini"
-                      title={`Generate image with ${provider.label}`}
-                      onClick={() => makeImage(i, p)}
-                      disabled={imgBusy === i}
-                    >
-                      {imgBusy === i ? "…" : <ImageIcon />}
-                    </button>
-                  )}
-                  <button
-                    className="copy-mini"
-                    title={provider?.tier === "syntax" ? "Copy prompt with parameters" : "Copy"}
-                    onClick={() => copyPrompt(p)}
-                  >
-                    copy
-                  </button>
-                </li>
+                <PromptResult
+                  key={p.id}
+                  prompt={p}
+                  index={i}
+                  canGenerate={canGenerateImages}
+                  onGenerate={makeBatch}
+                  onCopy={copyPrompt}
+                  onRemoveImage={removeImage}
+                  onRemoveBatch={removeBatch}
+                  onClearImages={clearImages}
+                />
               ))}
             </ul>
-          </section>
-        )}
-
-        {imgError && <p className="error">{imgError}</p>}
-        {images.length > 0 && (
-          <section className="card results-card">
-            <div className="results-head">
-              <h2>Images</h2>
-              <span className="count">{images.length}</span>
-            </div>
-            <Gallery images={images} />
           </section>
         )}
       </div>
