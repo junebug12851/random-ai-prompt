@@ -168,8 +168,11 @@ After making changes, run this loop without being asked:
    A **PATCH** goes **directly** `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch
    (see `reference/git-workflow.md`). With the owner's go-ahead, confirm CI is green on the `dev` HEAD
    (`gh run list --branch dev -L 1`), then for a PATCH:
-   `git checkout main && git merge --no-ff dev && git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin main --tags && git checkout dev`.
-   A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
+   `git checkout main && git merge --no-ff dev && git push origin main && git checkout dev`.
+   **Do not tag by hand.** `release.yml` derives `v<VERSION>` and creates the tag itself, gated on that
+   tag not already existing — a hand-pushed tag makes the gated run find the tag present and **skip
+   itself (a silent no-op release)**. The merge to `main` *is* the release act; CI applies the tag. A
+   push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
    the Pages docs (`pages.yml`); watch them with `gh run watch`. See `reference/deployment.md`.
 6. **Regenerate the docs after shipping (by default).** After releasing to `main`, run `npm run docs` so
    the generated `docs/jsdoc/` (git-ignored) tracks `main`; CI also rebuilds + deploys it to Pages.
@@ -247,6 +250,18 @@ changed + what adopting it would touch — then stop.** Apply nothing until the 
 ahead; applying is a separate, confirmed act. Full procedure: the shared `adopting-updates` runbook (in
 the clone's `hub/standards/`).
 
+**Exception — pre-authorized changes (the express-authorization ledger).** The system keeps an
+express-authorization ledger at `hub/authorizations.yml` (read it from the read-only clone like any
+other hub artifact). If an **active** entry there `covers` the change being adopted, the user **already
+gave the go-ahead at the system** — apply it directly, skipping *only* the "check-and-report-then-wait"
+pause. Skip nothing else: still copy-not-clobber, still **re-prompt before overwriting a deliberate
+local divergence**, still write the process report, still commit as a reviewable act, still build green.
+If nothing in the ledger covers the change (or its entry has `expires`d), fall back to the
+check-report-wait default. Reading the ledger lets a node skip a redundant prompt; it never lets the
+system reach in and act — anti-recursion holds. **An unattended/scheduled check still applies nothing**
+(it reports and waits) regardless of the ledger — a pre-authorization shortens an *interactive* adopt,
+it doesn't turn a check-only run into a self-adopt.
+
 **Every fairyfox run ends with a process report** — write one in `notes/fairyfox-reports/`
 (`YYYY-MM-DD-<procedure>.md`, from the clone's `hub/templates/fairyfox-report.md`), **even a
 check-only run.** It's an honest account of what the run did and where the procedure was rough; the hub
@@ -256,9 +271,11 @@ every adopted standard is the **compliance audit** (`notes/reference/compliance.
 report-only.
 
 **Guardrails (don't break these):** on-request only — never auto-pull or schedule cross-repo syncs
-(anti-recursion); the reference clone is read-only and git-ignored; never apply changes or rewrite
-history without an explicit go-ahead; reconcile with local edits, don't clobber them. **Stay inside this
-repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
+(anti-recursion); the reference clone is read-only and git-ignored (the `hub/authorizations.yml` ledger
+included — reading it lets you skip a redundant prompt, it never lets the system act on this repo);
+never apply changes or rewrite history without an explicit go-ahead (an active `authorizations.yml`
+entry that covers the change *is* that go-ahead, given at the system); reconcile with local edits, don't
+clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
 hub-side change is needed (e.g. a `registry.yml` correction), **report it for the owner to make**, don't
 do it here.
 

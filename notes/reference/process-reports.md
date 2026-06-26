@@ -37,6 +37,18 @@ I found and where the diff was painful" is exactly the feedback the loop wants, 
 when nothing was applied). One run, one report; don't split a procedure across files,
 and don't pad a report into existence when there was nothing to run.
 
+**A check that becomes an adopt in the same session is one run → one combined report.**
+When a check-only run is immediately green-lit into applying, write a **single combined**
+`adopting-updates` report covering both the check and the adopt — don't leave a separate
+check-only file *and* an adopt file. (If a check-only report was already written this
+session, fold it into the combined adopting-updates report and remove the check-only file.)
+
+**Check-only on a node that hasn't adopted process-reports yet** is the one exception to
+"even a check-only run writes a file": if `notes/fairyfox-reports/` doesn't exist, creating
+it would itself be an act of adoption, so such a run reports its findings **inline** (in the
+summary to the user) and writes no file. This repo *has* adopted process-reports, so the
+exception doesn't apply here — its runs always write a file.
+
 For this project the live triggers are the **adopting-updates** / **check-for-updates**
 runs (see [`cross-project-sync.md`](cross-project-sync.md)); setup and onboarding
 already happened.
@@ -64,7 +76,11 @@ The shape, in short:
 
 - **Header / front matter** — date, the procedure run, the node, the outcome in one
   line (`completed` · `partial` · `checked-only` · `aborted`), and the hub
-  version/commit the run was against.
+  version/commit the run was against. The **`hub_version` must be a real version number**
+  (e.g. `0.9.2`), not a placeholder like "see VERSION at run time" — it doubles as this
+  node's "last adopted hub version" anchor: the next adoption reads it from the newest
+  `*-adopting-updates.md` report to bound "what changed since," instead of a commit SHA a
+  hub force-push may have erased.
 - **What was done** — the actual path taken, at a useful grain; note any deviation
   from the runbook and why.
 - **What went well** — what was clear and worked first try (so it doesn't get
@@ -93,3 +109,6 @@ this node picks up improvements later through ordinary adoption.
   committed to this tree (not left in `assets/references/`).
 - Each report names the procedure, the outcome, and the hub version/commit it ran
   against, and its friction/suggestions sections are real (not "all good").
+- The front matter's `hub_version` is a **real version number** (usable as the next
+  adoption's "last adopted" anchor), not a placeholder.
+- A check that became an adopt in one session is a **single combined** report, not two.

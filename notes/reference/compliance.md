@@ -37,7 +37,7 @@ The detailed pass/fail lives in each standard's `## Verify` section.
 | versioning | [`versioning.md` → Verify](versioning.md#verify-is-it-being-followed) — `VERSION` is one SemVer line = newest `main` tag; nothing hardcoded |
 | notes-system | [`../README.md`](../README.md) — core `notes/` tree present; [`status.md`](../status.md) current; inline changelog in `version/` |
 | ai-context | [`../../CLAUDE.md`](../../CLAUDE.md) — has identity · start-here→`status.md` · landmines · build/run · default workflow · notes-maintenance table; workflow matches git-flow |
-| cross-project-sync | [`cross-project-sync.md` → anti-recursion checklist](cross-project-sync.md#anti-recursion-checklist) — pulls on-request, read-only, git-ignored, copy-not-link |
+| cross-project-sync | [`cross-project-sync.md` → anti-recursion checklist](cross-project-sync.md#anti-recursion-checklist) — pulls on-request, read-only, git-ignored, copy-not-link; the `authorizations.yml` ledger is read-only and only skips a redundant prompt (never lets the hub act on this node) |
 | process-reports | [`process-reports.md` → Verify](process-reports.md#verify) — a real report per fairyfox run in `notes/fairyfox-reports/` |
 | docs-site | the hub's docs-site compliance checklist — themed site at `fairyfox.io/<key>/` + "← Back to Fairy Fox" way-home link |
 
