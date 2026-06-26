@@ -59,6 +59,7 @@ const ImageIcon = () => (
 export default function PromptResult({
   prompt,
   index,
+  number,
   canGenerate,
   onGenerate,
   onCopy,
@@ -70,9 +71,9 @@ export default function PromptResult({
   return (
     <li className="prompt-result">
       <div className="prompt-line">
-        <span className="idx">{String(index + 1).padStart(2, "0")}</span>
+        <span className="idx">{String(number ?? index + 1).padStart(2, "0")}</span>
         <div className="prompt-main">
-          {prompt.dpl && prompt.dpl !== prompt.text && (
+          {prompt.dpl && (
             <code
               className="prompt-dpl"
               title="The DPL this was rolled from — click to copy"

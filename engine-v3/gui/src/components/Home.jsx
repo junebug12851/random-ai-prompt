@@ -657,6 +657,7 @@ export default function Home({ settings, setSettings }) {
                   key={p.id}
                   prompt={p}
                   index={i}
+                  number={prompts.length - i}
                   canGenerate={canGenerateImages}
                   onGenerate={makeBatch}
                   onCopy={copyPrompt}
