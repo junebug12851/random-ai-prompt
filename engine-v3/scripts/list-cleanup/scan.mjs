@@ -65,7 +65,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
 
 // --- danbooru.csv (name,type,count) -> classify the de-underscored name ---
 {
-  const csv = fs.readFileSync(path.join(dataDir, "danbooru.csv"), "utf8").split("\n");
+  const csv = fs.readFileSync(path.join(dataDir, "sources", "danbooru.csv"), "utf8").split("\n");
   csv.forEach((raw, i) => {
     const line = raw.replace(/\r$/, "");
     if (line.trim() === "") return;
@@ -85,7 +85,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
 
 // --- artists.csv -> proper (names), core slurs only ---
 {
-  const csv = fs.readFileSync(path.join(dataDir, "artists.csv"), "utf8").split("\n");
+  const csv = fs.readFileSync(path.join(dataDir, "sources", "artists.csv"), "utf8").split("\n");
   csv.forEach((raw, i) => {
     const line = raw.replace(/\r$/, "");
     if (line.trim() === "") return;

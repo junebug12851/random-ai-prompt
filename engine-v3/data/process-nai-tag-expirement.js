@@ -27,7 +27,7 @@ import _ from "lodash";
 import settings from "../src/settings.js";
 
 // load tags file
-import tags from "./nai-tag-expirement.json" with { type: "json" };
+import tags from "./sources/nai-tag-expirement.json" with { type: "json" };
 
 // Ensure we're within this directory
 process.chdir(import.meta.dirname);
