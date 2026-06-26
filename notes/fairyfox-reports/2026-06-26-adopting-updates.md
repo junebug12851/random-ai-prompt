@@ -83,6 +83,16 @@ code or runtime change, which the project's own rule excludes from the version n
 - Clarify the **check-only report location for un-adopted nodes**: either say a check-only
   run on a node that hasn't adopted process-reports yet reports inline and defers the
   written report until adoption, or treat folder-creation as allowed even in check-only.
+- **Reassure the owner about repo safety as part of the adopt, unprompted.** After the
+  adopt, the owner asked "is my repository alright online and locally? what did you do
+  why?" — the run had touched a `feature/` branch, merged to `dev`, pushed `dev`, and
+  (separately) `reset --hard` the git-ignored hub *mirror*, and that combination read as
+  alarming without a plain summary. The `reset --hard` on `assets/references/` especially
+  needs loud framing: it is the **reference clone, not the project**, and never rewrites
+  project history. Suggest the adopting-updates runbook end with a standard
+  **"what changed, where" close-out**: local vs `origin` for `dev`/`main` (identical?),
+  that `main` was untouched, working tree clean, and an explicit "the only `reset --hard`
+  was on the disposable mirror." A node should volunteer this, not wait to be asked.
 
 ## Environment
 
