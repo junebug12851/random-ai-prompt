@@ -24,6 +24,7 @@ import WrapperButton from "./WrapperFab.jsx";
 import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
+import LivePreview from "./LivePreview.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -583,6 +584,12 @@ export default function Home({ settings, setSettings }) {
 
               <div className="grow" />
 
+              <LivePreview
+                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
+                settings={settings}
+                label="Prompt preview"
+                triggerClassName="field-act"
+              />
               <WrapperButton settings={settings} setSettings={setSettings} />
               <button
                 className={`field-act${panel === "share" ? " on" : ""}`}

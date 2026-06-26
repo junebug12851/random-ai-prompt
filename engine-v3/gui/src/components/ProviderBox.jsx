@@ -13,6 +13,8 @@ import { useProviderSettings } from "../lib/useProvider.js";
 import { infoFor } from "../../providers/_shared/fieldInfo.js";
 import { getSessionKey, setSessionKey } from "../lib/sessionKeys.js";
 import { expandPrompt } from "../lib/promptEngine.js";
+import { metaFor } from "../lib/providerMeta.js";
+import LivePreview from "./LivePreview.jsx";
 
 /**
  * A small info "i" with a tooltip.
@@ -33,7 +35,7 @@ function InfoTip({ text }) {
  * @param {object} props `{ f, params, setParam, optionData, onRandom }`.
  * @returns {JSX.Element}
  */
-function ProviderField({ f, params, setParam, optionData, onRandom }) {
+function ProviderField({ f, params, setParam, optionData, onRandom, settings }) {
   const v = params[f.key];
   const label = (
     <>
@@ -81,9 +83,16 @@ function ProviderField({ f, params, setParam, optionData, onRandom }) {
               ⟳ random
             </button>
           )}
+          <LivePreview
+            getDpl={() => params[f.key]}
+            settings={settings}
+            label="Negative preview"
+            triggerClassName="field-roll preview-roll"
+          />
         </span>
         <textarea
-          rows={3}
+          className="negative-textarea"
+          rows={4}
           value={v ?? ""}
           placeholder="e.g. blurry, lowres, {#bad-anatomy} — DPL is rolled out before sending"
           onChange={(e) => setParam(f.key, e.target.value)}
@@ -202,6 +211,16 @@ export default function ProviderBox({ settings, setSettings }) {
                 <span className="field-label-row">
                   API key
                   <InfoTip text="Your key for this provider. Kept in memory for this session only — click Save to store it in this browser." />
+                  {metaFor(pid).keyUrl && (
+                    <a
+                      className="key-link"
+                      href={metaFor(pid).keyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Get a key ↗
+                    </a>
+                  )}
                 </span>
                 <input
                   type="password"
@@ -233,6 +252,7 @@ export default function ProviderBox({ settings, setSettings }) {
                 setParam={setParam}
                 optionData={options}
                 onRandom={f.key === "negativePrompt" ? rollField : undefined}
+                settings={settings}
               />
             ))}
           </div>

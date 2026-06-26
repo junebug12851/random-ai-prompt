@@ -1593,7 +1593,7 @@ button.ghost:hover {
 }
 .provider-box textarea {
   width: 100%;
-  min-height: 3.6rem;
+  min-height: 5rem;
 }
 
 /* ---------- Per-prompt result (prompt + image batches) ---------- */
@@ -1857,6 +1857,167 @@ button.ghost:hover {
 }
 .gear-pop .settings-actions button {
   width: 100%;
+}
+
+/* ---------- Grouped provider dropdown (header) ---------- */
+.provider-select {
+  position: relative;
+}
+.ps-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.ps-trigger:hover {
+  border-color: var(--accent);
+}
+.ps-current {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ps-caret {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.ps-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+.ps-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 42;
+  width: 340px;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.4rem;
+}
+.ps-group + .ps-group {
+  margin-top: 0.3rem;
+}
+.ps-group-title {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 0.4rem 0.5rem 0.25rem;
+}
+.ps-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-soft);
+  cursor: pointer;
+}
+.ps-item:hover {
+  background: var(--chip);
+  border-color: transparent;
+}
+.ps-item.on {
+  background: var(--accent-soft);
+}
+.ps-item-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ps-item-label {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--fg);
+}
+.ps-item.on .ps-item-label {
+  color: var(--accent);
+}
+.ps-key {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.4rem;
+}
+.ps-item-desc {
+  font-size: 0.74rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.key-link {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.key-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Live preview (eye button → re-rolling tooltip) ---------- */
+.live-preview {
+  position: relative;
+  display: inline-flex;
+}
+.live-preview-pop {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 340px;
+  max-width: 80vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.6rem 0.7rem;
+  pointer-events: none;
+}
+.live-preview-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+.live-preview-text {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.field-roll.preview-roll {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
 }
 @keyframes shimmer {
   from {
