@@ -37,8 +37,8 @@ describe("provider registry", () => {
   });
 });
 
-describe("local WebUI provider — txt2img contract", () => {
-  it("POSTs the expected request body and maps base64 images to data URLs", async () => {
+describe("local WebUI provider — txt2img contract (via /api/forward proxy)", () => {
+  it("forwards the SD txt2img request and maps base64 images to data URLs", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       json: async () => ({ images: ["AAAA", "BBBB"] }),
@@ -58,13 +58,14 @@ describe("local WebUI provider — txt2img contract", () => {
       },
     });
 
+    // The browser hits our dev proxy; the real target + body travel inside.
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, opts] = fetchMock.mock.calls[0];
-    expect(url).toBe("http://127.0.0.1:7860/sdapi/v1/txt2img");
-    expect(opts.method).toBe("POST");
-
-    const body = JSON.parse(opts.body);
-    expect(body).toMatchObject({
+    const [proxyUrl, opts] = fetchMock.mock.calls[0];
+    expect(proxyUrl).toBe("/api/forward");
+    const fwd = JSON.parse(opts.body);
+    expect(fwd.url).toBe("http://127.0.0.1:7860/sdapi/v1/txt2img");
+    expect(fwd.method).toBe("POST");
+    expect(fwd.body).toMatchObject({
       prompt: "a fox",
       negative_prompt: "blurry",
       steps: 30,
@@ -78,7 +79,7 @@ describe("local WebUI provider — txt2img contract", () => {
   });
 
   it("throws a descriptive error on a non-OK response", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 500 })));
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) })));
     await expect(localWebuiGenerate({ prompt: "x", settings: {} })).rejects.toThrow(/returned 500/);
   });
 
@@ -86,7 +87,8 @@ describe("local WebUI provider — txt2img contract", () => {
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ images: [] }) }));
     vi.stubGlobal("fetch", fetchMock);
     await localWebuiGenerate({ prompt: "x", settings: {} });
-    expect(fetchMock.mock.calls[0][0]).toBe("http://127.0.0.1:7860/sdapi/v1/txt2img");
+    const fwd = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(fwd.url).toBe("http://127.0.0.1:7860/sdapi/v1/txt2img");
   });
 });
 

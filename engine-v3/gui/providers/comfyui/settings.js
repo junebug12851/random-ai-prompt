@@ -6,7 +6,7 @@
 export default {
   defaults: {
     comfyUrl: "http://127.0.0.1:8188",
-    comfyCheckpoint: "",
+    comfyCheckpoint: "v1-5-pruned-emaonly-fp16.safetensors",
     sampler: "euler",
     scheduler: "normal",
     imageSteps: 20,

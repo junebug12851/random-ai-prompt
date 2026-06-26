@@ -92,6 +92,44 @@ export function apiPlugin() {
           }
         }
 
+        // --- local-direct forward proxy (avoids CORS for ComfyUI / A1111 etc.) ---
+        // The browser can't call a local server that sends no CORS headers (Comfy Desktop,
+        // default A1111). Forward the call server-side. Restricted to localhost to avoid an
+        // open proxy.
+        if (u.pathname === "/api/forward" && req.method === "POST") {
+          const body = await readJson(req);
+          const target = body?.url;
+          let host = "";
+          try {
+            host = new URL(target).hostname;
+          } catch {
+            return send(res, 400, { error: "Invalid target URL" });
+          }
+          if (!["127.0.0.1", "localhost", "0.0.0.0", "::1"].includes(host)) {
+            return send(res, 403, { error: "Forwarding is restricted to localhost" });
+          }
+          try {
+            const init = { method: body.method || "GET" };
+            if (body.body !== undefined) {
+              init.headers = { "Content-Type": "application/json" };
+              init.body = JSON.stringify(body.body);
+            }
+            const upstream = await fetch(target, init);
+            const text = await upstream.text();
+            let data;
+            try {
+              data = JSON.parse(text);
+            } catch {
+              data = { error: text || `Upstream returned ${upstream.status}` };
+            }
+            res.statusCode = upstream.ok ? 200 : upstream.status;
+            res.setHeader("Content-Type", "application/json");
+            return res.end(JSON.stringify(data));
+          } catch (e) {
+            return send(res, 502, { error: `Could not reach ${target}: ${e.message}` });
+          }
+        }
+
         // --- Local-file storage tier ---
         if (u.pathname === "/api/storage") {
           const store = readStore();
