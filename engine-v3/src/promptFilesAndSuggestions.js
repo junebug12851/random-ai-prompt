@@ -37,7 +37,6 @@ const v2Files = [];
 const allDynPrompts = [];
 
 const listFiles = [];
-const expansionFiles = [];
 
 const fullDynPrompt = []; // Excludes v1 files
 
@@ -151,15 +150,6 @@ function loadDynPromptList() {
 }
 
 /**
- * @returns {string[]} The expansion names (cached).
- */
-function loadExpansionFileList() {
-  expansionFiles.length = 0;
-  expansionFiles.push(...requireLoader().expansionNames());
-  return expansionFiles;
-}
-
-/**
  * Load the list names (and cache the artist-excluded subset).
  * @returns {string[]} The list names.
  */
@@ -200,12 +190,11 @@ function pickerListNames() {
 }
 
 /**
- * Load the dynamic-prompt, expansion, and list catalogs.
+ * Load the dynamic-prompt and list catalogs.
  * @returns {void}
  */
 function loadAll() {
   loadDynPromptList();
-  loadExpansionFileList();
   loadListFileList();
 }
 
@@ -301,7 +290,6 @@ export default {
   configure,
   init,
   loadDynPromptList,
-  loadExpansionFileList,
   loadListFileList,
   pickerListNames,
   loadAll,

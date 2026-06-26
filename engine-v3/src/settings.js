@@ -188,24 +188,14 @@ export default {
   /*--prompt-module-files <path>*/
   promptModuleFiles: "prompt-modules",
 
-  // They will be executed in order and will repeat execution on each prompt change
-  // They should be in array form, only use the comma seperated version for command-line arguments
-  // 1. Expand user-supplied 1st in-case it expands into dynamic prompts
-  // 2. Expand dynamic prompts and auto-append fx and artists if configured to do so
-  // 3. Expand 2nd in-case dynamic prompts added expansions
-  // 4. Auto-add salt if requested to do so
-  // 5. Expand lists with list items
-  // 6. Cleanup extra spaces and commas
+  // v3-only pipeline, executed in order on each prompt change:
+  // 1. Expand dynamic prompts (the stage re-expands up to 10 passes internally)
+  // 2. Auto-add salt if requested
+  // 3. Expand lists with list items
+  // 4. Cleanup extra spaces and commas
+  // (The legacy `<expansion>` stage was removed — v1/v2-era.)
   /*--prompt-modules <comma-seperated dynamic prompts>*/
-  promptModules: [
-    "expansion",
-    "dynamic-prompt",
-    "expansion",
-    "dynamic-prompt",
-    "prompt-salt",
-    "list",
-    "cleanup",
-  ],
+  promptModules: ["dynamic-prompt", "prompt-salt", "list", "cleanup"],
 
   // Auto-add artists dynamic prompt at end of prompt
   /*--auto-artists <true/false>*/

@@ -1,7 +1,7 @@
 /**
  * @file Integration tests for the framework-agnostic prompt engine
  * (src/core/engine.js) driven by an in-memory fake loader, so the whole
- * stage pipeline (expansion -> dynamic-prompt -> list -> cleanup) is exercised
+ * stage pipeline (dynamic-prompt -> list -> cleanup) is exercised
  * end-to-end without the filesystem.
  */
 import { describe, it, expect } from "vitest";
@@ -45,19 +45,6 @@ describe("engine — list stage", () => {
   });
 });
 
-describe("engine — expansion stage", () => {
-  it("splices a <name> expansion's text", () => {
-    const engine = createEngine(makeFakeLoader({ expansions: { greeting: "hello there" } }));
-    const out = engine.expand(
-      "<greeting>",
-      { ...baseSettings, promptModules: ["expansion", "cleanup"] },
-      {},
-      {},
-    );
-    expect(out).toBe("hello there");
-  });
-});
-
 describe("engine — dynamic-prompt stage", () => {
   it("runs a JS generator module for {#name}", () => {
     const engine = createEngine(
@@ -85,20 +72,19 @@ describe("engine — dynamic-prompt stage", () => {
 });
 
 describe("engine — full pipeline", () => {
-  it("runs expansion -> dynamic-prompt -> list -> cleanup in order", () => {
+  it("runs dynamic-prompt -> list -> cleanup in order", () => {
     const engine = createEngine(
       makeFakeLoader({
         lists: { color: ["red"] },
-        expansions: { greeting: "hello" },
         dynamicPrompts: { greet: { default: () => "hi there" } },
       }),
     );
     const settings = {
       ...baseSettings,
-      promptModules: ["expansion", "dynamic-prompt", "list", "cleanup"],
+      promptModules: ["dynamic-prompt", "list", "cleanup"],
     };
-    const out = engine.expand("<greeting>, {#greet}, {color}", settings, {}, {});
-    expect(out).toBe("hello, hi there, red");
+    const out = engine.expand("{#greet}, {color}", settings, {}, {});
+    expect(out).toBe("hi there, red");
   });
 
   it("generateMany returns the requested number of prompts", () => {
