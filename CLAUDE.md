@@ -1,15 +1,25 @@
 # random-ai-prompt — AI Context
 
-Random AI prompt + image generator for the Stable Diffusion WebUI. Node.js (ES modules) — a
-yargs **CLI** (`src/index.js`) and a local **Express + Pug web UI** (`src/server.js`) that share one
-core (`src/common.js`). Open source, by junebug12851. Originally CommonJS (2022); modernized to ES
-modules on Node 24 LTS in June 2026. **All code lives under `src/`; all prompt content (lists,
-expansions, presets, the CSV sources, and the `#name` dynamic-prompt generators) lives under `data/`;
-runtime/user data (`output/`, `user-settings.json`, `results.json`) stays at the repo root.** The
-**one deliberate exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators
-are executable `.js`, but they're authored as prompt *content* (like lists/expansions), so they live
-with the rest of the content under `data/`. The loaders prefix the `dynamicPromptFiles` setting
-accordingly — see "Critical Things Not to Get Wrong".
+Random AI prompt + image generator. Node.js (ES modules). Open source, by junebug12851.
+
+**The repo holds two separate engines (zero shared code):**
+
+- **`engine-v3/` — the active project, and what this document describes.** An isomorphic prompt **engine**
+  (`src/core/`) authored in the **DPL** dynamic-prompt language, driven by a React/Vite **web SPA**
+  (`web-app/`), with SFW/NSFW gating. There is **no CLI or classic server here** — those were the old
+  system and now live only in `engine-v1-2/`.
+- **`engine-v1-2/` — the frozen pre-revival snapshot** (the literal 2022–2023 CommonJS system: yargs CLI +
+  Express/Pug web UI, restored from commit `241a148`). Complete, self-contained (its own
+  `package.json`/lockfile/`webui.bat`), runnable, **unmaintained, and on its way out**. Don't develop it.
+
+**Unless noted, every path below (`src/…`, `data/…`, `web-app/…`, `scripts/…`, `tests/…`) is relative to
+`engine-v3/`.** Inside engine-v3: all engine code lives under `src/`; all prompt content (lists, presets,
+CSV sources, and the `{#name}` dynamic-prompt generators) lives under `data/`; runtime/user data
+(`output/`, `user-settings.json`, `results.json`) stays at the engine-v3 root. The **one deliberate
+exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators are executable `.js`
+authored as prompt *content* (like lists), so they live under `data/`. (Expansions are deprecated,
+superseded by dynamic prompts.) The split is recorded in `notes/plans/engine-split.md`; the notes and the
+deeper path references in this file are still being reconciled to the new `engine-v3/` layout.
 
 ## Start Here
 
@@ -99,12 +109,14 @@ The full notes system is in `notes/`, organized by topic:
 ## Build / Run / Verify
 
 Node **24 LTS** (`.nvmrc` pins `24`; `package.json` `engines` requires `>=24`). The repo runs on the
-local Windows machine; use **PowerShell** to run anything.
+local Windows machine; use **PowerShell** to run anything, and **run everything from `engine-v3/`**
+(that's where the project's `package.json` lives). The frozen `engine-v1-2/` is a separate project with
+its own deps + start scripts (`cd engine-v1-2 && npm install && node index.js` / `node server.js`).
 
 ```
+cd engine-v3           # the project lives here — run all the below from engine-v3/
 npm install            # install deps
-npm start              # run the CLI generator (node index.js)
-npm run server         # start the web UI on http://localhost:7861 (node server.js; also webui.bat)
+npm run web            # start the web SPA (Vite dev server)
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
