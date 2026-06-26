@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Loader implementation (browser): Vite import.meta.glob bundles prompts / lists / expansions / presets at build time.
+ * @brief Loader implementation (browser): Vite import.meta.glob bundles prompts / lists / presets at build time.
  */
 
 // Browser loader: bundles the prompt data at build time via Vite's
@@ -69,35 +69,6 @@ const metaModules = import.meta.glob("../../data/lists/**/*.json", {
   eager: true,
   import: "default",
 });
-const expansionRaw = import.meta.glob("../../data/expansions-obsolete/**/*.txt", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-});
-const expansionMetaModules = import.meta.glob("../../data/expansions-obsolete/**/*.json", {
-  eager: true,
-  import: "default",
-});
-const expForcePrefixFiles = import.meta.glob("../../data/expansions-obsolete/**/_force-prefix", {
-  eager: true,
-});
-const expGroupRaw = import.meta.glob("../../data/expansions-obsolete/**/*.group", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-});
-const expEnableGroupFiles = import.meta.glob(
-  "../../data/expansions-obsolete/**/_enable-group-list",
-  {
-    eager: true,
-  },
-);
-const expDisableGroupFiles = import.meta.glob(
-  "../../data/expansions-obsolete/**/_disable-group-list",
-  {
-    eager: true,
-  },
-);
 const presetModules = import.meta.glob("../../data/presets/*.json", {
   eager: true,
   import: "default",
@@ -176,18 +147,6 @@ for (const [path, raw] of Object.entries(groupRaw)) {
   if (!isInternal(key)) groupLines[key] = String(raw).split("\n");
 }
 
-const expansionText = {};
-for (const [path, raw] of Object.entries(expansionRaw)) {
-  const key = keyFor(path, "expansions-obsolete");
-  if (!isInternal(key)) expansionText[key] = String(raw);
-}
-
-const expansionMetaMap = {};
-for (const [path, obj] of Object.entries(expansionMetaModules)) {
-  const key = keyFor(path, "expansions-obsolete");
-  if (!isInternal(key)) expansionMetaMap[key] = obj;
-}
-
 const presets = {};
 for (const [path, obj] of Object.entries(presetModules)) {
   presets[keyFor(path, "presets")] = obj;
@@ -211,12 +170,6 @@ for (const [path, raw] of Object.entries(dpGroupRaw)) {
   if (!isInternal(key)) dpGroupLines[key] = String(raw).split("\n");
 }
 
-const expGroupLines = {};
-for (const [path, raw] of Object.entries(expGroupRaw)) {
-  const key = keyFor(path, "expansions-obsolete");
-  if (!isInternal(key)) expGroupLines[key] = String(raw).split("\n");
-}
-
 // Folders (relative to data/lists) that contain a `_`-prefixed marker file.
 const markerDirs = (files, marker, seg = "lists") =>
   Object.keys(files).map((p) => {
@@ -224,7 +177,6 @@ const markerDirs = (files, marker, seg = "lists") =>
     return p.slice(i + `/${seg}/`.length).replace(new RegExp(`/${marker}$`), "");
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
-const expForcedDirs = markerDirs(expForcePrefixFiles, "_force-prefix", "expansions-obsolete");
 const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
 const dpForcedDirs = dpForcedDirsAll.filter((d) => d.startsWith("v3/"));
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
@@ -233,7 +185,7 @@ const groupListDirs = autoGroupListDirs(
   markerDirs(enableGroupFiles, "_enable-group-list"),
   markerDirs(disableGroupFiles, "_disable-group-list"),
 );
-// Implied groups for dynamic prompts (v2 folder with 2+ generators) and expansions.
+// Implied groups for dynamic prompts: a v3 category folder with 2+ generators.
 const dpGroupDirs = autoGroupListDirs(
   [...dynamicPromptKeys].filter((n) => n.startsWith("v3/")),
   markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts").filter((d) =>
@@ -249,24 +201,12 @@ const dpGroupDirsAll = autoGroupListDirs(
   markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
   markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
 );
-const expGroupDirs = autoGroupListDirs(
-  Object.keys(expansionText),
-  markerDirs(expEnableGroupFiles, "_enable-group-list", "expansions-obsolete"),
-  markerDirs(expDisableGroupFiles, "_disable-group-list", "expansions-obsolete"),
-);
-
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
- * `readExpansion`, `readListLines`, `listNames`, `expansionNames`, `loadDynamicPrompt`,
- * `dynamicPromptNames`, `presetNames`, `loadPreset`.
+ * `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`, `presetNames`, `loadPreset`.
  * @type {object}
  */
 export const browserLoader = {
-  readExpansion(name) {
-    // Expansions nest into category folders; resolve a bare/partial `<name>` by path
-    // suffix (same rule as lists) so `<rays>` still finds `lighting/rays`.
-    return expansionText[resolveName(name, Object.keys(expansionText))] ?? null;
-  },
   readListLines(name, includeAdult = false) {
     const names = allListNames([
       ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
@@ -298,21 +238,6 @@ export const browserLoader = {
   },
   readListMeta(name) {
     return listMetaMap[name] ?? null;
-  },
-  expansionNames() {
-    return Object.keys(expansionText);
-  },
-  readExpansionMeta(name) {
-    return expansionMetaMap[name] ?? null;
-  },
-  expansionForcedPrefixDirs() {
-    return expForcedDirs;
-  },
-  expansionGroupDirs() {
-    return expGroupDirs;
-  },
-  readExpansionGroup(name) {
-    return expGroupLines[name] ?? null;
   },
   loadDynamicPrompt(key) {
     if (dplModCache[key]) return dplModCache[key];

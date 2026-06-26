@@ -165,13 +165,6 @@ export default {
   /*--keywords <name>*/
   keywordsFilename: "keyword",
 
-  // When specifying expansions in the prompts, it searches this folder for them
-  // An expansion is a keyword which expands out to the contents of a file
-  // Expansions can expand out to list files which can expand out to random words
-  // To use an expansion, use <filename>
-  /*--expansion-files <path>*/
-  expansionFiles: "./data/expansions",
-
   // When specifying presets in the command, it searches this folder for them
   // Presets override settings however command-line arguments always override last
   /*--preset-files <path>*/
