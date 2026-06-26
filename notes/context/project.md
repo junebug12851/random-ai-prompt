@@ -1,5 +1,10 @@
 # What This Project Is
 
+> **Update (2026-06-25):** the active project is now **`engine-v3/`** — the prompt engine + React SPA. The
+> CLI, classic Express/Pug server, animations, variations/re-rolls/upscales, and expansions described below
+> are the **pre-revival** system, preserved frozen in **`engine-v1-2/`** (on its way out). engine-v3 is
+> v3-only with no expansions. See [`../plans/engine-split.md`](../plans/engine-split.md).
+
 **random-ai-prompt** is a Node.js tool that **generates random/dynamic text prompts for AI image
 generation** and (optionally) drives the **Stable Diffusion WebUI** API to turn those prompts into
 images, animations, variations, re-rolls, and upscales.

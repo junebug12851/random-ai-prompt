@@ -1,5 +1,9 @@
 # The React SPA — `web-app/`
 
+> **Location (2026-06-25):** the SPA now lives at **`engine-v3/web-app/`** (engine-v3 is the single active
+> project). engine-v3 is **v3-only**, and the legacy expansion features (the "Expansions" building-block
+> tab + the "Save as Expansion" feature) were removed. See [`../plans/engine-split.md`](../plans/engine-split.md).
+
 A standalone **React 19 + Vite 6** single-page app (`web-app/`, its own `package.json`). It runs the
 **real prompt engine in the browser** ([core-engine.md](core-engine.md)) and generates images through a
 modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml` builds and deploys; see
