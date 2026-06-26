@@ -19,6 +19,7 @@ import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
 import { ingestImage } from "../lib/output.js";
+import { effectiveKey } from "../lib/sessionKeys.js";
 import WrapperButton from "./WrapperFab.jsx";
 import Gallery from "./Gallery.jsx";
 import ProviderBox from "./ProviderBox.jsx";
@@ -136,8 +137,13 @@ export default function Home({ settings, setSettings }) {
     setImgBusy(idx);
     try {
       const generate = await provider.loadGenerate();
-      const key = settings.keys?.[provider.id];
-      const { images: imgs } = await generate({ prompt: promptText, settings: flat, key });
+      const key = effectiveKey(provider.id, settings);
+      // The negative prompt may contain DPL — roll it out like the main prompt before sending.
+      const negative = flat.negativePrompt
+        ? expandPrompt(flat.negativePrompt, { ...settings, mode: flat.mode })
+        : "";
+      const genSettings = { ...flat, negativePrompt: negative };
+      const { images: imgs } = await generate({ prompt: promptText, settings: genSettings, key });
       // Funnel every provider's images into the central output folder, then display the saved
       // copies (also fixes Comfy Desktop's 403 on direct /view loads).
       const saved = await Promise.all((imgs || []).map(ingestImage));

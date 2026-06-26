@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import Settings from "../src/components/Settings.jsx";
 import ProviderBox from "../src/components/ProviderBox.jsx";
 import { defaultSettings } from "../src/lib/settings.js";
@@ -32,15 +32,18 @@ describe("Settings (gear) — prompt knobs only", () => {
 });
 
 describe("ProviderBox — the provider's own controls", () => {
-  it("shows a BYOK key field for a hosted provider", () => {
+  it("is collapsed by default and reveals the BYOK key field when expanded", () => {
     render(<Harness Comp={ProviderBox} overrides={{ provider: "openai" }} />);
-    expect(screen.getByText("API key")).toBeTruthy();
+    // Collapsed: header shows the provider, key field hidden.
     expect(screen.getByText(/OpenAI/)).toBeTruthy();
+    expect(screen.queryByText("API key")).toBeNull();
+    // Expand via the header button.
+    fireEvent.click(screen.getByRole("button"));
+    expect(screen.getByText("API key")).toBeTruthy();
   });
 
-  it("shows the local provider's controls once its schema loads", async () => {
+  it("shows the local provider's header once its schema loads", async () => {
     render(<Harness Comp={ProviderBox} overrides={{ provider: "local-webui" }} />);
-    // The box mounts empty (no key, fields load async), then appears with the provider header.
     expect(await screen.findByText(/Local Stable Diffusion WebUI/)).toBeTruthy();
   });
 });

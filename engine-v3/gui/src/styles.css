@@ -1473,3 +1473,111 @@ button.ghost:hover {
   background: var(--bg-2);
   box-shadow: none;
 }
+
+/* ---------- Provider box: collapsible head + body ---------- */
+.provider-box-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  color: var(--fg);
+}
+.provider-box-head:hover {
+  border: none;
+}
+.provider-box-head:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.provider-box-head .disclosure {
+  color: var(--muted);
+  font-size: 0.8rem;
+  width: 0.9rem;
+  flex: none;
+}
+.provider-box-hint {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.provider-box-body {
+  margin-top: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* ---------- Info tooltip ("i") ---------- */
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-style: normal;
+  cursor: help;
+  vertical-align: middle;
+  flex: none;
+}
+.info-tip:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- API key row ---------- */
+.key-row {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-end;
+}
+.key-row .field {
+  flex: 1;
+  min-width: 0;
+}
+.key-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex: none;
+}
+
+/* ---------- Wide field (negative prompt textarea, key) ---------- */
+.field-wide {
+  grid-column: 1 / -1;
+}
+.field-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.field-roll {
+  margin-left: auto;
+  padding: 0.12rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
+}
+.field-roll:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.provider-box textarea {
+  width: 100%;
+  min-height: 3.6rem;
+}

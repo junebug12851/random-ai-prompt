@@ -22,7 +22,7 @@ export default {
     { key: "imageWidth", label: "Width", type: "number", min: 64, max: 2048, step: 64 },
     { key: "imageHeight", label: "Height", type: "number", min: 64, max: 2048, step: 64 },
     { key: "seed", label: "Seed (-1 = random)", type: "number" },
-    { key: "negativePrompt", label: "Negative prompt", type: "text" },
+    { key: "negativePrompt", label: "Negative prompt", type: "textarea" },
   ],
   data: {
     samplers: () => import("./data/samplers.json").then((m) => m.default),
