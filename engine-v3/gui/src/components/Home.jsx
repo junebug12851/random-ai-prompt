@@ -6,22 +6,53 @@
  * clear / save / share), inline save + share panels, and the generated-prompt
  * list.
  *
- * Temporarily removed (see notes/plans/removed-pending-readd.md): image
- * generation, the chaos knob, presets, and the Normal/Anime style toggle (the
- * anime word lists mix SFW + explicit adult tags and need a proper split first).
+ * Image generation is back (per the active provider: api-tier renders into the Gallery;
+ * the syntax tier copies a formatted prompt). Still removed (see
+ * notes/plans/removed-pending-readd.md): the chaos knob, presets, and the Normal/Anime style
+ * toggle (the anime word lists mix SFW + explicit adult tags and need a proper split first).
  * @module gui/components/Home
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getBlocks, generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
+import { getProvider } from "../lib/providers/index.js";
+import { flattenForProvider } from "../lib/useProvider.js";
 import WrapperButton from "./WrapperFab.jsx";
+import Gallery from "./Gallery.jsx";
+
+const ImageIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
 // Crisp monochrome action icons (stroke = currentColor) so the four field
 // buttons read as one cohesive set.
-const ico = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+const ico = {
+  width: 18,
+  height: 18,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
 const ShareIcon = () => (
   <svg {...ico} aria-hidden="true">
     <circle cx="18" cy="5" r="3" />
@@ -71,6 +102,48 @@ export default function Home({ settings, setSettings }) {
 
   const blocks = useMemo(() => getBlocks(), [version]);
 
+  // --- Active image provider (selection lives in settings; knobs are per-provider) ---
+  const provider = getProvider(settings.provider);
+  const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
+  const [providerDefaults, setProviderDefaults] = useState({});
+  const [images, setImages] = useState([]);
+  const [imgBusy, setImgBusy] = useState(-1); // index currently rendering, or -1
+  const [imgError, setImgError] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    const p = getProvider(settings.provider);
+    Promise.resolve(p?.loadSettings ? p.loadSettings() : { defaults: {} }).then(
+      (m) => alive && setProviderDefaults(m?.defaults || {}),
+    );
+    if (p?.loadFormat) p.loadFormat().then((f) => alive && setProviderFmt(() => f));
+    else setProviderFmt(null);
+    return () => {
+      alive = false;
+    };
+  }, [settings.provider]);
+
+  // The flat settings an adapter/formatter reads: app settings + this provider's namespaced
+  // params (under its schema defaults) + the dialect mode.
+  const flat = flattenForProvider(settings, providerDefaults);
+  const canGenerateImages = provider?.tier === "api" && !!provider?.loadGenerate;
+
+  // Render images for one expanded prompt via the active provider's generate adapter.
+  async function makeImage(idx, promptText) {
+    setImgError("");
+    setImgBusy(idx);
+    try {
+      const generate = await provider.loadGenerate();
+      const key = settings.keys?.[provider.id];
+      const { images: imgs } = await generate({ prompt: promptText, settings: flat, key });
+      setImages((prev) => [...(imgs || []), ...prev]);
+    } catch (e) {
+      setImgError(e.message || String(e));
+    } finally {
+      setImgBusy(-1);
+    }
+  }
+
   const prompt = settings.prompt;
   const setPrompt = (p) => setSettings({ ...settings, prompt: p });
 
@@ -99,7 +172,13 @@ export default function Home({ settings, setSettings }) {
 
   // --- Building-block hover tooltip (label + description + a refreshing example) ---
   const showTip = (item, e) =>
-    setTip({ token: item.token, label: item.label, description: item.description, x: e.clientX, y: e.clientY });
+    setTip({
+      token: item.token,
+      label: item.label,
+      description: item.description,
+      x: e.clientX,
+      y: e.clientY,
+    });
   const moveTip = (e) => setTip((t) => (t ? { ...t, x: e.clientX, y: e.clientY } : t));
   const hideTip = () => setTip(null);
 
@@ -113,7 +192,13 @@ export default function Home({ settings, setSettings }) {
     }
     const roll = () => {
       try {
-        setTipEx(expandPrompt(tipToken, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }));
+        setTipEx(
+          expandPrompt(tipToken, {
+            ...settingsRef.current,
+            autoAddFx: false,
+            autoAddArtists: false,
+          }),
+        );
       } catch {
         setTipEx("");
       }
@@ -141,22 +226,35 @@ export default function Home({ settings, setSettings }) {
       const w =
         !settings.wrapperName || settings.wrapperName === "Default"
           ? getDefaultWrapper()
-          : settings.wrapper ?? getDefaultWrapper();
+          : (settings.wrapper ?? getDefaultWrapper());
       const count = Math.max(1, Number(settings.promptCount) || 1);
       // Whether blocks may contribute their own `Auto Begin` / `Auto End` framing (default on). When
       // off, only the user wrapper (or None) frames the prompt — no input from any block.
       const useAuto = settings.useAutoSections !== false;
       const out = [];
       for (let i = 0; i < count; i++) {
-        const wrapped = [renderWrapperPart(w.start, settings), text, renderWrapperPart(w.end, settings)]
+        const wrapped = [
+          renderWrapperPart(w.start, settings),
+          text,
+          renderWrapperPart(w.end, settings),
+        ]
           .map((s) => (s || "").trim())
           .filter(Boolean)
           .join(", ");
         const sink = { begin: [], end: [] };
-        const result = generatePrompt({ ...settings, prompt: wrapped, autoSink: useAuto ? sink : null });
+        // mode comes from the active provider's dialect (provider owns the dialect).
+        const result = generatePrompt({
+          ...settings,
+          mode: flat.mode,
+          prompt: wrapped,
+          autoSink: useAuto ? sink : null,
+        });
         // Fold each fired block's Auto Begin / Auto End into the prompt's start / end.
         const framed = useAuto
-          ? [sink.begin.join(", "), result, sink.end.join(", ")].map((s) => s.trim()).filter(Boolean).join(", ")
+          ? [sink.begin.join(", "), result, sink.end.join(", ")]
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .join(", ")
           : result;
         out.push(framed);
       }
@@ -186,9 +284,11 @@ export default function Home({ settings, setSettings }) {
     }
   }
 
-
+  // Copy the prompt. For a syntax/plain provider (e.g. Midjourney) copy the FORMATTED prompt
+  // (with the provider's --params), which is the whole point of the syntax tier.
   function copyPrompt(p) {
-    navigator.clipboard?.writeText(p).catch(() => {});
+    const text = provider?.tier !== "api" && providerFmt ? providerFmt(p, flat) : p;
+    navigator.clipboard?.writeText(text).catch(() => {});
   }
 
   // Filter blocks by the single search box (matches token or label). Category pills
@@ -231,7 +331,12 @@ export default function Home({ settings, setSettings }) {
       <aside className="sidebar">
         <div className="panel-head">
           <h3 className="panel-title">Building blocks</h3>
-          <input className="picker-filter" placeholder="Search blocks…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input
+            className="picker-filter"
+            placeholder="Search blocks…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
 
         {filtered.length === 0 ? (
@@ -268,7 +373,11 @@ export default function Home({ settings, setSettings }) {
                         {i.label}
                       </button>
                     ) : (
-                      <span key={`cat-${i.label}-${idx}`} className="cat-pill" title={i.description || i.label}>
+                      <span
+                        key={`cat-${i.label}-${idx}`}
+                        className="cat-pill"
+                        title={i.description || i.label}
+                      >
                         {i.label}
                       </span>
                     )
@@ -285,7 +394,11 @@ export default function Home({ settings, setSettings }) {
                     </button>
                   ),
                 )}
-                {activeItems.length > 400 && <span className="picker-more">+{activeItems.length - 400} more — keep typing to filter</span>}
+                {activeItems.length > 400 && (
+                  <span className="picker-more">
+                    +{activeItems.length - 400} more — keep typing to filter
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -302,10 +415,19 @@ export default function Home({ settings, setSettings }) {
               className="prompt-input"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={suggestion ? `Try: ${suggestion}` : "Type a prompt, or use the building blocks on the left…"}
+              placeholder={
+                suggestion
+                  ? `Try: ${suggestion}`
+                  : "Type a prompt, or use the building blocks on the left…"
+              }
             />
             {prompt && (
-              <button className="clear-x" onClick={() => setPrompt("")} title="Clear the prompt" aria-label="Clear the prompt">
+              <button
+                className="clear-x"
+                onClick={() => setPrompt("")}
+                title="Clear the prompt"
+                aria-label="Clear the prompt"
+              >
                 ✕
               </button>
             )}
@@ -323,7 +445,13 @@ export default function Home({ settings, setSettings }) {
               >
                 <ShareIcon />
               </button>
-              <button className="field-act" onClick={useSuggestion} disabled={!suggestion} title="Random — drop a suggestion in" aria-label="Random suggestion">
+              <button
+                className="field-act"
+                onClick={useSuggestion}
+                disabled={!suggestion}
+                title="Random — drop a suggestion in"
+                aria-label="Random suggestion"
+              >
                 <ShuffleIcon />
               </button>
               <button
@@ -365,19 +493,46 @@ export default function Home({ settings, setSettings }) {
           <section className="card results-card">
             <div className="results-head">
               <h2>Prompts</h2>
-              <span className="count">{prompts.length} generated</span>
+              <span className="count">
+                {prompts.length} generated · {provider?.label}
+              </span>
             </div>
             <ul className="prompts">
               {prompts.map((p, i) => (
                 <li key={i}>
                   <span className="idx">{String(i + 1).padStart(2, "0")}</span>
                   <span>{p}</span>
-                  <button className="copy-mini" title="Copy" onClick={() => copyPrompt(p)}>
+                  {canGenerateImages && (
+                    <button
+                      className="copy-mini"
+                      title={`Generate image with ${provider.label}`}
+                      onClick={() => makeImage(i, p)}
+                      disabled={imgBusy === i}
+                    >
+                      {imgBusy === i ? "…" : <ImageIcon />}
+                    </button>
+                  )}
+                  <button
+                    className="copy-mini"
+                    title={provider?.tier === "syntax" ? "Copy prompt with parameters" : "Copy"}
+                    onClick={() => copyPrompt(p)}
+                  >
                     copy
                   </button>
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {imgError && <p className="error">{imgError}</p>}
+        {images.length > 0 && (
+          <section className="card results-card">
+            <div className="results-head">
+              <h2>Images</h2>
+              <span className="count">{images.length}</span>
+            </div>
+            <Gallery images={images} />
           </section>
         )}
       </div>

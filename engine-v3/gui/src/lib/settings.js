@@ -74,6 +74,9 @@ export const defaultSettings = {
   provider: "local-webui",
   localWebuiUrl: "http://127.0.0.1:7860",
   keys: {}, // { [providerId]: "sk-..." } — kept in this browser only
+  // Per-provider knobs, namespaced so switching providers never clobbers another's values.
+  // Filled from each provider's own settings schema (gui/providers/<id>/settings.js).
+  providerParams: {}, // { [providerId]: { ...params } }
 
   // Image params
   sampler: "Euler",
