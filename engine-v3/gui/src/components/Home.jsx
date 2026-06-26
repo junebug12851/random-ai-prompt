@@ -23,6 +23,7 @@ import { effectiveKey } from "../lib/sessionKeys.js";
 import WrapperButton from "./WrapperFab.jsx";
 import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
+import Settings from "./Settings.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -62,6 +63,12 @@ const SparkleIcon = () => (
     <path d="M19 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
   </svg>
 );
+const GearIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
 
 /**
  * The compose workspace.
@@ -80,6 +87,7 @@ export default function Home({ settings, setSettings }) {
   const [panel, setPanel] = useState(""); // "" | "save" | "share"
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // prompt-settings gear popover
   // Hover tooltip for a building block: its label, description (piped from the v3 file /
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
@@ -525,6 +533,35 @@ export default function Home({ settings, setSettings }) {
                   aria-label="Prompts per run"
                 />
               </label>
+
+              <div className="field-menu-wrap">
+                <button
+                  className={`field-act${menuOpen ? " on" : ""}`}
+                  onClick={() => setMenuOpen((o) => !o)}
+                  title="Prompt settings"
+                  aria-label="Prompt settings"
+                  aria-pressed={menuOpen}
+                >
+                  <GearIcon />
+                </button>
+                {menuOpen && (
+                  <>
+                    <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
+                    <div className="gear-pop" role="dialog" aria-label="Prompt settings">
+                      <div className="gear-pop-head">
+                        <span>Prompt settings</span>
+                        <button className="link-btn" onClick={() => setMenuOpen(false)}>
+                          close
+                        </button>
+                      </div>
+                      <div className="gear-pop-body">
+                        <Settings settings={settings} setSettings={setSettings} />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
               <div className="grow" />
 
               <WrapperButton settings={settings} setSettings={setSettings} />

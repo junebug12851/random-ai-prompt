@@ -652,16 +652,22 @@ select {
 }
 .gallery figure {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  min-width: 0; /* let grid tracks shrink — images no longer blow out the columns */
+  position: relative;
+}
+.gallery figure > a {
+  display: block;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg-2);
 }
 .gallery img {
   width: 100%;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  height: 100%;
+  object-fit: cover;
   display: block;
-  background: var(--bg-2);
 }
 .gallery .dl {
   font-size: 0.78rem;
@@ -1705,11 +1711,67 @@ button.ghost:hover {
 /* loading placeholder (shimmer) + fade-in on load */
 .img-skeleton {
   aspect-ratio: 1 / 1;
+  min-width: 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: linear-gradient(100deg, var(--bg-2) 30%, var(--chip-hover) 50%, var(--bg-2) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.25s ease-in-out infinite;
+}
+
+/* ---------- Prompt-settings gear popover (next to the prompt count) ---------- */
+.field-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.gear-pop-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+.gear-pop {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  z-index: 42;
+  width: 340px;
+  max-width: 86vw;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.gear-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.gear-pop-body {
+  overflow: auto;
+  padding: 0.7rem 0.8rem 0.9rem;
+}
+/* Condensed, single-column settings inside the popover. */
+.gear-pop .settings {
+  gap: 0.6rem;
+}
+.gear-pop .group {
+  padding: 0.55rem 0.65rem 0.7rem;
+}
+.gear-pop .group h2 {
+  margin: 0 0 0.5rem;
+}
+.gear-pop .group-body {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
 @keyframes shimmer {
   from {
