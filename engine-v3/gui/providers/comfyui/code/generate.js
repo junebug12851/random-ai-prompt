@@ -32,17 +32,31 @@ export default async function generate({ prompt, settings, signal }) {
   g["3"].inputs.sampler_name = settings.sampler || "euler";
   g["3"].inputs.scheduler = settings.scheduler || "normal";
 
-  // Resolve the checkpoint against what ComfyUI actually has installed: use the configured
-  // name if it's valid, otherwise fall back to the first available — so a missing, blank, or
-  // stale checkpoint name self-heals instead of failing validation.
+  // Resolve checkpoint + sampler + scheduler against what THIS ComfyUI actually accepts, so a
+  // missing/blank/stale or SD-style value (e.g. "Euler" vs ComfyUI's "euler") self-heals instead
+  // of failing validation.
+  const pick = (list, value, fallback) => {
+    if (!list || !list.length) return value || fallback;
+    if (list.includes(value)) return value;
+    const ci = list.find((x) => String(x).toLowerCase() === String(value || "").toLowerCase());
+    if (ci) return ci;
+    return list.includes(fallback) ? fallback : list[0];
+  };
   let ckpt = settings.comfyCheckpoint;
   try {
-    const info = await getJson(`${base}/object_info/CheckpointLoaderSimple`, signal);
-    const list = info?.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
-    if (!ckpt || !list.includes(ckpt)) ckpt = list[0];
+    const [ckptInfo, ksInfo] = await Promise.all([
+      getJson(`${base}/object_info/CheckpointLoaderSimple`, signal),
+      getJson(`${base}/object_info/KSampler`, signal),
+    ]);
+    const ckptList = ckptInfo?.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
+    const samplerList = ksInfo?.KSampler?.input?.required?.sampler_name?.[0] || [];
+    const schedList = ksInfo?.KSampler?.input?.required?.scheduler?.[0] || [];
+    if (!ckpt || !ckptList.includes(ckpt)) ckpt = ckptList[0];
     if (!ckpt) {
       throw new Error("ComfyUI has no checkpoint models installed — add one to ComfyUI/models/checkpoints.");
     }
+    g["3"].inputs.sampler_name = pick(samplerList, settings.sampler, "euler");
+    g["3"].inputs.scheduler = pick(schedList, settings.scheduler, "normal");
   } catch (e) {
     if (!ckpt) throw e; // only fatal if there's also no configured fallback to try
   }
