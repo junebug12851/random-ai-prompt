@@ -1597,7 +1597,9 @@ button.ghost:hover {
 }
 
 /* ---------- Per-prompt result (prompt + image batches) ---------- */
-.prompt-result {
+/* Higher specificity than `.prompts li` so column + stretch actually win — otherwise the
+   gallery shrinks to content width (≈3 columns) and the placeholders stack. */
+.prompts li.prompt-result {
   flex-direction: column;
   gap: 0.6rem;
   align-items: stretch;

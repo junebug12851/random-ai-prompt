@@ -356,17 +356,8 @@ export default function Home({ settings, setSettings }) {
           : result;
         out.push({ id: nextId(), text: framed, batches: [] });
       }
-      // A new roll replaces the previous results — offer to delete their image files from disk.
-      const old = allImagesOf(prompts);
-      if (
-        old.length &&
-        confirm(
-          `New roll replaces the previous results — delete their ${old.length} image file(s) from disk too?`,
-        )
-      ) {
-        old.forEach(deleteImageFile);
-      }
-      setPrompts(out);
+      // A new roll ADDS to the list (use Clear all / per-prompt clear to remove results).
+      setPrompts((prev) => [...prev, ...out]);
       // Auto-render: kick off an image batch for each new prompt (api providers only).
       if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text));
     } catch (e) {
