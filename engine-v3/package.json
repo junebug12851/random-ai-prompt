@@ -51,5 +51,10 @@
     "prettier": "^3.0.0",
     "vitest": "^4.1.9",
     "wordpos": "^2.1.0"
+  },
+  "overrides": {
+    "@emnapi/runtime": "^1.11.1",
+    "@emnapi/core": "^1.11.1",
+    "@emnapi/wasi-threads": "^1.2.2"
   }
 }

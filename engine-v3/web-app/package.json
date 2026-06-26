@@ -26,5 +26,10 @@
     "jsdom": "^29.1.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.9"
+  },
+  "overrides": {
+    "@emnapi/runtime": "^1.11.1",
+    "@emnapi/core": "^1.11.1",
+    "@emnapi/wasi-threads": "^1.2.2"
   }
 }
