@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { exec } from "node:child_process";
-import { dispatch } from "./server/dispatch.js";
+import { dispatch, dispatchRewrite } from "./server/dispatch.js";
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
 const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
@@ -114,6 +114,19 @@ export function apiPlugin() {
             return send(res, 200, out);
           } catch (e) {
             return send(res, 502, { error: e.message || "Generation failed" });
+          }
+        }
+
+        // --- prompt rewrite (auto-fix) proxy ---
+        if (u.pathname === "/api/rewrite" && req.method === "POST") {
+          const body = await readJson(req);
+          const { providerId, prompt, key } = body;
+          if (!prompt) return send(res, 400, { error: "Missing prompt" });
+          try {
+            const out = await dispatchRewrite({ providerId, prompt, key });
+            return send(res, 200, out);
+          } catch (e) {
+            return send(res, 502, { error: e.message || "Rewrite failed" });
           }
         }
 

@@ -22,4 +22,5 @@ export default {
   },
   loadGenerate: () => import("./code/generate.js").then((m) => m.default),
   loadSettings: () => import("./settings.js").then((m) => m.default),
+  loadRewrite: () => import("./code/rewrite.js").then((m) => m.default),
 };

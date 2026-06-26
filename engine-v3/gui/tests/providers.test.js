@@ -17,14 +17,17 @@ afterEach(() => {
 describe("provider registry", () => {
   it("auto-discovers the bundled providers in local mode", () => {
     const ids = availableProviders().map((p) => p.id);
-    expect(ids).toContain("local-webui");
     expect(ids).toContain("comfyui");
+    expect(ids).toContain("forge");
     expect(ids).toContain("openai");
+    expect(ids).toContain("replicate");
     expect(ids).toContain("midjourney");
+    // The generic "local-webui" entry was retired (its adapter is reused by forge/sdnext).
+    expect(ids).not.toContain("local-webui");
   });
 
   it("getProvider returns the matching provider, or a sensible default", () => {
-    expect(getProvider("local-webui").id).toBe("local-webui");
+    expect(getProvider("comfyui").id).toBe("comfyui");
     expect(getProvider("does-not-exist")).toBeTruthy();
   });
 
@@ -79,7 +82,10 @@ describe("local WebUI provider — txt2img contract (via /api/forward proxy)", (
   });
 
   it("throws a descriptive error on a non-OK response", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) })),
+    );
     await expect(localWebuiGenerate({ prompt: "x", settings: {} })).rejects.toThrow(/returned 500/);
   });
 
@@ -94,7 +100,13 @@ describe("local WebUI provider — txt2img contract (via /api/forward proxy)", (
 
 describe("Midjourney formatter — parameter flags", () => {
   it("appends --v and the set parameters, and omits unset ones", () => {
-    const out = mjFormat("a fox::1.2", { version: "6.1", ar: "16:9", stylize: 250, tile: true, seed: "" });
+    const out = mjFormat("a fox::1.2", {
+      version: "6.1",
+      ar: "16:9",
+      stylize: 250,
+      tile: true,
+      seed: "",
+    });
     expect(out).toContain("a fox::1.2");
     expect(out).toContain("--v 6.1");
     expect(out).toContain("--ar 16:9");

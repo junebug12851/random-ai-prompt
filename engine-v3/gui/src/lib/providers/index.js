@@ -8,6 +8,7 @@ export {
   providers,
   availableProviders,
   getProvider,
+  rewriteProviders,
   ONLINE,
   DIALECTS,
   engineModeFor,

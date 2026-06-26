@@ -20,6 +20,7 @@ import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
+import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
 import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
@@ -62,6 +63,11 @@ const SparkleIcon = () => (
   <svg {...ico} fill="currentColor" stroke="none" aria-hidden="true">
     <path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" />
     <path d="M19 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
+  </svg>
+);
+const WandIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5" />
   </svg>
 );
 const GearIcon = () => (
@@ -125,7 +131,7 @@ export default function Home({ settings, setSettings }) {
   // Add a fresh batch of images beneath a prompt via the active provider's generate adapter.
   // `promptText` is passed for auto-render (state may not be committed yet); manual clicks omit it.
   async function makeBatch(promptId, promptText) {
-    const text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
+    let text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
     if (!text) return;
     const batchId = nextId();
     const count = Math.max(1, Number(flat.batchSize) || 1);
@@ -138,6 +144,37 @@ export default function Home({ settings, setSettings }) {
       ),
     );
     try {
+      // Auto-fix: rewrite the prompt with the chosen text provider before image gen (once per prompt).
+      if (settings.autoFix && settings.rewriteProvider && settings.rewriteProvider !== "none") {
+        const existing = prompts.find((x) => x.id === promptId);
+        if (existing?.original) {
+          text = existing.text || text; // already rewritten — reuse the cleaned prompt
+        } else {
+          const rkey = effectiveKey(settings.rewriteProvider, settings);
+          if (!rkey) {
+            setImgError(
+              "Auto-fix is on but the rewrite provider has no API key (gear → Auto-fix).",
+            );
+          } else {
+            try {
+              const fixed = await rewritePrompt({
+                providerId: settings.rewriteProvider,
+                prompt: text,
+                key: rkey,
+              });
+              if (fixed && fixed.trim()) {
+                const orig = text;
+                text = fixed.trim();
+                setPrompts((ps) =>
+                  ps.map((x) => (x.id === promptId ? { ...x, original: orig, text } : x)),
+                );
+              }
+            } catch (e) {
+              setImgError("Auto-fix failed: " + (e.message || e));
+            }
+          }
+        }
+      }
       const generate = await provider.loadGenerate();
       const key = effectiveKey(provider.id, settings);
       // The negative prompt may contain DPL — roll it out like the main prompt before sending.
@@ -584,6 +621,17 @@ export default function Home({ settings, setSettings }) {
 
               <div className="grow" />
 
+              {settings.rewriteProvider && settings.rewriteProvider !== "none" && (
+                <button
+                  className={`field-act${settings.autoFix ? " on" : ""}`}
+                  onClick={() => setSettings({ ...settings, autoFix: !settings.autoFix })}
+                  title={`Auto-fix the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} before generating`}
+                  aria-pressed={!!settings.autoFix}
+                  aria-label="Auto-fix prompt"
+                >
+                  <WandIcon />
+                </button>
+              )}
               <LivePreview
                 getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
                 settings={settings}

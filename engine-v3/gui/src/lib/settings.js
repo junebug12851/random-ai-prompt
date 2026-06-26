@@ -70,12 +70,17 @@ export const defaultSettings = {
 
   // Generation / providers
   generateImages: false,
-  provider: "local-webui",
+  provider: "comfyui",
   localWebuiUrl: "http://127.0.0.1:7860",
   keys: {}, // { [providerId]: "sk-..." } — kept in this browser only
   // Per-provider knobs, namespaced so switching providers never clobbers another's values.
   // Filled from each provider's own settings schema (gui/providers/<id>/settings.js).
   providerParams: {}, // { [providerId]: { ...params } }
+
+  // Auto-fix: a text provider (OpenAI/Gemini/Grok) that rewrites the prompt before image gen.
+  // "none" = off (and the prompt-box toggle is hidden). `autoFix` is the on/off toggle.
+  rewriteProvider: "none",
+  autoFix: false,
 
   // Image params
   sampler: "Euler",
@@ -100,6 +105,8 @@ function migrate(settings) {
     s.keywordsFilename = "keyword";
   if (s.artistFilename === "d-artist" || s.artistFilename === "d/artist")
     s.artistFilename = "artist";
+  // The generic "Local Stable Diffusion WebUI" entry was retired; Forge is the same sdapi.
+  if (s.provider === "local-webui") s.provider = "forge";
   return s;
 }
 

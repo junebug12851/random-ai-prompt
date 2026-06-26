@@ -43,7 +43,7 @@ describe("ProviderBox — the provider's own controls", () => {
   });
 
   it("shows the local provider's header once its schema loads", async () => {
-    render(<Harness Comp={ProviderBox} overrides={{ provider: "local-webui" }} />);
-    expect(await screen.findByText(/Local Stable Diffusion WebUI/)).toBeTruthy();
+    render(<Harness Comp={ProviderBox} overrides={{ provider: "forge" }} />);
+    expect(await screen.findByText(/Forge WebUI/)).toBeTruthy();
   });
 });

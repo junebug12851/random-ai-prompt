@@ -48,3 +48,27 @@ export async function dispatch({ providerId, prompt, key, params }) {
   if (!key) throw new Error("Missing API key.");
   return adapter({ prompt, key, params });
 }
+
+import openaiRewrite from "../providers/openai/code/rewrite.js";
+import geminiRewrite from "../providers/gemini/code/rewrite.js";
+import grokRewrite from "../providers/grok/code/rewrite.js";
+
+/** @type {Record<string, (args: object) => Promise<{text: string}>>} Auto-fix text rewriters. */
+export const rewriteAdapters = {
+  openai: openaiRewrite,
+  gemini: geminiRewrite,
+  grok: grokRewrite,
+};
+
+/**
+ * Dispatch a prompt-rewrite (auto-fix) request to the chosen text provider.
+ * @param {object} req `{ providerId, prompt, key }`.
+ * @returns {Promise<{text: string}>}
+ * @throws {Error} If the provider can't rewrite or the key is missing.
+ */
+export async function dispatchRewrite({ providerId, prompt, key }) {
+  const adapter = rewriteAdapters[providerId];
+  if (!adapter) throw new Error(`"${providerId}" can't rewrite prompts.`);
+  if (!key) throw new Error("Missing API key for the rewrite provider.");
+  return adapter({ prompt, key });
+}

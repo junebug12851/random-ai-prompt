@@ -40,4 +40,11 @@ export function getProvider(id) {
   return providers.find((p) => p.id === id) || availableProviders()[0];
 }
 
+/**
+ * @returns {object[]} Providers that can rewrite a prompt (auto-fix) — i.e. expose `loadRewrite`.
+ */
+export function rewriteProviders() {
+  return providers.filter((p) => p.loadRewrite);
+}
+
 export { DIALECTS, engineModeFor };

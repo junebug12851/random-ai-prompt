@@ -1633,6 +1633,14 @@ button.ghost:hover {
 .prompt-dpl:hover {
   color: var(--accent);
 }
+.prompt-original {
+  color: var(--muted);
+}
+.prompt-original::before {
+  content: "original: ";
+  color: var(--faint);
+  font-weight: 700;
+}
 .prompt-text {
   min-width: 0;
   display: -webkit-box;

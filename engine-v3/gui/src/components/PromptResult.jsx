@@ -82,6 +82,15 @@ export default function PromptResult({
               {prompt.dpl}
             </code>
           )}
+          {prompt.original && (
+            <code
+              className="prompt-dpl prompt-original"
+              title="Original prompt (before auto-fix) — click to copy"
+              onClick={() => navigator.clipboard?.writeText(prompt.original).catch(() => {})}
+            >
+              {prompt.original}
+            </code>
+          )}
           <span className="prompt-text">{prompt.text}</span>
         </div>
         <div className="prompt-actions">
