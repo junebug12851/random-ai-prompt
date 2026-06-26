@@ -53,14 +53,13 @@ export const defaultSettings = {
   keywordAlternating: true,
   keywordAlternatingMaxLevels: 2,
 
-  // Artists
-  includeArtist: true,
+  // Artists / auto-append — off by default; artists & fx are expressed in the prompt (DPL)
+  // rather than auto-injected by counts. The keys remain so the engine has values to read.
+  includeArtist: false,
   minArtist: 0,
   maxArtist: 2,
-
-  // Auto-append + salt
-  autoAddArtists: true,
-  autoAddFx: true,
+  autoAddArtists: false,
+  autoAddFx: false,
   promptSalt: false,
   promptSaltStart: -1,
   noAnd: false,

@@ -1,30 +1,46 @@
 /**
- * @file Component test for the capability-driven Settings backend: the provider select is
- * present, selecting a hosted (BYOK) provider reveals its key field, and the old standalone
- * "Mode" dropdown is gone (the provider now owns the dialect).
+ * @file Component tests for the redesigned settings split: the gear's Settings holds only
+ * non-provider prompt knobs (no Provider picker, no Mode control, no keyword/artist counts),
+ * while the provider's own controls (incl. the BYOK key) render in the ProviderBox.
  */
 import { describe, it, expect } from "vitest";
 import { useState } from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Settings from "../src/components/Settings.jsx";
+import ProviderBox from "../src/components/ProviderBox.jsx";
 import { defaultSettings } from "../src/lib/settings.js";
 
-function Harness() {
-  const [s, setS] = useState({ ...defaultSettings });
-  return <Settings settings={s} setSettings={setS} />;
+function Harness({ Comp, overrides }) {
+  const [s, setS] = useState({ ...defaultSettings, ...overrides });
+  return <Comp settings={s} setSettings={setS} />;
 }
 
-describe("Settings — capability-driven backend", () => {
-  it("renders a Provider select and no standalone Mode control", () => {
-    render(<Harness />);
-    expect(screen.getByText("Provider")).toBeTruthy();
-    expect(screen.queryByText("Mode")).toBeNull();
+describe("Settings (gear) — prompt knobs only", () => {
+  it("shows vocabulary + emphasis knobs", () => {
+    render(<Harness Comp={Settings} />);
+    expect(screen.getByText("Keyword list")).toBeTruthy();
+    expect(screen.getByText("Emphasis")).toBeTruthy();
   });
 
-  it("reveals a BYOK key field when a hosted provider is selected", () => {
-    render(<Harness />);
-    const providerSelect = screen.getAllByRole("combobox")[0];
-    fireEvent.change(providerSelect, { target: { value: "openai" } });
-    expect(screen.getByText(/API key for OpenAI/i)).toBeTruthy();
+  it("no longer contains the provider picker, Mode, or keyword/artist counts", () => {
+    render(<Harness Comp={Settings} />);
+    expect(screen.queryByText("Provider")).toBeNull();
+    expect(screen.queryByText("Mode")).toBeNull();
+    expect(screen.queryByText(/Keywords \(min\)/)).toBeNull();
+    expect(screen.queryByText(/Min artists/)).toBeNull();
+  });
+});
+
+describe("ProviderBox — the provider's own controls", () => {
+  it("shows a BYOK key field for a hosted provider", () => {
+    render(<Harness Comp={ProviderBox} overrides={{ provider: "openai" }} />);
+    expect(screen.getByText("API key")).toBeTruthy();
+    expect(screen.getByText(/OpenAI/)).toBeTruthy();
+  });
+
+  it("shows the local provider's controls once its schema loads", async () => {
+    render(<Harness Comp={ProviderBox} overrides={{ provider: "local-webui" }} />);
+    // The box mounts empty (no key, fields load async), then appears with the provider header.
+    expect(await screen.findByText(/Local Stable Diffusion WebUI/)).toBeTruthy();
   });
 });

@@ -21,6 +21,7 @@ import { flattenForProvider } from "../lib/useProvider.js";
 import { ingestImage } from "../lib/output.js";
 import WrapperButton from "./WrapperFab.jsx";
 import Gallery from "./Gallery.jsx";
+import ProviderBox from "./ProviderBox.jsx";
 
 const ImageIcon = () => (
   <svg
@@ -411,6 +412,8 @@ export default function Home({ settings, setSettings }) {
 
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
+        <ProviderBox settings={settings} setSettings={setSettings} />
+
         <section className="card composer">
           {/* The prompt box is a chat-style field: a textarea with the actions
               docked along its bottom edge. */}
@@ -437,6 +440,22 @@ export default function Home({ settings, setSettings }) {
             )}
 
             <div className="field-bar">
+              <label className="field-count" title="Prompts per run">
+                <span className="field-count-x">×</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={settings.promptCount}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      promptCount: Math.max(1, Number(e.target.value) || 1),
+                    })
+                  }
+                  aria-label="Prompts per run"
+                />
+              </label>
               <div className="grow" />
 
               <WrapperButton settings={settings} setSettings={setSettings} />

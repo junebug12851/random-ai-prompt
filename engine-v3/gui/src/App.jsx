@@ -12,6 +12,7 @@ import { readSharedSettings } from "./lib/share.js";
 import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import SettingsDrawer from "./components/SettingsDrawer.jsx";
+import ProviderSelect from "./components/ProviderSelect.jsx";
 
 const GearIcon = () => (
   <svg
@@ -56,12 +57,13 @@ export default function App() {
           <span className="wordmark">Random AI Prompt</span>
         </div>
         <div className="topbar-spacer" />
+        <ProviderSelect settings={settings} setSettings={setSettings} />
         <NsfwToggle settings={settings} setSettings={setSettings} />
         <button
           className="settings-btn"
           onClick={() => setSettingsOpen(true)}
-          title="Settings"
-          aria-label="Open settings"
+          title="Prompt settings"
+          aria-label="Open prompt settings"
         >
           <GearIcon />
         </button>
