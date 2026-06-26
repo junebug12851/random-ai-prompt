@@ -58,18 +58,23 @@ random-ai-prompt/
 - The smoke test currently boots `common.js` (legacy) — retarget to the engine-v3 core path.
 - CRLF noise: the working tree shows mass `M` files with empty `git diff` (`core.autocrlf=true`) — ignore; stage only real changes.
 
-## Follow-ups (not blocking; the split is functional + green)
-- **Drop the expansion stage** — `engine-v3/data/expansions*` and the core `stages/expansion.js` + its slot
-  in `DEFAULT_ORDER` are still present. Removing them is a behavior change (snapshot tests), so it's its own
-  verified change.
-- **Sync `CLAUDE.md` + notes paths** — they still describe `src/…` at the repo root; everything is now under
-  `engine-v3/`.
-- **Doc-site paths** — `jsdoc.config.json` (left at root) + `scripts/build-docs.mjs` reference the old paths;
-  retarget for `engine-v3/` + root `notes/`.
-- **Root `VERSION` / fairyfox node** — decide whether `VERSION` lives at root or in `engine-v3/`, and how the
-  fairyfox registry tracks the relocated project.
-- **engine-v3 deps** — `express`/`pug`/`yargs`/`open`/`cli-progress` were classic-server/CLI deps; prune once
-  confirmed unused by the engine + scripts.
+## Follow-ups
+Done (2026-06-25): **engine-v3 deps pruned** (removed express/pug/yargs/open/cli-progress/crc — `npm install`
+dropped 149 packages, smoke + 84 tests green); **`CLAUDE.md` reframed** (intro + Build/Run scoped to
+engine-v3); **`status.md` + `context/architecture.md`** got structure banners; loose ends cleaned (stale
+:7861 server killed, stray log removed).
+
+Still open:
+- **Deeper notes sync** — `systems/*` (overview/cli/server/web-app/core-engine), the rest of `context/*`, and
+  inline `src/…` references throughout still describe the pre-split single tree. Banners added to the entry
+  docs; the body reconciliation is incremental.
+- **Doc-site paths** — `jsdoc.config.json` (left at root) + `scripts/build-docs.mjs` reference old paths;
+  retarget for `engine-v3/` + root `notes/`. (Not gated; the doc-site is git-ignored.)
+- **Drop the expansion stage** *(your call — behavior change)* — `engine-v3/data/expansions*` + the core
+  `stages/expansion.js` slot in `DEFAULT_ORDER` are still present; removing them changes output (snapshot
+  tests), so it's its own verified change.
+- **Root `VERSION` / fairyfox node** *(your call)* — decide whether `VERSION` lives at root or in `engine-v3/`,
+  and how the fairyfox registry tracks the relocated project. Plus whether to cut a PATCH release to `main`.
 
 ## See also
 - [`generate-page-triage.md`](generate-page-triage.md) — the Sweep prune this unblocks (trivial once isolated).
