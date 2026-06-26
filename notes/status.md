@@ -3,6 +3,14 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
+**Repository structure (split 2026-06-25):** the repo is now two separate projects that share no code.
+**`engine-v3/`** is the active project (the new core engine + SPA) — everything below describes it, and all
+commands run from `engine-v3/` (`cd engine-v3`). **`engine-v1-2/`** is the frozen pre-revival CommonJS
+snapshot (the old CLI + classic Express/Pug server), self-contained and runnable but unmaintained, on its
+way out. Much of the narrative below predates the split (it describes the old single-tree `src/` layout at
+the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
+lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
+
 **Version:** `2.6.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
@@ -149,5 +157,5 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `web-app` SPA `vite build` | ✅ green |
-| CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |
-| Server `node server.js` | ⚠️ imports + Express 5 routes validated; not launched live |
+| `engine-v1-2/` CLI (`node index.js`) | ✅ runs standalone — own deps, generated a prompt (2026-06-25). Frozen snapshot. |
+| `engine-v1-2/` classic server (`node server.js`) | ✅ boots the same way (also `webui.bat`); frozen. Image gen still needs an SD WebUI. |
