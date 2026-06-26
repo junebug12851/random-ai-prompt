@@ -34,3 +34,6 @@ gui/coverage/
 
 # Local-file storage backend (dev only)
 engine-v3/gui/.gui-storage.json
+
+# Generated images (runtime output)
+engine-v3/output/

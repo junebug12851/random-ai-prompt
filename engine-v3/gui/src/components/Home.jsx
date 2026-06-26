@@ -114,15 +114,17 @@ export default function Home({ settings, setSettings }) {
   const canGenerateImages = provider?.tier === "api" && !!provider?.loadGenerate;
 
   // Add a fresh batch of images beneath a prompt via the active provider's generate adapter.
-  async function makeBatch(promptId) {
-    const p = prompts.find((x) => x.id === promptId);
-    if (!p) return;
+  // `promptText` is passed for auto-render (state may not be committed yet); manual clicks omit it.
+  async function makeBatch(promptId, promptText) {
+    const text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
+    if (!text) return;
     const batchId = nextId();
+    const count = Math.max(1, Number(flat.batchSize) || 1);
     setImgError("");
     setPrompts((ps) =>
       ps.map((x) =>
         x.id === promptId
-          ? { ...x, batches: [...x.batches, { id: batchId, busy: true, images: [] }] }
+          ? { ...x, batches: [...x.batches, { id: batchId, busy: true, count, images: [] }] }
           : x,
       ),
     );
@@ -134,7 +136,7 @@ export default function Home({ settings, setSettings }) {
         ? expandPrompt(flat.negativePrompt, { ...settings, mode: flat.mode })
         : "";
       const { images: imgs } = await generate({
-        prompt: p.text,
+        prompt: text,
         settings: { ...flat, negativePrompt: negative },
         key,
       });
@@ -329,6 +331,8 @@ export default function Home({ settings, setSettings }) {
         out.push({ id: nextId(), text: framed, batches: [] });
       }
       setPrompts(out);
+      // Auto-render: kick off an image batch for each new prompt (api providers only).
+      if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text));
     } catch (e) {
       setError(e.message || String(e));
     }

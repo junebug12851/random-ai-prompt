@@ -647,8 +647,8 @@ select {
 /* ---------- Gallery ---------- */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem;
 }
 .gallery figure {
   margin: 0;
@@ -1700,4 +1700,29 @@ button.ghost:hover {
 .img-actions button:hover {
   background: rgba(0, 0, 0, 0.85);
   border-color: var(--accent);
+}
+
+/* loading placeholder (shimmer) + fade-in on load */
+.img-skeleton {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: linear-gradient(100deg, var(--bg-2) 30%, var(--chip-hover) 50%, var(--bg-2) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.25s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.result-img {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.result-img.loaded {
+  opacity: 1;
 }

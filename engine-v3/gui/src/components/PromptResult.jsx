@@ -5,7 +5,26 @@
  * in a new tab for now (galleries come later).
  * @module gui/components/PromptResult
  */
+import { useState } from "react";
 import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
+
+/**
+ * A result image that fades in once it has actually loaded.
+ * @param {object} props `{ src }`.
+ * @returns {JSX.Element}
+ */
+function ResultImage({ src }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <img
+      src={src}
+      alt="result"
+      className={`result-img${loaded ? " loaded" : ""}`}
+      loading="lazy"
+      onLoad={() => setLoaded(true)}
+    />
+  );
+}
 
 const ImageIcon = () => (
   <svg
@@ -85,13 +104,17 @@ export default function PromptResult({
             )}
           </div>
           {b.busy ? (
-            <div className="batch-loading">Rendering {b.images.length || ""} image(s)…</div>
+            <div className="gallery">
+              {Array.from({ length: b.count || 1 }).map((_, i) => (
+                <div key={i} className="img-skeleton" aria-label="rendering" />
+              ))}
+            </div>
           ) : (
             <div className="gallery">
               {b.images.map((img) => (
                 <figure key={img}>
                   <a href={img} target="_blank" rel="noreferrer" title="Open in a new tab">
-                    <img src={img} alt="result" />
+                    <ResultImage src={img} />
                   </a>
                   <div className="img-actions">
                     {isOutputFile(img) && (
