@@ -20,7 +20,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const notesDir = path.join(root, "notes");
 const outDir = path.join(root, "tmp", "jsdoc-tutorials");
 
-const REPO_DOCS = ["list-credits.md", "list-help.md", "Upgrade-2-0.md"];
+const REPO_DOCS = ["list-credits.md", "list-help.md"];
 
 const humanize = (s) => s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const titleOf = (md, fallback) => {
