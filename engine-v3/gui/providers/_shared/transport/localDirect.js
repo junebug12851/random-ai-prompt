@@ -11,6 +11,28 @@
 const FORWARD = "/api/forward";
 
 /**
+ * Turn an upstream error payload into a readable message. Local servers like ComfyUI return
+ * an `error` **object** plus per-node `node_errors`; without this, `String(error)` becomes the
+ * useless "[object Object]". Pull out the human text (and node validation details).
+ * @param {object} data The parsed upstream error body.
+ * @param {string} url The target URL.
+ * @param {number} status The HTTP status.
+ * @returns {string} A readable error message.
+ */
+function readableError(data, url, status) {
+  let msg = data?.error;
+  if (msg && typeof msg === "object") msg = msg.message || JSON.stringify(msg);
+  const nodeErrors = data?.node_errors;
+  if (nodeErrors && typeof nodeErrors === "object") {
+    const details = Object.values(nodeErrors)
+      .flatMap((n) => (n?.errors || []).map((e) => e.details || e.message))
+      .filter(Boolean);
+    if (details.length) msg = `${msg || "Validation failed"} — ${details.join("; ")}`;
+  }
+  return msg || `${url} returned ${status}`;
+}
+
+/**
  * Forward a request to a local server through the dev proxy (avoids CORS).
  * @param {string} url The absolute local URL (e.g. http://127.0.0.1:8188/prompt).
  * @param {string} method HTTP method.
@@ -27,7 +49,7 @@ async function forward(url, method, body, signal) {
     body: JSON.stringify({ url, method, body }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `${url} returned ${res.status}`);
+  if (!res.ok) throw new Error(readableError(data, url, res.status));
   return data;
 }
 

@@ -31,7 +31,22 @@ export default async function generate({ prompt, settings, signal }) {
   g["3"].inputs.cfg = settings.cfg ?? 7;
   g["3"].inputs.sampler_name = settings.sampler || "euler";
   g["3"].inputs.scheduler = settings.scheduler || "normal";
-  if (settings.comfyCheckpoint) g["4"].inputs.ckpt_name = settings.comfyCheckpoint;
+
+  // Resolve the checkpoint against what ComfyUI actually has installed: use the configured
+  // name if it's valid, otherwise fall back to the first available — so a missing, blank, or
+  // stale checkpoint name self-heals instead of failing validation.
+  let ckpt = settings.comfyCheckpoint;
+  try {
+    const info = await getJson(`${base}/object_info/CheckpointLoaderSimple`, signal);
+    const list = info?.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
+    if (!ckpt || !list.includes(ckpt)) ckpt = list[0];
+    if (!ckpt) {
+      throw new Error("ComfyUI has no checkpoint models installed — add one to ComfyUI/models/checkpoints.");
+    }
+  } catch (e) {
+    if (!ckpt) throw e; // only fatal if there's also no configured fallback to try
+  }
+  g["4"].inputs.ckpt_name = ckpt;
 
   const clientId =
     (typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID()) ||
