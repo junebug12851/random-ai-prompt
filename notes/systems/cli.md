@@ -1,5 +1,10 @@
 # The CLI runtime — `index.js`, `common.js`, `src/`, `helpers/`
 
+> **Frozen (2026-06-25):** this CLI is no longer part of the active project — it lives in the frozen
+> **`engine-v1-2/`** snapshot (pre-revival CommonJS, unmaintained, on its way out). The active project is
+> the **`engine-v3/`** SPA + core engine; there is no CLI there. This page describes engine-v1-2 as it was.
+> See [`../plans/engine-split.md`](../plans/engine-split.md).
+
 The workhorse. `node index.js [...flags]` (npm: `npm start`) parses argv, prepares the run, and drives
 the prompt + image loop. Shares its core with the web UI through `common.js`.
 

@@ -1,0 +1,17 @@
+{
+    "settings": {
+        "keywordCount": 5
+    },
+
+    "imageSettings": {
+        "cfg": 11
+    },
+
+    "upscaleSettings": {
+        "saveBeforeUpscale": true
+    },
+
+    "serverSettings": {
+        "port": 7861
+    }
+}

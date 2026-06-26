@@ -1,5 +1,10 @@
 # The web UI — `server.js`, `web/`
 
+> **Frozen (2026-06-25):** this classic Express/Pug server is no longer part of the active project — it
+> lives in the frozen **`engine-v1-2/`** snapshot (unmaintained, on its way out). The active UI is the
+> **`engine-v3/web-app/`** React SPA ([web-app.md](web-app.md)). This page describes engine-v1-2 as it was.
+> See [`../plans/engine-split.md`](../plans/engine-split.md).
+
 The local web UI: an **Express 5 + Pug** app on `serverSettings.port` (7861, npm: `npm run server` /
 `webui.bat`). It serves the pages + a JSON API + the `output/` images, and **spawns the CLI** for any
 actual generation — it does not generate in-process.

@@ -1,0 +1,145 @@
+button {
+	margin-right: 5px;
+  font-size: 15px;
+}
+
+#page-container {
+	display: grid;
+  	grid-template-columns: 1fr 2fr;
+  	grid-template-rows: 1fr 1fr;
+  	grid-template-areas:
+  		"info image"
+  		"info variations";
+
+  	gap: 25px;
+
+  	width: 100%;
+  	max-width: 1024px;
+  	margin: 0 auto;
+  	margin-top: 50px;
+}
+
+#info-cell {
+	grid-area: info;
+}
+
+#image-cell {
+	grid-area: image;
+  overflow: hidden;
+}
+
+/*
+ * Again, this grid cel takes up a huge amount of height, no idea why, tried
+ * fitting it to it's contents, i'd rather spend 12 hours diagnosing this another
+ * time.
+*/
+
+#variations-cell {
+	grid-area: variations;
+}
+
+#variation-images {
+  height: 256px;
+
+  /*
+   * Because I despise website design where you can't just describe the layout
+   * you have to do weird hacks to make simple stuff work. I can't say width 100%
+   * so what hacks am I supposed to do to make this work? I'll just make up an
+   * inflexible number and spend 12 hours later diagnosing why this doesn't work.
+  */
+  width: 660px;
+
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#variation-images img {
+  height: 256px;
+  width: 256px;
+  object-fit: contain;
+  border-radius: 15px;
+  margin-top: 15px;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+#keyword-container {
+    background-color: hsl(0.00,0.00%,23%);
+    padding: 10px;
+    padding-top: 10px;
+    border-radius: 15px;
+}
+
+#keywords {
+    margin-top: 10px;
+    height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    white-space: pre-wrap;
+}
+
+.keep-whitespace {
+  white-space: pre-wrap;
+}
+
+ul#keyword-cloud {
+  list-style-type: none; /* Remove the default bullet points */
+  margin: 0; /* Remove the default margin */
+  padding: 0; /* Remove the default padding */
+  margin-top: 10px;
+}
+
+ul#keyword-cloud li {
+  display: inline-block; /* Display the list items as inline blocks */
+}
+
+ul#keyword-cloud li a {
+    display: inline-block;
+    font-size: 12px;
+    background-color: hsl(0.00,0.00%,12.94%);
+    color: hsl(0.00,0.00%,98.04%);
+    border: 1px solid hsl(0.00,0.00%,75.04%);
+    padding: 5px;
+    border-radius: 10px;
+  text-decoration: none; /* Remove the default text decoration for links */
+    margin-top: 5px;
+}
+
+ul#keyword-cloud li a:hover {
+  background-color: hsl(0.00,0.00%,20%); /* Change the background color on hover */
+}
+
+ul#keyword-cloud li a:active {
+  background-color: hsl(0.00,0.00%,5%);
+}
+
+#image {
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.full-width-image {
+  width: 100%;
+  height: auto;
+  max-height: 512px;
+  object-fit: contain;
+}
+
+table a {
+  color: hsl(0.00,0.00%,98.04%);
+}
+
+#delete,
+#delete-confirmation-yes,
+#delete-frames,
+#delete-frames-confirmation-yes,
+#delete-upscales,
+#delete-upscales-confirmation-yes {
+  background-color: hsl(0.00,73.46%,41.37%);
+}
+
+#action-menu {
+  margin-right: 10px;
+}

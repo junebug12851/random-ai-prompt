@@ -2,6 +2,14 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
+00. **Old `/generate` carry-over — Sweep 1 (prune).** Full disposition of every legacy prompt-page control
+   in [`generate-page-triage.md`](generate-page-triage.md). Sweep 1 = drop the DPL-replaced randomization
+   knobs (chaos, keyword counts, auto-fx/artists, anime words), all animation settings, and the salt
+   settings — **in the new SPA/core engine only** (the classic `generate.pug` is frozen, being deleted).
+   Then Sweep 2 ports the keepers (`promptCount`, keyword/artist list selectors, F paths) into the SPA UI.
+   Sweeps 3–4 (park per-image actions for the image editor; provider abstraction + emphasis rework) are
+   later.
+
 0. **Web SPA bundle size.** The phase-3 engine port bundles the list/expansion text and all 113
    dynamic prompts eagerly (~712 KB gzipped). Trim it: serve the larger list files (`danbooru`, `d-*`)
    from `public/` via runtime fetch instead of inlining, switch dynamic-prompt imports to a lazy glob,

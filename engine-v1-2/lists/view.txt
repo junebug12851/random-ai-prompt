@@ -1,0 +1,7 @@
+helicopter view
+birdview
+ariel view
+groundview
+street view
+roadview
+telescope view

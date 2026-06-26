@@ -1,0 +1,9 @@
+node_modules/
+user-settings.js
+user-settings.json
+/output/**
+!**/.gitkeep
+results.json
+*.lnk
+*-private*
+*private-*

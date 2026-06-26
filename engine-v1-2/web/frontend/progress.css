@@ -1,0 +1,72 @@
+#container {
+  height: 100%;
+  margin-top: 15px;
+}
+
+#container, .sub-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* align vertically */
+  justify-content: center; /* align horizontally */
+  width: 100%;
+}
+
+#prompts {
+  max-width: 512px;
+}
+
+.progress-bar {
+  max-width: 512px;
+}
+
+img {
+  display: inline-block;
+  width: 256px;
+  border-radius: 15px;
+  margin-right: 15px;
+  margin-top: 15px;
+}
+
+#prompts-title {
+  width: 512px;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.divider {
+  border-top: 1px solid;
+}
+
+#minimal-progress-bar {
+  margin-top: -15px;
+}
+
+#minimal-progress-bar .progress-bar {
+  height: 3px;
+  position: relative;
+}
+
+#minimal-progress-bar .progress-bar .progress {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#expanded-progress-bar {
+  background-color: hsl(0.00,0.00%,20%);
+  margin-top: 25px;
+}
+
+.generating {
+  font-weight: bold;
+}
+
+.minimal-expand {
+  margin-top: 10px;
+  font-size: 14px;
+  padding: 7px;
+  line-height: 10px;
+  border-radius: 5px;
+/*  margin-bottom: -10px;*/
+}

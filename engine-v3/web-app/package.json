@@ -1,0 +1,35 @@
+{
+  "name": "random-ai-prompt-web",
+  "private": true,
+  "version": "2.0.8",
+  "type": "module",
+  "description": "React + Vite SPA front-end for random-ai-prompt (online BYOK or local).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "lodash": "^4.18.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/coverage-v8": "^4.1.9",
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
+  },
+  "overrides": {
+    "@emnapi/runtime": "^1.11.1",
+    "@emnapi/core": "^1.11.1",
+    "@emnapi/wasi-threads": "^1.2.2"
+  }
+}

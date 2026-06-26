@@ -1,5 +1,12 @@
 # System Map — Overview
 
+> **Structure note (2026-06-25):** the repo is now two separate projects — the active **`engine-v3/`**
+> (core engine + React SPA) and the frozen **`engine-v1-2/`** (the pre-revival CLI + classic Express/Pug
+> server). This page predates the split: the CLI/server sections below now describe **engine-v1-2**
+> (frozen, unmaintained); the core engine + SPA are **engine-v3** (paths under `engine-v3/`). engine-v3 is
+> also **v3-only** and the legacy `<expansion>` mechanism was removed. See
+> [`../plans/engine-split.md`](../plans/engine-split.md).
+
 A deeper walk-through of how the machine fits together. For the quick orientation see
 [`../context/architecture.md`](../context/architecture.md); for module-wiring rules see
 [`../reference/esm-patterns.md`](../reference/esm-patterns.md).

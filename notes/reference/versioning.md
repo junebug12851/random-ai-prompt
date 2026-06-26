@@ -45,11 +45,14 @@ ever add a place that needs the version (e.g. a footer in the web UI), **derive 
 ## Releases and git tags (the version gate)
 
 Releases are cut by `.github/workflows/release.yml`, gated on the tag **`v<VERSION>`** not already
-existing — so a release happens exactly when `master` advances on a commit that bumped `VERSION`:
+existing — so a release happens exactly when `main` advances on a commit that bumped `VERSION`:
 
-1. Bump `VERSION` (+ `package.json`) on `dev`, commit with its changelog entry, go green.
-2. Fast-forward `master` (the standing workflow). If `VERSION` changed, `release.yml` creates tag
-   `vX.Y.Z` and publishes the Release; if it didn't, the tag already exists and the run is a no-op.
+1. Bump `VERSION` (+ `package.json`) on `dev` for a PATCH, or on the `release/*` / `hotfix/*` branch for a
+   milestone/hotfix; commit with its changelog entry, go green.
+2. Advance `main` per the git-flow release path — a `--no-ff` merge + matching `vX.Y.Z` tag (PATCH
+   straight from `dev`; MINOR/MAJOR via a `release/*` branch — see [`git-workflow.md`](git-workflow.md)).
+   If `VERSION` changed, `release.yml` creates the tag and publishes the Release; if it didn't, the tag
+   already exists and the run is a no-op.
 3. A `-alpha`/`-beta`/`-rc` label marks the GitHub Release as a **prerelease**.
 
 `workflow_dispatch` with `dry_run=true` builds the artifacts without publishing. The full pipeline is in

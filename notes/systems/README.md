@@ -1,5 +1,10 @@
 # System Map {#rap_systems_about}
 
+> **Structure note (2026-06-25):** the repo is two projects now — the active **`engine-v3/`** (core engine
+> + SPA; v3-only, no expansions) and the frozen **`engine-v1-2/`** (pre-revival CLI + classic server). The
+> `cli`/`server` deep-dives describe the frozen engine-v1-2; `core-engine`/`web-app` describe engine-v3.
+> See [`../plans/engine-split.md`](../plans/engine-split.md).
+
 A structured account of how random-ai-prompt is built — the macro picture and the per-layer
 deep-dives. This is the "understand the whole machine" reference; it grows alongside the code.
 

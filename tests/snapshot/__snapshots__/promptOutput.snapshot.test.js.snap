@@ -1,5 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`DPL render snapshot (seeded) > is reproducible for a fixed seed 1`] = `"a quiet, meadow, at golden hour, with mist, with mist"`;
-
-exports[`engine pipeline snapshot (seeded) > locks the composite expansion output 1`] = `"a photo of misty forest, serene"`;

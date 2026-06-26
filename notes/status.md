@@ -3,15 +3,34 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Version:** `2.5.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Repository structure (split 2026-06-25):** the repo is now two separate projects that share no code.
+**`engine-v3/`** is the active project (the new core engine + SPA) — everything below describes it, and all
+commands run from `engine-v3/` (`cd engine-v3`). **`engine-v1-2/`** is the frozen pre-revival CommonJS
+snapshot (the old CLI + classic Express/Pug server), self-contained and runnable but unmaintained, on its
+way out. Much of the narrative below predates the split (it describes the old single-tree `src/` layout at
+the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
+lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
+
+**Version:** `2.6.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Content rating (2.6.1):** the SPA now defaults to **SFW** (`settings.includeAdult: false`) and carries a
+right-aligned **NSFW** toggle in the top-bar (`web-app/src/components/NsfwToggle.jsx`) — a stopgap until the
+options screen lands. Turning it ON requires a confirmation dialog; turning it OFF is immediate; the choice
+is remembered in the browser (it's part of `settings` → localStorage). The engine already gated on
+`includeAdult` (`core/listStore.js`, `core/stages/*`, `gatedLists.js`); this just exposes the switch. Still
+pending: the SFW/adult word-list split + re-adding the Style control (see
+[`plans/removed-pending-readd.md`](plans/removed-pending-readd.md)).
 
 **fairyfox mesh:** this repo is a node in the fairyfox system. Project-side onboarding is done — the
 `CLAUDE.md` mesh-awareness block ([`reference/cross-project-sync.md`](reference/cross-project-sync.md)),
 the notes/version/branch model, and a **fairyfox-themed docs site** ([`reference/documentation.md`](reference/documentation.md))
-are in place. The themed docs go live on the next `master` fast-forward + Pages deploy. Open (hub-side,
-for the owner): the hub `registry.yml` shows `branch: dev` (real default is `master`) and an overstated
-`adopts_hub`/docs-site flag — corrections to make in the `junebug12851.github.io` repo.
+are in place. The themed docs go live on the next `main` release + Pages deploy. **Branch model (adopted
+2026-06-25):** the project now follows the system's full **git-flow** standard, and `master` was renamed
+to **`main`** (see [`reference/git-workflow.md`](reference/git-workflow.md)). Open (hub-side, for the
+owner, in the `junebug12851.github.io` repo): the registry's `notes:` link still points at `tree/master/…`
+(update to `tree/main/…` after the default branch flips), and the `adopts_hub`/docs-site flag is overstated.
+The registry's `branch: dev` is **correct** — that field tracks the work branch, not the default branch.
 
 **Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
@@ -93,9 +112,11 @@ authored file, per-function JSDoc across all server-side code, all 113 dynamic p
 scripts, and the whole `web-app/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
-**First ship (2026-06-22): the deployment hold is lifted.** `master` was fast-forwarded off the pre-revival
-`241a148` up to the CI-green `dev` HEAD, and is kept **FF-only** (it only ever fast-forwards to a `dev` HEAD
-that has passed GitHub CI). Getting there required unbreaking CI first — both `npm ci` jobs were red on a
+**First ship (2026-06-22): the deployment hold is lifted.** The stable branch (then `master`, renamed to
+`main` on 2026-06-25) was first advanced off the pre-revival `241a148` up to the CI-green `dev` HEAD.
+As of the 2026-06-25 git-flow adoption it now advances by **`--no-ff` merge + tag** (PATCH straight from
+green `dev`, MINOR/MAJOR via a `release/*` branch) rather than fast-forward. Getting there required
+unbreaking CI first — both `npm ci` jobs were red on a
 lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
 (build/style only, no version bump). Active work continues on `dev`. **CI now runs the full gate** — lint,
 format:check, smoke, the Node + jsdom Vitest suites, the web-app build, and the Playwright E2E +
@@ -136,5 +157,5 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `web-app` SPA `vite build` | ✅ green |
-| CLI `node index.js` | ⚠️ imports validated; live run needs SD WebUI |
-| Server `node server.js` | ⚠️ imports + Express 5 routes validated; not launched live |
+| `engine-v1-2/` CLI (`node index.js`) | ✅ runs standalone — own deps, generated a prompt (2026-06-25). Frozen snapshot. |
+| `engine-v1-2/` classic server (`node server.js`) | ✅ boots the same way (also `webui.bat`); frozen. Image gen still needs an SD WebUI. |
