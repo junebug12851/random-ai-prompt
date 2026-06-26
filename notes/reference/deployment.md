@@ -8,15 +8,15 @@ How the project ships. There are three independent pipelines, each with one home
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `main`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
-| **Web app deploy** | `netlify.toml` | Builds + hosts the `web-app/` SPA on **Netlify** (separate from the GitHub release). |
+| **Web app deploy** | `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (separate from the GitHub release). |
 
 ## CI — `.github/workflows/ci.yml`
 
 Runs on push to `dev`/`main`, on PRs, and on demand. Node 24. Three jobs: (1) **check** — `npm ci`,
 then `npm run lint`, `npm run format:check`, `npm run smoke` (the [import smoke test](../plans/testing.md)),
-and `npm run test:unit` (the Node Vitest suite); (2) **web-app** — `npm --prefix web-app ci`, then
-`npm --prefix web-app run build` (the SPA is proven to build) and `npm --prefix web-app run test` (the jsdom
-Vitest suite); (3) **e2e** — installs root + web-app deps and the bundled Playwright chromium, then
+and `npm run test:unit` (the Node Vitest suite); (2) **gui** — `npm --prefix gui ci`, then
+`npm --prefix gui run build` (the SPA is proven to build) and `npm --prefix gui run test` (the jsdom
+Vitest suite); (3) **e2e** — installs root + gui deps and the bundled Playwright chromium, then
 `npm run test:e2e` (E2E + accessibility + **visual-regression**). Visual works cross-OS because baselines
 are committed per platform — `*-chromium-win32.png` (local, system Chrome) and `*-chromium-linux.png` (CI,
 bundled chromium); `playwright.config.js` picks the browser by `process.platform` and only skips visual when
@@ -27,7 +27,7 @@ means the same thing as green locally — it's the CI mirror of `npm test` + the
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
 Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** (Node 24, `npm ci`
-+ web-app `npm ci`, `npx playwright install --with-deps chromium`), then `playwright test visual.spec.js
++ gui `npm ci`, `npx playwright install --with-deps chromium`), then `playwright test visual.spec.js
 --update-snapshots`, and uploads `tests/e2e/visual.spec.js-snapshots/` as the `linux-visual-baselines`
 artifact. Because it renders in the exact environment the e2e job checks against, the baselines match CI.
 Workflow: trigger it (`gh workflow run visual-baselines.yml`), download the artifact, copy the
@@ -82,16 +82,16 @@ publishing: `gh workflow run release.yml -f dry_run=true`, then `gh run watch`.
 
 ## Web app deploy — `netlify.toml`
 
-The `web-app/` SPA is built and hosted on Netlify, independent of the GitHub release:
+The `gui/` SPA is built and hosted on Netlify, independent of the GitHub release:
 
 ```
-command   = npm --prefix web-app install && npm --prefix web-app run build
-publish   = web-app/dist
-functions = web-app/netlify/functions
+command   = npm --prefix gui install && npm --prefix gui run build
+publish   = gui/dist
+functions = gui/netlify/functions
 ```
 
 `/api/*` routes to the serverless functions (the stateless BYOK generation proxy — see
-[`../systems/web-app.md`](../systems/web-app.md)); every other path falls back to `index.html` for
+[`../systems/gui.md`](../systems/gui.md)); every other path falls back to `index.html` for
 client-side routing. Set `VITE_ONLINE=true` in the Netlify build env so the deployed build hides the
 local-only providers.
 
@@ -113,7 +113,7 @@ local-only providers.
   the single trigger for both the Pages docs deploy and the software Release, so nothing ships until the
   owner says go. Planned homes when ready: **GitHub Pages for the docs** (like the sibling project),
   **Netlify for the app** (functions).
-- The hosted BYOK provider dispatch in `web-app/netlify/functions/generate.js` is a stub (migration
+- The hosted BYOK provider dispatch in `gui/netlify/functions/generate.js` is a stub (migration
   phase 2). Local generation works today; the hosted path is wired but not yet pointed at a provider.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged
   binary is ever wanted.

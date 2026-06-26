@@ -1,10 +1,10 @@
-# The React SPA — `web-app/`
+# The React SPA — `gui/`
 
-> **Location (2026-06-25):** the SPA now lives at **`engine-v3/web-app/`** (engine-v3 is the single active
+> **Location (2026-06-25):** the SPA now lives at **`engine-v3/gui/`** (engine-v3 is the single active
 > project). engine-v3 is **v3-only**, and the legacy expansion features (the "Expansions" building-block
 > tab + the "Save as Expansion" feature) were removed. See [`../plans/engine-split.md`](../plans/engine-split.md).
 
-A standalone **React 19 + Vite 6** single-page app (`web-app/`, its own `package.json`). It runs the
+A standalone **React 19 + Vite 6** single-page app (`gui/`, its own `package.json`). It runs the
 **real prompt engine in the browser** ([core-engine.md](core-engine.md)) and generates images through a
 modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml` builds and deploys; see
 [`../reference/deployment.md`](../reference/deployment.md).
@@ -32,7 +32,7 @@ implements `{ id, label, local, needsKey, generate({prompt, settings, key, signa
 providers when deployed online** (`ONLINE` ← `VITE_ONLINE` env var) — one codebase serves both the local
 and the hosted build. Add a backend by dropping a module in `providers/` and registering it.
 
-## The Netlify function — `web-app/netlify/functions/generate.js`
+## The Netlify function — `gui/netlify/functions/generate.js`
 
 A **stateless BYOK proxy**: receives `{prompt, key, params}`, forwards to the chosen hosted API, polls
 until ready (submit→poll keeps each invocation within serverless time limits), returns image URLs.
@@ -42,6 +42,6 @@ browser calls the user's WebUI directly.
 
 ## Build / deploy
 
-`netlify.toml` (repo root): `npm --prefix web-app install && npm --prefix web-app run build` →
-`web-app/dist`, with `/api/*` routed to the functions and an SPA fallback to `index.html`. Details in
+`netlify.toml` (repo root): `npm --prefix gui install && npm --prefix gui run build` →
+`gui/dist`, with `/api/*` routed to the functions and an SPA fallback to `index.html`. Details in
 [`../reference/deployment.md`](../reference/deployment.md).

@@ -40,11 +40,10 @@ src/                ALL code
   web/              backend/indexImages.js (image index) + frontend/ (browser JS/CSS) + views/ (Pug)
 
 data/               ALL prompt content
-  lists/  expansions/  presets/   data files for {name}, <name>, and presets
-  dynamic-prompts/  ~113 #name plugin modules: export default fn (+ export const full / suggestion_exclude)
-    v1/  user-submitted/   variant sets
-  artists.csv / danbooru.csv / nai-tag-expirement.json   raw sources
-  process-*.js      one-off scripts that build the lists/ files from the CSV/JSON sources
+  lists/  presets/   data files for {name} and presets
+  dynamic-prompts/  flat <category>/ {#name} generators (.dpl + optional .js): export default fn (+ export const full / suggestion_exclude)
+  sources/   raw build inputs (artists.csv, danbooru.csv, nai-tag-expirement.json)
+  process-*.js      one-off scripts that build the lists/ files from the data/sources/ CSV/JSON
 
 default-user-settings.json   Seed for the user's user-settings.json (root)
 output/             generated images + their .json metadata (root, gitignored)

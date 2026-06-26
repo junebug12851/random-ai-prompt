@@ -12,7 +12,7 @@ A deeper walk-through of how the machine fits together. For the quick orientatio
 [`../reference/esm-patterns.md`](../reference/esm-patterns.md).
 
 This is the **macro** picture. Per-layer deep-dives live alongside it (see [README.md](README.md)):
-[core-engine.md](core-engine.md), [cli.md](cli.md), [server.md](server.md), [web-app.md](web-app.md).
+[core-engine.md](core-engine.md), [cli.md](cli.md), [server.md](server.md), [gui.md](gui.md).
 
 ## The three runtimes
 
