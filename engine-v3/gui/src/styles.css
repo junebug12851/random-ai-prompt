@@ -1609,8 +1609,31 @@ button.ghost:hover {
   gap: 0.6rem;
   align-items: flex-start;
 }
-.prompt-text {
+.prompt-main {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.prompt-dpl {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--faint);
+  cursor: copy;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.prompt-dpl:hover {
+  color: var(--accent);
+}
+.prompt-text {
   min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;

@@ -71,7 +71,18 @@ export default function PromptResult({
     <li className="prompt-result">
       <div className="prompt-line">
         <span className="idx">{String(index + 1).padStart(2, "0")}</span>
-        <span className="prompt-text">{prompt.text}</span>
+        <div className="prompt-main">
+          {prompt.dpl && prompt.dpl !== prompt.text && (
+            <code
+              className="prompt-dpl"
+              title="The DPL this was rolled from — click to copy"
+              onClick={() => navigator.clipboard?.writeText(prompt.dpl).catch(() => {})}
+            >
+              {prompt.dpl}
+            </code>
+          )}
+          <span className="prompt-text">{prompt.text}</span>
+        </div>
         <div className="prompt-actions">
           {canGenerate && (
             <button
@@ -101,7 +112,7 @@ export default function PromptResult({
       {prompt.batches.map((b, bi) => (
         <div className="batch" key={b.id}>
           <div className="batch-head">
-            <span className="batch-label">Batch {bi + 1}</span>
+            <span className="batch-label">Batch {prompt.batches.length - bi}</span>
             {b.busy ? (
               <span className="batch-status">rendering…</span>
             ) : (

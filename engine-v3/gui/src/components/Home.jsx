@@ -88,7 +88,6 @@ export default function Home({ settings, setSettings }) {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // prompt-settings gear popover
-  const [sourceDpl, setSourceDpl] = useState(""); // the DPL template this batch of results was rolled from
   // Hover tooltip for a building block: its label, description (piped from the v3 file /
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
@@ -133,7 +132,7 @@ export default function Home({ settings, setSettings }) {
     setPrompts((ps) =>
       ps.map((x) =>
         x.id === promptId
-          ? { ...x, batches: [...x.batches, { id: batchId, busy: true, count, images: [] }] }
+          ? { ...x, batches: [{ id: batchId, busy: true, count, images: [] }, ...x.batches] }
           : x,
       ),
     );
@@ -318,7 +317,6 @@ export default function Home({ settings, setSettings }) {
       // Frame each prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
       // The wrapper boxes are DPL, so render them (probability/bullets) per prompt before joining.
       const text = prompt && prompt.trim() ? prompt : suggestion || "{#random-words}";
-      setSourceDpl(text); // remember the DPL these results were rolled from
       // The Default wrapper is read live (so edits to it apply); a chosen named/None wrapper uses
       // its stored snapshot.
       const w =
@@ -354,10 +352,10 @@ export default function Home({ settings, setSettings }) {
               .filter(Boolean)
               .join(", ")
           : result;
-        out.push({ id: nextId(), text: framed, batches: [] });
+        out.push({ id: nextId(), text: framed, dpl: text, batches: [] });
       }
-      // A new roll ADDS to the list (use Clear all / per-prompt clear to remove results).
-      setPrompts((prev) => [...prev, ...out]);
+      // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
+      setPrompts((prev) => [...out, ...prev]);
       // Auto-render: kick off an image batch for each new prompt (api providers only).
       if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text));
     } catch (e) {
@@ -653,19 +651,6 @@ export default function Home({ settings, setSettings }) {
                 </button>
               </div>
             </div>
-            {sourceDpl && (
-              <div className="source-dpl">
-                <span className="source-dpl-label">DPL</span>
-                <code className="source-dpl-text">{sourceDpl}</code>
-                <button
-                  className="copy-mini"
-                  title="Copy the DPL template"
-                  onClick={() => navigator.clipboard?.writeText(sourceDpl).catch(() => {})}
-                >
-                  copy
-                </button>
-              </div>
-            )}
             <ul className="prompts">
               {prompts.map((p, i) => (
                 <PromptResult
