@@ -9,6 +9,12 @@ name: CI
 # The project lives in engine-v3/ (the pre-revival classic system is the frozen, separate
 # engine-v1-2/ and is intentionally NOT built or tested here). Each job runs in engine-v3/ via
 # defaults.run.working-directory.
+#
+# Install uses `npm install` (not `npm ci`): the dev machine is Windows-only, and npm's
+# optional-dependency lockfile bug around @emnapi (pulled by the Linux-only native bindings of
+# rolldown/vite) means a Windows-generated lock can't satisfy a strict Linux `npm ci`. `npm install`
+# reconciles the lock on Linux at CI time. The committed lockfiles + the @emnapi overrides still pin
+# versions. (Revisit if lock generation ever moves to Linux.)
 
 on:
   push:
@@ -33,7 +39,7 @@ jobs:
           cache-dependency-path: engine-v3/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Lint
         run: npm run lint
@@ -63,7 +69,7 @@ jobs:
           cache-dependency-path: engine-v3/web-app/package-lock.json
 
       - name: Install web-app dependencies
-        run: npm --prefix web-app ci
+        run: npm --prefix web-app install --no-audit --no-fund
 
       - name: Build web-app
         run: npm --prefix web-app run build
@@ -88,8 +94,8 @@ jobs:
 
       - name: Install dependencies (root + web-app)
         run: |
-          npm ci
-          npm --prefix web-app ci
+          npm install --no-audit --no-fund
+          npm --prefix web-app install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium
