@@ -60,7 +60,10 @@ describe("promptEngine — building blocks & presets", () => {
     const blocks = getBlocks();
     expect(Array.isArray(blocks)).toBe(true);
     expect(blocks.some((b) => b.title === "Lists")).toBe(true);
-    expect(blocks.some((b) => b.title === "Blocks")).toBe(true);
+    const blocksTab = blocks.find((b) => b.title === "Blocks");
+    expect(blocksTab).toBeTruthy();
+    // The Blocks list must contain real generator chips (non-category items), not just headers.
+    expect(blocksTab.items.some((i) => !i.category)).toBe(true);
   });
 
   it("lists preset names without throwing", () => {

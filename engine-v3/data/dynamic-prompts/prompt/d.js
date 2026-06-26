@@ -4,7 +4,7 @@
  */
 
 import _ from "lodash";
-import { keywordRepeater } from "../../../../src/helpers/keywordRepeater.js";
+import { keywordRepeater } from "../../../src/helpers/keywordRepeater.js";
 
 /**
  * Build a danbooru tag stream.

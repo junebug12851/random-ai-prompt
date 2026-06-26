@@ -3,7 +3,7 @@
  * @brief JS sidecar for artists.dpl — a random run of {artist} tokens via artistRepeater.
  */
 
-import { artistRepeater } from "../../../../src/helpers/keywordRepeater.js";
+import { artistRepeater } from "../../../src/helpers/keywordRepeater.js";
 
 /**
  * Emit a random run of artist tokens.

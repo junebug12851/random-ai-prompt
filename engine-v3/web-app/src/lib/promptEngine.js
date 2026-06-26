@@ -91,11 +91,9 @@ promptFiles.loadAll();
 const label = (name) => _.startCase(name);
 const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
 
-// Dynamic prompts live under data/dynamic-prompts/{v3 (default),v2,v1}/<category>/. Every
-// generation is browsed FIRST CLASS and identically: category-folder pills (clickable -> the
-// {#folder} group, which picks ONE random generator in that folder) + each chip with its
-// sidecar tooltip, split into full / partial. The only difference is the token prefix — v3 is
-// bare ({#cave}, {#scene}), v1/v2 carry their path ({#v2/cave}, {#v2/scene}).
+// Dynamic prompts live flat under data/dynamic-prompts/<category>/. They're browsed as
+// category-folder pills (clickable -> the {#folder} group, which picks ONE random generator in
+// that folder) plus each chip ({#name}, suffix-resolved) with its sidecar tooltip.
 const allDynNames = browserLoader.dynamicPromptNames();
 // Tooltip text for a generator. Prefer the `.dpl` front-matter `description:` (authored in the
 // file itself), falling back to the optional `.json` sidecar for legacy `.js` generators.
@@ -105,40 +103,14 @@ const dpDescFor = (key) => {
 };
 const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
 
-// Per-generation browse data. `tag` is the token prefix ("" = v3 default, "v1"/"v2" = frozen).
-const allForced = browserLoader.dynPromptForcedPrefixDirsAll
-  ? browserLoader.dynPromptForcedPrefixDirsAll()
-  : browserLoader.dynPromptForcedPrefixDirs();
-const allGroups = browserLoader.dynPromptGroupDirsAll
-  ? browserLoader.dynPromptGroupDirsAll()
-  : browserLoader.dynPromptGroupDirs();
-const GENS = { v3: { tag: "" }, v2: { tag: "v2" }, v1: { tag: "v1" } };
-for (const [k, g] of Object.entries(GENS)) {
-  g.names = allDynNames.filter((n) => n.startsWith(`${k}/`));
-  g.forced = allForced.filter((d) => d.startsWith(`${k}/`));
-  g.groupSet = new Set(allGroups.filter((d) => d.startsWith(`${k}/`)));
-  g.btn = computeButtonNames(g.names, g.forced);
-}
+const forcedDirs = browserLoader.dynPromptForcedPrefixDirs();
+const groupSet = new Set(browserLoader.dynPromptGroupDirs());
+const btnNames = computeButtonNames(allDynNames, forcedDirs);
 
-// Split one generation's keys into full vs partial (v1 has no partials — all full).
-function splitFP(genKey) {
-  const g = GENS[genKey];
-  if (genKey === "v1") return { full: g.names, partial: [] };
-  const full = [];
-  const partial = [];
-  for (const k of g.names) {
-    const mod = browserLoader.loadDynamicPrompt(k);
-    ((mod && mod.full === true) || k.startsWith(`${genKey}/user/`) ? full : partial).push(k);
-  }
-  return { full, partial };
-}
-
-// Folder-grouped chips for a set of generator keys within one generation. The chip token is
-// `{#<tag>/<short>}` (bare for v3); the folder pill is a clickable `{#<tag>/<folder>}` group
-// when that folder is an implied group (2+ generators).
-const dynCatItems = (keys, genKey) => {
-  const g = GENS[genKey];
-  const pre = g.tag ? `${g.tag}/` : "";
+// Folder-grouped chips for a set of generator keys. The chip token is `{#<short>}` (suffix-
+// resolved); the folder pill is a clickable `{#<folder>}` group when that folder is an implied
+// group (2+ generators).
+const dynCatItems = (keys) => {
   const byFolder = new Map();
   for (const k of keys) {
     const i = k.lastIndexOf("/");
@@ -149,55 +121,42 @@ const dynCatItems = (keys, genKey) => {
   const cats = [...byFolder.entries()]
     .map(([folder, members]) => ({
       label: lastSeg(folder),
-      token: g.groupSet.has(folder) ? `{#${pre}${lastSeg(folder)}}` : null,
+      token: groupSet.has(folder) ? `{#${lastSeg(folder)}}` : null,
       description: dpDescFor(folder),
-      // The chip label IS the token you'd type (its inner text): bare for v3, prefixed for v1/v2.
+      // The chip label IS the token you'd type (its inner text).
       entries: members
-        .map((k) => ({ token: `{#${pre}${g.btn[k]}}`, label: `${pre}${g.btn[k]}`, description: dpDescFor(k) }))
+        .map((k) => ({ token: `{#${btnNames[k]}}`, label: btnNames[k], description: dpDescFor(k) }))
         .sort((a, b) => compareNames(a.label, b.label)),
     }))
     .sort((a, b) => compareNames(a.label, b.label));
   const out = [];
   for (const c of cats) {
-    // A clickable group pill shows its full {#…} inner text too; a plain header shows the folder.
-    const pill = { category: true, label: c.token ? `${pre}${c.label}` : c.label, description: c.description };
+    const pill = { category: true, label: c.label, description: c.description };
     if (c.token) pill.token = c.token;
     out.push(pill, ...c.entries);
   }
   return out;
 };
 
-// The wildcard family that leads a generation's block list. `any` (and -sfw/-nsfw) is VERSION-LOCKED:
-// it draws only from that generation and carries the same `v#/` prefix the generators do (bare for
-// v3) — the button reflects the prefix. `any-ver` (and -sfw/-nsfw) is the exception: never version-
-// locked or prefixed, it spans ALL generations and shows identically on every tab.
-const dynWildcardItems = (genKey) => {
-  const pre = GENS[genKey].tag ? `${GENS[genKey].tag}/` : ""; // "" for v3, "v2/"/"v1/" for frozen
-  return [
-    {
-      category: true,
-      label: `${pre}any`,
-      token: `{#${pre}any}`,
-      description: "One random generator from THIS version (SFW; +NSFW when adult is on).",
-    },
-    { token: `{#${pre}any-sfw}`, label: `${pre}any-sfw`, description: "One random generator from this version, SFW only." },
-    {
-      token: `{#${pre}any-nsfw}`,
-      label: `${pre}any-nsfw`,
-      description: "One random generator from this version, including NSFW (adult mode only).",
-    },
-    { token: "{#any-ver}", label: "any-ver", description: "One random generator from ANY version (v1/v2/v3)." },
-    { token: "{#any-ver-sfw}", label: "any-ver-sfw", description: "Any version, SFW only." },
-    {
-      token: "{#any-ver-nsfw}",
-      label: "any-ver-nsfw",
-      description: "Any version, including NSFW (adult mode only).",
-    },
-  ];
-};
+// The wildcard family that leads the block list: `{#any}` (and -sfw/-nsfw) draws one random
+// generator from the whole catalog.
+const dynWildcardItems = () => [
+  {
+    category: true,
+    label: "any",
+    token: "{#any}",
+    description: "One random generator (SFW; +NSFW when adult is on).",
+  },
+  { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
+  {
+    token: "{#any-nsfw}",
+    label: "any-nsfw",
+    description: "One random generator, including NSFW (adult mode only).",
+  },
+];
 
-// The "special" category — version-independent engine controls (currently the seed-salt), shown
-// as a category within the v3 Blocks › all list.
+// The "special" category — engine controls (currently the seed-salt), shown as a category
+// within the Blocks list.
 const specialItems = () => [
   {
     category: true,
@@ -210,11 +169,6 @@ const specialItems = () => [
     description: "Inject a random seed-salt number — nudges the result without changing the prompt.",
   },
 ];
-
-// (Legacy `<name>` expansions were removed — engine-v3 is v3-only.)
-
-// v3 has no full/partial — it's one "Prompts" list. v1/v2 keep their frozen full/partial split.
-const fp = { v2: splitFP("v2"), v1: splitFP("v1") };
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -275,67 +229,29 @@ const listItems = () => {
   return out;
 };
 
-// v3 keeps using the moved-to-block expansions (referenced as {#rays}, {#dap}, …), but they live
-// under v3/expansion/ and are NOT listed as pickable v3 chips — they're excluded from the v3 walk.
-// The legacy `<name>` expansions (data/expansions-obsolete/) show as their own "Expansions" tab on
-// the frozen v1/v2 generations only (see expansionItems).
-const isExpansionKey = (n) => n.startsWith("v3/expansion/");
+// Expansion generators (referenced as {#rays}, {#dap}, …) live under expansion/ and are NOT
+// listed as pickable chips — they're excluded from the Blocks walk.
+const isExpansionKey = (n) => n.startsWith("expansion/");
 
 /**
- * @returns {object[]} The categorized building-block groups for the token cloud. The dynamic blocks
- *   (Blocks = v3 all; Full / Partial = frozen v1/v2) are `dynVersioned` and carry `variants` per
- *   generation; Expansions is a v1/v2-only legacy tab; then Lists + the browser-local custom blocks.
+ * @returns {object[]} The categorized building-block groups for the token cloud: Blocks (the
+ *   generators) and Lists.
  */
 export function getBlocks() {
   const blocks = [
     {
       title: "Blocks",
-      subLabel: "all",
-      hint: "Every current (v3) building block — scenes, subjects, fragments, and styles.",
-      dynVersioned: true,
-      variants: {
-        v3: [
-          ...dynWildcardItems("v3"),
-          ...dynCatItems(GENS.v3.names.filter((n) => !isExpansionKey(n)), "v3"),
-          ...specialItems(),
-        ],
-        v2: [],
-        v1: [],
-      },
-      items: [],
+      hint: "Every building block — scenes, subjects, fragments, and styles.",
+      items: [
+        ...dynWildcardItems(),
+        ...dynCatItems(allDynNames.filter((n) => !isExpansionKey(n))),
+        ...specialItems(),
+      ],
     },
     {
-      title: "Full prompts",
-      subLabel: "full",
-      hint: "Complete, self-contained generators (frozen generations).",
-      dynVersioned: true,
-      variants: {
-        v3: [],
-        v2: [...dynWildcardItems("v2"), ...dynCatItems(fp.v2.full, "v2")],
-        v1: [...dynWildcardItems("v1"), ...dynCatItems(fp.v1.full, "v1")],
-      },
-      items: [],
-    },
-    {
-      title: "Partial prompts",
-      subLabel: "partial",
-      hint: "Accents and modifiers (frozen generations).",
-      dynVersioned: true,
-      variants: {
-        v3: [],
-        v2: dynCatItems(fp.v2.partial, "v2"),
-        v1: [],
-      },
-      items: [],
-    },
-    {
-      // Lists are version-independent — shown as a Blocks sub-tab on every generation.
       title: "Lists",
-      subLabel: "lists",
       hint: "Word lists — each insertion becomes one random entry from the list.",
-      dynVersioned: true,
-      variants: { v3: listItems(), v2: listItems(), v1: listItems() },
-      items: [],
+      items: listItems(),
     },
   ];
 

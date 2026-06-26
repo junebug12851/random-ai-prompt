@@ -1,32 +1,29 @@
 # Dynamic prompts
 
-Each `.js` here is a **dynamic prompt**: a tiny generator script referenced in a prompt as
-`{#name}`. Unlike a list (one random entry from a file) or an expansion (a fixed snippet), a
-dynamic prompt **runs code** to build a fragment — usually probabilistic accretion (start from
-a base phrase, then append fragments under independent coin-flips), freely mixing literal text
-with nested `{#other}`, `{list}`, and `<expansion>` tokens that the engine then resolves.
+Each `.dpl` (or `.js`) here is a **dynamic prompt**: a tiny generator referenced in a prompt as
+`{#name}`. Unlike a list (one random entry from a file), a dynamic prompt **runs code** to build a
+fragment — usually probabilistic accretion (start from a base phrase, then append fragments under
+independent coin-flips), freely mixing literal text with nested `{#other}` and `{list}` tokens that
+the engine then resolves.
 
 ## How to reference a dynamic prompt
 
-Write `{#name}` in a prompt — brace-delimited, uniform with `{list}` and `<expansion>`, and able
-to carry `/` paths. (The old bare `#name` is no longer recognized; the braces also stop a stray
-`#` in normal text from being eaten.) The name is resolved against the **v2** catalog by **path
-suffix** — the same rule lists and expansions use — so you almost never type the category folder:
+Write `{#name}` in a prompt — brace-delimited, uniform with `{list}`, and able to carry `/` paths.
+(The old bare `#name` is no longer recognized; the braces also stop a stray `#` in normal text from
+being eaten.) The name is resolved by **path suffix** — the same rule lists use — so you almost
+never type the category folder:
 
-- **Bare name** — `{#beach}` → `v2/scene/beach`
+- **Bare name** — `{#beach}` → `scene/beach`
 - **Short / partial path** — `{#scene/beach}`
-- **Full path** — `{#v2/scene/beach}`
 
 Resolution is deterministic: an exact path wins; otherwise any file whose path ends with
 `/<your-ref>` matches; among matches the **shallowest** path wins, ties broken by a guaranteed
 natural order (symbols, then numbers, then letters). Basenames are kept unique, so a bare
 `{#name}` always resolves.
 
-Special suffixes/aliases:
+Special forms:
 
-- **`{#name-v1}`** → the frozen original under `v1/` (see below).
-- **`{#name-v2}`** → forces the v2 form (the default; the suffix is just explicit).
-- **`{#user-name}`** → back-compat alias for a community generator under `v2/user/`.
+- **`{#user-name}`** → back-compat alias for a community generator under `user/`.
 - **`{#folder}`** → a **pick-one group**: runs ONE random generator from that folder (e.g. `{#scene}` =
   a random scene). Any category folder with 2+ generators is automatically a group.
 - **`{#any}`** / **`{#any-sfw}`** / **`{#any-nsfw}`** → pick one random generator from the WHOLE catalog
@@ -37,21 +34,19 @@ generator-level analog of the lists' pick-one folder group, where the unit is on
 
 ## Folders
 
-`v2/` holds the current generators, sorted into category folders (suffix resolution means the
-category never has to be typed). A folder with 2+ generators is also a **pick-one group** —
-`{#<folder>}` runs one random generator from it:
+Generators are sorted into category folders (suffix resolution means the category never has to be
+typed). A folder with 2+ generators is also a **pick-one group** — `{#<folder>}` runs one random
+generator from it:
 
 | Folder | What's in it |
 |--------|--------------|
-| `v2/scene/` | Full standalone scenes & places — `city`, `castle`, `beach`, `landscape`, `room`, `space`, `ship`, … |
-| `v2/subject/` | Subjects — the `entity` polymorphism, `person`, `animal`, `knight`, the `portrait-*` family, … |
-| `v2/fragment/` | Partial modifiers / garnishes composed into fulls — `color`, `glow`, `weather`, `nature`, … |
-| `v2/style/` | Art-style & product-render templates (mostly publicprompts.art) — the `3d-*` set, `comic`, `sticker`, `funko-3d-print`, … |
-| `v2/prompt/` | Whole-prompt builders & tag streams (force-prefixed → `{#prompt/…}`) — `random` (composite), `random-words`, `simple-random`, `extra-random`, `artists`, `fx`, `d` (danbooru) |
-| `v2/user/` | Community-submitted generators (`{#user-name}`) |
-
-`v1/` is the **frozen** original monolithic set (addressed `{#name-v1}`). v1 generators bake in
-fx/artists/color and are kept verbatim so old looks stay reproducible — leave them as-is.
+| `scene/` | Full standalone scenes & places — `city`, `castle`, `beach`, `landscape`, `room`, `space`, `ship`, … |
+| `subject/` | Subjects — the `entity` polymorphism, `person`, `animal`, the `portrait-*` family, … |
+| `fragment/` | Partial modifiers / garnishes composed into fulls — `color`, `glow`, `weather`, `nature`, … |
+| `style/` | Art-style & product-render templates (mostly publicprompts.art) — the `3d-*` set, `comic`, `sticker`, `funko-3d-print`, … |
+| `prompt/` | Whole-prompt builders & tag streams (force-prefixed → `{#prompt/…}`) — `random` (composite), `random-words`, `simple-random`, `extra-random`, `artists`, `fx`, `d` (danbooru) |
+| `expansion/` | Reusable lighting / detail accents referenced from other generators (`{#rays}`, `{#dap}`, …); not listed as pickable chips |
+| `user/` | Community-submitted generators (`{#user-name}`) |
 
 ## Full vs partial
 
@@ -65,19 +60,19 @@ sections.
 
 A generator whose name carries an `nsfw` token (e.g. `subject/nude-nsfw`) is automatically gated:
 while `includeAdult` is off it is hidden from the picker and resolves to nothing — the same
-name-token rule lists and expansions use (no hardcoded list to maintain).
+name-token rule lists use (no hardcoded list to maintain).
 
 ## Metadata (`<name>.json`)
 
 Each generator may have an optional `<name>.json` sidecar next to it (e.g.
-`v2/scene/beach.json`) holding metadata — currently just a `description` used for the editor
+`scene/beach.json`) holding metadata — currently just a `description` used for the editor
 button tooltip:
 
 ```json
 { "description": "A beach / coastal scene — palm trees, sand, ocean." }
 ```
 
-A category folder may also carry a `<folder>.json` (e.g. `v2/scene.json`). The project ships
+A category folder may also carry a `<folder>.json` (e.g. `scene.json`). The project ships
 one for every built-in generator and folder. Metadata files are never generators (never loaded
 as code, never shown as buttons). They're regenerated by
 `scripts/dynprompt-meta/write-dynprompt-meta.mjs`.
@@ -85,12 +80,14 @@ as code, never shown as buttons). They're regenerated by
 ## Internal / config files (`_` prefix)
 
 Any file whose name starts with an underscore is **internal/config**, never a generator — the
-loaders ignore `_`-prefixed files entirely (the same convention as `data/lists/` and
-`data/expansions/`). A folder containing an empty **`_force-prefix`** file shows/inserts its
-entries with the path from that folder down; resolution still works by suffix, so the prefix is
-shown, not strictly required.
+loaders ignore `_`-prefixed files entirely (the same convention as `data/lists/`). A folder
+containing an empty **`_force-prefix`** file shows/inserts its entries with the path from that
+folder down; resolution still works by suffix, so the prefix is shown, not strictly required.
 
 ## Authoring shape
+
+The generators are authored in the **DPL** dynamic-prompt language (`.dpl`); a few keep a `.js`
+sidecar for logic that needs real code. A `.js`-only generator looks like:
 
 ```js
 /** @returns {string} */
@@ -102,9 +99,9 @@ export default function (settings, imageSettings, upscaleSettings) {
 export const full = true; // omit for a partial fragment
 ```
 
-Generators import shared helpers out of `src/` (e.g. `../../../../src/helpers/keywordRepeater.js`
-from a `v2/<category>/` file) and compose siblings either as `#tokens` (let the engine resolve)
+Generators import shared helpers out of `src/` (e.g. `../../../src/helpers/keywordRepeater.js`
+from a `<category>/` file) and compose siblings either as `#tokens` (let the engine resolve)
 or as direct relative imports (`../fragment/nature.js`).
 
-See `../lists/README.md` / `../expansions/README.md` for the parallel systems and
+See `../lists/README.md` for the parallel system and
 `../../notes/reference/dynamic-prompts-architecture.md` for the design.

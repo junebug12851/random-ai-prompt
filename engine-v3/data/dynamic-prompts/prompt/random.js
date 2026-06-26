@@ -1,12 +1,12 @@
 /**
  * @file
- * @brief JS sidecar for simple-random.dpl — a single full random suggestion via promptSuggestion.
+ * @brief JS sidecar for random.dpl — a full random suggestion (AND-weighted blends) via promptSuggestion.
  */
 
-import suggestion from "../../../../src/promptFilesAndSuggestions.js";
+import suggestion from "../../../src/promptFilesAndSuggestions.js";
 
 /**
- * Build a single (lighter) random prompt suggestion.
+ * Build a full random prompt suggestion.
  * @param {object} settings The settings.
  * @returns {string} The generated prompt fragment.
  */
@@ -15,7 +15,7 @@ export default function (settings) {
     return { settings };
   });
   suggestion.loadAll();
-  const prompt = suggestion.promptSuggestion();
+  const prompt = suggestion.promptSuggestion(true);
   settings.randomPrompt = prompt;
   return prompt;
 }

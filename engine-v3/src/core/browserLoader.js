@@ -74,7 +74,7 @@ const presetModules = import.meta.glob("../../data/presets/*.json", {
   import: "default",
 });
 
-// ".../dynamic-prompts/v1/castle.js" -> "v1/castle"; ".../lists/keyword.txt" -> "keyword"
+// ".../dynamic-prompts/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
 function keyFor(path, dir) {
   const marker = `/${dir}/`;
   const i = path.indexOf(marker);
@@ -82,9 +82,9 @@ function keyFor(path, dir) {
   return rel.replace(/\.[^./]+$/, "");
 }
 
-// Active dynamic-prompt catalog = v3 (`.dpl`, with optional same-name `.js` sidecars) + frozen
-// v1 (`.js`). The v2 tree stays on disk as reference but is NOT loaded. A `.js` is a generator
-// only when there is no same-name `.dpl` (otherwise it is that `.dpl`'s sidecar). Mirrors nodeLoader.
+// Dynamic-prompt catalog = every `.dpl` (with optional same-name `.js` sidecars) plus `.js`
+// generators that have no same-name `.dpl` (otherwise the `.js` is that `.dpl`'s sidecar).
+// Mirrors nodeLoader.
 const dpJsModules = {};
 for (const [path, mod] of Object.entries(dpModules)) {
   const key = keyFor(path, "dynamic-prompts");
@@ -178,29 +178,21 @@ const markerDirs = (files, marker, seg = "lists") =>
   });
 const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
 const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
-const dpForcedDirs = dpForcedDirsAll.filter((d) => d.startsWith("v3/"));
+const dpForcedDirs = dpForcedDirsAll;
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
   markerDirs(enableGroupFiles, "_enable-group-list"),
   markerDirs(disableGroupFiles, "_disable-group-list"),
 );
-// Implied groups for dynamic prompts: a v3 category folder with 2+ generators.
+// Implied groups for dynamic prompts: a category folder with 2+ generators.
 const dpGroupDirs = autoGroupListDirs(
-  [...dynamicPromptKeys].filter((n) => n.startsWith("v3/")),
-  markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts").filter((d) =>
-    d.startsWith("v3/"),
-  ),
-  markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts").filter((d) =>
-    d.startsWith("v3/"),
-  ),
-);
-// All generations (v1/v2/v3) — the engine/UI filter by prefix so each generation is first-class.
-const dpGroupDirsAll = autoGroupListDirs(
   [...dynamicPromptKeys],
   markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
   markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
 );
+// Alias retained for the loader interface (no version generations — same set as above).
+const dpGroupDirsAll = dpGroupDirs;
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
  * `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`, `presetNames`, `loadPreset`.

@@ -58,7 +58,6 @@ export default function Home({ settings, setSettings }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
-  const [dynVer, setDynVer] = useState("v3"); // "v3" (default) | "v2" | "v1" superset for the dynamic blocks
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -216,8 +215,7 @@ export default function Home({ settings, setSettings }) {
     }
     return out;
   }
-  // Dynamic blocks carry v2/v1 variants; pick the one the navbar superset link selects.
-  const effItems = (b) => (b.dynVersioned ? b.variants[dynVer] || [] : b.items);
+  const effItems = (b) => b.items;
   const filtered = blocks
     .map((b) => ({ ...b, items: filterItems(effItems(b)) }))
     .filter((b) => b.items.some((i) => !i.category));
@@ -241,49 +239,16 @@ export default function Home({ settings, setSettings }) {
         ) : (
           <>
             <nav className="cat-tabs">
-              {(() => {
-                const rows = [];
-                let headDone = false;
-                for (const b of filtered) {
-                  // A single "Prompts" heading (with the v1/v2 superset switch) precedes the
-                  // full/partial sub-tabs; the sub-tabs are full-width rows, just indented.
-                  if (b.dynVersioned && !headDone) {
-                    headDone = true;
-                    rows.push(
-                      <div key="__prompts" className="cat-head">
-                        <span className="cat-name">Blocks</span>
-                        <span className="ver-links">
-                          {["v1", "v2", "v3"].map((v) => (
-                            <button
-                              key={v}
-                              className={`ver-link${dynVer === v ? " on" : ""}`}
-                              title={
-                                v === "v3"
-                                  ? "Current generators (default)"
-                                  : `Frozen legacy (${v}) generators`
-                              }
-                              onClick={() => setDynVer(v)}
-                            >
-                              {v}
-                            </button>
-                          ))}
-                        </span>
-                      </div>,
-                    );
-                  }
-                  rows.push(
-                    <button
-                      key={b.title}
-                      className={`cat-tab${b.dynVersioned ? " sub" : ""}${active && active.title === b.title ? " on" : ""}`}
-                      onClick={() => setActiveCat(b.title)}
-                    >
-                      <span className="cat-name">{b.dynVersioned ? b.subLabel || b.title : b.title}</span>
-                      <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
-                    </button>,
-                  );
-                }
-                return rows;
-              })()}
+              {filtered.map((b) => (
+                <button
+                  key={b.title}
+                  className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
+                  onClick={() => setActiveCat(b.title)}
+                >
+                  <span className="cat-name">{b.title}</span>
+                  <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
+                </button>
+              ))}
             </nav>
 
             <div className="chip-area">
