@@ -7,12 +7,11 @@
 //
 // `createEngine(loader)` returns an engine that runs the prompt-module pipeline
 // (the same stages and order as the Node CLI) over a prompt string. All data
-// access — expansions, lists, dynamic prompts — goes through the injected
+// access — lists, dynamic prompts — goes through the injected
 // `loader`, so the identical engine runs in Node (fs + createRequire loader) and
 // in the browser (Vite import.meta.glob loader). See notes/plans/web-migration.md.
 //
 // Loader interface:
-//   readExpansion(name)      -> string | null
 //   readListLines(name)      -> string[] | null
 //   listNames()              -> string[]
 //   loadDynamicPrompt(key)   -> { default, full?, suggestion_exclude? } | null
@@ -33,7 +32,7 @@ const DEFAULT_ORDER = ["dynamic-prompt", "prompt-salt", "list", "cleanup"];
 
 /**
  * Create a framework-agnostic prompt engine that runs the same pipeline as the CLI.
- * @param {object} loader Data-access loader (Node fs or browser glob): `readExpansion`,
+ * @param {object} loader Data-access loader (Node fs or browser glob):
  *   `readListLines`, `listNames`, `loadDynamicPrompt`.
  * @returns {{expand: Function, generate: Function, generateMany: Function}} The engine API.
  */
