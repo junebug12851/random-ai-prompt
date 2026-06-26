@@ -13,6 +13,11 @@ import openaiServer from "../providers/openai/code/server.js";
 import replicateServer from "../providers/replicate/code/server.js";
 import falServer from "../providers/fal/code/server.js";
 import stabilityServer from "../providers/stability/code/server.js";
+import geminiServer from "../providers/gemini/code/server.js";
+import grokServer from "../providers/grok/code/server.js";
+import bflServer from "../providers/bfl/code/server.js";
+import ideogramServer from "../providers/ideogram/code/server.js";
+import leonardoServer from "../providers/leonardo/code/server.js";
 
 /** @type {Record<string, (args: object) => Promise<{images: string[]}>>} */
 export const serverAdapters = {
@@ -20,6 +25,11 @@ export const serverAdapters = {
   replicate: replicateServer,
   fal: falServer,
   stability: stabilityServer,
+  gemini: geminiServer,
+  grok: grokServer,
+  bfl: bflServer,
+  ideogram: ideogramServer,
+  leonardo: leonardoServer,
 };
 
 /**
