@@ -1,0 +1,18 @@
+extends layouts/main.pug
+
+block styles
+  link(rel='stylesheet' href='results.css')
+
+block content
+  #container
+    h1#no-results(style="display: none;") No Results
+    h1#prompts-title(style="display: none;") Prompts
+    #prompts(style="display: none;")
+
+    h1#images-title(style="display: none;") Images
+    #images(style="display: none;")
+
+    button#make-art Make New Art
+
+block scripts
+  script(type='text/javascript' src='results.js')

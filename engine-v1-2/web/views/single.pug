@@ -1,0 +1,131 @@
+extends layouts/main.pug
+
+block styles
+  link(rel='stylesheet' href='single.css')
+
+block content
+  #page-container
+    #info-cell
+      #keyword-container
+        select#prompt-selection
+          option(value="prompt") Prompt
+          option(value="negative") Negative Prompt
+          option(value="data") Image Data
+          option(value="info-md") Info Markdown
+          option(value="info-txt") Info Plain Text
+
+        p#keywords
+
+        button#copy Copy
+        button#generate-this Re-Roll
+        button#select-this Select
+
+      table
+        tr
+          td#timestamp-cell(colspan="2")
+        tr
+          td Type
+          td#type-cell
+        tr#frame-count-row(style="display: none")
+          td Frame Count
+          td#frame-count-cell
+        tr#highest-frame-row(style="display: none")
+          td Highest Frame
+          td#highest-frame-cell
+        tr
+          td Model
+          td#model-cell
+        tr
+          td Seed
+          td#seed-cell
+        tr#variation-seed-row(style="display: none")
+          td Variation Seed
+          td#variation-seed-cell
+        tr#variation-amount-row(style="display: none")
+          td Variation Amount
+          td#variation-amount-cell
+        tr
+          td Generated Size
+          td#size-cell
+        tr#seed-size-row(style="display: none")
+          td Seed Size
+          td#seed-size-cell
+        tr#upscale-size-row(style="display: none")
+          td Upscale Size
+          td#upscale-size-cell
+        tr
+          td Sampler
+          td#sampler-cell
+        tr
+          td CFG
+          td#cfg-cell
+        tr
+          td Steps
+          td#steps-cell
+        tr
+          td Restore Faces
+          td#restore-faces-cell
+        tr#denoise-row(style="display: none")
+          td High-Res Detail
+          td#denoising-cell
+        tr
+          td Filename
+          td#filename-cell
+        tr
+          td Data File
+          td#data-file-cell
+        tr
+          td Image File
+          td#image-file-cell
+      ul#keyword-cloud
+
+    #image-cell
+      select#action-menu
+        option(value="-1") Actions...
+        option(value="invalid", disabled) -----
+        option(value="download", title="Download this image or animation") Download
+        option(value="parent", title="Go to this images parent", style="display: none;", disabled) Parent
+        option(value="regen-anim", title="Re-make the animation based on the currently linked frames", style="display: none;", disabled) Update Animation
+        option(value="externalize-anim", title="Copy frames to a different folder that can be used either by itself or for one of many AI interpolation like FlowFrame or DAIN Google Colab", style="display: none;", disabled) Externalize Frames
+        option(value="invalid", disabled) -----
+        option(value="make-variations", title="1-Click image variations using default variation settings", style="display: none;", disabled) Variations
+        option(value="make-upscale", title="1-Click upscale using default upscale settings") Upscale
+        option(value="make-anim", title="1-Click make this image into an animation using default animation settings", style="display: none;", disabled) Animate
+        option(value="make-extend-anim", title="1-Click make this animation longer using default animation settings", style="display: none;", disabled) More Frames
+        option(value="invalid", disabled) -----
+        option(value="select-variations", title="Take this image to the generation page to customize it for variations", style="display: none;", disabled) Select Variations
+        option(value="select-upscale", title="Take this image to the generation page to customize it for upscales") Select Upscale
+        option(value="select-make-anim", title="Take this image to the generation page to customize it for making it into an animation", style="display: none;", disabled) Select Animate
+        option(value="select-extend-anim", title="Take this image to the generation page to extend this animation with more frames", style="display: none;", disabled) Select More Frames
+        option(value="invalid-magick", style="display: none;", disabled) -----
+
+        option(value="missing-magick", title="Missing ImageMagick as a seperate optional dependency", style="display: none;", disabled) Missing ImageMagick
+
+        option(value="magick-single-gif", title="Download as GIF", style="display: none;", disabled) Download GIF
+        option(value="magick-single-webp", title="Download as WebP", style="display: none;", disabled) Download WebP
+        option(value="magick-single-jpg", title="Download as JPG", style="display: none;", disabled) Download JPG
+
+        option(value="magick-gif", title="Download as GIF", style="display: none;", disabled) Download GIF
+        option(value="magick-webp", title="Download as WebP", style="display: none;", disabled) Download WebP
+        option(value="magick-mp4", title="Download as MP4", style="display: none;", disabled) Download MP4
+
+      button#delete Delete
+      button#delete-confirmation-no(style="display: none") Don't Delete
+      button#delete-confirmation-yes(style="display: none") Confirm Delete
+
+      button#delete-frames(style="display: none") Delete Frames
+      button#delete-frames-confirmation-no(style="display: none") Don't Delete Frames
+      button#delete-frames-confirmation-yes(style="display: none") Confirm Delete Frames
+
+      button#delete-upscales(style="display: none") Delete Upscales
+      button#delete-upscales-confirmation-no(style="display: none") Don't Delete Upscales
+      button#delete-upscales-confirmation-yes(style="display: none") Confirm Delete Upscales
+
+      img#image.full-width-image
+
+    #variations-cell(style="display: none;")
+      select#variation-selection
+      #variation-images
+
+block scripts
+  script(type='text/javascript' src='single.js')

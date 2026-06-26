@@ -1,0 +1,13 @@
+extends layouts/modal.pug
+
+block styles
+    link(rel='stylesheet' href='progress.css')
+
+block content
+    #container
+        p Regenerating Animation
+        .progress-bar
+            .progress(style="width: 100%;")
+
+block scripts
+    script(type='text/javascript' src='progress.js')

@@ -1,0 +1,18 @@
+clear weather
+overcast
+partly cloudy
+cloudy
+rainy
+stormy
+foggy
+hazy
+myst
+snowy
+blizzard
+windy
+sunny
+drizzle
+tornadoes
+thundersnows
+hurricanes
+sandstorms

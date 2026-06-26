@@ -1,0 +1,27 @@
+extends layouts/main.pug
+
+block styles
+  link(rel='stylesheet' href='feed.css')
+
+block content
+  #page-header
+    img(src='fg.png' width='128' height='128')
+    h1#page-title Random AI Prompt
+    p#page-subtitle
+      | The random search engine
+      br
+      span#keyword-count 
+      |  keywords, 
+      span#image-count 
+      |  images
+    input#page-search(type='text')
+    .button-row
+      button#search Search
+      button#home Reload
+      button#random Random
+      button#make-art New
+
+  #page-gallery
+
+block scripts
+  script(type='text/javascript' src='feed.js')
