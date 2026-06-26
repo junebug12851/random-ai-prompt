@@ -1,0 +1,321 @@
+Aardwark
+Abalone
+African Grey Parrot
+Albatross
+Alligator gar
+Amblypygi
+Andean Condor
+Angelfish
+Anglerfish
+Angora rabbit
+Anomalocaris
+Ant
+Aquatic life
+Arachnid
+Arapaima
+Arowana
+Axolotl
+Azure-winged Magpie
+Bald Eagle
+Barred Buttonquail
+Bear
+Beaver
+Bee
+Beetle
+Beluga whale
+Bichir
+Bird
+Bison
+Black Crowned Crane
+Black cat
+Black-headed Oriole
+Black-headed Parrot
+Black-naped Oriole
+Black-throated Magpie-Jay
+Blue Jay
+Blue whale
+Blue-and-white Flycatcher
+Blue-eyed Cockatoo
+Blue-footed Booby
+Bluebird
+Boar
+Bug
+Bull
+Bullfrog
+Butterfly
+Butterflyfish
+Camel spider
+Camel
+Canada goose
+Capybara
+Carp
+Carrion Crow
+Cassowary
+Cat
+Caterpillar
+Catfish
+Cave cricket
+Centipede
+Cheetah
+Chick, bird
+Chick
+Chicken
+Chinchilla
+Chinese Pond Heron
+Chipmunk
+Cicada
+Clam
+Clownfish
+Cockatiel
+Cockatoo
+Cockroach
+Coelacanth
+Common Kingfisher
+Condor
+Coral
+Cormorant
+Cow
+Crab
+Crane, bird
+Crane
+Crayfish
+Crested Kingfisher
+Cricket
+Crocodile
+Crow
+Crustacean
+Cuckoo
+Cuttlefish
+Cymothoa exigua
+Cyote
+Deer
+Dik Dik
+Dingo
+Dodo
+Dog
+Dolphin
+Dolphins
+Dragonfly
+Duck
+Duckling
+Dunkleosteus
+Dusky Thrush
+Eagle
+Earthworm
+Echidna
+Eclectus Parrot
+Edestus
+Eel
+Egrets
+Elephant
+Elk
+Emu
+Estrildid finches
+Falcon
+Ferret
+Field Vole
+Finch
+Fireflies
+Firefly
+Fish
+Flamingo
+Flatworm
+Fly
+Flycatchers
+Flying fish
+Fox
+Frill-necked lizard
+Frog
+Frogmouth
+Galapagos Giant Tortoise
+Giraffe
+Goat
+Goblin shark
+Golden Parakeet
+Goldfish
+Goose
+Gorilla
+Goshawk
+Grasshopper
+Great Blue Heron
+Great white shark
+Greater White-Fronted Goose
+Grey Crowned Crane
+Grey Heron
+Guinea pig
+Haast's Eagle
+Hallucigenia
+Hammerhead shark
+Hamster
+Harris's Hawk
+Hawk
+Hedgehog
+Helicoprion
+Hellbender
+Hermit Crab
+Heron
+Hill Blue Flycatcher
+Hippopotamus
+Horse
+Horseshoe crab
+Hummingbird
+Humpback whale
+Iguana
+Isopod
+Jandaya Parakeet
+Japanese Bush Warbler
+Japanese Robin
+Japanese Sparrowhawk
+Japanese White-eye
+Jellyfish
+Kakapo
+Kangaroo
+Kea
+Kingfishers
+Kitten
+Kiwi, bird
+Kiwi
+Koala
+Koi
+Kookaburra
+Kori Bustard
+Ladybug
+Lamb
+Lamprey
+Larva
+Leafy Seadragon
+Leopard eel
+Leopard
+Leucochloridium paradoxum
+Lilac-breasted Roller
+Lion
+Little Egret
+Lizard
+Lobster
+Long-tailed Widowbird
+Lovebird
+Macaw
+Maggot
+Magpie
+Major Mitchell's Cockatoo
+Mallard
+Mammoth
+Manta ray
+Mantis Shrimp
+Meadow Bunting
+Millipede
+Moa
+Monkey
+Moose
+Moray eel
+Mosquito
+Moth
+Mouse
+Naked mole rat
+Narcissus Flycatcher
+Narwhal
+Needlefish
+Nightingale
+Northern Cardinal
+Northern Lapwing
+Nuthatch
+Oarfish
+Octopus
+Oilfish
+Opabinia
+Opossum
+Orca
+Oriental Dollarbird
+Orioles
+Osprey
+Ostrich
+Owl
+Oyster
+Pacific Parrotlet
+Palm Cockatoo
+Pambdelurion
+Panda
+Panther
+Parakeet
+Parrot
+Peacock
+Pelican
+Penguin
+Peregrine Falcon
+Pig
+Piglet
+Pillbug
+Piranha
+Platypus
+Porcupine
+Praying Mantis
+Puffer fish
+Puffin
+Puppy
+Quokka
+Rabbit
+Raccoon
+Raindeer
+Real Birds
+Red fox
+Red-crowned Crane
+Regal blue tang
+Reptile
+Rhinoceros
+Rodent
+Rooster
+Rose-ringed Parakeet
+Sailfish
+Salamander
+Salmon
+Saury
+Saw shark
+Sawfish
+Scorpion
+Sea anemone
+Sea cucumber
+Sea slug
+Sea urchin
+Seahorse
+Seal
+Shark
+Sheep
+Shrimp
+Siamese fighting fish
+Siberian Crane
+Snake
+South Island Giant Moa
+Southern Boobook
+Southern Brown Kiwi
+Southern Cassowary
+Southern Royal Albatross
+Spider
+Squid
+Squirrel
+Starfish
+Sulphur-crested Cockatoo
+Sunfish
+Surgeonfish
+Swordfish
+Tadpole
+Taiwan Blue Magpie
+Tiger
+Toad
+Tuna
+Turtle
+Verditer Flycatcher
+Warthog
+Wasp
+Water Beetle
+Weasel
+Whale shark
+Whale
+Wild Boar
+Wolf
+Xidazoon
+Yak
+Yellow tang
+Yellow-headed Amazon
+Yellow-rumped Flycatcher
+Yellowtip Cockatoo
+Zebra

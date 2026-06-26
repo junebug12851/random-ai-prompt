@@ -1,0 +1,37 @@
+====================
+=- description: Generates a prompt for a cave of different types and seasons
+=- full prompt
+====================
+
+====================
+select 1 cave-type:
+====================
+
+sea cave, #underwater
+lava cave, #lava
+ice cave, #ice
+crystal cave, #crystal
+
+====================
+start:
+====================
+
+cave, cave walls
+
+* subterranean
+* interior
+* +cave-type
+* cavern
+* glow
+* bioluminescent
+* structures
+* #color crystal
+* #color gemstone
+* stalagmite
+* stalactite
+* #settlement
+* tunnels
+* underground
+* {color}
+
+#nature, #wildlife, #water, #eerie, #mystical, #weather

@@ -1,0 +1,30 @@
+Car
+Consumer Trucks
+Semi-Truck
+Golf Car
+Bus
+Tractor
+Sports Car
+Motorcycle
+Scooter
+Bicycle
+Kick Scooter
+Tank
+Tram
+Hoverboard
+SUV
+Snowmobile
+Cart
+Train
+Racing Car
+Campervan
+Motorhome
+RV
+Rickshaw
+Ship
+Boat
+Kayak
+Yacht
+Submarine
+Airplane
+Helicopter
