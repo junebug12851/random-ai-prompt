@@ -83,6 +83,15 @@ export default function PromptResult({
               {prompt.batches.length ? "More images" : "Generate images"}
             </button>
           )}
+          {hasImages && (
+            <button
+              className="copy-mini"
+              title="Clear this prompt's images (asks about deleting from disk)"
+              onClick={() => onClearImages(prompt.id)}
+            >
+              clear
+            </button>
+          )}
           <button className="copy-mini" title="Copy prompt" onClick={() => onCopy(prompt.text)}>
             copy
           </button>
@@ -106,7 +115,9 @@ export default function PromptResult({
           {b.busy ? (
             <div className="gallery">
               {Array.from({ length: b.count || 1 }).map((_, i) => (
-                <div key={i} className="img-skeleton" aria-label="rendering" />
+                <figure key={i} className="skeleton-fig">
+                  <div className="img-skeleton" aria-label="rendering" />
+                </figure>
               ))}
             </div>
           ) : (
@@ -143,12 +154,6 @@ export default function PromptResult({
           )}
         </div>
       ))}
-
-      {hasImages && (
-        <button className="link-btn clear-imgs" onClick={() => onClearImages(prompt.id)}>
-          clear all images for this prompt
-        </button>
-      )}
     </li>
   );
 }

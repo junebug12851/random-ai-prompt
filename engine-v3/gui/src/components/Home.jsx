@@ -88,6 +88,7 @@ export default function Home({ settings, setSettings }) {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // prompt-settings gear popover
+  const [sourceDpl, setSourceDpl] = useState(""); // the DPL template this batch of results was rolled from
   // Hover tooltip for a building block: its label, description (piped from the v3 file /
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
@@ -224,6 +225,22 @@ export default function Home({ settings, setSettings }) {
     setPrompts((ps) => ps.map((x) => (x.id === promptId ? { ...x, batches: [] } : x)));
   }
 
+  // All on-disk image files across a list of prompt results.
+  const allImagesOf = (list) =>
+    (list || []).flatMap((p) => p.batches.flatMap((b) => b.images)).filter(isOutputFile);
+
+  // Clear every result — optionally deleting all their image files from disk.
+  function clearAll() {
+    const imgs = allImagesOf(prompts);
+    if (
+      imgs.length &&
+      confirm(`Clear all results — delete their ${imgs.length} image file(s) from disk too?`)
+    ) {
+      imgs.forEach(deleteImageFile);
+    }
+    setPrompts([]);
+  }
+
   const prompt = settings.prompt;
   const setPrompt = (p) => setSettings({ ...settings, prompt: p });
 
@@ -301,6 +318,7 @@ export default function Home({ settings, setSettings }) {
       // Frame each prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
       // The wrapper boxes are DPL, so render them (probability/bullets) per prompt before joining.
       const text = prompt && prompt.trim() ? prompt : suggestion || "{#random-words}";
+      setSourceDpl(text); // remember the DPL these results were rolled from
       // The Default wrapper is read live (so edits to it apply); a chosen named/None wrapper uses
       // its stored snapshot.
       const w =
@@ -337,6 +355,16 @@ export default function Home({ settings, setSettings }) {
               .join(", ")
           : result;
         out.push({ id: nextId(), text: framed, batches: [] });
+      }
+      // A new roll replaces the previous results — offer to delete their image files from disk.
+      const old = allImagesOf(prompts);
+      if (
+        old.length &&
+        confirm(
+          `New roll replaces the previous results — delete their ${old.length} image file(s) from disk too?`,
+        )
+      ) {
+        old.forEach(deleteImageFile);
       }
       setPrompts(out);
       // Auto-render: kick off an image batch for each new prompt (api providers only).
@@ -517,49 +545,51 @@ export default function Home({ settings, setSettings }) {
             )}
 
             <div className="field-bar">
-              <label className="field-count" title="Prompts per run">
-                <span className="field-count-x">×</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={settings.promptCount}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      promptCount: Math.max(1, Number(e.target.value) || 1),
-                    })
-                  }
-                  aria-label="Prompts per run"
-                />
-              </label>
+              <div className="prompt-tools">
+                <label className="field-count" title="Prompts per run">
+                  <span className="field-count-label">count</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={settings.promptCount}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        promptCount: Math.max(1, Number(e.target.value) || 1),
+                      })
+                    }
+                    aria-label="Prompts per run"
+                  />
+                </label>
 
-              <div className="field-menu-wrap">
-                <button
-                  className={`field-act${menuOpen ? " on" : ""}`}
-                  onClick={() => setMenuOpen((o) => !o)}
-                  title="Prompt settings"
-                  aria-label="Prompt settings"
-                  aria-pressed={menuOpen}
-                >
-                  <GearIcon />
-                </button>
-                {menuOpen && (
-                  <>
-                    <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
-                    <div className="gear-pop" role="dialog" aria-label="Prompt settings">
-                      <div className="gear-pop-head">
-                        <span>Prompt settings</span>
-                        <button className="link-btn" onClick={() => setMenuOpen(false)}>
-                          close
-                        </button>
+                <div className="field-menu-wrap">
+                  <button
+                    className={`field-act${menuOpen ? " on" : ""}`}
+                    onClick={() => setMenuOpen((o) => !o)}
+                    title="Prompt settings"
+                    aria-label="Prompt settings"
+                    aria-pressed={menuOpen}
+                  >
+                    <GearIcon />
+                  </button>
+                  {menuOpen && (
+                    <>
+                      <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
+                      <div className="gear-pop" role="dialog" aria-label="Prompt settings">
+                        <div className="gear-pop-head">
+                          <span>Prompt settings</span>
+                          <button className="link-btn" onClick={() => setMenuOpen(false)}>
+                            close
+                          </button>
+                        </div>
+                        <div className="gear-pop-body">
+                          <Settings settings={settings} setSettings={setSettings} />
+                        </div>
                       </div>
-                      <div className="gear-pop-body">
-                        <Settings settings={settings} setSettings={setSettings} />
-                      </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="grow" />
@@ -623,10 +653,28 @@ export default function Home({ settings, setSettings }) {
           <section className="card results-card">
             <div className="results-head">
               <h2>Prompts</h2>
-              <span className="count">
-                {prompts.length} generated · {provider?.label}
-              </span>
+              <div className="results-head-right">
+                <span className="count">
+                  {prompts.length} generated · {provider?.label}
+                </span>
+                <button className="link-btn" onClick={clearAll} title="Clear all results">
+                  Clear all
+                </button>
+              </div>
             </div>
+            {sourceDpl && (
+              <div className="source-dpl">
+                <span className="source-dpl-label">DPL</span>
+                <code className="source-dpl-text">{sourceDpl}</code>
+                <button
+                  className="copy-mini"
+                  title="Copy the DPL template"
+                  onClick={() => navigator.clipboard?.writeText(sourceDpl).catch(() => {})}
+                >
+                  copy
+                </button>
+              </div>
+            )}
             <ul className="prompts">
               {prompts.map((p, i) => (
                 <PromptResult
