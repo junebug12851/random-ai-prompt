@@ -121,3 +121,16 @@ a PATCH release `dev → main`), each creating a merge commit so the grouping st
 - Inspect `git status` **before and after** every git operation.
 - Don't commit user data / runtime artifacts: `user-settings.json`, `results.json`, `output/`,
   `node_modules/` (all gitignored).
+
+## Verify (is it being followed?)
+
+The check that catches a violation — run on request, report `done`/`partial`/`missing`
+(the per-standard slice the [compliance audit](compliance.md) aggregates):
+
+| Passes only when… | How to check |
+|-------------------|--------------|
+| Stable branch is **`main`**, not `master` | `git branch -a` |
+| Every commit on `main` is a `--no-ff` **release merge** carrying a matching `vX.Y.Z` tag — no direct commits | `git log --first-parent --oneline main`; `git tag` |
+| Pushed history is intact — no force-push / rebase / reset of published commits | history stable across fetches; no `--force` in reflog |
+| Spent `feature/`/`release/`/`hotfix/` branches deleted; `main`/`dev` intact | `git branch -a` |
+| Each release to `main` rode a green build/test checkpoint | release followed a green CI run |

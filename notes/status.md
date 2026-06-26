@@ -11,7 +11,7 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.6.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
 **Content rating (2.6.1):** the SPA now defaults to **SFW** (`settings.includeAdult: false`) and carries a
@@ -27,7 +27,12 @@ pending: the SFW/adult word-list split + re-adding the Style control (see
 the notes/version/branch model, and a **fairyfox-themed docs site** ([`reference/documentation.md`](reference/documentation.md))
 are in place. The themed docs go live on the next `main` release + Pages deploy. **Branch model (adopted
 2026-06-25):** the project now follows the system's full **git-flow** standard, and `master` was renamed
-to **`main`** (see [`reference/git-workflow.md`](reference/git-workflow.md)). Open (hub-side, for the
+to **`main`** (see [`reference/git-workflow.md`](reference/git-workflow.md)). **Hub updates adopted
+2026-06-26:** the **process-reports** loop ([`fairyfox-reports/`](fairyfox-reports/README.md) +
+[`reference/process-reports.md`](reference/process-reports.md) — every fairyfox run, including a
+check-only one, writes a report) and the **standards compliance audit**
+([`reference/compliance.md`](reference/compliance.md)), plus `## Verify` sections on the git-workflow
+and versioning notes. Notes-only adoption — no `VERSION` bump, no release. Open (hub-side, for the
 owner, in the `junebug12851.github.io` repo): the registry's `notes:` link still points at `tree/master/…`
 (update to `tree/main/…` after the default branch flips), and the `adopts_hub`/docs-site flag is overstated.
 The registry's `branch: dev` is **correct** — that field tracks the work branch, not the default branch.

@@ -220,6 +220,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
+| Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run. See `notes/reference/process-reports.md` |
 
 If something doesn't fit an existing file, make a new one in the right folder. The goal: any AI (or
 human) opening this repo cold can read the notes and be fully oriented — nothing trapped in one
@@ -242,9 +243,19 @@ invoke it the request must carry the word "fairyfox"** — normally **"the fairy
 
 The default is **check, report, then wait**: refresh the read-only system clone under
 `assets/references/fairyfox.io/` (`git -C assets/references/fairyfox.io pull --depth 1 --ff-only origin
-dev`), diff it against what this project has adopted, and **report what changed + what adopting it would
-touch — then stop.** Apply nothing until the user clearly says go ahead; applying is a separate,
-confirmed act. Full procedure: the shared `adopting-updates` runbook (in the clone's `hub/standards/`).
+dev`; if hub `dev` was force-pushed and `--ff-only` aborts, `git fetch` + `git reset --hard origin/dev`
+on the **reference clone only**), diff it against what this project has adopted, and **report what
+changed + what adopting it would touch — then stop.** Apply nothing until the user clearly says go
+ahead; applying is a separate, confirmed act. Full procedure: the shared `adopting-updates` runbook (in
+the clone's `hub/standards/`).
+
+**Every fairyfox run ends with a process report** — write one in `notes/fairyfox-reports/`
+(`YYYY-MM-DD-<procedure>.md`, from the clone's `hub/templates/fairyfox-report.md`), **even a
+check-only run.** It's an honest account of what the run did and where the procedure was rough; the hub
+reads these (read-only, on request) to improve the standards. See
+`notes/reference/process-reports.md`. The recurring whole-set check that this project still follows
+every adopted standard is the **compliance audit** (`notes/reference/compliance.md`) — on request,
+report-only.
 
 **Guardrails (don't break these):** on-request only — never auto-pull or schedule cross-repo syncs
 (anti-recursion); the reference clone is read-only and git-ignored; never apply changes or rewrite

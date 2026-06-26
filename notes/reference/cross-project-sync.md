@@ -52,17 +52,29 @@ later and merge changes by hand.
 The hub keeps its own read-only shallow clone of this repo under its `assets/references/<key>/`
 to track changes and blog about them. That happens in the hub repo, not here.
 
+What the hub reads out of that clone is this project's history (for blog round-ups) **and** its
+[`notes/fairyfox-reports/`](../fairyfox-reports/README.md) — the [process reports](process-reports.md)
+this node writes after running a system procedure, which the hub reviews to improve the standards.
+Both reuse the one read-only inbound flow; neither adds a connection between the repos.
+
 ## Check-for-updates flow (on request only)
 
 When the owner asks to **check the fairyfox system for updates** (the request must carry the word
 *fairyfox*), the default is **check → report → wait**:
 
 1. Refresh the clone: `git -C assets/references/fairyfox.io pull --depth 1 --ff-only origin dev`.
+   If the hub `dev` was **force-pushed**, `--ff-only` aborts — recover with `git fetch` then
+   `git reset --hard origin/dev` on the **reference clone only** (it's a disposable, git-ignored
+   mirror; this never touches project history).
 2. Diff `hub/standards/` + `hub/templates/` against what this project has adopted.
 3. **Report** what changed and what adopting it would touch — **then stop.** Apply nothing until
    the owner says go ahead; applying is a separate, confirmed act.
+4. **Write a process report** in [`notes/fairyfox-reports/`](../fairyfox-reports/README.md) — a
+   check-only run gets one too. See [`process-reports.md`](process-reports.md).
 
-Full procedure: the `adopting-updates.md` runbook in the clone's `hub/standards/`.
+Full procedure: the `adopting-updates.md` runbook in the clone's `hub/standards/`. Whether the run
+only checked or went on to adopt, it ends with a process report. The recurring whole-set check that
+this project still follows every adopted standard is the [compliance audit](compliance.md).
 
 ## Anti-recursion checklist
 
@@ -70,6 +82,8 @@ Full procedure: the `adopting-updates.md` runbook in the clone's `hub/standards/
 - ✅ Each flow is read-only on the far side — sync never pushes into the other repo.
 - ✅ The reference clone is git-ignored — a pull produces no commit, so it triggers nothing.
 - ✅ Adoption is a copy, not a runtime dependency.
+- ✅ Process reports are local notes that ride the existing inbound read — writing one pushes
+  nothing across repos and adds no new connection.
 
 ## Why `assets/references/`, not a submodule
 
