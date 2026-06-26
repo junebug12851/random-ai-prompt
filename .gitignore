@@ -27,7 +27,7 @@ scripts/list-cleanup/out/
 # the tests/ suite, and the committed visual baselines (tests/e2e/*-snapshots/)
 # ARE tracked; only the generated reports below are not.
 /coverage/
-web-app/coverage/
+gui/coverage/
 /playwright-report/
 /test-results/
 /.vitest/

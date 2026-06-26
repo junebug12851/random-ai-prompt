@@ -21,7 +21,7 @@ export default [
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",
       "src/web/frontend/lib/**",
-      "web-app/**",
+      "gui/**",
       "user-settings.json",
       "results.json",
     ],
