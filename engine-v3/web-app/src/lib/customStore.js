@@ -1,13 +1,9 @@
 /**
- * Browser-local "saved" content — the no-server equivalent of the old "Save as
- * Expansion" / "Save Preset". Custom expansions (`{name: text}`, usable as `<name>`)
- * and custom presets (`{name: settingsPatch}`) live in localStorage only.
+ * Browser-local "saved" content — the no-server equivalent of "Save Preset".
+ * Custom presets (`{name: settingsPatch}`) live in localStorage only.
  * @module web-app/lib/customStore
  */
-// Browser-local "saved" content — the no-server equivalent of the old
-// "Save as Expansion" / "Save Preset". Everything lives in localStorage only.
 
-const EXP_KEY = "rap.customExpansions.v1";
 const PRESET_KEY = "rap.customPresets.v1";
 
 /**
@@ -32,35 +28,6 @@ function write(key, obj) {
   } catch {
     // best-effort
   }
-}
-
-/**
- * @returns {object} The custom expansions (`{ name: text }`, usable as `<name>`).
- */
-// Custom expansions: { name: text }. Usable as <name> in prompts.
-export function getCustomExpansions() {
-  return read(EXP_KEY);
-}
-/**
- * Save (or overwrite) a custom expansion.
- * @param {string} name The expansion name.
- * @param {string} text The expansion text.
- * @returns {void}
- */
-export function saveCustomExpansion(name, text) {
-  const o = read(EXP_KEY);
-  o[name] = text;
-  write(EXP_KEY, o);
-}
-/**
- * Remove a custom expansion.
- * @param {string} name The expansion name.
- * @returns {void}
- */
-export function removeCustomExpansion(name) {
-  const o = read(EXP_KEY);
-  delete o[name];
-  write(EXP_KEY, o);
 }
 
 /**
