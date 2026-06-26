@@ -60,3 +60,16 @@ existing — so a release happens exactly when `main` advances on a commit that 
 
 > **Don't confuse this with [`../version.md`](../version.md).** This file is the version-*number*
 > scheme. `version.md` is the *changelog* (the per-commit narrative).
+
+## Verify (is it being followed?)
+
+Run on request, report `done`/`partial`/`missing` (the per-standard slice the
+[compliance audit](compliance.md) aggregates):
+
+| Passes only when… | How to check |
+|-------------------|--------------|
+| `VERSION` is a single SemVer line | `cat VERSION` (first non-comment line) |
+| It equals the newest `vX.Y.Z` tag on `main` | `git describe --tags --abbrev=0 main` vs `VERSION` |
+| `package.json` (and `web-app/package.json` when the SPA ships) match `VERSION` | grep their `"version"` fields |
+| No version is hardcoded anywhere else | grep the tree for a stray `X.Y.Z` |
+| MAJOR was never bumped without the project leader's call | tag history shows no auto `→ N.0.0` |
