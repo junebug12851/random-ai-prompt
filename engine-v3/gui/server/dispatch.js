@@ -10,10 +10,16 @@
  * @module gui/server/dispatch
  */
 import openaiServer from "../providers/openai/code/server.js";
+import replicateServer from "../providers/replicate/code/server.js";
+import falServer from "../providers/fal/code/server.js";
+import stabilityServer from "../providers/stability/code/server.js";
 
 /** @type {Record<string, (args: object) => Promise<{images: string[]}>>} */
 export const serverAdapters = {
   openai: openaiServer,
+  replicate: replicateServer,
+  fal: falServer,
+  stability: stabilityServer,
 };
 
 /**

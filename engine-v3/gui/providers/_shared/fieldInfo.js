@@ -22,6 +22,8 @@ export const FIELD_INFO = {
     "What to push AWAY from. Supports DPL — it's rolled out like the main prompt before sending.",
   model: "Which model to generate with.",
   size: "Output image size.",
+  aspectRatio: "Output aspect ratio, e.g. 1:1, 16:9, 9:16.",
+  imageSize: "Output size preset (fal named sizes, e.g. square_hd, landscape_16_9).",
   // Midjourney parameters
   ar: "Aspect ratio, e.g. 16:9 (--ar).",
   stylize: "How strongly Midjourney applies its house aesthetic (--stylize, 0–1000).",
