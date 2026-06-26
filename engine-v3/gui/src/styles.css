@@ -1851,6 +1851,13 @@ button.ghost:hover {
   grid-template-columns: 1fr;
   gap: 0.5rem;
 }
+/* Reset button spans the popover width instead of being shoved to the right. */
+.gear-pop .settings-actions {
+  justify-content: stretch;
+}
+.gear-pop .settings-actions button {
+  width: 100%;
+}
 @keyframes shimmer {
   from {
     background-position: 200% 0;
