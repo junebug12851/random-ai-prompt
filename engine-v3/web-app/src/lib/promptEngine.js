@@ -16,20 +16,10 @@ import { browserLoader } from "../../../src/core/browserLoader.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
-import { getCustomExpansions, getCustomPresets } from "./customStore.js";
+import { getCustomPresets } from "./customStore.js";
 
-// Composite loader: custom expansions (localStorage) shadow/extend the bundled
-// ones; everything else passes through to the build-time bundle.
-const loader = {
-  ...browserLoader,
-  readExpansion(name) {
-    const custom = getCustomExpansions();
-    return name in custom ? custom[name] : browserLoader.readExpansion(name);
-  },
-  expansionNames() {
-    return [...new Set([...browserLoader.expansionNames(), ...Object.keys(getCustomExpansions())])];
-  },
-};
+// The build-time browser bundle is the loader directly — v3-only, no expansions.
+const loader = browserLoader;
 
 promptFiles.configure(loader);
 const engine = createEngine(loader);
@@ -221,47 +211,7 @@ const specialItems = () => [
   },
 ];
 
-// Expansions are a LEGACY (v1/v2-era) concept — reusable `<name>` snippets living on disk under
-// data/expansions-obsolete/. They are shown as an "expansion" category ONLY on the frozen v1/v2
-// tabs (never v3), built as folder categories the same way Lists are. The chip inserts `<name>`.
-const expDisplay = computeButtonNames(
-  browserLoader.expansionNames(),
-  browserLoader.expansionForcedPrefixDirs ? browserLoader.expansionForcedPrefixDirs() : [],
-);
-const expDescFor = (n) => (browserLoader.readExpansionMeta ? browserLoader.readExpansionMeta(n) : null)?.description;
-const expansionItems = () => {
-  const names = browserLoader.expansionNames();
-  if (!names.length) return [];
-  const groupDirs = new Set(browserLoader.expansionGroupDirs ? browserLoader.expansionGroupDirs() : []);
-  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
-  const byFolder = new Map();
-  for (const n of names) {
-    const i = n.lastIndexOf("/");
-    const folder = i < 0 ? "" : n.slice(0, i);
-    if (!byFolder.has(folder)) byFolder.set(folder, []);
-    byFolder.get(folder).push(n);
-  }
-  const cats = [];
-  for (const [folder, members] of byFolder) {
-    cats.push({
-      label: lastSeg(folder),
-      // A folder with 2+ expansions is an implied group: the pill inserts <folder> (pick one).
-      token: groupDirs.has(folder) ? `<${lastSeg(folder)}>` : null,
-      description: expDescFor(folder),
-      entries: members
-        .map((n) => ({ token: `<${expDisplay[n]}>`, label: expDisplay[n], description: expDescFor(n) }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    });
-  }
-  cats.sort((a, b) => a.label.localeCompare(b.label));
-  const out = [];
-  for (const c of cats) {
-    const pill = { category: true, label: c.label, description: c.description };
-    if (c.token) pill.token = c.token;
-    out.push(pill, ...c.entries);
-  }
-  return out;
-};
+// (Legacy `<name>` expansions were removed — engine-v3 is v3-only.)
 
 // v3 has no full/partial — it's one "Prompts" list. v1/v2 keep their frozen full/partial split.
 const fp = { v2: splitFP("v2"), v1: splitFP("v1") };
@@ -379,19 +329,6 @@ export function getBlocks() {
       items: [],
     },
     {
-      // Legacy `<name>` expansions — only the frozen v1/v2 generations use them (not v3).
-      title: "Expansions",
-      subLabel: "expansion",
-      hint: "Legacy reusable snippets — insert <name>. Used by the frozen v1/v2 generators.",
-      dynVersioned: true,
-      variants: {
-        v3: [],
-        v2: expansionItems(),
-        v1: expansionItems(),
-      },
-      items: [],
-    },
-    {
       // Lists are version-independent — shown as a Blocks sub-tab on every generation.
       title: "Lists",
       subLabel: "lists",
@@ -402,14 +339,6 @@ export function getBlocks() {
     },
   ];
 
-  const custom = Object.keys(getCustomExpansions());
-  if (custom.length) {
-    blocks.push({
-      title: "Your blocks",
-      hint: "Saved in this browser",
-      items: toItems(custom, (n) => `<${n}>`),
-    });
-  }
   return blocks;
 }
 

@@ -13,7 +13,6 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getBlocks, generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
-import { saveCustomExpansion } from "../lib/customStore.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import WrapperButton from "./WrapperFab.jsx";
@@ -23,12 +22,6 @@ const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshe
 // Crisp monochrome action icons (stroke = currentColor) so the four field
 // buttons read as one cohesive set.
 const ico = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
-const SaveIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-    <path d="M17 21v-8H7v8M7 3v5h8" />
-  </svg>
-);
 const ShareIcon = () => (
   <svg {...ico} aria-hidden="true">
     <circle cx="18" cy="5" r="3" />
@@ -66,7 +59,6 @@ export default function Home({ settings, setSettings }) {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
   const [dynVer, setDynVer] = useState("v3"); // "v3" (default) | "v2" | "v1" superset for the dynamic blocks
-  const [expName, setExpName] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -175,9 +167,6 @@ export default function Home({ settings, setSettings }) {
     }
   }
 
-  function toggleSave() {
-    setPanel((p) => (p === "save" ? "" : "save"));
-  }
   // Opening Share builds a fresh link so it's ready to copy; the link stays
   // visible even if the clipboard is blocked.
   function toggleShare() {
@@ -198,14 +187,6 @@ export default function Home({ settings, setSettings }) {
     }
   }
 
-  function saveExpansion() {
-    const name = expName.trim();
-    if (!name || !prompt.trim()) return;
-    saveCustomExpansion(name, prompt);
-    setExpName("");
-    setPanel("");
-    setVersion((v) => v + 1);
-  }
 
   function copyPrompt(p) {
     navigator.clipboard?.writeText(p).catch(() => {});
@@ -369,16 +350,6 @@ export default function Home({ settings, setSettings }) {
 
               <WrapperButton settings={settings} setSettings={setSettings} />
               <button
-                className={`field-act${panel === "save" ? " on" : ""}`}
-                onClick={toggleSave}
-                disabled={!prompt.trim()}
-                title="Save as block"
-                aria-label="Save as block"
-                aria-pressed={panel === "save"}
-              >
-                <SaveIcon />
-              </button>
-              <button
                 className={`field-act${panel === "share" ? " on" : ""}`}
                 onClick={toggleShare}
                 title="Share link"
@@ -401,28 +372,7 @@ export default function Home({ settings, setSettings }) {
             </div>
           </div>
 
-          {/* Save / Share panels, opened from the field bar */}
-          {panel === "save" && (
-            <div className="action-panel">
-              <div className="ap-row">
-                <i className="panel-icon" aria-hidden="true">
-                  <SaveIcon />
-                </i>
-                <input
-                  className="panel-input"
-                  placeholder="Save this prompt as a reusable block…"
-                  value={expName}
-                  onChange={(e) => setExpName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveExpansion()}
-                  aria-label="Expansion name"
-                  autoFocus
-                />
-                <button className="primary" onClick={saveExpansion} disabled={!expName.trim() || !prompt.trim()}>
-                  Save
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Share panel, opened from the field bar */}
           {panel === "share" && (
             <div className="action-panel">
               <div className="ap-row">

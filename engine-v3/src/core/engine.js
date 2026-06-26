@@ -23,20 +23,13 @@
 import baseSettings from "../settings.js";
 import promptSalt from "../prompt-modules/prompt-salt.js";
 import cleanup from "../prompt-modules/cleanup.js";
-import { makeExpansionStage } from "./stages/expansion.js";
 import { makeDynamicPromptStage } from "./stages/dynamicPrompt.js";
 import { makeListStage } from "./stages/list.js";
 import { createListStore } from "./listStore.js";
 
-const DEFAULT_ORDER = [
-  "expansion",
-  "dynamic-prompt",
-  "expansion",
-  "dynamic-prompt",
-  "prompt-salt",
-  "list",
-  "cleanup",
-];
+// v3-only pipeline. The legacy `<expansion>` stage was removed (v1/v2-era); the
+// dynamic-prompt stage internally re-expands up to 10 passes, so one entry suffices.
+const DEFAULT_ORDER = ["dynamic-prompt", "prompt-salt", "list", "cleanup"];
 
 /**
  * Create a framework-agnostic prompt engine that runs the same pipeline as the CLI.
@@ -48,7 +41,6 @@ export function createEngine(loader) {
   const store = createListStore(loader);
 
   const stages = {
-    expansion: makeExpansionStage(loader),
     "dynamic-prompt": makeDynamicPromptStage(loader),
     "prompt-salt": promptSalt,
     list: makeListStage(store),

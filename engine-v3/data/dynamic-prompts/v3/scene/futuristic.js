@@ -58,8 +58,8 @@ export default function () {
   if (_.random(0.0, 1.0, true) < 0.2) prompt += ", artifact";
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", dramatic lighting";
   if (_.random(0.0, 1.0, true) < 0.35) prompt += ", intense";
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <dap>";
-  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", <detail/legacy>";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#dap}";
+  if (_.random(0.0, 1.0, true) < 0.35) prompt += ", {#legacy}";
 
   return prompt;
 }

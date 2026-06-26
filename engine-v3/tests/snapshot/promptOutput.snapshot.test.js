@@ -40,13 +40,12 @@ describe("DPL render snapshot (seeded)", () => {
 });
 
 describe("engine pipeline snapshot (seeded)", () => {
-  it("locks the composite expansion output", () => {
+  it("locks the composite pipeline output", () => {
     // Single-entry lists keep the list stage deterministic (lodash's RNG can't be
     // stubbed); the DPL "one of" is driven by Math.random, which withSeed controls.
     const engine = createEngine(
       makeFakeLoader({
         lists: { adjective: ["misty"], scene: ["forest"] },
-        expansions: { intro: "a photo of" },
         dpl: { mood: "one of:\n  - serene\n  - dramatic\n  - moody" },
       }),
     );
@@ -60,10 +59,10 @@ describe("engine pipeline snapshot (seeded)", () => {
       listEntriesUsedOnce: true,
       autoAddFx: false,
       autoAddArtists: false,
-      promptModules: ["expansion", "dynamic-prompt", "list", "cleanup"],
+      promptModules: ["dynamic-prompt", "list", "cleanup"],
     };
     const out = withSeed(2026, () =>
-      engine.expand("<intro> {adjective} {scene}, {#mood}", settings, {}, {}),
+      engine.expand("{adjective} {scene}, {#mood}", settings, {}, {}),
     );
     expect(out).toMatchSnapshot();
   });
