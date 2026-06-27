@@ -53,6 +53,28 @@ async function fileAction(action, p) {
   }
 }
 
+/**
+ * Patch an image's metadata sidecar on disk (shallow-merge), e.g. to persist an edited keyword list.
+ * @param {string} p A served `/api/output/<file>` path.
+ * @param {object} patch Top-level keys to merge into the sidecar JSON.
+ * @returns {Promise<object|null>} The merged sidecar, or null on failure / no dev server.
+ */
+export async function updateImageMeta(p, patch) {
+  if (!isOutputFile(p)) return null;
+  try {
+    const res = await fetch("/api/image/meta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: p, patch }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (res.ok && d.meta) return d.meta;
+  } catch {
+    // no dev server (static build) — sidecar updates simply aren't available
+  }
+  return null;
+}
+
 /** Delete an image file from disk. */
 export const deleteImageFile = (p) => fileAction("delete", p);
 /** Reveal an image in the OS file explorer. */

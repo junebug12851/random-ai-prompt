@@ -94,6 +94,7 @@ function ProviderField({ f, params, setParam, optionData, onRandom, settings }) 
         <DplEditor
           className="negative-textarea"
           value={v ?? ""}
+          settings={settings}
           ariaLabel="Negative prompt (DPL)"
           placeholder="e.g. blurry, lowres, {#bad-anatomy} — DPL is rolled out before sending"
           onChange={(x) => setParam(f.key, x)}

@@ -11,8 +11,18 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.29` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.8.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Keyword tooling + DPL insert toolbar (2.8.0):** the single view's keyword cloud is now backed by a real
+parser (`gui/src/lib/keywords.js` — strips SD/NovelAI weighting syntax, keeps accents for display but folds
+them for dedupe/search) with a **"Rebuild with AI"** button that keyword-translates the prompt, alphabetizes,
+and saves over the image's sidecar (`POST /api/image/meta`); the composer gained an **`autoKeyword`** toggle
+beside the auto-fix wand (independent + chainable), backed by a new `KEYWORD_SYSTEM` rewrite mode; and the
+single view's details block is a real `<table>`. Also lands the **DPL insert toolbar** above the prompt box
+(`DplInsertBar.jsx` + `dplInserts.js`, snippet insertion via `DplEditor.insertSnippet`). The stale E2E
+selectors that still targeted `<textarea>` (red since the 2.7.26 CodeMirror switch) were fixed to drive
+`.prompt-input .cm-content`, and the Linux visual baselines were refreshed.
 
 **DPL editors (2.7.26):** the prompt, negative, and wrapper Start/End boxes are **CodeMirror 6** editors
 (`gui/src/components/DplEditor.jsx` + `gui/src/lib/dpl/dplLanguage.js`) with DPL syntax highlighting

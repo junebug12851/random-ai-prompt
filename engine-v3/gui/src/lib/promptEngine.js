@@ -283,15 +283,23 @@ export function getBlocks(opts = {}) {
 
 /**
  * Flatten the building-block catalog into autocomplete entries for the DPL editor: one per
- * insertable token ({list} / {#generator} / reserved), de-duplicated, with its tooltip text.
- * @returns {Array<{token: string, label: string, kind: ("gen"|"list"), description: (string|undefined)}>}
+ * insertable token ({list} / {#generator} / reserved), de-duplicated, carrying its tooltip text
+ * AND the grouping it belongs to (the `group` — Blocks vs Lists — and the `category`/folder pill
+ * it sits under) so the dropdown can render section headers instead of one flat dump. Order is
+ * preserved (the catalog is already priority- then alpha-sorted), so a section's `rank` can just
+ * follow first-appearance.
+ * @returns {Array<{token: string, label: string, kind: ("gen"|"list"), description: (string|undefined), group: string, category: string}>}
  *   The completion entries.
  */
 export function getDplCompletions() {
   const out = [];
   const seen = new Set();
   for (const b of getBlocks()) {
+    let category = b.title;
     for (const it of b.items) {
+      // A category/folder pill: it relabels the running section. Pills can themselves be
+      // insertable (a clickable group like {#scene} / {word}), so fall through to include them.
+      if (it.category) category = it.label || b.title;
       if (!it.token || seen.has(it.token)) continue;
       seen.add(it.token);
       out.push({
@@ -299,6 +307,8 @@ export function getDplCompletions() {
         label: it.label,
         kind: it.token.startsWith("{#") ? "gen" : "list",
         description: it.description,
+        group: b.title,
+        category,
       });
     }
   }

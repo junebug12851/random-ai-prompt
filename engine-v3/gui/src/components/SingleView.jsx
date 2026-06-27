@@ -10,10 +10,19 @@
  * tabs. It stays mounted but hidden when inactive, so keyboard nav is gated on `active`.
  * @module gui/components/SingleView
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { promptText, promptLayers, negativeLayers } from "../lib/gallery.js";
 import { convertUrl } from "../lib/magick.js";
-import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
+import {
+  isOutputFile,
+  openImageFile,
+  revealImageFile,
+  updateImageMeta,
+} from "../lib/output.js";
+import { parseKeywords, normalizeKeywordList } from "../lib/keywords.js";
+import { rewritePrompt } from "../lib/rewrite.js";
+import { effectiveKey } from "../lib/sessionKeys.js";
+import { getProvider } from "../lib/providers/index.js";
 
 /** A labeled, copyable block of prompt/negative text (skipped when empty). */
 function TextRow({ label, value, mono, accent }) {
@@ -52,10 +61,25 @@ function PromptCard({ title, layers }) {
 function DetailRow({ label, value }) {
   if (value === undefined || value === null || value === "") return null;
   return (
-    <div className="g-detail-row">
-      <span className="g-detail-key">{label}</span>
-      <span className="g-detail-value">{String(value)}</span>
-    </div>
+    <tr className="g-detail-row">
+      <th scope="row" className="g-detail-key">
+        {label}
+      </th>
+      <td className="g-detail-value">{String(value)}</td>
+    </tr>
+  );
+}
+
+/** A `<table>` of label/value detail rows (empty rows skipped). */
+function DetailTable({ rows }) {
+  return (
+    <table className="g-detail-table">
+      <tbody>
+        {rows.map(([k, v]) => (
+          <DetailRow key={k} label={k} value={v} />
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -65,32 +89,98 @@ const pick = (s, ...keys) => {
   return undefined;
 };
 
-/** The clickable keyword cloud, built from the sent prompt's comma-separated tags. */
-function KeywordCloud({ text, onSearch }) {
+/**
+ * The clickable keyword cloud. Prefers a saved keyword list on the sidecar (`meta.keywords`, e.g.
+ * one the AI rebuilt and we alphabetized); otherwise it parses clean tags from the sent prompt with
+ * the shared keyword parser (which strips SD/NovelAI weighting syntax and de-accents for matching).
+ * The "Rebuild with AI" button asks the configured rewrite provider to break the sent prompt into a
+ * tidy tag list, sorts it alphabetically, and saves it over the sidecar's keyword set.
+ * @param {object} props
+ * @param {string} props.text The sent-to-model prompt text.
+ * @param {string[]|null} props.saved A saved keyword list from the sidecar, or null.
+ * @param {object} props.item The gallery item (for its served path / on-disk check).
+ * @param {object} props.settings App settings (rewrite provider + key).
+ * @param {Function} props.onSearch `(term)` — search the gallery for a keyword.
+ * @param {Function} props.onSaved `(meta)` — a fresh sidecar after a save.
+ * @returns {JSX.Element|null}
+ */
+function KeywordsCard({ text, saved, item, settings, onSearch, onSaved }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  // Saved list wins; otherwise parse clean tags from the prompt. Both produce display strings.
   const tags = useMemo(() => {
-    const seen = new Set();
-    return (text || "")
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => {
-        const k = t.toLowerCase();
-        if (!t || t.length > 40 || seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      })
-      .slice(0, 60);
-  }, [text]);
-  if (tags.length < 2) return null;
+    if (Array.isArray(saved) && saved.length) return saved.slice(0, 80);
+    return parseKeywords(text).map((k) => k.display);
+  }, [saved, text]);
+
+  const rewriteId = settings?.rewriteProvider;
+  const canRebuild =
+    isOutputFile(item?.path) && rewriteId && rewriteId !== "none" && Boolean(text && text.trim());
+
+  async function rebuild() {
+    setError("");
+    const key = effectiveKey(rewriteId, settings);
+    if (!key) {
+      setError(
+        `${getProvider(rewriteId)?.label || "The rewrite provider"} has no API key — add one on the Generate screen.`,
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const reply = await rewritePrompt({ providerId: rewriteId, prompt: text, key, mode: "keyword" });
+      // The model replies with a comma list; clean, de-dupe, and alphabetize it.
+      const keywords = normalizeKeywordList((reply || "").split(/[,\n]+/), { sort: true });
+      if (!keywords.length) {
+        setError("The model returned no usable keywords.");
+        return;
+      }
+      const meta = await updateImageMeta(item.path, { keywords });
+      if (meta) onSaved?.(meta);
+      else setError("Couldn't save keywords (no local server?).");
+    } catch (e) {
+      setError("Keyword rebuild failed: " + (e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Nothing worth showing unless there are tags or the rebuild action is available.
+  if (tags.length < 2 && !canRebuild) return null;
+
   return (
     <section className="g-card">
-      <h3 className="g-card-title">Keywords</h3>
-      <div className="g-cloud">
-        {tags.map((t, i) => (
-          <button key={i} className="g-cloud-chip" onClick={() => onSearch(t)} title={`Find “${t}”`}>
-            {t}
+      <div className="g-card-head">
+        <h3 className="g-card-title">
+          Keywords{Array.isArray(saved) && saved.length ? " · edited" : ""}
+        </h3>
+        {canRebuild && (
+          <button
+            className="g-card-action"
+            onClick={rebuild}
+            disabled={busy}
+            title="Send the prompt to the AI, break it into a clean alphabetical keyword list, and save it over these"
+          >
+            {busy ? "Rebuilding…" : "Rebuild with AI"}
           </button>
-        ))}
+        )}
       </div>
+      {error && <p className="g-card-err">{error}</p>}
+      {tags.length > 0 && (
+        <div className="g-cloud">
+          {tags.map((t, i) => (
+            <button
+              key={`${t}-${i}`}
+              className="g-cloud-chip"
+              onClick={() => onSearch(t)}
+              title={`Find “${t}”`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -101,24 +191,28 @@ function KeywordCloud({ text, onSearch }) {
  * @param {object[]} props.items The feed (drives prev/next).
  * @param {object|null} props.current The image being shown.
  * @param {{available: boolean, formats: string[]}} props.magick ImageMagick capability.
+ * @param {object} props.settings App settings (rewrite provider + key for the keyword rebuild).
  * @param {boolean} props.active Whether this view is the visible one (gates keyboard nav).
  * @param {string} props.returnLabel Label for the Back button target (e.g. "Generate").
  * @param {Function} props.onBack Leave the single view.
  * @param {Function} props.onNavigate `(item)` — show another image (prev/next).
  * @param {Function} props.onDelete `(item)`.
  * @param {Function} props.onSearch `(term)` — search the gallery for a keyword.
+ * @param {Function} props.onMetaUpdate `(path, meta)` — apply a saved sidecar to the feed + view.
  * @returns {JSX.Element}
  */
 export default function SingleView({
   items,
   current,
   magick,
+  settings,
   active,
   returnLabel,
   onBack,
   onNavigate,
   onDelete,
   onSearch,
+  onMetaUpdate,
 }) {
   const index = current ? items.findIndex((it) => it.path === current.path) : -1;
   const total = items.length;
@@ -278,25 +372,24 @@ export default function SingleView({
               {details.some(([, v]) => v !== undefined && v !== null && v !== "") && (
                 <section className="g-card">
                   <h3 className="g-card-title">Details</h3>
-                  <div className="g-detail-table">
-                    {details.map(([k, v]) => (
-                      <DetailRow key={k} label={k} value={v} />
-                    ))}
-                  </div>
+                  <DetailTable rows={details} />
                   {restSettings.length > 0 && (
                     <details className="g-more">
                       <summary>All settings ({restSettings.length})</summary>
-                      <div className="g-detail-table">
-                        {restSettings.map(([k, v]) => (
-                          <DetailRow key={k} label={k} value={String(v)} />
-                        ))}
-                      </div>
+                      <DetailTable rows={restSettings.map(([k, v]) => [k, String(v)])} />
                     </details>
                   )}
                 </section>
               )}
 
-              <KeywordCloud text={p.final || p.roll} onSearch={onSearch} />
+              <KeywordsCard
+                text={p.final || p.roll}
+                saved={Array.isArray(m.keywords) ? m.keywords : null}
+                item={item}
+                settings={settings}
+                onSearch={onSearch}
+                onSaved={(meta) => onMetaUpdate?.(item.path, meta)}
+              />
 
               {item.meta && (
                 <details className="g-more">

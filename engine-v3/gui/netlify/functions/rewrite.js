@@ -21,11 +21,11 @@ export const handler = async (event) => {
     return json(400, { error: "Invalid JSON body" });
   }
 
-  const { providerId, prompt, key } = body;
+  const { providerId, prompt, key, mode } = body;
   if (!prompt) return json(400, { error: "Missing prompt" });
 
   try {
-    const out = await dispatchRewrite({ providerId, prompt, key });
+    const out = await dispatchRewrite({ providerId, prompt, key, mode });
     return json(200, out);
   } catch (e) {
     return json(502, { error: e.message || "Rewrite failed" });

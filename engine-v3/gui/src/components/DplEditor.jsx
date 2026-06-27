@@ -9,13 +9,18 @@
  * latest `value` is tracked in a ref and compared before re-dispatching).
  * @module gui/components/DplEditor
  */
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, placeholder as placeholderExt, drawSelection } from "@codemirror/view";
 import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { dplLanguage, dplCompletionSource } from "../lib/dpl/dplLanguage.js";
-import { getDplCompletions } from "../lib/promptEngine.js";
+import { autocompletion, completionKeymap, snippet } from "@codemirror/autocomplete";
+import { dplLanguage, dplCompletionSource, dplKindBadge } from "../lib/dpl/dplLanguage.js";
+import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
+
+// Render a token into a concrete example for the autocomplete info panel (no auto-FX/auto-artist
+// noise, mirroring the eye-icon live preview).
+const expandExample = (token, settings) =>
+  expandPrompt(token, { ...settings, autoAddFx: false, autoAddArtists: false });
 
 /**
  * @param {object} props
@@ -24,16 +29,52 @@ import { getDplCompletions } from "../lib/promptEngine.js";
  * @param {string} [props.placeholder] Placeholder shown when empty (may change over time).
  * @param {string} [props.className] Extra class on the wrapper (e.g. `prompt-input`).
  * @param {string} [props.ariaLabel] Accessible label for the editor.
+ * @param {object} [props.settings] Generation settings — used to roll the live example in the
+ *   autocomplete info panel with the correct SFW/NSFW gating. Read lazily, so updates don't remount.
+ * @param {import("react").Ref} ref Imperative handle: `{ insertSnippet(template, opts), focus() }`.
  * @returns {JSX.Element}
  */
-export default function DplEditor({ value, onChange, placeholder = "", className = "", ariaLabel }) {
+function DplEditor(
+  { value, onChange, placeholder = "", className = "", ariaLabel, settings },
+  ref,
+) {
   const hostRef = useRef(null);
   const viewRef = useRef(null);
   const valueRef = useRef(value);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
   const placeholderCompartment = useRef(new Compartment());
   const labelCompartment = useRef(new Compartment());
+
+  // Imperative handle for the DPL insert toolbar: drop a snippet at the cursor (or wrap the
+  // selection), with CodeMirror's `${…}` tab stops so the user can tab through the blanks.
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => viewRef.current?.focus(),
+      insertSnippet: (template, opts = {}) => {
+        const view = viewRef.current;
+        if (!view || !template) return;
+        const sel = view.state.selection.main;
+        let tpl = template;
+        if (opts.wrap) {
+          const selText = view.state.sliceDoc(sel.from, sel.to);
+          tpl = tpl.replace("${sel}", selText ? `\${1:${selText}}` : "${1}");
+        }
+        if (opts.line) {
+          // Line-leading constructs need their own line — prepend a newline if the cursor's line
+          // already has content before it.
+          const line = view.state.doc.lineAt(sel.from);
+          if (view.state.sliceDoc(line.from, sel.from).trim() !== "") tpl = `\n${tpl}`;
+        }
+        view.focus();
+        snippet(tpl)(view, null, sel.from, sel.to);
+      },
+    }),
+    [],
+  );
 
   // Build the editor once (mount). The completion source reads the catalog lazily each time.
   useEffect(() => {
@@ -53,7 +94,16 @@ export default function DplEditor({ value, onChange, placeholder = "", className
         drawSelection(),
         EditorView.lineWrapping,
         dplLanguage(),
-        autocompletion({ override: [dplCompletionSource(getDplCompletions)], icons: false }),
+        autocompletion({
+          override: [
+            dplCompletionSource(getDplCompletions, {
+              expand: expandExample,
+              getSettings: () => settingsRef.current || {},
+            }),
+          ],
+          icons: false,
+          addToOptions: [{ render: dplKindBadge, position: 70 }],
+        }),
         keymap.of([...completionKeymap, ...historyKeymap, ...defaultKeymap]),
         placeholderCompartment.current.of(placeholderExt(placeholder)),
         labelCompartment.current.of(
@@ -94,3 +144,5 @@ export default function DplEditor({ value, onChange, placeholder = "", className
 
   return <div ref={hostRef} className={`dpl-editor ${className}`.trim()} />;
 }
+
+export default forwardRef(DplEditor);

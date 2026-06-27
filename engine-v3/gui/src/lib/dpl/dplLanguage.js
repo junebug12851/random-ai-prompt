@@ -154,28 +154,115 @@ const DPL_KEYWORDS = [
   { label: "go to ", info: "Jump to another section" },
 ];
 
+const el = (tag, className, text) => {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text != null) node.textContent = text;
+  return node;
+};
+
+// Render a section header for the grouped dropdown (CompletionSection.header). The section name
+// is "Group · category" (e.g. "Blocks · scene"); we split it so the group reads as an eyebrow.
+const sectionHeader = (section) => {
+  const wrap = el("div", "cm-dpl-section");
+  const [group, ...rest] = String(section.name).split(" · ");
+  if (rest.length) {
+    wrap.appendChild(el("span", "cm-dpl-section-group", group));
+    wrap.appendChild(el("span", "cm-dpl-section-name", rest.join(" · ")));
+  } else {
+    wrap.appendChild(el("span", "cm-dpl-section-name", group));
+  }
+  return wrap;
+};
+
+/**
+ * Per-option kind badge for `autocompletion({ addToOptions })`. Renders a small gen/list tag on
+ * each row (and nothing for non-catalog options like the DPL keywords), so the kind is legible
+ * at a glance without opening the info panel.
+ * @param {import("@codemirror/autocomplete").Completion & {dplKind?: string}} completion
+ * @returns {HTMLElement|null}
+ */
+export function dplKindBadge(completion) {
+  const kind = completion.dplKind;
+  if (!kind) return null;
+  return el("span", `cm-dpl-kind cm-dpl-kind-${kind}`, kind);
+}
+
+// Build the rich, re-rolling info panel for one catalog entry. `expand(token, settings)` renders
+// a concrete example; `getSettings()` reads the live settings (so SFW/NSFW gating is correct).
+// Returns the CompletionInfo `{dom, destroy}` shape so the re-roll interval is cleaned up when
+// the highlighted option changes.
+const makeInfo = (it, expand, getSettings) => () => {
+  const dom = el("div", "cm-dpl-info");
+
+  const head = el("div", "cm-dpl-info-head");
+  head.appendChild(el("span", "cm-dpl-info-title", it.token));
+  head.appendChild(el("span", `cm-dpl-kind cm-dpl-kind-${it.kind}`, it.kind));
+  if (it.category) head.appendChild(el("span", "cm-dpl-info-cat", it.category));
+  dom.appendChild(head);
+
+  if (it.description) dom.appendChild(el("p", "cm-dpl-info-desc", it.description));
+
+  if (typeof expand !== "function") return dom;
+
+  const ex = el("div", "cm-dpl-info-ex");
+  ex.appendChild(el("span", "cm-dpl-info-ex-label", "Example"));
+  const exText = el("span", "cm-dpl-info-ex-text");
+  ex.appendChild(exText);
+  dom.appendChild(ex);
+
+  const roll = () => {
+    try {
+      const out = expand(it.token, getSettings ? getSettings() : {});
+      exText.textContent = out && out.trim() ? out : "—";
+    } catch {
+      exText.textContent = "—";
+    }
+  };
+  roll();
+  const id = setInterval(roll, 1000);
+  return { dom, destroy: () => clearInterval(id) };
+};
+
 /**
  * Build a CodeMirror completion source from the engine's building-block catalog.
  *
  * Inside a `{` / `{#` the dropdown offers every list and generator token (each option replaces
- * the partial brace, so there's no double-brace); on a `-` bullet line it offers the DPL
- * structural keywords.
- * @param {() => Array<{token: string, label: string, kind: string, description?: string}>} getItems
+ * the partial brace, so there's no double-brace), grouped into section headers by category and
+ * carrying a kind badge + a rich info panel (title, kind/category, description, a re-rolling
+ * example). On a `-` bullet line it offers the DPL structural keywords instead.
+ * @param {() => Array<{token: string, label: string, kind: string, description?: string, group?: string, category?: string}>} getItems
  *   Returns the catalog entries (called once per completion, so a refreshed catalog is picked up).
+ * @param {object} [opts]
+ * @param {(token: string, settings: object) => string} [opts.expand] Render a token into a concrete
+ *   example for the info panel. When omitted, the example block is skipped.
+ * @param {() => object} [opts.getSettings] Reads the live generation settings (for SFW/NSFW gating).
  * @returns {import("@codemirror/autocomplete").CompletionSource} The completion source.
  */
-export function dplCompletionSource(getItems) {
+export function dplCompletionSource(getItems, opts = {}) {
+  const { expand, getSettings } = opts;
   return (context) => {
     // Brace context: replace the partial `{…` with a full token.
     const brace = context.matchBefore(/\{#?[\w/-]*$/);
     if (brace) {
       const items = getItems() || [];
-      const options = items.map((it) => ({
-        label: it.token,
-        detail: it.kind,
-        info: it.description || undefined,
-        type: it.kind === "gen" ? "function" : "variable",
-      }));
+      // One shared section object per name (rank = first-appearance order keeps catalog order).
+      const sections = new Map();
+      const sectionFor = (name, rank) => {
+        if (!sections.has(name)) sections.set(name, { name, rank, header: sectionHeader });
+        return sections.get(name);
+      };
+      const options = items.map((it, i) => {
+        const name = it.category && it.group ? `${it.group} · ${it.category}` : it.group || "Blocks";
+        return {
+          label: it.token,
+          detail: it.category || undefined,
+          dplKind: it.kind,
+          section: sectionFor(name, i),
+          info: makeInfo(it, expand, getSettings),
+          type: it.kind === "gen" ? "function" : "variable",
+        };
+      });
       return { from: brace.from, options, validFor: /^\{#?[\w/-]*$/ };
     }
     // Line-leading DPL keyword context (only on a bullet line, so prose isn't disturbed).
