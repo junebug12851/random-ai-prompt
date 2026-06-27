@@ -11,8 +11,15 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.26` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**DPL editors (2.7.26):** the prompt, negative, and wrapper Start/End boxes are **CodeMirror 6** editors
+(`gui/src/components/DplEditor.jsx` + `gui/src/lib/dpl/dplLanguage.js`) with DPL syntax highlighting
+(theme-aware `--dpl-*` colors in `styles.css`) and a brace-aware `{…}`/`{#…}` token autocomplete. On branch
+`feature/dpl-codemirror` (lint/smoke/tests/build green; **not yet merged to `dev`**, and the Playwright
+**visual baselines** need `npm run test:e2e:update` for the prompt-box change). First of a four-branch
+GUI/DPL UX pass (sidecar priority + nsfw flag; result/gallery polish; online-build variant still to come).
 
 **Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
 carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay

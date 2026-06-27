@@ -26,6 +26,7 @@ import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
 import LivePreview from "./LivePreview.jsx";
+import DplEditor from "./DplEditor.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -599,10 +600,11 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           {/* The prompt box is a chat-style field: a textarea with the actions
               docked along its bottom edge. */}
           <div className="composer-field">
-            <textarea
+            <DplEditor
               className="prompt-input"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={setPrompt}
+              ariaLabel="Prompt (DPL)"
               placeholder={
                 suggestion
                   ? `Try: ${suggestion}`
