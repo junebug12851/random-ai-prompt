@@ -11,12 +11,12 @@ const DEFAULT_KEY = "rap.wrapper.default.v1";
 // The hard-coded SEED for the built-in "Default" wrapper. Kept deliberately clean — NO quality-booster
 // spam (no "masterpiece, best quality, highly detailed, …"): the START is empty, and the END only adds
 // random art-style variety ({#fx} = art movement / technique / image-effect, {#artists} = a random
-// artist run), written in DPL so the probabilities apply. This is the immutable fallback; the live
-// Default (below) is a copy of this the user can edit, re-created from this seed whenever it is
-// reset/deleted. See notes/plans/v3-layers.md.
+// artist run) plus an optional god-rays bullet ({#rays}, ~50%), written in DPL so the probabilities
+// apply. This is the immutable fallback; the live Default (below) is a copy of this the user can edit,
+// re-created from this seed whenever it is reset/deleted. See notes/plans/v3-layers.md.
 export const DEFAULT_WRAPPER_SEED = {
   start: "",
-  end: "{#fx}, {#artists}",
+  end: "{#fx}, {#artists}\n- {#rays}",
 };
 
 // Back-compat alias: existing callers import DEFAULT_WRAPPER. It now reflects the *seed*; use
