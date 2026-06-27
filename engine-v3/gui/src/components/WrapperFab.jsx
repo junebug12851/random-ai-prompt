@@ -8,6 +8,7 @@
  * @module gui/components/WrapperFab
  */
 import { useEffect, useRef, useState } from "react";
+import DplEditor from "./DplEditor.jsx";
 import {
   getWrappers,
   saveWrapper,
@@ -304,11 +305,12 @@ export default function WrapperFab({ settings, setSettings }) {
                       <RevertIcon />
                     </button>
                   </span>
-                  <textarea
+                  <DplEditor
                     value={start}
-                    onChange={(e) => setStart(e.target.value)}
+                    onChange={setStart}
+                    settings={settings}
+                    ariaLabel="Wrapper start (DPL)"
                     placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. masterpiece, best quality"}
-                    spellCheck={false}
                   />
                 </label>
                 <label className="wrap-box">
@@ -324,11 +326,12 @@ export default function WrapperFab({ settings, setSettings }) {
                       <RevertIcon />
                     </button>
                   </span>
-                  <textarea
+                  <DplEditor
                     value={end}
-                    onChange={(e) => setEnd(e.target.value)}
+                    onChange={setEnd}
+                    settings={settings}
+                    ariaLabel="Wrapper end (DPL)"
                     placeholder={isNew ? def.end || "Rendered after the prompt…" : "Rendered after the prompt — e.g. {#fx}, {#artists}"}
-                    spellCheck={false}
                   />
                 </label>
               </div>

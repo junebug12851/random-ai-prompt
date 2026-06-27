@@ -78,9 +78,11 @@ export const defaultSettings = {
   providerParams: {}, // { [providerId]: { ...params } }
 
   // Auto-fix: a text provider (OpenAI/Gemini/Grok) that rewrites the prompt before image gen.
-  // "none" = off (and the prompt-box toggle is hidden). `autoFix` is the on/off toggle.
+  // "none" = off (and the prompt-box toggles are hidden). `autoFix` is the prose clean-up toggle;
+  // `autoKeyword` is the keyword/tag-list toggle. They're independent and chain (fix → keyword).
   rewriteProvider: "none",
   autoFix: false,
+  autoKeyword: false,
 
   // Image params
   sampler: "Euler",

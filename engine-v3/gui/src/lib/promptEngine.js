@@ -16,6 +16,7 @@ import { browserLoader } from "../../../src/core/browserLoader.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
+import { isGatedDynPrompt } from "../../../src/gatedLists.js";
 import { getCustomPresets } from "./customStore.js";
 
 // The build-time browser bundle is the loader directly — v3-only, no expansions.
@@ -107,68 +108,83 @@ const forcedDirs = browserLoader.dynPromptForcedPrefixDirs();
 const groupSet = new Set(browserLoader.dynPromptGroupDirs());
 const btnNames = computeButtonNames(allDynNames, forcedDirs);
 
-// Folder-grouped chips for a set of generator keys. The chip token is `{#<short>}` (suffix-
-// resolved); the folder pill is a clickable `{#<folder>}` group when that folder is an implied
-// group (2+ generators).
-const dynCatItems = (keys) => {
+// The default category priority when a folder's sidecar sets none (lower = higher in the picker).
+const DEFAULT_CAT_PRIORITY = 1000;
+// A generator is adult (hard-hidden when NSFW is off) when its sidecar carries `nsfw: true` or
+// its name carries an `nsfw` token — the same predicate the engine gates on.
+const isNsfwKey = (key) =>
+  browserLoader.readDynPromptMeta(key)?.nsfw === true || isGatedDynPrompt(key);
+
+// Folder-grouped category descriptors for a set of generator keys: `{ priority, name, pill,
+// entries }`. The chip token is `{#<short>}` (suffix-resolved); the folder pill is a clickable
+// `{#<folder>}` group when that folder is an implied group (2+ generators). `priority` comes from
+// the folder's `.json` sidecar (default 1000). When `includeAdult` is off, nsfw generators are
+// dropped entirely (so a wholly-adult category vanishes).
+const dynCatGroups = (keys, includeAdult) => {
+  const visible = includeAdult ? keys : keys.filter((k) => !isNsfwKey(k));
   const byFolder = new Map();
-  for (const k of keys) {
+  for (const k of visible) {
     const i = k.lastIndexOf("/");
     const folder = i < 0 ? "" : k.slice(0, i);
     if (!byFolder.has(folder)) byFolder.set(folder, []);
     byFolder.get(folder).push(k);
   }
-  const cats = [...byFolder.entries()]
-    .map(([folder, members]) => ({
-      label: lastSeg(folder),
-      token: groupSet.has(folder) ? `{#${lastSeg(folder)}}` : null,
-      description: dpDescFor(folder),
+  return [...byFolder.entries()].map(([folder, members]) => {
+    const meta = browserLoader.readDynPromptMeta(folder) || {};
+    const pill = { category: true, label: lastSeg(folder), description: dpDescFor(folder) };
+    if (groupSet.has(folder)) pill.token = `{#${lastSeg(folder)}}`;
+    return {
+      priority: typeof meta.priority === "number" ? meta.priority : DEFAULT_CAT_PRIORITY,
+      name: lastSeg(folder),
+      pill,
       // The chip label IS the token you'd type (its inner text).
       entries: members
         .map((k) => ({ token: `{#${btnNames[k]}}`, label: btnNames[k], description: dpDescFor(k) }))
         .sort((a, b) => compareNames(a.label, b.label)),
-    }))
-    .sort((a, b) => compareNames(a.label, b.label));
-  const out = [];
-  for (const c of cats) {
-    const pill = { category: true, label: c.label, description: c.description };
-    if (c.token) pill.token = c.token;
-    out.push(pill, ...c.entries);
-  }
-  return out;
+    };
+  });
 };
 
-// The wildcard family that leads the block list: `{#any}` (and -sfw/-nsfw) draws one random
-// generator from the whole catalog.
-const dynWildcardItems = () => [
-  {
+// The virtual "any" wildcard category (priority 0 → leads the picker): `{#any}` (and -sfw/-nsfw)
+// draws one random generator from the whole catalog.
+const anyGroup = () => ({
+  priority: 0,
+  name: "any",
+  pill: {
     category: true,
     label: "any",
     token: "{#any}",
     description: "One random generator (SFW; +NSFW when adult is on).",
   },
-  { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
-  {
-    token: "{#any-nsfw}",
-    label: "any-nsfw",
-    description: "One random generator, including NSFW (adult mode only).",
-  },
-];
+  entries: [
+    { token: "{#any-sfw}", label: "any-sfw", description: "One random generator, SFW only." },
+    {
+      token: "{#any-nsfw}",
+      label: "any-nsfw",
+      description: "One random generator, including NSFW (adult mode only).",
+    },
+  ],
+});
 
-// The "special" category — engine controls (currently the seed-salt), shown as a category
-// within the Blocks list.
-const specialItems = () => [
-  {
+// The virtual "special" category (priority 9000 → trails the picker): engine controls (the
+// seed-salt) that aren't drawn from any list or generator.
+const specialGroup = () => ({
+  priority: 9000,
+  name: "special",
+  pill: {
     category: true,
     label: "special",
     description: "Engine controls that aren't drawn from any list or generator.",
   },
-  {
-    token: "{salt}",
-    label: "salt",
-    description: "Inject a random seed-salt number — nudges the result without changing the prompt.",
-  },
-];
+  entries: [
+    {
+      token: "{salt}",
+      label: "salt",
+      description:
+        "Inject a random seed-salt number — nudges the result without changing the prompt.",
+    },
+  ],
+});
 
 // Shortest unambiguous display token per list (filename only, unless a conflict or a
 // `.force-prefix` folder like danbooru/d requires more of the path). The button shows
@@ -234,19 +250,28 @@ const listItems = () => {
 const isExpansionKey = (n) => n.startsWith("expansion/");
 
 /**
- * @returns {object[]} The categorized building-block groups for the token cloud: Blocks (the
- *   generators) and Lists.
+ * The categorized building-block groups for the token cloud: Blocks (the generators) and Lists.
+ * Within Blocks, the category/folder pills are ordered by each category's sidecar `priority`
+ * (ascending — lower lifts it higher; default 1000), with the virtual `any` (0) leading and
+ * `special` (9000) trailing.
+ * @param {object} [opts]
+ * @param {boolean} [opts.includeAdult] When false (default), nsfw generators are hidden entirely
+ *   and any category that empties out is dropped.
+ * @returns {object[]} The Blocks + Lists groups.
  */
-export function getBlocks() {
-  const blocks = [
+export function getBlocks(opts = {}) {
+  const includeAdult = opts.includeAdult === true;
+  const dynKeys = allDynNames.filter((n) => !isExpansionKey(n));
+  const blockItems = [anyGroup(), ...dynCatGroups(dynKeys, includeAdult), specialGroup()]
+    .filter((g) => g.entries.length > 0)
+    .sort((a, b) => a.priority - b.priority || compareNames(a.name, b.name))
+    .flatMap((g) => [g.pill, ...g.entries]);
+
+  return [
     {
       title: "Blocks",
       hint: "Every building block — scenes, subjects, fragments, and styles.",
-      items: [
-        ...dynWildcardItems(),
-        ...dynCatItems(allDynNames.filter((n) => !isExpansionKey(n))),
-        ...specialItems(),
-      ],
+      items: blockItems,
     },
     {
       title: "Lists",
@@ -254,8 +279,40 @@ export function getBlocks() {
       items: listItems(),
     },
   ];
+}
 
-  return blocks;
+/**
+ * Flatten the building-block catalog into autocomplete entries for the DPL editor: one per
+ * insertable token ({list} / {#generator} / reserved), de-duplicated, carrying its tooltip text
+ * AND the grouping it belongs to (the `group` — Blocks vs Lists — and the `category`/folder pill
+ * it sits under) so the dropdown can render section headers instead of one flat dump. Order is
+ * preserved (the catalog is already priority- then alpha-sorted), so a section's `rank` can just
+ * follow first-appearance.
+ * @returns {Array<{token: string, label: string, kind: ("gen"|"list"), description: (string|undefined), group: string, category: string}>}
+ *   The completion entries.
+ */
+export function getDplCompletions() {
+  const out = [];
+  const seen = new Set();
+  for (const b of getBlocks()) {
+    let category = b.title;
+    for (const it of b.items) {
+      // A category/folder pill: it relabels the running section. Pills can themselves be
+      // insertable (a clickable group like {#scene} / {word}), so fall through to include them.
+      if (it.category) category = it.label || b.title;
+      if (!it.token || seen.has(it.token)) continue;
+      seen.add(it.token);
+      out.push({
+        token: it.token,
+        label: it.label,
+        kind: it.token.startsWith("{#") ? "gen" : "list",
+        description: it.description,
+        group: b.title,
+        category,
+      });
+    }
+  }
+  return out;
 }
 
 /**

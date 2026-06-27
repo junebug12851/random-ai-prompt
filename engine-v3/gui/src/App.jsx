@@ -8,6 +8,9 @@
  * gallery search query, and the image open in the single view — live here in `App`. Clicking a
  * generated image (in Home) or a gallery thumbnail opens it in the single view; Back returns to
  * wherever you came from, intact. A shared link (`#s=…`) seeds settings on load.
+ *
+ * The online build (`VITE_ONLINE`) is a stripped variant: Generate only — no Gallery/Single tabbar
+ * (there's no local image feed and nothing is stored to the browser) and NSFW forced off with no toggle.
  * @module gui/App
  */
 import { useEffect, useState } from "react";
@@ -27,6 +30,11 @@ const TABS = [
   ["gallery", "Gallery"],
   ["single", "Single"],
 ];
+
+// The online (deployed, no-local-server) build is a stripped variant: Generate only — no
+// Gallery/Single tabbar (the image feed needs the dev server's filesystem and nothing is stored to
+// the browser), and NSFW is forced off with no toggle at all.
+const ONLINE = import.meta.env.VITE_ONLINE === "true";
 
 /**
  * The application shell component.
@@ -52,9 +60,15 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load the feed + ImageMagick capability once for the session.
+  // Load the feed + ImageMagick capability once for the session. The online build has no gallery
+  // and no NSFW option, so it skips the feed and forces adult content off.
   useEffect(() => {
-    loadFeed();
+    if (ONLINE) {
+      setLoadingItems(false);
+      if (settings.includeAdult) setSettings((s) => ({ ...s, includeAdult: false }));
+    } else {
+      loadFeed();
+    }
     fetchMagick().then(setMagick);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -101,6 +115,14 @@ export default function App() {
     setView("gallery");
   }
 
+  // Apply an updated metadata sidecar (e.g. an edited keyword list) to the feed + the open image,
+  // so the single view reflects the save without a full feed reload.
+  function updateItemMeta(path, meta) {
+    if (!meta) return;
+    setItems((list) => list.map((x) => (x.path === path ? { ...x, meta } : x)));
+    setCurrent((cur) => (cur && cur.path === path ? { ...cur, meta } : cur));
+  }
+
   // Delete an image (+ sidecar) from disk; in the single view, land on a neighbor (or leave).
   async function deleteItem(item) {
     if (!confirm("Delete this image and its metadata from disk? This can't be undone.")) return;
@@ -121,51 +143,65 @@ export default function App() {
           <img src="/logo.png" alt="" />
           <span className="wordmark">Random AI Prompt</span>
         </div>
-        <div className="view-switch" role="tablist" aria-label="Switch view">
-          {TABS.map(([id, label]) => (
-            <button
-              key={id}
-              role="tab"
-              aria-selected={view === id}
-              className={`vs-tab${view === id ? " on" : ""}`}
-              onClick={() => go(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {!ONLINE && (
+          <div className="view-switch" role="tablist" aria-label="Switch view">
+            {TABS.map(([id, label]) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={view === id}
+                className={`vs-tab${view === id ? " on" : ""}`}
+                onClick={() => go(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="topbar-spacer" />
         {view === "generate" && <ProviderSelect settings={settings} setSettings={setSettings} />}
-        <NsfwToggle settings={settings} setSettings={setSettings} />
+        {!ONLINE && <NsfwToggle settings={settings} setSettings={setSettings} />}
       </header>
 
       <main>
         <div className={`view-pane${view === "generate" ? " on" : ""}`}>
-          <Home settings={settings} setSettings={setSettings} onOpenImage={openGeneratedImage} />
-        </div>
-        <div className={`view-pane${view === "gallery" ? " on" : ""}`}>
-          <Gallery
-            items={items}
-            loading={loadingItems}
-            query={query}
-            onQueryChange={setQuery}
-            onOpen={openFromGallery}
-            onRefresh={loadFeed}
+          <Home
+            settings={settings}
+            setSettings={setSettings}
+            onOpenImage={ONLINE ? undefined : openGeneratedImage}
           />
         </div>
-        <div className={`view-pane${view === "single" ? " on" : ""}`}>
-          <SingleView
-            items={items}
-            current={current}
-            magick={magick}
-            active={view === "single"}
-            returnLabel={returnLabel}
-            onBack={() => setView(returnTo)}
-            onNavigate={setCurrent}
-            onDelete={deleteItem}
-            onSearch={searchFor}
-          />
-        </div>
+        {/* Gallery + Single are local-only: the online build has no image feed and omits them. */}
+        {!ONLINE && (
+          <>
+            <div className={`view-pane${view === "gallery" ? " on" : ""}`}>
+              <Gallery
+                items={items}
+                loading={loadingItems}
+                query={query}
+                onQueryChange={setQuery}
+                onOpen={openFromGallery}
+                onRefresh={loadFeed}
+                onDelete={deleteItem}
+              />
+            </div>
+            <div className={`view-pane${view === "single" ? " on" : ""}`}>
+              <SingleView
+                items={items}
+                current={current}
+                magick={magick}
+                settings={settings}
+                active={view === "single"}
+                returnLabel={returnLabel}
+                onBack={() => setView(returnTo)}
+                onNavigate={setCurrent}
+                onDelete={deleteItem}
+                onSearch={searchFor}
+                onMetaUpdate={updateItemMeta}
+              />
+            </div>
+          </>
+        )}
       </main>
 
       <footer>

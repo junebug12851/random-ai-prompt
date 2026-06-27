@@ -15,6 +15,7 @@ import { getSessionKey, setSessionKey } from "../lib/sessionKeys.js";
 import { expandPrompt } from "../lib/promptEngine.js";
 import { metaFor } from "../lib/providerMeta.js";
 import LivePreview from "./LivePreview.jsx";
+import DplEditor from "./DplEditor.jsx";
 
 /**
  * A small info "i" with a tooltip.
@@ -90,12 +91,13 @@ function ProviderField({ f, params, setParam, optionData, onRandom, settings }) 
             triggerClassName="field-roll preview-roll"
           />
         </span>
-        <textarea
+        <DplEditor
           className="negative-textarea"
-          rows={4}
           value={v ?? ""}
+          settings={settings}
+          ariaLabel="Negative prompt (DPL)"
           placeholder="e.g. blurry, lowres, {#bad-anatomy} — DPL is rolled out before sending"
-          onChange={(e) => setParam(f.key, e.target.value)}
+          onChange={(x) => setParam(f.key, x)}
         />
       </label>
     );

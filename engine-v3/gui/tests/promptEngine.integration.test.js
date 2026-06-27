@@ -69,6 +69,26 @@ describe("promptEngine — building blocks & presets", () => {
   it("lists preset names without throwing", () => {
     expect(Array.isArray(getPresetNames())).toBe(true);
   });
+
+  it("orders the Blocks category pills by sidecar priority", () => {
+    const blocksTab = getBlocks().find((b) => b.title === "Blocks");
+    const cats = blocksTab.items.filter((i) => i.category).map((i) => i.label);
+    // The virtual wildcard leads and engine controls trail.
+    expect(cats[0]).toBe("any");
+    expect(cats[cats.length - 1]).toBe("special");
+    // The curated folder order (priority 200..700) sits in between, in this sequence.
+    const idx = (name) => cats.indexOf(name);
+    for (const [a, b] of [
+      ["prompt", "scene"],
+      ["scene", "subject"],
+      ["subject", "style"],
+      ["style", "fragment"],
+      ["fragment", "user"],
+    ]) {
+      expect(idx(a)).toBeGreaterThanOrEqual(0);
+      expect(idx(b)).toBeGreaterThan(idx(a));
+    }
+  });
 });
 
 describe("promptEngine — wrapper rendering", () => {

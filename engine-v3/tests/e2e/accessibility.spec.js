@@ -33,7 +33,9 @@ test.describe("accessibility", () => {
 
   test("results region is reachable after generating", async ({ page }) => {
     await page.goto("/");
-    await page.locator("textarea").fill("a fox");
+    const editor = page.locator(".prompt-input .cm-content");
+    await editor.click();
+    await editor.pressSequentially("a fox");
     await page.getByRole("button", { name: "Generate prompt" }).click();
     await expect(page.getByRole("heading", { name: "Prompts" })).toBeVisible();
 

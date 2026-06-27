@@ -187,13 +187,13 @@ export function apiPlugin() {
           }
         }
 
-        // --- prompt rewrite (auto-fix) proxy ---
+        // --- prompt rewrite (auto-fix / keyword-translate) proxy ---
         if (u.pathname === "/api/rewrite" && req.method === "POST") {
           const body = await readJson(req);
-          const { providerId, prompt, key } = body;
+          const { providerId, prompt, key, mode } = body;
           if (!prompt) return send(res, 400, { error: "Missing prompt" });
           try {
-            const out = await dispatchRewrite({ providerId, prompt, key });
+            const out = await dispatchRewrite({ providerId, prompt, key, mode });
             return send(res, 200, out);
           } catch (e) {
             return send(res, 502, { error: e.message || "Rewrite failed" });
@@ -425,6 +425,34 @@ export function apiPlugin() {
           if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Not found" });
           exec(`cmd /c start "" "${fp}"`); // open in the OS default program
           return send(res, 200, { ok: true });
+        }
+
+        // --- patch an image's metadata sidecar (e.g. save an edited keyword list) ---
+        // Shallow-merges `patch` into the image's `<base>.json` sidecar and returns the merged
+        // sidecar. Creates the sidecar if the image never had one. Used by the single view's
+        // "rebuild keywords" action to persist its alphabetized keyword set over the prompt's.
+        if (u.pathname === "/api/image/meta" && req.method === "POST") {
+          const body = await readJson(req);
+          const fp = resolveOutputFile(body?.path);
+          if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Image not found" });
+          const patch = body?.patch && typeof body.patch === "object" ? body.patch : null;
+          if (!patch) return send(res, 400, { error: "Missing patch object" });
+          const sidecarPath = fp.replace(/\.[^.]+$/, ".json");
+          let meta = {};
+          if (fs.existsSync(sidecarPath)) {
+            try {
+              meta = JSON.parse(fs.readFileSync(sidecarPath, "utf8")) || {};
+            } catch {
+              meta = {}; // a corrupt sidecar is replaced rather than blocking the save
+            }
+          }
+          const merged = { ...meta, ...patch };
+          try {
+            fs.writeFileSync(sidecarPath, JSON.stringify(merged, null, 2));
+            return send(res, 200, { ok: true, meta: merged });
+          } catch (e) {
+            return send(res, 502, { error: `Could not write sidecar: ${e.message}` });
+          }
         }
 
         // --- Local-file storage tier ---

@@ -11,8 +11,41 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.8.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Keyword tooling + DPL insert toolbar (2.8.0):** the single view's keyword cloud is now backed by a real
+parser (`gui/src/lib/keywords.js` — strips SD/NovelAI weighting syntax, keeps accents for display but folds
+them for dedupe/search) with a **"Rebuild with AI"** button that keyword-translates the prompt, alphabetizes,
+and saves over the image's sidecar (`POST /api/image/meta`); the composer gained an **`autoKeyword`** toggle
+beside the auto-fix wand (independent + chainable), backed by a new `KEYWORD_SYSTEM` rewrite mode; and the
+single view's details block is a real `<table>`. Also lands the **DPL insert toolbar** above the prompt box
+(`DplInsertBar.jsx` + `dplInserts.js`, snippet insertion via `DplEditor.insertSnippet`). The stale E2E
+selectors that still targeted `<textarea>` (red since the 2.7.26 CodeMirror switch) were fixed to drive
+`.prompt-input .cm-content`, and the Linux visual baselines were refreshed.
+
+**DPL editors (2.7.26):** the prompt, negative, and wrapper Start/End boxes are **CodeMirror 6** editors
+(`gui/src/components/DplEditor.jsx` + `gui/src/lib/dpl/dplLanguage.js`) with DPL syntax highlighting
+(theme-aware `--dpl-*` colors in `styles.css`) and a brace-aware `{…}`/`{#…}` token autocomplete. Part of a
+four-branch GUI/DPL UX pass on `dev`; the Playwright **visual baselines** still need a refresh for the
+prompt-box change.
+
+**Dynamic-prompt sidecars (2.7.27):** category `.json` sidecars carry a `priority` (orders the
+category/folder pills inside the **Blocks** tab — lower = higher, default 1000; the curated order is
+Any · Prompt · Scene · Subject · Style · Fragment · User · Special), and generator sidecars can carry
+`nsfw: true` to be **hard-hidden** when the NSFW switch is off (gone from the picker and from the engine,
+not just emptied).
+
+**Result/gallery polish (2.7.28):** the prompt box's live-preview moved to the box's upper-right corner as
+an icon (off the bottom action bar); generated-prompt rows dropped the copy button for **click-to-copy**
+text (full text on hover; the DPL line's hover tooltip also shows an example that re-rolls every second);
+and **gallery thumbnails now carry the same hover actions as the generate thumbnails** (open in default app,
+reveal in explorer, delete).
+
+**Online build is stripped (2.7.29):** when built with `VITE_ONLINE=true`, the SPA is **Generate-only** —
+the header tabbar (Gallery/Single) is gone, the **NSFW toggle is removed** and adult content forced off, and
+no image feed/storage is touched (generated images stay in-memory; nothing is saved to the browser). The
+local build is unchanged.
 
 **Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
 carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay

@@ -9,12 +9,15 @@ test.describe("Home — prompt generation", () => {
   test("loads the app shell", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator(".topbar .wordmark")).toHaveText("Random AI Prompt");
-    await expect(page.locator("textarea")).toBeVisible();
+    // The prompt box is a CodeMirror editor (its contenteditable surface), not a <textarea>.
+    await expect(page.locator(".prompt-input .cm-content")).toBeVisible();
   });
 
   test("generates prompts from a typed prompt", async ({ page }) => {
     await page.goto("/");
-    await page.locator("textarea").fill("a red fox in a forest");
+    const editor = page.locator(".prompt-input .cm-content");
+    await editor.click();
+    await editor.pressSequentially("a red fox in a forest");
     await page.getByRole("button", { name: "Generate prompt" }).click();
 
     const results = page.locator(".results-card");

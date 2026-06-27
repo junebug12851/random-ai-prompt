@@ -26,6 +26,8 @@ import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
 import LivePreview from "./LivePreview.jsx";
+import DplEditor from "./DplEditor.jsx";
+import DplInsertBar from "./DplInsertBar.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -70,6 +72,12 @@ const WandIcon = () => (
     <path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5" />
   </svg>
 );
+const TagIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L3 13V3h10l7.59 7.59a2 2 0 0 1 0 2.82z" />
+    <line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+);
 const GearIcon = () => (
   <svg {...ico} aria-hidden="true">
     <circle cx="12" cy="12" r="3" />
@@ -101,7 +109,12 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
   const [tipEx, setTipEx] = useState("");
 
-  const blocks = useMemo(() => getBlocks(), [version]);
+  // Rebuild the block palette when custom blocks change or the NSFW switch flips (nsfw-flagged
+  // generators are hidden entirely when adult is off).
+  const blocks = useMemo(
+    () => getBlocks({ includeAdult: settings.includeAdult }),
+    [version, settings.includeAdult],
+  );
 
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
   const provider = getProvider(settings.provider);
@@ -110,6 +123,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [imgError, setImgError] = useState("");
   const idCounter = useRef(0);
   const nextId = () => ++idCounter.current;
+  const promptEditorRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -159,31 +173,48 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       ),
     );
     try {
-      const useFix =
-        settings.autoFix && settings.rewriteProvider && settings.rewriteProvider !== "none";
-      const rkey = useFix ? effectiveKey(settings.rewriteProvider, settings) : "";
-      if (useFix && !rkey) {
-        setImgError("Auto-fix is on but the rewrite provider has no API key (gear → Auto-fix).");
+      // Two independent rewrite passes share one text provider: prose auto-fix (`autoFix`) and
+      // keyword/tag-list translation (`autoKeyword`). When both are on they chain — fix first,
+      // then keyword-translate the fixed text.
+      const hasRewriteProvider = settings.rewriteProvider && settings.rewriteProvider !== "none";
+      const useFix = settings.autoFix && hasRewriteProvider;
+      const useKeyword = settings.autoKeyword && hasRewriteProvider;
+      const rkey = useFix || useKeyword ? effectiveKey(settings.rewriteProvider, settings) : "";
+      if ((useFix || useKeyword) && !rkey) {
+        setImgError("Auto-rewrite is on but the rewrite provider has no API key (gear → Auto-fix).");
       }
 
-      // --- Main prompt: auto-fix once per prompt, then cache the mapping on the entry. ---
-      if (useFix && rkey && !entry0?.original) {
+      // --- Main prompt: fix → keyword-translate (per the toggles), once per prompt, then cache. ---
+      if ((useFix || useKeyword) && rkey && !entry0?.original) {
         try {
-          const fixed = await rewritePrompt({
-            providerId: settings.rewriteProvider,
-            prompt: text,
-            key: rkey,
-          });
-          if (fixed && fixed.trim()) {
+          let working = text;
+          if (useFix) {
+            const fixed = await rewritePrompt({
+              providerId: settings.rewriteProvider,
+              prompt: working,
+              key: rkey,
+            });
+            if (fixed && fixed.trim()) working = fixed.trim();
+          }
+          if (useKeyword) {
+            const tagged = await rewritePrompt({
+              providerId: settings.rewriteProvider,
+              prompt: working,
+              key: rkey,
+              mode: "keyword",
+            });
+            if (tagged && tagged.trim()) working = tagged.trim();
+          }
+          if (working !== text) {
             promptRoll = text;
-            text = fixed.trim();
+            text = working;
             promptAi = text;
             setPrompts((ps) =>
               ps.map((x) => (x.id === promptId ? { ...x, original: promptRoll, text } : x)),
             );
           }
         } catch (e) {
-          setImgError("Auto-fix failed: " + (e.message || e));
+          setImgError("Auto-rewrite failed: " + (e.message || e));
         }
       }
 
@@ -195,14 +226,27 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         // Already processed on a prior batch — reuse so we don't re-call the rewrite API.
         negRoll = entry0.negRoll;
         negAi = entry0.negAi ?? null;
-      } else if (useFix && rkey && negRoll.trim()) {
+      } else if ((useFix || useKeyword) && rkey && negRoll.trim()) {
         try {
-          const fixedNeg = await rewritePrompt({
-            providerId: settings.rewriteProvider,
-            prompt: negRoll,
-            key: rkey,
-          });
-          if (fixedNeg && fixedNeg.trim()) negAi = fixedNeg.trim();
+          let workingNeg = negRoll;
+          if (useFix) {
+            const fixedNeg = await rewritePrompt({
+              providerId: settings.rewriteProvider,
+              prompt: workingNeg,
+              key: rkey,
+            });
+            if (fixedNeg && fixedNeg.trim()) workingNeg = fixedNeg.trim();
+          }
+          if (useKeyword) {
+            const taggedNeg = await rewritePrompt({
+              providerId: settings.rewriteProvider,
+              prompt: workingNeg,
+              key: rkey,
+              mode: "keyword",
+            });
+            if (taggedNeg && taggedNeg.trim()) workingNeg = taggedNeg.trim();
+          }
+          if (workingNeg !== negRoll) negAi = workingNeg;
         } catch {
           // Best-effort: a failed negative rewrite just falls back to the rolled negative.
         }
@@ -598,27 +642,40 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         <section className="card composer">
           {/* The prompt box is a chat-style field: a textarea with the actions
               docked along its bottom edge. */}
+          <DplInsertBar editorRef={promptEditorRef} settings={settings} />
           <div className="composer-field">
-            <textarea
+            <DplEditor
+              ref={promptEditorRef}
               className="prompt-input"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={setPrompt}
+              settings={settings}
+              ariaLabel="Prompt (DPL)"
               placeholder={
                 suggestion
                   ? `Try: ${suggestion}`
                   : "Type a prompt, or use the building blocks on the left…"
               }
             />
-            {prompt && (
-              <button
-                className="clear-x"
-                onClick={() => setPrompt("")}
-                title="Clear the prompt"
-                aria-label="Clear the prompt"
-              >
-                ✕
-              </button>
-            )}
+            <div className="composer-corner">
+              {prompt && (
+                <button
+                  className="clear-x"
+                  onClick={() => setPrompt("")}
+                  title="Clear the prompt"
+                  aria-label="Clear the prompt"
+                >
+                  ✕
+                </button>
+              )}
+              {/* Live preview lives in the box's upper-right corner (icon-only). */}
+              <LivePreview
+                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
+                settings={settings}
+                label="Prompt preview"
+                triggerClassName="preview-corner"
+              />
+            </div>
 
             <div className="field-bar">
               <div className="prompt-tools">
@@ -671,22 +728,27 @@ export default function Home({ settings, setSettings, onOpenImage }) {
               <div className="grow" />
 
               {settings.rewriteProvider && settings.rewriteProvider !== "none" && (
-                <button
-                  className={`field-act${settings.autoFix ? " on" : ""}`}
-                  onClick={() => setSettings({ ...settings, autoFix: !settings.autoFix })}
-                  title={`Auto-fix the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} before generating`}
-                  aria-pressed={!!settings.autoFix}
-                  aria-label="Auto-fix prompt"
-                >
-                  <WandIcon />
-                </button>
+                <>
+                  <button
+                    className={`field-act${settings.autoFix ? " on" : ""}`}
+                    onClick={() => setSettings({ ...settings, autoFix: !settings.autoFix })}
+                    title={`Auto-fix the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} before generating`}
+                    aria-pressed={!!settings.autoFix}
+                    aria-label="Auto-fix prompt"
+                  >
+                    <WandIcon />
+                  </button>
+                  <button
+                    className={`field-act${settings.autoKeyword ? " on" : ""}`}
+                    onClick={() => setSettings({ ...settings, autoKeyword: !settings.autoKeyword })}
+                    title={`Keyword-translate the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} (use a clean tag list instead) before generating`}
+                    aria-pressed={!!settings.autoKeyword}
+                    aria-label="Keyword-translate prompt"
+                  >
+                    <TagIcon />
+                  </button>
+                </>
               )}
-              <LivePreview
-                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
-                settings={settings}
-                label="Prompt preview"
-                triggerClassName="field-act"
-              />
               <WrapperButton settings={settings} setSettings={setSettings} />
               <button
                 className={`field-act${panel === "share" ? " on" : ""}`}
@@ -762,6 +824,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   prompt={p}
                   index={i}
                   number={prompts.length - i}
+                  settings={settings}
                   canGenerate={canGenerateImages}
                   onGenerate={makeBatch}
                   onCopy={copyPrompt}
