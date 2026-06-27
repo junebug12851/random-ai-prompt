@@ -4,8 +4,13 @@ name: Update visual baselines (Linux)
 # environment the CI `e2e` job runs in (ubuntu-latest + Playwright's bundled chromium), so the
 # committed `*-chromium-linux.png` snapshots match CI. It does NOT commit anything — it uploads the
 # refreshed snapshots as an artifact ("linux-visual-baselines"); download it and commit the PNGs
-# under tests/e2e/visual.spec.js-snapshots/. Run this whenever the SPA's stable chrome changes.
-# See notes/plans/testing.md and notes/reference/deployment.md.
+# under engine-v3/tests/e2e/visual.spec.js-snapshots/. Run this whenever the SPA's stable chrome
+# changes. See notes/plans/testing.md and notes/reference/deployment.md.
+#
+# The project lives in engine-v3/ (the frozen classic engine-v1-2/ is intentionally untouched), so
+# the run steps work in engine-v3 via defaults.run.working-directory. Install uses `npm install`
+# (not `npm ci`) for the same Windows-lock/@emnapi reason as ci.yml. NOTE: actions/* steps (checkout,
+# upload-artifact) are NOT affected by working-directory, so the artifact path is repo-root-relative.
 
 on:
   workflow_dispatch:
@@ -14,6 +19,9 @@ jobs:
   update:
     name: Regenerate Linux visual baselines
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine-v3
     steps:
       - uses: actions/checkout@v4
 
@@ -21,11 +29,12 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          cache-dependency-path: engine-v3/package-lock.json
 
       - name: Install dependencies (root + gui)
         run: |
-          npm ci
-          npm --prefix gui ci
+          npm install --no-audit --no-fund
+          npm --prefix gui install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium
@@ -37,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-visual-baselines
-          path: tests/e2e/visual.spec.js-snapshots/
+          path: engine-v3/tests/e2e/visual.spec.js-snapshots/
           if-no-files-found: error
