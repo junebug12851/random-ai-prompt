@@ -14,9 +14,13 @@ lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.m
 **Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
-**Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. A **Generate /
-Gallery** switch in the upper-left of the top-bar (`gui/src/App.jsx`) flips between the composer and a new
-**photo gallery** (`gui/src/components/Gallery.jsx`) that browses everything saved to `output/`. Every
+**Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
+carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay
+**mounted** for the session — each keeps its state + scroll position when you switch tabs (shared feed /
+search / current-image state lives in `App`). The **gallery** (`gui/src/components/Gallery.jsx`) browses
+everything saved to `output/`; the **single** view (`gui/src/components/SingleView.jsx`) is the full
+per-image page. Generated images and gallery thumbnails open into the single view (Back returns where you
+came from); the Single tab shows the last image, or a random one the first time. Every
 generated image now gets a **`.json` metadata sidecar** next to it (prompt sent, the deterministic engine
 roll, the AI translation, the source DPL, negative, provider, and a settings snapshot with **API keys
 stripped**), written by `POST /api/image` and read back via a new `GET /api/feed` (`gui/vite-plugin-api.js`).

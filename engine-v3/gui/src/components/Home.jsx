@@ -82,9 +82,10 @@ const GearIcon = () => (
  * @param {object} props
  * @param {object} props.settings The current settings.
  * @param {Function} props.setSettings Update the settings.
+ * @param {Function} [props.onOpenImage] Open a generated image (by served path) in the single view.
  * @returns {JSX.Element}
  */
-export default function Home({ settings, setSettings }) {
+export default function Home({ settings, setSettings, onOpenImage }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("");
@@ -767,6 +768,7 @@ export default function Home({ settings, setSettings }) {
                   onRemoveImage={removeImage}
                   onRemoveBatch={removeBatch}
                   onClearImages={clearImages}
+                  onImageClick={onOpenImage}
                 />
               ))}
             </ul>

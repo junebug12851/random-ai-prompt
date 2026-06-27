@@ -267,6 +267,21 @@ main {
   min-height: 0;
   display: flex;
 }
+/* The three top-level views (Generate / Gallery / Single) all stay mounted so each keeps its
+   state + scroll; only the active one is shown. Its single child fills the pane. */
+.view-pane {
+  flex: 1;
+  min-height: 0;
+  display: none;
+}
+.view-pane.on {
+  display: flex;
+}
+.view-pane > * {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
 .workspace {
   display: grid;
   grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);

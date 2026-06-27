@@ -54,6 +54,7 @@ const ImageIcon = () => (
  * @param {Function} props.onRemoveImage `(promptId, batchId, img)`.
  * @param {Function} props.onRemoveBatch `(promptId, batchId)`.
  * @param {Function} props.onClearImages `(promptId)`.
+ * @param {Function} [props.onImageClick] `(img)` — open the image in the single view.
  * @returns {JSX.Element}
  */
 export default function PromptResult({
@@ -66,6 +67,7 @@ export default function PromptResult({
   onRemoveImage,
   onRemoveBatch,
   onClearImages,
+  onImageClick,
 }) {
   const hasImages = prompt.batches.some((b) => b.images.length);
   return (
@@ -145,7 +147,18 @@ export default function PromptResult({
             <div className="gallery">
               {b.images.map((img) => (
                 <figure key={img}>
-                  <a href={img} target="_blank" rel="noreferrer" title="Open in a new tab">
+                  <a
+                    href={img}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={onImageClick ? "Open in the single view" : "Open in a new tab"}
+                    onClick={(e) => {
+                      if (onImageClick) {
+                        e.preventDefault();
+                        onImageClick(img);
+                      }
+                    }}
+                  >
                     <ResultImage src={img} />
                   </a>
                   <div className="img-actions">
