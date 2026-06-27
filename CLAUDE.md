@@ -254,8 +254,12 @@ the clone's `hub/standards/`).
 express-authorization ledger at `hub/authorizations.yml` (read it from the read-only clone like any
 other hub artifact). If an **active** entry there `covers` the change being adopted, the user **already
 gave the go-ahead at the system** — apply it directly, skipping *only* the "check-and-report-then-wait"
-pause. Skip nothing else: still copy-not-clobber, still **re-prompt before overwriting a deliberate
-local divergence**, still write the process report, still commit as a reviewable act, still build green.
+pause. Skip nothing else — **the verification floor is never skipped**: still copy-not-clobber, still
+**re-prompt before overwriting a deliberate local divergence**, still write the process report, still
+commit as a reviewable act, and still run **full verification — build/tests + the standards'
+`## Verify`/compliance checks + project-constraint checks, before _and_ after the apply**. A
+pre-authorization (like any automated apply) removes one redundant confirmation, never the safety floor:
+**if full verification can't be completed, do not auto-apply — fall back to check-report-wait.**
 If nothing in the ledger covers the change (or its entry has `expires`d), fall back to the
 check-report-wait default. Reading the ledger lets a node skip a redundant prompt; it never lets the
 system reach in and act — anti-recursion holds. **An unattended/scheduled check still applies nothing**

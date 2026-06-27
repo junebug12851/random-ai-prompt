@@ -83,9 +83,13 @@ Alongside the standards, the project also reads the hub's **express-authorizatio
 makes **at the hub** for changes to roll out. When an **active** entry there `covers` a change this node
 is adopting, the user already gave the go-ahead at the system, so the node treats it as **pre-authorized
 and skips its redundant "check-and-report-then-wait" pause — but only that pause.** Every other adoption
-safety step still runs: copy-not-clobber, **re-prompt before overwriting a deliberate local
-divergence**, process report, reviewable commit, build-check. If nothing covers the change (or the entry
-`expires`d), fall back to check-report-wait.
+safety step still runs, and **the verification floor is never skipped**: copy-not-clobber, **re-prompt
+before overwriting a deliberate local divergence**, process report, reviewable commit, and **full
+verification — build/tests + the standards' `## Verify`/compliance checks + project-constraint checks,
+run before _and_ after the apply**. A pre-authorization (like any automated apply) removes *one redundant
+confirmation*, never the safety floor: **if full verification can't be completed, do not auto-apply —
+fall back to check-report-wait**. If nothing covers the change (or the entry `expires`d), also fall back
+to check-report-wait.
 
 This is still a **read, on request** — it adds no automation and no hub→node push, so anti-recursion
 holds. A pre-authorization lets a node skip a prompt; it never lets the hub act on the node. An
