@@ -14,7 +14,7 @@
 import _ from "lodash";
 import { resolveName } from "../../listManifest.js";
 import { isReservedAny, dynGroupMembers } from "../../dynPromptManifest.js";
-import { isGatedDynPrompt, hasNsfwToken } from "../../gatedLists.js";
+import { isGatedDynPrompt } from "../../gatedLists.js";
 
 /**
  * Build the `{#name}` dynamic-prompt stage bound to a loader (loader-injected port;
@@ -66,18 +66,20 @@ export function makeDynamicPromptStage(loader) {
         ? loader.dynPromptGroupDirs()
         : [];
     const includeAdult = settings.includeAdult === true;
-    // Gating: a generator whose name carries an `nsfw` token is hidden (empty) unless
-    // adult is on — the same automatic rule lists use.
-    const gateOk = (key) => includeAdult || !isGatedDynPrompt(key);
+    // Gating: a generator is adult when its `.json` sidecar carries `nsfw: true` OR its name
+    // carries an `nsfw` token (the automatic rule lists use). Either way it is hidden (empty)
+    // unless adult is on — "acts like it doesn't exist".
+    const isNsfw = (key) => loader.readDynPromptMeta?.(key)?.nsfw === true || isGatedDynPrompt(key);
+    const gateOk = (key) => includeAdult || !isNsfw(key);
 
     // Pick ONE generator from a pool (a group's members, or the whole catalog for {#any}),
     // honoring an explicit sfw/nsfw variant or the adult-mode default.
     function pickFrom(pool, variant) {
       let ok;
-      if (variant === "sfw") ok = pool.filter((n) => !hasNsfwToken(n));
+      if (variant === "sfw") ok = pool.filter((n) => !isNsfw(n));
       else if (variant === "nsfw")
         ok = includeAdult ? pool : []; // -nsfw is nothing when adult off
-      else ok = includeAdult ? pool : pool.filter((n) => !hasNsfwToken(n));
+      else ok = includeAdult ? pool : pool.filter((n) => !isNsfw(n));
       const key = ok.length ? _.sample(ok) : null;
       return key ? run(key, settings, imageSettings, upscaleSettings) : "";
     }

@@ -102,7 +102,12 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
   const [tipEx, setTipEx] = useState("");
 
-  const blocks = useMemo(() => getBlocks(), [version]);
+  // Rebuild the block palette when custom blocks change or the NSFW switch flips (nsfw-flagged
+  // generators are hidden entirely when adult is off).
+  const blocks = useMemo(
+    () => getBlocks({ includeAdult: settings.includeAdult }),
+    [version, settings.includeAdult],
+  );
 
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
   const provider = getProvider(settings.provider);
