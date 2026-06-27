@@ -3,9 +3,9 @@ description: Wildlife — life, animals, insects
 ---
 Start
 ===
-- life
-- animal
-- insect
+- wildlife
+- 30% {animal}
+- 30% {animal}
+- 20% birds
+- 20% insects
 - 20% {mythological-creature}
-- 30% {animal}
-- 30% {animal}
