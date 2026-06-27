@@ -120,7 +120,7 @@ const D = {
   "style/space-hologram": "Holographic space render.",
   "style/gold-pendant": "Golden pendant / jewelry render.",
   "style/sports-logo": "Sports-team logo style.",
-  "style/anime-irl": "Realistic anime ('IRL') style.",
+  "style/anime-realism": "Realistic anime-style face portrait.",
   "style/plushie": "Plush-toy style.",
   "style/retro-poster": "Retro travel-poster style.",
   "style/vibrant-art": "Vivid, saturated art style.",
