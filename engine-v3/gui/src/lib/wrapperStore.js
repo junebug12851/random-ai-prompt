@@ -8,15 +8,15 @@
 const KEY = "rap.wrappers.v1";
 const DEFAULT_KEY = "rap.wrapper.default.v1";
 
-// The hard-coded SEED for the built-in "Default" wrapper. Derived from the most common v2 prompt
-// framing: a quality lead-in as the START, and the auto fx/artists + the recurring finishing tags
-// (intricate, sharp focus, wide shot, volumetric light, dap) as the END — written in DPL so the
-// probabilities apply. This is the immutable fallback; the live Default (below) is a copy of this
-// that the user can edit, and which is re-created from this seed whenever it is reset/deleted.
-// See notes/plans/v3-layers.md.
+// The hard-coded SEED for the built-in "Default" wrapper. Kept deliberately clean — NO quality-booster
+// spam (no "masterpiece, best quality, highly detailed, …"): the START is empty, and the END only adds
+// random art-style variety ({#fx} = art movement / technique / image-effect, {#artists} = a random
+// artist run), written in DPL so the probabilities apply. This is the immutable fallback; the live
+// Default (below) is a copy of this the user can edit, re-created from this seed whenever it is
+// reset/deleted. See notes/plans/v3-layers.md.
 export const DEFAULT_WRAPPER_SEED = {
-  start: "masterpiece, best quality, highly detailed",
-  end: "{#fx}, {#artists}\n- intricate detail\n- sharp focus\n- 50% wide shot\n- {#rays}\n- 35% {#dap}",
+  start: "",
+  end: "{#fx}, {#artists}",
 };
 
 // Back-compat alias: existing callers import DEFAULT_WRAPPER. It now reflects the *seed*; use
