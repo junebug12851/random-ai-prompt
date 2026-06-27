@@ -3,18 +3,24 @@
  * that lets adult content through (it flips `settings.includeAdult`, which the engine
  * gates on). Turning it ON requires an explicit confirmation; turning it OFF is
  * immediate. The choice rides in `settings` and so is remembered in this browser.
+ *
+ * In the online build the switch is `locked`: it renders greyed with a tooltip and, when clicked,
+ * opens the full-version page instead of toggling (adult content needs the local desktop app).
  * @module gui/components/NsfwToggle
  */
 import { useEffect, useState } from "react";
+import { lockedHint, openFullVersion } from "../lib/online.js";
 
 /**
  * @param {object} props
  * @param {object} props.settings The current settings (`includeAdult`).
  * @param {Function} props.setSettings Update the settings.
+ * @param {boolean} [props.locked] When true, the switch is disabled (online build) and clicking it
+ *   opens the full-version page.
  * @returns {JSX.Element} The right-aligned NSFW switch (+ its confirm dialog).
  */
-export default function NsfwToggle({ settings, setSettings }) {
-  const on = settings.includeAdult === true;
+export default function NsfwToggle({ settings, setSettings, locked = false }) {
+  const on = !locked && settings.includeAdult === true;
   const [confirming, setConfirming] = useState(false);
 
   // Escape cancels the confirm dialog.
@@ -25,8 +31,13 @@ export default function NsfwToggle({ settings, setSettings }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [confirming]);
 
-  // Disabling is immediate; enabling asks first.
+  // Locked (online): clicking sends people to the full version. Otherwise: disabling is immediate;
+  // enabling asks first.
   const toggle = () => {
+    if (locked) {
+      openFullVersion();
+      return;
+    }
     if (on) setSettings((s) => ({ ...s, includeAdult: false }));
     else setConfirming(true);
   };
@@ -42,9 +53,16 @@ export default function NsfwToggle({ settings, setSettings }) {
         type="button"
         role="switch"
         aria-checked={on}
-        className={`switch${on ? " is-on" : ""}`}
+        aria-disabled={locked || undefined}
+        className={`switch${on ? " is-on" : ""}${locked ? " is-locked" : ""}`}
         onClick={toggle}
-        title={on ? "Adult content is on — click to switch back to SFW" : "Show adult (NSFW) content"}
+        title={
+          locked
+            ? lockedHint("NSFW content")
+            : on
+              ? "Adult content is on — click to switch back to SFW"
+              : "Show adult (NSFW) content"
+        }
       >
         <span className="switch-label">NSFW</span>
         <span className="switch-track" aria-hidden="true">

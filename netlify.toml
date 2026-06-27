@@ -8,6 +8,12 @@
   publish = "gui/dist"
   functions = "gui/netlify/functions"
 
+# Build the ONLINE variant: Generate works (BYOK via the serverless proxy), while the local-only
+# features (Gallery / Single view, local SD providers, NSFW) render disabled with a link to the
+# full desktop version. Vite inlines this at build time (import.meta.env.VITE_ONLINE).
+[build.environment]
+  VITE_ONLINE = "true"
+
 # Route the app's /api/* calls to the serverless functions.
 [[redirects]]
   from = "/api/*"
