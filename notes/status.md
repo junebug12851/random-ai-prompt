@@ -11,8 +11,14 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.29` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Online build is stripped (2.7.29):** when built with `VITE_ONLINE=true`, the SPA is **Generate-only** —
+the header tabbar (Gallery/Single) is gone, the **NSFW toggle is removed** and adult content forced off, and
+no image feed/storage is touched (generated images stay in-memory; nothing is saved to the browser). The
+local build is unchanged. On branch `feature/online-build` (off `dev`; lint + both build modes + tests
+green, **not merged**).
 
 **Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
 carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay
