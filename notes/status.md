@@ -11,8 +11,21 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.8.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.9.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Provider header redesign (2.9.0):** the top bar is now a single **Providers dropdown**
+(`gui/src/components/ProvidersMenu.jsx`) + a provider-settings **gear** + the NSFW switch. The dropdown holds
+two rich pickers (`ProviderPicker.jsx`): **Image** (grouped Local — incl. Plain text — / Online) and **Text**
+(Off + the rewrite AIs OpenAI / Gemini / Grok), each with its **BYOK key** field (`ApiKeyField.jsx`) on the
+right in an aligned two-column grid; the key is keyed by provider id, so the same provider chosen for both rows
+**shares one key** (shown once). The provider's own knobs (`ProviderBox.jsx`, now bare — no card/collapse)
+moved into the gear popover (`ProviderGear.jsx`), out of the prompt area; `ProviderSelect.jsx` was removed and
+the rewrite select/key left `Settings.jsx`. The **negative prompt** left provider settings: the composer's
+editor flips between **Prompt** and **Negative** via a switch on the insert bar (only when the provider
+supports negatives), storing the per-provider negative the engine already reads. **Next:** a per-provider
+**preset manager** + migrating the old v1–v2 flat presets (deferred). Windows visual baselines refreshed; the
+**Linux** set needs the `visual-baselines.yml` workflow before the `main` release.
 
 **Keyword tooling + DPL insert toolbar (2.8.0):** the single view's keyword cloud is now backed by a real
 parser (`gui/src/lib/keywords.js` — strips SD/NovelAI weighting syntax, keeps accents for display but folds
