@@ -81,6 +81,7 @@ export function searchHaystack(item) {
   return [
     p.final, p.roll, p.ai, p.dpl,
     n.final, n.roll, n.ai, n.dpl,
+    Array.isArray(m.keywords) ? m.keywords.join(" ") : null,
     m.providerLabel, m.provider, item.file,
   ]
     .filter(Boolean)

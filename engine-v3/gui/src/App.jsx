@@ -115,6 +115,14 @@ export default function App() {
     setView("gallery");
   }
 
+  // Apply an updated metadata sidecar (e.g. an edited keyword list) to the feed + the open image,
+  // so the single view reflects the save without a full feed reload.
+  function updateItemMeta(path, meta) {
+    if (!meta) return;
+    setItems((list) => list.map((x) => (x.path === path ? { ...x, meta } : x)));
+    setCurrent((cur) => (cur && cur.path === path ? { ...cur, meta } : cur));
+  }
+
   // Delete an image (+ sidecar) from disk; in the single view, land on a neighbor (or leave).
   async function deleteItem(item) {
     if (!confirm("Delete this image and its metadata from disk? This can't be undone.")) return;
@@ -182,12 +190,14 @@ export default function App() {
                 items={items}
                 current={current}
                 magick={magick}
+                settings={settings}
                 active={view === "single"}
                 returnLabel={returnLabel}
                 onBack={() => setView(returnTo)}
                 onNavigate={setCurrent}
                 onDelete={deleteItem}
                 onSearch={searchFor}
+                onMetaUpdate={updateItemMeta}
               />
             </div>
           </>

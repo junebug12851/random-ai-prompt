@@ -308,6 +308,7 @@ export default function WrapperFab({ settings, setSettings }) {
                   <DplEditor
                     value={start}
                     onChange={setStart}
+                    settings={settings}
                     ariaLabel="Wrapper start (DPL)"
                     placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. masterpiece, best quality"}
                   />
@@ -328,6 +329,7 @@ export default function WrapperFab({ settings, setSettings }) {
                   <DplEditor
                     value={end}
                     onChange={setEnd}
+                    settings={settings}
                     ariaLabel="Wrapper end (DPL)"
                     placeholder={isNew ? def.end || "Rendered after the prompt…" : "Rendered after the prompt — e.g. {#fx}, {#artists}"}
                   />
