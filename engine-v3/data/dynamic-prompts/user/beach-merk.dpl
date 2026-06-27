@@ -4,8 +4,8 @@ description: Beach scene (community submission by Merk)
 beach-extra
 ===
 - one of (60% nothing):
-    - beach oasis, {#city}
-    - beach vegetation, {#nature}
+    - hidden beach oasis
+    - lush beach vegetation, {#nature}
 
 Start
 ===
@@ -13,21 +13,10 @@ beach, palm trees
 - tropical
 - oceanside
 - 50% +beach-extra
-- beach
-- seaside
-- sand
-- beachside
-- {#color} crystal
-- {#color} gemstone
-- oceanside
-- sandy beach
-- ocean view
+- sandy shore
 - sea shells
-- beach sand
-- sand
-- palm trees
-- palm tree
-- small waves
+- tide pools
+- {intensity} waves
 - {color}
 
-{#nature}, {#water}, {#mystical}, {#weather}, {#city}
+{#nature}, {#water}, {#mystical}, {#weather}
