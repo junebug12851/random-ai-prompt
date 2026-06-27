@@ -9,16 +9,19 @@
 
 /**
  * Save one image source into the central output folder; returns the served path (or the
- * original source on failure).
+ * original source on failure). When `meta` is given, the server writes a `.json` sidecar next
+ * to the image (how it was made — prompt, DPL, AI translation, provider + settings) that the
+ * photo gallery reads back.
  * @param {string} src A `data:` URL or a localhost image URL.
+ * @param {object} [meta] Metadata to persist alongside the image as a sidecar.
  * @returns {Promise<string>} The served `/api/output/<file>` path, or `src` on failure.
  */
-export async function ingestImage(src) {
+export async function ingestImage(src, meta) {
   try {
     const res = await fetch("/api/image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ src }),
+      body: JSON.stringify(meta ? { src, meta } : { src }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.path) return data.path;

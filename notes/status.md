@@ -11,8 +11,18 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. A **Generate /
+Gallery** switch in the upper-left of the top-bar (`gui/src/App.jsx`) flips between the composer and a new
+**photo gallery** (`gui/src/components/Gallery.jsx`) that browses everything saved to `output/`. Every
+generated image now gets a **`.json` metadata sidecar** next to it (prompt sent, the deterministic engine
+roll, the AI translation, the source DPL, negative, provider, and a settings snapshot with **API keys
+stripped**), written by `POST /api/image` and read back via a new `GET /api/feed` (`gui/vite-plugin-api.js`).
+The gallery is a masonry grid with keyword search + a click-through detail view (copy / open / reveal /
+delete, which also removes the sidecar). Local-only by nature (the feed needs the dev server's filesystem);
+a static/online build shows an empty gallery with a note. See [`version/2026-06.md`](version/2026-06.md).
 
 **Layout reorg (2.7.1):** completes the v3-only move. Dynamic prompts are now **flat** under
 `data/dynamic-prompts/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
@@ -164,8 +174,8 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
-| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 88 passed |
-| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 30 passed |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 86 passed |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 40 passed (incl. `gallery.test.js`) |
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `gui` SPA `vite build` | ✅ green |

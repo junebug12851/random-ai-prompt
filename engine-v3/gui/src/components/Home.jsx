@@ -133,6 +133,17 @@ export default function Home({ settings, setSettings }) {
   async function makeBatch(promptId, promptText) {
     let text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
     if (!text) return;
+    const entry0 = prompts.find((x) => x.id === promptId);
+    // What we'll record in each image's sidecar. `promptOriginal` is the deterministic
+    // engine roll (pre-AI); `aiTranslation` is the AI-rewritten prompt, if auto-fix ran.
+    const dplText = entry0?.dpl ?? null;
+    let promptOriginal = text;
+    let aiTranslation = null;
+    if (entry0?.original) {
+      // This prompt was already auto-fixed on a prior batch — reuse that mapping.
+      promptOriginal = entry0.original;
+      aiTranslation = entry0.text;
+    }
     const batchId = nextId();
     const count = Math.max(1, Number(flat.batchSize) || 1);
     setImgError("");
@@ -165,6 +176,8 @@ export default function Home({ settings, setSettings }) {
               if (fixed && fixed.trim()) {
                 const orig = text;
                 text = fixed.trim();
+                promptOriginal = orig;
+                aiTranslation = text;
                 setPrompts((ps) =>
                   ps.map((x) => (x.id === promptId ? { ...x, original: orig, text } : x)),
                 );
@@ -186,8 +199,22 @@ export default function Home({ settings, setSettings }) {
         settings: { ...flat, negativePrompt: negative },
         key,
       });
+      // The full record of how these images were made, written as a sidecar next to each one
+      // (read back by the photo gallery). The settings snapshot drops API keys — never to disk.
+      const { keys: _keys, ...settingsSnapshot } = { ...flat, negativePrompt: negative };
+      const meta = {
+        prompt: text, // the exact prompt sent to the provider
+        promptOriginal, // the deterministic engine roll (before any AI rewrite)
+        aiTranslation, // the AI-rewritten prompt, or null if auto-fix didn't run
+        dpl: dplText, // the DPL template this was rolled from
+        negativePrompt: negative,
+        provider: provider.id,
+        providerLabel: provider.label,
+        settings: settingsSnapshot,
+        savedAt: new Date().toISOString(),
+      };
       // Funnel every provider's images into the central output folder, then display the saved copies.
-      const saved = await Promise.all((imgs || []).map(ingestImage));
+      const saved = await Promise.all((imgs || []).map((img) => ingestImage(img, meta)));
       setPrompts((ps) =>
         ps.map((x) =>
           x.id === promptId

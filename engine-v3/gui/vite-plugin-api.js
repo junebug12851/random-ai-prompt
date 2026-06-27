@@ -2,6 +2,8 @@
  * Vite dev-server middleware — the LOCAL equivalent of the Netlify function, so `npm run web`
  * gets working hosted generation and local-file storage with nothing extra to start. It serves:
  *   - `POST /api/generate`  → the shared `server/dispatch.js` (same handler as online)
+ *   - `POST /api/image`     → saves a generated image (+ its `.json` metadata sidecar) to `output/`
+ *   - `GET  /api/feed`      → the photo-gallery feed: every saved image paired with its sidecar
  *   - `/api/storage`        → a real `.json` config file on disk (the local-file storage tier)
  * @module gui/vite-plugin-api
  */
@@ -175,6 +177,7 @@ export function apiPlugin() {
         if (u.pathname === "/api/image" && req.method === "POST") {
           const body = await readJson(req);
           const src = body?.src;
+          const meta = body?.meta && typeof body.meta === "object" ? body.meta : null;
           try {
             let buf;
             let ext = "png";
@@ -205,6 +208,25 @@ export function apiPlugin() {
             if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
             const name = `${new Date().toISOString().replace(/[:.]/g, "-")}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
             fs.writeFileSync(path.join(OUTPUT_DIR, name), buf);
+            // Write the metadata sidecar next to the image — same base name, `.json` — so the
+            // photo gallery can show how each image was made (prompt, DPL, AI translation,
+            // provider + full settings snapshot). One image ↔ one sidecar, like the v1-2 feed.
+            if (meta) {
+              const sidecar = {
+                ...meta,
+                file: name,
+                image: `/api/output/${name}`,
+                savedAt: meta.savedAt || new Date().toISOString(),
+              };
+              try {
+                fs.writeFileSync(
+                  path.join(OUTPUT_DIR, name.replace(/\.[^.]+$/, ".json")),
+                  JSON.stringify(sidecar, null, 2),
+                );
+              } catch {
+                // best-effort: a missing sidecar just means less gallery detail, not a failure
+              }
+            }
             return send(res, 200, { path: `/api/output/${name}` });
           } catch (e) {
             return send(res, 502, { error: `Could not save image: ${e.message}` });
@@ -228,12 +250,58 @@ export function apiPlugin() {
           return res.end(fs.readFileSync(fp));
         }
 
+        // --- photo-gallery feed: every saved image paired with its `.json` sidecar ---
+        // Scans the output folder, pairs each image with its same-base sidecar (parsed), and
+        // returns the list newest-first. Inspired by the v1-2 feed's index over output/.
+        // Returns an empty list when there's no folder yet (or nothing has been generated).
+        if (u.pathname === "/api/feed" && req.method === "GET") {
+          try {
+            if (!fs.existsSync(OUTPUT_DIR)) return send(res, 200, { items: [] });
+            const names = fs.readdirSync(OUTPUT_DIR);
+            const items = [];
+            for (const name of names) {
+              const ext = path.extname(name).slice(1).toLowerCase();
+              if (!IMAGE_TYPES[ext]) continue; // only images are gallery entries
+              const base = name.replace(/\.[^.]+$/, "");
+              const fp = path.join(OUTPUT_DIR, name);
+              let meta = null;
+              const sidecarPath = path.join(OUTPUT_DIR, `${base}.json`);
+              if (fs.existsSync(sidecarPath)) {
+                try {
+                  meta = JSON.parse(fs.readFileSync(sidecarPath, "utf8"));
+                } catch {
+                  meta = null; // a corrupt sidecar shouldn't drop the image from the gallery
+                }
+              }
+              let mtime = 0;
+              try {
+                mtime = fs.statSync(fp).mtimeMs;
+              } catch {
+                /* ignore */
+              }
+              items.push({ path: `/api/output/${name}`, file: name, name: base, mtime, meta });
+            }
+            // Newest first: prefer the sidecar's savedAt, fall back to the file mtime.
+            items.sort((a, b) => {
+              const ta = Date.parse(a.meta?.savedAt) || a.mtime;
+              const tb = Date.parse(b.meta?.savedAt) || b.mtime;
+              return tb - ta;
+            });
+            return send(res, 200, { items });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
         // --- image file actions (delete from disk / reveal in Explorer / open with default app) ---
         if (u.pathname === "/api/image/delete" && req.method === "POST") {
           const fp = resolveOutputFile((await readJson(req))?.path);
           if (!fp) return send(res, 400, { error: "Invalid path" });
           try {
             if (fs.existsSync(fp)) fs.unlinkSync(fp);
+            // Remove the metadata sidecar alongside the image, if present.
+            const sidecar = fp.replace(/\.[^.]+$/, ".json");
+            if (fs.existsSync(sidecar)) fs.unlinkSync(sidecar);
             return send(res, 200, { ok: true });
           } catch (e) {
             return send(res, 502, { error: e.message });
