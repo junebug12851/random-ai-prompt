@@ -259,6 +259,30 @@ export function getBlocks() {
 }
 
 /**
+ * Flatten the building-block catalog into autocomplete entries for the DPL editor: one per
+ * insertable token ({list} / {#generator} / reserved), de-duplicated, with its tooltip text.
+ * @returns {Array<{token: string, label: string, kind: ("gen"|"list"), description: (string|undefined)}>}
+ *   The completion entries.
+ */
+export function getDplCompletions() {
+  const out = [];
+  const seen = new Set();
+  for (const b of getBlocks()) {
+    for (const it of b.items) {
+      if (!it.token || seen.has(it.token)) continue;
+      seen.add(it.token);
+      out.push({
+        token: it.token,
+        label: it.label,
+        kind: it.token.startsWith("{#") ? "gen" : "list",
+        description: it.description,
+      });
+    }
+  }
+  return out;
+}
+
+/**
  * @returns {string[]} The sorted list names.
  */
 export function getListNames() {

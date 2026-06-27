@@ -16,6 +16,14 @@
   --accent-ink: #06231a; /* text on a green button */
   --accent-soft: rgba(52, 226, 160, 0.14);
 
+  /* DPL syntax highlighting (CodeMirror) */
+  --dpl-gen: #7cc4ff; /* {#generator} */
+  --dpl-list: #34e2a0; /* {list} */
+  --dpl-ref: #7cc4ff; /* +ref */
+  --dpl-weight: #e6b673; /* ( ) [ ] | :weight */
+  --dpl-gate: #d8a0f0; /* NN% / maybe / otherwise */
+  --dpl-keyword: #d8a0f0; /* one of / repeat / insert / go to */
+
   /* Surfaces (charcoal, neutral) */
   --bg: #1c1c1f;
   --bg-2: #2a2a2f; /* inputs */
@@ -65,6 +73,13 @@
     --border-soft: #ededf1;
     --accent-ink: #04150f;
     --shadow: 0 18px 50px rgba(20, 20, 30, 0.16);
+    /* DPL syntax — darker tints for the light theme */
+    --dpl-gen: #1f6feb;
+    --dpl-list: #128a5e;
+    --dpl-ref: #1f6feb;
+    --dpl-weight: #b5722a;
+    --dpl-gate: #9333c4;
+    --dpl-keyword: #9333c4;
   }
 }
 
@@ -2476,4 +2491,155 @@ button.ghost:hover {
   .g-single-img img {
     max-height: 60vh;
   }
+}
+
+/* ---------- DPL editor (CodeMirror) ---------- */
+/* A controlled CodeMirror instance dressed to read like the textarea it replaced. Colors come
+   from the --dpl-* variables so highlighting follows the light/dark theme. */
+.dpl-editor {
+  display: flex;
+  min-width: 0;
+}
+.dpl-editor .cm-editor {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  color: var(--fg);
+}
+.dpl-editor .cm-editor.cm-focused {
+  outline: none;
+}
+.dpl-editor .cm-scroller {
+  font-family: var(--font-body);
+  line-height: 1.5;
+  overflow: auto;
+}
+.dpl-editor .cm-content {
+  padding: 0;
+  caret-color: var(--accent);
+}
+.dpl-editor .cm-line {
+  padding: 0;
+}
+.dpl-editor .cm-placeholder {
+  color: var(--faint);
+}
+.dpl-editor .cm-cursor {
+  border-left-color: var(--accent);
+}
+.dpl-editor .cm-selectionBackground,
+.dpl-editor .cm-content ::selection {
+  background: var(--accent-soft);
+}
+.dpl-editor.cm-focused .cm-selectionBackground,
+.dpl-editor .cm-focused .cm-selectionBackground {
+  background: var(--accent-soft);
+}
+
+/* Token colors */
+.cm-dpl-gen {
+  color: var(--dpl-gen);
+  font-weight: 600;
+}
+.cm-dpl-list {
+  color: var(--dpl-list);
+}
+.cm-dpl-ref {
+  color: var(--dpl-ref);
+}
+.cm-dpl-weight {
+  color: var(--dpl-weight);
+}
+.cm-dpl-gate {
+  color: var(--dpl-gate);
+  font-weight: 600;
+}
+.cm-dpl-keyword {
+  color: var(--dpl-keyword);
+}
+.cm-dpl-bullet {
+  color: var(--muted);
+}
+.cm-dpl-heading {
+  color: var(--muted);
+  font-weight: 700;
+}
+.cm-dpl-comment {
+  color: var(--faint);
+  font-style: italic;
+}
+
+/* Autocomplete dropdown */
+.cm-tooltip.cm-tooltip-autocomplete {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.cm-tooltip-autocomplete > ul {
+  font-family: var(--font-body);
+  max-height: 16rem;
+}
+.cm-tooltip-autocomplete > ul > li {
+  color: var(--fg-soft);
+  padding: 0.22rem 0.55rem;
+}
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+.cm-completionLabel {
+  color: inherit;
+}
+.cm-completionDetail {
+  color: var(--faint);
+  font-style: normal;
+  margin-left: 0.5rem;
+  font-size: 0.85em;
+}
+.cm-tooltip.cm-completionInfo {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--fg-soft);
+  padding: 0.4rem 0.55rem;
+  max-width: 260px;
+}
+
+/* Context: the main prompt box (the .dpl-editor wears the .prompt-input class) */
+.composer-field .prompt-input.dpl-editor {
+  padding: 0.95rem 1.05rem 0.5rem;
+  resize: none;
+}
+.composer-field .prompt-input.dpl-editor .cm-content {
+  font-size: 1.05rem;
+}
+
+/* Context: the negative-prompt box (matches the base textarea look) */
+.negative-textarea.dpl-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  padding: 0.55rem 0.7rem;
+  min-height: 5.5rem;
+  font: 0.9rem/1.5 var(--font-body);
+}
+.negative-textarea.dpl-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+/* Context: the wrapper Start/End boxes */
+.wrap-box .dpl-editor {
+  min-height: 160px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  font: 0.9rem/1.5 var(--font-body);
+}
+.wrap-box .dpl-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
 }

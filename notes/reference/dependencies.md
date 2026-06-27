@@ -55,6 +55,25 @@ The SPA Vitest config reuses `vite.config.js`, so `import.meta.glob` (the browse
 the `lodash` alias resolve exactly as in the real build. **Landmine:** lodash captures `Math.random` at
 import — `_.random/_.sample/_.shuffle` can't be RNG-stubbed (see `notes/plans/testing.md`).
 
+### SPA editor — CodeMirror 6 (added 2.7.26)
+
+The DPL boxes (prompt / negative / wrapper) are CodeMirror 6 editors (`gui/src/components/DplEditor.jsx`
+over `gui/src/lib/dpl/dplLanguage.js`). `gui/package.json`:
+
+| Package | Major | Purpose |
+|---------|-------|---------|
+| `@codemirror/state` · `@codemirror/view` | 6 | Editor core + the DOM view. |
+| `@codemirror/language` | 6 | `StreamLanguage` (the DPL tokenizer) + `HighlightStyle` (tag → CSS class). |
+| `@codemirror/autocomplete` | 6 | The brace-aware `{…}` / `{#…}` token-completion dropdown. |
+| `@codemirror/commands` | 6 | Undo `history()` + the default/history keymaps. |
+| `@lezer/highlight` | 1 | `Tag.define()` for the custom DPL highlight tags. |
+
+Highlight **colors live in `styles.css`** (the `--dpl-*` variables, with a light-theme override), not in a JS
+theme — so syntax coloring follows the app's light/dark theme. The tokenizer mirrors `src/core/dpl/dpl.js`
+and only treats DPL structural keywords as keywords at the **start of a line**, so prose in the prompt box
+isn't mis-highlighted. CodeMirror is framework-agnostic ESM and bundles cleanly under Vite/Rolldown (the
+main chunk grew ~accordingly; the >500 kB chunk warning is pre-existing).
+
 ## Bumping deps
 
 - Update `package.json`, run `npm install`, then **re-run the verification** in
