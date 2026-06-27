@@ -26,10 +26,14 @@ means the same thing as green locally — it's the CI mirror of `npm test` + the
 
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
-Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** (Node 24, `npm ci`
-+ gui `npm ci`, `npx playwright install --with-deps chromium`), then `playwright test visual.spec.js
---update-snapshots`, and uploads `tests/e2e/visual.spec.js-snapshots/` as the `linux-visual-baselines`
-artifact. Because it renders in the exact environment the e2e job checks against, the baselines match CI.
+Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — the run steps use
+`defaults.run.working-directory: engine-v3` and `npm install` + gui `npm install` (NOT `npm ci`, same
+Windows-lock/@emnapi reason as `ci.yml`; this was fixed for the engine-v3 split — the old root-level `npm ci`
+broke once there was no root `package.json`), `npx playwright install --with-deps chromium`, then `playwright
+test visual.spec.js --update-snapshots`. It uploads the snapshots as the `linux-visual-baselines` artifact —
+the `upload-artifact` path is **repo-root-relative** (`engine-v3/tests/e2e/visual.spec.js-snapshots/`), since
+`actions/*` steps ignore `working-directory`. Because it renders in the exact environment the e2e job checks
+against, the baselines match CI.
 Workflow: trigger it (`gh workflow run visual-baselines.yml`), download the artifact, copy the
 `*-chromium-linux.png` files into `tests/e2e/visual.spec.js-snapshots/`, and commit. Do this whenever the
 SPA's stable chrome changes (the Windows `*-win32.png` set is refreshed locally with
