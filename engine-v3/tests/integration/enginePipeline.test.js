@@ -120,3 +120,18 @@ describe("engine — intensity dial", () => {
     expect(engine.expand("{#probe 0%}", settings, {}, {})).toBe("1"); // 0 → 1
   });
 });
+
+describe("engine — auto-append (fx / artists)", () => {
+  it("resolves nested {#…} inside an auto-appended {#fx} (no literal token leaks)", () => {
+    const engine = createEngine(makeFakeLoader({ dpl: { fx: "boom {#spark}", spark: "zap" } }));
+    const settings = {
+      ...baseSettings,
+      autoAddFx: true,
+      autoAddArtists: false,
+      promptModules: ["dynamic-prompt", "cleanup"],
+    };
+    const out = engine.expand("base", settings, {}, {});
+    expect(out).toContain("zap"); // the nested token resolved
+    expect(out).not.toContain("{#"); // nothing left dangling
+  });
+});

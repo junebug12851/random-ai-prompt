@@ -139,6 +139,19 @@ export function makeDynamicPromptStage(loader) {
       imageSettings.autoIncludedArtists;
     const includedFx = prompt.includes("{#fx}") || imageSettings.autoIncludedFx;
 
+    // Auto-append the fx / artists generators as TOKENS *before* the resolution loop, so the loop
+    // resolves them — and any nested `{#…}` they emit — in the same passes. (Appending their
+    // already-rendered output *after* the loop, as this used to, left a nested token unresolved in
+    // the final prompt, e.g. a literal `{#rays}`.)
+    if (settings.autoAddFx && !includedFx) {
+      prompt += `, {#fx}`;
+      imageSettings.autoIncludedFx = true;
+    }
+    if (settings.autoAddArtists && !includedArtists) {
+      prompt += `, {#artists}`;
+      imageSettings.autoIncludedArtists = true;
+    }
+
     // Dynamic prompts are written `{#name}` (brace-delimited, uniform with `{list}`, and able to
     // carry `/` paths like `{#scene/beach}`). An optional ` NN%` is the intensity dial
     // (`{#beach 25%}`); absent → the default. Relative `+NN%`/`-NN%` forms are resolved to an
@@ -148,15 +161,6 @@ export function makeDynamicPromptStage(loader) {
       prompt = prompt.replaceAll(/\{#([\w/-]+)(?:\s+(\d{1,3})%)?\}/g, (match, p1, p2) =>
         expandGen(p1, parseIntensity(p2)),
       );
-    }
-
-    if (settings.autoAddFx && !includedFx) {
-      prompt += `, ${expandGen("fx")}`;
-      imageSettings.autoIncludedFx = true;
-    }
-    if (settings.autoAddArtists && !includedArtists) {
-      prompt += `, ${expandGen("artists")}`;
-      imageSettings.autoIncludedArtists = true;
     }
 
     imageSettings.origPostPrompt = prompt;
