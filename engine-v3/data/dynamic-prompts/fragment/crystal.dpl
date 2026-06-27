@@ -3,11 +3,12 @@ description: Crystals and gemstones
 ---
 Start
 ===
-- glowing
+- {#glow} crystals
 - {#glow} crystal walls
-- {#glow} crystal floor
-- {#glow} giant crystals
+- {intensity} crystal formations
+- glowing
 - ruby
 - diamond
 - emerald
-- {#glow} crystals
+- amethyst
+- quartz

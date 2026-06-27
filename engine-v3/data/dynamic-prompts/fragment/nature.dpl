@@ -7,6 +7,6 @@ Start
 - 50% repeat 1 to 3 times: {tree}
 - vines
 - {#color} plants
-- {#color} vegetation
-- lush
+- {intensity} foliage
+- lush greenery
 - 25% oasis

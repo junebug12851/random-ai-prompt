@@ -4,32 +4,21 @@ description: Room condition — clean/reflective or dirty/rundown, plus furnishi
 Start
 ===
 - {mood} atmosphere
-- detailed
 - maybe:
     - reflective surface
     - polished
-    - shiny
+    - pristine
 - otherwise:
     - dirty
-    - cobweb
-    - spider web
+    - cobwebs
     - grunge
     - rundown
-    - broken
-    - broken floor
-    - torn wallpaper
+    - peeling wallpaper
     - mold
-    - mildew
     - shattered glass
-    - holes
-    - floor hole
-    - ceiling hole
-- clutter
-- messy
+- {intensity} clutter
 - furniture
-- items
-- accesories
+- accessories
 - window
 - furnished
-- {style/building}
 - {style/general}
