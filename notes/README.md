@@ -16,9 +16,10 @@ This file describes the **system** — where everything lives and how it's kept 
 | **[`status.md`](status.md)** | **Start here.** Current state only — build/run health, open issues, what's next. No history. |
 | [`sessions/`](sessions/README.md) | **The history.** One file per day in month folders (`YYYY-MM/YYYY-MM-DD.md`): what changed each session and why. |
 | [`version.md`](version.md) | **The changelog** — plain-English, one entry per commit, newest first (index; months under `version/`). |
+| [`fairyfox-reports/`](fairyfox-reports/README.md) | **Process reports** — one per run of a fairyfox system procedure (check/adopt updates, setup, onboarding). The feedback this node sends the hub. |
 | `context/` | Background that changes rarely: [`project.md`](context/project.md) (what it is + goals), [`architecture.md`](context/architecture.md) (layout + entry points + pipeline), [`principles.md`](context/principles.md) (philosophy), [`history.md`](context/history.md) (origins + the 2026 ESM modernization). |
 | `systems/` | **System map** — [`README.md`](systems/README.md) (hub) + [`overview.md`](systems/overview.md) (the machine end-to-end) and the per-layer deep-dives: [`core-engine.md`](systems/core-engine.md), [`cli.md`](systems/cli.md), [`server.md`](systems/server.md), [`web-app.md`](systems/web-app.md). |
-| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (JSDoc doc-site + comment style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`versioning.md`](reference/versioning.md) (the version-number scheme). |
+| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (JSDoc doc-site + comment style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`versioning.md`](reference/versioning.md) (the version-number scheme), [`cross-project-sync.md`](reference/cross-project-sync.md) / [`process-reports.md`](reference/process-reports.md) / [`compliance.md`](reference/compliance.md) (the fairyfox-mesh standards). |
 | `decisions/` | Rationale: [`architecture.md`](decisions/architecture.md) (choices + why), [`rejected.md`](decisions/rejected.md) (things tried/considered that were rejected). |
 | `plans/` | What's next: [`next-steps.md`](plans/next-steps.md) (ordered tasks), [`testing.md`](plans/testing.md) (the testing reality), [`future.md`](plans/future.md) (longer-term vision). |
 
@@ -44,6 +45,7 @@ has one home and one trigger:
 | Made / rejected a structural decision | [`decisions/architecture.md`](decisions/architecture.md) / [`decisions/rejected.md`](decisions/rejected.md) |
 | Added/renamed a Markdown note | Nothing extra — `scripts/build-docs.mjs` auto-discovers it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative. See [`reference/documentation.md`](reference/documentation.md) |
 | Changed how docs/CI/releases work | Update [`reference/documentation.md`](reference/documentation.md) / [`reference/deployment.md`](reference/deployment.md) |
+| Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in [`fairyfox-reports/`](fairyfox-reports/README.md) — even a check-only run. See [`reference/process-reports.md`](reference/process-reports.md) |
 
 The structure is meant to **grow**. If something doesn't fit an existing file, make a new one in the
 right folder rather than stuffing it somewhere wrong. (The fuller, AI-facing version of this loop is in
@@ -69,6 +71,9 @@ notes/
   status.md              ← current state only (health + open issues, no history)
   version.md             ← changelog index (plain-English, per commit)
   version/               ← changelog, one file per month (YYYY-MM.md)
+  fairyfox-reports/      ← process reports, one per fairyfox-procedure run
+    README.md            ← what the folder is
+    YYYY-MM-DD-<proc>.md ← one file per run (check/adopt updates, setup, onboarding)
   sessions/              ← the history, one file per day in month folders
     README.md            ← how the per-day log system works
     YYYY-MM/YYYY-MM-DD.md← what changed that day and why (newest on top)
@@ -79,6 +84,7 @@ notes/
   reference/             ← quick lookup, no story
     esm-patterns.md  dependencies.md  fix-patterns.md
     documentation.md  deployment.md  git-workflow.md  versioning.md
+    cross-project-sync.md  process-reports.md  compliance.md   ← fairyfox-mesh standards
   decisions/             ← rationale for choices
     architecture.md  rejected.md
   plans/                 ← what comes next

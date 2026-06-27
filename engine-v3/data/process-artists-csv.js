@@ -33,7 +33,7 @@ process.chdir(import.meta.dirname);
 process.chdir("..");
 
 // Read csv file
-const csv = fs.readFileSync(`./artists.csv`).toString().split("\n");
+const csv = fs.readFileSync(`./data/sources/artists.csv`).toString().split("\n");
 
 /////////////////////////
 /// User Setting

@@ -115,8 +115,49 @@ function processMdj(settings, lessEmphasis, keyword) {
   return keyword;
 }
 
+// Default natural-language ladders for the `Plain` dialect. The roll picks a level
+// (count) exactly like the other dialects; instead of syntax, the level selects an
+// intensifier (more) or a hedge (less) word that prefixes the keyword — so a service
+// with no weighting grammar still receives the emphasis the engine rolled, expressed
+// in words. Override per provider via `settings.plainEmphasisWords` /
+// `settings.plainDeEmphasisWords` (e.g. a provider's data/ wordbank).
+const PLAIN_MORE = ["prominent", "strongly emphasized", "dominant"];
+const PLAIN_LESS = ["subtle", "faint", "barely-there"];
+
 /**
- * Randomly emphasize or de-emphasize a keyword for the active engine (SD / NAI / MDJ).
+ * Plain (natural-language) emphasis: roll a level like the other dialects, then prefix
+ * the keyword with an intensifier (emphasis) or hedge (de-emphasis) word from the ladder
+ * — keeping the emphasis the engine rolled instead of dropping it for syntax-less targets.
+ * @param {object} settings The merged generation settings.
+ * @param {boolean} lessEmphasis De-emphasize (hedge) rather than emphasize (intensify).
+ * @param {string} keyword The keyword to modify.
+ * @returns {string} The (possibly) word-prefixed keyword.
+ */
+function processPlain(settings, lessEmphasis, keyword) {
+  // Roll the level the same way the syntax dialects do (count of "nesting").
+  let count = 0;
+  do {
+    count++;
+  } while (
+    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    count < settings.emphasisMaxLevels
+  );
+
+  const ladder = lessEmphasis
+    ? settings.plainDeEmphasisWords || PLAIN_LESS
+    : settings.plainEmphasisWords || PLAIN_MORE;
+
+  if (count > 0 && ladder.length) {
+    // Cap the level at the ladder's length; deeper rolls just use the strongest word.
+    const word = ladder[Math.min(count, ladder.length) - 1];
+    if (word) keyword = `${word} ${keyword}`;
+  }
+
+  return keyword;
+}
+
+/**
+ * Randomly emphasize or de-emphasize a keyword for the active dialect (SD / NAI / MDJ / Plain).
  * @param {object} settings The merged generation settings.
  * @param {string} keyword The keyword to modify.
  * @returns {{keyword: string, wasUsed: boolean}} The (possibly) modified keyword and whether it changed.
@@ -135,6 +176,7 @@ export default function randomEmphasis(settings, keyword) {
   if (settings.mode == "StableDiffusion") keyword = processSd(settings, lessEmphasis, keyword);
   else if (settings.mode == "NovelAI") keyword = processNAI(settings, lessEmphasis, keyword);
   else if (settings.mode == "Midjourney") keyword = processMdj(settings, lessEmphasis, keyword);
+  else if (settings.mode == "Plain") keyword = processPlain(settings, lessEmphasis, keyword);
 
   // Send prompt back
   return { keyword, wasUsed: true };

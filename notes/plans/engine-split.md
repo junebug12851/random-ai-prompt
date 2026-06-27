@@ -64,17 +64,22 @@ dropped 149 packages, smoke + 84 tests green); **`CLAUDE.md` reframed** (intro +
 engine-v3); **`status.md` + `context/architecture.md`** got structure banners; loose ends cleaned (stale
 :7861 server killed, stray log removed).
 
+Also done (2026-06-26): **v3-only** (v1/v2 generations deleted) and the **expansion mechanism fully
+removed** (engine stage, classifier, both loaders, SPA UI, data, dead code). **CI fixed** (switched
+install to `npm install` — npm's cross-platform `@emnapi` lockfile bug). **`systems/*` + `project`
+deep-dives** got structure banners. **Released 2.7.0** (`main` + tag `v2.7.0`; `VERSION` stays at repo root).
+
 Still open:
-- **Deeper notes sync** — `systems/*` (overview/cli/server/web-app/core-engine), the rest of `context/*`, and
-  inline `src/…` references throughout still describe the pre-split single tree. Banners added to the entry
-  docs; the body reconciliation is incremental.
-- **Doc-site paths** — `jsdoc.config.json` (left at root) + `scripts/build-docs.mjs` reference old paths;
-  retarget for `engine-v3/` + root `notes/`. (Not gated; the doc-site is git-ignored.)
-- **Drop the expansion stage** *(your call — behavior change)* — `engine-v3/data/expansions*` + the core
-  `stages/expansion.js` slot in `DEFAULT_ORDER` are still present; removing them changes output (snapshot
-  tests), so it's its own verified change.
-- **Root `VERSION` / fairyfox node** *(your call)* — decide whether `VERSION` lives at root or in `engine-v3/`,
-  and how the fairyfox registry tracks the relocated project. Plus whether to cut a PATCH release to `main`.
+- **Doc-site (`npm run docs`) + Pages** — `build-docs.mjs` resolves `notes/`/`assets/` at the repo root
+  while `src/`/`web-app/` are under `engine-v3/`, and jsdoc's config/cwd are no longer co-located. Needs a
+  two-base-dir fix (repo root for notes/assets/README; engine-v3 for src/data/web-app + jsdoc). Until then
+  the release docs-zip is `continue-on-error` and `pages.yml` auto-deploy is paused (`workflow_dispatch`
+  only). **This is the main remaining follow-up.**
+- **Deeper notes body** — `systems/*` / `context/*` paragraphs still describe the pre-split single tree
+  (entry docs carry banners; full body rewrites are low-value polish).
+- **Release process** — reconcile the `release.yml` tag-gate vs the manual-tag git-flow (see
+  `sessions/2026-06-26.md`).
+- **fairyfox registry** — confirm how the hub tracks the relocated `engine-v3/` project (owner, hub-side).
 
 ## See also
 - [`generate-page-triage.md`](generate-page-triage.md) — the Sweep prune this unblocks (trivial once isolated).

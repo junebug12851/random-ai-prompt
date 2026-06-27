@@ -5,16 +5,17 @@ Random AI prompt + image generator. Node.js (ES modules). Open source, by junebu
 **The repo holds two separate engines (zero shared code):**
 
 - **`engine-v3/` — the active project, and what this document describes.** An isomorphic prompt **engine**
-  (`src/core/`) authored in the **DPL** dynamic-prompt language, driven by a React/Vite **web SPA**
-  (`web-app/`), with SFW/NSFW gating. There is **no CLI or classic server here** — those were the old
-  system and now live only in `engine-v1-2/`.
+  (`src/core/`) authored in the **DPL** dynamic-prompt language, driven by a React/Vite **web GUI**
+  (`gui/`), with SFW/NSFW gating. The folder is named `gui/` to anticipate a sibling **CLI** (planned
+  next — the core engine is already headless/isomorphic); there is **no CLI yet**, and no classic
+  server here — those were the old system and now live only in `engine-v1-2/`.
 - **`engine-v1-2/` — the frozen pre-revival snapshot** (the literal 2022–2023 CommonJS system: yargs CLI +
   Express/Pug web UI, restored from commit `241a148`). Complete, self-contained (its own
   `package.json`/lockfile/`webui.bat`), runnable, **unmaintained, and on its way out**. Don't develop it.
 
-**Unless noted, every path below (`src/…`, `data/…`, `web-app/…`, `scripts/…`, `tests/…`) is relative to
+**Unless noted, every path below (`src/…`, `data/…`, `gui/…`, `scripts/…`, `tests/…`) is relative to
 `engine-v3/`.** Inside engine-v3: all engine code lives under `src/`; all prompt content (lists, presets,
-CSV sources, and the `{#name}` dynamic-prompt generators) lives under `data/`; runtime/user data
+the raw `data/sources/` CSV/JSON, and the `{#name}` dynamic-prompt generators) lives under `data/`; runtime/user data
 (`output/`, `user-settings.json`, `results.json`) stays at the engine-v3 root. The **one deliberate
 exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators are executable `.js`
 authored as prompt *content* (like lists), so they live under `data/`. (Expansions are deprecated,
@@ -36,12 +37,12 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/context/architecture.md` | Codebase layout, the two entry points, the prompt pipeline, data flow |
 | `notes/context/principles.md` | Project philosophy — what to do and what to avoid |
 | `notes/context/history.md` | The 2022 origins and the 2026 ESM modernization |
-| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `web-app.md`. Start here to understand how it fits together |
+| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `gui.md`. Start here to understand how it fits together |
 | `notes/reference/esm-patterns.md` | **The Node/ESM landmine catalog** — CJS→ESM gotchas hit during the migration (import ordering vs `process.chdir`, `require(ESM)` for config-driven plugin loading, default vs named exports, JSON imports, dropping `node-fetch`). Read before touching module wiring |
 | `notes/reference/dependencies.md` | Every runtime/dev dependency, why it's there, and the breaking-change notes for the current majors |
 | `notes/reference/fix-patterns.md` | Error → fix lookup table |
 | `notes/reference/documentation.md` | **The doc-site** — generating the JSDoc site (`npm run docs` → code API + the notes wired in as tutorials), and the JSDoc comment house-style. Read before adding a note page |
-| `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify web-app deploy |
+| `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify gui deploy |
 | `notes/reference/git-workflow.md` | Branch model + commit style + hard safety rules. Read before any git op |
 | `notes/reference/versioning.md` | Version-number scheme — SemVer, the `VERSION` file, keeping `package.json` in sync |
 | `notes/decisions/architecture.md` | Key structural choices and why |
@@ -67,30 +68,27 @@ The full notes system is in `notes/`, organized by topic:
   **not** try to convert these to `await import()` (the call sites are synchronous and can't be made
   async without rewriting the prompt pipeline). The loaded module is a namespace: call `.default(...)`
   and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
-- **Dynamic prompts live under `data/dynamic-prompts/` (the documented `src/`→`data/` exception),
-  organized into `v2/<category>/` with `v1/` frozen.** As of 2.3.0 the v2 generators are sorted into
-  category folders (`v2/{scene,subject,fragment,style,prompt,user}/`; `prompt/` is `_force-prefix`ed) and as of 2.4.0 are written
-  **`{#name}`** (brace-delimited like `{list}`/`<expansion>`; the bare `#name` form is gone — folders are
-  organization only, **never** `{#folder}` groups). `{#name}` resolves by **path suffix** (the shared
-  `resolveName`, same as lists/expansions), so refs stay short and folder-independent. `{#name-v1}`
-  resolves against the frozen `v1/` tree; `{#user-name}` is a back-compat alias for `v2/user/`. A category
-  folder with 2+ generators is an implied **pick-one group** (`{#scene}` runs one random scene generator;
-  `.group` files + `_enable/_disable-group-list` markers work too); `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
-  pick one generator from the whole catalog (the unit is one GENERATOR, never a line union). Expansions get
-  the same `<folder>` pick-one groups. NSFW gating is automatic by name token (`isGatedDynPrompt`). The
-  **active** resolver is the core engine: `src/core/stages/dynamicPrompt.js`
-  (suffix resolution; splits v1 vs v2) over the two isomorphic loaders — `src/core/nodeLoader.js` (fs +
-  `createRequire`) and `src/core/browserLoader.js` (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
-  The classic pipeline `src/prompt-modules/dynamic-prompt.js` and `src/server.js` are **read-only legacy
-  reference** (being replaced) — do not maintain them; nothing active imports the legacy stage.
-- **Generator imports are depth-sensitive — verify with both gates after any move.** v2 generators sit
-  two folders deeper than the old flat root, so they reach `src/` via `../../../../src/helpers/…` (and
-  `../../../../src/promptFilesAndSuggestions.js`); they import siblings across categories by relative path
-  (`../fragment/nature.js`). `v1/` files use `../../../src/helpers/…` and reach the v2 entity helper via
-  `../v2/subject/entity.js`. `npm run smoke` does NOT load v1 modules (the classifier skips them), so a
-  broken `v1/` import only surfaces in **`npm --prefix web-app run build`** (browser glob bundles
-  everything) — always run **both**. The moves + import rewrites are scripted in
-  `scripts/reorg-dynprompts-v2.mjs` (resolves old→new absolute paths).
+- **Dynamic prompts live FLAT under `data/dynamic-prompts/<category>/` (the documented `src/`→`data/`
+  exception).** As of 2.7.1 there are **no version generations** — v1/v2 were deleted in 2.7.0 and the
+  `v3/` wrapper + the `{#v1/}`/`{#v2/}`/`{#any-ver}` routing were stripped, leaving one flat catalog.
+  Generators are sorted into category folders (`{scene,subject,fragment,style,prompt,expansion,user}/`;
+  `prompt/` is `_force-prefix`ed) and written **`{#name}`** (brace-delimited like `{list}`; the bare
+  `#name` form is gone — folders are organization only, **never** `{#folder}` groups). `{#name}` resolves
+  by **path suffix** (the shared `resolveName`, same as lists), so refs stay short and folder-independent;
+  `{#user-name}` is a back-compat alias for `user/`. A category folder with 2+ generators is an implied
+  **pick-one group** (`{#scene}` runs one random scene generator; `.group` files +
+  `_enable/_disable-group-list` markers work too); `{#any}` / `{#any-sfw}` / `{#any-nsfw}` pick one
+  generator from the whole catalog (the unit is one GENERATOR, never a line union). NSFW gating is
+  automatic by name token (`isGatedDynPrompt`). The resolver is the core engine
+  `src/core/stages/dynamicPrompt.js` (one flat pool) over the two isomorphic loaders —
+  `src/core/nodeLoader.js` (fs + `createRequire`) and `src/core/browserLoader.js`
+  (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`). The classic pipeline
+  `src/prompt-modules/dynamic-prompt.js` is **read-only legacy reference** — do not maintain it.
+- **Generator imports are depth-sensitive — verify with both gates after any move.** A `<category>/`
+  generator reaches `src/` via `../../../src/helpers/…` (and `../../../src/promptFilesAndSuggestions.js`)
+  and imports siblings across categories by relative path (`../fragment/nature.js`). `npm run smoke`
+  exercises the Node loader; a broken import in the browser glob only surfaces in
+  **`npm --prefix gui run build`** (it bundles everything) — always run **both**.
 - **Dynamic-prompt files export a default function + optional `full` / `suggestion_exclude` flags.**
   `export default function (settings, imageSettings, upscaleSettings) {…}`, plus
   `export const full = true;` / `export const suggestion_exclude = true;` where applicable. Keep that
@@ -116,13 +114,13 @@ its own deps + start scripts (`cd engine-v1-2 && npm install && node index.js` /
 ```
 cd engine-v3           # the project lives here — run all the below from engine-v3/
 npm install            # install deps
-npm run web            # start the web SPA (Vite dev server)
+npm run web            # start the web GUI (Vite dev server)
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
-npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under web-app/tests/
+npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under gui/tests/
 npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
 npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
 npm test               # lint + smoke + test:unit + test:web (the headless verification gate)
@@ -135,7 +133,7 @@ npm run docs           # build the JSDoc doc-site (code API + notes as tutorials
   the image calls fail — that's expected, not a bug.
 - There is a **full automated test suite** (added 2.6.0 — see `notes/plans/testing.md`): **Vitest** drives
   a Node-side suite (`tests/`: unit, integration, snapshot, contract, bug-regression) and a jsdom SPA suite
-  (`web-app/tests/`: unit, component/UI, contract, integration), and **Playwright** drives E2E + visual-
+  (`gui/tests/`: unit, component/UI, contract, integration), and **Playwright** drives E2E + visual-
   regression + `@axe-core` accessibility specs (`tests/e2e/`). It targets the **active** engine + SPA only;
   the legacy classic server is out of scope (only the pure stages the core engine still imports —
   `cleanup.js`, `prompt-salt.js` — are covered). The **import smoke test** (`npm run smoke` →
@@ -170,8 +168,11 @@ After making changes, run this loop without being asked:
    A **PATCH** goes **directly** `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch
    (see `reference/git-workflow.md`). With the owner's go-ahead, confirm CI is green on the `dev` HEAD
    (`gh run list --branch dev -L 1`), then for a PATCH:
-   `git checkout main && git merge --no-ff dev && git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin main --tags && git checkout dev`.
-   A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
+   `git checkout main && git merge --no-ff dev && git push origin main && git checkout dev`.
+   **Do not tag by hand.** `release.yml` derives `v<VERSION>` and creates the tag itself, gated on that
+   tag not already existing — a hand-pushed tag makes the gated run find the tag present and **skip
+   itself (a silent no-op release)**. The merge to `main` *is* the release act; CI applies the tag. A
+   push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
    the Pages docs (`pages.yml`); watch them with `gh run watch`. See `reference/deployment.md`.
 6. **Regenerate the docs after shipping (by default).** After releasing to `main`, run `npm run docs` so
    the generated `docs/jsdoc/` (git-ignored) tracks `main`; CI also rebuilds + deploys it to Pages.
@@ -220,6 +221,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
+| Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run. See `notes/reference/process-reports.md` |
 
 If something doesn't fit an existing file, make a new one in the right folder. The goal: any AI (or
 human) opening this repo cold can read the notes and be fully oriented — nothing trapped in one
@@ -242,14 +244,42 @@ invoke it the request must carry the word "fairyfox"** — normally **"the fairy
 
 The default is **check, report, then wait**: refresh the read-only system clone under
 `assets/references/fairyfox.io/` (`git -C assets/references/fairyfox.io pull --depth 1 --ff-only origin
-dev`), diff it against what this project has adopted, and **report what changed + what adopting it would
-touch — then stop.** Apply nothing until the user clearly says go ahead; applying is a separate,
-confirmed act. Full procedure: the shared `adopting-updates` runbook (in the clone's `hub/standards/`).
+dev`; if hub `dev` was force-pushed and `--ff-only` aborts, `git fetch` + `git reset --hard origin/dev`
+on the **reference clone only**), diff it against what this project has adopted, and **report what
+changed + what adopting it would touch — then stop.** Apply nothing until the user clearly says go
+ahead; applying is a separate, confirmed act. Full procedure: the shared `adopting-updates` runbook (in
+the clone's `hub/standards/`).
+
+**Exception — pre-authorized changes (the express-authorization ledger).** The system keeps an
+express-authorization ledger at `hub/authorizations.yml` (read it from the read-only clone like any
+other hub artifact). If an **active** entry there `covers` the change being adopted, the user **already
+gave the go-ahead at the system** — apply it directly, skipping *only* the "check-and-report-then-wait"
+pause. Skip nothing else — **the verification floor is never skipped**: still copy-not-clobber, still
+**re-prompt before overwriting a deliberate local divergence**, still write the process report, still
+commit as a reviewable act, and still run **full verification — build/tests + the standards'
+`## Verify`/compliance checks + project-constraint checks, before _and_ after the apply**. A
+pre-authorization (like any automated apply) removes one redundant confirmation, never the safety floor:
+**if full verification can't be completed, do not auto-apply — fall back to check-report-wait.**
+If nothing in the ledger covers the change (or its entry has `expires`d), fall back to the
+check-report-wait default. Reading the ledger lets a node skip a redundant prompt; it never lets the
+system reach in and act — anti-recursion holds. **An unattended/scheduled check still applies nothing**
+(it reports and waits) regardless of the ledger — a pre-authorization shortens an *interactive* adopt,
+it doesn't turn a check-only run into a self-adopt.
+
+**Every fairyfox run ends with a process report** — write one in `notes/fairyfox-reports/`
+(`YYYY-MM-DD-<procedure>.md`, from the clone's `hub/templates/fairyfox-report.md`), **even a
+check-only run.** It's an honest account of what the run did and where the procedure was rough; the hub
+reads these (read-only, on request) to improve the standards. See
+`notes/reference/process-reports.md`. The recurring whole-set check that this project still follows
+every adopted standard is the **compliance audit** (`notes/reference/compliance.md`) — on request,
+report-only.
 
 **Guardrails (don't break these):** on-request only — never auto-pull or schedule cross-repo syncs
-(anti-recursion); the reference clone is read-only and git-ignored; never apply changes or rewrite
-history without an explicit go-ahead; reconcile with local edits, don't clobber them. **Stay inside this
-repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
+(anti-recursion); the reference clone is read-only and git-ignored (the `hub/authorizations.yml` ledger
+included — reading it lets you skip a redundant prompt, it never lets the system act on this repo);
+never apply changes or rewrite history without an explicit go-ahead (an active `authorizations.yml`
+entry that covers the change *is* that go-ahead, given at the system); reconcile with local edits, don't
+clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
 hub-side change is needed (e.g. a `registry.yml` correction), **report it for the owner to make**, don't
 do it here.
 

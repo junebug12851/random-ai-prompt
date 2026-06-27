@@ -3,23 +3,22 @@
  * @brief core/ port of the #name stage (loader-injected).
  */
 
-// Dynamic-prompt stage: `#name` -> the output of the matching v2 generator.
-// Loader-injected port of prompt-modules/dynamic-prompt.js. The loader returns
-// the plugin module namespace ({ default, full, suggestion_exclude }); we call
-// `.default(...)`. Same expansion/danbooru/auto-fx logic in Node and the browser.
+// Dynamic-prompt stage: `{#name}` -> the output of the matching generator.
+// Loader-injected port. The loader returns the plugin module namespace
+// ({ default, full, suggestion_exclude }); we call `.default(...)`. Same
+// danbooru/auto-fx logic in Node and the browser.
 //
-// Generators live under data/dynamic-prompts/v2/<category>/ (with v1/ frozen). A bare
-// `#name` is resolved by PATH SUFFIX (the same rule lists/expansions use) against the v2
-// catalog, so references stay short and folder-independent. `#name-v1` resolves against
-// the frozen v1/ tree; `#user-name` is a back-compat alias for the v2/user/ generators.
+// Generators live flat under data/dynamic-prompts/<category>/. A bare `{#name}` is
+// resolved by PATH SUFFIX (the same rule lists use), so references stay short and
+// folder-independent; `{#category/name}` addresses one explicitly.
 import _ from "lodash";
 import { resolveName } from "../../listManifest.js";
 import { isReservedAny, dynGroupMembers } from "../../dynPromptManifest.js";
 import { isGatedDynPrompt, hasNsfwToken } from "../../gatedLists.js";
 
 /**
- * Build the `#name` dynamic-prompt stage bound to a loader (loader-injected port;
- * suffix-resolved v2 / frozen v1, auto-fx/artists, danbooru substitution).
+ * Build the `{#name}` dynamic-prompt stage bound to a loader (loader-injected port;
+ * suffix-resolved, auto-fx/artists, danbooru substitution).
  * @param {object} loader The loader (`{ loadDynamicPrompt, dynamicPromptNames }`).
  * @returns {Function} The stage `(prompt, settings, imageSettings, upscaleSettings) => string`.
  */
@@ -41,10 +40,9 @@ export function makeDynamicPromptStage(loader) {
     const out = danbooruReplacer(mod.default(settings, imageSettings, upscaleSettings), settings);
     // Hoist this block's optional `Auto Begin` / `Auto End` framing to the prompt's start/end, when
     // the caller opted in by passing an `autoSink` collector (the SPA's "use block auto-sections"
-    // toggle). This is a V3-ONLY feature: frozen v1/v2 generations bake their own framing and must
-    // NOT be pulled into the wrapper's start/end.
+    // toggle).
     const sink = settings.autoSink;
-    if (sink && key.startsWith("v3/")) {
+    if (sink) {
       if (mod.hasAutoBegin && typeof mod.autoBegin === "function") {
         const b = mod.autoBegin(settings, imageSettings, upscaleSettings);
         if (b && b.trim()) sink.begin.push(b.trim());
@@ -58,40 +56,21 @@ export function makeDynamicPromptStage(loader) {
   }
 
   return function dynamicPrompt(prompt, settings, imageSettings, upscaleSettings) {
-    // Every generation is FIRST CLASS: v3 is the DEFAULT (bare `{#name}`); v1 and v2 are FROZEN
-    // but otherwise identical — same suffix resolution, the same implied folder groups, the same
-    // `{#any}` wildcard — reached by their path prefix (`{#v1/…}`, `{#v2/…}`). There is no
-    // `-v1`/`-v2` suffix form. The only differences for a frozen generation: it's addressed by
-    // prefix, and it bundles its own fx + artists (so the auto-append is turned off).
+    // A single, flat catalog: every generator is FIRST CLASS, addressed by a bare `{#name}`
+    // (suffix-resolved, the same rule lists use) or a `{#category/name}` path. The `{#any}`
+    // wildcard and the implied folder groups span the whole catalog.
     const names = loader.dynamicPromptNames();
-    const groupAll = loader.dynPromptGroupDirsAll
+    const groups = loader.dynPromptGroupDirsAll
       ? loader.dynPromptGroupDirsAll()
       : loader.dynPromptGroupDirs
         ? loader.dynPromptGroupDirs()
         : [];
-    const GENS = {
-      "": {
-        pool: names.filter((n) => n.startsWith("v3/")),
-        groups: groupAll.filter((d) => d.startsWith("v3/")),
-        frozen: false,
-      },
-      v1: {
-        pool: names.filter((n) => n.startsWith("v1/")),
-        groups: groupAll.filter((d) => d.startsWith("v1/")),
-        frozen: true,
-      },
-      v2: {
-        pool: names.filter((n) => n.startsWith("v2/")),
-        groups: groupAll.filter((d) => d.startsWith("v2/")),
-        frozen: true,
-      },
-    };
     const includeAdult = settings.includeAdult === true;
     // Gating: a generator whose name carries an `nsfw` token is hidden (empty) unless
-    // adult is on — the same automatic rule lists/expansions use.
+    // adult is on — the same automatic rule lists use.
     const gateOk = (key) => includeAdult || !isGatedDynPrompt(key);
 
-    // Pick ONE generator from a pool (a group's members, or the whole generation for {#any}),
+    // Pick ONE generator from a pool (a group's members, or the whole catalog for {#any}),
     // honoring an explicit sfw/nsfw variant or the adult-mode default.
     function pickFrom(pool, variant) {
       let ok;
@@ -103,31 +82,21 @@ export function makeDynamicPromptStage(loader) {
       return key ? run(key, settings, imageSettings, upscaleSettings) : "";
     }
 
-    // Resolve one `{#…}` within a generation (tag "" = active v3, "v1"/"v2" = frozen).
-    function expandGen(name, tag) {
-      const g = GENS[tag];
-      if (tag) name = name.replace(new RegExp(`^${tag}/`), ""); // drop the generation prefix
+    // Resolve one `{#…}` reference.
+    function expandGen(name) {
       if (name.startsWith("user-")) name = name.slice("user-".length); // back-compat alias
-      if (g.frozen) {
-        settings.autoAddFx = false; // frozen generations bake in fx + artists
-        settings.autoAddArtists = false;
-      }
-      const resolvePool = [...g.pool, ...g.groups];
+      const resolvePool = [...names, ...groups];
 
-      // {#any-ver} — one random generator from ALL generations (a global wildcard; unprefixed).
-      const anyVer = name.match(/^any-ver(?:-(sfw|nsfw))?$/i);
-      if (anyVer) return pickFrom(names, anyVer[1] ? anyVer[1].toLowerCase() : null);
-
-      // {#any} family — one random generator from this generation (the default v3 unless prefixed).
+      // {#any} family — one random generator from the whole catalog.
       if (isReservedAny(name)) {
         const m = name.match(/-(sfw|nsfw)$/i);
-        return pickFrom(g.pool, m ? m[1].toLowerCase() : null);
+        return pickFrom(names, m ? m[1].toLowerCase() : null);
       }
 
       const canonical = resolveName(name, resolvePool);
 
-      // Implied folder group ({#scene} / {#v2/scene}) — pick one random member generator.
-      if (g.groups.includes(canonical)) return pickFrom(dynGroupMembers(canonical, g.pool), null);
+      // Implied folder group ({#scene}) — pick one random member generator.
+      if (groups.includes(canonical)) return pickFrom(dynGroupMembers(canonical, names), null);
 
       // Explicit `<name>.group` file — pick one random member.
       const groupFile = loader.readDynPromptGroup ? loader.readDynPromptGroup(canonical) : null;
@@ -135,7 +104,7 @@ export function makeDynamicPromptStage(loader) {
         const members = groupFile
           .map((l) => l.replace(/\r$/, "").trim())
           .filter((l) => l && !l.startsWith("#") && !l.startsWith("@"))
-          .map((l) => resolveName(l, g.pool));
+          .map((l) => resolveName(l, names));
         return pickFrom(members, null);
       }
 
@@ -150,23 +119,19 @@ export function makeDynamicPromptStage(loader) {
       imageSettings.autoIncludedArtists;
     const includedFx = prompt.includes("{#fx}") || imageSettings.autoIncludedFx;
 
-    // Dynamic prompts are written `{#name}` (brace-delimited, uniform with `{list}` and
-    // `<expansion>`, and able to carry `/` paths like `{#scene/beach}`).
+    // Dynamic prompts are written `{#name}` (brace-delimited, uniform with `{list}`, and able to
+    // carry `/` paths like `{#scene/beach}`).
     const maxCount = 10;
     for (let i = 0; i < maxCount && prompt.includes("{#"); i++) {
-      prompt = prompt.replaceAll(/\{#([\w/-]+)\}/g, (match, p1) => {
-        if (p1.startsWith("v1/")) return expandGen(p1, "v1");
-        if (p1.startsWith("v2/")) return expandGen(p1, "v2");
-        return expandGen(p1, "");
-      });
+      prompt = prompt.replaceAll(/\{#([\w/-]+)\}/g, (match, p1) => expandGen(p1));
     }
 
     if (settings.autoAddFx && !includedFx) {
-      prompt += `, ${expandGen("fx", "")}`;
+      prompt += `, ${expandGen("fx")}`;
       imageSettings.autoIncludedFx = true;
     }
     if (settings.autoAddArtists && !includedArtists) {
-      prompt += `, ${expandGen("artists", "")}`;
+      prompt += `, ${expandGen("artists")}`;
       imageSettings.autoIncludedArtists = true;
     }
 

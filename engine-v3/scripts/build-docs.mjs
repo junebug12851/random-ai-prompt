@@ -20,7 +20,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const notesDir = path.join(root, "notes");
 const outDir = path.join(root, "tmp", "jsdoc-tutorials");
 
-const REPO_DOCS = ["list-credits.md", "list-help.md", "Upgrade-2-0.md"];
+const REPO_DOCS = ["list-credits.md", "list-help.md"];
 
 const humanize = (s) => s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const titleOf = (md, fallback) => {
@@ -140,7 +140,7 @@ tutorials["project-repo__index"] = { title: "Project & Repository", children: re
 
 fs.writeFileSync(path.join(outDir, "tutorials.json"), JSON.stringify(tutorials, null, 2), "utf8");
 
-// ---- Transpile the web-app (React/JSX) so JSDoc can read it ----
+// ---- Transpile the gui (React/JSX) so JSDoc can read it ----
 // JSDoc's parser can't read JSX, so babel strips it (preserving comments) into a temp
 // mirror that JSDoc reads instead of the .jsx source. The `@module` tags in each file
 // give clean nav names, so the temp path doesn't matter. The plain .js lib files pass
@@ -173,9 +173,9 @@ function transpileTree(absDir, relBase) {
   return n;
 }
 const waCount =
-  transpileTree(path.join(root, "web-app", "src"), "src") +
-  transpileTree(path.join(root, "web-app", "netlify"), "netlify");
-console.log(`Transpiled ${waCount} web-app files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
+  transpileTree(path.join(root, "gui", "src"), "src") +
+  transpileTree(path.join(root, "gui", "netlify"), "netlify");
+console.log(`Transpiled ${waCount} gui files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
 execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
