@@ -130,19 +130,22 @@ export default function Home({ settings, setSettings }) {
 
   // Add a fresh batch of images beneath a prompt via the active provider's generate adapter.
   // `promptText` is passed for auto-render (state may not be committed yet); manual clicks omit it.
-  async function makeBatch(promptId, promptText) {
+  async function makeBatch(promptId, promptText, promptDplArg) {
     let text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
     if (!text) return;
     const entry0 = prompts.find((x) => x.id === promptId);
-    // What we'll record in each image's sidecar. `promptOriginal` is the deterministic
-    // engine roll (pre-AI); `aiTranslation` is the AI-rewritten prompt, if auto-fix ran.
-    const dplText = entry0?.dpl ?? null;
-    let promptOriginal = text;
-    let aiTranslation = null;
+    // Each prompt + negative is recorded in three layers in the sidecar: the DPL source, the
+    // deterministic engine roll, and (when auto-fix is on) the AI translation. `final` is what
+    // was actually sent. `*Arg` params carry the values for auto-render, where the just-added
+    // entry isn't in committed state yet.
+    const promptDpl = promptDplArg ?? entry0?.dpl ?? null;
+    let promptRoll = text; // deterministic engine roll (pre-AI)
+    let promptAi = null; // AI translation, or null
     if (entry0?.original) {
       // This prompt was already auto-fixed on a prior batch — reuse that mapping.
-      promptOriginal = entry0.original;
-      aiTranslation = entry0.text;
+      promptRoll = entry0.original;
+      promptAi = entry0.text;
+      text = entry0.text;
     }
     const batchId = nextId();
     const count = Math.max(1, Number(flat.batchSize) || 1);
@@ -155,59 +158,77 @@ export default function Home({ settings, setSettings }) {
       ),
     );
     try {
-      // Auto-fix: rewrite the prompt with the chosen text provider before image gen (once per prompt).
-      if (settings.autoFix && settings.rewriteProvider && settings.rewriteProvider !== "none") {
-        const existing = prompts.find((x) => x.id === promptId);
-        if (existing?.original) {
-          text = existing.text || text; // already rewritten — reuse the cleaned prompt
-        } else {
-          const rkey = effectiveKey(settings.rewriteProvider, settings);
-          if (!rkey) {
-            setImgError(
-              "Auto-fix is on but the rewrite provider has no API key (gear → Auto-fix).",
+      const useFix =
+        settings.autoFix && settings.rewriteProvider && settings.rewriteProvider !== "none";
+      const rkey = useFix ? effectiveKey(settings.rewriteProvider, settings) : "";
+      if (useFix && !rkey) {
+        setImgError("Auto-fix is on but the rewrite provider has no API key (gear → Auto-fix).");
+      }
+
+      // --- Main prompt: auto-fix once per prompt, then cache the mapping on the entry. ---
+      if (useFix && rkey && !entry0?.original) {
+        try {
+          const fixed = await rewritePrompt({
+            providerId: settings.rewriteProvider,
+            prompt: text,
+            key: rkey,
+          });
+          if (fixed && fixed.trim()) {
+            promptRoll = text;
+            text = fixed.trim();
+            promptAi = text;
+            setPrompts((ps) =>
+              ps.map((x) => (x.id === promptId ? { ...x, original: promptRoll, text } : x)),
             );
-          } else {
-            try {
-              const fixed = await rewritePrompt({
-                providerId: settings.rewriteProvider,
-                prompt: text,
-                key: rkey,
-              });
-              if (fixed && fixed.trim()) {
-                const orig = text;
-                text = fixed.trim();
-                promptOriginal = orig;
-                aiTranslation = text;
-                setPrompts((ps) =>
-                  ps.map((x) => (x.id === promptId ? { ...x, original: orig, text } : x)),
-                );
-              }
-            } catch (e) {
-              setImgError("Auto-fix failed: " + (e.message || e));
-            }
           }
+        } catch (e) {
+          setImgError("Auto-fix failed: " + (e.message || e));
         }
       }
+
+      // --- Negative prompt: roll its DPL, then AI-translate it too (when auto-fix is on). ---
+      const negDpl = flat.negativePrompt || "";
+      let negRoll = negDpl ? expandPrompt(negDpl, { ...settings, mode: flat.mode }) : "";
+      let negAi = null;
+      if (entry0?.negRoll !== undefined) {
+        // Already processed on a prior batch — reuse so we don't re-call the rewrite API.
+        negRoll = entry0.negRoll;
+        negAi = entry0.negAi ?? null;
+      } else if (useFix && rkey && negRoll.trim()) {
+        try {
+          const fixedNeg = await rewritePrompt({
+            providerId: settings.rewriteProvider,
+            prompt: negRoll,
+            key: rkey,
+          });
+          if (fixedNeg && fixedNeg.trim()) negAi = fixedNeg.trim();
+        } catch {
+          // Best-effort: a failed negative rewrite just falls back to the rolled negative.
+        }
+      }
+      const negFinal = negAi || negRoll;
+      setPrompts((ps) =>
+        ps.map((x) => (x.id === promptId ? { ...x, negRoll, negAi } : x)),
+      );
+
       const generate = await provider.loadGenerate();
       const key = effectiveKey(provider.id, settings);
-      // The negative prompt may contain DPL — roll it out like the main prompt before sending.
-      const negative = flat.negativePrompt
-        ? expandPrompt(flat.negativePrompt, { ...settings, mode: flat.mode })
-        : "";
       const { images: imgs } = await generate({
         prompt: text,
-        settings: { ...flat, negativePrompt: negative },
+        settings: { ...flat, negativePrompt: negFinal },
         key,
       });
       // The full record of how these images were made, written as a sidecar next to each one
       // (read back by the photo gallery). The settings snapshot drops API keys — never to disk.
-      const { keys: _keys, ...settingsSnapshot } = { ...flat, negativePrompt: negative };
+      const { keys: _keys, ...settingsSnapshot } = { ...flat, negativePrompt: negFinal };
       const meta = {
-        prompt: text, // the exact prompt sent to the provider
-        promptOriginal, // the deterministic engine roll (before any AI rewrite)
-        aiTranslation, // the AI-rewritten prompt, or null if auto-fix didn't run
-        dpl: dplText, // the DPL template this was rolled from
-        negativePrompt: negative,
+        prompt: { dpl: promptDpl, roll: promptRoll, ai: promptAi, final: text },
+        negative: {
+          dpl: negDpl || null,
+          roll: negRoll || null,
+          ai: negAi,
+          final: negFinal || null,
+        },
         provider: provider.id,
         providerLabel: provider.label,
         settings: settingsSnapshot,
@@ -422,7 +443,7 @@ export default function Home({ settings, setSettings }) {
       // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
       setPrompts((prev) => [...out, ...prev]);
       // Auto-render: kick off an image batch for each new prompt (api providers only).
-      if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text));
+      if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
     } catch (e) {
       setError(e.message || String(e));
     }

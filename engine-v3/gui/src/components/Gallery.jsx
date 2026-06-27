@@ -2,32 +2,37 @@
  * The photo gallery — a browseable feed of every image saved to `output/`, each paired with its
  * `.json` metadata sidecar (how it was made). A masonry-style grid of lazy-loaded thumbnails with
  * a keyword search box; clicking a thumbnail opens a dedicated **single-image page** (not a modal)
- * that replaces the grid and shows the full record (prompt, the deterministic engine roll, the AI
- * translation, the DPL, the negative, and the provider + full settings snapshot), with prev/next
- * navigation and copy / open / reveal / delete actions. Inspired by the v1-2 feed + its `/single`
- * page.
+ * that replaces the grid and shows the full record: the prompt and negative each in their DPL /
+ * engine-roll / AI-translation / sent-final layers, a curated details panel (provider, model,
+ * sampler, size, seed…) over the full settings snapshot, a clickable keyword cloud, prev/next
+ * navigation, and actions (open / reveal / download PNG / convert-&-download via ImageMagick /
+ * delete). Inspired by the v1-2 feed + its `/single` page, rebuilt for v3's richer metadata.
  *
- * Local-only: the feed needs the dev server's filesystem access, so a static/online build shows an
- * empty gallery with an explanatory note rather than an error.
+ * Local-only: the feed (and ImageMagick conversion) need the dev server's filesystem access, so a
+ * static/online build shows an empty gallery with an explanatory note rather than an error.
  * @module gui/components/Gallery
  */
 import { useEffect, useMemo, useState } from "react";
-import { fetchGallery, searchHaystack } from "../lib/gallery.js";
+import {
+  fetchGallery,
+  searchHaystack,
+  promptText,
+  promptLayers,
+  negativeLayers,
+} from "../lib/gallery.js";
+import { fetchMagick, convertUrl } from "../lib/magick.js";
 import { isOutputFile, deleteImageFile, openImageFile, revealImageFile } from "../lib/output.js";
 
 /** A thumbnail that fades in once loaded and spans wide/tall by its natural aspect ratio. */
 function Thumb({ item, onOpen }) {
   const [loaded, setLoaded] = useState(false);
   const [shape, setShape] = useState(""); // "" | "wide" | "tall"
+  const label = promptText(item) || item.file;
   return (
-    <button
-      className={`g-cell${shape ? " " + shape : ""}`}
-      onClick={() => onOpen(item)}
-      title={item.meta?.prompt || item.file}
-    >
+    <button className={`g-cell${shape ? " " + shape : ""}`} onClick={() => onOpen(item)} title={label}>
       <img
         src={item.path}
-        alt={item.meta?.prompt || item.file}
+        alt={label}
         loading="lazy"
         className={`g-img${loaded ? " loaded" : ""}`}
         onLoad={(e) => {
@@ -36,25 +41,98 @@ function Thumb({ item, onOpen }) {
           if (w && h) setShape(w / h >= 1.6 ? "wide" : h / w >= 1.6 ? "tall" : "");
         }}
       />
-      {item.meta?.prompt && <span className="g-cell-cap">{item.meta.prompt.slice(0, 120)}</span>}
+      {promptText(item) && <span className="g-cell-cap">{promptText(item).slice(0, 120)}</span>}
     </button>
   );
 }
 
-/** A labeled, click-to-copy metadata row in the single view (skipped when the value is empty). */
-function MetaRow({ label, value, mono }) {
+/** A labeled, copyable block of prompt/negative text (skipped when empty). */
+function TextRow({ label, value, mono, accent }) {
+  const [copied, setCopied] = useState(false);
+  if (!value) return null;
+  const copy = () => {
+    navigator.clipboard?.writeText(String(value)).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      },
+      () => {},
+    );
+  };
+  return (
+    <div className={`g-text-row${accent ? " accent" : ""}`}>
+      <div className="g-text-head">
+        <span className="g-text-label">{label}</span>
+        <button className="g-copy" onClick={copy}>
+          {copied ? "✓ copied" : "copy"}
+        </button>
+      </div>
+      <p className={`g-text-val${mono ? " mono" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+/** The prompt (or negative) card: its four layers, most-relevant first. */
+function PromptCard({ title, layers }) {
+  if (!layers.final && !layers.ai && !layers.roll && !layers.dpl) return null;
+  // Don't repeat the same string twice (e.g. when no AI translation ran, final === roll).
+  const showRoll = layers.roll && layers.roll !== layers.final;
+  const showAi = layers.ai && layers.ai !== layers.final;
+  return (
+    <section className="g-card">
+      <h3 className="g-card-title">{title}</h3>
+      <TextRow label="Sent to model" value={layers.final} accent />
+      {showAi && <TextRow label="AI translation" value={layers.ai} />}
+      {showRoll && <TextRow label="Engine roll" value={layers.roll} />}
+      <TextRow label="DPL source" value={layers.dpl} mono />
+    </section>
+  );
+}
+
+/** One row in the details table (skipped when empty). */
+function DetailRow({ label, value }) {
   if (value === undefined || value === null || value === "") return null;
   return (
-    <div className="g-meta-row">
-      <span className="g-meta-label">{label}</span>
-      <code
-        className={`g-meta-val${mono ? " mono" : ""}`}
-        title="Click to copy"
-        onClick={() => navigator.clipboard?.writeText(String(value)).catch(() => {})}
-      >
-        {String(value)}
-      </code>
+    <div className="g-detail-row">
+      <span className="g-detail-key">{label}</span>
+      <span className="g-detail-value">{String(value)}</span>
     </div>
+  );
+}
+
+// First present value among several possible setting keys (providers name things differently).
+const pick = (s, ...keys) => {
+  for (const k of keys) if (s && s[k] !== undefined && s[k] !== null && s[k] !== "") return s[k];
+  return undefined;
+};
+
+/** The clickable keyword cloud, built from the sent prompt's comma-separated tags. */
+function KeywordCloud({ text, onSearch }) {
+  const tags = useMemo(() => {
+    const seen = new Set();
+    return (text || "")
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => {
+        const k = t.toLowerCase();
+        if (!t || t.length > 40 || seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      })
+      .slice(0, 60);
+  }, [text]);
+  if (tags.length < 2) return null;
+  return (
+    <section className="g-card">
+      <h3 className="g-card-title">Keywords</h3>
+      <div className="g-cloud">
+        {tags.map((t, i) => (
+          <button key={i} className="g-cloud-chip" onClick={() => onSearch(t)} title={`Find “${t}”`}>
+            {t}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -62,13 +140,13 @@ function MetaRow({ label, value, mono }) {
  * The dedicated single-image page for one image and its sidecar. Renders in place of the grid
  * (a real page, not an overlay) with Back + prev/next navigation and the full metadata record.
  */
-function Single({ item, index, total, onBack, onPrev, onNext, onDelete }) {
+function Single({ item, index, total, magick, onBack, onPrev, onNext, onDelete, onSearch }) {
   const hasPrev = index > 0;
   const hasNext = index >= 0 && index < total - 1;
 
-  // Keyboard: Escape goes back; arrows page through the feed.
   useEffect(() => {
     const onKey = (e) => {
+      if (e.target.tagName === "SELECT") return;
       if (e.key === "Escape") onBack();
       else if (e.key === "ArrowLeft" && hasPrev) onPrev();
       else if (e.key === "ArrowRight" && hasNext) onNext();
@@ -79,11 +157,48 @@ function Single({ item, index, total, onBack, onPrev, onNext, onDelete }) {
 
   const m = item.meta || {};
   const onDisk = isOutputFile(item.path);
-  const settingsEntries = m.settings
-    ? Object.entries(m.settings).filter(
-        ([, v]) => v !== undefined && v !== null && v !== "" && typeof v !== "object",
-      )
-    : [];
+  const p = promptLayers(m);
+  const n = negativeLayers(m);
+  const s = m.settings || {};
+
+  // Curated headline details (graceful when a provider doesn't report a field).
+  const size =
+    pick(s, "width") && pick(s, "height") ? `${pick(s, "width")}×${pick(s, "height")}` : undefined;
+  const saved = m.savedAt ? new Date(m.savedAt).toLocaleString() : undefined;
+  const details = [
+    ["Provider", m.providerLabel || m.provider],
+    ["Model", pick(s, "model", "modelName", "checkpoint", "sd_model", "sd_model_hash")],
+    ["Sampler", pick(s, "sampler", "samplerName", "sampler_name", "scheduler")],
+    ["Steps", pick(s, "steps", "numSteps")],
+    ["CFG", pick(s, "cfg", "cfgScale", "cfg_scale", "guidance", "guidanceScale")],
+    ["Size", size],
+    ["Seed", pick(s, "seed")],
+    ["Saved", saved],
+    ["File", item.file],
+  ];
+
+  // Everything else in the settings snapshot, for the collapsible "all settings".
+  const shownKeys = new Set([
+    "width", "height", "model", "modelName", "checkpoint", "sd_model", "sd_model_hash",
+    "sampler", "samplerName", "sampler_name", "scheduler", "steps", "numSteps", "cfg",
+    "cfgScale", "cfg_scale", "guidance", "guidanceScale", "seed", "negativePrompt", "prompt", "mode",
+  ]);
+  const restSettings = Object.entries(s).filter(
+    ([k, v]) => !shownKeys.has(k) && v !== null && v !== "" && typeof v !== "object",
+  );
+
+  // Convert-&-download: pick a format, get the file, reset the menu.
+  const onConvert = (e) => {
+    const fmt = e.target.value;
+    e.target.selectedIndex = 0;
+    if (!fmt) return;
+    const a = document.createElement("a");
+    a.href = convertUrl(item.file, fmt);
+    a.download = `${item.name || item.file}.${fmt}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   return (
     <div className="g-single">
@@ -109,56 +224,76 @@ function Single({ item, index, total, onBack, onPrev, onNext, onDelete }) {
       <div className="g-single-body">
         <div className="g-single-img">
           <a href={item.path} target="_blank" rel="noreferrer" title="Open full image in a new tab">
-            <img src={item.path} alt={m.prompt || item.file} />
+            <img src={item.path} alt={promptText(item) || item.file} />
           </a>
         </div>
+
         <div className="g-single-meta">
-          <h2 className="g-single-title">Image details</h2>
-          {!item.meta && (
-            <p className="g-detail-note">
-              No metadata sidecar was found for this image — it may pre-date sidecars or its{" "}
-              <code>.json</code> file was removed.
-            </p>
-          )}
-          <MetaRow label="Prompt (sent)" value={m.prompt} />
-          <MetaRow label="Original roll" value={m.promptOriginal} />
-          <MetaRow label="AI translation" value={m.aiTranslation} />
-          <MetaRow label="DPL" value={m.dpl} mono />
-          <MetaRow label="Negative" value={m.negativePrompt} />
-          <MetaRow label="Provider" value={m.providerLabel || m.provider} />
-          <MetaRow label="Saved" value={m.savedAt} />
-          <MetaRow label="File" value={item.file} mono />
-
-          {settingsEntries.length > 0 && (
-            <details className="g-settings" open>
-              <summary>Provider settings ({settingsEntries.length})</summary>
-              <div className="g-settings-grid">
-                {settingsEntries.map(([k, v]) => (
-                  <MetaRow key={k} label={k} value={String(v)} />
-                ))}
-              </div>
-            </details>
-          )}
-
           {onDisk && (
-            <div className="g-detail-actions">
+            <div className="g-actions">
               <button onClick={() => openImageFile(item.path)} title="Open in the default app">
                 Open
               </button>
               <button onClick={() => revealImageFile(item.path)} title="Reveal in file explorer">
                 Reveal
               </button>
-              <a className="g-dl" href={item.path} download={item.file}>
-                Download
+              <a className="g-action-link" href={item.path} download={item.file}>
+                Download PNG
               </a>
-              <button
-                className="btn-danger"
-                onClick={() => onDelete(item)}
-                title="Delete from disk"
-              >
+              {magick.available && magick.formats.length > 0 && (
+                <select className="g-convert" defaultValue="" onChange={onConvert} title="Convert & download">
+                  <option value="">Convert &amp; download…</option>
+                  {magick.formats.map((f) => (
+                    <option key={f} value={f}>
+                      {f.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <button className="g-danger" onClick={() => onDelete(item)} title="Delete from disk">
                 Delete
               </button>
             </div>
+          )}
+
+          {!item.meta && (
+            <p className="g-note">
+              No metadata sidecar was found for this image — it may pre-date sidecars or its{" "}
+              <code>.json</code> file was removed.
+            </p>
+          )}
+
+          <PromptCard title="Prompt" layers={p} />
+          <PromptCard title="Negative prompt" layers={n} />
+
+          {details.some(([, v]) => v !== undefined && v !== null && v !== "") && (
+            <section className="g-card">
+              <h3 className="g-card-title">Details</h3>
+              <div className="g-detail-table">
+                {details.map(([k, v]) => (
+                  <DetailRow key={k} label={k} value={v} />
+                ))}
+              </div>
+              {restSettings.length > 0 && (
+                <details className="g-more">
+                  <summary>All settings ({restSettings.length})</summary>
+                  <div className="g-detail-table">
+                    {restSettings.map(([k, v]) => (
+                      <DetailRow key={k} label={k} value={String(v)} />
+                    ))}
+                  </div>
+                </details>
+              )}
+            </section>
+          )}
+
+          <KeywordCloud text={p.final || p.roll} onSearch={onSearch} />
+
+          {item.meta && (
+            <details className="g-more">
+              <summary>Raw metadata (JSON)</summary>
+              <pre className="g-json">{JSON.stringify(item.meta, null, 2)}</pre>
+            </details>
           )}
         </div>
       </div>
@@ -175,6 +310,7 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null); // the item open in the single-image page
+  const [magick, setMagick] = useState({ available: false, formats: [] });
 
   async function load() {
     setLoading(true);
@@ -184,6 +320,7 @@ export default function Gallery() {
 
   useEffect(() => {
     load();
+    fetchMagick().then(setMagick);
   }, []);
 
   const q = query.trim().toLowerCase();
@@ -192,8 +329,13 @@ export default function Gallery() {
     [items, q],
   );
 
-  // Where the open image sits in the (search-filtered) feed — drives prev/next.
   const index = selected ? filtered.findIndex((it) => it.path === selected.path) : -1;
+
+  // Search from a keyword chip: filter the grid by that term and return to it.
+  function searchFor(term) {
+    setQuery(term);
+    setSelected(null);
+  }
 
   // Delete an image (+ its sidecar) from disk. In the single view, land on a neighbor (or back to
   // the grid when it was the last one); in the grid, just drop it.
@@ -203,7 +345,7 @@ export default function Gallery() {
     const i = filtered.findIndex((it) => it.path === item.path);
     const neighbor = filtered[i + 1] || filtered[i - 1] || null;
     setItems((list) => list.filter((it) => it.path !== item.path));
-    setSelected((s) => (s && s.path === item.path ? neighbor : s));
+    setSelected((sel) => (sel && sel.path === item.path ? neighbor : sel));
   }
 
   return (
@@ -214,10 +356,14 @@ export default function Gallery() {
             item={selected}
             index={index}
             total={filtered.length}
+            magick={magick}
             onBack={() => setSelected(null)}
             onPrev={() => index > 0 && setSelected(filtered[index - 1])}
-            onNext={() => index >= 0 && index < filtered.length - 1 && setSelected(filtered[index + 1])}
+            onNext={() =>
+              index >= 0 && index < filtered.length - 1 && setSelected(filtered[index + 1])
+            }
             onDelete={remove}
+            onSearch={searchFor}
           />
         ) : (
           <>

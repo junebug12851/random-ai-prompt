@@ -2284,69 +2284,22 @@ button.ghost:hover {
 .g-single-meta {
   min-width: 0;
 }
-.g-single-title {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  margin: 0 0 0.8rem;
-}
-.g-detail-note {
+.g-note {
   color: var(--muted);
   font-size: 0.85rem;
-  margin: 0 0 0.8rem;
+  margin: 0 0 1rem;
 }
-.g-meta-row {
-  margin-bottom: 0.7rem;
-}
-.g-meta-label {
-  display: block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  margin-bottom: 0.2rem;
-}
-.g-meta-val {
-  display: block;
-  font-family: inherit;
-  font-size: 0.85rem;
-  color: var(--fg-soft);
-  background: var(--bg-2);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  padding: 0.35rem 0.5rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  cursor: pointer;
-}
-.g-meta-val.mono {
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
-  font-size: 0.8rem;
-}
-.g-meta-val:hover {
-  border-color: var(--accent-strong);
-}
-.g-settings {
-  margin-top: 0.4rem;
-}
-.g-settings > summary {
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
-}
-.g-settings-grid .g-meta-row {
-  margin-bottom: 0.45rem;
-}
-.g-detail-actions {
+
+/* Action row (open / reveal / download / convert / delete) */
+.g-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-soft);
+  margin-bottom: 1.1rem;
 }
-.g-detail-actions button,
-.g-detail-actions .g-dl {
+.g-actions button,
+.g-action-link,
+.g-convert {
   border: 1px solid var(--border);
   background: var(--bg-2);
   color: var(--fg);
@@ -2356,15 +2309,147 @@ button.ghost:hover {
   font-size: 0.82rem;
   cursor: pointer;
   text-decoration: none;
+  line-height: 1.2;
 }
-.g-detail-actions button:hover,
-.g-detail-actions .g-dl:hover {
+.g-actions button:hover,
+.g-action-link:hover,
+.g-convert:hover {
   background: var(--chip-hover);
 }
-.g-detail-actions .btn-danger {
-  border-color: #6b2230;
-  background: #3a1620;
-  color: #ffb3c0;
+.g-danger {
+  margin-left: auto;
+  border-color: #6b2230 !important;
+  background: #3a1620 !important;
+  color: #ffb3c0 !important;
+}
+
+/* Cards (prompt / negative / details / keywords) */
+.g-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.9rem;
+}
+.g-card-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  margin: 0 0 0.7rem;
+}
+
+/* A copyable prompt/negative layer */
+.g-text-row {
+  margin-bottom: 0.7rem;
+}
+.g-text-row:last-child {
+  margin-bottom: 0;
+}
+.g-text-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.g-text-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.g-copy {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0;
+}
+.g-copy:hover {
+  color: var(--accent);
+}
+.g-text-val {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.55rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.g-text-row.accent .g-text-val {
+  color: var(--fg);
+  border-color: var(--accent-strong);
+}
+.g-text-val.mono {
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+  font-size: 0.8rem;
+}
+
+/* Details key/value table */
+.g-detail-table {
+  display: grid;
+  grid-template-columns: minmax(80px, auto) 1fr;
+  gap: 0.3rem 0.9rem;
+}
+.g-detail-row {
+  display: contents;
+}
+.g-detail-key {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.g-detail-value {
+  font-size: 0.82rem;
+  color: var(--fg-soft);
+  word-break: break-word;
+}
+.g-more {
+  margin-top: 0.7rem;
+}
+.g-more > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.g-json {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--fg-soft);
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.7rem;
+}
+
+/* Keyword cloud */
+.g-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.g-cloud-chip {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  border-radius: var(--radius-pill);
+  padding: 0.22rem 0.6rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.g-cloud-chip:hover {
+  border-color: var(--accent-strong);
+  color: var(--fg);
 }
 @media (max-width: 720px) {
   .g-single-body {

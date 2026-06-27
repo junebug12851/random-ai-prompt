@@ -8,10 +8,14 @@
  * @module gui/vite-plugin-api
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { dispatch, dispatchRewrite } from "./server/dispatch.js";
+
+const execP = promisify(exec);
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
 const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
@@ -25,7 +29,71 @@ const IMAGE_TYPES = {
   jpeg: "image/jpeg",
   webp: "image/webp",
   gif: "image/gif",
+  bmp: "image/bmp",
+  tif: "image/tiff",
+  tiff: "image/tiff",
+  avif: "image/avif",
+  heic: "image/heic",
+  jxl: "image/jxl",
+  ico: "image/x-icon",
 };
+
+// Still (non-animated) raster formats we're willing to offer as conversion targets. The actual
+// menu is this set intersected with what the installed ImageMagick reports as writable, so we
+// never list a format the local binary can't produce. Animated/video/vector targets are excluded.
+const STILL_FORMATS = new Set([
+  "JPEG", "JPG", "PNG", "WEBP", "GIF", "BMP", "TIFF", "TIF", "TGA", "AVIF", "HEIC", "HEIF",
+  "JXL", "PPM", "PGM", "PNM", "PAM", "ICO", "DIB", "QOI", "JP2", "SGI", "XPM", "PCX", "PALM",
+]);
+
+// Detected once per dev-server run: whether ImageMagick is on PATH and which still formats it can
+// write. Cached because shelling out to `magick -list format` isn't free.
+let magickCache = null;
+
+/**
+ * Detect ImageMagick and the still-image formats it can write.
+ * @returns {Promise<{available: boolean, bin: string|null, formats: string[]}>}
+ */
+async function detectMagick() {
+  if (magickCache) return magickCache;
+  let bin = null;
+  for (const cand of ["magick", "convert"]) {
+    try {
+      await execP(`${cand} -version`, { timeout: 5000 });
+      bin = cand;
+      break;
+    } catch {
+      // not this one — try the next
+    }
+  }
+  if (!bin) {
+    magickCache = { available: false, bin: null, formats: [] };
+    return magickCache;
+  }
+  const formats = [];
+  try {
+    const { stdout } = await execP(`${bin} -list format`, { timeout: 8000 });
+    const seen = new Set();
+    for (const line of stdout.split(/\r?\n/)) {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length < 2) continue;
+      const name = parts[0].replace(/\*+$/, "").toUpperCase();
+      // The mode column looks like `rw-` / `r--` / `-w+`; writable = the middle char is `w`.
+      const mode = parts.find((t) => /^[rR-][wW-][-+]$/.test(t));
+      if (!mode || mode[1].toLowerCase() !== "w") continue;
+      if (!STILL_FORMATS.has(name)) continue;
+      const ext = name === "JPEG" ? "jpg" : name.toLowerCase();
+      if (seen.has(ext)) continue;
+      seen.add(ext);
+      formats.push(ext);
+    }
+    formats.sort();
+  } catch {
+    // couldn't list formats — report magick present but with no menu
+  }
+  magickCache = { available: true, bin, formats };
+  return magickCache;
+}
 
 /**
  * Resolve a served image path (`/api/output/<name>` or a bare name) to a safe absolute file in
@@ -290,6 +358,44 @@ export function apiPlugin() {
             return send(res, 200, { items });
           } catch (e) {
             return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- ImageMagick capability probe (is it installed? which still formats can it write?) ---
+        if (u.pathname === "/api/magick" && req.method === "GET") {
+          const m = await detectMagick();
+          return send(res, 200, { available: m.available, formats: m.formats });
+        }
+
+        // --- convert a saved image to another still format and stream it back as a download ---
+        if (u.pathname === "/api/image/convert" && req.method === "GET") {
+          const m = await detectMagick();
+          if (!m.available) return send(res, 503, { error: "ImageMagick is not installed" });
+          const format = (u.searchParams.get("format") || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          if (!m.formats.includes(format)) return send(res, 400, { error: "Unsupported format" });
+          const inPath = resolveOutputFile(u.searchParams.get("file"));
+          if (!inPath || !fs.existsSync(inPath)) return send(res, 404, { error: "Image not found" });
+          const base = path.basename(inPath).replace(/\.[^.]+$/, "");
+          const outPath = path.join(
+            os.tmpdir(),
+            `rap-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${format}`,
+          );
+          try {
+            // `[0]` takes only the first frame, so the output is always a single still image.
+            await execP(`${m.bin} "${inPath}[0]" "${outPath}"`, { timeout: 20000 });
+            const buf = fs.readFileSync(outPath);
+            fs.unlink(outPath, () => {});
+            res.statusCode = 200;
+            res.setHeader("Content-Type", IMAGE_TYPES[format] || "application/octet-stream");
+            res.setHeader("Content-Disposition", `attachment; filename="${base}.${format}"`);
+            return res.end(buf);
+          } catch (e) {
+            try {
+              if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+            } catch {
+              // ignore cleanup failure
+            }
+            return send(res, 502, { error: `Conversion failed: ${e.message}` });
           }
         }
 
