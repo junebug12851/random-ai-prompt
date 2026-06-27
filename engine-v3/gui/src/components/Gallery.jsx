@@ -177,6 +177,7 @@ export default function Gallery() {
 
   return (
     <div className="gallery-view">
+      <div className="g-inner">
       <div className="g-head">
         <div className="g-head-left">
           <h2 className="g-title">Photo gallery</h2>
@@ -222,6 +223,7 @@ export default function Gallery() {
           ))}
         </div>
       )}
+      </div>
 
       {active && <Detail item={active} onClose={() => setActive(null)} onDelete={remove} />}
     </div>

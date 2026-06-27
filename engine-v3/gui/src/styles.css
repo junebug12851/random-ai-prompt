@@ -2078,11 +2078,18 @@ button.ghost:hover {
 }
 
 /* ---------- Photo gallery ---------- */
+/* The view fills <main> and owns its own scroll (like .main-col), so long galleries
+   scroll instead of clipping past the fixed app frame. */
 .gallery-view {
-  padding: 1.1rem 1.3rem 2.5rem;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+}
+.g-inner {
   max-width: 1500px;
   margin: 0 auto;
-  width: 100%;
+  padding: 1.1rem 1.3rem 2.5rem;
 }
 .g-head {
   display: flex;
