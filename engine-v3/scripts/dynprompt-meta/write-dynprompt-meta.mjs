@@ -1,12 +1,35 @@
 /**
- * @file One-shot: write `<name>.json` sidecar metadata ({ description }) next to each
- * dynamic-prompt generator and each category folder, for the editor button/category
- * tooltips, for the `data/dynamic-prompts/` tree. Re-runnable.
+ * @file One-shot: write `<name>.json` sidecar metadata next to each dynamic-prompt generator
+ * and each category folder, for the `data/dynamic-prompts/` tree. Re-runnable.
+ *
+ * Each sidecar is `{ description }`, plus two optional fields:
+ *   - `priority` (category folders only): the block picker orders the category/folder pills by
+ *     this number, ascending — **lower lifts a category higher**, default 1000. Lets the curated
+ *     order (Any · Prompt · Scene · Subject · Style · Fragment · User · Special) be data-driven.
+ *   - `nsfw: true` (generators): the generator is adult — when the app's NSFW switch is OFF it is
+ *     treated as if it did not exist (hidden from the picker, never picked by `{#any}` / a group,
+ *     resolves to "" if referenced). The automatic `nsfw`-name-token rule still applies on top.
  */
 import fs from "node:fs";
 import path from "node:path";
 
 const root = path.join(import.meta.dirname, "..", "..", "data", "dynamic-prompts");
+
+// Category-pill order in the block picker (lower = higher up). `any` (0) and `special` (9000) are
+// virtual categories ordered in the SPA itself; these are the real folder categories in between.
+const PRIORITY = {
+  prompt: 200,
+  scene: 300,
+  subject: 400,
+  style: 500,
+  fragment: 600,
+  user: 700,
+};
+
+// Generators that are adult (hard-hidden when NSFW is off). Empty today — the catalog is SFW, and
+// any nsfw-named generator is already gated by the name-token rule — but this is the escape hatch
+// for an adult generator whose name carries no `nsfw` token.
+const NSFW = new Set([]);
 
 const D = {
   // ---- category folders (the category-pill tooltip; describe the category itself) ----
@@ -117,9 +140,12 @@ const D = {
 
 let wrote = 0;
 for (const [name, description] of Object.entries(D)) {
+  const meta = { description };
+  if (name in PRIORITY) meta.priority = PRIORITY[name];
+  if (NSFW.has(name)) meta.nsfw = true;
   const file = path.join(root, `${name}.json`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify({ description }, null, 2) + "\n");
+  fs.writeFileSync(file, JSON.stringify(meta, null, 2) + "\n");
   wrote++;
 }
 console.log(`wrote ${wrote} dynamic-prompt meta files`);

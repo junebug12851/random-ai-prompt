@@ -11,8 +11,14 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.27` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**Dynamic-prompt sidecars (2.7.27):** category `.json` sidecars carry a `priority` (orders the
+category/folder pills inside the **Blocks** tab — lower = higher, default 1000; the curated order is
+Any · Prompt · Scene · Subject · Style · Fragment · User · Special), and generator sidecars can carry
+`nsfw: true` to be **hard-hidden** when the NSFW switch is off (gone from the picker and from the engine,
+not just emptied). On branch `feature/dynprompt-sidecar` (off `dev`; lint/tests/build green, **not merged**).
 
 **Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
 carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay
