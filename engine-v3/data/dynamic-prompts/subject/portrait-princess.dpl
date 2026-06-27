@@ -4,12 +4,15 @@ description: A princess portrait
 Start
 ===
 {#portrait}, princess, royalty
-- maybe: girl
-- otherwise: woman
-- maybe: sceptor
-- otherwise 50% chance: staff
-- maybe: {#color} crown
-- otherwise 50% chance: {#color} tiara
-- {#color} robes
-
-{#expressive}, {#weather}
+- maybe girl
+- otherwise woman
+- one of:
+    - scepter
+    - staff
+- one of:
+    - {#color} crown
+    - {#color} tiara
+- {#color} flowing robes
+- {emotion}
+- elegant
+- [>70%] ornate jeweled regalia

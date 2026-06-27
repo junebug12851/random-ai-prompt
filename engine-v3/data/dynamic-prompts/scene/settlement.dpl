@@ -1,10 +1,12 @@
 ---
-description: Houses / village / paths, worn and weathered
+description: A small settlement — houses, a village, worn paths
 ---
 Start
 ===
-- [[house]]
+- [[houses]]
 - [[village]]
-- [[path]]
-- worn down
-- weathered
+- [[dirt path]]
+- worn weathered buildings
+- 50% smoke rising from chimneys
+- fences
+- {time}

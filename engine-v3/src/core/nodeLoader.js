@@ -44,7 +44,7 @@ function makeDplBridge(fileDir) {
         const mod = require(abs);
         const fn = mod && (mod.default || mod);
         return typeof fn === "function"
-          ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings) ?? "")
+          ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings, ctx.intensity) ?? "")
           : "";
       } catch {
         return "";

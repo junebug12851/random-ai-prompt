@@ -3,12 +3,13 @@ description: A store interior
 ---
 Start
 ===
-store, interior
-- shop
-- {scene/store}
+store interior, {scene/store}
+- shelves stocked with goods
+- {intensity} clutter
 - cozy
+- checkout counter
+- {style/general}
+- {time}
+- {#room-state}
 - 35% {#eerie}
 - 35% {#mystical}
-- {#room-state}
-- {style/building}
-- {time}

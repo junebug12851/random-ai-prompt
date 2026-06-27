@@ -11,8 +11,19 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.9.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.10.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
+
+**DPL intensity dial (2.10.0, on `feature/dpl-intensity`):** a `{#name}` reference can carry an intensity
+percent (`{#great-bridge 25%}`, 1–100; `0`→`1`; unspecified → **50%**, top-level and nested) that flows into
+the generator. Lines take intensity **conditions** in the weight slot (`[<10%] - grass`; ops `< <= > >= = !=`;
+stackable `[100|<10%]` or `[100 <10%]`); probability gates and `repeat`/`one of`/`N of` counts **auto-scale**
+by intensity; and text can interpolate it via `{intensity}` (word: tiny/small/normal/large/huge/massive),
+`{intensity%}`, `{intensity-num}`, each accepting a relative `±NN%` modifier (also on nested
+`{#name ±NN%}` refs). This is **Phase 1** of a larger dynamic-prompt content refactor (strip filler,
+de-scatter keywords, rename/focus files, use the expanded lists) — the engine + tests landed; the `.dpl`
+catalog rewrite follows in category batches. Design: [`reference/intensity-design.md`](reference/intensity-design.md).
+**Open:** confirm the 50% default at the top level (one constant, `DEFAULT_INTENSITY`, to retune).
 
 **Provider header redesign (2.9.0):** the top bar is now a single **Providers dropdown**
 (`gui/src/components/ProvidersMenu.jsx`) + a provider-settings **gear** + the NSFW switch. The dropdown holds
@@ -228,10 +239,10 @@ patterns, but were not launched live (launching the server opens a browser on th
 |------|--------|
 | `npm install` (Node 24) | ✅ resolves clean |
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
-| `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
+| `npm run lint` | ✅ 0 errors (18 warnings, pre-existing) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
-| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 86 passed |
-| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 43 passed (incl. `gallery.test.js`) |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 99 passed (incl. DPL intensity) |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 51 passed |
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `gui` SPA `vite build` | ✅ green |

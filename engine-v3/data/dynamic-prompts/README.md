@@ -21,6 +21,11 @@ Resolution is deterministic: an exact path wins; otherwise any file whose path e
 natural order (symbols, then numbers, then letters). Basenames are kept unique, so a bare
 `{#name}` always resolves.
 
+**Intensity dial:** a reference may carry a percent — `{#beach 25%}` runs the generator at 25% intensity
+(1–100; `0`→`1`; unspecified → 50%). Intensity auto-scales the generator's gates/counts, drives `[<10%]`
+line conditions, and is interpolable as `{intensity}`. See
+[`notes/reference/intensity-design.md`](../../notes/reference/intensity-design.md).
+
 Special forms:
 
 - **`{#user-name}`** → back-compat alias for a community generator under `user/`.

@@ -3,20 +3,19 @@ description: A natural landscape
 ---
 Start
 ===
-landscape
-- fog
-- hill
+landscape, {view}
+- rolling hills
 - valley
 - cliff
 - forest
-- tree
-- 20% stone
-- 20% rock
+- 20% rocky outcrop
 - 25% winter, snow landscape, {#ice}
-- 20% {#settlement}
 - 20% {#eerie}
 - 25% {#mystical}
 - 30% {#wildlife}
 - {#water}
+- {time}
+- [>70%] lush dense overgrowth
+- [<25%] sparse barren plain
 
 {#nature}, {#weather}

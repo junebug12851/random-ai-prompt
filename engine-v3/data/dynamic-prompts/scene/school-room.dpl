@@ -3,4 +3,11 @@ description: A school classroom
 ---
 Start
 ===
-school room, interrior, {school-room}, {#room-state}, {#weather}
+school classroom, interior, {school-room}
+- {#room-state}
+- desks in rows
+- chalkboard
+- posters on the wall
+- {intensity} clutter
+- {time}
+- [<25%] empty quiet classroom

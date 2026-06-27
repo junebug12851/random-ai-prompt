@@ -1,4 +1,25 @@
 ---
 description: A futuristic / cyberpunk scene
-script: futuristic.js
 ---
+Start
+===
+futuristic
+- metal
+- high-tech
+- cyberpunk
+- 50% ({#glow})
+- 50% ({#neon})
+- night
+- 35% fog
+- 35% mecha
+- 35% {#crystal}
+- holographic displays
+- towering megastructures
+- flying vehicles
+- 35% {#eerie}
+- 35% {#mystical}
+- dramatic lighting
+- [<25%] sleek minimalist
+- [>75%] dense sprawling megacity
+
+{#weather}

@@ -3,4 +3,12 @@ description: A zoo exhibit
 ---
 Start
 ===
-((zoo)), exhibit, (({animal})), {#water}, {#nature}, {#weather}
+((zoo)), exhibit, (({animal}))
+- enclosure
+- {intensity} crowd of visitors
+- signage
+- {#water}
+- {#nature}
+- {time}
+
+{#weather}

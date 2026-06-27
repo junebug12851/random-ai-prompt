@@ -1,4 +1,22 @@
 ---
 description: A great ancient tree in a forest
-script: great-tree.js
 ---
+Start
+===
+((a beautiful {intensity +40%} ancient tree)), growing in the middle of a primeval forest, wide angle, closeup
+- one of:
+    - willow
+    - tree of life
+    - mighty oak
+    - towering redwood
+- gnarled twisting roots
+- sprawling canopy
+- exotic
+- fog
+- 25% winter, snow landscape, {#ice}
+- {#eerie}
+- {#mystical}
+- bioluminescent
+- {#glow}
+
+{#nature}, {#weather}
