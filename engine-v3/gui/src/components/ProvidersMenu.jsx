@@ -10,18 +10,21 @@
  * @module gui/components/ProvidersMenu
  */
 import { useState } from "react";
-import { availableProviders, getProvider, rewriteProviders } from "../lib/providers/index.js";
+import { providers, getProvider, rewriteProviders } from "../lib/providers/index.js";
+import { ONLINE } from "../lib/online.js";
 import { providerMode } from "../lib/useProvider.js";
 import { metaFor } from "../lib/providerMeta.js";
 import ProviderPicker from "./ProviderPicker.jsx";
 import ApiKeyField from "./ApiKeyField.jsx";
 
-/** Shape a provider config into a ProviderPicker option (with its description + key badge). */
+/** Shape a provider config into a ProviderPicker option (with its description + key/lock badge). */
 const toOption = (p) => ({
   id: p.id,
   label: p.label,
   needsKey: p.needsKey,
   description: metaFor(p.id).description,
+  // Local providers need a machine, so the online build shows them disabled (greyed + linked).
+  locked: ONLINE && p.local,
 });
 
 /**
@@ -32,7 +35,9 @@ const toOption = (p) => ({
  */
 export default function ProvidersMenu({ settings, setSettings }) {
   const [open, setOpen] = useState(false);
-  const provs = availableProviders();
+  // Show every provider; local ones are rendered disabled (locked) in the online build rather
+  // than hidden, so visitors can see what the full desktop version adds.
+  const provs = providers;
 
   const imageId = settings.provider;
   const image = getProvider(imageId);

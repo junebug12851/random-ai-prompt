@@ -207,6 +207,13 @@ body {
   transform: translateX(16px);
   background: var(--accent-ink);
 }
+/* Online build: NSFW switch disabled — greyed, but still clickable (opens the full version). */
+.switch.is-locked {
+  opacity: 0.5;
+}
+.switch.is-locked:hover {
+  background: var(--bg-2);
+}
 
 /* ---------- Confirm dialog (NSFW opt-in) ---------- */
 .modal-overlay {
@@ -2037,6 +2044,27 @@ button.ghost:hover {
   color: var(--muted);
   line-height: 1.35;
 }
+/* Online build: a local provider shown disabled — greyed, with a "full version" badge. */
+.ps-item.is-locked {
+  opacity: 0.55;
+}
+.ps-item.is-locked:hover {
+  background: transparent;
+}
+.ps-item.is-locked .ps-item-label {
+  color: var(--fg-soft);
+}
+.ps-lock {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: var(--chip);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.4rem;
+  white-space: nowrap;
+}
 .key-link {
   margin-left: auto;
   font-size: 0.72rem;
@@ -2290,6 +2318,19 @@ button.ghost:hover {
 .vs-tab:focus-visible {
   outline: none;
   box-shadow: var(--ring);
+}
+/* Online build: Gallery/Single tabs disabled — greyed, with a small lock; click opens the full version. */
+.vs-tab.is-locked {
+  color: var(--muted);
+  opacity: 0.55;
+}
+.vs-tab.is-locked:hover {
+  color: var(--muted);
+}
+.vs-tab .lock-badge {
+  margin-left: 0.3rem;
+  font-size: 0.66rem;
+  opacity: 0.85;
 }
 
 /* ---------- Photo gallery ---------- */

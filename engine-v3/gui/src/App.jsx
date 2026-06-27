@@ -10,8 +10,10 @@
  * generated image (in Home) or a gallery thumbnail opens it in the single view; Back returns to
  * wherever you came from, intact. A shared link (`#s=…`) seeds settings on load.
  *
- * The online build (`VITE_ONLINE`) is a stripped variant: Generate only — no Gallery/Single tabbar
- * (there's no local image feed and nothing is stored to the browser) and NSFW forced off with no toggle.
+ * The online build (`VITE_ONLINE`) is a stripped variant: Generate works, but the Gallery/Single
+ * tabs, the local image providers, and the NSFW toggle are shown **disabled** (greyed, with a
+ * tooltip + a link to the full desktop version) because they need a local machine; NSFW is also
+ * forced off. See `lib/online.js`.
  * @module gui/App
  */
 import { useEffect, useState } from "react";
@@ -20,6 +22,9 @@ import { readSharedSettings } from "./lib/share.js";
 import { fetchGallery } from "./lib/gallery.js";
 import { fetchMagick } from "./lib/magick.js";
 import { deleteImageFile } from "./lib/output.js";
+import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
+import { getProvider, availableProviders } from "./lib/providers/index.js";
+import { providerMode } from "./lib/useProvider.js";
 import Home from "./components/Home.jsx";
 import Gallery from "./components/Gallery.jsx";
 import SingleView from "./components/SingleView.jsx";
@@ -27,16 +32,12 @@ import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 
+// [id, label, lockedFeatureName]. Gallery/Single are local-only — online shows them disabled.
 const TABS = [
-  ["generate", "Generate"],
-  ["gallery", "Gallery"],
-  ["single", "Single"],
+  ["generate", "Generate", null],
+  ["gallery", "Gallery", "The gallery"],
+  ["single", "Single", "The single-image view"],
 ];
-
-// The online (deployed, no-local-server) build is a stripped variant: Generate only — no
-// Gallery/Single tabbar (the image feed needs the dev server's filesystem and nothing is stored to
-// the browser), and NSFW is forced off with no toggle at all.
-const ONLINE = import.meta.env.VITE_ONLINE === "true";
 
 /**
  * The application shell component.
@@ -68,6 +69,14 @@ export default function App() {
     if (ONLINE) {
       setLoadingItems(false);
       if (settings.includeAdult) setSettings((s) => ({ ...s, includeAdult: false }));
+      // A saved local provider (e.g. the default ComfyUI) can't run online — fall back to the
+      // first available hosted provider so generation works out of the box.
+      if (getProvider(settings.provider)?.local) {
+        const fallback = availableProviders()[0];
+        if (fallback) {
+          setSettings((s) => ({ ...s, provider: fallback.id, mode: providerMode(fallback.id) }));
+        }
+      }
     } else {
       loadFeed();
     }
@@ -145,25 +154,33 @@ export default function App() {
           <img src="/logo.png" alt="" />
           <span className="wordmark">Random AI Prompt</span>
         </div>
-        {!ONLINE && (
-          <div className="view-switch" role="tablist" aria-label="Switch view">
-            {TABS.map(([id, label]) => (
+        <div className="view-switch" role="tablist" aria-label="Switch view">
+          {TABS.map(([id, label, lockFeature]) => {
+            const locked = ONLINE && id !== "generate";
+            return (
               <button
                 key={id}
                 role="tab"
-                aria-selected={view === id}
-                className={`vs-tab${view === id ? " on" : ""}`}
-                onClick={() => go(id)}
+                aria-selected={!locked && view === id}
+                aria-disabled={locked || undefined}
+                className={`vs-tab${!locked && view === id ? " on" : ""}${locked ? " is-locked" : ""}`}
+                title={locked ? lockedHint(lockFeature) : undefined}
+                onClick={() => (locked ? openFullVersion() : go(id))}
               >
                 {label}
+                {locked && (
+                  <span className="lock-badge" aria-hidden="true">
+                    🔒
+                  </span>
+                )}
               </button>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
         <div className="topbar-spacer" />
         {view === "generate" && <ProvidersMenu settings={settings} setSettings={setSettings} />}
         {view === "generate" && <ProviderGear settings={settings} setSettings={setSettings} />}
-        {!ONLINE && <NsfwToggle settings={settings} setSettings={setSettings} />}
+        <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
       </header>
 
       <main>

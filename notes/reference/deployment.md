@@ -96,8 +96,38 @@ functions = gui/netlify/functions
 
 `/api/*` routes to the serverless functions (the stateless BYOK generation proxy — see
 [`../systems/gui.md`](../systems/gui.md)); every other path falls back to `index.html` for
-client-side routing. Set `VITE_ONLINE=true` in the Netlify build env so the deployed build hides the
-local-only providers.
+client-side routing.
+
+**`VITE_ONLINE=true` is set in `netlify.toml` itself** (`[build.environment]`), so a Netlify build is
+the **online variant** with no extra dashboard config. In that build the local-only features —
+Gallery / Single tabs, the local SD providers (ComfyUI/Forge/SDNext/local-webui), and the NSFW toggle
+— are **not hidden but shown disabled**: greyed, with a hover tooltip and a click-through to the full
+desktop version on GitHub (`gui/src/lib/online.js`). Generate still works via BYOK keys through the
+serverless proxy. (Vite inlines `import.meta.env.VITE_ONLINE` at build time, so the flag must be
+present for the build command, not at runtime.)
+
+### Online demo deploy — `prompt.fairyfox.io`
+
+The app is hosted off the main `fairyfox.io` domain (which is mostly docs) on the `prompt` subdomain.
+One-time setup on Netlify:
+
+1. **Create the site** — Netlify → *Add new site → Import an existing project* → pick the
+   `junebug12851/random-ai-prompt` GitHub repo. Netlify reads `netlify.toml` for the build command,
+   publish dir, and functions; no manual build settings needed. Set the **production branch** to
+   `main` (the deploy gate is the same as the release gate — only shipped code goes live). Deploy.
+2. **Confirm it's the online build** — the first deploy should show the Gallery/Single tabs, local
+   providers, and NSFW switch greyed with the lock badge. If they're fully interactive, `VITE_ONLINE`
+   didn't reach the build — check `[build.environment]` in `netlify.toml`.
+3. **Add the custom domain** — site → *Domain management → Add a domain* → `prompt.fairyfox.io` →
+   *Add domain* (Netlify will say it's an external domain; that's expected).
+4. **Point DNS at Netlify** — at the `fairyfox.io` DNS host (where the apex/`www` records for the
+   docs site live), add a **CNAME**: `prompt` → `<your-site>.netlify.app` (the value Netlify shows in
+   the domain panel). The docs site on the apex is untouched — this only adds the `prompt` subdomain.
+5. **HTTPS** — once DNS resolves (minutes to a couple hours), Netlify auto-provisions a Let's Encrypt
+   certificate for `prompt.fairyfox.io`. Enable *Force HTTPS* in the domain panel.
+
+Note: this is a normal subdomain CNAME, independent of GitHub Pages. If the docs site ever moves to a
+subdomain too, that's a separate record — they don't conflict.
 
 ## Policy (standing rules)
 
@@ -110,13 +140,14 @@ local-only providers.
 
 ## Not done yet (intentional)
 
-- **No deployments yet — too early in the rewrite/re-adapt (owner's call, 2026-06-18).** All three
-  pipelines are wired but deliberately dormant: `master` is held at the old `241a148` (work stays on
-  `dev`, which only runs CI — build/test, not a deploy), **GitHub Pages is not enabled** on the repo
-  (Settings → Pages → Source still unset), and **no Netlify site is connected**. Advancing `master` is
-  the single trigger for both the Pages docs deploy and the software Release, so nothing ships until the
-  owner says go. Planned homes when ready: **GitHub Pages for the docs** (like the sibling project),
-  **Netlify for the app** (functions).
+- **Netlify online deploy is being stood up (2026-06-27)** at **`prompt.fairyfox.io`** — the build is
+  now online-ready (`VITE_ONLINE=true` baked into `netlify.toml`, local-only features shown disabled).
+  The remaining steps are dashboard/DNS actions on the owner's side (see *Online demo deploy* above):
+  connect the repo, set the production branch to `main`, add the `prompt` subdomain + CNAME.
+- **Docs/release pipelines still deliberately dormant.** `main` advancing is the single trigger for the
+  Pages docs deploy and the software Release; **GitHub Pages is not enabled** yet (Settings → Pages →
+  Source still unset), so nothing ships there until the owner says go. Planned homes: **GitHub Pages for
+  the docs** (like the sibling project), **Netlify for the app** (functions).
 - The hosted BYOK provider dispatch in `gui/netlify/functions/generate.js` is a stub (migration
   phase 2). Local generation works today; the hosted path is wired but not yet pointed at a provider.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged

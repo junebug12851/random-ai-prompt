@@ -6,13 +6,15 @@
  * @module gui/components/ProviderPicker
  */
 import { useState } from "react";
+import { lockedHint, openFullVersion } from "../lib/online.js";
 
 /**
  * @param {object} props
  * @param {string} props.label Leading label shown on the trigger (e.g. "Image" / "Text").
  * @param {string} props.value The selected option id.
- * @param {Array<{title:string, items:Array<{id:string,label:string,needsKey?:boolean,description?:string}>}>} props.groups
- *   Grouped options.
+ * @param {Array<{title:string, items:Array<{id:string,label:string,needsKey?:boolean,description?:string,locked?:boolean}>}>} props.groups
+ *   Grouped options. A `locked` option is shown greyed and, when clicked, opens the full version
+ *   instead of being selected.
  * @param {Function} props.onPick `(id)` — called when an option is chosen.
  * @returns {JSX.Element}
  */
@@ -51,12 +53,18 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
                   {g.items.map((it) => (
                     <button
                       key={it.id}
-                      className={`ps-item${it.id === value ? " on" : ""}`}
-                      onClick={() => choose(it.id)}
+                      className={`ps-item${it.id === value ? " on" : ""}${it.locked ? " is-locked" : ""}`}
+                      aria-disabled={it.locked || undefined}
+                      title={it.locked ? lockedHint(it.label) : undefined}
+                      onClick={() => (it.locked ? openFullVersion() : choose(it.id))}
                     >
                       <span className="ps-item-head">
                         <span className="ps-item-label">{it.label}</span>
-                        {it.needsKey && <span className="ps-key">key</span>}
+                        {it.locked ? (
+                          <span className="ps-lock">🔒 full version</span>
+                        ) : (
+                          it.needsKey && <span className="ps-key">key</span>
+                        )}
                       </span>
                       {it.description && <span className="ps-item-desc">{it.description}</span>}
                     </button>
