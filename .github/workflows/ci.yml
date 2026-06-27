@@ -1,7 +1,7 @@
 name: CI
 
 # Test-on-every-push. Mirrors the local verification gate (`npm test` = lint + format + smoke +
-# the Vitest suites) plus the web-app build and the Playwright E2E / accessibility specs, so green
+# the Vitest suites) plus the gui build and the Playwright E2E / accessibility specs, so green
 # here means the same thing as green locally. Visual-regression is skipped on CI on purpose: its
 # baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
 # playwright.config.js. See notes/plans/testing.md.
@@ -53,7 +53,7 @@ jobs:
       - name: Unit / integration / snapshot / regression tests (Vitest, Node)
         run: npm run test:unit
 
-  web-app:
+  gui:
     name: Build & unit-test the SPA
     runs-on: ubuntu-latest
     defaults:
@@ -66,16 +66,16 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/web-app/package-lock.json
+          cache-dependency-path: engine-v3/gui/package-lock.json
 
-      - name: Install web-app dependencies
-        run: npm --prefix web-app install --no-audit --no-fund
+      - name: Install gui dependencies
+        run: npm --prefix gui install --no-audit --no-fund
 
-      - name: Build web-app
-        run: npm --prefix web-app run build
+      - name: Build gui
+        run: npm --prefix gui run build
 
       - name: Unit / component / contract tests (Vitest, jsdom)
-        run: npm --prefix web-app run test
+        run: npm --prefix gui run test
 
   e2e:
     name: E2E & accessibility (Playwright)
@@ -92,10 +92,10 @@ jobs:
           cache: npm
           cache-dependency-path: engine-v3/package-lock.json
 
-      - name: Install dependencies (root + web-app)
+      - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix web-app install --no-audit --no-fund
+          npm --prefix gui install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium

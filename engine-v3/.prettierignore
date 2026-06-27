@@ -4,9 +4,10 @@ docs/
 tmp/
 assets/
 src/web/frontend/lib/
-web-app/
+gui/
 data/*.csv
 data/*.json
+data/sources/
 package-lock.json
 user-settings.json
 results.json

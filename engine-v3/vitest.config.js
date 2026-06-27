@@ -2,7 +2,7 @@
  * @file
  * Root Vitest config — the Node-side test suite (core engine, shared browser-safe
  * modules, integration, contract/API, snapshot, and bug-regression tests). Runs in the
- * `node` environment; the React SPA has its own jsdom config under `web-app/`.
+ * `node` environment; the React SPA has its own jsdom config under `gui/`.
  *
  * Scope rule (matches CLAUDE.md): tests target the ACTIVE engine (`src/core/**`) and the
  * shared pure modules only — never the legacy classic server (`src/server.js`,
@@ -16,7 +16,7 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.js"],
     // The SPA suite is run separately (npm run test:web) with its own jsdom config.
-    exclude: ["node_modules/**", "web-app/**", "tests/e2e/**"],
+    exclude: ["node_modules/**", "gui/**", "tests/e2e/**"],
     globals: false,
     coverage: {
       provider: "v8",

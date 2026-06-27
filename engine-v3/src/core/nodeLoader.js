@@ -56,10 +56,9 @@ function makeDplBridge(fileDir) {
   };
 }
 
-// Generator keys across all generations: v3/** (active, `.dpl`), v2/** and v1/** (frozen, `.js`),
-// skipping `_`-prefixed internals. A `.dpl` is the generator; a `.js` is a generator only when no
-// same-name `.dpl` exists (otherwise it is that `.dpl`'s sidecar). The stage decides which
-// generation a `{#…}` reaches (bare → v3; `v1/`/`v2/` prefix or `-v1`/`-v2` suffix → frozen).
+// Generator keys under data/dynamic-prompts/<category>/, skipping `_`-prefixed internals. A `.dpl`
+// is the generator; a `.js` is a generator only when no same-name `.dpl` exists (otherwise it is
+// that `.dpl`'s sidecar).
 function dynGeneratorNames() {
   const dpl = new Set();
   const js = new Set();
@@ -202,8 +201,8 @@ export const nodeLoader = {
       return null;
     }
   },
-  // Active dynamic-prompt catalog keys: v3/** (`.dpl`, sidecar `.js` excluded) + v1/** (`.js`),
-  // skipping the frozen v2/** tree and `_`-prefixed internals, in the guaranteed natural order.
+  // Dynamic-prompt catalog keys (`.dpl`, sidecar `.js` excluded; `.js`-only generators included),
+  // skipping `_`-prefixed internals, in the guaranteed natural order.
   dynamicPromptNames() {
     return dynGeneratorNames().sort(compareNames);
   },
@@ -216,25 +215,24 @@ export const nodeLoader = {
       return null;
     }
   },
-  // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token) — active (v3) only.
+  // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
   dynPromptForcedPrefixDirs() {
-    return markedDirs("_force-prefix", dynPromptsRoot).filter((d) => d.startsWith("v3/"));
+    return markedDirs("_force-prefix", dynPromptsRoot);
   },
-  // Same, across ALL generations (v1/v2/v3) — for the UI that browses each generation first-class.
+  // Alias retained for the loader interface (no version generations — same set as above).
   dynPromptForcedPrefixDirsAll() {
     return markedDirs("_force-prefix", dynPromptsRoot);
   },
-  // Implied-group folders for dynamic prompts: an active (v3) category folder with 2+ generators
-  // (so `{#scene}` picks one random scene generator), with enable/disable marker overrides.
+  // Implied-group folders for dynamic prompts: a category folder with 2+ generators (so `{#scene}`
+  // picks one random scene generator), with enable/disable marker overrides.
   dynPromptGroupDirs() {
     return autoGroupListDirs(
-      dynGeneratorNames().filter((n) => n.startsWith("v3/")),
-      markedDirs("_enable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
-      markedDirs("_disable-group-list", dynPromptsRoot).filter((d) => d.startsWith("v3/")),
+      dynGeneratorNames(),
+      markedDirs("_enable-group-list", dynPromptsRoot),
+      markedDirs("_disable-group-list", dynPromptsRoot),
     );
   },
-  // Implied-group folders across ALL generations (v1/v2/v3) — the engine/UI filter by prefix so
-  // each generation's groups ({#scene}, {#v2/scene}) resolve and display first-class.
+  // Alias retained for the loader interface (no version generations — same set as above).
   dynPromptGroupDirsAll() {
     return autoGroupListDirs(
       dynGeneratorNames(),

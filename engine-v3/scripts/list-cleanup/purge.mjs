@@ -81,7 +81,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
 // --- danbooru.csv (classify de-underscored name field, content rules) ---
 {
   const n = rewriteFile(
-    path.join(dataDir, "danbooru.csv"),
+    path.join(dataDir, "sources", "danbooru.csv"),
     "danbooru.csv",
     (l) => classifyRemoval(l, { listType: "content" }),
     (line) => (line.split(",")[0] || "").replace(/[\/\\_]+/g, " "),
@@ -92,7 +92,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
 // --- artists.csv (proper / core slurs only) ---
 {
   const n = rewriteFile(
-    path.join(dataDir, "artists.csv"),
+    path.join(dataDir, "sources", "artists.csv"),
     "artists.csv",
     (l) => classifyRemoval(l, { listType: "proper" }),
     (line) => line.split(",")[0] || "",

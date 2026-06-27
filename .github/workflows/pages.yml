@@ -9,7 +9,7 @@ name: Docs (GitHub Pages)
 
 # NOTE: auto-deploy on push to main is PAUSED — the doc-site build (`npm run docs`) is mid-
 # reconciliation to the engine-v3 split (build-docs.mjs resolves notes/ + assets/ at the repo root
-# while src/ + web-app/ moved under engine-v3/). Re-enable the `push: branches: [main]` trigger once
+# while src/ + gui/ moved under engine-v3/). Re-enable the `push: branches: [main]` trigger once
 # `npm run docs` is green from engine-v3. Until then, run manually via workflow_dispatch.
 on:
   workflow_dispatch:

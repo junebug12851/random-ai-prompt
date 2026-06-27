@@ -2,7 +2,7 @@
 
 > **Structure note (2026-06-25):** the repo is two projects now — the active **`engine-v3/`** (core engine
 > + SPA; v3-only, no expansions) and the frozen **`engine-v1-2/`** (pre-revival CLI + classic server). The
-> `cli`/`server` deep-dives describe the frozen engine-v1-2; `core-engine`/`web-app` describe engine-v3.
+> `cli`/`server` deep-dives describe the frozen engine-v1-2; `core-engine`/`gui` describe engine-v3.
 > See [`../plans/engine-split.md`](../plans/engine-split.md).
 
 A structured account of how random-ai-prompt is built — the macro picture and the per-layer
@@ -24,7 +24,7 @@ Read in this order:
 | [core-engine.md](core-engine.md) | The isomorphic `core/` engine — `engine.js`, the `stages/` (dynamicPrompt / expansion / list), `listStore`, and the `node`/`browser` loaders that let the same prompt logic run server-side and in the browser. |
 | [cli.md](cli.md) | The CLI runtime: `index.js` + `common.js`'s `run()`/`processBatch()`/`upscale()`, the `src/` loaders, `applyArgs`, image generation (`src/genImg.js`), and the `helpers/`. |
 | [server.md](server.md) | The web UI: `server.js` (Express 5 + Pug), the JSON API, the `web/frontend/` classic-JS client, and `web/backend/indexImages.js` (the self-healing image index). |
-| [web-app.md](web-app.md) | The standalone React + Vite SPA in `web-app/` — the BYOK provider model (`localWebui` / `hostedProxy`), the browser prompt engine, and the Netlify function. |
+| [gui.md](gui.md) | The standalone React + Vite SPA in `gui/` — the BYOK provider model (`localWebui` / `hostedProxy`), the browser prompt engine, and the Netlify function. |
 
 How this relates to the other notes:
 

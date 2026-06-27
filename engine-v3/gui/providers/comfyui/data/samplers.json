@@ -1,0 +1,12 @@
+[
+  "euler",
+  "euler_ancestral",
+  "heun",
+  "dpm_2",
+  "dpmpp_2m",
+  "dpmpp_2m_sde",
+  "dpmpp_3m_sde",
+  "dpmpp_sde",
+  "ddim",
+  "uni_pc"
+]

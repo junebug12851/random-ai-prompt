@@ -11,11 +11,38 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.7.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.7.25` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)).
 
+**Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
+carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay
+**mounted** for the session — each keeps its state + scroll position when you switch tabs (shared feed /
+search / current-image state lives in `App`). The **gallery** (`gui/src/components/Gallery.jsx`) browses
+everything saved to `output/`; the **single** view (`gui/src/components/SingleView.jsx`) is the full
+per-image page. Generated images and gallery thumbnails open into the single view (Back returns where you
+came from); the Single tab shows the last image, or a random one the first time. Every
+generated image now gets a **`.json` metadata sidecar** next to it (prompt sent, the deterministic engine
+roll, the AI translation, the source DPL, negative, provider, and a settings snapshot with **API keys
+stripped**), written by `POST /api/image` and read back via a new `GET /api/feed` (`gui/vite-plugin-api.js`).
+The gallery is a masonry grid with keyword search; clicking opens a **dedicated single-image page** (not a
+modal) with the prompt and negative each in their DPL / engine-roll / AI-translation / sent-final layers, a
+curated details table over the full settings snapshot + raw JSON, a clickable keyword cloud, prev/next nav,
+and actions (open / reveal / download PNG / **Convert & download** via ImageMagick / delete). The sidecar is
+nested (`prompt:{dpl,roll,ai,final}`, `negative:{…}`), and **the negative prompt is AI-translated too** when
+auto-fix is on. The dev server detects ImageMagick (`/api/magick`) and converts on demand
+(`/api/image/convert`); the convert menu hides when magick isn't installed. Local-only by nature (the feed +
+conversion need the dev server's filesystem); a static/online build shows an empty gallery with a note. See
+[`version/2026-06.md`](version/2026-06.md).
+
+**Layout reorg (2.7.1):** completes the v3-only move. Dynamic prompts are now **flat** under
+`data/dynamic-prompts/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
+version routing are gone (engine + both loaders + the SPA browser). The loose raw build inputs moved to
+`data/sources/` (`artists.csv`, `danbooru.csv`, `nai-tag-expirement.json`), and the SPA folder was renamed
+**`web-app/` → `gui/`** (the name anticipates a planned CLI; the core engine is already headless). A fuller
+notes sweep of the remaining `v1/v2`/`web-app` references in the deeper `reference/` docs is still pending.
+
 **Content rating (2.6.1):** the SPA now defaults to **SFW** (`settings.includeAdult: false`) and carries a
-right-aligned **NSFW** toggle in the top-bar (`web-app/src/components/NsfwToggle.jsx`) — a stopgap until the
+right-aligned **NSFW** toggle in the top-bar (`gui/src/components/NsfwToggle.jsx`) — a stopgap until the
 options screen lands. Turning it ON requires a confirmation dialog; turning it OFF is immediate; the choice
 is remembered in the browser (it's part of `settings` → localStorage). The engine already gated on
 `includeAdult` (`core/listStore.js`, `core/stages/*`, `gatedLists.js`); this just exposes the switch. Still
@@ -98,7 +125,7 @@ expansions, presets, the CSV sources) under **`data/`**; runtime/user data (`out
 `user-settings.json`, `results.json`) stays at the repo root. `src/chdir.js` pins the cwd to the repo
 root (its parent) so every cwd-relative path keeps working.
 
-**3. Started the web migration — a React + Vite SPA** (`web-app/`, usable online BYOK or locally). The
+**3. Started the web migration — a React + Vite SPA** (`gui/`, usable online BYOK or locally). The
 real prompt engine was ported to a browser-safe `core/` driven by an **injected loader** (Node: fs +
 `createRequire`; browser: Vite `import.meta.glob`), so there is one engine, no duplicated prompt logic.
 As of **2.0.2** the SPA front-end is a single **redesigned home page** (`Home.jsx`) styled after the
@@ -114,7 +141,7 @@ a single **JSDoc + docdash** site that unifies the per-function **code API** (ev
 including the React SPA via a babel-transpile-then-JSDoc step) with the **entire `notes/` tree as
 tutorials** (cross-links rewritten). **Doxygen was retired.** Coverage is complete: `@file` on every
 authored file, per-function JSDoc across all server-side code, all 113 dynamic prompts, the frontend
-scripts, and the whole `web-app/` SPA — only anonymous callbacks are left (no generator extracts them).
+scripts, and the whole `gui/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
 **First ship (2026-06-22): the deployment hold is lifted.** The stable branch (then `master`, renamed to
@@ -122,9 +149,9 @@ The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept 
 As of the 2026-06-25 git-flow adoption it now advances by **`--no-ff` merge + tag** (PATCH straight from
 green `dev`, MINOR/MAJOR via a `release/*` branch) rather than fast-forward. Getting there required
 unbreaking CI first — both `npm ci` jobs were red on a
-lockfile drift (root + `web-app`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
+lockfile drift (root + `gui`) and `format:check` was red on ~40 un-Prettier'd files; both fixed
 (build/style only, no version bump). Active work continues on `dev`. **CI now runs the full gate** — lint,
-format:check, smoke, the Node + jsdom Vitest suites, the web-app build, and the Playwright E2E +
+format:check, smoke, the Node + jsdom Vitest suites, the gui build, and the Playwright E2E +
 accessibility **+ visual-regression** specs. Visual works cross-OS: baselines are committed for both Windows
 (`*-chromium-win32.png`, system Chrome) and Linux (`*-chromium-linux.png`, bundled chromium); regenerate the
 Linux set via the "Update visual baselines (Linux)" workflow (`visual-baselines.yml`). See
@@ -157,10 +184,10 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (165 warnings, pre-existing; ESLint 10) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
-| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 88 passed |
-| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 30 passed |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 86 passed |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 43 passed (incl. `gallery.test.js`) |
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
-| `web-app` SPA `vite build` | ✅ green |
+| `gui` SPA `vite build` | ✅ green |
 | `engine-v1-2/` CLI (`node index.js`) | ✅ runs standalone — own deps, generated a prompt (2026-06-25). Frozen snapshot. |
 | `engine-v1-2/` classic server (`node server.js`) | ✅ boots the same way (also `webui.bat`); frozen. Image gen still needs an SD WebUI. |

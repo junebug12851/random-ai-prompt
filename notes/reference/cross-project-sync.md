@@ -76,6 +76,25 @@ Full procedure: the `adopting-updates.md` runbook in the clone's `hub/standards/
 only checked or went on to adopt, it ends with a process report. The recurring whole-set check that
 this project still follows every adopted standard is the [compliance audit](compliance.md).
 
+### The express-authorization ledger (skipping a redundant prompt)
+
+Alongside the standards, the project also reads the hub's **express-authorization ledger**
+(`hub/authorizations.yml`) out of the same read-only clone. It records the go-aheads the system owner
+makes **at the hub** for changes to roll out. When an **active** entry there `covers` a change this node
+is adopting, the user already gave the go-ahead at the system, so the node treats it as **pre-authorized
+and skips its redundant "check-and-report-then-wait" pause — but only that pause.** Every other adoption
+safety step still runs, and **the verification floor is never skipped**: copy-not-clobber, **re-prompt
+before overwriting a deliberate local divergence**, process report, reviewable commit, and **full
+verification — build/tests + the standards' `## Verify`/compliance checks + project-constraint checks,
+run before _and_ after the apply**. A pre-authorization (like any automated apply) removes *one redundant
+confirmation*, never the safety floor: **if full verification can't be completed, do not auto-apply —
+fall back to check-report-wait**. If nothing covers the change (or the entry `expires`d), also fall back
+to check-report-wait.
+
+This is still a **read, on request** — it adds no automation and no hub→node push, so anti-recursion
+holds. A pre-authorization lets a node skip a prompt; it never lets the hub act on the node. An
+unattended/scheduled **check** still applies nothing regardless of the ledger.
+
 ## Anti-recursion checklist
 
 - ✅ Pulls are manual / on request — never scheduled to chain across repos.
@@ -84,6 +103,9 @@ this project still follows every adopted standard is the [compliance audit](comp
 - ✅ Adoption is a copy, not a runtime dependency.
 - ✅ Process reports are local notes that ride the existing inbound read — writing one pushes
   nothing across repos and adds no new connection.
+- ✅ The express-authorization ledger is **read-only on the far side** like every other artifact — a
+  pre-authorization lets a node skip a prompt, never lets the hub act on the node. The node still
+  adopts only when the user invokes the flow.
 
 ## Why `assets/references/`, not a submodule
 

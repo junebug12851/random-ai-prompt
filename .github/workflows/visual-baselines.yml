@@ -22,10 +22,10 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install dependencies (root + web-app)
+      - name: Install dependencies (root + gui)
         run: |
           npm ci
-          npm --prefix web-app ci
+          npm --prefix gui ci
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium

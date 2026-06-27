@@ -34,7 +34,7 @@ process.chdir(import.meta.dirname);
 process.chdir("..");
 
 // Read csv file
-const csv = fs.readFileSync(`./danbooru.csv`).toString().split("\n");
+const csv = fs.readFileSync(`./data/sources/danbooru.csv`).toString().split("\n");
 
 /////////////////////////
 /// User Setting

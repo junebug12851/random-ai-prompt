@@ -32,13 +32,11 @@ const fullRegular = [];
 const fullRegularExcluded = [];
 const partialRegular = [];
 const userFiles = [];
-const v1Files = [];
-const v2Files = [];
 const allDynPrompts = [];
 
 const listFiles = [];
 
-const fullDynPrompt = []; // Excludes v1 files
+const fullDynPrompt = [];
 
 // Artists should always come at the end
 const listFilesNoArtist = [];
@@ -68,9 +66,9 @@ function requireLoader() {
 }
 
 /**
- * Classify every dynamic prompt into full / partial (plus the v1 and user-submitted
- * buckets) — the lists used by `promptSuggestion()` and the web file pickers.
- * @returns {object} `{fullRegular, partialRegular, userFiles, v1Files, all}`.
+ * Classify every dynamic prompt into full / partial (plus the user-submitted bucket) —
+ * the lists used by `promptSuggestion()` and the web file pickers.
+ * @returns {object} `{fullRegular, partialRegular, userFiles, all}`.
  */
 function loadDynPromptList() {
   const l = requireLoader();
@@ -79,33 +77,22 @@ function loadDynPromptList() {
   fullRegularExcluded.length = 0;
   partialRegular.length = 0;
   userFiles.length = 0;
-  v1Files.length = 0;
-  v2Files.length = 0;
   allDynPrompts.length = 0;
   fullDynPrompt.length = 0;
   partialNoArtistFx.length = 0;
 
   // The loader returns catalog keys relative to the dynamic-prompts root, e.g.
-  //   "v3/scene/cave"  |  "v3/user/beach-merk"  |  "v2/scene/beach"  |  "v1/castle"
-  // v3 is the DEFAULT (active) catalog; v1 and v2 are FROZEN, addressed only by their path
-  // prefix ({#v1/castle}, {#v2/scene/cave}) and kept out of the random-suggestion pools.
-  // Active generators are stored by their SHORTEST unambiguous token (computeButtonNames —
-  // basenames are unique), so a bare `{#token}` resolves by suffix.
+  //   "scene/cave"  |  "user/beach-merk"
+  // Generators are stored by their SHORTEST unambiguous token (computeButtonNames — basenames
+  // are unique), so a bare `{#token}` resolves by suffix. User-submitted generators get a
+  // `user-` token so the picker can bucket them (kept out of the random-suggestion pool).
   const activeKeys = [];
   for (const key of l.dynamicPromptNames()) {
-    if (key.startsWith("v1/")) {
-      v1Files.push(key); // frozen — token is the full path; {#v1/castle}
+    if (key.startsWith("user/")) {
+      userFiles.push(`user-${key.slice("user/".length)}`);
       continue;
     }
-    if (key.startsWith("v2/")) {
-      v2Files.push(key); // frozen — {#v2/scene/cave}
-      continue;
-    }
-    if (key.startsWith("v3/user/")) {
-      userFiles.push(`user-${key.slice("v3/user/".length)}`);
-      continue;
-    }
-    activeKeys.push(key); // active v3 catalog
+    activeKeys.push(key);
   }
 
   const forced = l.dynPromptForcedPrefixDirs ? l.dynPromptForcedPrefixDirs() : [];
@@ -114,8 +101,8 @@ function loadDynPromptList() {
     const mod = l.loadDynamicPrompt(key);
     if (!mod) continue;
 
-    // v3 has no full/partial distinction — every active generator is just a "prompt". The whole
-    // active set is the suggestion pool (minus any `suggestions: off`); `partialRegular` stays empty.
+    // There is no full/partial distinction — every generator is just a "prompt". The whole
+    // set is the suggestion pool (minus any `suggestions: off`); `partialRegular` stays empty.
     const token = buttonNames[key];
     fullRegular.push(token);
     if (mod.suggestion_exclude !== true) fullRegularExcluded.push(token);
@@ -128,24 +115,14 @@ function loadDynPromptList() {
     partialNoArtistFx.push(name);
   }
 
-  allDynPrompts.splice(
-    0,
-    0,
-    ...fullRegular,
-    ...partialRegular,
-    ...userFiles,
-    ...v1Files,
-    ...v2Files,
-  );
+  allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles);
   fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {
     fullRegular,
     partialRegular,
     userFiles,
-    v1Files,
-    v2Files,
-    all: [...fullRegular, ...partialRegular, ...userFiles, ...v1Files, ...v2Files],
+    all: [...fullRegular, ...partialRegular, ...userFiles],
   };
 }
 

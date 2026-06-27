@@ -46,7 +46,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run web:build && npm --prefix web-app run preview -- --port ${PORT} --strictPort`,
+    command: `npm run web:build && npm --prefix gui run preview -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 240000,

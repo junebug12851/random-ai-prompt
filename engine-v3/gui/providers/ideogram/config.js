@@ -1,0 +1,27 @@
+/**
+ * Ideogram provider — config/manifest. Hosted, BYOK. Known for strong in-image text rendering.
+ * NOTE: Ideogram's API has shifted across versions; this targets the v2 JSON `/generate` endpoint
+ * and may need adjusting for v3. (Ideogram models are also reachable via the Replicate/fal providers.)
+ * @module gui/providers/ideogram/config
+ */
+export default {
+  id: "ideogram",
+  label: "Ideogram",
+  tier: "api",
+  dialect: "plain",
+  transport: "hosted-proxy",
+  local: false,
+  needsKey: true,
+  capabilities: {
+    models: true,
+    aspectRatio: true,
+    negativePrompt: false,
+    samplers: false,
+    steps: false,
+    cfg: false,
+    seed: false,
+    batch: { min: 1, max: 1 },
+  },
+  loadGenerate: () => import("./code/generate.js").then((m) => m.default),
+  loadSettings: () => import("./settings.js").then((m) => m.default),
+};

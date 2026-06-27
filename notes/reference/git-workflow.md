@@ -55,8 +55,7 @@ The release path is set by the SemVer level (see [`versioning.md`](versioning.md
   ```sh
   git checkout main
   git merge --no-ff dev
-  git tag -a vX.Y.Z -m "vX.Y.Z"        # tag matches VERSION
-  git push origin main --tags
+  git push origin main                 # CI (release.yml) derives + creates the vX.Y.Z tag — do NOT tag by hand
   git checkout dev
   ```
 
@@ -69,15 +68,29 @@ The release path is set by the SemVer level (see [`versioning.md`](versioning.md
   # … finalize: bump VERSION, finish the changelog entry, last polish …
   git checkout main
   git merge --no-ff release/X.Y.0
-  git tag -a vX.Y.0 -m "vX.Y.0"
   git checkout dev
   git merge --no-ff release/X.Y.0       # carry the release finalizations back
   git branch -d release/X.Y.0
-  git push origin main dev --tags
+  git push origin main dev              # CI creates the vX.Y.0 tag — do NOT tag by hand
   ```
 
 A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
 the Pages docs (`pages.yml`). See [`deployment.md`](deployment.md).
+
+## Who creates the tag — CI, not by hand (this repo)
+
+The branch commands above **push `main` without tagging.** This project's
+[`release.yml`](deployment.md) derives `v<VERSION>` and creates the tag itself on the `main` push, and
+**gates the release on that tag not already existing.** So a tag pushed by hand makes the gated workflow
+find the tag present and **skip itself — a silent no-op release.** The rule for this repo is therefore:
+
+- **The merge to `main` is the release act; CI applies the tag.** Never run `git tag` / `git push
+  --tags` for a release here.
+- The invariant still holds — every commit on `main` ends up carrying its matching `vX.Y.Z` tag — the
+  question is only *which actor* applies it, and here it's CI.
+
+(This is a deliberate, recorded divergence from the hub's hand-tag example commands, which assume a
+project whose `release.yml` does *not* tag. The hub documents exactly this CI-vs-hand fork.)
 
 ## Hotfixes
 
@@ -87,11 +100,10 @@ git checkout -b hotfix/X.Y.Z
 # … fix, bump VERSION (patch), changelog …
 git checkout main
 git merge --no-ff hotfix/X.Y.Z
-git tag -a vX.Y.Z -m "vX.Y.Z"
 git checkout dev
 git merge --no-ff hotfix/X.Y.Z
 git branch -d hotfix/X.Y.Z
-git push origin main dev --tags
+git push origin main dev              # CI creates the vX.Y.Z tag — do NOT tag by hand
 ```
 
 ## Commit style
