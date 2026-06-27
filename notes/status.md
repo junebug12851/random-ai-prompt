@@ -12,18 +12,21 @@ the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, 
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
 **Version:** `2.10.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
-see [`reference/versioning.md`](reference/versioning.md)).
+see [`reference/versioning.md`](reference/versioning.md)). **Released to `main`** (tag `v2.10.0`, CI green).
 
-**DPL intensity dial (2.10.0, on `feature/dpl-intensity`):** a `{#name}` reference can carry an intensity
-percent (`{#great-bridge 25%}`, 1–100; `0`→`1`; unspecified → **50%**, top-level and nested) that flows into
-the generator. Lines take intensity **conditions** in the weight slot (`[<10%] - grass`; ops `< <= > >= = !=`;
-stackable `[100|<10%]` or `[100 <10%]`); probability gates and `repeat`/`one of`/`N of` counts **auto-scale**
-by intensity; and text can interpolate it via `{intensity}` (word: tiny/small/normal/large/huge/massive),
-`{intensity%}`, `{intensity-num}`, each accepting a relative `±NN%` modifier (also on nested
-`{#name ±NN%}` refs). This is **Phase 1** of a larger dynamic-prompt content refactor (strip filler,
-de-scatter keywords, rename/focus files, use the expanded lists) — the engine + tests landed; the `.dpl`
-catalog rewrite follows in category batches. Design: [`reference/intensity-design.md`](reference/intensity-design.md).
-**Open:** confirm the 50% default at the top level (one constant, `DEFAULT_INTENSITY`, to retune).
+**DPL intensity dial + dynamic-prompt content refactor (2.10.0 — shipped):** a `{#name}` reference can carry
+an intensity percent (`{#great-bridge 25%}`, 1–100; `0`→`1`; unspecified → **50%**, top-level and nested)
+that flows into the generator. Lines take intensity **conditions** in the weight slot (`[<10%] - grass`; ops
+`< <= > >= = !=`; stackable `[100|<10%]` or `[100 <10%]`); probability gates and `repeat`/`one of`/`N of`
+counts **auto-scale** by intensity; and text can interpolate it via `{intensity}`
+(tiny/small/normal/large/huge/massive), `{intensity%}`, `{intensity-num}`, each accepting a relative `±NN%`
+modifier (also on nested `{#name ±NN%}` refs). Engine in `src/core/dpl/dpl.js` +
+`src/core/stages/dynamicPrompt.js`; design: [`reference/intensity-design.md`](reference/intensity-design.md).
+The **content refactor is complete across all five categories** (scene · fragment · subject · style ·
+prompt): de-scattered (knight no longer pulls `{#landscape}`/`[[castle]]`; beach↛city; etc.), render-farm
+filler stripped, typos fixed (`interrior`, `accesories`, `mesmorizing`, `sceptor`), `anime-irl`→`anime-realism`,
+list-backed + intensity-aware. The engine auto-append now re-resolves nested tokens (the `{#rays}`-leak root
+cause). **Open:** confirm the 50% default at the top level (one constant, `DEFAULT_INTENSITY`, to retune).
 
 **Provider header redesign (2.9.0):** the top bar is now a single **Providers dropdown**
 (`gui/src/components/ProvidersMenu.jsx`) + a provider-settings **gear** + the NSFW switch. The dropdown holds
