@@ -11,27 +11,52 @@
  */
 import { useMemo, useState } from "react";
 import { searchHaystack, promptText } from "../lib/gallery.js";
+import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
 
-/** A thumbnail that fades in once loaded and spans wide/tall by its natural aspect ratio. */
-function Thumb({ item, onOpen }) {
+/**
+ * A thumbnail that fades in once loaded and spans wide/tall by its natural aspect ratio. Hovering
+ * reveals the same actions as the generate thumbnails: open in the OS default app, reveal in the
+ * file explorer, and delete.
+ */
+function Thumb({ item, onOpen, onDelete }) {
   const [loaded, setLoaded] = useState(false);
   const [shape, setShape] = useState(""); // "" | "wide" | "tall"
   const label = promptText(item) || item.file;
+  const onDisk = isOutputFile(item.path);
   return (
-    <button className={`g-cell${shape ? " " + shape : ""}`} onClick={() => onOpen(item)} title={label}>
-      <img
-        src={item.path}
-        alt={label}
-        loading="lazy"
-        className={`g-img${loaded ? " loaded" : ""}`}
-        onLoad={(e) => {
-          setLoaded(true);
-          const { naturalWidth: w, naturalHeight: h } = e.target;
-          if (w && h) setShape(w / h >= 1.6 ? "wide" : h / w >= 1.6 ? "tall" : "");
-        }}
-      />
-      {promptText(item) && <span className="g-cell-cap">{promptText(item).slice(0, 120)}</span>}
-    </button>
+    <div className={`g-cell${shape ? " " + shape : ""}`}>
+      <button className="g-open" onClick={() => onOpen(item)} title={label} aria-label={`Open: ${label}`}>
+        <img
+          src={item.path}
+          alt={label}
+          loading="lazy"
+          className={`g-img${loaded ? " loaded" : ""}`}
+          onLoad={(e) => {
+            setLoaded(true);
+            const { naturalWidth: w, naturalHeight: h } = e.target;
+            if (w && h) setShape(w / h >= 1.6 ? "wide" : h / w >= 1.6 ? "tall" : "");
+          }}
+        />
+        {promptText(item) && <span className="g-cell-cap">{promptText(item).slice(0, 120)}</span>}
+      </button>
+      <div className="img-actions">
+        {onDisk && (
+          <>
+            <button title="Open in default app" onClick={() => openImageFile(item.path)}>
+              ↗
+            </button>
+            <button title="Reveal in file explorer" onClick={() => revealImageFile(item.path)}>
+              ⌖
+            </button>
+          </>
+        )}
+        {onDelete && (
+          <button title="Delete image" onClick={() => onDelete(item)}>
+            ✕
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -44,9 +69,18 @@ function Thumb({ item, onOpen }) {
  * @param {Function} props.onQueryChange `(value)`.
  * @param {Function} props.onOpen `(item)` — open an image in the single view.
  * @param {Function} props.onRefresh Re-scan the output folder.
+ * @param {Function} [props.onDelete] `(item)` — delete an image (+ sidecar) from disk.
  * @returns {JSX.Element}
  */
-export default function Gallery({ items, loading, query, onQueryChange, onOpen, onRefresh }) {
+export default function Gallery({
+  items,
+  loading,
+  query,
+  onQueryChange,
+  onOpen,
+  onRefresh,
+  onDelete,
+}) {
   const q = query.trim().toLowerCase();
   const filtered = useMemo(
     () => (q ? items.filter((it) => searchHaystack(it).includes(q)) : items),
@@ -97,7 +131,7 @@ export default function Gallery({ items, loading, query, onQueryChange, onOpen, 
         {filtered.length > 0 && (
           <div className="g-grid">
             {filtered.map((item) => (
-              <Thumb key={item.path} item={item} onOpen={onOpen} />
+              <Thumb key={item.path} item={item} onOpen={onOpen} onDelete={onDelete} />
             ))}
           </div>
         )}

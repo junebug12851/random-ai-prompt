@@ -151,6 +151,7 @@ export default function App() {
             onQueryChange={setQuery}
             onOpen={openFromGallery}
             onRefresh={loadFeed}
+            onDelete={deleteItem}
           />
         </div>
         <div className={`view-pane${view === "single" ? " on" : ""}`}>
