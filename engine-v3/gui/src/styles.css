@@ -2206,57 +2206,85 @@ button.ghost:hover {
   opacity: 1;
 }
 
-/* ---------- Gallery detail view ---------- */
-.g-detail {
-  position: fixed;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  z-index: 70;
+/* ---------- Gallery single-image page (replaces the grid, not a modal) ---------- */
+.g-single-bar {
   display: flex;
-  gap: 0;
-  width: min(1100px, 94vw);
-  max-height: 90vh;
-  background: var(--panel);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.g-back {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
-}
-.g-detail-x {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
+  background: var(--bg-2);
+  color: var(--fg);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.9rem;
-  line-height: 1;
 }
-.g-detail-img {
-  flex: 1 1 55%;
+.g-back:hover {
+  background: var(--chip-hover);
+}
+.g-single-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.g-single-nav button {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.g-single-nav button:hover:not(:disabled) {
+  background: var(--chip-hover);
+}
+.g-single-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.g-single-pos {
+  color: var(--muted);
+  font-size: 0.82rem;
+  min-width: 4ch;
+  text-align: center;
+}
+/* Image left, metadata right — a real page that scrolls with the gallery view. */
+.g-single-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+}
+.g-single-img {
   background: #000;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 0;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
 }
-.g-detail-img img {
+.g-single-img img {
   max-width: 100%;
-  max-height: 90vh;
+  max-height: calc(100vh - 8rem);
   object-fit: contain;
   display: block;
 }
-.g-detail-meta {
-  flex: 1 1 45%;
-  padding: 1.2rem 1.3rem;
-  overflow-y: auto;
+.g-single-meta {
+  min-width: 0;
 }
-.g-detail-title {
+.g-single-title {
   font-family: var(--font-display);
   font-size: 1.05rem;
   margin: 0 0 0.8rem;
@@ -2339,11 +2367,13 @@ button.ghost:hover {
   color: #ffb3c0;
 }
 @media (max-width: 720px) {
-  .g-detail {
-    flex-direction: column;
-    width: 96vw;
+  .g-single-body {
+    grid-template-columns: 1fr;
   }
-  .g-detail-img {
-    max-height: 45vh;
+  .g-single-img {
+    position: static;
+  }
+  .g-single-img img {
+    max-height: 60vh;
   }
 }
