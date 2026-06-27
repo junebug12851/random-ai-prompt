@@ -6,4 +6,4 @@ Start
 - {art-movement}
 - {art-technique}
 - 50% repeat 0 to 3 times: {image-effect}
-- {#rays}
+- 50% god rays, volumetric lighting
