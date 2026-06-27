@@ -310,7 +310,7 @@ export default function WrapperFab({ settings, setSettings }) {
                     onChange={setStart}
                     settings={settings}
                     ariaLabel="Wrapper start (DPL)"
-                    placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. masterpiece, best quality"}
+                    placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. a style or framing lead-in"}
                   />
                 </label>
                 <label className="wrap-box">
