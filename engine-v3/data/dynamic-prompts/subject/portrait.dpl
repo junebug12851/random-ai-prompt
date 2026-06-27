@@ -4,7 +4,7 @@ description: Portrait framing
 Start
 ===
 portrait
-- maybe: full body
-- otherwise: head and chest, upperbody
+- maybe full body
+- otherwise head and chest, upper body
 - up-close
 - dynamic pose

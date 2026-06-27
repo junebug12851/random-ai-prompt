@@ -3,13 +3,12 @@ description: A furry animal character in clothing
 ---
 Start
 ===
-{animal}, furry
-- {#mystical}
+{animal}, furry, anthropomorphic
 - {emotion}
-- in {style/general} clothing style
+- in {style/general} clothing
 - 50% repeat 0 to 5 times:
     - one of:
         - {#glow} {clothes}
         - {#color} {clothes}
-- 10% {instrument}
-- {#weather}
+- 10% holding {instrument}
+- {#mystical}

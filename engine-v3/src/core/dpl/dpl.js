@@ -26,6 +26,103 @@ const RNG = {
 
 const AUTO_WEIGHT_START = 1000; // first auto-assigned line weight; +1 per following line
 
+// Intensity: a per-reference "how much" dial (1..100). Unspecified → DEFAULT_INTENSITY; 0 → 1.
+// See notes/reference/intensity-design.md.
+const DEFAULT_INTENSITY = 50;
+
+/** Normalize an intensity argument to an integer 1..100 (undefined → default, 0 → 1, >100 → 100). */
+function clampIntensity(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return DEFAULT_INTENSITY;
+  const r = Math.round(n);
+  if (r <= 0) return 1; // "0% is assumed to be 1%"
+  return r > 100 ? 100 : r;
+}
+
+/** The natural-language magnitude word for an intensity percent (the `{intensity}` token). */
+function intensityWord(p) {
+  if (p <= 24) return "tiny";
+  if (p <= 40) return "small";
+  if (p <= 60) return "normal";
+  if (p <= 75) return "large";
+  if (p <= 90) return "huge";
+  return "massive";
+}
+
+/** Scale an authored count by intensity: round(n × intensity/100), never below 0. */
+function scaleCount(n, intensity) {
+  return Math.max(0, Math.round(n * (intensity / 100)));
+}
+
+/**
+ * Apply a relative modifier to an intensity, clamped to 1..100. A signed percent is taken *of the
+ * value* — `+25` → ×1.25, `-25` → ×0.75 ("25% more/less of the intensity"). `null`/`""` → unchanged.
+ */
+function applyIntensityMod(base, mod) {
+  if (mod == null || mod === "") return clampIntensity(base);
+  const p = Number(mod);
+  if (!Number.isFinite(p)) return clampIntensity(base);
+  return clampIntensity(base * (1 + p / 100));
+}
+
+/** Evaluate an intensity condition (`{op, value}`) against the current intensity. */
+function condPasses(cond, intensity) {
+  switch (cond.op) {
+    case "<":
+      return intensity < cond.value;
+    case "<=":
+      return intensity <= cond.value;
+    case ">":
+      return intensity > cond.value;
+    case ">=":
+      return intensity >= cond.value;
+    case "=":
+    case "==":
+      return intensity === cond.value;
+    case "!=":
+      return intensity !== cond.value;
+    default:
+      return true;
+  }
+}
+
+/**
+ * Parse the inside of a leading `[…]` bracket into `{ weight?, cond? }`, or null when it is not a
+ * weight/condition spec (so `[[castle]]`, `[deemph]`, `[a:b:0.5]`, the salt literal pass through as
+ * payload). A weight is bare digits; a condition is `OP NN%`; the two may combine, separated by a
+ * pipe or whitespace, in either order (`[100|<10%]`, `[100 <10%]`, `[<10% 100]`).
+ */
+function parseBracketSpec(inner) {
+  let rest = String(inner).trim();
+  if (rest === "") return null;
+  let weight = null;
+  let cond = null;
+  const condRe = /(<=|>=|==|!=|<|>|=)\s*(\d+(?:\.\d+)?)\s*%/;
+  const cm = rest.match(condRe);
+  if (cm) {
+    cond = { op: cm[1], value: Number(cm[2]) };
+    rest = rest.slice(0, cm.index) + rest.slice(cm.index + cm[0].length);
+  }
+  rest = rest.replace(/\|/g, " ").trim();
+  if (rest !== "") {
+    if (/^\d+$/.test(rest)) weight = Number(rest);
+    else return null; // leftover junk → not a valid spec; leave the bracket as payload
+  }
+  if (weight == null && !cond) return null;
+  return { weight, cond };
+}
+
+/** Consume a leading `[weight|cond]` bracket from `t`, recording onto `out`; no-op if not a spec. */
+function consumeBracket(t, out) {
+  const m = t.match(/^\[([^\]]*)\]\s*/);
+  if (!m) return t;
+  const spec = parseBracketSpec(m[1]);
+  if (!spec) return t; // [[castle]], [deemph], [a:b:0.5], … stay in the payload
+  if (spec.weight != null && out.weight == null) out.weight = spec.weight;
+  if (spec.cond && !out.cond) out.cond = spec.cond;
+  return t.slice(m[0].length);
+}
+
 // ---------------------------------------------------------------------------
 // Front-matter
 // ---------------------------------------------------------------------------
@@ -158,16 +255,16 @@ function parseNode(node) {
   let t = node.line.text;
   const out = { children: (node.children || []).map(parseNode) };
 
+  // Optional [weight|cond] bracket BEFORE the bullet dash (`[<10%] - grass`).
+  t = consumeBracket(t, out);
+
   // Bullet vs plain.
   out.bullet = /^-\s+/.test(t) || t === "-";
   if (out.bullet) t = t.replace(/^-\s*/, "");
 
-  // Leading weight: [900]
-  const wm = t.match(/^\[(\d+)\]\s*/);
-  if (wm) {
-    out.weight = Number(wm[1]);
-    t = t.slice(wm[0].length);
-  }
+  // Optional [weight|cond] bracket AFTER the bullet (`- [900] …`, `- [100|<10%] …`). Either position
+  // works; the bracket carries a local weight and/or an intensity condition (see parseBracketSpec).
+  t = consumeBracket(t, out);
 
   // Flow: go to / go back
   if (/^go\s+back\b/i.test(t)) {
@@ -189,17 +286,23 @@ function parseNode(node) {
   const maybeM = t.match(/^maybe\s*:?\s*/i);
   const pctChanceM = t.match(/^(\d+(?:\.\d+)?)%\s*chance\s*:?\s*/i);
   const pctM = t.match(/^(\d+(?:\.\d+)?)%\s+/);
+  // `scaleGate` marks a *probability* gate (so intensity auto-scales it). A bare `otherwise` keeps an
+  // unscaled gate of 1 (it runs whenever the paired gate failed); `otherwise NN% chance` is a real
+  // probability and is scaled.
   if (pctChanceM) {
     out.gate = Number(pctChanceM[1]) / 100;
+    out.scaleGate = true;
     t = t.slice(pctChanceM[0].length);
   } else if (maybeM) {
     out.gate = 0.5;
+    out.scaleGate = true;
     t = t.slice(maybeM[0].length);
   } else if (pctM) {
     out.gate = Number(pctM[1]) / 100;
+    out.scaleGate = true;
     t = t.slice(pctM[0].length);
   } else if (out.otherwise) {
-    out.gate = 1; // bare "otherwise" always runs when the prior gate failed
+    out.gate = 1; // bare "otherwise" always runs when the prior gate failed (not scaled)
   }
 
   // Choice: "one of" (singular keyword) or "N of" / "A to B of" with digit counts.
@@ -279,19 +382,34 @@ function renderNodes(nodes, ctx) {
     const weight = node.weight ?? auto;
     auto = (node.weight ?? auto) + 1;
 
+    // Intensity condition (`[<10%]`): a hard, deterministic include/exclude, evaluated BEFORE any
+    // probability roll. A failed condition drops the line and is not a "failed gate" for `otherwise`.
+    if (node.cond && !condPasses(node.cond, ctx.intensity)) {
+      prevGateFailed = false;
+      continue;
+    }
+
     // Effective gate: an explicit gate (NN%/maybe/NN% chance/otherwise) always wins. A bare
     // *simple-clause* bullet (plain text / token / ref) defaults to 50%. Structural bullets
     // (one of / repeat / block) and plain (non-bullet) lines are unconditional. `gateBearing`
-    // (an authored gate, not the default) is what an `otherwise` pairs against.
+    // (an authored gate, not the default) is what an `otherwise` pairs against. A probability gate is
+    // auto-scaled by the current intensity (`scaleGate`); the bare-`otherwise` gate of 1 is not.
     const gateBearing = node.gate != null || node.otherwise === true;
     let gate = node.gate;
+    let scaleGate = node.scaleGate === true;
     if (gate == null && !node.otherwise) {
       const structural = node.choice || node.repeat || node.flow || node.block;
-      if (node.bullet && !structural) gate = 0.5;
+      if (node.bullet && !structural) {
+        gate = 0.5;
+        scaleGate = true;
+      }
     }
     let run = true;
     if (node.otherwise) run = prevGateFailed;
-    if (run && gate != null) run = ctx.rng.chance(gate);
+    if (run && gate != null) {
+      const g = scaleGate ? gate * (ctx.intensity / 100) : gate;
+      run = ctx.rng.chance(g);
+    }
     prevGateFailed = gateBearing ? !run : false;
     if (!run) continue;
 
@@ -308,12 +426,16 @@ function renderNodes(nodes, ctx) {
  * @returns {string} The node's text contribution.
  */
 function renderNode(node, ctx) {
-  // Choice: pick 1..N options (weighted by each option's leading %), honoring a miss chance.
+  // Choice: pick 1..N options (weighted by each option's leading %), honoring a miss chance. The
+  // pick count is scaled by intensity, so low intensity yields fewer (possibly zero) picks.
   if (node.choice) {
     if (node.choice.miss && ctx.rng.chance(node.choice.miss)) return "";
     const opts = node.children.slice();
     if (!opts.length) return "";
-    const count = ctx.rng.int(node.choice.min, Math.min(node.choice.max, opts.length));
+    const hi = Math.min(scaleCount(node.choice.max, ctx.intensity), opts.length);
+    const lo = Math.min(scaleCount(node.choice.min, ctx.intensity), hi);
+    const count = ctx.rng.int(lo, hi);
+    if (count <= 0) return "";
     const picked = weightedSampleN(opts, count);
     return picked
       .map((o) => renderNode(o, ctx))
@@ -321,9 +443,12 @@ function renderNode(node, ctx) {
       .join(", ");
   }
 
-  // Repeat: loop count times, rendering the body (payload or child block) each time.
+  // Repeat: loop count times, rendering the body (payload or child block) each time. The count is
+  // scaled by intensity (round(n × intensity/100)), so the dial thins/thickens repetition.
   if (node.repeat) {
-    const count = ctx.rng.int(node.repeat.min, node.repeat.max);
+    const lo = scaleCount(node.repeat.min, ctx.intensity);
+    const hi = scaleCount(node.repeat.max, ctx.intensity);
+    const count = ctx.rng.int(Math.min(lo, hi), Math.max(lo, hi));
     const parts = [];
     for (let i = 0; i < count; i++) {
       let part;
@@ -354,6 +479,22 @@ function renderNode(node, ctx) {
 /** Render the payload text of a node, substituting inline `{js:path}` via the bridge. */
 function renderInlineBody(node, ctx) {
   let t = node.payload || "";
+  // Intensity keyword/number tokens (resolved here, where the intensity is known), with an optional
+  // relative modifier — `{intensity}` (word), `{intensity%}` (percent), `{intensity-num}` (number),
+  // each accepting ` ±NN%` to derive a value off the given intensity (`{intensity +25%}`,
+  // `{intensity% -10%}`). See notes/reference/intensity-design.md.
+  t = t.replace(/\{intensity(%|-num)?(?:\s*([+-]\d+(?:\.\d+)?)%)?\}/g, (_m, fmt, mod) => {
+    const v = applyIntensityMod(ctx.intensity, mod);
+    if (fmt === "%") return `${v}%`;
+    if (fmt === "-num") return String(v);
+    return intensityWord(v);
+  });
+  // Relative nested refs — `{#name +25%}` / `{#name -25%}` derive an ABSOLUTE percent from the
+  // current intensity, so the downstream resolver (which is flat) sees a plain `{#name NN%}`.
+  t = t.replace(
+    /\{#([\w/-]+)\s+([+-]\d+(?:\.\d+)?)%\}/g,
+    (_m, name, mod) => `{#${name} ${applyIntensityMod(ctx.intensity, mod)}%}`,
+  );
   // Inline JS values: {js:path}
   t = t.replace(/\{js:([^}]+)\}/g, (_m, p) => ctx.bridge?.resolveJs?.(p.trim(), ctx) ?? "");
   // A child block alongside a payload line (rare) — append.
@@ -415,11 +556,12 @@ export function compileDpl(source, bridge = null) {
   const full = meta.type === "full";
   const suggestion_exclude = meta.suggestions === "off" || meta.suggestions === "false";
 
-  function makeCtx(settings, imageSettings, upscaleSettings) {
+  function makeCtx(settings, imageSettings, upscaleSettings, intensity) {
     const ctx = {
       settings,
       imageSettings,
       upscaleSettings,
+      intensity: clampIntensity(intensity),
       rng: RNG,
       bridge,
       hasSection: (name) => Object.prototype.hasOwnProperty.call(sections, name),
@@ -432,8 +574,8 @@ export function compileDpl(source, bridge = null) {
     return ctx;
   }
 
-  function defaultFn(settings = {}, imageSettings = {}, upscaleSettings = {}) {
-    const ctx = makeCtx(settings, imageSettings, upscaleSettings);
+  function defaultFn(settings = {}, imageSettings = {}, upscaleSettings = {}, intensity) {
+    const ctx = makeCtx(settings, imageSettings, upscaleSettings, intensity);
     if (meta.script) return bridge?.resolveJs?.(meta.script, ctx) ?? "";
     return ctx.section("Start");
   }
@@ -445,9 +587,9 @@ export function compileDpl(source, bridge = null) {
   const has = (name) => Object.prototype.hasOwnProperty.call(sections, name);
   const renderSection =
     (name) =>
-    (settings = {}, imageSettings = {}, upscaleSettings = {}) => {
+    (settings = {}, imageSettings = {}, upscaleSettings = {}, intensity) => {
       if (!has(name)) return "";
-      return makeCtx(settings, imageSettings, upscaleSettings).section(name);
+      return makeCtx(settings, imageSettings, upscaleSettings, intensity).section(name);
     };
 
   return {

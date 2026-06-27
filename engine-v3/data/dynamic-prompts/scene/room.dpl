@@ -3,4 +3,12 @@ description: An interior room
 ---
 Start
 ===
-room, interrior, {room}, {#room-state}, {#weather}
+room, interior, {room}
+- {#room-state}
+- {style/general}
+- furniture
+- window
+- {intensity} clutter
+- {time}
+- [>70%] richly decorated, ornate
+- [<25%] minimalist, sparse

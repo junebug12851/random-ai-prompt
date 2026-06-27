@@ -5,42 +5,29 @@ weather-fx
 ===
 - one of (25% nothing):
     - {#ice}
-    - {#lava}
     - {#underwater}
 
 Start
 ===
 ship, {scene/ship}
 - 50% +weather-fx
-- {#color}
-- {#color}
-- {size}
+- {#color} hull
+- {intensity} sails
 - {mood} atmosphere
-- detailed
+- rigging
 - maybe:
-    - reflective surface
-    - polished
-    - shiny
+    - polished deck
+    - gleaming brass
+    - billowing sails
 - otherwise:
-    - dirty
-    - grunge
-    - rundown
-    - broken
-    - torn
-    - holes
-    - graffiti
+    - weathered
+    - barnacle-crusted
+    - torn sails
     - abandoned
     - ghost ship
-    - cracked
-    - rusted
-    - damaged
-    - destroyed
-    - sunk
     - wrecked
     - {#eerie}
-    - {#nature}
-    - {#wildlife}
 - 25% {#mystical}
 - {style/construct}
-- {style/building}
-- {#weather}
+
+{#weather}

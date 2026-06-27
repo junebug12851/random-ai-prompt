@@ -3,36 +3,19 @@ description: A knight / warrior character
 ---
 Start
 ===
-knight, warrior
+knight, warrior, {#portrait}
+- one of:
+    - plate armor
+    - chainmail
+    - nordic armor
+    - ornate gilded armor
 - helmet
-- nordic armor
 - holding a sword
-- fullbody
-- front-shot
-- rpg portrait
-- closeup
-- detailed face
-- detailed body
-- hyperrealistic
+- 50% tattered cape
+- 50% kite shield
+- {emotion}
 - {#mystical}
-{#landscape}
-- [[castle]]
 - {#general-state}
-- victorian
-- illustration
 - character design
-
-Auto End
-===
-- concept art
-- unreal engine 5
-- daz
-- octane render
-- dynamic lighting
-- vibrancy
-- cinematic
-- cinematic lighting
-- global illumination
-- ray tracing
-- hdr
-- digital art
+- [>70%] intricate engraved filigree
+- [<25%] plain weathered gear

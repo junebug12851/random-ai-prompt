@@ -1,17 +1,18 @@
 ---
-description: A beach with a city nearby
+description: A beach / coastal scene — sand, surf, and sky
 ---
 winter-beach
 ===
-winter beach
 - snowy beach
 - ({#ice})
+- cold grey surf
 
 tropical-beach
 ===
 - tropical
-- maybe: palm trees
-- otherwise: palm tree
+- maybe palm trees
+- otherwise palm tree
+- turquoise water
 
 Start
 ===
@@ -19,18 +20,16 @@ beach
 - 25% +winter-beach
 - otherwise +tropical-beach
 - ocean
-- oceanside
 - seaside
-- sand
-- beachside
-- sandy beach
-- ocean view
+- sandy shore
+- {intensity} waves
+- sea foam
 - sea shells
-- beach sand
-- fog
-- {size} waves
+- {time}
+- [>65%] driftwood
+- [>65%] distant sailboat
+- {#nature}
 - {#eerie}
 - 20% {#mystical}
-- {#nature}
 
-{#city}, {#weather}
+{#weather}

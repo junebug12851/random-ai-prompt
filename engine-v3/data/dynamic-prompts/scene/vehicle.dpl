@@ -5,31 +5,26 @@ weather-fx
 ===
 - one of (25% nothing):
     - {#ice}
-    - {#lava}
     - {#underwater}
 
 Start
 ===
 vehicle, {scene/vehicle}
-- 50% +weather-fx
-- {#color}
-- {#color}
-- {size}
+- {#color} paint
+- {intensity} detailing
 - {mood} atmosphere
-- detailed
 - maybe:
-    - reflective surface
     - polished
-    - shiny
+    - chrome trim
+    - showroom shine
 - otherwise:
     - dirty
-    - grunge
-    - rundown
+    - rusted
+    - dented
     - broken
+    - abandoned
     - {#eerie}
-    - {#nature}
-    - {#wildlife}
 - 25% {#mystical}
 - {style/construct}
-- {style/building}
-- {#weather}
+
+{#weather}

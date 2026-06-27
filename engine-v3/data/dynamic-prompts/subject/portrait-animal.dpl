@@ -3,8 +3,7 @@ description: An animal portrait
 ---
 Start
 ===
-((({#animal}))), portrait
-- up-close
-- dynamic pose
-
-{#weather}
+((({#animal}))), {#portrait}
+- detailed fur
+- expressive eyes
+- [>70%] intricate detail

@@ -123,7 +123,7 @@ function browserBridge(dplKey) {
       const mod = k && dpJsModules[k];
       const fn = mod && (mod.default || mod);
       return typeof fn === "function"
-        ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings) ?? "")
+        ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings, ctx.intensity) ?? "")
         : "";
     },
     runPrompt: (name) => `{#${String(name).replace(/^#/, "")}}`,
