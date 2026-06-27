@@ -22,7 +22,6 @@ import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
-import ProviderBox from "./ProviderBox.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
 import LivePreview from "./LivePreview.jsx";
@@ -104,6 +103,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // prompt-settings gear popover
+  const [composeMode, setComposeMode] = useState("prompt"); // composer target: "prompt" | "negative"
   // Hover tooltip for a building block: its label, description (piped from the v3 file /
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
@@ -118,6 +118,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
 
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
   const provider = getProvider(settings.provider);
+  const pid = provider?.id;
+  const supportsNegative = !!provider?.capabilities?.negativePrompt;
   const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
   const [providerDefaults, setProviderDefaults] = useState({});
   const [imgError, setImgError] = useState("");
@@ -374,6 +376,22 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const prompt = settings.prompt;
   const setPrompt = (p) => setSettings({ ...settings, prompt: p });
 
+  // The composer edits either the prompt or — for providers that support it — the per-provider
+  // negative prompt (kept under providerParams so generation reads it via flattenForProvider).
+  // The Prompt/Negative switch lives on the insert bar and only shows when negative is supported.
+  const editMode = supportsNegative ? composeMode : "prompt";
+  const negative = settings.providerParams?.[pid]?.negativePrompt ?? "";
+  const setNegative = (v) =>
+    setSettings((s) => ({
+      ...s,
+      providerParams: {
+        ...s.providerParams,
+        [pid]: { ...s.providerParams?.[pid], negativePrompt: v },
+      },
+    }));
+  const activeValue = editMode === "negative" ? negative : prompt;
+  const setActiveValue = editMode === "negative" ? setNegative : setPrompt;
+
   // A fresh random prompt suggestion that cycles every few seconds. The latest
   // settings live in a ref so the interval reads current word lists without
   // resetting its timer on every keystroke.
@@ -393,8 +411,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   }, []);
 
   function insert(token) {
-    const sep = prompt && !/\s$/.test(prompt) ? ", " : "";
-    setPrompt(`${prompt}${sep}${token}`);
+    const sep = activeValue && !/\s$/.test(activeValue) ? ", " : "";
+    setActiveValue(`${activeValue}${sep}${token}`);
   }
 
   // --- Building-block hover tooltip (label + description + a refreshing example) ---
@@ -637,42 +655,78 @@ export default function Home({ settings, setSettings, onOpenImage }) {
 
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
-        <ProviderBox settings={settings} setSettings={setSettings} />
-
         <section className="card composer">
           {/* The prompt box is a chat-style field: a textarea with the actions
               docked along its bottom edge. */}
-          <DplInsertBar editorRef={promptEditorRef} settings={settings} />
+          <div className="compose-toolbar">
+            <DplInsertBar editorRef={promptEditorRef} settings={settings} />
+            {supportsNegative && (
+              <div
+                className="compose-mode"
+                role="tablist"
+                aria-label="Edit the prompt or the negative prompt"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={editMode === "prompt"}
+                  className={`cm-tab${editMode === "prompt" ? " on" : ""}`}
+                  onClick={() => setComposeMode("prompt")}
+                >
+                  Prompt
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={editMode === "negative"}
+                  className={`cm-tab${editMode === "negative" ? " on" : ""}`}
+                  onClick={() => setComposeMode("negative")}
+                >
+                  Negative
+                </button>
+              </div>
+            )}
+          </div>
           <div className="composer-field">
             <DplEditor
               ref={promptEditorRef}
               className="prompt-input"
-              value={prompt}
-              onChange={setPrompt}
+              value={activeValue}
+              onChange={setActiveValue}
               settings={settings}
-              ariaLabel="Prompt (DPL)"
+              ariaLabel={editMode === "negative" ? "Negative prompt (DPL)" : "Prompt (DPL)"}
               placeholder={
-                suggestion
-                  ? `Try: ${suggestion}`
-                  : "Type a prompt, or use the building blocks on the left…"
+                editMode === "negative"
+                  ? "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, {#bad-anatomy}"
+                  : suggestion
+                    ? `Try: ${suggestion}`
+                    : "Type a prompt, or use the building blocks on the left…"
               }
             />
             <div className="composer-corner">
-              {prompt && (
+              {activeValue && (
                 <button
                   className="clear-x"
-                  onClick={() => setPrompt("")}
-                  title="Clear the prompt"
-                  aria-label="Clear the prompt"
+                  onClick={() => setActiveValue("")}
+                  title={editMode === "negative" ? "Clear the negative prompt" : "Clear the prompt"}
+                  aria-label={
+                    editMode === "negative" ? "Clear the negative prompt" : "Clear the prompt"
+                  }
                 >
                   ✕
                 </button>
               )}
               {/* Live preview lives in the box's upper-right corner (icon-only). */}
               <LivePreview
-                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
+                getDpl={() =>
+                  editMode === "negative"
+                    ? activeValue || ""
+                    : activeValue && activeValue.trim()
+                      ? activeValue
+                      : suggestion || "{#random-words}"
+                }
                 settings={settings}
-                label="Prompt preview"
+                label={editMode === "negative" ? "Negative preview" : "Prompt preview"}
                 triggerClassName="preview-corner"
               />
             </div>
