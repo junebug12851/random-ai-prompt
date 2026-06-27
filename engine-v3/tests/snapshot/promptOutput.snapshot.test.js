@@ -25,6 +25,7 @@ repeat 1 to 2 times: with mist
 
 describe("DPL render snapshot (seeded)", () => {
   it("is reproducible for a fixed seed", () => {
+    // No intensity argument → the default (50%), so gates/counts render at half-scale.
     const mod = compileDpl(DPL, { resolveJs: () => "" });
     const out = withSeed(12345, () => mod.default({}, {}, {}));
     expect(out).toMatchSnapshot();

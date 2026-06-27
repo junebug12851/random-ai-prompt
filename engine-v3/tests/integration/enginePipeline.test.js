@@ -94,3 +94,29 @@ describe("engine — full pipeline", () => {
     prompts.forEach((p) => expect(p).toBe("red"));
   });
 });
+
+describe("engine — intensity dial", () => {
+  it("threads {#name NN%} into a .dpl generator's conditions and {intensity} keyword", () => {
+    // Plain (always-on) conditioned lines keep this deterministic (no probabilistic bullet gates).
+    const engine = createEngine(
+      makeFakeLoader({ dpl: { mood: "base {intensity}\n[<10%] calm\n[>80%] intense" } }),
+    );
+    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    expect(engine.expand("{#mood 5%}", settings, {}, {})).toBe("base tiny, calm");
+    expect(engine.expand("{#mood 95%}", settings, {}, {})).toBe("base massive, intense");
+    // Unspecified → the 50% default: neither edge condition fires.
+    expect(engine.expand("{#mood}", settings, {}, {})).toBe("base normal");
+  });
+
+  it("passes the intensity to a JS generator as the 4th argument (default 50)", () => {
+    const engine = createEngine(
+      makeFakeLoader({
+        dynamicPrompts: { probe: { default: (_s, _i, _u, intensity) => String(intensity) } },
+      }),
+    );
+    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    expect(engine.expand("{#probe 30%}", settings, {}, {})).toBe("30");
+    expect(engine.expand("{#probe}", settings, {}, {})).toBe("50");
+    expect(engine.expand("{#probe 0%}", settings, {}, {})).toBe("1"); // 0 → 1
+  });
+});

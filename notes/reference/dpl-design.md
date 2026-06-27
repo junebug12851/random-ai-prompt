@@ -544,6 +544,8 @@ sidecar.
 
 ## See also
 
+- [`intensity-design.md`](intensity-design.md) — the **intensity dial** that extends this language
+  (`{#name NN%}`, `[<10%]` conditions, auto-scaling, the `{intensity}` keyword).
 - [`dpl-language.md`](dpl-language.md) — the two original mockups, decoded.
 - [`dynamic-prompts.md`](dynamic-prompts.md) — the JS authoring idiom this compiles to.
 - [`prompt-dsl.md`](prompt-dsl.md) — the runtime sigils and randomization math.
