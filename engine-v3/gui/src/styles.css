@@ -460,6 +460,44 @@ select {
   gap: 1rem;
 }
 
+/* ---------- Compose toolbar (insert bar + Prompt/Negative switch) ---------- */
+.compose-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.compose-toolbar .dpl-insert-bar {
+  flex: 1;
+  min-width: 0;
+}
+/* Segmented Prompt | Negative switch, pushed to the right of the insert bar. */
+.compose-mode {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+}
+.cm-tab {
+  padding: 0.22rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cm-tab:hover {
+  color: var(--fg);
+}
+.cm-tab.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 /* ---------- Composer field (chat-style input) ---------- */
 /* A bordered container that reads as the input: a borderless textarea on top,
    the action bar docked along the bottom edge. The whole field lights up on
@@ -1457,18 +1495,10 @@ button.ghost:hover {
   border-color: var(--accent);
 }
 
-/* ---------- Provider controls box ---------- */
-.provider-box {
-  box-shadow: var(--shadow);
-  flex: none;
-}
-.provider-box-head {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.85rem;
-}
+/* ---------- Provider tag (label badge, shown in the gear popover header) ---------- */
 .provider-tag {
+  flex: none;
+  white-space: nowrap;
   font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1518,45 +1548,35 @@ button.ghost:hover {
   box-shadow: none;
 }
 
-/* ---------- Provider box: collapsible head + body ---------- */
-.provider-box-head {
-  display: flex;
+/* ---------- Provider-settings gear (header) + its popover ---------- */
+.ps-gear {
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  background: transparent;
-  border: none;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
-  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
   cursor: pointer;
-  text-align: left;
-  color: var(--fg);
 }
-.provider-box-head:hover {
-  border: none;
+.ps-gear:hover,
+.ps-gear.on {
+  border-color: var(--accent);
+  color: var(--accent);
 }
-.provider-box-head:focus-visible {
-  outline: none;
-  box-shadow: none;
+.ps-gear svg {
+  display: block;
 }
-.provider-box-head .disclosure {
-  color: var(--muted);
-  font-size: 0.8rem;
-  width: 0.9rem;
-  flex: none;
+/* The provider-settings popover hangs off the header gear — right-aligned so it stays on screen. */
+.provider-gear .gear-pop.provider-gear-pop {
+  left: auto;
+  right: 0;
 }
-.provider-box-hint {
-  margin-left: auto;
-  font-size: 0.7rem;
-  color: var(--faint);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.provider-box-body {
-  margin-top: 0.95rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+.provider-controls-empty {
+  margin: 0;
 }
 
 /* ---------- Info tooltip ("i") ---------- */
@@ -1620,10 +1640,6 @@ button.ghost:hover {
 .field-roll:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-.provider-box textarea {
-  width: 100%;
-  min-height: 5rem;
 }
 
 /* ---------- Per-prompt result (prompt + image batches) ---------- */
@@ -1866,10 +1882,26 @@ button.ghost:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.6rem;
   padding: 0.7rem 0.9rem;
   border-bottom: 1px solid var(--border-soft);
   font-family: var(--font-display);
   font-weight: 700;
+}
+/* Provider name + tier tag: keep them on one line — the name ellipsizes, the tag stays intact. */
+.gear-pop-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.gear-pop-title .gph-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gear-pop-head .link-btn {
+  flex: none;
 }
 .gear-pop-body {
   overflow: auto;
@@ -2014,6 +2046,153 @@ button.ghost:hover {
 }
 .key-link:hover {
   text-decoration: underline;
+}
+
+/* ---------- Header API-key field (single BYOK spot; swaps per provider) ---------- */
+.hkey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.hkey .info-tip {
+  flex: none;
+}
+/* A bordered pill that holds the input AND its in-field icons as one flex unit, so the
+   save/clear controls are vertically centred inside the field (no absolute offset). */
+.hkey-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 1.95rem;
+  padding: 0 0.25rem 0 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+}
+.hkey-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+.hkey-input input {
+  width: 150px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8rem;
+}
+.hkey-input input:focus {
+  outline: none;
+}
+.hkey-input input::placeholder {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+/* The save / clear controls sit INSIDE the pill on the right — small and quiet. */
+.hkey-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+.hkey-icon svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+.hkey-input.saved .hkey-icon.save {
+  color: var(--accent);
+}
+.hkey-icon:hover:not(:disabled) {
+  color: var(--accent);
+}
+.hkey-icon:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.hkey .key-link {
+  margin-left: 0;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+/* ---------- Providers dropdown (image + text combos, each with its key) ---------- */
+.pm-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 42;
+  width: 600px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem 0.8rem 0.65rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+/* Two fixed columns shared by both rows: a flexible picker + a constant-width key column, so the
+   rows line up and the key box keeps one width (it never reflows around the provider name). */
+.pm-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  align-items: center;
+  gap: 0.7rem;
+}
+.pm-row .provider-picker {
+  min-width: 0;
+}
+.pm-row .provider-picker .ps-trigger {
+  width: 100%;
+}
+/* Let the provider name use the column and ellipsize, instead of being clipped at a small cap. */
+.pm-row .provider-picker .ps-current {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+.pm-row .provider-picker .ps-pop {
+  left: 0;
+  right: auto;
+}
+/* The key field fills the fixed key column; its input flexes within. */
+.pm-row .hkey {
+  display: flex;
+  width: 100%;
+  gap: 0.35rem;
+}
+.pm-row .hkey-input {
+  flex: 1;
+  min-width: 0;
+}
+.pm-row .hkey-input input {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+.pm-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+/* Sits in the key column (same width as the key box) so the rows stay aligned. */
+.pm-shared {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--faint);
+  text-align: center;
 }
 
 /* ---------- Live preview (eye button → re-rolling tooltip) ---------- */

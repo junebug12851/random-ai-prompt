@@ -1,6 +1,7 @@
 /**
  * The SPA shell: a slim brand top-bar (logo + wordmark + a Generate / Gallery / Single view switch
- * + provider picker + NSFW toggle) over the three top-level views and a privacy footer.
+ * + a Providers dropdown (image + text providers, each with its BYOK key) + a provider-settings
+ * gear + NSFW toggle) over the three top-level views and a privacy footer.
  *
  * All three views (Home, Gallery, SingleView) stay **mounted** the whole session and are shown one
  * at a time via a CSS class — so each keeps its full state (and scroll position) when you switch
@@ -23,7 +24,8 @@ import Home from "./components/Home.jsx";
 import Gallery from "./components/Gallery.jsx";
 import SingleView from "./components/SingleView.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
-import ProviderSelect from "./components/ProviderSelect.jsx";
+import ProvidersMenu from "./components/ProvidersMenu.jsx";
+import ProviderGear from "./components/ProviderGear.jsx";
 
 const TABS = [
   ["generate", "Generate"],
@@ -159,7 +161,8 @@ export default function App() {
           </div>
         )}
         <div className="topbar-spacer" />
-        {view === "generate" && <ProviderSelect settings={settings} setSettings={setSettings} />}
+        {view === "generate" && <ProvidersMenu settings={settings} setSettings={setSettings} />}
+        {view === "generate" && <ProviderGear settings={settings} setSettings={setSettings} />}
         {!ONLINE && <NsfwToggle settings={settings} setSettings={setSettings} />}
       </header>
 
