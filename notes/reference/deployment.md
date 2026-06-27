@@ -109,25 +109,34 @@ present for the build command, not at runtime.)
 ### Online demo deploy — `prompt.fairyfox.io`
 
 The app is hosted off the main `fairyfox.io` domain (which is mostly docs) on the `prompt` subdomain.
-One-time setup on Netlify:
 
-1. **Create the site** — Netlify → *Add new site → Import an existing project* → pick the
-   `junebug12851/random-ai-prompt` GitHub repo. Netlify reads `netlify.toml` for the build command,
-   publish dir, and functions; no manual build settings needed. Set the **production branch** to
-   `main` (the deploy gate is the same as the release gate — only shipped code goes live). Deploy.
-2. **Confirm it's the online build** — the first deploy should show the Gallery/Single tabs, local
-   providers, and NSFW switch greyed with the lock badge. If they're fully interactive, `VITE_ONLINE`
-   didn't reach the build — check `[build.environment]` in `netlify.toml`.
-3. **Add the custom domain** — site → *Domain management → Add a domain* → `prompt.fairyfox.io` →
-   *Add domain* (Netlify will say it's an external domain; that's expected).
-4. **Point DNS at Netlify** — at the `fairyfox.io` DNS host (where the apex/`www` records for the
-   docs site live), add a **CNAME**: `prompt` → `<your-site>.netlify.app` (the value Netlify shows in
-   the domain panel). The docs site on the apex is untouched — this only adds the `prompt` subdomain.
-5. **HTTPS** — once DNS resolves (minutes to a couple hours), Netlify auto-provisions a Let's Encrypt
-   certificate for `prompt.fairyfox.io`. Enable *Force HTTPS* in the domain panel.
+**`netlify.toml` paths are repo-root-relative with an explicit `engine-v3/` prefix** (no `base`). The
+active project moved under `engine-v3/` in the split, but the toml still pointed at a root-level `gui/`;
+since the toml lives at the repo root the CLI/@netlify/build resolves `publish`/`functions` from the
+root (not from `base`), so spelling the paths out as `engine-v3/gui/...` and using
+`npm --prefix engine-v3/gui ...` is the unambiguous fix (corrected 2026-06-27, first real deploy).
 
-Note: this is a normal subdomain CNAME, independent of GitHub Pages. If the docs site ever moves to a
-subdomain too, that's a separate record — they don't conflict.
+**Set up (done 2026-06-27):** the site **`prompt-fairyfox`** (→ `prompt-fairyfox.netlify.app`,
+team `junebug12851`) was created and deployed via the Netlify CLI:
+
+```sh
+netlify link --id <site-id>          # link the repo folder to the site
+netlify deploy --prod --build        # runs netlify.toml build (VITE_ONLINE=true) → dist + functions
+```
+
+The custom domain was attached with `netlify api updateSite` (`custom_domain = prompt.fairyfox.io`).
+
+**The one remaining manual step — DNS (owner, at the `fairyfox.io` DNS host):** add a **CNAME**
+record `prompt` → `prompt-fairyfox.netlify.app`. `fairyfox.io` is **not** on Netlify DNS (the docs
+apex lives elsewhere), so this record can't be created from the API. Once it resolves, Netlify
+auto-provisions a Let's Encrypt cert for `prompt.fairyfox.io`; enable *Force HTTPS* in the domain
+panel. This only adds the `prompt` subdomain — the apex/docs records are untouched.
+
+**Continuous deploy (optional, not set up):** the current site is a **manual CLI deploy** — it does
+**not** rebuild on `git push`. To make pushes to `main` auto-deploy, either connect the repo in the
+Netlify UI (*Site configuration → Build & deploy → Link repository*, which installs the Netlify GitHub
+App), or add a deploy step to `ci.yml` using a `NETLIFY_AUTH_TOKEN` secret + the site id. Until then,
+re-deploy a new release with `netlify deploy --prod --build` from the repo root.
 
 ## Policy (standing rules)
 
@@ -140,10 +149,10 @@ subdomain too, that's a separate record — they don't conflict.
 
 ## Not done yet (intentional)
 
-- **Netlify online deploy is being stood up (2026-06-27)** at **`prompt.fairyfox.io`** — the build is
-  now online-ready (`VITE_ONLINE=true` baked into `netlify.toml`, local-only features shown disabled).
-  The remaining steps are dashboard/DNS actions on the owner's side (see *Online demo deploy* above):
-  connect the repo, set the production branch to `main`, add the `prompt` subdomain + CNAME.
+- **Netlify online deploy is LIVE (2026-06-27)** — site `prompt-fairyfox` is deployed and serving the
+  online build at `prompt-fairyfox.netlify.app`, custom domain `prompt.fairyfox.io` attached. The only
+  thing left is the owner adding the `prompt` CNAME at the `fairyfox.io` DNS host (see *Online demo
+  deploy* above). It's a manual CLI deploy, not git-connected — see the continuous-deploy note.
 - **Docs/release pipelines still deliberately dormant.** `main` advancing is the single trigger for the
   Pages docs deploy and the software Release; **GitHub Pages is not enabled** yet (Settings → Pages →
   Source still unset), so nothing ships there until the owner says go. Planned homes: **GitHub Pages for
