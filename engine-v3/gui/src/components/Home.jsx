@@ -616,16 +616,25 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   : "Type a prompt, or use the building blocks on the left…"
               }
             />
-            {prompt && (
-              <button
-                className="clear-x"
-                onClick={() => setPrompt("")}
-                title="Clear the prompt"
-                aria-label="Clear the prompt"
-              >
-                ✕
-              </button>
-            )}
+            <div className="composer-corner">
+              {prompt && (
+                <button
+                  className="clear-x"
+                  onClick={() => setPrompt("")}
+                  title="Clear the prompt"
+                  aria-label="Clear the prompt"
+                >
+                  ✕
+                </button>
+              )}
+              {/* Live preview lives in the box's upper-right corner (icon-only). */}
+              <LivePreview
+                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
+                settings={settings}
+                label="Prompt preview"
+                triggerClassName="preview-corner"
+              />
+            </div>
 
             <div className="field-bar">
               <div className="prompt-tools">
@@ -688,12 +697,6 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   <WandIcon />
                 </button>
               )}
-              <LivePreview
-                getDpl={() => (prompt && prompt.trim() ? prompt : suggestion || "{#random-words}")}
-                settings={settings}
-                label="Prompt preview"
-                triggerClassName="field-act"
-              />
               <WrapperButton settings={settings} setSettings={setSettings} />
               <button
                 className={`field-act${panel === "share" ? " on" : ""}`}
@@ -769,6 +772,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   prompt={p}
                   index={i}
                   number={prompts.length - i}
+                  settings={settings}
                   canGenerate={canGenerateImages}
                   onGenerate={makeBatch}
                   onCopy={copyPrompt}

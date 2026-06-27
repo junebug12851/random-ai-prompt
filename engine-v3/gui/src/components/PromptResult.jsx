@@ -2,11 +2,16 @@
  * One generated prompt and its image batches. Each "Generate images" press adds a batch beneath
  * the prompt. Per image: open in the OS default app, reveal in Explorer, or remove (with an option
  * to delete from disk). A batch and the whole prompt can be cleared too. Clicking an image opens it
- * in a new tab for now (galleries come later).
+ * in the single view.
+ *
+ * The prompt text and its source DPL / original are all **click-to-copy** (no separate copy button).
+ * Hovering shows the full text; hovering the **DPL** also shows a live example that re-rolls every
+ * second (so you can see the range of what that DPL produces).
  * @module gui/components/PromptResult
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
+import { expandPrompt } from "../lib/promptEngine.js";
 
 /**
  * A result image that fades in once it has actually loaded.
@@ -23,6 +28,62 @@ function ResultImage({ src }) {
       loading="lazy"
       onLoad={() => setLoaded(true)}
     />
+  );
+}
+
+/**
+ * The source-DPL line: click-to-copy, with a hover tooltip showing the full DPL and a concrete
+ * example that re-rolls every second (the same live preview the building-block chips use).
+ * @param {object} props `{ dpl, settings }`.
+ * @returns {JSX.Element}
+ */
+function DplHoverCode({ dpl, settings }) {
+  const [hover, setHover] = useState(false);
+  const [ex, setEx] = useState("");
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
+  useEffect(() => {
+    if (!hover) {
+      setEx("");
+      return undefined;
+    }
+    const roll = () => {
+      try {
+        setEx(expandPrompt(dpl, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }));
+      } catch {
+        setEx("");
+      }
+    };
+    roll();
+    const id = setInterval(roll, 1000);
+    return () => clearInterval(id);
+  }, [hover, dpl]);
+
+  return (
+    <span
+      className="dpl-hover"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <code
+        className="prompt-dpl"
+        title="The DPL this was rolled from — click to copy"
+        onClick={() => navigator.clipboard?.writeText(dpl).catch(() => {})}
+      >
+        {dpl}
+      </code>
+      {hover && (
+        <div className="dpl-hover-tip" role="tooltip">
+          <div className="dpl-hover-full">{dpl}</div>
+          {ex && (
+            <div className="dpl-hover-ex">
+              <span className="dpl-hover-ex-label">Example:</span> {ex}
+            </div>
+          )}
+        </div>
+      )}
+    </span>
   );
 }
 
@@ -48,6 +109,7 @@ const ImageIcon = () => (
  * @param {object} props
  * @param {object} props.prompt `{ id, text, batches: [{ id, busy, images }] }`.
  * @param {number} props.index Zero-based index in the list.
+ * @param {object} props.settings The generation settings (for the DPL example tooltip).
  * @param {boolean} props.canGenerate Whether the active provider can render images.
  * @param {Function} props.onGenerate `(promptId)`.
  * @param {Function} props.onCopy `(text)`.
@@ -61,6 +123,7 @@ export default function PromptResult({
   prompt,
   index,
   number,
+  settings,
   canGenerate,
   onGenerate,
   onCopy,
@@ -75,25 +138,23 @@ export default function PromptResult({
       <div className="prompt-line">
         <span className="idx">{String(number ?? index + 1).padStart(2, "0")}</span>
         <div className="prompt-main">
-          {prompt.dpl && (
-            <code
-              className="prompt-dpl"
-              title="The DPL this was rolled from — click to copy"
-              onClick={() => navigator.clipboard?.writeText(prompt.dpl).catch(() => {})}
-            >
-              {prompt.dpl}
-            </code>
-          )}
+          {prompt.dpl && <DplHoverCode dpl={prompt.dpl} settings={settings} />}
           {prompt.original && (
             <code
               className="prompt-dpl prompt-original"
-              title="Original prompt (before auto-fix) — click to copy"
+              title={`Original prompt (before auto-fix) — click to copy\n\n${prompt.original}`}
               onClick={() => navigator.clipboard?.writeText(prompt.original).catch(() => {})}
             >
               {prompt.original}
             </code>
           )}
-          <span className="prompt-text">{prompt.text}</span>
+          <span
+            className="prompt-text"
+            title={`Click to copy\n\n${prompt.text}`}
+            onClick={() => onCopy(prompt.text)}
+          >
+            {prompt.text}
+          </span>
         </div>
         <div className="prompt-actions">
           {canGenerate && (
@@ -115,9 +176,6 @@ export default function PromptResult({
               clear
             </button>
           )}
-          <button className="copy-mini" title="Copy prompt" onClick={() => onCopy(prompt.text)}>
-            copy
-          </button>
         </div>
       </div>
 
