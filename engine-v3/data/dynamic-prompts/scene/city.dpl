@@ -1,11 +1,20 @@
 ---
-description: A city streetview
+description: A city street view
 ---
 Start
 ===
-city, streetview, {city}
+city, street view, {city}
 - {style/building}
-- cityscape
-- downtown
+- towering skyscrapers
+- {intensity} crowd
+- storefronts
+- neon signage
+- traffic
+- sidewalk
+- {time}
+- city park
+- [>70%] dense downtown skyline
+- [<25%] quiet empty street
+- reflective wet pavement
 
-{#nature}, {#weather}, reflective street
+{#weather}

@@ -1,18 +1,21 @@
 ---
-description: A castle with grounds
+description: A castle with grounds and fortifications
 ---
 Start
 ===
 castle, {view}
 - moat
-- motte
 - courtyard
 - castle keep
-- castle wall
+- {intensity} stone walls
 - fortified tower
-- castle drawbridge
-- castle gatehouse
-- {city}
+- battlements
+- drawbridge
+- gatehouse
+- banners
 - {style/building}
+- {time}
+- [>70%] sprawling outer bailey
+- [<25%] lone weathered tower
 
 {#wildlife}, {#water}, {#nature}, {#weather}

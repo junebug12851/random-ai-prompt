@@ -1,9 +1,17 @@
 ---
-description: A house in nature
+description: A house nestled in nature
 ---
 Start
 ===
 house
 - {style/building}
+- {intensity} garden
+- porch
+- chimney
+- 50% picket fence
+- winding path
+- {time}
+- [>70%] wraparound veranda and flower beds
+- [<25%] small modest cottage
 
 {#nature}, {#weather}

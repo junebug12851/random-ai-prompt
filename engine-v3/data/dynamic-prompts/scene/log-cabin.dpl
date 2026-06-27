@@ -3,19 +3,20 @@ description: A log cabin in dense forest
 ---
 Start
 ===
-((cabin, log cabin)), dense forest, dense woods, dense trees
+((cabin, log cabin)), dense forest, dense trees
 - fog
 - hill
 - valley
-- cliff
 - 25% winter, snow landscape, {#ice}
 - 20% {#eerie}
 - 25% {#mystical}
 - 30% {#wildlife}
 - {#water}
-- path
-- worn down
-- weathered
-- 25% {#room-state}
+- worn weathered logs
+- stone chimney
+- 50% smoke rising from the chimney
+- winding path
+- {time}
+- [<25%] tiny secluded hut
 
-{#nature}, {#weather}, upclose
+{#nature}, {#weather}, up close

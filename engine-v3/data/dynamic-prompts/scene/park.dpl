@@ -1,17 +1,20 @@
 ---
-description: A park
+description: A public park
 ---
 Start
 ===
-((park))
+((park)), {view}
 - benches
-- people
-- crowd
+- {intensity} crowd
 - fountain
 - walkway
+- flower beds
+- shade trees
+- pond
+- {time}
 - 20% {#eerie}
-- 25% {#ice}
 - 25% {#mystical}
-- 20% {#room-state}
+- [>70%] festival, food stalls
+- [<25%] quiet empty park
 
 {#wildlife}, {#water}, {#nature}, {#weather}

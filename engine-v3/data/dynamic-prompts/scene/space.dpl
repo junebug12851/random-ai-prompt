@@ -1,4 +1,26 @@
 ---
 description: Outer space scene
-script: space.js
 ---
+Start
+===
+space, outer space
+- 50% one of:
+    - astronaut
+    - {#spaceship}
+- nebula
+- galaxy
+- {#color} {intensity} sun
+- {#color} {intensity} moon
+- {#color} {intensity} {planet}
+- {#color} stars
+- shooting star
+- comet
+- distant galaxies
+- star cluster
+- black hole
+- supernova
+- cosmic dust
+- {intensity} starfield
+- {#mystical}
+- colorful
+

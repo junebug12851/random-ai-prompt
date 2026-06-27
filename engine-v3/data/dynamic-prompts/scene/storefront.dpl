@@ -1,18 +1,18 @@
 ---
-description: A storefront on a street
+description: A storefront on a city street
 ---
 Start
 ===
-store, storefront, {scene/store}, streetview
-- cozy
-{#nature}
-- 35% {#eerie}
-- 35% {#ice}
-- 35% {#mystical}
-- {#room-state}
-- city
+store, storefront, {scene/store}, street view
+- cozy display window
+- signage
+- awning
 - {city}
 - {style/building}
-- downtown
-- reflective street
+- {time}
+- {intensity} foot traffic
+- reflective wet pavement
+- 35% {#eerie}
+- 35% {#mystical}
+
 {#weather}
