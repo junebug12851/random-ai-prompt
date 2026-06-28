@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "description": "Random AI prompt engine (v3) + web GUI. The original pre-revival CLI/classic server is the frozen, separate engine-v1-2/.",
   "type": "module",
   "main": "src/core/engine.js",
