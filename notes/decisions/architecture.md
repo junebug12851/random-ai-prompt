@@ -18,7 +18,7 @@ config-driven (`settings.dynamicPromptFiles = "dynamic-prompts"`): the legacy
 joins `rootDir/data/dynamic-prompts`; `core/browserLoader.js` globs `../../data/dynamic-prompts/**/*.js`.
 The generator files still import shared helpers out of `src/` (`../../src/helpers/…` for top-level,
 `../../../src/helpers/…` for `v1/`). Verified green with `npm run smoke` (node + legacy loaders) and
-`npm --prefix web-app run build` (browser glob). Note both loaders must stay in sync — see
+`npm --prefix gui run build` (browser glob). Note both loaders must stay in sync — see
 [`../../CLAUDE.md`](../../CLAUDE.md) "Critical Things Not to Get Wrong".
 
 ## Full ES modules, not a CJS/ESM hybrid (2026-06-18)
@@ -117,9 +117,9 @@ not in a separate doc system. Auto-discovery means adding/renaming a note needs 
 
 ## Keep JSDoc for the React SPA too — transpile JSX, don't switch tools (2026-06-18)
 
-The `web-app/` React SPA raised the question of whether to adopt a React-specific doc tool (better-docs,
+The `gui/` React SPA raised the question of whether to adopt a React-specific doc tool (better-docs,
 react-docgen, Storybook). Decision: **stay on the one JSDoc site** for now. JSDoc can't parse JSX, so
-`build-docs.mjs` **babel-transpiles** `web-app/src` (+ the Netlify function) into a `tmp/webapp-docs`
+`build-docs.mjs` **babel-transpiles** `gui/src` (+ the Netlify function) into a `tmp/webapp-docs`
 mirror (JSX stripped, comments kept) that JSDoc reads, with `@module` tags giving clean nav names. This
 keeps one source of truth for all documentation while the SPA is still young and its components are simple.
 The trigger to revisit: **if the SPA grows a real component library** with props/variants worth a visual
