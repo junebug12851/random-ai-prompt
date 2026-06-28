@@ -48,7 +48,11 @@ export async function managerAvailable() {
   if (availability != null) return availability;
   try {
     const res = await fetch("/api/manage/ping");
-    availability = res.ok;
+    // A static host (online build / `vite preview`) answers unknown routes with the SPA's index.html
+    // (HTTP 200), so `res.ok` alone is a false positive. Require the real JSON `{ ok: true }` — only
+    // the local-mode backend returns that; HTML fails the JSON parse and reports unavailable.
+    const data = await res.json().catch(() => null);
+    availability = res.ok && data?.ok === true;
   } catch {
     availability = false;
   }
