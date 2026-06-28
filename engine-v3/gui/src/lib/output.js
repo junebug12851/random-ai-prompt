@@ -35,6 +35,44 @@ export async function ingestImage(src, meta) {
 export const isOutputFile = (p) => typeof p === "string" && p.startsWith("/api/output/");
 
 /**
+ * Convert a `data:` URL to a Blob **synchronously** (no `await`, so a `window.open` right after it
+ * still counts as a user gesture and isn't popup-blocked).
+ * @param {string} dataUrl A `data:<mime>;base64,<payload>` URL.
+ * @returns {Blob}
+ */
+function dataUrlToBlob(dataUrl) {
+  const [head, b64] = dataUrl.split(",");
+  const mime = (head.match(/data:([^;]+)/) || [])[1] || "image/png";
+  const bin = atob(b64 || "");
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+/**
+ * Open a generated image in a new browser tab — robustly. Browsers block top-level navigation to a
+ * `data:` URL, so those are first turned into a `blob:` object URL (which opens fine and is the local
+ * cached image, not a network fetch). Everything else (`blob:`, a served `/api/output/...` path, or
+ * a remote `https:` URL) is opened directly. Used by the online build where there's no single view.
+ * @param {string} img A `data:` / `blob:` / served / remote image URL.
+ * @returns {void}
+ */
+export function openImageInNewTab(img) {
+  if (!img) return;
+  try {
+    if (img.startsWith("data:")) {
+      const url = URL.createObjectURL(dataUrlToBlob(img));
+      window.open(url, "_blank", "noopener");
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return;
+    }
+  } catch {
+    // fall through to a direct open
+  }
+  window.open(img, "_blank", "noopener");
+}
+
+/**
  * @param {string} action `delete` | `reveal` | `open`.
  * @param {string} p A served `/api/output/<file>` path.
  * @returns {Promise<boolean>} Whether the action succeeded.
