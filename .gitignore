@@ -37,3 +37,11 @@ engine-v3/gui/.gui-storage.json
 
 # Generated images (runtime output)
 engine-v3/output/
+
+# Local Netlify folder
+.netlify
+
+# Test / build artifacts (never tracked)
+engine-v3/playwright-report/
+engine-v3/test-results/
+engine-v3/scripts/list-cleanup/out/

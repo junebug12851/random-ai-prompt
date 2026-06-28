@@ -6,6 +6,8 @@
 export default {
   id: "gemini",
   label: "Google Gemini (image)",
+  // Text (prompt-rewrite) role uses a Gemini text model, not the image model.
+  rewriteLabel: "Google Gemini (2.0 Flash)",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",

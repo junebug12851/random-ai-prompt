@@ -11,8 +11,22 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.10.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
-see [`reference/versioning.md`](reference/versioning.md)). **Released to `main`** (tag `v2.10.0`, CI green).
+**Version:** `2.12.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+see [`reference/versioning.md`](reference/versioning.md)). Latest stable release on `main` is `2.11.2`;
+`2.12.0` (the Manage tab) is on `dev`, pending the owner's go-ahead to release.
+
+**Manage tab (2.12.0 — on `dev`):** a 4th SPA tab, the in-app content manager (local mode only — gated
+on a file-backend capability probe, locked online). It edits the real `data/lists` + `data/dynamic-prompts`
+files on disk and **hot-applies** them live via a runtime (disk-snapshot) loader (`runtimeLoader.js`) the
+engine reads through — no reload, except an edited `.js` generator *module body* (which can't run from
+fetched text without eval, so it reloads). Left pane: the real nested folder tree (categories vs subfolders
+color-coded, force-prefix/group folders badged, `_`-markers abstracted, NSFW-gated, search). Editors:
+blocks (DPL + JS-sidecar tabs/boilerplate), folders (rename, sidecar priority/description/forceList, marker
+toggles), and lists (virtualized entry mode + raw CodeMirror — seamless at 27k lines). Plus add/delete,
+drag-to-move, restore-default (from `main`), **ghost pills** for files deleted locally but still upstream
+(diffed against a published `data/manifest.json`, disk-cached a day), and external-edit auto-refresh (SSE
+`fs.watch`). Backend: `gui/server/manageFs.js` + `/api/manage/*` (Vite dev middleware today). Plan +
+details: [`plans/manage-tab.md`](plans/manage-tab.md). Contract-tested in `tests/integration/manageFs.test.js`.
 
 **DPL intensity dial + dynamic-prompt content refactor (2.10.0 — shipped):** a `{#name}` reference can carry
 an intensity percent (`{#great-bridge 25%}`, 1–100; `0`→`1`; unspecified → **50%**, top-level and nested)

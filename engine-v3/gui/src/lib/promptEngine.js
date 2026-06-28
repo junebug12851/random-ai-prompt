@@ -1,36 +1,88 @@
 /**
- * The SPA's browser-engine facade: wires the shared `core/` engine to a loader that
- * augments the bundled data with the user's browser-local custom expansions, and
- * exposes generation, live preview, the categorized building blocks, and presets.
+ * The SPA's browser-engine facade: wires the shared `core/` engine to the runtime (disk-backed)
+ * loader, and exposes generation, live preview, the categorized building blocks, presets, and a
+ * hot-apply refresh.
+ *
+ * The loader is `runtimeLoader`: until a disk snapshot is fetched (local mode only) it delegates to
+ * the build-time bundle, so first paint and the online build behave exactly as before; once a
+ * snapshot is installed (via {@link refreshCatalog}) the catalog is served live from disk and edits
+ * hot-apply. The engine and the classifier read everything through the loader on each call, so a
+ * refresh is just: install the snapshot, re-run `promptFiles.loadAll()`, and notify subscribers —
+ * no engine rebuild needed.
  * @module gui/lib/promptEngine
  */
-// The browser engine facade for the SPA.
-//
-// Wires the shared core engine to a loader that augments the bundled data with
-// the user's browser-local custom expansions, configures the suggestion builder,
-// and exposes everything the UI needs: generation, live preview, the categorized
-// building blocks, and presets (built-in + custom).
 import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
-import { browserLoader } from "../../../src/core/browserLoader.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
 import { isGatedDynPrompt } from "../../../src/gatedLists.js";
 import { getCustomPresets } from "./customStore.js";
+import { runtimeLoader } from "./runtimeLoader.js";
+import { getSnapshot } from "./manageApi.js";
 
-// The build-time browser bundle is the loader directly — v3-only, no expansions.
-const loader = browserLoader;
+// The SPA engine reads all data through the runtime loader (bundle until a disk snapshot is set).
+const loader = runtimeLoader;
 
 promptFiles.configure(loader);
 const engine = createEngine(loader);
+
+// Populate the classifier pools (used by the {#random-prompt} suggestion builder). Re-run on refresh.
+promptFiles.loadAll();
+
+// ---- Hot-apply refresh + catalog-change subscription ----
+
+let catalogVersion = 0;
+const listeners = new Set();
+
+/**
+ * @returns {number} A counter that increments on every catalog change (for React deps).
+ */
+export function getCatalogVersion() {
+  return catalogVersion;
+}
+
+/**
+ * Subscribe to catalog changes (a hot-apply refresh). Returns an unsubscribe function.
+ * @param {Function} fn Called with the new version number on each change.
+ * @returns {Function} Unsubscribe.
+ */
+export function subscribeCatalog(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function notifyCatalog() {
+  catalogVersion += 1;
+  for (const fn of [...listeners]) {
+    try {
+      fn(catalogVersion);
+    } catch {
+      /* a bad subscriber shouldn't break the refresh */
+    }
+  }
+}
+
+/**
+ * Fetch the live disk snapshot (local mode) and hot-apply it: the lists, `.dpl` generators,
+ * sidecars, and folder structure are re-read from disk, the classifier is rebuilt, and subscribers
+ * are notified so the UI re-renders. A no-op (returns false) when there's no local backend.
+ * @returns {Promise<boolean>} Whether a snapshot was installed.
+ */
+export async function refreshCatalog() {
+  const snap = await getSnapshot();
+  if (!snap) return false;
+  runtimeLoader.setSnapshot(snap);
+  promptFiles.loadAll();
+  notifyCatalog();
+  return true;
+}
 
 /**
  * Scale the emphasis / alternating knobs by `settings.chaos` (mirrors the CLI `--chaos`).
  * @param {object} settings The generation settings.
  * @returns {object} The (possibly) chaos-scaled settings.
  */
-// Chaos scales the emphasis/alternating knobs (mirrors the CLI's --chaos).
 function withChaos(settings) {
   const c = Number(settings.chaos);
   if (!c || c === 1) return settings;
@@ -87,63 +139,15 @@ export function renderWrapperPart(text, settings = {}) {
 
 // ---- Building blocks (the "keyword cloud"), categorized like the original ----
 
-// Populate the classifier pools (used by the {#random-prompt} suggestion builder).
-promptFiles.loadAll();
 const label = (name) => _.startCase(name);
-const toItems = (names, wrap) => names.map((n) => ({ token: wrap(n), label: label(n) }));
-
-// Dynamic prompts live flat under data/dynamic-prompts/<category>/. They're browsed as
-// category-folder pills (clickable -> the {#folder} group, which picks ONE random generator in
-// that folder) plus each chip ({#name}, suffix-resolved) with its sidecar tooltip.
-const allDynNames = browserLoader.dynamicPromptNames();
-// Tooltip text for a generator. Prefer the `.dpl` front-matter `description:` (authored in the
-// file itself), falling back to the optional `.json` sidecar for legacy `.js` generators.
-const dpDescFor = (key) => {
-  const mod = browserLoader.loadDynamicPrompt(key);
-  return mod?.meta?.description || browserLoader.readDynPromptMeta(key)?.description || undefined;
-};
 const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
-
-const forcedDirs = browserLoader.dynPromptForcedPrefixDirs();
-const groupSet = new Set(browserLoader.dynPromptGroupDirs());
-const btnNames = computeButtonNames(allDynNames, forcedDirs);
 
 // The default category priority when a folder's sidecar sets none (lower = higher in the picker).
 const DEFAULT_CAT_PRIORITY = 1000;
-// A generator is adult (hard-hidden when NSFW is off) when its sidecar carries `nsfw: true` or
-// its name carries an `nsfw` token — the same predicate the engine gates on.
-const isNsfwKey = (key) =>
-  browserLoader.readDynPromptMeta(key)?.nsfw === true || isGatedDynPrompt(key);
 
-// Folder-grouped category descriptors for a set of generator keys: `{ priority, name, pill,
-// entries }`. The chip token is `{#<short>}` (suffix-resolved); the folder pill is a clickable
-// `{#<folder>}` group when that folder is an implied group (2+ generators). `priority` comes from
-// the folder's `.json` sidecar (default 1000). When `includeAdult` is off, nsfw generators are
-// dropped entirely (so a wholly-adult category vanishes).
-const dynCatGroups = (keys, includeAdult) => {
-  const visible = includeAdult ? keys : keys.filter((k) => !isNsfwKey(k));
-  const byFolder = new Map();
-  for (const k of visible) {
-    const i = k.lastIndexOf("/");
-    const folder = i < 0 ? "" : k.slice(0, i);
-    if (!byFolder.has(folder)) byFolder.set(folder, []);
-    byFolder.get(folder).push(k);
-  }
-  return [...byFolder.entries()].map(([folder, members]) => {
-    const meta = browserLoader.readDynPromptMeta(folder) || {};
-    const pill = { category: true, label: lastSeg(folder), description: dpDescFor(folder) };
-    if (groupSet.has(folder)) pill.token = `{#${lastSeg(folder)}}`;
-    return {
-      priority: typeof meta.priority === "number" ? meta.priority : DEFAULT_CAT_PRIORITY,
-      name: lastSeg(folder),
-      pill,
-      // The chip label IS the token you'd type (its inner text).
-      entries: members
-        .map((k) => ({ token: `{#${btnNames[k]}}`, label: btnNames[k], description: dpDescFor(k) }))
-        .sort((a, b) => compareNames(a.label, b.label)),
-    };
-  });
-};
+// Expansion generators (referenced as {#rays}, {#dap}, …) live under expansion/ and are NOT
+// listed as pickable chips — they're excluded from the Blocks walk.
+const isExpansionKey = (n) => n.startsWith("expansion/");
 
 // The virtual "any" wildcard category (priority 0 → leads the picker): `{#any}` (and -sfw/-nsfw)
 // draws one random generator from the whole catalog.
@@ -186,74 +190,12 @@ const specialGroup = () => ({
   ],
 });
 
-// Shortest unambiguous display token per list (filename only, unless a conflict or a
-// `.force-prefix` folder like danbooru/d requires more of the path). The button shows
-// and inserts this token (e.g. {color}, {d/general}) rather than the full path.
-const listDisplay = computeButtonNames(browserLoader.listNames(), browserLoader.forcedPrefixDirs());
-// Optional `<list>.json` sidecar description for the button tooltip. For an implicit
-// base ({d/general}) or a folder, the SFW file carries it, so fall back to `<name>-sfw`.
-const descFor = (n) => (loader.readListMeta(n) || loader.readListMeta(`${n}-sfw`) || null)?.description;
-
-// Build the Lists block as folder categories: an alphabetical run of lists per folder,
-// each preceded by a category pill (the folder's last-segment name + its description as
-// the tooltip). When the folder is itself an implied group, the pill is clickable and
-// inserts that group ({word}, {d}, ...) — merging the header and the group button.
-const listItems = () => {
-  const names = browserLoader.listNames();
-  const groupDirs = new Set(browserLoader.groupListDirs());
-  const byFolder = new Map();
-  for (const n of names) {
-    if (groupDirs.has(n)) continue; // folder-group names become pills, not entries
-    const i = n.lastIndexOf("/");
-    const folder = i < 0 ? "" : n.slice(0, i);
-    if (!byFolder.has(folder)) byFolder.set(folder, []);
-    byFolder.get(folder).push(n);
-  }
-  const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
-  const cats = [];
-  for (const [folder, members] of byFolder) {
-    cats.push({
-      label: lastSeg(folder),
-      token: groupDirs.has(folder) ? `{${listDisplay[folder]}}` : null,
-      description: descFor(folder),
-      entries: members
-        .map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n], description: descFor(n) }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    });
-  }
-  // The reserved `keyword` wildcard isn't a folder/file — give it its own category.
-  cats.push({
-    label: "keyword",
-    token: "{keyword}",
-    description: "A random word drawn from ALL loaded vocabulary (every list).",
-    entries: [
-      { token: "{keyword-sfw}", label: "keyword-sfw", description: "All vocabulary, SFW only." },
-      {
-        token: "{keyword-nsfw}",
-        label: "keyword-nsfw",
-        description: "All vocabulary, including NSFW (adult mode only).",
-      },
-    ],
-  });
-  cats.sort((a, b) => a.label.localeCompare(b.label));
-  const out = [];
-  for (const c of cats) {
-    const pill = { category: true, label: c.label, description: c.description };
-    if (c.token) pill.token = c.token;
-    out.push(pill, ...c.entries);
-  }
-  return out;
-};
-
-// Expansion generators (referenced as {#rays}, {#dap}, …) live under expansion/ and are NOT
-// listed as pickable chips — they're excluded from the Blocks walk.
-const isExpansionKey = (n) => n.startsWith("expansion/");
-
 /**
  * The categorized building-block groups for the token cloud: Blocks (the generators) and Lists.
- * Within Blocks, the category/folder pills are ordered by each category's sidecar `priority`
- * (ascending — lower lifts it higher; default 1000), with the virtual `any` (0) leading and
- * `special` (9000) trailing.
+ * Recomputed from the **current** loader state on every call, so a hot-apply refresh (or browsing
+ * after an edit) shows the live catalog. Within Blocks, the category/folder pills are ordered by
+ * each category's sidecar `priority` (ascending; default 1000), with the virtual `any` (0) leading
+ * and `special` (9000) trailing.
  * @param {object} [opts]
  * @param {boolean} [opts.includeAdult] When false (default), nsfw generators are hidden entirely
  *   and any category that empties out is dropped.
@@ -261,33 +203,136 @@ const isExpansionKey = (n) => n.startsWith("expansion/");
  */
 export function getBlocks(opts = {}) {
   const includeAdult = opts.includeAdult === true;
+
+  // --- Catalog derivations, read live from the loader (so edits/refresh are reflected) ---
+  const allDynNames = loader.dynamicPromptNames();
+  const forcedDirs = loader.dynPromptForcedPrefixDirs();
+  const groupSet = new Set(loader.dynPromptGroupDirs());
+  const btnNames = computeButtonNames(allDynNames, forcedDirs);
+
+  // Tooltip text for a generator: prefer the `.dpl` front-matter `description:`, falling back to
+  // the optional `.json` sidecar.
+  const dpDescFor = (key) => {
+    const mod = loader.loadDynamicPrompt(key);
+    return mod?.meta?.description || loader.readDynPromptMeta(key)?.description || undefined;
+  };
+  // A generator is adult (hard-hidden when NSFW is off) when its sidecar carries `nsfw: true` or
+  // its name carries an `nsfw` token — the same predicate the engine gates on.
+  const isNsfwKey = (key) =>
+    loader.readDynPromptMeta(key)?.nsfw === true || isGatedDynPrompt(key);
+
+  // Folder-grouped category descriptors for a set of generator keys.
+  const dynCatGroups = (keys) => {
+    const visible = includeAdult ? keys : keys.filter((k) => !isNsfwKey(k));
+    const byFolder = new Map();
+    for (const k of visible) {
+      const i = k.lastIndexOf("/");
+      const folder = i < 0 ? "" : k.slice(0, i);
+      if (!byFolder.has(folder)) byFolder.set(folder, []);
+      byFolder.get(folder).push(k);
+    }
+    return [...byFolder.entries()].map(([folder, members]) => {
+      const meta = loader.readDynPromptMeta(folder) || {};
+      const pill = { category: true, label: lastSeg(folder), description: dpDescFor(folder) };
+      if (groupSet.has(folder)) pill.token = `{#${lastSeg(folder)}}`;
+      return {
+        priority: typeof meta.priority === "number" ? meta.priority : DEFAULT_CAT_PRIORITY,
+        name: lastSeg(folder),
+        pill,
+        entries: members
+          .map((k) => ({ token: `{#${btnNames[k]}}`, label: btnNames[k], description: dpDescFor(k) }))
+          .sort((a, b) => compareNames(a.label, b.label)),
+      };
+    });
+  };
+
+  // Shortest unambiguous display token per list.
+  const listDisplay = computeButtonNames(loader.listNames(), loader.forcedPrefixDirs());
+  const descFor = (n) =>
+    (loader.readListMeta(n) || loader.readListMeta(`${n}-sfw`) || null)?.description;
+  const forceListFor = (folder) => {
+    const m = loader.readListMeta(folder) || loader.readListMeta(`${folder}-sfw`) || null;
+    return m?.forceList === true;
+  };
+
+  // Build the Lists block as folder categories.
+  const listItems = () => {
+    const names = loader.listNames();
+    const groupDirs = new Set(loader.groupListDirs());
+    const byFolder = new Map();
+    for (const n of names) {
+      if (groupDirs.has(n)) continue; // folder-group names become pills, not entries
+      const i = n.lastIndexOf("/");
+      const folder = i < 0 ? "" : n.slice(0, i);
+      if (!byFolder.has(folder)) byFolder.set(folder, []);
+      byFolder.get(folder).push(n);
+    }
+    const cats = [];
+    for (const [folder, members] of byFolder) {
+      cats.push({
+        label: lastSeg(folder),
+        token: groupDirs.has(folder) ? `{${listDisplay[folder]}}` : null,
+        description: descFor(folder),
+        forceList: forceListFor(folder),
+        entries: members
+          .map((n) => ({ token: `{${listDisplay[n]}}`, label: listDisplay[n], description: descFor(n) }))
+          .sort((a, b) => a.label.localeCompare(b.label)),
+      });
+    }
+    // The reserved `keyword` wildcard isn't a folder/file — give it its own category.
+    cats.push({
+      label: "keyword",
+      token: "{keyword}",
+      description: "A random word drawn from ALL loaded vocabulary (every list).",
+      entries: [
+        { token: "{keyword-sfw}", label: "keyword-sfw", description: "All vocabulary, SFW only." },
+        {
+          token: "{keyword-nsfw}",
+          label: "keyword-nsfw",
+          description: "All vocabulary, including NSFW (adult mode only).",
+        },
+      ],
+    });
+    cats.sort((a, b) => a.label.localeCompare(b.label));
+    const out = [];
+    for (const c of cats) {
+      const pill = { category: true, label: c.label, description: c.description };
+      if (c.token) pill.token = c.token;
+      if (c.forceList) pill.forceList = true;
+      out.push(pill, ...c.entries);
+    }
+    return out;
+  };
+
   const dynKeys = allDynNames.filter((n) => !isExpansionKey(n));
-  const blockItems = [anyGroup(), ...dynCatGroups(dynKeys, includeAdult), specialGroup()]
+  const blockItems = [anyGroup(), ...dynCatGroups(dynKeys), specialGroup()]
     .filter((g) => g.entries.length > 0)
     .sort((a, b) => a.priority - b.priority || compareNames(a.name, b.name))
     .flatMap((g) => [g.pill, ...g.entries]);
+
+  // With adult off, drop any explicitly-NSFW button and prune an emptied category header.
+  const dropNsfw = (items) => {
+    if (includeAdult) return items;
+    const kept = items.filter((i) => i.category || !/nsfw/i.test(i.token || ""));
+    return kept.filter((it, k) => !it.category || (kept[k + 1] && !kept[k + 1].category));
+  };
 
   return [
     {
       title: "Blocks",
       hint: "Every building block — scenes, subjects, fragments, and styles.",
-      items: blockItems,
+      items: dropNsfw(blockItems),
     },
     {
       title: "Lists",
       hint: "Word lists — each insertion becomes one random entry from the list.",
-      items: listItems(),
+      items: dropNsfw(listItems()),
     },
   ];
 }
 
 /**
- * Flatten the building-block catalog into autocomplete entries for the DPL editor: one per
- * insertable token ({list} / {#generator} / reserved), de-duplicated, carrying its tooltip text
- * AND the grouping it belongs to (the `group` — Blocks vs Lists — and the `category`/folder pill
- * it sits under) so the dropdown can render section headers instead of one flat dump. Order is
- * preserved (the catalog is already priority- then alpha-sorted), so a section's `rank` can just
- * follow first-appearance.
+ * Flatten the building-block catalog into autocomplete entries for the DPL editor.
  * @returns {Array<{token: string, label: string, kind: ("gen"|"list"), description: (string|undefined), group: string, category: string}>}
  *   The completion entries.
  */
@@ -297,8 +342,6 @@ export function getDplCompletions() {
   for (const b of getBlocks()) {
     let category = b.title;
     for (const it of b.items) {
-      // A category/folder pill: it relabels the running section. Pills can themselves be
-      // insertable (a clickable group like {#scene} / {word}), so fall through to include them.
       if (it.category) category = it.label || b.title;
       if (!it.token || seen.has(it.token)) continue;
       seen.add(it.token);
@@ -319,14 +362,14 @@ export function getDplCompletions() {
  * @returns {string[]} The sorted list names.
  */
 export function getListNames() {
-  return browserLoader.listNames().slice().sort();
+  return loader.listNames().slice().sort();
 }
 
 /**
  * @returns {string[]} The sorted preset names (built-in + the user's custom presets).
  */
 export function getPresetNames() {
-  return [...new Set([...browserLoader.presetNames(), ...Object.keys(getCustomPresets())])].sort();
+  return [...new Set([...loader.presetNames(), ...Object.keys(getCustomPresets())])].sort();
 }
 
 /**
@@ -337,5 +380,5 @@ export function getPresetNames() {
 export function loadPreset(name) {
   const custom = getCustomPresets();
   if (name in custom) return custom[name];
-  return browserLoader.loadPreset(name) || {};
+  return loader.loadPreset(name) || {};
 }

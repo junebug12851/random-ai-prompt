@@ -105,8 +105,22 @@ export default function ProviderBox({ settings, setSettings }) {
   }, [schema, pid]);
 
   if (!provider) return null;
-  // The negative prompt is edited on the composer (Prompt/Negative switch), not in here.
-  const fields = (schema?.fields || []).filter((f) => f.key !== "negativePrompt");
+  // What's edited elsewhere and so filtered out of this popover:
+  //  • negativePrompt — on the composer (Prompt/Negative switch).
+  //  • the common image knobs (batch + size/ratio/width/height) — inline at the bottom-left of the
+  //    prompt box (`InlineImageControls`), for the in-app image (api-tier) providers.
+  const inlineKeys = [
+    "batchSize",
+    "size",
+    "imageSize",
+    "aspectRatio",
+    "ar",
+    "imageWidth",
+    "imageHeight",
+  ];
+  const fields = (schema?.fields || []).filter(
+    (f) => f.key !== "negativePrompt" && !inlineKeys.includes(f.key),
+  );
   if (!fields.length)
     return (
       <p className="hint provider-controls-empty">
