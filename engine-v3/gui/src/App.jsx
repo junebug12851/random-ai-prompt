@@ -25,18 +25,23 @@ import { deleteImageFile } from "./lib/output.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
+import { refreshCatalog } from "./lib/promptEngine.js";
+import { managerAvailable } from "./lib/manageApi.js";
 import Home from "./components/Home.jsx";
 import Gallery from "./components/Gallery.jsx";
 import SingleView from "./components/SingleView.jsx";
+import Manage from "./components/Manage.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 
 // [id, label, lockedFeatureName]. Gallery/Single are local-only — online shows them disabled.
+// Manage needs the local-mode file backend (a runtime capability, not the build stage).
 const TABS = [
   ["generate", "Generate", null],
   ["gallery", "Gallery", "The gallery"],
   ["single", "Single", "The single-image view"],
+  ["manage", "Manage", "The content manager"],
 ];
 
 /**
@@ -52,6 +57,7 @@ export default function App() {
   const [current, setCurrent] = useState(null); // the image open in the single view
   const [returnTo, setReturnTo] = useState("generate"); // where the single view's Back goes
   const [magick, setMagick] = useState({ available: false, formats: [] });
+  const [managerOk, setManagerOk] = useState(false); // local-mode content backend present?
 
   // A shared link (#s=...) seeds settings on load, then the hash is cleared.
   useEffect(() => {
@@ -84,6 +90,11 @@ export default function App() {
       loadFeed();
     }
     fetchMagick().then(setMagick);
+    // Switch the engine from the build-time bundle to the live disk snapshot (local mode only).
+    // A no-op online / on a static host — Generate keeps using the bundled catalog.
+    refreshCatalog().catch(() => {});
+    // Probe for the content-management backend; its presence unlocks the Manage tab.
+    managerAvailable().then(setManagerOk);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -159,7 +170,13 @@ export default function App() {
         </div>
         <div className="view-switch" role="tablist" aria-label="Switch view">
           {TABS.map(([id, label, lockFeature]) => {
-            const locked = ONLINE && id !== "generate";
+            // Manage is gated on the local-mode backend (a runtime capability); Gallery/Single are
+            // gated on the online build. Manage clicks while locked are inert (no full-version link).
+            const locked = id === "manage" ? !managerOk : ONLINE && id !== "generate";
+            const hint =
+              id === "manage"
+                ? "Manage needs the local app (file access) — unavailable online"
+                : lockedHint(lockFeature);
             return (
               <button
                 key={id}
@@ -167,8 +184,8 @@ export default function App() {
                 aria-selected={!locked && view === id}
                 aria-disabled={locked || undefined}
                 className={`vs-tab${!locked && view === id ? " on" : ""}${locked ? " is-locked" : ""}`}
-                title={locked ? lockedHint(lockFeature) : undefined}
-                onClick={() => (locked ? openFullVersion() : go(id))}
+                title={locked ? hint : undefined}
+                onClick={() => (locked ? (id !== "manage" ? openFullVersion() : undefined) : go(id))}
               >
                 {label}
                 {locked && (
@@ -224,6 +241,12 @@ export default function App() {
               />
             </div>
           </>
+        )}
+        {/* Manage is local-only: only mounted when the file backend is present. */}
+        {managerOk && (
+          <div className={`view-pane${view === "manage" ? " on" : ""}`}>
+            <Manage settings={settings} available={managerOk} active={view === "manage"} />
+          </div>
         )}
       </main>
 

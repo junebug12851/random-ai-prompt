@@ -14,6 +14,18 @@ import { fileURLToPath } from "node:url";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { dispatch, dispatchRewrite } from "./server/dispatch.js";
+import {
+  resolveManagePath,
+  buildManageSnapshot,
+  buildManageTree,
+  writeFileAtomic,
+  mergeSidecar,
+  setMarker,
+  fsOp,
+  restoreFromRepo,
+  remoteManifest,
+  MANAGE_ROOTS,
+} from "./server/manageFs.js";
 
 const execP = promisify(exec);
 
@@ -453,6 +465,131 @@ export function apiPlugin() {
           } catch (e) {
             return send(res, 502, { error: `Could not write sidecar: ${e.message}` });
           }
+        }
+
+        // --- Manage: capability probe (presence ⇒ local mode, so the tab unlocks) ---
+        if (u.pathname === "/api/manage/ping" && req.method === "GET") {
+          return send(res, 200, { ok: true });
+        }
+
+        // --- Manage: full disk snapshot for the runtime loader ---
+        if (u.pathname === "/api/manage/snapshot" && req.method === "GET") {
+          try {
+            return send(res, 200, buildManageSnapshot());
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: the raw folder tree of both data roots ---
+        if (u.pathname === "/api/manage/tree" && req.method === "GET") {
+          try {
+            return send(res, 200, {
+              lists: buildManageTree(MANAGE_ROOTS.lists),
+              "dynamic-prompts": buildManageTree(MANAGE_ROOTS["dynamic-prompts"]),
+            });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: read one file's text ---
+        if (u.pathname === "/api/manage/file" && req.method === "GET") {
+          const abs = resolveManagePath(u.searchParams.get("root"), u.searchParams.get("path"));
+          if (!abs) return send(res, 400, { error: "Invalid path" });
+          if (!fs.existsSync(abs)) return send(res, 404, { error: "Not found" });
+          try {
+            return send(res, 200, { text: fs.readFileSync(abs, "utf8") });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: write one file's text (atomic) ---
+        if (u.pathname === "/api/manage/file" && req.method === "POST") {
+          const body = await readJson(req);
+          const abs = resolveManagePath(body?.root, body?.path);
+          if (!abs) return send(res, 400, { error: "Invalid path" });
+          if (typeof body?.text !== "string") return send(res, 400, { error: "Missing text" });
+          try {
+            writeFileAtomic(abs, body.text);
+            return send(res, 200, { ok: true, root: body.root, path: body.path });
+          } catch (e) {
+            return send(res, 502, { error: `Could not write file: ${e.message}` });
+          }
+        }
+
+        // --- Manage: merge a `<name>.json` sidecar (description / priority / nsfw / forceList…) ---
+        if (u.pathname === "/api/manage/sidecar" && req.method === "POST") {
+          const body = await readJson(req);
+          if (!body?.patch || typeof body.patch !== "object")
+            return send(res, 400, { error: "Missing patch" });
+          const merged = mergeSidecar(body.root, body.name, body.patch);
+          if (merged === null) return send(res, 400, { error: "Invalid path" });
+          return send(res, 200, { ok: true, meta: merged });
+        }
+
+        // --- Manage: toggle a folder marker (force-prefix / group enable|disable) ---
+        if (u.pathname === "/api/manage/marker" && req.method === "POST") {
+          const body = await readJson(req);
+          const ok = setMarker(body?.root, body?.dir ?? "", body?.marker, !!body?.on);
+          return ok ? send(res, 200, { ok: true }) : send(res, 400, { error: "Invalid marker/path" });
+        }
+
+        // --- Manage: filesystem ops (mkdir / mkfile / delete / move) ---
+        if (u.pathname === "/api/manage/fs" && req.method === "POST") {
+          const body = await readJson(req);
+          const out = fsOp(body?.op, body);
+          return out.ok ? send(res, 200, { ok: true }) : send(res, 400, { error: out.error });
+        }
+
+        // --- Manage: watch the data roots and push change events (external-edit auto-refresh) ---
+        if (u.pathname === "/api/manage/watch" && req.method === "GET") {
+          res.writeHead(200, {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+          });
+          res.write(": connected\n\n");
+          let timer = null;
+          const onChange = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => res.write(`data: ${Date.now()}\n\n`), 200);
+          };
+          const watchers = [];
+          for (const dir of Object.values(MANAGE_ROOTS)) {
+            try {
+              watchers.push(fs.watch(dir, { recursive: true }, onChange));
+            } catch {
+              /* watch unsupported here — the client's manual Refresh still works */
+            }
+          }
+          const keep = setInterval(() => res.write(": keep\n\n"), 30000);
+          req.on("close", () => {
+            clearInterval(keep);
+            clearTimeout(timer);
+            watchers.forEach((w) => w.close());
+          });
+          return; // keep the connection open
+        }
+
+        // --- Manage: the stable-branch file manifest (for ghost / restorable entries) ---
+        if (u.pathname === "/api/manage/remote-manifest" && req.method === "GET") {
+          try {
+            const m = await remoteManifest(u.searchParams.get("fresh") === "1");
+            return send(res, 200, m);
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: restore a file to its repo default (main) ---
+        if (u.pathname === "/api/manage/restore" && req.method === "POST") {
+          const body = await readJson(req);
+          const out = await restoreFromRepo(body?.root, body?.path);
+          return out.ok
+            ? send(res, 200, { ok: true, deleted: out.deleted || false })
+            : send(res, 502, { error: out.error });
         }
 
         // --- Local-file storage tier ---

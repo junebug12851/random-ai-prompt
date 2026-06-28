@@ -12,8 +12,14 @@
  * toggle (the anime word lists mix SFW + explicit adult tags and need a proper split first).
  * @module gui/components/Home
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import { getBlocks, generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  getBlocks,
+  generatePrompt,
+  renderWrapperPart,
+  expandPrompt,
+  subscribeCatalog,
+} from "../lib/promptEngine.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
@@ -24,11 +30,54 @@ import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
+import InlineImageControls from "./InlineImageControls.jsx";
 import LivePreview from "./LivePreview.jsx";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
+
+// A group's flat `items` array is a run of [folder pill, its chips, folder pill, its chips, …].
+// Split it back into folder sub-categories so the palette can offer an "All" view plus one sub-tab
+// per folder. A pill that carries a token (an insertable group like {#scene} / {word}) is kept on
+// its category so the folder sub-tab can offer the whole-group insert at the top.
+// Categories that get NO sub-tab of their own — the wildcard/engine pseudo-folders. They still
+// appear in the All view as a normal category pill (header + their buttons); they just don't earn a
+// folder shortcut in the tree. Every real folder (scene, subject, user, …) keeps its sub-tab.
+const MERGED_CATS = ["any", "special"];
+
+// The folder sub-categories to show for a group: real folders only (the merged wildcard dropped).
+// For Lists, a folder holding a single list is folded into All too, unless its sidecar forces it
+// (`forceList`). Their buttons still appear under All regardless.
+function foldersOf(group) {
+  let cats = splitCats(group.items).filter((c) => !MERGED_CATS.includes(c.label));
+  if (group.title === "Lists") cats = cats.filter((c) => c.items.length > 1 || c.forceList);
+  return cats;
+}
+
+function splitCats(items) {
+  const cats = [];
+  let cur = null;
+  for (const it of items) {
+    if (it.category) {
+      cur = {
+        label: it.label,
+        token: it.token,
+        description: it.description,
+        forceList: it.forceList,
+        items: [],
+      };
+      cats.push(cur);
+    } else {
+      if (!cur) {
+        cur = { label: "misc", items: [] };
+        cats.push(cur);
+      }
+      cur.items.push(it);
+    }
+  }
+  return cats;
+}
 
 // Crisp monochrome action icons (stroke = currentColor) so the four field
 // buttons read as one cohesive set.
@@ -95,7 +144,8 @@ const GearIcon = () => (
 export default function Home({ settings, setSettings, onOpenImage }) {
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
-  const [activeCat, setActiveCat] = useState("");
+  const [activeCat, setActiveCat] = useState(""); // top group: Blocks | Lists
+  const [activeSub, setActiveSub] = useState("All"); // folder sub-tab within the active group
   const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -116,10 +166,21 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     [version, settings.includeAdult],
   );
 
+  // Rebuild the palette when the catalog hot-applies (a Manage edit / refresh re-reads disk).
+  useEffect(() => subscribeCatalog(() => setVersion((v) => v + 1)), []);
+
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
   const provider = getProvider(settings.provider);
   const pid = provider?.id;
   const supportsNegative = !!provider?.capabilities?.negativePrompt;
+  // The text (prompt-rewrite) provider, if one is chosen — drives the always-visible auto-fix /
+  // keyword buttons (disabled when there's none) and their tooltips (its text-model label).
+  const rewriteProv =
+    settings.rewriteProvider && settings.rewriteProvider !== "none"
+      ? getProvider(settings.rewriteProvider)
+      : null;
+  const rewriteLabel = rewriteProv?.rewriteLabel || rewriteProv?.label || "AI";
+  const hasRewrite = !!rewriteProv;
   const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
   const [providerDefaults, setProviderDefaults] = useState({});
   const [imgError, setImgError] = useState("");
@@ -568,10 +629,34 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     .map((b) => ({ ...b, items: filterItems(effItems(b)) }))
     .filter((b) => b.items.some((i) => !i.category));
 
-  // The active category (falls back to the first available when the current
-  // selection is filtered away or unset).
+  // The active top group (Blocks / Lists), falling back to the first available.
   const active = filtered.find((b) => b.title === activeCat) || filtered[0] || null;
-  const activeItems = active ? active.items : [];
+  const searching = !!q;
+  // Folder sub-categories of the active group, and the currently-selected one (default All).
+  const subCats = active ? foldersOf(active) : [];
+  const effSub =
+    activeSub === "All" || subCats.some((c) => c.label === activeSub) ? activeSub : "All";
+
+  // The chips to render. Searching → the flat matched run. All → every chip across folders, plus
+  // the insertable group pills (the plain folder headers are sub-tabs now, so they're dropped). A
+  // folder sub-tab → that folder's chips, led by its whole-group insert pill when it has one.
+  let activeItems;
+  if (searching) {
+    activeItems = active ? active.items.filter((i) => !i.category) : [];
+  } else if (effSub === "All") {
+    // All = every category shown with its pill header + buttons (special/any included as pills).
+    activeItems = active ? active.items : [];
+  } else {
+    const cat = subCats.find((c) => c.label === effSub);
+    activeItems = cat
+      ? [
+          ...(cat.token
+            ? [{ category: true, token: cat.token, label: cat.label, description: cat.description }]
+            : []),
+          ...cat.items,
+        ]
+      : [];
+  }
 
   return (
     <div className="workspace">
@@ -591,21 +676,60 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           <p className="empty">No building blocks match “{query}”.</p>
         ) : (
           <>
+            {/* Both groups (Blocks / Lists) are always listed, each with an "All" row and its folder
+                sub-categories indented beneath it. The group header is a plain label; its "All" row
+                carries the selection. Sub-tabs are hidden while searching (results go flat). */}
             <nav className="cat-tabs">
-              {filtered.map((b) => (
-                <button
-                  key={b.title}
-                  className={`cat-tab${active && active.title === b.title ? " on" : ""}`}
-                  onClick={() => setActiveCat(b.title)}
-                >
-                  <span className="cat-name">{b.title}</span>
-                  <span className="count-pill">{b.items.filter((i) => !i.category).length}</span>
-                </button>
-              ))}
+              {filtered.map((b) => {
+                const isActiveGroup = !!active && active.title === b.title;
+                const groupFolders = foldersOf(b);
+                const selectGroup = () => {
+                  setActiveCat(b.title);
+                  setActiveSub("All");
+                };
+                return (
+                  <Fragment key={b.title}>
+                    <button className="cat-tab" onClick={selectGroup}>
+                      <span className="cat-name">{b.title}</span>
+                      <span className="count-pill">
+                        {b.items.filter((i) => !i.category).length}
+                      </span>
+                    </button>
+                    {!searching && (
+                      <button
+                        className={`cat-tab sub${isActiveGroup && effSub === "All" ? " on" : ""}`}
+                        onClick={selectGroup}
+                      >
+                        <span className="cat-name">All</span>
+                        <span className="count-pill">
+                          {b.items.filter((i) => !i.category).length}
+                        </span>
+                      </button>
+                    )}
+                    {!searching &&
+                      groupFolders.map((c) => (
+                        <button
+                          key={c.label}
+                          className={`cat-tab sub${isActiveGroup && effSub === c.label ? " on" : ""}`}
+                          onClick={() => {
+                            setActiveCat(b.title);
+                            setActiveSub(c.label);
+                          }}
+                          title={c.description || c.label}
+                        >
+                          <span className="cat-name">{c.label}</span>
+                          <span className="count-pill">{c.items.length}</span>
+                        </button>
+                      ))}
+                  </Fragment>
+                );
+              })}
             </nav>
 
             <div className="chip-area">
-              {active && active.hint && <p className="cat-hint">{active.hint}</p>}
+              {active && active.hint && !searching && effSub === "All" && (
+                <p className="cat-hint">{active.hint}</p>
+              )}
               <div className="picker-list">
                 {activeItems.slice(0, 400).map((i, idx) =>
                   i.category ? (
@@ -729,12 +853,41 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 label={editMode === "negative" ? "Negative preview" : "Prompt preview"}
                 triggerClassName="preview-corner"
               />
+              {/* Prompt-settings gear — sits in the corner cluster, to the right of the preview. */}
+              <div className="field-menu-wrap prompt-settings-gear">
+                <button
+                  className={`gear-corner${menuOpen ? " on" : ""}`}
+                  onClick={() => setMenuOpen((o) => !o)}
+                  title="Prompt settings"
+                  aria-label="Prompt settings"
+                  aria-haspopup="dialog"
+                  aria-expanded={menuOpen}
+                >
+                  <GearIcon />
+                </button>
+                {menuOpen && (
+                  <>
+                    <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
+                    <div className="gear-pop" role="dialog" aria-label="Prompt settings">
+                      <div className="gear-pop-head">
+                        <span>Prompt settings</span>
+                        <button className="link-btn" onClick={() => setMenuOpen(false)}>
+                          close
+                        </button>
+                      </div>
+                      <div className="gear-pop-body">
+                        <Settings settings={settings} setSettings={setSettings} />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="field-bar">
               <div className="prompt-tools">
-                <label className="field-count" title="Prompts per run">
-                  <span className="field-count-label">count</span>
+                <label className="field-count" title="How many prompts to generate per run">
+                  <span className="field-count-label">Prompts</span>
                   <input
                     type="number"
                     min={1}
@@ -750,59 +903,42 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   />
                 </label>
 
-                <div className="field-menu-wrap">
-                  <button
-                    className={`field-act${menuOpen ? " on" : ""}`}
-                    onClick={() => setMenuOpen((o) => !o)}
-                    title="Prompt settings"
-                    aria-label="Prompt settings"
-                    aria-pressed={menuOpen}
-                  >
-                    <GearIcon />
-                  </button>
-                  {menuOpen && (
-                    <>
-                      <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
-                      <div className="gear-pop" role="dialog" aria-label="Prompt settings">
-                        <div className="gear-pop-head">
-                          <span>Prompt settings</span>
-                          <button className="link-btn" onClick={() => setMenuOpen(false)}>
-                            close
-                          </button>
-                        </div>
-                        <div className="gear-pop-body">
-                          <Settings settings={settings} setSettings={setSettings} />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                {/* The active image provider's common knobs (Images + Size), when it has them. */}
+                <InlineImageControls settings={settings} setSettings={setSettings} />
               </div>
 
               <div className="grow" />
 
-              {settings.rewriteProvider && settings.rewriteProvider !== "none" && (
-                <>
-                  <button
-                    className={`field-act${settings.autoFix ? " on" : ""}`}
-                    onClick={() => setSettings({ ...settings, autoFix: !settings.autoFix })}
-                    title={`Auto-fix the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} before generating`}
-                    aria-pressed={!!settings.autoFix}
-                    aria-label="Auto-fix prompt"
-                  >
-                    <WandIcon />
-                  </button>
-                  <button
-                    className={`field-act${settings.autoKeyword ? " on" : ""}`}
-                    onClick={() => setSettings({ ...settings, autoKeyword: !settings.autoKeyword })}
-                    title={`Keyword-translate the prompt with ${getProvider(settings.rewriteProvider)?.label || "AI"} (use a clean tag list instead) before generating`}
-                    aria-pressed={!!settings.autoKeyword}
-                    aria-label="Keyword-translate prompt"
-                  >
-                    <TagIcon />
-                  </button>
-                </>
-              )}
+              {/* Auto-fix + keyword-translate stay visible always; disabled with a hint when no
+                  Text provider is selected (chosen in the header Providers dropdown). */}
+              <button
+                className={`field-act${hasRewrite && settings.autoFix ? " on" : ""}`}
+                onClick={() => setSettings({ ...settings, autoFix: !settings.autoFix })}
+                disabled={!hasRewrite}
+                title={
+                  hasRewrite
+                    ? `Auto-fix the prompt with ${rewriteLabel} before generating`
+                    : "Pick a Text provider (header → Providers) to enable auto-fix"
+                }
+                aria-pressed={hasRewrite && !!settings.autoFix}
+                aria-label="Auto-fix prompt"
+              >
+                <WandIcon />
+              </button>
+              <button
+                className={`field-act${hasRewrite && settings.autoKeyword ? " on" : ""}`}
+                onClick={() => setSettings({ ...settings, autoKeyword: !settings.autoKeyword })}
+                disabled={!hasRewrite}
+                title={
+                  hasRewrite
+                    ? `Keyword-translate the prompt with ${rewriteLabel} (use a clean tag list instead) before generating`
+                    : "Pick a Text provider (header → Providers) to enable keyword translate"
+                }
+                aria-pressed={hasRewrite && !!settings.autoKeyword}
+                aria-label="Keyword-translate prompt"
+              >
+                <TagIcon />
+              </button>
               <WrapperButton settings={settings} setSettings={setSettings} />
               <button
                 className={`field-act${panel === "share" ? " on" : ""}`}

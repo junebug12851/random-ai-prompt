@@ -268,3 +268,16 @@ export const browserLoader = {
     return presets[name] ?? null;
   },
 };
+
+/**
+ * The bundled `.js` generator module for a key (or null). Exposed so the runtime loader
+ * (`gui/src/lib/runtimeLoader.js`) can execute `.js`-module generators and resolve `.dpl`
+ * JS sidecars from the build-time bundle — the one thing that can't be loaded from disk text
+ * at runtime in the browser (it would need eval). Everything else the runtime loader serves
+ * from the live disk snapshot.
+ * @param {string} key The generator/sidecar key (e.g. "scene/castle").
+ * @returns {object|null} The ESM module namespace (with `.default`), or null if not bundled.
+ */
+export function dpJsModule(key) {
+  return dpJsModules[key] ?? null;
+}
