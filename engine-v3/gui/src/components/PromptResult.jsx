@@ -10,7 +10,7 @@
  * @module gui/components/PromptResult
  */
 import { useEffect, useRef, useState } from "react";
-import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
+import { isOutputFile, openImageFile, revealImageFile, openImageInNewTab } from "../lib/output.js";
 import { expandPrompt } from "../lib/promptEngine.js";
 
 /**
@@ -211,10 +211,9 @@ export default function PromptResult({
                     rel="noreferrer"
                     title={onImageClick ? "Open in the single view" : "Open in a new tab"}
                     onClick={(e) => {
-                      if (onImageClick) {
-                        e.preventDefault();
-                        onImageClick(img);
-                      }
+                      e.preventDefault();
+                      if (onImageClick) onImageClick(img);
+                      else openImageInNewTab(img);
                     }}
                   >
                     <ResultImage src={img} />
