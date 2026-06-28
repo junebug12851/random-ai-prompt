@@ -3696,3 +3696,104 @@ button.ghost:hover {
   font-style: italic;
   margin-top: 12px;
 }
+
+/* Editors (block / folder) fill the right pane — a big, expandable editing surface. */
+.mg-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+.mg-editor-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mg-name-input {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--fg);
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.mg-path {
+  margin: -2px 0 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.mg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+.mg-field > input,
+.mg-field > select {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--fg);
+  font: inherit;
+}
+.mg-field.mg-check,
+.mg-nsfw-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.mg-field.is-disabled {
+  opacity: 0.55;
+}
+.mg-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.mg-tab {
+  border: none;
+  background: none;
+  color: var(--muted);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-weight: 600;
+}
+.mg-tab.on {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+}
+.mg-editor-body {
+  flex: 1 1 auto;
+  min-height: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+}
+.mg-editor-body .dpl-editor,
+.mg-editor-body .code-editor {
+  height: 100%;
+  width: 100%;
+}
+.mg-editor-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.mg-note {
+  color: var(--dpl-gen);
+  font-size: 0.82rem;
+}
+.mg-ok {
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+}

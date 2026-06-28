@@ -197,3 +197,92 @@ export function writeFileAtomic(abs, text) {
   fs.writeFileSync(tmp, text);
   fs.renameSync(tmp, abs);
 }
+
+/**
+ * Read-modify-write a `<name>.json` sidecar: merge `patch` (a key set to null is removed). When the
+ * result is empty the sidecar file is deleted, so we never leave an empty `{}` behind.
+ * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} name The logical key (e.g. "scene/castle" or a folder "fragment").
+ * @param {object} patch Keys to merge (null deletes a key).
+ * @returns {object|null} The merged sidecar (`{}` if it was deleted), or null on a bad path.
+ */
+export function mergeSidecar(root, name, patch) {
+  const abs = resolveManagePath(root, `${name}.json`);
+  if (!abs) return null;
+  let cur = {};
+  if (fs.existsSync(abs)) {
+    try {
+      cur = JSON.parse(fs.readFileSync(abs, "utf8")) || {};
+    } catch {
+      cur = {};
+    }
+  }
+  const merged = { ...cur };
+  for (const [k, v] of Object.entries(patch || {})) {
+    if (v === null || v === undefined) delete merged[k];
+    else merged[k] = v;
+  }
+  if (Object.keys(merged).length === 0) {
+    if (fs.existsSync(abs)) fs.unlinkSync(abs);
+    return {};
+  }
+  writeFileAtomic(abs, `${JSON.stringify(merged, null, 2)}\n`);
+  return merged;
+}
+
+const MARKERS = new Set(["_force-prefix", "_enable-group-list", "_disable-group-list"]);
+
+/**
+ * Create or remove a folder `_`-marker (the abstracted force-prefix / group toggles).
+ * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} dir The folder path ("" for the root).
+ * @param {string} marker One of the allowed marker filenames.
+ * @param {boolean} on Whether the marker should exist.
+ * @returns {boolean} Success.
+ */
+export function setMarker(root, dir, marker, on) {
+  if (!MARKERS.has(marker)) return false;
+  const abs = resolveManagePath(root, dir ? `${dir}/${marker}` : marker);
+  if (!abs) return false;
+  if (on) {
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    if (!fs.existsSync(abs)) fs.writeFileSync(abs, "");
+  } else if (fs.existsSync(abs)) {
+    fs.unlinkSync(abs);
+  }
+  return true;
+}
+
+/**
+ * Filesystem op on the content tree (create folder / create file / delete / move-or-rename). Each is
+ * traversal-guarded to the data roots.
+ * @param {string} op `"mkdir" | "mkfile" | "delete" | "move"`.
+ * @param {object} args `{ root, path, to?, text? }`.
+ * @returns {{ok: boolean, error?: string}}
+ */
+export function fsOp(op, args) {
+  const { root, path: rel, to, text } = args || {};
+  const abs = resolveManagePath(root, rel);
+  if (!abs) return { ok: false, error: "Invalid path" };
+  try {
+    if (op === "mkdir") {
+      fs.mkdirSync(abs, { recursive: true });
+    } else if (op === "mkfile") {
+      if (fs.existsSync(abs)) return { ok: false, error: "Already exists" };
+      writeFileAtomic(abs, typeof text === "string" ? text : "");
+    } else if (op === "delete") {
+      fs.rmSync(abs, { recursive: true, force: true });
+    } else if (op === "move") {
+      const dest = resolveManagePath(root, to);
+      if (!dest) return { ok: false, error: "Invalid destination" };
+      if (fs.existsSync(dest)) return { ok: false, error: "Destination exists" };
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.renameSync(abs, dest);
+    } else {
+      return { ok: false, error: `Unknown op: ${op}` };
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}

@@ -15,6 +15,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getTree, readFile } from "../lib/manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../lib/promptEngine.js";
 import { buildManageModel, filterModel } from "../lib/manageTree.js";
+import ManageBlockEditor from "./ManageBlockEditor.jsx";
+import ManageFolderEditor from "./ManageFolderEditor.jsx";
 
 const ROOTS = [
   ["dynamic-prompts", "Blocks"],
@@ -137,13 +139,27 @@ export default function Manage({ settings, available, active }) {
     });
 
   async function openEntry(entry) {
-    setSelected({ kind: "entry", ...entry, text: null, loading: true });
+    // Generators open in the block editor (which loads itself); lists/groups show a preview here
+    // for now (the full list editor arrives in the next phase).
+    if (entry.kind === "generator") {
+      setSelected({ type: "entry", ...entry });
+      return;
+    }
+    setSelected({ type: "entry", ...entry, text: null, loading: true });
     try {
       const text = await readFile(entry.root, `${entry.path}.${entry.ext}`);
       setSelected((s) => (s && s.path === entry.path ? { ...s, text, loading: false } : s));
     } catch (e) {
       setSelected((s) => (s && s.path === entry.path ? { ...s, error: e.message, loading: false } : s));
     }
+  }
+
+  // After an edit/rename: hot-apply (refreshCatalog notifies → the tree reloads) and, on a rename,
+  // reselect the moved item so the editor reloads at its new path.
+  async function handleChanged(next) {
+    const ok = await refreshCatalog().catch(() => false);
+    if (!ok) await loadTree();
+    if (next && next.path) setSelected((s) => (s ? { ...s, ...next } : s));
   }
 
   if (!available) {
@@ -181,7 +197,7 @@ export default function Manage({ settings, available, active }) {
             className="mg-gear"
             title={`Folder settings — ${node.name}`}
             aria-label={`Settings for ${node.name}`}
-            onClick={() => setSelected({ kind: "folder", ...node })}
+            onClick={() => setSelected({ type: "folder", ...node })}
           >
             <GearIcon />
           </button>
@@ -283,7 +299,13 @@ export default function Manage({ settings, available, active }) {
       </aside>
 
       <div className="main-col mg-main">
-        <ManageDetail selected={selected} />
+        {selected?.type === "folder" ? (
+          <ManageFolderEditor node={selected} onChanged={handleChanged} />
+        ) : selected?.type === "entry" && selected.kind === "generator" ? (
+          <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} />
+        ) : (
+          <ManageDetail selected={selected} />
+        )}
       </div>
     </div>
   );

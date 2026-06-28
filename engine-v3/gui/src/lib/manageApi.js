@@ -91,3 +91,36 @@ export async function readFile(root, path) {
 export function writeFile(root, path, text) {
   return postJson("/api/manage/file", { root, path, text });
 }
+
+/**
+ * Merge a `<name>.json` sidecar (a key set to null is removed).
+ * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {string} name The logical key (generator/list path, or a folder).
+ * @param {object} patch Keys to merge.
+ * @returns {Promise<object>} The merged sidecar.
+ */
+export function saveSidecar(root, name, patch) {
+  return postJson("/api/manage/sidecar", { root, name, patch });
+}
+
+/**
+ * Toggle a folder `_`-marker.
+ * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {string} dir The folder path.
+ * @param {("_force-prefix"|"_enable-group-list"|"_disable-group-list")} marker The marker.
+ * @param {boolean} on Whether it should exist.
+ * @returns {Promise<object>} The reply.
+ */
+export function setMarker(root, dir, marker, on) {
+  return postJson("/api/manage/marker", { root, dir, marker, on });
+}
+
+/**
+ * A filesystem op on the content tree.
+ * @param {("mkdir"|"mkfile"|"delete"|"move")} op The operation.
+ * @param {object} args `{ root, path, to?, text? }`.
+ * @returns {Promise<object>} The reply.
+ */
+export function fsOp(op, args) {
+  return postJson("/api/manage/fs", { op, ...args });
+}

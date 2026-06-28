@@ -75,6 +75,8 @@ export function buildManageModel(treeNode, root, opts = {}) {
     autoGroupListDirs(isDp ? entryPaths : logicalListNames(entryPaths), enableDirs, disableDirs),
   );
   const forceSet = new Set(forceDirs);
+  const enableSet = new Set(enableDirs);
+  const disableSet = new Set(disableDirs);
 
   // Pass 2: build the nested model, hiding NSFW when adult is off.
   const build = (node, prefix, depth) => {
@@ -108,6 +110,8 @@ export function buildManageModel(treeNode, root, opts = {}) {
       isCategory: depth === 1,
       isGroup: groupDirs.has(prefix),
       forcePrefix: forceSet.has(prefix),
+      enableGroup: enableSet.has(prefix),
+      disableGroup: disableSet.has(prefix),
       markers,
       entries,
       children,

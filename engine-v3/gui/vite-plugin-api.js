@@ -19,6 +19,9 @@ import {
   buildManageSnapshot,
   buildManageTree,
   writeFileAtomic,
+  mergeSidecar,
+  setMarker,
+  fsOp,
   MANAGE_ROOTS,
 } from "./server/manageFs.js";
 
@@ -512,6 +515,30 @@ export function apiPlugin() {
           } catch (e) {
             return send(res, 502, { error: `Could not write file: ${e.message}` });
           }
+        }
+
+        // --- Manage: merge a `<name>.json` sidecar (description / priority / nsfw / forceList…) ---
+        if (u.pathname === "/api/manage/sidecar" && req.method === "POST") {
+          const body = await readJson(req);
+          if (!body?.patch || typeof body.patch !== "object")
+            return send(res, 400, { error: "Missing patch" });
+          const merged = mergeSidecar(body.root, body.name, body.patch);
+          if (merged === null) return send(res, 400, { error: "Invalid path" });
+          return send(res, 200, { ok: true, meta: merged });
+        }
+
+        // --- Manage: toggle a folder marker (force-prefix / group enable|disable) ---
+        if (u.pathname === "/api/manage/marker" && req.method === "POST") {
+          const body = await readJson(req);
+          const ok = setMarker(body?.root, body?.dir ?? "", body?.marker, !!body?.on);
+          return ok ? send(res, 200, { ok: true }) : send(res, 400, { error: "Invalid marker/path" });
+        }
+
+        // --- Manage: filesystem ops (mkdir / mkfile / delete / move) ---
+        if (u.pathname === "/api/manage/fs" && req.method === "POST") {
+          const body = await readJson(req);
+          const out = fsOp(body?.op, body);
+          return out.ok ? send(res, 200, { ok: true }) : send(res, 400, { error: out.error });
         }
 
         // --- Local-file storage tier ---
