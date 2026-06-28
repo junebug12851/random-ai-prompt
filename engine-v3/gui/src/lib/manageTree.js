@@ -95,7 +95,9 @@ export function buildManageModel(treeNode, root, opts = {}) {
 
     const children = node.dirs
       .map((d) => build(d, prefix ? `${prefix}/${d.name}` : d.name, depth + 1))
-      .filter((c) => includeAdult || c.entryCount > 0 || c.markers.length > 0);
+      // Keep empty folders (so a freshly-created one shows); only hide NSFW-named folders when adult
+      // is off (entry-level NSFW gating already happened above).
+      .filter((c) => includeAdult || !hasNsfwToken(c.path));
 
     const markers = [];
     if (forceSet.has(prefix)) markers.push("force-prefix");

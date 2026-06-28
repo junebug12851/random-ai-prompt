@@ -3513,6 +3513,58 @@ button.ghost:hover {
 .mg-folder-head:hover {
   background: var(--bg-2);
 }
+.mg-folder-head.is-drop,
+.mg-root.is-drop {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+/* Add ("+") control + its little menu. */
+.mg-add-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.mg-add {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0 5px;
+  border-radius: 6px;
+}
+.mg-add:hover {
+  color: var(--accent);
+  background: var(--chip-hover);
+}
+.mg-add-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.mg-add-menu button {
+  border: none;
+  background: none;
+  color: var(--fg-soft);
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+.mg-add-menu button:hover {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
 .mg-twirl,
 .mg-gear {
   display: inline-flex;
@@ -3665,6 +3717,17 @@ button.ghost:hover {
 .mg-pill-act:hover {
   color: var(--accent);
   background: var(--chip-hover);
+}
+.mg-pill-del:hover {
+  color: #ff8585;
+}
+.mg-root-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mg-danger {
+  color: #ff8585;
 }
 
 /* Right pane */

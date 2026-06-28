@@ -12,7 +12,7 @@
  * @module gui/components/Manage
  */
 import { useEffect, useMemo, useState } from "react";
-import { getTree, getRemoteManifest, restoreDefault } from "../lib/manageApi.js";
+import { getTree, getRemoteManifest, restoreDefault, fsOp } from "../lib/manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../lib/promptEngine.js";
 import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../lib/manageTree.js";
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
@@ -62,6 +62,12 @@ const RestoreIcon = () => (
   <svg {...ico} aria-hidden="true">
     <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
     <polyline points="21 3 21 8 16 8" />
+  </svg>
+);
+const TrashIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
   </svg>
 );
 
@@ -122,6 +128,31 @@ export default function Manage({ settings, available, active }) {
   // Refetch the tree when the catalog hot-applies (an edit elsewhere / a refresh).
   useEffect(() => subscribeCatalog(() => available && loadTree()), [available]);
 
+  // External-edit auto-refresh: watch the data roots over SSE and reload on change (debounced). The
+  // manual Refresh button is the fallback if the stream isn't available.
+  useEffect(() => {
+    if (!available) return undefined;
+    let es;
+    let t;
+    try {
+      es = new EventSource("/api/manage/watch");
+      es.onmessage = () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          refreshCatalog().catch(() => {});
+          loadTree();
+        }, 300);
+      };
+    } catch {
+      /* no SSE — manual refresh still works */
+    }
+    return () => {
+      if (es) es.close();
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [available]);
+
   const models = useMemo(() => {
     if (!tree) return [];
     return ROOTS.map(([root, title]) => {
@@ -164,7 +195,92 @@ export default function Manage({ settings, available, active }) {
   async function handleChanged(next) {
     const ok = await refreshCatalog().catch(() => false);
     if (!ok) await loadTree();
-    if (next && next.path) setSelected((s) => (s ? { ...s, ...next } : s));
+    if (next && next.deleted) setSelected(null);
+    else if (next && next.path) setSelected((s) => (s ? { ...s, ...next } : s));
+  }
+
+  const [addMenu, setAddMenu] = useState(null); // { root, folder } for the open add-menu, or null
+  const [dragEntry, setDragEntry] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null); // `${root}:${folder}` currently hovered
+
+  const cleanName = (raw) => (raw || "").trim().replace(/[^\w.-]/g, "-").replace(/^\.+/, "");
+
+  // Create a new block/list file in a folder, then open it for editing.
+  async function newFile(root, folder) {
+    setAddMenu(null);
+    const name = cleanName(window.prompt(`New ${root === "lists" ? "list" : "block"} name:`));
+    if (!name) return;
+    const ext = root === "lists" ? "txt" : "dpl";
+    const path = folder ? `${folder}/${name}` : name;
+    const boiler = root === "lists" ? "" : `${name}\n===\n`;
+    try {
+      await fsOp("mkfile", { root, path: `${path}.${ext}`, text: boiler });
+      await handleChanged();
+      setSelected({
+        type: "entry",
+        root,
+        path,
+        ext,
+        kind: root === "lists" ? "list" : "generator",
+        label: name,
+      });
+    } catch (e) {
+      setError(e.message || String(e));
+    }
+  }
+
+  // Create a new subfolder.
+  async function newFolder(root, folder) {
+    setAddMenu(null);
+    const name = cleanName(window.prompt("New subfolder name:"));
+    if (!name) return;
+    const path = folder ? `${folder}/${name}` : name;
+    try {
+      await fsOp("mkdir", { root, path });
+      setExpanded((s) => new Set(s).add(`${root}:${folder}`));
+      await handleChanged();
+    } catch (e) {
+      setError(e.message || String(e));
+    }
+  }
+
+  // Drag-and-drop move: relocate an entry's files (content + js sidecar + json sidecar) into a folder.
+  async function moveEntryTo(e, root, destFolder) {
+    const curFolder = e.path.includes("/") ? e.path.slice(0, e.path.lastIndexOf("/")) : "";
+    if (e.root !== root || curFolder === destFolder || e.ghost) return;
+    const target = destFolder ? `${destFolder}/${e.label}` : e.label;
+    try {
+      await fsOp("move", { root, path: `${e.path}.${e.ext}`, to: `${target}.${e.ext}` });
+      for (const side of ["js", "json"]) {
+        try {
+          await fsOp("move", { root, path: `${e.path}.${side}`, to: `${target}.${side}` });
+        } catch {
+          /* no such sidecar */
+        }
+      }
+      await handleChanged();
+    } catch (err) {
+      setError(err.message || String(err));
+    }
+  }
+
+  // Delete an entry's files (content + sidecars) after confirming.
+  async function deleteEntry(e) {
+    if (!window.confirm(`Delete ${e.label} (${e.root}/${e.path})? This removes the file from disk.`)) return;
+    try {
+      await fsOp("delete", { root: e.root, path: `${e.path}.${e.ext}` });
+      for (const side of ["js", "json"]) {
+        try {
+          await fsOp("delete", { root: e.root, path: `${e.path}.${side}` });
+        } catch {
+          /* no sidecar */
+        }
+      }
+      if (selected?.path === e.path) setSelected(null);
+      await handleChanged();
+    } catch (err) {
+      setError(err.message || String(err));
+    }
   }
 
   // Restore a ghost entry (a file deleted locally but present upstream) from the stable branch.
@@ -197,6 +313,9 @@ export default function Manage({ settings, available, active }) {
       <span
         className={`mg-pill kind-${e.kind}${selected?.path === e.path ? " on" : ""}`}
         title={e.path}
+        draggable
+        onDragStart={() => setDragEntry(e)}
+        onDragEnd={() => setDragEntry(null)}
       >
         <span className="mg-pill-label">{e.label}</span>
         {e.nsfw && (
@@ -211,6 +330,14 @@ export default function Manage({ settings, available, active }) {
         )}
         <button className="mg-pill-act" title={`Edit ${e.label}`} aria-label={`Edit ${e.label}`} onClick={() => openEntry(e)}>
           <EditIcon />
+        </button>
+        <button
+          className="mg-pill-act mg-pill-del"
+          title={`Delete ${e.label}`}
+          aria-label={`Delete ${e.label}`}
+          onClick={() => deleteEntry(e)}
+        >
+          <TrashIcon />
         </button>
       </span>
     );
@@ -238,9 +365,26 @@ export default function Manage({ settings, available, active }) {
     ]
       .filter(Boolean)
       .join(" ");
+    const isDrop = dropTarget === key && dragEntry && dragEntry.root === root;
     return (
       <div className={cls}>
-        <div className="mg-folder-head">
+        <div
+          className={`mg-folder-head${isDrop ? " is-drop" : ""}`}
+          onDragOver={(ev) => {
+            if (dragEntry && dragEntry.root === root) {
+              ev.preventDefault();
+              setDropTarget(key);
+            }
+          }}
+          onDragLeave={() => setDropTarget((d) => (d === key ? null : d))}
+          onDrop={(ev) => {
+            ev.preventDefault();
+            const e = dragEntry;
+            setDropTarget(null);
+            setDragEntry(null);
+            if (e) moveEntryTo(e, root, node.path);
+          }}
+        >
           <button className="mg-twirl" onClick={() => toggle(key)} aria-expanded={open}
             aria-label={open ? "Collapse" : "Expand"}>
             <Caret open={open} />
@@ -255,6 +399,24 @@ export default function Manage({ settings, available, active }) {
             >
               <GearIcon />
             </button>
+          )}
+          {!node.ghostFolder && (
+            <span className="mg-add-wrap">
+              <button
+                className="mg-add"
+                title={`Add to ${node.name}`}
+                aria-label={`Add to ${node.name}`}
+                onClick={() => setAddMenu((m) => (m && m.folder === node.path && m.root === root ? null : { root, folder: node.path }))}
+              >
+                +
+              </button>
+              {addMenu && addMenu.root === root && addMenu.folder === node.path && (
+                <span className="mg-add-menu" role="menu">
+                  <button onClick={() => newFile(root, node.path)}>New {root === "lists" ? "list" : "block"}</button>
+                  <button onClick={() => newFolder(root, node.path)}>New subfolder</button>
+                </span>
+              )}
+            </span>
           )}
           {node.markers.map((m) => (
             <span key={m} className={`mg-badge mg-badge-${m}`} title={badgeTitle(m)}>
@@ -312,8 +474,42 @@ export default function Manage({ settings, available, active }) {
         ) : (
           <div className="mg-tree">
             {models.map(({ root, title, model }) => (
-              <div key={root} className="mg-root">
-                <div className="mg-root-title">{title}</div>
+              <div
+                key={root}
+                className={`mg-root${dropTarget === `${root}:` && dragEntry?.root === root ? " is-drop" : ""}`}
+                onDragOver={(ev) => {
+                  if (dragEntry && dragEntry.root === root) {
+                    ev.preventDefault();
+                    setDropTarget(`${root}:`);
+                  }
+                }}
+                onDrop={(ev) => {
+                  ev.preventDefault();
+                  const e = dragEntry;
+                  setDropTarget(null);
+                  setDragEntry(null);
+                  if (e) moveEntryTo(e, root, "");
+                }}
+              >
+                <div className="mg-root-title">
+                  <span>{title}</span>
+                  <span className="mg-add-wrap">
+                    <button
+                      className="mg-add"
+                      title={`Add to ${title}`}
+                      aria-label={`Add to ${title}`}
+                      onClick={() => setAddMenu((m) => (m && m.root === root && m.folder === "" ? null : { root, folder: "" }))}
+                    >
+                      +
+                    </button>
+                    {addMenu && addMenu.root === root && addMenu.folder === "" && (
+                      <span className="mg-add-menu" role="menu">
+                        <button onClick={() => newFile(root, "")}>New {root === "lists" ? "list" : "block"}</button>
+                        <button onClick={() => newFolder(root, "")}>New folder</button>
+                      </span>
+                    )}
+                  </span>
+                </div>
                 {model.children.length === 0 && model.entries.length === 0 ? (
                   <p className="empty">Nothing matches.</p>
                 ) : (

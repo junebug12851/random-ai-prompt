@@ -543,6 +543,36 @@ export function apiPlugin() {
           return out.ok ? send(res, 200, { ok: true }) : send(res, 400, { error: out.error });
         }
 
+        // --- Manage: watch the data roots and push change events (external-edit auto-refresh) ---
+        if (u.pathname === "/api/manage/watch" && req.method === "GET") {
+          res.writeHead(200, {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+          });
+          res.write(": connected\n\n");
+          let timer = null;
+          const onChange = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => res.write(`data: ${Date.now()}\n\n`), 200);
+          };
+          const watchers = [];
+          for (const dir of Object.values(MANAGE_ROOTS)) {
+            try {
+              watchers.push(fs.watch(dir, { recursive: true }, onChange));
+            } catch {
+              /* watch unsupported here — the client's manual Refresh still works */
+            }
+          }
+          const keep = setInterval(() => res.write(": keep\n\n"), 30000);
+          req.on("close", () => {
+            clearInterval(keep);
+            clearTimeout(timer);
+            watchers.forEach((w) => w.close());
+          });
+          return; // keep the connection open
+        }
+
         // --- Manage: the stable-branch file manifest (for ghost / restorable entries) ---
         if (u.pathname === "/api/manage/remote-manifest" && req.method === "GET") {
           try {

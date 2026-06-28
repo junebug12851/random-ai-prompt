@@ -104,6 +104,29 @@ export default function ManageFolderEditor({ node, onChanged }) {
     }
   }
 
+  async function remove() {
+    if (
+      !window.confirm(
+        `Delete the folder "${node.name}" and everything in it (${node.entryCount} entr${node.entryCount === 1 ? "y" : "ies"})? This can't be undone.`,
+      )
+    )
+      return;
+    setSaving(true);
+    setError("");
+    try {
+      await fsOp("delete", { root, path });
+      try {
+        await fsOp("delete", { root, path: `${path}.json` });
+      } catch {
+        /* no folder sidecar */
+      }
+      await onChanged?.({ deleted: true });
+    } catch (e) {
+      setError(e.message || String(e));
+      setSaving(false);
+    }
+  }
+
   if (loading) return <section className="card mg-detail"><p className="empty">Loading…</p></section>;
 
   return (
@@ -166,6 +189,9 @@ export default function ManageFolderEditor({ node, onChanged }) {
       )}
 
       <div className="mg-editor-foot">
+        <button className="link-btn mg-danger" onClick={remove} disabled={saving}>
+          Delete folder
+        </button>
         {status && <span className="mg-ok">{status}</span>}
         {error && <span className="error">{error}</span>}
       </div>
