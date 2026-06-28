@@ -18,14 +18,25 @@ import ProviderPicker from "./ProviderPicker.jsx";
 import ApiKeyField from "./ApiKeyField.jsx";
 
 /** Shape a provider config into a ProviderPicker option (with its description + key/lock badge). */
-const toOption = (p) => ({
-  id: p.id,
-  label: p.label,
-  needsKey: p.needsKey,
-  description: metaFor(p.id).description,
-  // Local providers need a machine, so the online build shows them disabled (greyed + linked).
-  locked: ONLINE && p.local,
-});
+const toOption = (p) => {
+  // Online is a static site: local-direct providers need the user's machine, and hosted-proxy
+  // providers (Replicate / BFL / Ideogram) can't be called straight from a browser (no CORS).
+  // Both are shown disabled with a tooltip pointing to the full desktop version.
+  const lockedLocal = ONLINE && p.local;
+  const lockedProxy = ONLINE && p.transport === "hosted-proxy";
+  return {
+    id: p.id,
+    label: p.label,
+    needsKey: p.needsKey,
+    description: metaFor(p.id).description,
+    locked: lockedLocal || lockedProxy,
+    lockReason: lockedProxy
+      ? "This provider can't be called directly from a browser, so it isn't available online."
+      : lockedLocal
+        ? "It runs on your own machine."
+        : undefined,
+  };
+};
 
 /**
  * @param {object} props

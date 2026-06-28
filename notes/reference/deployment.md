@@ -99,12 +99,28 @@ functions = gui/netlify/functions
 client-side routing.
 
 **`VITE_ONLINE=true` is set in `netlify.toml` itself** (`[build.environment]`), so a Netlify build is
-the **online variant** with no extra dashboard config. In that build the local-only features —
-Gallery / Single tabs, the local SD providers (ComfyUI/Forge/SDNext/local-webui), and the NSFW toggle
-— are **not hidden but shown disabled**: greyed, with a hover tooltip and a click-through to the full
-desktop version on GitHub (`gui/src/lib/online.js`). Generate still works via BYOK keys through the
-serverless proxy. (Vite inlines `import.meta.env.VITE_ONLINE` at build time, so the flag must be
-present for the build command, not at runtime.)
+the **online variant** with no extra dashboard config. (Vite inlines `import.meta.env.VITE_ONLINE` at
+build time, so the flag must be present for the build command, not at runtime.)
+
+**The online build is a fully static, backend-free site (2.11.0).** Image generation and the AI
+rewrite run **browser-direct**: the SPA calls the provider's API straight from the visitor's browser
+with their own BYOK key (the key never touches our infra), so the deployed site uses **no serverless
+functions at all**. This sidesteps the Netlify free-tier function limits entirely — the invocation cap
+and the 10-second function timeout — which made the old proxy model unusable for heavy/bulk runs. It
+only works for providers whose APIs send CORS headers; a live preflight check (2026-06-27) found:
+
+- **Browser-direct (online-capable):** OpenAI, Google Gemini, xAI Grok, Stability AI, Leonardo AI,
+  fal.ai — `transport: "browser-direct"`. Covers image gen *and* rewrite (OpenAI/Gemini/Grok chat).
+- **Not CORS-capable (need the desktop app):** Replicate, Black Forest Labs (FLUX), Ideogram — kept on
+  `transport: "hosted-proxy"`. They work locally (via the Vite dev proxy) but are **locked online**.
+
+In the online build the disabled-with-tooltip set is therefore: Gallery / Single tabs, the local SD
+providers (ComfyUI/Forge/SDNext/local-webui), the three non-CORS hosted providers above, and the NSFW
+toggle — all greyed with a click-through to the full desktop version (`gui/src/lib/online.js`).
+
+The Netlify functions (`gui/netlify/functions/`) and `server/dispatch.js` remain in the repo for the
+**local** dev proxy (which the desktop full version uses for the non-CORS providers); the deployed
+online site simply never calls them.
 
 ### Online demo deploy — `prompt.fairyfox.io`
 

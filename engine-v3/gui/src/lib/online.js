@@ -18,10 +18,13 @@ export const FULL_VERSION_URL = "https://github.com/junebug12851/random-ai-promp
 /**
  * The hover tooltip for a control that's only in the full version.
  * @param {string} feature A short noun phrase, e.g. "The gallery" or "NSFW content".
+ * @param {string} [reason] Optional extra sentence explaining *why* (e.g. a provider that can't be
+ *   called from a browser). Inserted before the call-to-action.
  * @returns {string} The tooltip text.
  */
-export function lockedHint(feature) {
-  return `${feature} is only available in the full desktop version. Click to get it on GitHub.`;
+export function lockedHint(feature, reason) {
+  const why = reason ? ` ${reason}` : "";
+  return `${feature} is only available in the full desktop version.${why} Click to get it on GitHub.`;
 }
 
 /** Open the full-version download page in a new tab (used when a locked control is clicked). */
