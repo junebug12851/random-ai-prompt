@@ -253,6 +253,37 @@ export function setMarker(root, dir, marker, on) {
   return true;
 }
 
+// The stable branch the "restore default" action pulls original files from. `main` is the current
+// stable release that carries the engine-v3/ layout; `master` is a stale old-layout branch and can't
+// serve these paths (confirmed 2026-06-28 with the owner).
+const RAW_BASE =
+  "https://raw.githubusercontent.com/junebug12851/random-ai-prompt/main/engine-v3/data";
+
+/**
+ * Restore a file to its repository default (the stable `master` branch). Overwrites the local copy;
+ * if the file no longer exists upstream (404) the local copy is deleted instead.
+ * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} rel The relative path within the root (e.g. "place/city.txt").
+ * @returns {Promise<{ok: boolean, deleted?: boolean, error?: string}>}
+ */
+export async function restoreFromRepo(root, rel) {
+  const abs = resolveManagePath(root, rel);
+  if (!abs) return { ok: false, error: "Invalid path" };
+  const url = `${RAW_BASE}/${root}/${String(rel).split("\\").join("/")}`;
+  try {
+    const r = await fetch(url);
+    if (r.status === 404) {
+      fs.rmSync(abs, { force: true });
+      return { ok: true, deleted: true };
+    }
+    if (!r.ok) return { ok: false, error: `Upstream returned ${r.status}` };
+    writeFileAtomic(abs, await r.text());
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
 /**
  * Filesystem op on the content tree (create folder / create file / delete / move-or-rename). Each is
  * traversal-guarded to the data roots.

@@ -124,3 +124,13 @@ export function setMarker(root, dir, marker, on) {
 export function fsOp(op, args) {
   return postJson("/api/manage/fs", { op, ...args });
 }
+
+/**
+ * Restore a file to its repository default (the stable `master` branch), overwriting the local copy.
+ * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {string} path The relative path within the root (with extension).
+ * @returns {Promise<object>} The reply (`{ ok, deleted }`).
+ */
+export function restoreDefault(root, path) {
+  return postJson("/api/manage/restore", { root, path });
+}

@@ -22,6 +22,7 @@ import {
   mergeSidecar,
   setMarker,
   fsOp,
+  restoreFromRepo,
   MANAGE_ROOTS,
 } from "./server/manageFs.js";
 
@@ -539,6 +540,15 @@ export function apiPlugin() {
           const body = await readJson(req);
           const out = fsOp(body?.op, body);
           return out.ok ? send(res, 200, { ok: true }) : send(res, 400, { error: out.error });
+        }
+
+        // --- Manage: restore a file to its repo default (master) ---
+        if (u.pathname === "/api/manage/restore" && req.method === "POST") {
+          const body = await readJson(req);
+          const out = await restoreFromRepo(body?.root, body?.path);
+          return out.ok
+            ? send(res, 200, { ok: true, deleted: out.deleted || false })
+            : send(res, 502, { error: out.error });
         }
 
         // --- Local-file storage tier ---

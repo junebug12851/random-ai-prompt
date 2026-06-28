@@ -12,11 +12,12 @@
  * @module gui/components/Manage
  */
 import { useEffect, useMemo, useState } from "react";
-import { getTree, readFile } from "../lib/manageApi.js";
+import { getTree } from "../lib/manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../lib/promptEngine.js";
 import { buildManageModel, filterModel } from "../lib/manageTree.js";
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
+import ManageListEditor from "./ManageListEditor.jsx";
 
 const ROOTS = [
   ["dynamic-prompts", "Blocks"],
@@ -138,20 +139,9 @@ export default function Manage({ settings, available, active }) {
       return next;
     });
 
-  async function openEntry(entry) {
-    // Generators open in the block editor (which loads itself); lists/groups show a preview here
-    // for now (the full list editor arrives in the next phase).
-    if (entry.kind === "generator") {
-      setSelected({ type: "entry", ...entry });
-      return;
-    }
-    setSelected({ type: "entry", ...entry, text: null, loading: true });
-    try {
-      const text = await readFile(entry.root, `${entry.path}.${entry.ext}`);
-      setSelected((s) => (s && s.path === entry.path ? { ...s, text, loading: false } : s));
-    } catch (e) {
-      setSelected((s) => (s && s.path === entry.path ? { ...s, error: e.message, loading: false } : s));
-    }
+  // Generators open in the block editor; lists/groups in the list editor (each loads its own file).
+  function openEntry(entry) {
+    setSelected({ type: "entry", ...entry });
   }
 
   // After an edit/rename: hot-apply (refreshCatalog notifies → the tree reloads) and, on a rename,
@@ -303,6 +293,8 @@ export default function Manage({ settings, available, active }) {
           <ManageFolderEditor node={selected} onChanged={handleChanged} />
         ) : selected?.type === "entry" && selected.kind === "generator" ? (
           <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} />
+        ) : selected?.type === "entry" && (selected.kind === "list" || selected.kind === "group") ? (
+          <ManageListEditor entry={selected} onChanged={handleChanged} />
         ) : (
           <ManageDetail selected={selected} />
         )}

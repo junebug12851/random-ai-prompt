@@ -24,7 +24,8 @@ Decisions already settled (owner answers, 2026-06-28):
   Manage requires **local mode** (i.e. the file-API backend is present); it is detected by a
   runtime capability probe, not by the `ONLINE` build flag or dev-vs-prod. In **online mode**
   (no local backend) Manage is shown disabled with a lock, like Gallery/Single in that mode.
-- **Restore-defaults fetches from the stable branch (`master`).**
+- **Restore-defaults fetches from the stable branch `main`** (not `master` — that branch is stale
+  old-layout; confirmed with the owner 2026-06-28).
 
 ## 2. The core technical question: can hot live-apply be clean?
 
@@ -211,8 +212,10 @@ action that re-fetches the original file(s) from the project's GitHub repo and o
 copy — per file, per folder/category, or all. This is the safety net for "I tore it up and want it
 back."
 
-- Fetch via the GitHub raw content for the project, **always from the stable branch `master`**,
-  e.g. `raw.githubusercontent.com/<owner>/<repo>/master/engine-v3/data/<path>`.
+- Fetch via the GitHub raw content for the project from the **stable branch `main`**
+  (`raw.githubusercontent.com/<owner>/<repo>/main/engine-v3/data/<path>`). The owner first said
+  "master", but `master` is a stale old-layout branch with no `engine-v3/` tree (restore would 404);
+  confirmed 2026-06-28 to use `main`, which carries the current layout.
   A file deleted upstream ⇒ the restore deletes the local copy; a file the user added that doesn't
   exist upstream ⇒ left alone (with a note).
 - Surfaced as: a **"Restore default"** item in a file/folder's hover menu and a top-level **"Restore
@@ -269,9 +272,8 @@ before moving on, and merge `--no-ff` to `dev` at the end per the git-flow stand
 
 - **`.js`-module hot-apply boundary** (§2/§4c) — *resolved:* no JS hot-reload; JS is editable, a JS
   sidecar can be scaffolded from boilerplate, with easy DPL ⇄ JS switching; JS saves but reloads to run.
-- **Stable-branch name** — restore fetches from **`master`** (owner's instruction). Note that
-  `CLAUDE.md` documents `main` as the stable branch; I'll point restore at whichever is the repo's
-  actual stable branch and confirm the name before wiring it.
+- **Stable-branch name** — *resolved:* restore fetches from **`main`**. `master` turned out to be a
+  stale old-layout branch with no `engine-v3/` tree (would 404); owner confirmed `main` 2026-06-28.
 - **Drag-and-drop scope** — *resolved:* don't build custom sorting; ride on the app's existing
   sort/display. Dragging a block/category around just **adjusts its `priority`** (abstractly), and the
   edit menu still exposes the **raw priority number** for direct editing. Folders/files move via DnD;
