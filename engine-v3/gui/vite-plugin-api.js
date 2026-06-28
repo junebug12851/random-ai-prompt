@@ -14,6 +14,13 @@ import { fileURLToPath } from "node:url";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { dispatch, dispatchRewrite } from "./server/dispatch.js";
+import {
+  resolveManagePath,
+  buildManageSnapshot,
+  buildManageTree,
+  writeFileAtomic,
+  MANAGE_ROOTS,
+} from "./server/manageFs.js";
 
 const execP = promisify(exec);
 
@@ -452,6 +459,58 @@ export function apiPlugin() {
             return send(res, 200, { ok: true, meta: merged });
           } catch (e) {
             return send(res, 502, { error: `Could not write sidecar: ${e.message}` });
+          }
+        }
+
+        // --- Manage: capability probe (presence ⇒ local mode, so the tab unlocks) ---
+        if (u.pathname === "/api/manage/ping" && req.method === "GET") {
+          return send(res, 200, { ok: true });
+        }
+
+        // --- Manage: full disk snapshot for the runtime loader ---
+        if (u.pathname === "/api/manage/snapshot" && req.method === "GET") {
+          try {
+            return send(res, 200, buildManageSnapshot());
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: the raw folder tree of both data roots ---
+        if (u.pathname === "/api/manage/tree" && req.method === "GET") {
+          try {
+            return send(res, 200, {
+              lists: buildManageTree(MANAGE_ROOTS.lists),
+              "dynamic-prompts": buildManageTree(MANAGE_ROOTS["dynamic-prompts"]),
+            });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: read one file's text ---
+        if (u.pathname === "/api/manage/file" && req.method === "GET") {
+          const abs = resolveManagePath(u.searchParams.get("root"), u.searchParams.get("path"));
+          if (!abs) return send(res, 400, { error: "Invalid path" });
+          if (!fs.existsSync(abs)) return send(res, 404, { error: "Not found" });
+          try {
+            return send(res, 200, { text: fs.readFileSync(abs, "utf8") });
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: write one file's text (atomic) ---
+        if (u.pathname === "/api/manage/file" && req.method === "POST") {
+          const body = await readJson(req);
+          const abs = resolveManagePath(body?.root, body?.path);
+          if (!abs) return send(res, 400, { error: "Invalid path" });
+          if (typeof body?.text !== "string") return send(res, 400, { error: "Missing text" });
+          try {
+            writeFileAtomic(abs, body.text);
+            return send(res, 200, { ok: true, root: body.root, path: body.path });
+          } catch (e) {
+            return send(res, 502, { error: `Could not write file: ${e.message}` });
           }
         }
 

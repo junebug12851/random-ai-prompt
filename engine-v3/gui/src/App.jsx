@@ -25,6 +25,7 @@ import { deleteImageFile } from "./lib/output.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
+import { refreshCatalog } from "./lib/promptEngine.js";
 import Home from "./components/Home.jsx";
 import Gallery from "./components/Gallery.jsx";
 import SingleView from "./components/SingleView.jsx";
@@ -84,6 +85,9 @@ export default function App() {
       loadFeed();
     }
     fetchMagick().then(setMagick);
+    // Switch the engine from the build-time bundle to the live disk snapshot (local mode only).
+    // A no-op online / on a static host — Generate keeps using the bundled catalog.
+    refreshCatalog().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
