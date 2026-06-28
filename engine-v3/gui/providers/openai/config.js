@@ -7,6 +7,9 @@
 export default {
   id: "openai",
   label: "OpenAI (DALL·E / gpt-image)",
+  // Shown when this provider is picked for the TEXT (prompt-rewrite) role — the rewrite uses a
+  // GPT chat model, not the image model, so the image-flavoured label would be misleading here.
+  rewriteLabel: "OpenAI (GPT-4o mini)",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",

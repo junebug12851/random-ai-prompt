@@ -5,7 +5,9 @@
  */
 export default {
   id: "grok",
-  label: "Grok (xAI)",
+  label: "Grok (xAI image)",
+  // Text (prompt-rewrite) role uses the Grok chat model, not the Aurora image model.
+  rewriteLabel: "Grok (xAI · Grok 2)",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",

@@ -64,13 +64,15 @@ export default function ProvidersMenu({ settings, setSettings }) {
     { title: "Local", items: provs.filter((p) => p.local || p.id === "plain").map(toOption) },
     { title: "Online", items: provs.filter((p) => !p.local && p.id !== "plain").map(toOption) },
   ];
-  // Text providers: Off, then the rewrite-capable AIs.
+  // Text providers: Off, then the rewrite-capable AIs. A provider in the text role uses its chat
+  // model, so show its `rewriteLabel` (e.g. "OpenAI (GPT-4o mini)") instead of the image label.
+  const toTextOption = (p) => ({ ...toOption(p), label: p.rewriteLabel || p.label });
   const textGroups = [
     {
       title: "Prompt & keyword rewrite",
       items: [
         { id: "none", label: "Off", description: "No prompt or keyword rewriting." },
-        ...rewriteProviders().map(toOption),
+        ...rewriteProviders().map(toTextOption),
       ],
     },
   ];
