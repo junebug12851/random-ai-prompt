@@ -55,7 +55,7 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
                       key={it.id}
                       className={`ps-item${it.id === value ? " on" : ""}${it.locked ? " is-locked" : ""}`}
                       aria-disabled={it.locked || undefined}
-                      title={it.locked ? lockedHint(it.label) : undefined}
+                      title={it.locked ? lockedHint(it.label, it.lockReason) : undefined}
                       onClick={() => (it.locked ? openFullVersion() : choose(it.id))}
                     >
                       <span className="ps-item-head">

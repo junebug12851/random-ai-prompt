@@ -1,19 +1,18 @@
 /**
- * fal.ai — client generate adapter (posts to the shared proxy).
+ * fal.ai — client generate adapter. Calls the fal.run API directly from the browser
+ * (CORS-enabled) with the user's BYOK key; `server.js` holds the actual fetch.
  * @module gui/providers/fal/code/generate
  */
-import { callProxy } from "../../_shared/transport/hostedProxy.js";
+import server from "./server.js";
 
 /**
- * @param {object} args `{ prompt, settings, key, signal }`.
+ * @param {object} args `{ prompt, settings, key }`.
  * @returns {Promise<{images: string[]}>}
  */
-export default function generate({ prompt, settings, key, signal }) {
-  return callProxy({
-    providerId: "fal",
+export default function generate({ prompt, settings, key }) {
+  return server({
     prompt,
     key,
-    signal,
     params: {
       model: settings.model || "fal-ai/flux/schnell",
       image_size: settings.imageSize || "square_hd",

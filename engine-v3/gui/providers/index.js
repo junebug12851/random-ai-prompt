@@ -26,10 +26,16 @@ export const providers = Object.values(configs)
 export const ONLINE = import.meta.env.VITE_ONLINE === "true";
 
 /**
- * @returns {object[]} Providers usable in the current mode (local-only hidden when ONLINE).
+ * Providers usable in the current mode. The online build is a static site with no backend, so a
+ * provider only works there if it talks straight to its API from the browser (`browser-direct`) or
+ * needs no network at all (`transport: "none"`, e.g. Plain text). Local-direct and hosted-proxy
+ * providers need the desktop app and are excluded (the UI shows them disabled — see ProvidersMenu).
+ * @returns {object[]} The providers usable in the current mode.
  */
 export function availableProviders() {
-  return ONLINE ? providers.filter((p) => !p.local) : providers;
+  return ONLINE
+    ? providers.filter((p) => !p.local && p.transport !== "hosted-proxy")
+    : providers;
 }
 
 /**

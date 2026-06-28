@@ -9,7 +9,7 @@ export default {
   label: "Leonardo AI",
   tier: "api",
   dialect: "plain",
-  transport: "hosted-proxy",
+  transport: "browser-direct",
   local: false,
   needsKey: true,
   capabilities: {

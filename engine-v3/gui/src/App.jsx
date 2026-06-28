@@ -69,10 +69,13 @@ export default function App() {
     if (ONLINE) {
       setLoadingItems(false);
       if (settings.includeAdult) setSettings((s) => ({ ...s, includeAdult: false }));
-      // A saved local provider (e.g. the default ComfyUI) can't run online — fall back to the
-      // first available hosted provider so generation works out of the box.
-      if (getProvider(settings.provider)?.local) {
-        const fallback = availableProviders()[0];
+      // A saved provider that can't run online (a local-direct or hosted-proxy one) — fall back to
+      // the first browser-direct image provider so generation works out of the box.
+      const cur = getProvider(settings.provider);
+      const usableOnline = cur && !cur.local && cur.transport !== "hosted-proxy";
+      if (!usableOnline) {
+        const avail = availableProviders();
+        const fallback = avail.find((p) => p.loadGenerate) || avail[0];
         if (fallback) {
           setSettings((s) => ({ ...s, provider: fallback.id, mode: providerMode(fallback.id) }));
         }

@@ -8,7 +8,7 @@ export default {
   label: "Google Gemini (image)",
   tier: "api",
   dialect: "plain",
-  transport: "hosted-proxy",
+  transport: "browser-direct",
   local: false,
   needsKey: true,
   capabilities: {
