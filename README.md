@@ -6,17 +6,34 @@ holds **two separate engines**. Pick the one you want:
 ## 🟢 `engine-v3/` — the active project
 
 The current, maintained system: an isomorphic prompt **engine** (`src/core/`) authored in the **DPL**
-dynamic-prompt language, driven by a React/Vite **web SPA** (`web-app/`), with SFW/NSFW gating and the
+dynamic-prompt language, driven by a React/Vite **web SPA** (`gui/`), with SFW/NSFW gating and the
 improved keyword lists. **All new work happens here.** It contains the `v1`/`v2`/`v3` dynamic-prompt
 generations, re-wired to the new lists.
 
+### Build & run from source
+
+Requires **Node ≥ 24**.
+
 ```sh
 cd engine-v3
-npm install
-npm run web         # run the SPA (dev server)
-npm test            # lint + smoke + Vitest (Node + jsdom)
-npm run web:build   # production SPA build
+npm install          # installs the engine and the gui/ web-app dependencies
+npm run web          # run the app (opens a local web server)
 ```
+
+The engine and the SPA in `gui/` are separate packages; `npm install` installs both (the engine's
+`postinstall` runs the gui install for you). To reinstall just the web-app deps, run `npm run web:install`.
+
+To produce a static production build instead of running the dev server:
+
+```sh
+npm run web:build    # outputs the built site to gui/dist/
+```
+
+### Development
+
+Contributing? The verification gate is `npm test` (lint + smoke + Vitest, Node + jsdom); end-to-end
+specs run with `npm run test:e2e`. See [`notes/`](notes/) (start at
+[`notes/status.md`](notes/status.md)) for the full developer guide.
 
 ## 🟠 `engine-v1-2/` — the original, frozen
 
