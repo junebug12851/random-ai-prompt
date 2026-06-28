@@ -8,7 +8,9 @@
  * @module gui/server/manageFs
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 // engine-v3/data/{lists,dynamic-prompts} — this file lives at engine-v3/gui/server/.
@@ -256,8 +258,79 @@ export function setMarker(root, dir, marker, on) {
 // The stable branch the "restore default" action pulls original files from. `main` is the current
 // stable release that carries the engine-v3/ layout; `master` is a stale old-layout branch and can't
 // serve these paths (confirmed 2026-06-28 with the owner).
-const RAW_BASE =
-  "https://raw.githubusercontent.com/junebug12851/random-ai-prompt/main/engine-v3/data";
+const STABLE_BRANCH = "main";
+const REPO = "junebug12851/random-ai-prompt";
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${STABLE_BRANCH}/engine-v3/data`;
+
+let manifestCache = null;
+let manifestAt = 0;
+
+// On-disk cache so the manifest is fetched at most ~once a day (no rate limits, works offline after
+// the first fetch). The filename carries a hash of repo@branch so different targets don't collide.
+const MANIFEST_TTL = 24 * 60 * 60 * 1000;
+const MANIFEST_CACHE_FILE = path.join(
+  os.tmpdir(),
+  `rap-manifest-${crypto.createHash("sha1").update(`${REPO}@${STABLE_BRANCH}`).digest("hex").slice(0, 12)}.json`,
+);
+
+const normalizeManifest = (d) => ({
+  lists: d?.lists || [],
+  "dynamic-prompts": d?.["dynamic-prompts"] || [],
+});
+
+/**
+ * The set of content files that exist on the stable branch, by root — used to surface "ghost"
+ * entries (files deleted locally but still available upstream, restorable). Reads a **published
+ * static manifest** (`data/manifest.json`, regenerated at release by `scripts/build-data-manifest.mjs`),
+ * so there's no GitHub-API rate limit — just one fetch, **disk-cached for a day** in the OS temp dir
+ * (checked on boot, re-downloaded at most ~once/day; falls back to the stale cache when offline). The
+ * client then does a simple set difference. Paths are root-relative with extension.
+ * @param {boolean} [fresh] Bypass the in-memory + disk cache and re-download now.
+ * @returns {Promise<{lists: string[], "dynamic-prompts": string[]}>}
+ */
+export async function remoteManifest(fresh = false) {
+  if (!fresh && manifestCache && Date.now() - manifestAt < 5 * 60 * 1000) return manifestCache;
+
+  // Disk cache: use it when it's younger than a day (the "quick check on boot" path — no network).
+  if (!fresh) {
+    try {
+      const st = fs.statSync(MANIFEST_CACHE_FILE);
+      if (Date.now() - st.mtimeMs < MANIFEST_TTL) {
+        const cached = normalizeManifest(JSON.parse(fs.readFileSync(MANIFEST_CACHE_FILE, "utf8")));
+        manifestCache = cached;
+        manifestAt = Date.now();
+        return cached;
+      }
+    } catch {
+      /* no/old cache — fall through to fetch */
+    }
+  }
+
+  try {
+    const r = await fetch(`${RAW_BASE}/manifest.json`);
+    if (!r.ok) throw new Error(`manifest returned ${r.status}`);
+    const data = await r.json();
+    try {
+      fs.writeFileSync(MANIFEST_CACHE_FILE, JSON.stringify(data));
+    } catch {
+      /* cache write is best-effort */
+    }
+    const out = normalizeManifest(data);
+    manifestCache = out;
+    manifestAt = Date.now();
+    return out;
+  } catch (e) {
+    // Offline / fetch failed: fall back to the stale disk cache if we have one.
+    try {
+      const cached = normalizeManifest(JSON.parse(fs.readFileSync(MANIFEST_CACHE_FILE, "utf8")));
+      manifestCache = cached;
+      manifestAt = Date.now();
+      return cached;
+    } catch {
+      throw e;
+    }
+  }
+}
 
 /**
  * Restore a file to its repository default (the stable `master` branch). Overwrites the local copy;

@@ -22,6 +22,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "smoke": "node scripts/smoke-test.mjs",
+    "manifest": "node scripts/build-data-manifest.mjs",
     "docs": "node scripts/build-docs.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

@@ -12,9 +12,9 @@
  * @module gui/components/Manage
  */
 import { useEffect, useMemo, useState } from "react";
-import { getTree } from "../lib/manageApi.js";
+import { getTree, getRemoteManifest, restoreDefault } from "../lib/manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../lib/promptEngine.js";
-import { buildManageModel, filterModel } from "../lib/manageTree.js";
+import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../lib/manageTree.js";
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
@@ -58,6 +58,12 @@ const RefreshIcon = () => (
     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
   </svg>
 );
+const RestoreIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+    <polyline points="21 3 21 8 16 8" />
+  </svg>
+);
 
 /** Collect the paths of every category (depth-1) folder, to expand them by default. */
 function defaultExpanded(models) {
@@ -84,13 +90,15 @@ export default function Manage({ settings, available, active }) {
   const [expanded, setExpanded] = useState(() => new Set());
   const [selected, setSelected] = useState(null); // { kind: "entry"|"folder", ...data }
   const [refreshing, setRefreshing] = useState(false);
+  const [manifest, setManifest] = useState(null); // stable-branch file list (for ghost entries)
 
   async function loadTree(initialExpand = false) {
     setLoading(true);
     setError("");
     try {
-      const t = await getTree();
+      const [t, m] = await Promise.all([getTree(), getRemoteManifest()]);
       setTree(t);
+      setManifest(m);
       if (initialExpand) {
         const models = ROOTS.map(([root]) => ({
           root,
@@ -118,11 +126,18 @@ export default function Manage({ settings, available, active }) {
     if (!tree) return [];
     return ROOTS.map(([root, title]) => {
       const full = buildManageModel(tree[root], root, { includeAdult: settings.includeAdult });
+      // Inject "ghost" entries: files on the stable branch that are missing locally (restorable).
+      if (manifest?.[root]) {
+        const ghosts = computeGhosts(tree[root], manifest[root], root, {
+          includeAdult: settings.includeAdult,
+        });
+        injectGhosts(full, ghosts);
+      }
       const q = query.trim().toLowerCase();
       const model = q ? filterModel(full, q) || { ...full, children: [], entries: [] } : full;
       return { root, title, model };
     });
-  }, [tree, settings.includeAdult, query]);
+  }, [tree, manifest, settings.includeAdult, query]);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -151,6 +166,54 @@ export default function Manage({ settings, available, active }) {
     if (!ok) await loadTree();
     if (next && next.path) setSelected((s) => (s ? { ...s, ...next } : s));
   }
+
+  // Restore a ghost entry (a file deleted locally but present upstream) from the stable branch.
+  async function restoreGhost(e) {
+    try {
+      await restoreDefault(e.root, `${e.path}.${e.ext}`);
+      await handleChanged();
+    } catch (err) {
+      setError(err.message || String(err));
+    }
+  }
+
+  // One entry pill. A normal entry has a hover Edit action (clicking the pill never inserts). A
+  // "ghost" (deleted locally, still upstream) is faded and offers only Restore.
+  const EntryPill = ({ e }) =>
+    e.ghost ? (
+      <span className={`mg-pill kind-${e.kind} is-ghost`} title={`${e.path} — deleted locally; restore from the repo`}>
+        <span className="mg-pill-label">{e.label}</span>
+        <span className="mg-ghost-tag">ghost</span>
+        <button
+          className="mg-pill-act"
+          title={`Restore ${e.label} from the repo`}
+          aria-label={`Restore ${e.label}`}
+          onClick={() => restoreGhost(e)}
+        >
+          <RestoreIcon />
+        </button>
+      </span>
+    ) : (
+      <span
+        className={`mg-pill kind-${e.kind}${selected?.path === e.path ? " on" : ""}`}
+        title={e.path}
+      >
+        <span className="mg-pill-label">{e.label}</span>
+        {e.nsfw && (
+          <span className="mg-nsfw" title="NSFW">
+            18+
+          </span>
+        )}
+        {e.hasJsSidecar && (
+          <span className="mg-js" title="Has a JS sidecar">
+            JS
+          </span>
+        )}
+        <button className="mg-pill-act" title={`Edit ${e.label}`} aria-label={`Edit ${e.label}`} onClick={() => openEntry(e)}>
+          <EditIcon />
+        </button>
+      </span>
+    );
 
   if (!available) {
     return (
@@ -183,14 +246,16 @@ export default function Manage({ settings, available, active }) {
             <Caret open={open} />
           </button>
           <span className="mg-folder-name" onClick={() => toggle(key)}>{node.name}</span>
-          <button
-            className="mg-gear"
-            title={`Folder settings — ${node.name}`}
-            aria-label={`Settings for ${node.name}`}
-            onClick={() => setSelected({ type: "folder", ...node })}
-          >
-            <GearIcon />
-          </button>
+          {!node.ghostFolder && (
+            <button
+              className="mg-gear"
+              title={`Folder settings — ${node.name}`}
+              aria-label={`Settings for ${node.name}`}
+              onClick={() => setSelected({ type: "folder", ...node })}
+            >
+              <GearIcon />
+            </button>
+          )}
           {node.markers.map((m) => (
             <span key={m} className={`mg-badge mg-badge-${m}`} title={badgeTitle(m)}>
               {m === "force-prefix" ? "prefix" : "group"}
@@ -206,23 +271,7 @@ export default function Manage({ settings, available, active }) {
             {node.entries.length > 0 && (
               <div className="mg-entries">
                 {node.entries.map((e) => (
-                  <span
-                    key={e.path}
-                    className={`mg-pill kind-${e.kind}${selected?.path === e.path ? " on" : ""}`}
-                    title={e.path}
-                  >
-                    <span className="mg-pill-label">{e.label}</span>
-                    {e.nsfw && <span className="mg-nsfw" title="NSFW">18+</span>}
-                    {e.hasJsSidecar && <span className="mg-js" title="Has a JS sidecar">JS</span>}
-                    <button
-                      className="mg-pill-act"
-                      title={`Edit ${e.label}`}
-                      aria-label={`Edit ${e.label}`}
-                      onClick={() => openEntry(e)}
-                    >
-                      <EditIcon />
-                    </button>
-                  </span>
+                  <EntryPill key={e.path} e={e} />
                 ))}
               </div>
             )}
@@ -273,12 +322,7 @@ export default function Manage({ settings, available, active }) {
                       <FolderNode key={c.path} node={c} root={root} />
                     ))}
                     {model.entries.map((e) => (
-                      <span key={e.path} className={`mg-pill kind-${e.kind}`} title={e.path}>
-                        <span className="mg-pill-label">{e.label}</span>
-                        <button className="mg-pill-act" onClick={() => openEntry(e)} aria-label={`Edit ${e.label}`}>
-                          <EditIcon />
-                        </button>
-                      </span>
+                      <EntryPill key={e.path} e={e} />
                     ))}
                   </>
                 )}

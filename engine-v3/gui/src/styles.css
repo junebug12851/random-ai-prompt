@@ -3602,6 +3602,33 @@ button.ghost:hover {
   border-color: var(--accent);
   box-shadow: var(--ring);
 }
+/* Ghost: a file deleted locally but still upstream — faded, dashed, restore-only. */
+.mg-pill.is-ghost {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--border);
+  opacity: 0.7;
+}
+.mg-pill.is-ghost .mg-pill-label {
+  color: var(--muted);
+  font-style: italic;
+}
+.mg-pill.is-ghost::before {
+  opacity: 0.5;
+}
+.mg-ghost-tag {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.mg-pill.is-ghost .mg-pill-act {
+  opacity: 1;
+  color: var(--accent);
+}
 .mg-pill-label {
   color: var(--fg-soft);
 }

@@ -23,6 +23,7 @@ import {
   setMarker,
   fsOp,
   restoreFromRepo,
+  remoteManifest,
   MANAGE_ROOTS,
 } from "./server/manageFs.js";
 
@@ -542,7 +543,17 @@ export function apiPlugin() {
           return out.ok ? send(res, 200, { ok: true }) : send(res, 400, { error: out.error });
         }
 
-        // --- Manage: restore a file to its repo default (master) ---
+        // --- Manage: the stable-branch file manifest (for ghost / restorable entries) ---
+        if (u.pathname === "/api/manage/remote-manifest" && req.method === "GET") {
+          try {
+            const m = await remoteManifest(u.searchParams.get("fresh") === "1");
+            return send(res, 200, m);
+          } catch (e) {
+            return send(res, 502, { error: e.message });
+          }
+        }
+
+        // --- Manage: restore a file to its repo default (main) ---
         if (u.pathname === "/api/manage/restore" && req.method === "POST") {
           const body = await readJson(req);
           const out = await restoreFromRepo(body?.root, body?.path);

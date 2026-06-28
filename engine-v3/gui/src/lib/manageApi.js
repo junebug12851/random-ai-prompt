@@ -134,3 +134,18 @@ export function fsOp(op, args) {
 export function restoreDefault(root, path) {
   return postJson("/api/manage/restore", { root, path });
 }
+
+/**
+ * The stable-branch file manifest (for ghost / restorable entries). Returns null on failure (e.g. no
+ * network or GitHub rate-limit) so ghosts just don't show.
+ * @returns {Promise<{lists: string[], "dynamic-prompts": string[]}|null>}
+ */
+export async function getRemoteManifest() {
+  try {
+    const res = await fetch("/api/manage/remote-manifest");
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
