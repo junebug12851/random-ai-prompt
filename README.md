@@ -12,15 +12,16 @@ generations, re-wired to the new lists.
 
 ### Build & run from source
 
-Requires **Node ≥ 24**. The engine and the SPA in `gui/` have separate dependencies, so there are
-two installs:
+Requires **Node ≥ 24**.
 
 ```sh
 cd engine-v3
-npm install          # engine dependencies
-npm run web:install  # web-app dependencies (in gui/)
+npm install          # installs the engine and the gui/ web-app dependencies
 npm run web          # run the app (opens a local web server)
 ```
+
+The engine and the SPA in `gui/` are separate packages; `npm install` installs both (the engine's
+`postinstall` runs the gui install for you). To reinstall just the web-app deps, run `npm run web:install`.
 
 To produce a static production build instead of running the dev server:
 
