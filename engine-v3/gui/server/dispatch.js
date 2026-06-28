@@ -19,17 +19,27 @@ import bflServer from "../providers/bfl/code/server.js";
 import ideogramServer from "../providers/ideogram/code/server.js";
 import leonardoServer from "../providers/leonardo/code/server.js";
 
+/**
+ * Unwrap a module's adapter to the callable function. Netlify's function bundler can hand an ESM
+ * `export default` back as a namespace object (`{ default: fn }`) instead of the function itself,
+ * so a plain default import isn't callable in the deployed bundle (it is locally, under native
+ * ESM). Accept either shape. Without this, `dispatch` throws "adapter is not a function" online.
+ * @param {Function|{default: Function}} m The imported adapter.
+ * @returns {Function} The callable adapter.
+ */
+const asFn = (m) => (typeof m === "function" ? m : m?.default);
+
 /** @type {Record<string, (args: object) => Promise<{images: string[]}>>} */
 export const serverAdapters = {
-  openai: openaiServer,
-  replicate: replicateServer,
-  fal: falServer,
-  stability: stabilityServer,
-  gemini: geminiServer,
-  grok: grokServer,
-  bfl: bflServer,
-  ideogram: ideogramServer,
-  leonardo: leonardoServer,
+  openai: asFn(openaiServer),
+  replicate: asFn(replicateServer),
+  fal: asFn(falServer),
+  stability: asFn(stabilityServer),
+  gemini: asFn(geminiServer),
+  grok: asFn(grokServer),
+  bfl: asFn(bflServer),
+  ideogram: asFn(ideogramServer),
+  leonardo: asFn(leonardoServer),
 };
 
 /**
@@ -56,9 +66,9 @@ import { systemFor } from "../providers/_shared/rewriteSystem.js";
 
 /** @type {Record<string, (args: object) => Promise<{text: string}>>} Auto-fix text rewriters. */
 export const rewriteAdapters = {
-  openai: openaiRewrite,
-  gemini: geminiRewrite,
-  grok: grokRewrite,
+  openai: asFn(openaiRewrite),
+  gemini: asFn(geminiRewrite),
+  grok: asFn(grokRewrite),
 };
 
 /**
