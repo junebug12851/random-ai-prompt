@@ -112,6 +112,7 @@ import geminiRewrite from "../providers/gemini/code/rewrite.js";
 import grokRewrite from "../providers/grok/code/rewrite.js";
 import { systemFor } from "../providers/_shared/rewriteSystem.js";
 import { makeChatRewrite } from "../providers/_shared/openaiCompatRewrite.js";
+import { anthropicRewrite, cohereRewrite } from "../providers/_shared/bespokeRewrite.js";
 
 /**
  * Auto-fix text rewriters. OpenAI/Gemini/Grok have bespoke browser-direct adapters; the OpenAI-
@@ -131,6 +132,21 @@ export const rewriteAdapters = {
     label: "Together",
   }),
   perplexity: makeChatRewrite({ baseUrl: "https://api.perplexity.ai", model: "sonar", label: "Perplexity" }),
+  fireworks: makeChatRewrite({
+    baseUrl: "https://api.fireworks.ai/inference/v1",
+    model: "accounts/fireworks/models/llama-v3p3-70b-instruct",
+    label: "Fireworks",
+  }),
+  cerebras: makeChatRewrite({ baseUrl: "https://api.cerebras.ai/v1", model: "llama-3.3-70b", label: "Cerebras" }),
+  qwen: makeChatRewrite({
+    baseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+    model: "qwen-plus",
+    label: "Qwen",
+  }),
+  moonshot: makeChatRewrite({ baseUrl: "https://api.moonshot.ai/v1", model: "moonshot-v1-8k", label: "Moonshot" }),
+  ai21: makeChatRewrite({ baseUrl: "https://api.ai21.com/studio/v1", model: "jamba-large", label: "AI21" }),
+  anthropic: anthropicRewrite,
+  cohere: cohereRewrite,
 };
 
 /**
