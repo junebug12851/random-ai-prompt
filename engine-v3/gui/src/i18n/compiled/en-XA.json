@@ -5816,6 +5816,20 @@
       "value": "]"
     }
   ],
+  "providersMenu.upscaleLockedReason": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥşƈȧȧŀīƞɠ ħȧȧƥƥḗḗƞş īƞ ŧħḗḗ şīƞɠŀḗḗ-īḿȧȧɠḗḗ ṽīḗḗẇ, ẇħīƈħ ƞḗḗḗḗḓş ŧħḗḗ ƒŭŭŀŀ ḓḗḗşķŧǿǿƥ ȧȧƥƥ (īŧ īşƞ'ŧ ȧȧṽȧȧīŀȧȧƀŀḗḗ ǿǿƞŀīƞḗḗ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "settings.alternatingMaxLevels": [
     {
       "type": 0,
