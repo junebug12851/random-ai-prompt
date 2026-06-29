@@ -31,7 +31,7 @@ against current docs before coding — APIs drift.**
 | Leonardo | image | **upscale** (Universal Upscaler) | ✅ DONE (2.19.0) — `init-image` presigned upload → `variations/universal-upscaler` (≤2×) → poll; best-effort, verify live |
 | Replicate | image | **upscale** (Real-ESRGAN) | ✅ DONE (2.19.0) — via the new `/api/upscale` proxy: `dispatchUpscale` → `nightmareai/real-esrgan` `/v1/models/.../predictions` w/ `Prefer: wait`; server inlines the image + returns data URLs |
 | Forge / SD.Next (local-webui) | image (local) | **upscale** via Extras tab | ✅ DONE (2.22.0) — modernized the `local-webui` txt2img adapter first (`sampler_index` → `sampler_name` + `scheduler` + `batch_size`), then added the shared Extras upscaler (`/sdapi/v1/extra-single-image`, `R-ESRGAN 4x+`). Best-effort — verify against a live WebUI. |
-| ComfyUI | image (local) | **upscale** via an upscale node graph | TODO — needs a model-specific workflow graph (an Upscale Model Loader + upscale node); deferred. |
+| ComfyUI | image (local) | **upscale** via an upscale node graph | ✅ DONE (2.23.0) — via the proxy (`upscale-server.js`): uploads the image to ComfyUI, runs LoadImage → UpscaleModelLoader → ImageUpscaleWithModel → SaveImage, polls `/history`, returns `/view`. Model self-heals against `/object_info/UpscaleModelLoader`. Needs an upscale model installed. |
 
 **Save-model note:** the AI-upscale result must come back as a `data:` URL (the `/api/image` ingest
 only persists data/localhost sources, for SSRF safety), so each adapter inlines the **input** image as

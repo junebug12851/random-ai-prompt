@@ -7,6 +7,7 @@ export default {
   defaults: {
     comfyUrl: "http://127.0.0.1:8188",
     comfyCheckpoint: "v1-5-pruned-emaonly-fp16.safetensors",
+    comfyUpscaleModel: "", // upscale_models/* name for AI upscale; blank self-heals to the first installed
     sampler: "euler",
     scheduler: "normal",
     imageSteps: 20,
@@ -20,6 +21,7 @@ export default {
   fields: [
     { key: "comfyUrl", label: "ComfyUI URL", type: "text" },
     { key: "comfyCheckpoint", label: "Checkpoint (.safetensors)", type: "text" },
+    { key: "comfyUpscaleModel", label: "Upscale model (blank = auto)", type: "text" },
     { key: "sampler", label: "Sampler", type: "select", optionsFrom: "samplers" },
     { key: "scheduler", label: "Scheduler", type: "select", optionsFrom: "schedulers" },
     { key: "imageSteps", label: "Steps", type: "number", min: 1, max: 150 },
