@@ -411,6 +411,52 @@ export function apiPlugin() {
           }
         }
 
+        // --- resize a saved image by a factor (ImageMagick) into a NEW tracked output image ---
+        // Downscale (factor < 1) or upscale (factor > 1); the result lands in the output folder as
+        // its own gallery entry with a sidecar (parent link + `derivedKind: "resize"`), so it shows
+        // up in the single view's Resizes strip like a re-roll / variation.
+        if (u.pathname === "/api/image/resize" && req.method === "POST") {
+          const m = await detectMagick();
+          if (!m.available) return send(res, 503, { error: "ImageMagick is not installed" });
+          const body = await readJson(req);
+          const inPath = resolveOutputFile(body?.path);
+          if (!inPath || !fs.existsSync(inPath)) return send(res, 404, { error: "Image not found" });
+          const scale = Number(body?.scale);
+          if (!(scale > 0) || scale > 8) return send(res, 400, { error: "Invalid scale (0–8)" });
+          const ext = (path.extname(inPath).slice(1).toLowerCase() || "png").replace(/[^a-z0-9]/g, "");
+          const name = `${new Date().toISOString().replace(/[:.]/g, "-")}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const outPath = path.join(OUTPUT_DIR, name);
+          const pct = Math.round(scale * 100);
+          try {
+            if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+            // `[0]` flattens to the first frame; `-resize N%` up/down-samples by the factor.
+            await execP(`${m.bin} "${inPath}[0]" -resize ${pct}% "${outPath}"`, { timeout: 30000 });
+          } catch (e) {
+            try {
+              if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+            } catch {
+              // ignore cleanup failure
+            }
+            return send(res, 502, { error: `Resize failed: ${e.message}` });
+          }
+          const meta = body?.meta && typeof body.meta === "object" ? body.meta : null;
+          if (meta) {
+            try {
+              fs.writeFileSync(
+                path.join(OUTPUT_DIR, name.replace(/\.[^.]+$/, ".json")),
+                JSON.stringify(
+                  { ...meta, file: name, image: `/api/output/${name}`, savedAt: meta.savedAt || new Date().toISOString() },
+                  null,
+                  2,
+                ),
+              );
+            } catch {
+              // best-effort sidecar — a missing one just means less gallery detail
+            }
+          }
+          return send(res, 200, { path: `/api/output/${name}` });
+        }
+
         // --- image file actions (delete from disk / reveal in Explorer / open with default app) ---
         if (u.pathname === "/api/image/delete" && req.method === "POST") {
           const fp = resolveOutputFile((await readJson(req))?.path);

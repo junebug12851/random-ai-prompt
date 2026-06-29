@@ -12,6 +12,7 @@
 import { useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { providers, getProvider, rewriteProviders } from "../lib/providers/index.js";
+import { softLockedForNsfw } from "../lib/contentPolicy.js";
 import { ONLINE } from "../lib/online.js";
 import { providerMode } from "../lib/useProvider.js";
 import { metaFor } from "../lib/providerMeta.js";
@@ -76,6 +77,8 @@ export default function ProvidersMenu({ settings, setSettings }) {
       label: p.label,
       needsKey: p.needsKey,
       description: metaFor(p.id).description,
+      // SFW-only provider while NSFW mode is on → a soft lock (icon + tooltip), still selectable.
+      softLock: softLockedForNsfw(p, settings.includeAdult),
       locked: lockedLocal || lockedProxy,
       lockReason: lockedProxy
         ? intl.formatMessage(msgs.reasonProxy)
