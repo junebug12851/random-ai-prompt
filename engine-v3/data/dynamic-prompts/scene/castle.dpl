@@ -1,13 +1,14 @@
 ---
 description: A castle with grounds and fortifications
 ---
+
 Start
 ===
 castle, {view}
 - moat
 - courtyard
 - castle keep
-- {intensity} stone walls
+- $intensity-word stone walls
 - fortified tower
 - battlements
 - drawbridge
@@ -15,7 +16,7 @@ castle, {view}
 - banners
 - {style/building}
 - {time}
-- [>70%] sprawling outer bailey
-- [<25%] lone weathered tower
+- [i>70%] sprawling outer bailey
+- [i<25%] lone weathered tower
 
 {#wildlife}, {#water}, {#nature}, {#weather}

@@ -1,6 +1,8 @@
 ---
 description: A color, optionally glowing
+stacking: true
 ---
+
 Start
 ===
 - one of:

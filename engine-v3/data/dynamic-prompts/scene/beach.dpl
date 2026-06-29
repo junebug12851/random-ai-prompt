@@ -1,6 +1,7 @@
 ---
 description: A beach / coastal scene — sand, surf, and sky
 ---
+
 winter-beach
 ===
 - snowy beach
@@ -22,12 +23,12 @@ beach
 - ocean
 - seaside
 - sandy shore
-- {intensity} waves
+- $intensity-word waves
 - sea foam
 - sea shells
 - {time}
-- [>65%] driftwood
-- [>65%] distant sailboat
+- [i>65%] driftwood
+- [i>65%] distant sailboat
 - {#nature}
 - {#eerie}
 - 20% {#mystical}

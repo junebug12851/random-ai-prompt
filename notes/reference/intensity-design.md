@@ -1,9 +1,16 @@
 # Reference — DPL intensity (the dial)
 
-**Status: built (feature/dpl-intensity).** Intensity is a per-reference "how much" dial that flows into a
-generator and changes what it renders. It adds three things to [DPL](dpl-design.md): an **argument on the
-`{#name}` token**, **intensity conditions** on lines (next to weights), and a **natural-language keyword**
-the prompt text can interpolate. The engine also **auto-scales** probability gates and counts by intensity.
+**Status: built.** Intensity is a per-reference "how much" dial that flows into a generator and changes
+what it renders. It adds three things to [DPL](dpl-design.md): an **argument on the `{#name}` token**,
+**intensity conditions** on lines (next to weights), and a **natural-language keyword** the prompt text
+can interpolate. The engine also **auto-scales** probability gates and counts by intensity.
+
+> **Two dials now.** Intensity has a sibling, **focus** (see [`focus-design.md`](focus-design.md)). Because
+> the two percents look identical, the dial carries a **mandatory** **`i`** (intensity) or **`f`** (focus)
+> prefix: `{#name i25% f80%}`, `[i<10%]`, `[f<40%]`. The prefix is **required** — an unprefixed `25%` / `<10%`
+> is not dial syntax (a bare `[10]` is still a weight). The keyword tokens also moved off the `{…}` braces
+> (which mean `{list}`) to a **`$` sigil**, and since the dial *is* a percent, `$intensity` renders `50%`
+> (there is no separate `%` form) — see §4.
 
 The guiding line is unchanged: DPL stays *data, not code*. Intensity is one number the author compares
 against (`[<10%]`) or drops into text (`{intensity}`); the engine does the scaling. No variables, no state.
@@ -12,11 +19,13 @@ against (`[<10%]`) or drops into text (`{intensity}`); the engine does the scali
 
 ## 1. The token argument — `{#name NN%}`
 
-A `{#name}` reference may carry an intensity percent:
+A `{#name}` reference may carry an `i`-prefixed intensity percent (and/or an `f`-prefixed focus percent):
 
 ```
-{#great-bridge 25%}        ; render great-bridge at 25% intensity
-{#weather 80%}             ; weather at 80%
+{#great-bridge i25%}       ; render great-bridge at 25% intensity
+{#weather i80%}            ; weather at 80% intensity
+{#beach i25% f80%}         ; 25% intensity AND 80% focus (order-free)
+{#weather 80%}             ; NOT dial syntax — the prefix is required (left literal)
 {#knight}                  ; no percent → the default, 50%
 ```
 
@@ -26,8 +35,9 @@ A `{#name}` reference may carry an intensity percent:
   no percent is 50%, regardless of the parent's dial. To pass a parent's level down, write it explicitly,
   e.g. `{#weather 80%}`.) The default lives in one constant (`DEFAULT_INTENSITY`) so it is trivial to retune.
 - The percent is parsed in the `{#…}` resolver (`src/core/stages/dynamicPrompt.js`) and handed to the
-  generator as a 4th argument: `mod.default(settings, imageSettings, upscaleSettings, intensity)`. Compiled
-  `.dpl` files expose it as `ctx.intensity`; `.js` sidecars read the 4th parameter.
+  generator as the **4th argument**:
+  `mod.default(settings, imageSettings, upscaleSettings, intensity, focus)` (focus is the 5th). Compiled
+  `.dpl` files expose them as `ctx.intensity` / `ctx.focus`; `.js` sidecars read the 4th / 5th parameter.
 
 ---
 
@@ -37,10 +47,14 @@ A line/bullet can carry an **intensity condition** in the same square-bracket sl
 rendered only when the condition holds against the current intensity:
 
 ```
-[<10%] - grass             ; only when intensity < 10%
-- [>50%] dense undergrowth ; only when intensity > 50%
-- [=50%] a balanced scene  ; only at exactly 50%
+[i<10%] - grass             ; only when intensity < 10%
+- [i>50%] dense undergrowth ; only when intensity > 50%
+- [i=50%] a balanced scene  ; only at exactly 50%
 ```
+
+(An `f`-prefixed condition — `[f<40%]` — reads the **focus** dial instead; see
+[`focus-design.md`](focus-design.md). An unprefixed `[<10%]` is **not** a condition and is left as
+payload text — the prefix is required.)
 
 **Operators:** `<`, `<=`, `>`, `>=`, `=` (also `==`), `!=`. The value is a percent (`10%`, `12.5%`).
 
@@ -48,9 +62,9 @@ rendered only when the condition holds against the current intensity:
 reads more naturally), either order:
 
 ```
-- [100|<10%] sparse detail ; weight 100 AND only when intensity < 10%
-- [100 <10%] sparse detail ; identical (space separator)
-- [<10% 100] sparse detail ; identical (either order)
+- [100 i<10%] sparse detail        ; weight 100 AND only when intensity < 10%
+- [i<10% 100] sparse detail         ; identical (either order)
+- [100 i<10% f>40%] sparse detail   ; weight + an intensity AND a focus condition
 ```
 
 The bracket may sit **before or after** the bullet dash (`[<10%] - grass` and `- [<10%] grass` both work).
@@ -85,21 +99,26 @@ weighted, conditioned, *and* scaled at once.
 
 ---
 
-## 4. The natural-language keyword — `{intensity}`
+## 4. The keyword tokens — `$intensity` (note the `$` sigil)
 
 So the *text* can react too (not just the structure), intensity is interpolable inline in any `.dpl`
-payload:
+payload. The tokens use a **`$` sigil** (not `{…}`, which means `{list}`):
 
 | Token | Expands to | Example at 50% |
 |-------|------------|----------------|
-| `{intensity}` | the magnitude **word** | `normal` |
-| `{intensity%}` | the percent with a sign | `50%` |
-| `{intensity-num}` | the bare number | `50` |
+| `$intensity` | the **percent** (the dial is inherently a percent) | `50%` |
+| `$intensity-word` | the magnitude **word** | `normal` |
+
+(There is no `$intensity%` — the dial is already a percent, so the bare `$intensity` carries the `%`.)
 
 ```
-{intensity} amount of grass        ; "normal amount of grass" at 50%, "tiny amount of grass" at 20%
-a {intensity} cluster of clouds
+$intensity-word amount of grass    ; "normal amount of grass" at 50%, "tiny amount of grass" at 20%
+a $intensity-word cluster of clouds
+detail level $intensity            ; "detail level 50%"
 ```
+
+The matching `$focus`, `$focus%`, `$focus-word` tokens read the focus dial (see
+[`focus-design.md`](focus-design.md)).
 
 **The word ladder** (ascending; boundaries are tunable in `dpl.js`):
 
@@ -124,17 +143,18 @@ Any intensity reference may carry a signed modifier — a **percent _of_ the val
 → ×0.75 — "25% more / less of the intensity"), clamped to 1–100:
 
 ```
-{intensity +25%}                ; the word for 25% more intensity (62→large at base 50)
-{intensity% -10%}               ; the percent, 10% less (45% at base 50)
-{intensity-num +50%}            ; the number, 50% more (75 at base 50)
-{#weather +25%}                 ; render weather at 25% MORE than this generator's intensity
-{#clouds -40%}                  ; clouds at 40% less
+$intensity-word +25%            ; the word for 25% more intensity (62→large at base 50)
+$intensity -10%                 ; the percent, 10% less (45% at base 50)
+$intensity +50%                 ; the percent, 50% more (75% at base 50)
+{#weather i+25%}                ; render weather at 25% MORE than this generator's intensity
+{#clouds i-40%}                 ; clouds at 40% less
+{#clouds f+25%}                 ; relative on the FOCUS dial
 ```
 
-Relative **refs** (`{#name +25%}` / `{#name -25%}`) are converted to an absolute `{#name NN%}` inside the
-DPL renderer (which knows the base), so the flat downstream resolver only ever sees absolute percents. An
-absolute `{#name 80%}` (no sign) passes straight through unchanged. Relative modifiers are a DPL-authoring
-feature; they have no meaning in the raw prompt box.
+Relative **refs** (`{#name i+25%}` / `{#name f-25%}`) are converted to an absolute, **prefixed**
+`{#name iNN% fNN%}` inside the DPL renderer (which knows the base), so the flat downstream resolver only ever
+sees absolute, prefixed percents. An absolute `{#name i80%}` (no sign) passes straight through. Relative
+modifiers are a DPL-authoring feature; they have no meaning in the raw prompt box.
 
 ---
 
@@ -144,10 +164,12 @@ feature; they have no meaning in the raw prompt box.
 - `0%` → **1%**; `>100%` → **100%**.
 - A condition that fails removes the line deterministically (before the gate).
 - `[[castle]]`, `[deemph]`, `[a:b:0.5]`, `[1234567890]` (salt) → unchanged payload (not weight/condition).
-- JS sidecars (`script:`, `{js:}`, `insert js:`) receive intensity as the 4th argument and may branch on it.
+- JS sidecars (`script:`, `{js:}`, `insert js:`) receive intensity / focus as the 4th / 5th argument.
 
 ## See also
 
+- [`focus-design.md`](focus-design.md) — the **sibling dial** (`f`-prefix, `[f<NN%]`, `$focus`).
+- [`layering-design.md`](layering-design.md) — global single-layer auto-merge / dedup + the `stacking` flag.
 - [`dpl-design.md`](dpl-design.md) — the base language this extends.
-- `src/core/dpl/dpl.js` — renderer (conditions, scaling, `{intensity}` tokens).
-- `src/core/stages/dynamicPrompt.js` — `{#name NN%}` parsing + threading.
+- `src/core/dpl/dpl.js` — renderer (conditions, scaling, `$intensity` / `$focus` tokens).
+- `src/core/stages/dynamicPrompt.js` — `{#name iNN% fNN%}` parsing + threading + dedup.

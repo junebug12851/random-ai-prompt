@@ -1,9 +1,10 @@
 ---
 description: An animal portrait
 ---
+
 Start
 ===
 ((({#animal}))), {#portrait}
 - detailed fur
 - expressive eyes
-- [>70%] intricate detail
+- [i>70%] intricate detail

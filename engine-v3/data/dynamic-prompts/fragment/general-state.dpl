@@ -1,6 +1,7 @@
 ---
 description: General condition — clean/reflective or dirty/broken
 ---
+
 Start
 ===
 - {mood} atmosphere
@@ -13,4 +14,4 @@ Start
     - grunge
     - cracked
     - broken
-- {intensity} wear
+- $intensity-word wear

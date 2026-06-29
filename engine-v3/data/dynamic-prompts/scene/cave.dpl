@@ -1,6 +1,7 @@
 ---
 description: A cave of different types and seasons
 ---
+
 cave-type
 ===
 - one of:
@@ -15,14 +16,14 @@ cave, cave walls
 - subterranean interior
 - 50% +cave-type
 - cavern
-- {intensity} stalagmites
-- {intensity} stalactites
+- $intensity-word stalagmites
+- $intensity-word stalactites
 - {#color} crystal
 - {#color} gemstone
 - bioluminescent glow
 - tunnels
 - underground pool
-- [>70%] vast echoing chamber
-- [<25%] cramped narrow passage
+- [i>70%] vast echoing chamber
+- [i<25%] cramped narrow passage
 
 {#nature}, {#wildlife}, {#water}, {#eerie}, {#mystical}

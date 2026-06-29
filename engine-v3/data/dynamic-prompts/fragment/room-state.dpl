@@ -1,6 +1,7 @@
 ---
 description: Room condition — clean/reflective or dirty/rundown, plus furnishings
 ---
+
 Start
 ===
 - {mood} atmosphere
@@ -16,7 +17,7 @@ Start
     - peeling wallpaper
     - mold
     - shattered glass
-- {intensity} clutter
+- $intensity-word clutter
 - furniture
 - accessories
 - window

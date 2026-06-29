@@ -1,16 +1,19 @@
 /**
  * CodeMirror 6 language support for DPL (the Dynamic Prompt Language the prompt / negative /
- * wrapper boxes all share). A small line-oriented {@link StreamLanguage} tokenizer feeds a
- * {@link HighlightStyle} that maps each token to a CSS class (so colors live in `styles.css`
- * and follow the light/dark theme), plus a brace-aware autocomplete source wired to the
- * engine's building-block catalog.
+ * wrapper boxes and the Manage block editor all share). A small line-oriented {@link StreamLanguage}
+ * tokenizer feeds a {@link HighlightStyle} that maps each token to a CSS class (so colors live in
+ * `styles.css` and follow the light/dark theme), plus a context-aware autocomplete source wired to
+ * the engine's building-block catalog.
  *
  * Highlighted tokens mirror `src/core/dpl/dpl.js`:
+ *   - front matter — the leading `---` fences, `key:` names, and their values
  *   - `{#gen}` generator refs (incl. `{#any}`, `{#scene/beach}`) and `{list}` / reserved refs
+ *   - the two dials — `i25%` / `f80%` args inside `{#…}`, `[i<10%]` / `[f<40%]` conditions, and the
+ *     `$intensity` / `$focus` (and `-word`) keyword tokens
  *   - emphasis weighting `( )` `[ ]`, alternation `|`, and a `:1.2` weight
- *   - `+ref` calls and `{js:…}` inline JS
+ *   - `+call`, `insert <name>`, `go to <Section>` (the keyword AND its name target), `{js:…}`
  *   - line-leading DPL structure: `===` headings, `-` bullets, `[900]` weights, `NN%` / `maybe`
- *     / `otherwise` gates, `one of` / `N of` choices, `repeat … times`, `insert` / `go to` flow
+ *     / `otherwise` gates, `one of` / `N of` choices, `repeat … times`, flow
  *   - `;` comments
  *
  * Structural keywords are only recognized at the START of a line (where the grammar puts them),
@@ -23,12 +26,16 @@ import {
   HighlightStyle,
   syntaxHighlighting,
 } from "@codemirror/language";
+import { ViewPlugin, Decoration } from "@codemirror/view";
+import { RangeSetBuilder } from "@codemirror/state";
+import { snippetCompletion } from "@codemirror/autocomplete";
 import { Tag } from "@lezer/highlight";
 
 // --- Custom highlight tags (one per DPL token kind) ---------------------------------------
 const T = {
   gen: Tag.define(),
   list: Tag.define(),
+  dial: Tag.define(),
   weight: Tag.define(),
   bullet: Tag.define(),
   gate: Tag.define(),
@@ -36,12 +43,16 @@ const T = {
   ref: Tag.define(),
   heading: Tag.define(),
   comment: Tag.define(),
+  fmDelim: Tag.define(),
+  fmKey: Tag.define(),
+  fmVal: Tag.define(),
 };
 
 // StreamLanguage maps the string a token returns to one of these tags.
 const tokenTable = {
   gen: T.gen,
   list: T.list,
+  dial: T.dial,
   weight: T.weight,
   bullet: T.bullet,
   gate: T.gate,
@@ -49,18 +60,71 @@ const tokenTable = {
   ref: T.ref,
   heading: T.heading,
   comment: T.comment,
+  fmDelim: T.fmDelim,
+  fmKey: T.fmKey,
+  fmVal: T.fmVal,
 };
 
 /**
- * The DPL stream tokenizer. Tracks whether the cursor is still at the logical start of a line
- * (after optional leading whitespace and a `-` bullet) so structural keywords only fire there.
- * @type {import("@codemirror/language").StreamParser<{lineStart: boolean}>}
+ * The DPL stream tokenizer. Tracks line-start (so structural keywords only fire there), whether we
+ * are inside a `{#…}` reference (so dial args color distinctly), whether the next token is a flow
+ * NAME target (`go to`/`insert`), and the leading front-matter block.
+ * @type {import("@codemirror/language").StreamParser<{lineStart: boolean, inBrace: boolean, expectName: boolean, fm: string}>}
  */
 const dplParser = {
-  startState: () => ({ lineStart: true }),
+  startState: () => ({ lineStart: true, inBrace: false, expectName: false, fm: "pre" }),
   token(stream, state) {
-    if (stream.sol()) state.lineStart = true;
+    if (stream.sol()) {
+      state.lineStart = true;
+      state.inBrace = false;
+      state.expectName = false;
+    }
+
+    // --- Front matter: only when the file's very first line is `---` ---
+    if (state.fm === "pre") {
+      if (stream.match(/^---\s*$/)) {
+        state.fm = "in";
+        return "fmDelim";
+      }
+      state.fm = "done";
+    } else if (state.fm === "in") {
+      if (stream.sol() && stream.match(/^---\s*$/)) {
+        state.fm = "done";
+        return "fmDelim";
+      }
+      if (stream.eatSpace()) return null;
+      if (stream.peek() === ";") {
+        stream.skipToEnd();
+        return "comment";
+      }
+      if (state.lineStart && stream.match(/^[\w-]+\s*:/)) {
+        state.lineStart = false;
+        return "fmKey";
+      }
+      state.lineStart = false;
+      stream.skipToEnd();
+      return "fmVal";
+    }
+
     if (stream.eatSpace()) return null;
+
+    // The NAME target of a `go to` / `insert` (the keyword was emitted on the previous token).
+    if (state.expectName) {
+      state.expectName = false;
+      if (stream.match(/^[^;]+/)) return "ref";
+      return null;
+    }
+
+    // Inside a `{#…}` reference: color the `i25%` / `f80%` dial args, then the closing brace.
+    if (state.inBrace) {
+      if (stream.match(/^[if][+-]?\d{0,3}%?/i)) return "dial";
+      if (stream.eat("}")) {
+        state.inBrace = false;
+        return "gen";
+      }
+      stream.next(); // stray char inside the ref — keep it gen-colored
+      return "gen";
+    }
 
     const atStart = state.lineStart;
 
@@ -71,6 +135,8 @@ const dplParser = {
     }
 
     if (atStart) {
+      // (Section heading NAMES need to see the NEXT line — a stream tokenizer can't — so they are
+      // colored by the `sectionHighlighter` view plugin below, not here.)
       // A heading underline (`====`) — a whole-line token.
       if (stream.match(/^={3,}\s*$/)) {
         state.lineStart = false;
@@ -88,10 +154,21 @@ const dplParser = {
         state.lineStart = false;
         return "gate";
       }
-      // Choices / repeats / flow.
+      // `insert js:` (a JS path, not a name target).
+      if (stream.match(/^insert\s+js:/i)) {
+        state.lineStart = false;
+        return "keyword";
+      }
+      // `go to` / `insert` — these take a NAME target we color next.
+      if (stream.match(/^(?:go\s+to|insert)(?=\s)/i)) {
+        state.lineStart = false;
+        state.expectName = true;
+        return "keyword";
+      }
+      // Choices / repeats / the rest of flow (no name target).
       if (
         stream.match(
-          /^(?:one\s+of|\d+\s+to\s+\d+\s+of|\d+\s+of|repeat\s+\d+(?:\s+to\s+\d+)?\s+times|go\s+to|go\s+back|insert\s+js:|insert)\b/i,
+          /^(?:one\s+of|\d+\s+to\s+\d+\s+of|\d+\s+of|repeat\s+\d+(?:\s+to\s+\d+)?\s+times|go\s+back|branch)\b/i,
         )
       ) {
         state.lineStart = false;
@@ -100,13 +177,23 @@ const dplParser = {
     }
     state.lineStart = false;
 
-    // `{…}` / `{#…}` / `{js:…}` references — consume through the closing brace.
+    // `$intensity` / `$focus` keyword tokens (with optional `-word` and a ` ±NN%` modifier).
+    if (stream.match(/^\$(?:intensity|focus)(?:-word)?(?:\s*[+-]\d+(?:\.\d+)?%)?/)) return "dial";
+
+    // `{…}` / `{#…}` / `{js:…}` references. A `{#…}` opens "brace mode" so its dial args color apart.
     if (stream.peek() === "{") {
       stream.next();
-      const gen = stream.peek() === "#";
+      if (stream.peek() === "#") {
+        stream.next();
+        stream.match(/^[\w/-]+/); // the generator name (dials, if any, follow in brace mode)
+        state.inBrace = true;
+        return "gen";
+      }
       while (!stream.eol()) if (stream.next() === "}") break;
-      return gen ? "gen" : "list";
+      return "list";
     }
+    // A standalone `[i<10%]` / `[f<40%]` dial condition.
+    if (stream.match(/^\[\s*[if]\s*(?:<=|>=|==|!=|<|>|=)\s*\d+(?:\.\d+)?%\s*\]/i)) return "dial";
     // `+ref` call (anywhere — `\+\w` won't catch "a + b").
     if (stream.match(/^\+[\w#/-]+/)) return "ref";
     // Emphasis weighting / alternation, and a `:1.2` weight.
@@ -114,7 +201,7 @@ const dplParser = {
     if (stream.match(/^:\d+(?:\.\d+)?/)) return "weight";
 
     // Plain text: a run up to the next special character.
-    if (!stream.match(/^[^{}()[\]|;:+]+/)) stream.next();
+    if (!stream.match(/^[^{}()[\]|;:+$]+/)) stream.next();
     return null;
   },
   tokenTable,
@@ -127,6 +214,7 @@ export const dplStreamLanguage = StreamLanguage.define(dplParser);
 const dplHighlightStyle = HighlightStyle.define([
   { tag: T.gen, class: "cm-dpl-gen" },
   { tag: T.list, class: "cm-dpl-list" },
+  { tag: T.dial, class: "cm-dpl-dial" },
   { tag: T.weight, class: "cm-dpl-weight" },
   { tag: T.bullet, class: "cm-dpl-bullet" },
   { tag: T.gate, class: "cm-dpl-gate" },
@@ -134,14 +222,66 @@ const dplHighlightStyle = HighlightStyle.define([
   { tag: T.ref, class: "cm-dpl-ref" },
   { tag: T.heading, class: "cm-dpl-heading" },
   { tag: T.comment, class: "cm-dpl-comment" },
+  { tag: T.fmDelim, class: "cm-dpl-fmdelim" },
+  { tag: T.fmKey, class: "cm-dpl-fmkey" },
+  { tag: T.fmVal, class: "cm-dpl-fmval" },
 ]);
+
+// --- Section heading names: a line-spanning concern the stream tokenizer can't see ----------
+// A section name is a line whose NEXT line is the `={3,}` underline (the same rule the engine's
+// parser uses). That needs cross-line lookahead, which a StreamLanguage tokenizer doesn't have, so
+// a view plugin marks those name lines instead. Special sections (Start / Auto Begin / Auto End)
+// get their own emphasis.
+const SPECIAL_SECTION = /^(?:start|auto\s+(?:begin|start|end))$/i;
+const secNameDeco = Decoration.mark({ class: "cm-dpl-secname" });
+const secSpecialDeco = Decoration.mark({ class: "cm-dpl-secname-special" });
+
+/** Build mark decorations over every section-name line in the visible ranges. */
+function buildSectionDecorations(view) {
+  const builder = new RangeSetBuilder();
+  const doc = view.state.doc;
+  for (const { from, to } of view.visibleRanges) {
+    let pos = from;
+    while (pos <= to) {
+      const line = doc.lineAt(pos);
+      const name = line.text.trim();
+      if (
+        name &&
+        line.number < doc.lines &&
+        !/^={3,}\s*$/.test(name) &&
+        /^={3,}\s*$/.test(doc.line(line.number + 1).text.trim())
+      ) {
+        const bare = name.replace(/\s*\[.*$/, "").trim();
+        builder.add(line.from, line.to, SPECIAL_SECTION.test(bare) ? secSpecialDeco : secNameDeco);
+      }
+      pos = line.to + 1;
+    }
+  }
+  return builder.finish();
+}
+
+const sectionHighlighter = ViewPlugin.fromClass(
+  class {
+    constructor(view) {
+      this.decorations = buildSectionDecorations(view);
+    }
+    update(u) {
+      if (u.docChanged || u.viewportChanged) this.decorations = buildSectionDecorations(u.view);
+    }
+  },
+  { decorations: (v) => v.decorations },
+);
 
 /**
  * The DPL language + its (theme-aware) highlighting, ready to drop into an editor's extensions.
  * @returns {import("@codemirror/state").Extension[]} Language support + highlighting.
  */
 export function dplLanguage() {
-  return [new LanguageSupport(dplStreamLanguage), syntaxHighlighting(dplHighlightStyle)];
+  return [
+    new LanguageSupport(dplStreamLanguage),
+    syntaxHighlighting(dplHighlightStyle),
+    sectionHighlighter,
+  ];
 }
 
 // A handful of line-leading structural completions (only offered on a `-` bullet line).
@@ -152,6 +292,33 @@ const DPL_KEYWORDS = [
   { label: "repeat 2 times", info: "Repeat the body N (or A to B) times" },
   { label: "insert ", info: "Insert another list / generator by name" },
   { label: "go to ", info: "Jump to another section" },
+];
+
+// Front-matter keys offered inside the leading `---` block.
+const FM_KEYS = [
+  { label: "description: ", info: "One-line summary — the editor tooltip / .json sidecar." },
+  { label: "suggestions: off", info: "Keep this block out of {#random} suggestions." },
+  {
+    label: "stacking: true",
+    info: "Let this block render more than once (skip global single-layer dedup). Default: once per prompt.",
+  },
+  { label: "type: full", info: "Mark as a complete standalone scene (vs a partial fragment)." },
+  { label: "script: ", info: "Delegate the whole block to a JS file (advanced)." },
+];
+
+// The two dials, offered after a space inside `{#name …}`. Each applies a `iNN%` / `fNN%` snippet
+// with the `NN` pre-selected so the user can immediately type their own percent.
+const DIALS = [
+  {
+    key: "i",
+    detail: "intensity",
+    info: "intensity — how MUCH this block renders (1–100%, default 50). Higher = denser; it auto-scales the block's chances and counts.",
+  },
+  {
+    key: "f",
+    detail: "focus",
+    info: "focus — how PURE / narrow the result is (1–100%, default 50). Higher keeps only the essentials (less fluff); lower lets in extra, atmospheric detail.",
+  },
 ];
 
 const el = (tag, className, text) => {
@@ -224,13 +391,37 @@ const makeInfo = (it, expand, getSettings) => () => {
   return { dom, destroy: () => clearInterval(id) };
 };
 
+/** Is `pos` inside the leading `---` … `---` front-matter block? */
+function inFrontMatter(state, pos) {
+  const doc = state.doc;
+  if (doc.lines < 1 || doc.line(1).text.trim() !== "---") return false;
+  const cur = doc.lineAt(pos).number;
+  if (cur === 1) return false; // on the opening fence itself
+  for (let i = 2; i <= doc.lines; i++) {
+    if (doc.line(i).text.trim() === "---") return cur < i;
+  }
+  return true; // front matter not yet closed
+}
+
+/** Section names declared in the doc (a text line immediately followed by an `={3,}` underline). */
+function sectionNames(state) {
+  const doc = state.doc;
+  const out = [];
+  for (let i = 1; i < doc.lines; i++) {
+    const text = doc.line(i).text.trim();
+    const next = doc.line(i + 1).text.trim();
+    if (text && !text.startsWith(";") && /^={3,}$/.test(next)) {
+      out.push(text.replace(/\s*\[.*$/, "").trim());
+    }
+  }
+  return [...new Set(out)].filter(Boolean);
+}
+
 /**
- * Build a CodeMirror completion source from the engine's building-block catalog.
- *
- * Inside a `{` / `{#` the dropdown offers every list and generator token (each option replaces
- * the partial brace, so there's no double-brace), grouped into section headers by category and
- * carrying a kind badge + a rich info panel (title, kind/category, description, a re-rolling
- * example). On a `-` bullet line it offers the DPL structural keywords instead.
+ * Build a CodeMirror completion source from the engine's building-block catalog. It is
+ * context-aware: front-matter keys inside the `---` block; the `i`/`f` dials after a space in a
+ * `{#…}`; every list/generator token inside a `{`/`{#`; section names after `go to`; generator and
+ * section names after `insert` / `+`; and the DPL structural keywords on a `-` bullet line.
  * @param {() => Array<{token: string, label: string, kind: string, description?: string, group?: string, category?: string}>} getItems
  *   Returns the catalog entries (called once per completion, so a refreshed catalog is picked up).
  * @param {object} [opts]
@@ -242,7 +433,37 @@ const makeInfo = (it, expand, getSettings) => () => {
 export function dplCompletionSource(getItems, opts = {}) {
   const { expand, getSettings } = opts;
   return (context) => {
-    // Brace context: replace the partial `{…` with a full token.
+    // 1. Front matter — offer keys at the key position (before any `:` on the line).
+    if (inFrontMatter(context.state, context.pos)) {
+      const line = context.state.doc.lineAt(context.pos);
+      const before = line.text.slice(0, context.pos - line.from);
+      if (before.includes(":")) return null; // value side — leave it free-form
+      const word = context.matchBefore(/[\w-]*$/);
+      return {
+        from: word ? word.from : context.pos,
+        options: FM_KEYS.map((k) => ({ label: k.label, info: k.info, type: "property" })),
+        validFor: /^[\w-]*$/,
+      };
+    }
+
+    // 2. Dial args — after a space inside `{#name …}` (also `{#name i50% …`). Offer i / f, skipping
+    //    a dial already present. Each inserts `iNN%` / `fNN%` with the NN pre-selected to overtype.
+    const dialCtx = context.matchBefore(/\{#[\w/-]+(?:\s+[if][+-]?\d{1,3}%)*\s+$/);
+    if (dialCtx) {
+      const present = (dialCtx.text.match(/[if][+-]?\d{1,3}%/g) || []).map((s) => s[0].toLowerCase());
+      const options = DIALS.filter((d) => !present.includes(d.key)).map((d) =>
+        snippetCompletion(`${d.key}\${1:50}%`, {
+          label: d.key,
+          detail: d.detail,
+          info: d.info,
+          type: "keyword",
+        }),
+      );
+      if (!options.length) return null;
+      return { from: context.pos, options };
+    }
+
+    // 3. Brace context: replace the partial `{…` with a full token.
     const brace = context.matchBefore(/\{#?[\w/-]*$/);
     if (brace) {
       const items = getItems() || [];
@@ -265,7 +486,47 @@ export function dplCompletionSource(getItems, opts = {}) {
       });
       return { from: brace.from, options, validFor: /^\{#?[\w/-]*$/ };
     }
-    // Line-leading DPL keyword context (only on a bullet line, so prose isn't disturbed).
+
+    // 4. `go to <Section>` — offer the doc's own section names.
+    const gotoCtx = context.matchBefore(/^\s*(?:-\s*)?go\s+to\s+[\w /-]*$/i);
+    if (gotoCtx) {
+      const prefix = gotoCtx.text.match(/^\s*(?:-\s*)?go\s+to\s+/i)[0];
+      const names = sectionNames(context.state);
+      return {
+        from: gotoCtx.from + prefix.length,
+        options: names.map((n) => ({ label: n, type: "constant", info: "Jump to this section" })),
+        validFor: /^[\w /-]*$/,
+      };
+    }
+
+    // 5. `insert <name>` / `+name` — offer generator names (bare, no braces) + local sections.
+    const insertCtx = context.matchBefore(/^\s*(?:-\s*)?insert\s+[\w/-]*$/i);
+    const callCtx = context.matchBefore(/\+[\w#/-]*$/);
+    if (insertCtx || callCtx) {
+      const items = getItems() || [];
+      const gens = items
+        .filter((it) => it.kind === "gen")
+        .map((it) => it.token.replace(/^\{#?/, "").replace(/\}$/, ""));
+      const sects = sectionNames(context.state);
+      const names = [...new Set([...sects, ...gens])];
+      let from;
+      if (insertCtx) {
+        from = insertCtx.from + insertCtx.text.match(/^\s*(?:-\s*)?insert\s+/i)[0].length;
+      } else {
+        from = callCtx.from + 1; // keep the leading `+`
+      }
+      return {
+        from,
+        options: names.map((n) => ({
+          label: n,
+          type: "function",
+          info: sects.includes(n) ? "A section in this block" : "A generator block",
+        })),
+        validFor: /^[\w#/-]*$/,
+      };
+    }
+
+    // 6. Line-leading DPL keyword context (only on a bullet line, so prose isn't disturbed).
     const kw = context.matchBefore(/^\s*-\s+[a-z]*$/i);
     if (kw) {
       const word = context.matchBefore(/[a-z]*$/i);

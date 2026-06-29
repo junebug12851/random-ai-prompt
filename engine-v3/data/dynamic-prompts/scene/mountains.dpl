@@ -1,10 +1,11 @@
 ---
 description: A mountain landscape
 ---
+
 Start
 ===
 ((mountain)), {view}
-- {intensity} rocky peaks
+- $intensity-word rocky peaks
 - ((mountainous horizon))
 - fog
 - 25% [hill]
@@ -19,7 +20,7 @@ Start
 - {#wildlife}
 - 25% {#water}
 - {#nature}
-- [>75%] dramatic towering ridgeline
-- [<20%] gentle distant hills
+- [i>75%] dramatic towering ridgeline
+- [i<20%] gentle distant hills
 
 {#weather}

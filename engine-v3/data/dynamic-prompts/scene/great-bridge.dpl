@@ -1,9 +1,10 @@
 ---
 description: A great bridge over an ocean of clouds
 ---
+
 Start
 ===
-((a beautiful {intensity +30%} bridge over a vast ocean of clouds)), clouds beneath the bridge, wide angle, closeup
+((a beautiful $intensity-word +30% bridge over a vast ocean of clouds)), clouds beneath the bridge, wide angle, closeup
 - exotic
 - fog
 - 25% winter, snow landscape, {#ice}

@@ -21,10 +21,21 @@ Resolution is deterministic: an exact path wins; otherwise any file whose path e
 natural order (symbols, then numbers, then letters). Basenames are kept unique, so a bare
 `{#name}` always resolves.
 
-**Intensity dial:** a reference may carry a percent — `{#beach 25%}` runs the generator at 25% intensity
-(1–100; `0`→`1`; unspecified → 50%). Intensity auto-scales the generator's gates/counts, drives `[<10%]`
-line conditions, and is interpolable as `{intensity}`. See
-[`notes/reference/intensity-design.md`](../../notes/reference/intensity-design.md).
+**Dials — intensity & focus:** a reference may carry two percents with a **mandatory** `i`/`f` prefix
+(1–100; `0`→`1`; unspecified → 50%) — `{#beach i25%}` runs at 25% **intensity**, `{#beach f80%}` at 80%
+**focus**, `{#beach i25% f80%}` both. The prefix is required because the two percents look identical; an
+unprefixed `25%` is not dial syntax. *Intensity* ("how much") auto-scales the generator's gates/counts,
+drives `[i<10%]` line conditions, and is interpolable as `$intensity` (the percent) / `$intensity-word`
+(the word). *Focus* ("how pure / how narrow") admits fluff at low values and keeps only essentials at
+high values; it is author-judged via `[f<NN%]` conditions and interpolable as `$focus` / `$focus-word`
+(it does not auto-scale). See [`intensity`](../../notes/reference/intensity-design.md) and
+[`focus`](../../notes/reference/focus-design.md) design notes.
+
+**Global layers (auto-merge):** an imported generator renders **once** per prompt — a second nested
+import of the same generator is dropped, so `{#weather}` pulled in by two scenes appears a single time.
+User-typed duplicates always render. A generator that legitimately repeats (decorative fragments like
+`color`/`glow`) opts out with `stacking: true` front-matter. See
+[`layering`](../../notes/reference/layering-design.md).
 
 Special forms:
 

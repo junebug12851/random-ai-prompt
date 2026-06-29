@@ -1,11 +1,12 @@
 ---
 description: A public park
 ---
+
 Start
 ===
 ((park)), {view}
 - benches
-- {intensity} crowd
+- $intensity-word crowd
 - fountain
 - walkway
 - flower beds
@@ -14,7 +15,7 @@ Start
 - {time}
 - 20% {#eerie}
 - 25% {#mystical}
-- [>70%] festival, food stalls
-- [<25%] quiet empty park
+- [i>70%] festival, food stalls
+- [i<25%] quiet empty park
 
 {#wildlife}, {#water}, {#nature}, {#weather}

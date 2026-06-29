@@ -1,6 +1,7 @@
 ---
 description: A natural landscape
 ---
+
 Start
 ===
 landscape, {view}
@@ -15,7 +16,7 @@ landscape, {view}
 - 30% {#wildlife}
 - {#water}
 - {time}
-- [>70%] lush dense overgrowth
-- [<25%] sparse barren plain
+- [i>70%] lush dense overgrowth
+- [i<25%] sparse barren plain
 
 {#nature}, {#weather}

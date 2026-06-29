@@ -1,17 +1,18 @@
 ---
 description: A house nestled in nature
 ---
+
 Start
 ===
 house
 - {style/building}
-- {intensity} garden
+- $intensity-word garden
 - porch
 - chimney
 - 50% picket fence
 - winding path
 - {time}
-- [>70%] wraparound veranda and flower beds
-- [<25%] small modest cottage
+- [i>70%] wraparound veranda and flower beds
+- [i<25%] small modest cottage
 
 {#nature}, {#weather}

@@ -1,20 +1,21 @@
 ---
 description: A city street view
 ---
+
 Start
 ===
 city, street view, {city}
 - {style/building}
 - towering skyscrapers
-- {intensity} crowd
+- $intensity-word crowd
 - storefronts
 - neon signage
 - traffic
 - sidewalk
 - {time}
 - city park
-- [>70%] dense downtown skyline
-- [<25%] quiet empty street
+- [i>70%] dense downtown skyline
+- [i<25%] quiet empty street
 - reflective wet pavement
 
 {#weather}

@@ -1,6 +1,7 @@
 ---
 description: Ruins of a building, ship, room, city, or vehicle
 ---
+
 Start
 ===
 - one of:
@@ -13,7 +14,7 @@ Start
 - abandoned ruins
 - rubble
 - {mood} atmosphere
-- {intensity} decay
+- $intensity-word decay
 - cracked
 - crumbling
 - rusted
@@ -26,7 +27,7 @@ Start
 - 35% {#ice}
 - 35% {#eerie}
 - 25% {#mystical}
-- [>70%] vast sprawling ruins
-- [<25%] a single ruined fragment
+- [i>70%] vast sprawling ruins
+- [i<25%] a single ruined fragment
 
 {#nature}, {#weather}

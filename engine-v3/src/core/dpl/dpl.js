@@ -30,6 +30,14 @@ const AUTO_WEIGHT_START = 1000; // first auto-assigned line weight; +1 per follo
 // See notes/reference/intensity-design.md.
 const DEFAULT_INTENSITY = 50;
 
+// Focus: a per-reference "how pure / how narrow" dial (1..100), a SIBLING of intensity. Low focus
+// admits fluff/extra/unrelated detail (a city in a cave scene, distant mountains, mood garnish); high
+// focus keeps only what is strictly essential to the subject, which also makes a generator stack more
+// cleanly as a global layer. Unlike intensity, focus does NOT auto-scale gates/counts — it is purely
+// author-judged via `[f<NN%]` conditions and the `$focus` token (a human/AI decides, per line, what
+// is fluff at what focus). See notes/reference/focus-design.md.
+const DEFAULT_FOCUS = 50;
+
 /** Normalize an intensity argument to an integer 1..100 (undefined → default, 0 → 1, >100 → 100). */
 function clampIntensity(v) {
   const n = Number(v);
@@ -39,7 +47,16 @@ function clampIntensity(v) {
   return r > 100 ? 100 : r;
 }
 
-/** The natural-language magnitude word for an intensity percent (the `{intensity}` token). */
+/** Normalize a focus argument to an integer 1..100 (undefined → default, 0 → 1, >100 → 100). */
+function clampFocus(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return DEFAULT_FOCUS;
+  const r = Math.round(n);
+  if (r <= 0) return 1;
+  return r > 100 ? 100 : r;
+}
+
+/** The natural-language magnitude word for an intensity percent (the `$intensity-word` token). */
 function intensityWord(p) {
   if (p <= 24) return "tiny";
   if (p <= 40) return "small";
@@ -47,6 +64,16 @@ function intensityWord(p) {
   if (p <= 75) return "large";
   if (p <= 90) return "huge";
   return "massive";
+}
+
+/** The natural-language word for a focus percent (the `$focus-word` token); ascends loose → pure. */
+function focusWord(p) {
+  if (p <= 24) return "loose";
+  if (p <= 40) return "broad";
+  if (p <= 60) return "balanced";
+  if (p <= 75) return "focused";
+  if (p <= 90) return "tight";
+  return "pure";
 }
 
 /** Scale an authored count by intensity: round(n × intensity/100), never below 0. */
@@ -65,42 +92,53 @@ function applyIntensityMod(base, mod) {
   return clampIntensity(base * (1 + p / 100));
 }
 
-/** Evaluate an intensity condition (`{op, value}`) against the current intensity. */
-function condPasses(cond, intensity) {
+/** Evaluate a dial condition (`{op, value}`) against the current dial value (intensity or focus). */
+function condPasses(cond, value) {
   switch (cond.op) {
     case "<":
-      return intensity < cond.value;
+      return value < cond.value;
     case "<=":
-      return intensity <= cond.value;
+      return value <= cond.value;
     case ">":
-      return intensity > cond.value;
+      return value > cond.value;
     case ">=":
-      return intensity >= cond.value;
+      return value >= cond.value;
     case "=":
     case "==":
-      return intensity === cond.value;
+      return value === cond.value;
     case "!=":
-      return intensity !== cond.value;
+      return value !== cond.value;
     default:
       return true;
   }
 }
 
 /**
- * Parse the inside of a leading `[…]` bracket into `{ weight?, cond? }`, or null when it is not a
- * weight/condition spec (so `[[castle]]`, `[deemph]`, `[a:b:0.5]`, the salt literal pass through as
- * payload). A weight is bare digits; a condition is `OP NN%`; the two may combine, separated by a
- * pipe or whitespace, in either order (`[100|<10%]`, `[100 <10%]`, `[<10% 100]`).
+ * Parse the inside of a leading `[…]` bracket into `{ weight?, iCond?, fCond? }`, or null when it is
+ * not a weight/condition spec (so `[[castle]]`, `[deemph]`, `[a:b:0.5]`, the salt literal pass through
+ * as payload). A weight is bare digits; a condition is `[if] OP NN%` — the dial prefix `i` (intensity)
+ * or `f` (focus) is MANDATORY (the two look-alike percents must be disambiguated; an unprefixed
+ * `OP NN%` is not a condition and leaves the bracket as payload). A bracket may stack a weight and one
+ * i-condition and one f-condition, separated by a pipe or whitespace, in any order:
+ * `[100 i<10% f<40%]`, `[f<40%|100]`.
  */
 function parseBracketSpec(inner) {
   let rest = String(inner).trim();
   if (rest === "") return null;
   let weight = null;
-  let cond = null;
-  const condRe = /(<=|>=|==|!=|<|>|=)\s*(\d+(?:\.\d+)?)\s*%/;
-  const cm = rest.match(condRe);
-  if (cm) {
-    cond = { op: cm[1], value: Number(cm[2]) };
+  let iCond = null;
+  let fCond = null;
+  // A condition: a MANDATORY dial prefix (i/f), an operator, a percent. Pull each out until none remain.
+  const condRe = /([if])\s*(<=|>=|==|!=|<|>|=)\s*(\d+(?:\.\d+)?)\s*%/i;
+  let cm;
+  while ((cm = rest.match(condRe))) {
+    const dial = cm[1].toLowerCase();
+    const cond = { op: cm[2], value: Number(cm[3]) };
+    if (dial === "f") {
+      if (!fCond) fCond = cond;
+    } else if (!iCond) {
+      iCond = cond;
+    }
     rest = rest.slice(0, cm.index) + rest.slice(cm.index + cm[0].length);
   }
   rest = rest.replace(/\|/g, " ").trim();
@@ -108,18 +146,19 @@ function parseBracketSpec(inner) {
     if (/^\d+$/.test(rest)) weight = Number(rest);
     else return null; // leftover junk → not a valid spec; leave the bracket as payload
   }
-  if (weight == null && !cond) return null;
-  return { weight, cond };
+  if (weight == null && !iCond && !fCond) return null;
+  return { weight, iCond, fCond };
 }
 
-/** Consume a leading `[weight|cond]` bracket from `t`, recording onto `out`; no-op if not a spec. */
+/** Consume a leading `[weight|cond…]` bracket from `t`, recording onto `out`; no-op if not a spec. */
 function consumeBracket(t, out) {
   const m = t.match(/^\[([^\]]*)\]\s*/);
   if (!m) return t;
   const spec = parseBracketSpec(m[1]);
   if (!spec) return t; // [[castle]], [deemph], [a:b:0.5], … stay in the payload
   if (spec.weight != null && out.weight == null) out.weight = spec.weight;
-  if (spec.cond && !out.cond) out.cond = spec.cond;
+  if (spec.iCond && !out.iCond) out.iCond = spec.iCond;
+  if (spec.fCond && !out.fCond) out.fCond = spec.fCond;
   return t.slice(m[0].length);
 }
 
@@ -382,9 +421,13 @@ function renderNodes(nodes, ctx) {
     const weight = node.weight ?? auto;
     auto = (node.weight ?? auto) + 1;
 
-    // Intensity condition (`[<10%]`): a hard, deterministic include/exclude, evaluated BEFORE any
-    // probability roll. A failed condition drops the line and is not a "failed gate" for `otherwise`.
-    if (node.cond && !condPasses(node.cond, ctx.intensity)) {
+    // Dial conditions (`[i<10%]`, `[f<40%]`): hard, deterministic include/exclude, evaluated BEFORE
+    // any probability roll. A failed condition drops the line and is not a "failed gate" for
+    // `otherwise`. Both an intensity and a focus condition may apply; both must pass to keep the line.
+    if (
+      (node.iCond && !condPasses(node.iCond, ctx.intensity)) ||
+      (node.fCond && !condPasses(node.fCond, ctx.focus))
+    ) {
       prevGateFailed = false;
       continue;
     }
@@ -479,22 +522,42 @@ function renderNode(node, ctx) {
 /** Render the payload text of a node, substituting inline `{js:path}` via the bridge. */
 function renderInlineBody(node, ctx) {
   let t = node.payload || "";
-  // Intensity keyword/number tokens (resolved here, where the intensity is known), with an optional
-  // relative modifier — `{intensity}` (word), `{intensity%}` (percent), `{intensity-num}` (number),
-  // each accepting ` ±NN%` to derive a value off the given intensity (`{intensity +25%}`,
-  // `{intensity% -10%}`). See notes/reference/intensity-design.md.
-  t = t.replace(/\{intensity(%|-num)?(?:\s*([+-]\d+(?:\.\d+)?)%)?\}/g, (_m, fmt, mod) => {
-    const v = applyIntensityMod(ctx.intensity, mod);
-    if (fmt === "%") return `${v}%`;
-    if (fmt === "-num") return String(v);
-    return intensityWord(v);
-  });
-  // Relative nested refs — `{#name +25%}` / `{#name -25%}` derive an ABSOLUTE percent from the
-  // current intensity, so the downstream resolver (which is flat) sees a plain `{#name NN%}`.
+  // Dial keyword tokens (resolved here, where the dials are known), each with an optional relative
+  // modifier. The dial IS a percent, so `$intensity` / `$focus` expands to the percent itself (`50%`)
+  // — there is no separate `%` form. `$intensity-word` / `$focus-word` is the natural-language word
+  // (`normal`, `pure`). A trailing ` ±NN%` derives a value off the dial (`$intensity-word +25%`,
+  // `$focus -10%`). The `$` sigil keeps them distinct from `{list}` syntax.
+  // See notes/reference/intensity-design.md and notes/reference/focus-design.md.
   t = t.replace(
-    /\{#([\w/-]+)\s+([+-]\d+(?:\.\d+)?)%\}/g,
-    (_m, name, mod) => `{#${name} ${applyIntensityMod(ctx.intensity, mod)}%}`,
+    /\$(intensity|focus)(-word)?(?:\s*([+-]\d+(?:\.\d+)?)%)?/g,
+    (_m, dial, fmt, mod) => {
+      const isFocus = dial === "focus";
+      const v = applyIntensityMod(isFocus ? ctx.focus : ctx.intensity, mod);
+      if (fmt === "-word") return isFocus ? focusWord(v) : intensityWord(v);
+      return `${v}%`; // the dial is inherently a percent
+    },
   );
+  // Nested refs carrying dial args — `{#name i25% f80%}`, with MANDATORY `i`/`f` prefixes. Each arg may
+  // be absolute (`i80%`) or relative (`i+25%`, `f-40%`); relatives derive an ABSOLUTE percent from the
+  // current dial. Normalized here to absolute, prefixed args so the flat downstream resolver only ever
+  // sees `{#name iNN% fNN%}`. (An unprefixed `{#name 25%}` is not dial syntax and is left untouched.)
+  t = t.replace(/\{#([\w/-]+)((?:\s+[if][+-]?\d+(?:\.\d+)?%)+)\}/gi, (_m, name, args) => {
+    let iVal = null;
+    let fVal = null;
+    const tokRe = /([if])([+-]?)(\d+(?:\.\d+)?)%/gi;
+    let tm;
+    while ((tm = tokRe.exec(args))) {
+      const dial = tm[1].toLowerCase();
+      const base = dial === "f" ? ctx.focus : ctx.intensity;
+      const val = tm[2] ? applyIntensityMod(base, tm[2] + tm[3]) : clampIntensity(Number(tm[3]));
+      if (dial === "f") fVal = val;
+      else iVal = val;
+    }
+    let out = `{#${name}`;
+    if (iVal != null) out += ` i${iVal}%`;
+    if (fVal != null) out += ` f${fVal}%`;
+    return out + "}";
+  });
   // Inline JS values: {js:path}
   t = t.replace(/\{js:([^}]+)\}/g, (_m, p) => ctx.bridge?.resolveJs?.(p.trim(), ctx) ?? "");
   // A child block alongside a payload line (rare) — append.
@@ -548,20 +611,29 @@ function weightedSampleN(opts, n) {
  * Compile a `.dpl` source into a dynamic-prompt module object (same shape as a JS generator).
  * @param {string} source The `.dpl` file text.
  * @param {object} [bridge] Optional JS bridge: `{ resolveJs(path, ctx) }` for `{js:}` / `insert js:` / `script`.
- * @returns {{default: Function, full: boolean, suggestion_exclude: boolean, meta: object}} The module.
+ * @returns {{default: Function, full: boolean, suggestion_exclude: boolean, stacking: boolean, meta: object}} The module.
  */
 export function compileDpl(source, bridge = null) {
   const { meta, body } = parseFrontMatter(source);
   const sections = parseSections(lexLines(body));
   const full = meta.type === "full";
   const suggestion_exclude = meta.suggestions === "off" || meta.suggestions === "false";
+  // A `stacking` (alias `multi`) generator opts OUT of global single-layer dedup: it may be imported
+  // and rendered more than once (the many decorative fragments that garnish several clauses). Default
+  // is singular — see notes/reference/layering-design.md.
+  const stacking =
+    meta.stacking === "true" ||
+    meta.stacking === true ||
+    meta.multi === "true" ||
+    meta.multi === true;
 
-  function makeCtx(settings, imageSettings, upscaleSettings, intensity) {
+  function makeCtx(settings, imageSettings, upscaleSettings, intensity, focus) {
     const ctx = {
       settings,
       imageSettings,
       upscaleSettings,
       intensity: clampIntensity(intensity),
+      focus: clampFocus(focus),
       rng: RNG,
       bridge,
       hasSection: (name) => Object.prototype.hasOwnProperty.call(sections, name),
@@ -574,8 +646,8 @@ export function compileDpl(source, bridge = null) {
     return ctx;
   }
 
-  function defaultFn(settings = {}, imageSettings = {}, upscaleSettings = {}, intensity) {
-    const ctx = makeCtx(settings, imageSettings, upscaleSettings, intensity);
+  function defaultFn(settings = {}, imageSettings = {}, upscaleSettings = {}, intensity, focus) {
+    const ctx = makeCtx(settings, imageSettings, upscaleSettings, intensity, focus);
     if (meta.script) return bridge?.resolveJs?.(meta.script, ctx) ?? "";
     return ctx.section("Start");
   }
@@ -587,15 +659,16 @@ export function compileDpl(source, bridge = null) {
   const has = (name) => Object.prototype.hasOwnProperty.call(sections, name);
   const renderSection =
     (name) =>
-    (settings = {}, imageSettings = {}, upscaleSettings = {}, intensity) => {
+    (settings = {}, imageSettings = {}, upscaleSettings = {}, intensity, focus) => {
       if (!has(name)) return "";
-      return makeCtx(settings, imageSettings, upscaleSettings, intensity).section(name);
+      return makeCtx(settings, imageSettings, upscaleSettings, intensity, focus).section(name);
     };
 
   return {
     default: defaultFn,
     full,
     suggestion_exclude,
+    stacking,
     meta,
     hasAutoBegin: has("Auto Begin"),
     hasAutoEnd: has("Auto End"),
