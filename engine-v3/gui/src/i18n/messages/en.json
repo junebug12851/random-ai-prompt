@@ -1083,6 +1083,9 @@
   "providersMenu.group.rewrite": {
     "defaultMessage": "Prompt & keyword rewrite"
   },
+  "providersMenu.group.upscale": {
+    "defaultMessage": "Upscale / enhance"
+  },
   "providersMenu.hintOff": {
     "defaultMessage": "Pick a Text AI to enable auto-fix / keyword rewriting (toggled on the prompt box)."
   },
@@ -1112,6 +1115,12 @@
   },
   "providersMenu.text": {
     "defaultMessage": "Text"
+  },
+  "providersMenu.upscale": {
+    "defaultMessage": "Upscaler / Enhancer"
+  },
+  "providersMenu.upscaleHint": {
+    "defaultMessage": "Used in the single-image view to upscale a saved image. Pick a provider and add its key."
   },
   "settings.alternatingMaxLevels": {
     "defaultMessage": "Alternating max levels"

@@ -60,14 +60,17 @@ export async function dispatch({ providerId, prompt, key, params }) {
 }
 
 import replicateUpscaleServer from "../providers/replicate/code/upscale-server.js";
+import deepaiUpscaleServer from "../providers/deepai/code/upscale-server.js";
 
 /**
- * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't call directly
- * (CORS). Browser-direct upscalers (Stability, fal, Leonardo) never hit this; they run client-side.
+ * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't / shouldn't call
+ * directly (CORS, or upscale-only enhancer services). Browser-direct upscalers (Stability, fal,
+ * Leonardo) never hit this; they run client-side.
  * @type {Record<string, (args: object) => Promise<{images: string[]}>>}
  */
 export const upscaleAdapters = {
   replicate: asFn(replicateUpscaleServer),
+  deepai: asFn(deepaiUpscaleServer),
 };
 
 /**

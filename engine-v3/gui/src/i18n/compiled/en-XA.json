@@ -5634,6 +5634,20 @@
       "value": "]"
     }
   ],
+  "providersMenu.group.upscale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥşƈȧȧŀḗḗ / ḗḗƞħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providersMenu.hintOff": [
     {
       "type": 0,
@@ -5768,6 +5782,34 @@
     {
       "type": 0,
       "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.upscale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥşƈȧȧŀḗḗř / Ḗƞħȧȧƞƈḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.upscaleHint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭşḗḗḓ īƞ ŧħḗḗ şīƞɠŀḗḗ-īḿȧȧɠḗḗ ṽīḗḗẇ ŧǿǿ ŭŭƥşƈȧȧŀḗḗ ȧȧ şȧȧṽḗḗḓ īḿȧȧɠḗḗ. Ƥīƈķ ȧȧ ƥřǿǿṽīḓḗḗř ȧȧƞḓ ȧȧḓḓ īŧş ķḗḗẏ."
     },
     {
       "type": 0,
