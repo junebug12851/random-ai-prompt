@@ -23,8 +23,10 @@ export default {
     size: "freeform",
     batch: { min: 1, max: 8 },
     checkpoint: true, // ComfyUI needs a checkpoint name (its own knob)
+    upscale: true, // upscale-model graph via the proxy — see code/upscale-server.js
   },
 
   loadGenerate: () => import("./code/generate.js").then((m) => m.default),
+  loadUpscale: () => import("./code/upscale.js").then((m) => m.default),
   loadSettings: () => import("./settings.js").then((m) => m.default),
 };
