@@ -58,6 +58,11 @@ const msgs = defineMessages({
     defaultMessage:
       "Used in the single-image view to upscale a saved image. Pick a provider and add its key.",
   },
+  upscaleLockedReason: {
+    id: "providersMenu.upscaleLockedReason",
+    defaultMessage:
+      "Upscaling happens in the single-image view, which needs the full desktop app (it isn't available online).",
+  },
 });
 
 /**
@@ -200,28 +205,28 @@ export default function ProvidersMenu({ settings, setSettings }) {
               {text ? intl.formatMessage(msgs.hintOn) : intl.formatMessage(msgs.hintOff)}
             </p>
 
-            {/* Upscaler / Enhancer — local-only (the single image view), so hidden online. */}
-            {!ONLINE && (
-              <>
-                <div className="pm-row">
-                  <ProviderPicker
-                    label={intl.formatMessage(msgs.upscale)}
-                    value={upscaleId}
-                    groups={upscaleGroups}
-                    onPick={pickUpscale}
-                  />
-                  {upscaleId !== "none" && upscaleId !== imageId && upscaleId !== textId ? (
-                    <ApiKeyField settings={settings} setSettings={setSettings} providerId={upscaleId} />
-                  ) : (
-                    upscaleId !== "none" &&
-                    getProvider(upscaleId)?.needsKey && (
-                      <span className="pm-shared">{intl.formatMessage(msgs.sharesKey)}</span>
-                    )
-                  )}
-                </div>
-                <p className="pm-hint">{intl.formatMessage(msgs.upscaleHint)}</p>
-              </>
-            )}
+            {/* Upscaler / Enhancer — a local-only feature (the single-image view). Shown online too,
+                but LOCKED with a tooltip so visitors can see the feature exists. */}
+            <div className="pm-row">
+              <ProviderPicker
+                label={intl.formatMessage(msgs.upscale)}
+                value={upscaleId}
+                groups={upscaleGroups}
+                onPick={pickUpscale}
+                locked={ONLINE}
+                lockReason={intl.formatMessage(msgs.upscaleLockedReason)}
+              />
+              {!ONLINE &&
+                (upscaleId !== "none" && upscaleId !== imageId && upscaleId !== textId ? (
+                  <ApiKeyField settings={settings} setSettings={setSettings} providerId={upscaleId} />
+                ) : (
+                  upscaleId !== "none" &&
+                  getProvider(upscaleId)?.needsKey && (
+                    <span className="pm-shared">{intl.formatMessage(msgs.sharesKey)}</span>
+                  )
+                ))}
+            </div>
+            <p className="pm-hint">{intl.formatMessage(msgs.upscaleHint)}</p>
           </div>
         </>
       )}

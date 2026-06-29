@@ -42,7 +42,7 @@ const msgs = defineMessages({
  * @param {Function} props.onPick `(id)` — called when an option is chosen.
  * @returns {JSX.Element}
  */
-export default function ProviderPicker({ label, value, groups, onPick }) {
+export default function ProviderPicker({ label, value, groups, onPick, locked, lockReason }) {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
   const all = groups.flatMap((g) => g.items);
@@ -56,17 +56,24 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
   return (
     <div className="provider-select provider-picker">
       <button
-        className="ps-trigger"
-        onClick={() => setOpen((o) => !o)}
-        title={intl.formatMessage(msgs.providerTitle, { label })}
+        className={`ps-trigger${locked ? " is-locked" : ""}`}
+        onClick={() => (locked ? openFullVersion() : setOpen((o) => !o))}
+        title={locked ? lockedHint(intl, label, lockReason) : intl.formatMessage(msgs.providerTitle, { label })}
         aria-haspopup="listbox"
-        aria-expanded={open}
+        aria-expanded={locked ? false : open}
+        aria-disabled={locked || undefined}
       >
         <span className="provider-select-label">{label}</span>
         <span className="ps-current">{current?.label}</span>
-        <span className="ps-caret">▾</span>
+        {locked ? (
+          <span className="ps-lock" aria-hidden="true">
+            🔒
+          </span>
+        ) : (
+          <span className="ps-caret">▾</span>
+        )}
       </button>
-      {open && (
+      {!locked && open && (
         <>
           <div className="ps-scrim" onClick={() => setOpen(false)} />
           <div className="ps-pop" role="listbox">

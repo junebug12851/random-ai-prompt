@@ -61,6 +61,8 @@ export async function dispatch({ providerId, prompt, key, params }) {
 
 import replicateUpscaleServer from "../providers/replicate/code/upscale-server.js";
 import deepaiUpscaleServer from "../providers/deepai/code/upscale-server.js";
+import picsartUpscaleServer from "../providers/picsart/code/upscale-server.js";
+import segmindUpscaleServer from "../providers/segmind/code/upscale-server.js";
 
 /**
  * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't / shouldn't call
@@ -71,6 +73,8 @@ import deepaiUpscaleServer from "../providers/deepai/code/upscale-server.js";
 export const upscaleAdapters = {
   replicate: asFn(replicateUpscaleServer),
   deepai: asFn(deepaiUpscaleServer),
+  picsart: asFn(picsartUpscaleServer),
+  segmind: asFn(segmindUpscaleServer),
 };
 
 /**

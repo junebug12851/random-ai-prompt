@@ -1122,6 +1122,9 @@
   "providersMenu.upscaleHint": {
     "defaultMessage": "Used in the single-image view to upscale a saved image. Pick a provider and add its key."
   },
+  "providersMenu.upscaleLockedReason": {
+    "defaultMessage": "Upscaling happens in the single-image view, which needs the full desktop app (it isn't available online)."
+  },
   "settings.alternatingMaxLevels": {
     "defaultMessage": "Alternating max levels"
   },
