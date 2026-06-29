@@ -1,6 +1,7 @@
 ---
 description: A ship, optionally weathered or wrecked
 ---
+
 weather-fx
 ===
 - one of (25% nothing):
@@ -12,7 +13,7 @@ Start
 ship, {scene/ship}
 - 50% +weather-fx
 - {#color} hull
-- {intensity} sails
+- $intensity-word sails
 - {mood} atmosphere
 - rigging
 - maybe:

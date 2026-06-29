@@ -1,11 +1,12 @@
 ---
 description: A spaceship
 ---
+
 Start
 ===
 spaceship, spacecraft
 - {#neon}
-- {intensity} hull
+- $intensity-word hull
 - {style/construct}
 - sleek paneling
 - glowing thrusters

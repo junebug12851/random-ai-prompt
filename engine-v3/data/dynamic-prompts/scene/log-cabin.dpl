@@ -1,6 +1,7 @@
 ---
 description: A log cabin in dense forest
 ---
+
 Start
 ===
 ((cabin, log cabin)), dense forest, dense trees
@@ -17,6 +18,6 @@ Start
 - 50% smoke rising from the chimney
 - winding path
 - {time}
-- [<25%] tiny secluded hut
+- [i<25%] tiny secluded hut
 
 {#nature}, {#weather}, up close

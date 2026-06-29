@@ -1,11 +1,13 @@
 ---
 description: Crystals and gemstones
+stacking: true
 ---
+
 Start
 ===
 - {#glow} crystals
 - {#glow} crystal walls
-- {intensity} crystal formations
+- $intensity-word crystal formations
 - glowing
 - ruby
 - diamond

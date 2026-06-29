@@ -29,7 +29,7 @@ const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 // --- v3 DPL support -------------------------------------------------------
 // The active dynamic-prompt catalog is v3 (`.dpl`, with optional same-name `.js` sidecars)
 // plus the frozen v1 (`.js`, addressed `#name-v1`). The v2 tree stays on disk as frozen
-// reference but is NOT loaded. A `.dpl` compiles to the same `{ default, full,
+// reference but is NOT loaded. A `.dpl` compiles to the same `{ default,
 // suggestion_exclude }` module a JS generator exports, so the engine/classifier are untouched.
 const dplCache = new Map();
 
@@ -44,7 +44,8 @@ function makeDplBridge(fileDir) {
         const mod = require(abs);
         const fn = mod && (mod.default || mod);
         return typeof fn === "function"
-          ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings, ctx.intensity) ?? "")
+          ? (fn(ctx.settings, ctx.imageSettings, ctx.upscaleSettings, ctx.intensity, ctx.focus) ??
+              "")
           : "";
       } catch {
         return "";

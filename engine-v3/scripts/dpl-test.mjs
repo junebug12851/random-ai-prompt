@@ -145,10 +145,9 @@ function runs(src, n = 400, bridge = null) {
   );
 }
 
-// 10. Front-matter: type/full + suggestions:off.
+// 10. Front-matter: suggestions:off.
 {
-  const mod = compileDpl("---\ntype: full\nsuggestions: off\n---\nStart\n===\nhi\n");
-  check("full flag parsed", mod.full === true);
+  const mod = compileDpl("---\nsuggestions: off\n---\nStart\n===\nhi\n");
   check("suggestion_exclude parsed", mod.suggestion_exclude === true);
 }
 

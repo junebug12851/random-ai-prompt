@@ -1,6 +1,7 @@
 ---
 description: Beach scene (community submission by Merk)
 ---
+
 beach-extra
 ===
 - one of (60% nothing):
@@ -16,7 +17,7 @@ beach, palm trees
 - sandy shore
 - sea shells
 - tide pools
-- {intensity} waves
+- $intensity-word waves
 - {color}
 
 {#nature}, {#water}, {#mystical}, {#weather}

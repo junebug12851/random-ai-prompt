@@ -67,6 +67,7 @@ over `gui/src/lib/dpl/dplLanguage.js`). `gui/package.json`:
 | `@codemirror/autocomplete` | 6 | The brace-aware `{…}` / `{#…}` token-completion dropdown. |
 | `@codemirror/commands` | 6 | Undo `history()` + the default/history keymaps. |
 | `@codemirror/lang-javascript` | 6 | JS syntax highlighting for the Manage tab's JS-sidecar editor (`CodeEditor.jsx`); added 2.12.0. |
+| `@codemirror/lint` | 6 | Inline DPL error spots (underline + gutter + hover) fed by the shared `validateDpl` validator; also backs the editors' live ✓/✕ status icon. |
 | `@lezer/highlight` | 1 | `Tag.define()` for the custom DPL highlight tags. |
 
 Highlight **colors live in `styles.css`** (the `--dpl-*` variables, with a light-theme override), not in a JS

@@ -3,3 +3,4 @@ description: A single lighter random prompt suggestion
 suggestions: off
 script: simple-random.js
 ---
+

@@ -12,10 +12,25 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, placeholder as placeholderExt, drawSelection } from "@codemirror/view";
-import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
-import { autocompletion, completionKeymap, snippet } from "@codemirror/autocomplete";
-import { dplLanguage, dplCompletionSource, dplKindBadge } from "../lib/dpl/dplLanguage.js";
+import { history, defaultKeymap, historyKeymap, insertNewlineAndIndent } from "@codemirror/commands";
+import { autocompletion, completionKeymap, snippet, startCompletion } from "@codemirror/autocomplete";
+import { linter } from "@codemirror/lint";
+import { dplLanguage, dplCompletionSource, dplKindBadge, inFrontMatter } from "../lib/dpl/dplLanguage.js";
 import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
+import { validateDpl } from "../lib/dpl/validateDpl.js";
+
+// CodeMirror linter fed by the shared DPL validator — underlines bad spots and shows the message on
+// hover; the gutter marks each line with an issue. The same validator backs the editors' status icon.
+const dplLinter = linter((view) => {
+  const text = view.state.doc.toString();
+  const len = text.length;
+  return validateDpl(text).map((d) => ({
+    from: Math.min(d.from, len),
+    to: Math.min(Math.max(d.to, d.from + 1), len),
+    severity: d.severity,
+    message: d.message,
+  }));
+});
 
 // Render a token into a concrete example for the autocomplete info panel (no auto-FX/auto-artist
 // noise, mirroring the eye-icon live preview).
@@ -94,6 +109,7 @@ function DplEditor(
         drawSelection(),
         EditorView.lineWrapping,
         dplLanguage(),
+        dplLinter,
         autocompletion({
           override: [
             dplCompletionSource(getDplCompletions, {
@@ -104,7 +120,24 @@ function DplEditor(
           icons: false,
           addToOptions: [{ render: dplKindBadge, position: 70 }],
         }),
-        keymap.of([...completionKeymap, ...historyKeymap, ...defaultKeymap]),
+        keymap.of([
+          ...completionKeymap,
+          // Inside the leading `---` front-matter block, pressing Enter drops to a fresh line and
+          // immediately re-opens the key suggestions, so the front-matter keys are discoverable
+          // one after another. (Placed after completionKeymap so Enter still *accepts* an open
+          // completion; only a plain Enter falls through to here.)
+          {
+            key: "Enter",
+            run: (view) => {
+              if (!inFrontMatter(view.state, view.state.selection.main.head)) return false;
+              const handled = insertNewlineAndIndent(view);
+              if (inFrontMatter(view.state, view.state.selection.main.head)) startCompletion(view);
+              return handled;
+            },
+          },
+          ...historyKeymap,
+          ...defaultKeymap,
+        ]),
         placeholderCompartment.current.of(placeholderExt(placeholder)),
         labelCompartment.current.of(
           ariaLabel ? EditorView.contentAttributes.of({ "aria-label": ariaLabel }) : [],

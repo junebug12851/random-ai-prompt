@@ -1,6 +1,7 @@
 ---
 description: Underwater scenery
 ---
+
 Start
 ===
 underwater, underwater photography
@@ -8,7 +9,7 @@ underwater, underwater photography
 - aquatic life
 - {#color} coral reef
 - {#color} starfish
-- {intensity} schools of fish
+- $intensity-word schools of fish
 - kelp
 - bubbles
 - bioluminescent glow

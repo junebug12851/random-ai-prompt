@@ -1,11 +1,12 @@
 ---
 description: A zoo exhibit
 ---
+
 Start
 ===
 ((zoo)), exhibit, (({animal}))
 - enclosure
-- {intensity} crowd of visitors
+- $intensity-word crowd of visitors
 - signage
 - {#water}
 - {#nature}

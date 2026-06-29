@@ -26,15 +26,23 @@ const render = (src, settings = {}, intensity = 100) =>
 const renderAt = (src, intensity, settings = {}) =>
   compileDpl(src, { resolveJs: () => "" }).default(settings, {}, {}, intensity);
 
+/** Render at full intensity and an explicit focus (1..100). */
+const renderAtF = (src, focus, settings = {}) =>
+  compileDpl(src, { resolveJs: () => "" }).default(settings, {}, {}, 100, focus);
+
+/** Render at an explicit intensity AND focus. */
+const renderAtIF = (src, intensity, focus, settings = {}) =>
+  compileDpl(src, { resolveJs: () => "" }).default(settings, {}, {}, intensity, focus);
+
 describe("DPL: plain text & front-matter", () => {
   it("treats plain text as an always-on layer", () => {
     expect(render("hello world")).toBe("hello world");
   });
 
-  it("parses front-matter flags (type: full, suggestions: off)", () => {
-    const mod = compileDpl("---\ntype: full\nsuggestions: off\n---\nbody text");
-    expect(mod.full).toBe(true);
+  it("parses front-matter flags (suggestions: off)", () => {
+    const mod = compileDpl("---\nsuggestions: off\n---\nbody text");
     expect(mod.suggestion_exclude).toBe(true);
+    expect(mod.full).toBeUndefined();
     expect(mod.default()).toBe("body text");
   });
 
@@ -98,28 +106,39 @@ describe("DPL: repeat", () => {
   });
 });
 
-describe("DPL: intensity — conditions", () => {
-  it("renders a [<10%] line only when intensity is below the threshold", () => {
-    const src = "Start\n===\nbase\n[<10%] - grass";
+describe("DPL: dial conditions (intensity / focus)", () => {
+  it("renders an [i<10%] line only when intensity is below the threshold", () => {
+    const src = "Start\n===\nbase\n[i<10%] - grass";
     // The bracket sits before the dash; the bullet is forced on with withRandom(0).
     expect(withRandom(0, () => renderAt(src, 5))).toBe("base, grass");
     expect(withRandom(0, () => renderAt(src, 50))).toBe("base");
   });
 
-  it("supports the comparison operators (>, >=, =, !=)", () => {
-    expect(withRandom(0, () => renderAt("Start\n===\n- [>50%] x", 80))).toBe("x");
-    expect(withRandom(0, () => renderAt("Start\n===\n- [>50%] x", 50))).toBe("");
-    expect(withRandom(0, () => renderAt("Start\n===\n- [=50%] x", 50))).toBe("x");
-    expect(withRandom(0, () => renderAt("Start\n===\n- [!=50%] x", 50))).toBe("");
+  it("renders an [f<30%] line by the focus dial (low focus admits fluff)", () => {
+    const src = "Start\n===\ncore\n[f<30%] distant city";
+    expect(renderAtF(src, 10)).toBe("core, distant city");
+    expect(renderAtF(src, 90)).toBe("core");
   });
 
-  it("stacks a weight with a condition (pipe or space), in either order", () => {
-    const pipe = "Start\n===\n[1000] late\n- [10|<20%] early";
-    const space = "Start\n===\n[1000] late\n- [10 <20%] early";
-    expect(withRandom(0, () => renderAt(pipe, 10))).toBe("early, late");
-    expect(withRandom(0, () => renderAt(space, 10))).toBe("early, late");
-    // Condition false → the weighted line drops out.
-    expect(withRandom(0, () => renderAt(pipe, 50))).toBe("late");
+  it("supports the comparison operators (>, >=, =, !=)", () => {
+    expect(withRandom(0, () => renderAt("Start\n===\n- [i>50%] x", 80))).toBe("x");
+    expect(withRandom(0, () => renderAt("Start\n===\n- [i>50%] x", 50))).toBe("");
+    expect(withRandom(0, () => renderAt("Start\n===\n- [i=50%] x", 50))).toBe("x");
+    expect(withRandom(0, () => renderAt("Start\n===\n- [i!=50%] x", 50))).toBe("");
+  });
+
+  it("stacks a weight with an i- and f-condition (pipe or space), in any order", () => {
+    const src = "Start\n===\n[1000] late\n- [10 i<20% f>40%] early";
+    // intensity 10 (<20 ✓) AND focus 50 (>40 ✓) → early sorts first by weight.
+    expect(withRandom(0, () => renderAtIF(src, 10, 50))).toBe("early, late");
+    // focus 30 (>40 ✗) → the weighted line drops out even though intensity still passes.
+    expect(withRandom(0, () => renderAtIF(src, 10, 30))).toBe("late");
+  });
+
+  it("leaves an unprefixed [<10%] as payload — the i/f prefix is mandatory", () => {
+    // No prefix → not a condition; the bracket text passes through literally (a plain, always-on line).
+    expect(renderAt("Start\n===\nbase\n[<10%] grass", 5)).toBe("base, [<10%] grass");
+    expect(renderAt("Start\n===\nbase\n[<10%] grass", 50)).toBe("base, [<10%] grass");
   });
 
   it("leaves non-spec brackets ([[x]], [deemph]) as payload", () => {
@@ -149,31 +168,49 @@ describe("DPL: intensity — auto-scaling", () => {
   });
 });
 
-describe("DPL: intensity — keyword token", () => {
-  it("expands {intensity} to the magnitude word and {intensity%}/{intensity-num} to numbers", () => {
-    expect(renderAt("Start\n===\n{intensity} amount of grass", 20)).toBe("tiny amount of grass");
-    expect(renderAt("Start\n===\n{intensity} amount of grass", 50)).toBe("normal amount of grass");
-    expect(renderAt("Start\n===\n{intensity} amount of grass", 85)).toBe("huge amount of grass");
-    expect(renderAt("Start\n===\nlevel {intensity%}", 50)).toBe("level 50%");
-    expect(renderAt("Start\n===\nlevel {intensity-num}", 50)).toBe("level 50");
+describe("DPL: dial keyword tokens ($intensity / $focus)", () => {
+  it("expands $intensity-word from the 100-step scale; $intensity is the percent", () => {
+    // 100-word scale (1..100): 20→ultra-tiny, 50→normal, 85→immense.
+    expect(renderAt("Start\n===\n$intensity-word amount of grass", 20)).toBe(
+      "ultra-tiny amount of grass",
+    );
+    expect(renderAt("Start\n===\n$intensity-word amount of grass", 50)).toBe(
+      "normal amount of grass",
+    );
+    expect(renderAt("Start\n===\n$intensity-word amount of grass", 85)).toBe(
+      "immense amount of grass",
+    );
+    expect(renderAt("Start\n===\nlevel $intensity", 50)).toBe("level 50%");
   });
 
-  it("applies a relative ±NN% modifier to the keyword", () => {
-    // 50 × 1.5 = 75 → "large"; 50 × 0.5 = 25 → "small".
-    expect(renderAt("Start\n===\n{intensity +50%}", 50)).toBe("large");
-    expect(renderAt("Start\n===\n{intensity -50%}", 50)).toBe("small");
-    expect(renderAt("Start\n===\n{intensity% +50%}", 50)).toBe("75%");
+  it("expands $focus-word from the 100-step scale; $focus is the percent", () => {
+    // Focus scale (loose→topic-only): 10→lenient, 50→normal, 95→isolated.
+    expect(renderAtF("Start\n===\n$focus-word scene", 10)).toBe("lenient scene");
+    expect(renderAtF("Start\n===\n$focus-word scene", 50)).toBe("normal scene");
+    expect(renderAtF("Start\n===\n$focus-word scene", 95)).toBe("isolated scene");
+    expect(renderAtF("Start\n===\nf $focus", 80)).toBe("f 80%");
   });
 
-  it("rewrites a relative {#name ±NN%} ref to an absolute percent", () => {
-    expect(renderAt("Start\n===\n{#weather +50%}", 50)).toBe("{#weather 75%}");
-    expect(renderAt("Start\n===\n{#weather -40%}", 50)).toBe("{#weather 30%}");
-    // An absolute ref passes through unchanged.
+  it("applies a relative ±NN% modifier to a dial keyword", () => {
+    // 50 × 1.5 = 75 → "crowded"; 50 × 0.5 = 25 → "itty-bitty".
+    expect(renderAt("Start\n===\n$intensity-word +50%", 50)).toBe("crowded");
+    expect(renderAt("Start\n===\n$intensity-word -50%", 50)).toBe("itty-bitty");
+    expect(renderAt("Start\n===\n$intensity +50%", 50)).toBe("75%");
+  });
+
+  it("normalizes a prefixed relative/absolute {#name …} ref to absolute, prefixed percents", () => {
+    expect(renderAt("Start\n===\n{#weather i+50%}", 50)).toBe("{#weather i75%}");
+    expect(renderAt("Start\n===\n{#weather i-40%}", 50)).toBe("{#weather i30%}");
+    expect(renderAt("Start\n===\n{#weather i80%}", 50)).toBe("{#weather i80%}");
+    // Focus, relative and absolute; and both dials together.
+    expect(renderAtF("Start\n===\n{#weather f+50%}", 50)).toBe("{#weather f75%}");
+    expect(renderAt("Start\n===\n{#weather i20% f80%}", 50)).toBe("{#weather i20% f80%}");
+    // Unprefixed args are NOT dial syntax → the ref is left untouched.
     expect(renderAt("Start\n===\n{#weather 80%}", 50)).toBe("{#weather 80%}");
   });
 
-  it("clamps intensity (0 → 1, >100 → 100)", () => {
-    expect(renderAt("Start\n===\n{intensity-num}", 0)).toBe("1");
-    expect(renderAt("Start\n===\n{intensity-num}", 250)).toBe("100");
+  it("clamps a dial (0 → 1, >100 → 100), rendered as a percent", () => {
+    expect(renderAt("Start\n===\n$intensity", 0)).toBe("1%");
+    expect(renderAt("Start\n===\n$intensity", 250)).toBe("100%");
   });
 });

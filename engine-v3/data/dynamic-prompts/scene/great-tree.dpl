@@ -1,9 +1,10 @@
 ---
 description: A great ancient tree in a forest
 ---
+
 Start
 ===
-((a beautiful {intensity +40%} ancient tree)), growing in the middle of a primeval forest, wide angle, closeup
+((a beautiful $intensity-word +40% ancient tree)), growing in the middle of a primeval forest, wide angle, closeup
 - one of:
     - willow
     - tree of life
