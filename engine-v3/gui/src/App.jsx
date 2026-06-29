@@ -16,7 +16,7 @@
  * forced off. See `lib/online.js`.
  * @module gui/App
  */
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
 import { useSettings } from "./lib/settings.js";
@@ -33,12 +33,17 @@ import { providerMode } from "./lib/useProvider.js";
 import { refreshCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
 import Home from "./components/Home.jsx";
-import Gallery from "./components/Gallery.jsx";
-import SingleView from "./components/SingleView.jsx";
-import Manage from "./components/Manage.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
+
+// The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
+// is split into separate chunks the browser fetches only when the view is first opened —
+// keeping the initial Generate-screen payload small. Once opened, a pane stays mounted (so
+// its state/scroll persist), exactly as before; lazy only defers the FIRST mount.
+const Gallery = lazy(() => import("./components/Gallery.jsx"));
+const SingleView = lazy(() => import("./components/SingleView.jsx"));
+const Manage = lazy(() => import("./components/Manage.jsx"));
 
 // [id, labelKey, featureKey]. Gallery/Single are local-only — online shows them disabled.
 // Manage needs the local-mode file backend (a runtime capability, not the build stage).
@@ -117,6 +122,10 @@ export default function App() {
 function AppShell({ settings, setSettings }) {
   const intl = useIntl();
   const [view, setView] = useState("generate"); // "generate" | "gallery" | "single"
+  // Views the user has opened at least once. A lazy pane is only rendered after its first
+  // open, then kept mounted — so we never fetch the Gallery/Single/Manage chunks (CodeMirror
+  // included) until they're actually needed, without losing per-view state on tab switches.
+  const [opened, setOpened] = useState(() => new Set(["generate"]));
   const [items, setItems] = useState([]); // the saved-image feed (newest first)
   const [loadingItems, setLoadingItems] = useState(true);
   const [query, setQuery] = useState(""); // gallery search (lifted so it persists + chips can set it)
@@ -165,6 +174,11 @@ function AppShell({ settings, setSettings }) {
     managerAvailable().then(setManagerOk);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Remember each view the moment it's first shown, so its lazy pane mounts and then persists.
+  useEffect(() => {
+    setOpened((o) => (o.has(view) ? o : new Set(o).add(view)));
+  }, [view]);
 
   async function loadFeed() {
     setLoadingItems(true);
@@ -368,10 +382,11 @@ function AppShell({ settings, setSettings }) {
             onOpenImage={ONLINE ? undefined : openGeneratedImage}
           />
         </div>
-        {/* Gallery + Single are local-only: the online build has no image feed and omits them. */}
-        {!ONLINE && (
-          <>
-            <div className={`view-pane${view === "gallery" ? " on" : ""}`}>
+        {/* Gallery + Single are local-only: the online build has no image feed and omits them.
+            Each mounts (and fetches its chunk) only once first opened, then stays mounted. */}
+        {!ONLINE && opened.has("gallery") && (
+          <div className={`view-pane${view === "gallery" ? " on" : ""}`}>
+            <Suspense fallback={null}>
               <Gallery
                 items={items}
                 loading={loadingItems}
@@ -381,8 +396,12 @@ function AppShell({ settings, setSettings }) {
                 onRefresh={loadFeed}
                 onDelete={deleteItem}
               />
-            </div>
-            <div className={`view-pane${view === "single" ? " on" : ""}`}>
+            </Suspense>
+          </div>
+        )}
+        {!ONLINE && opened.has("single") && (
+          <div className={`view-pane${view === "single" ? " on" : ""}`}>
+            <Suspense fallback={null}>
               <SingleView
                 items={items}
                 current={current}
@@ -401,13 +420,16 @@ function AppShell({ settings, setSettings }) {
                 derivations={derivations}
                 deriveError={deriveError}
               />
-            </div>
-          </>
+            </Suspense>
+          </div>
         )}
-        {/* Manage is local-only: only mounted when the file backend is present. */}
-        {managerOk && (
+        {/* Manage is local-only: only mounted when the file backend is present AND opened once
+            (so the heavy CodeMirror editor chunk loads on demand, not on first paint). */}
+        {managerOk && opened.has("manage") && (
           <div className={`view-pane${view === "manage" ? " on" : ""}`}>
-            <Manage settings={settings} available={managerOk} active={view === "manage"} />
+            <Suspense fallback={null}>
+              <Manage settings={settings} available={managerOk} active={view === "manage"} />
+            </Suspense>
           </div>
         )}
       </main>

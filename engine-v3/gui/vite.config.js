@@ -55,4 +55,27 @@ export default defineConfig({
     port: 5173,
     fs: { allow: [repoRoot] },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split the monolith into focused, independently-cacheable chunks (Vite 8 / Rolldown
+        // `advancedChunks`). Vendors change rarely, so isolating them means an app-code change
+        // doesn't re-download React/lodash. The eagerly-globbed prompt data (the largest single
+        // contributor) becomes its own chunk too — still fetched for the Generate view, but in
+        // parallel and cached apart from the engine/app code. CodeMirror is intentionally NOT
+        // grouped here: it already lives in the lazy `Manage` chunk and must stay on-demand.
+        advancedChunks: {
+          groups: [
+            { name: "react", test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+            {
+              name: "intl",
+              test: /[\\/]node_modules[\\/](react-intl|@formatjs|intl-messageformat)/,
+            },
+            { name: "lodash", test: /[\\/]node_modules[\\/]lodash[\\/]/ },
+            { name: "prompt-data", test: /[\\/]data[\\/](dynamic-prompts|lists|presets)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
 });
