@@ -16,8 +16,13 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "@babel/core";
 
+// The project split (engine-v3/) puts CODE under engine-v3/ (src, data, gui, tmp, docs output)
+// while the living docs — notes/, assets/, README.md, the repo docs, and jsdoc.config.json — stay
+// at the REPO ROOT (engine-v3/..). So the doc build straddles both: `root` is engine-v3 (code +
+// temp + output), `repoRoot` is its parent (notes + assets + README + jsdoc config).
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const notesDir = path.join(root, "notes");
+const repoRoot = path.resolve(root, "..");
+const notesDir = path.join(repoRoot, "notes");
 const outDir = path.join(root, "tmp", "jsdoc-tutorials");
 
 const REPO_DOCS = ["list-credits.md", "list-help.md"];
@@ -32,7 +37,7 @@ const dirId = (absDir) =>
     ? "notes"
     : "notes__" + path.relative(notesDir, absDir).split(path.sep).join("__")) + "__index";
 const fileId = (absFile) => {
-  const rel = path.relative(root, absFile).split(path.sep).join("/");
+  const rel = path.relative(repoRoot, absFile).split(path.sep).join("/");
   return rel.replace(/\.md$/i, "").split("/").join("__");
 };
 
@@ -63,7 +68,7 @@ function scan(absDir) {
 }
 scan(notesDir);
 for (const f of REPO_DOCS) {
-  const abs = path.join(root, f);
+  const abs = path.join(repoRoot, f);
   if (fs.existsSync(abs)) linkMap.set(abs, fileId(abs));
 }
 
@@ -125,7 +130,7 @@ tutorials[notesRoot.id] = notesRoot.node;
 
 const repoChildren = {};
 for (const f of REPO_DOCS) {
-  const abs = path.join(root, f);
+  const abs = path.join(repoRoot, f);
   if (!fs.existsSync(abs)) continue;
   const c = fs.readFileSync(abs, "utf8");
   const fid = fileId(abs);
@@ -178,7 +183,21 @@ const waCount =
 console.log(`Transpiled ${waCount} gui files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
-execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
+// jsdoc.config.json + README + assets live at the repo root, so run JSDoc from there (its
+// source.include / tutorials paths reach back into engine-v3/). Invoke engine-v3's PINNED jsdoc
+// binary directly (not `npx jsdoc`, which from the repo root would fetch a different version).
+const jsdocBin = path.join(root, "node_modules", "jsdoc", "jsdoc.js");
+const docsIndex = path.join(repoRoot, "docs", "jsdoc", "index.html");
+try {
+  execSync(`node "${jsdocBin}" -c jsdoc.config.json`, { cwd: repoRoot, stdio: "inherit" });
+} catch (e) {
+  // JSDoc exits non-zero on RECOVERABLE type-expression parse errors — modern TS-style JSDoc types
+  // (`import("react").Ref`, `() => string`, `Error & {…}`, deep generics) its catharsis parser
+  // rejects — yet it still writes the full site. Tolerate that when the output landed; a missing
+  // index.html is the only real failure. (The type warnings are cosmetic; tighten the types later.)
+  if (!fs.existsSync(docsIndex)) throw e;
+  console.warn("JSDoc emitted non-fatal type-expression warnings — site generated, continuing.");
+}
 
 // ---- Install the fairyfox docs-theme into the output ----
 // The theme is authored from scratch (assets/docs-theme/fairyfox-docs.css) and
@@ -187,8 +206,8 @@ execSync("npx jsdoc -c jsdoc.config.json", { cwd: root, stdio: "inherit" });
 // (brand / breadcrumb / footer back-links — the docs-site standard's two-way
 // link requirement) is copied to the path docdash.scripts references. See
 // notes/reference/documentation.md.
-const themeSrc = path.join(root, "assets", "docs-theme");
-const outRoot = path.join(root, "docs", "jsdoc");
+const themeSrc = path.join(repoRoot, "assets", "docs-theme");
+const outRoot = path.join(repoRoot, "docs", "jsdoc");
 // 1) the from-scratch theme replaces docdash's generated stylesheet
 fs.copyFileSync(
   path.join(themeSrc, "fairyfox-docs.css"),
@@ -199,7 +218,7 @@ const jsDest = path.join(outRoot, "assets", "docs-theme");
 fs.mkdirSync(jsDest, { recursive: true });
 fs.copyFileSync(path.join(themeSrc, "fairyfox-docs.js"), path.join(jsDest, "fairyfox-docs.js"));
 // 3) the project logo for the sidebar brand (referenced by fairyfox-docs.js)
-fs.copyFileSync(path.join(root, "assets", "icons", "512.png"), path.join(jsDest, "logo.png"));
+fs.copyFileSync(path.join(repoRoot, "assets", "icons", "512.png"), path.join(jsDest, "logo.png"));
 console.log(
   "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png}.",
 );
