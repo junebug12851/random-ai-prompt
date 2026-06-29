@@ -7,7 +7,16 @@ import { describe, it, expect } from "vitest";
 import { createEngine } from "../../src/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 
-const pm = (...mods) => ({ promptModules: mods, autoAddFx: false, autoAddArtists: false });
+// Disable the random emphasis/alternating passes so exact-output assertions are deterministic.
+// (lodash's Math.random can't be stubbed — see notes/plans/testing.md — so the only reliable way
+// to get a fixed string out of the `list` stage is to turn off the random keyword decoration.)
+const pm = (...mods) => ({
+  promptModules: mods,
+  autoAddFx: false,
+  autoAddArtists: false,
+  keywordEmphasis: false,
+  keywordAlternating: false,
+});
 
 describe("engine.generate", () => {
   it("falls back to the default {#random-words} prompt from settings", () => {
