@@ -534,7 +534,7 @@ export default function Manage({ settings, available, active }) {
         ) : selected?.type === "entry" && selected.kind === "generator" ? (
           <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} />
         ) : selected?.type === "entry" && (selected.kind === "list" || selected.kind === "group") ? (
-          <ManageListEditor entry={selected} onChanged={handleChanged} />
+          <ManageListEditor entry={selected} settings={settings} onChanged={handleChanged} />
         ) : (
           <ManageDetail selected={selected} />
         )}

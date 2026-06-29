@@ -1,25 +1,35 @@
 ---
 description: A mountain landscape
 ---
+
 Start
 ===
 ((mountain)), {view}
-- {intensity} rocky peaks
+- $intensity-word rocky peaks
 - ((mountainous horizon))
-- fog
-- 25% [hill]
-- 25% [valley]
-- 25% [cliff]
 - 25% forest
 - 25% one of:
     - volcano, {#lava}
     - winter, snow mountain, {#ice}
-- 25% {#eerie}
-- 20% {#mystical}
-- {#wildlife}
-- 25% {#water}
-- {#nature}
-- [>75%] dramatic towering ridgeline
-- [<20%] gentle distant hills
+- [i>75%] dramatic towering ridgeline
+- [i<20%] gentle distant hills
 
-{#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] alpine meadow
+[f<60%] mountain stream, waterfall
+[f<55%] rocky cliffs, scree slopes
+[f<50%] pine forest, treeline
+[f<45%] fog rolling over the ridges
+[f<40%] a winding mountain trail
+
+; out-of-subject fluff — only at low focus
+[f<25%] a small alpine village
+[f<20%] a distant castle perched on a peak
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<55%] {#wildlife}
+[f<50%] {#water}
+[f<45%] {#eerie}
+[f<35%] {#mystical}
+[f<70%] {#weather}

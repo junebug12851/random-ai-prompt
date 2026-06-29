@@ -1,6 +1,7 @@
 ---
 description: A futuristic / cyberpunk scene
 ---
+
 Start
 ===
 futuristic
@@ -19,7 +20,7 @@ futuristic
 - 35% {#eerie}
 - 35% {#mystical}
 - dramatic lighting
-- [<25%] sleek minimalist
-- [>75%] dense sprawling megacity
+- [i<25%] sleek minimalist
+- [i>75%] dense sprawling megacity
 
 {#weather}

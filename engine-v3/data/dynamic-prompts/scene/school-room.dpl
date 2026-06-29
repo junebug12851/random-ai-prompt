@@ -1,6 +1,7 @@
 ---
 description: A school classroom
 ---
+
 Start
 ===
 school classroom, interior, {school-room}
@@ -8,6 +9,6 @@ school classroom, interior, {school-room}
 - desks in rows
 - chalkboard
 - posters on the wall
-- {intensity} clutter
+- $intensity-word clutter
 - {time}
-- [<25%] empty quiet classroom
+- [i<25%] empty quiet classroom

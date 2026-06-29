@@ -1,6 +1,7 @@
 ---
 description: A knight / warrior character
 ---
+
 Start
 ===
 knight, warrior, {#portrait}
@@ -17,5 +18,5 @@ knight, warrior, {#portrait}
 - {#mystical}
 - {#general-state}
 - character design
-- [>70%] intricate engraved filigree
-- [<25%] plain weathered gear
+- [i>70%] intricate engraved filigree
+- [i<25%] plain weathered gear

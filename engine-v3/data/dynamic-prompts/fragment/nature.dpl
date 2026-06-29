@@ -1,12 +1,13 @@
 ---
 description: Flowers, trees, and greenery
 ---
+
 Start
 ===
 - 50% repeat 1 to 3 times: {#color} {flower}
 - 50% repeat 1 to 3 times: {tree}
 - vines
 - {#color} plants
-- {intensity} foliage
+- $intensity-word foliage
 - lush greenery
 - 25% oasis

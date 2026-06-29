@@ -1,6 +1,8 @@
 ---
 description: Optional color (or multi-color)
+stacking: true
 ---
+
 Start
 ===
 - one of (50% nothing):

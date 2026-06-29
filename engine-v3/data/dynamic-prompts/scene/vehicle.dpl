@@ -1,6 +1,7 @@
 ---
 description: A vehicle, optionally weathered or wrecked
 ---
+
 weather-fx
 ===
 - one of (25% nothing):
@@ -11,7 +12,7 @@ Start
 ===
 vehicle, {scene/vehicle}
 - {#color} paint
-- {intensity} detailing
+- $intensity-word detailing
 - {mood} atmosphere
 - maybe:
     - polished

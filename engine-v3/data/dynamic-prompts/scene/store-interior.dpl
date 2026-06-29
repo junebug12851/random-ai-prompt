@@ -1,11 +1,12 @@
 ---
 description: A store interior
 ---
+
 Start
 ===
 store interior, {scene/store}
 - shelves stocked with goods
-- {intensity} clutter
+- $intensity-word clutter
 - cozy
 - checkout counter
 - {style/general}

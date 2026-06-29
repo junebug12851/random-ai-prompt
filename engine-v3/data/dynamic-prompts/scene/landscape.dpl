@@ -1,21 +1,34 @@
 ---
 description: A natural landscape
 ---
+
 Start
 ===
 landscape, {view}
 - rolling hills
 - valley
-- cliff
-- forest
-- 20% rocky outcrop
-- 25% winter, snow landscape, {#ice}
-- 20% {#eerie}
-- 25% {#mystical}
-- 30% {#wildlife}
-- {#water}
+- 50% forest
 - {time}
-- [>70%] lush dense overgrowth
-- [<25%] sparse barren plain
+- [i>70%] lush dense overgrowth
+- [i<25%] sparse barren plain
 
-{#nature}, {#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] distant mountains
+[f<60%] winding river
+[f<55%] rocky outcrop
+[f<50%] meadow, wildflowers
+[f<45%] a lone weathered tree
+[f<40%] 25% winter, snow landscape, {#ice}
+
+; out-of-subject fluff — only at low focus
+[f<25%] a small village nestled in the hills
+[f<20%] crumbling ancient ruins
+[f<15%] a winding dirt road
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<60%] {#water}
+[f<50%] {#wildlife}
+[f<45%] {#eerie}
+[f<35%] {#mystical}
+[f<70%] {#weather}

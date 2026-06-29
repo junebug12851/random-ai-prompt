@@ -1,6 +1,7 @@
 ---
 description: Ruins of a building, ship, room, city, or vehicle
 ---
+
 Start
 ===
 - one of:
@@ -13,20 +14,28 @@ Start
 - abandoned ruins
 - rubble
 - {mood} atmosphere
-- {intensity} decay
+- $intensity-word decay
 - cracked
 - crumbling
-- rusted
-- broken windows
-- overgrown
-- graffiti
-- clutter
-- {style/general}
-- {#wildlife}
-- 35% {#ice}
-- 35% {#eerie}
-- 25% {#mystical}
-- [>70%] vast sprawling ruins
-- [<25%] a single ruined fragment
+- [i>70%] vast sprawling ruins
+- [i<25%] a single ruined fragment
 
-{#nature}, {#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] rusted metal, broken windows
+[f<60%] overgrown vines, creeping moss
+[f<55%] collapsed roof, exposed beams
+[f<50%] scattered debris, clutter
+[f<45%] graffiti, faded signs
+[f<40%] {style/general}
+
+; out-of-subject fluff — only at low focus
+[f<25%] a campfire left by scavengers
+[f<20%] a lone wanderer picking through the wreckage
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<55%] {#wildlife}
+[f<50%] {#eerie}
+[f<40%] {#mystical}
+[f<35%] {#ice}
+[f<70%] {#weather}

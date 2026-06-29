@@ -12,6 +12,8 @@ import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../src/gatedLists.js";
 import DplEditor from "./DplEditor.jsx";
+import DplInsertBar from "./DplInsertBar.jsx";
+import DplStatus from "./DplStatus.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
 const JS_BOILERPLATE = `/**
@@ -22,7 +24,6 @@ export default function (settings, imageSettings, upscaleSettings) {
   return "";
 }
 
-// export const full = true;             // treat the output as a full prompt
 // export const suggestion_exclude = true; // keep this generator out of random suggestions
 `;
 
@@ -52,6 +53,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
   const [nsfwFlag, setNsfwFlag] = useState(false);
   const [dirty, setDirty] = useState(false);
   const jsTouched = useRef(false);
+  const dplEditorRef = useRef(null);
 
   // (Re)load whenever the selected generator changes.
   useEffect(() => {
@@ -170,6 +172,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
           Rename
         </button>
         <div className="grow" />
+        {tab === "dpl" && dplText !== null && <DplStatus value={dplText} className="mg-status" />}
         <button className="primary" onClick={save} disabled={saving || (!dirty && !jsTouched.current)}>
           {saving ? "Saving…" : "Save"}
         </button>
@@ -221,9 +224,12 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         </div>
       )}
 
+      {showDpl && tab === "dpl" && <DplInsertBar editorRef={dplEditorRef} settings={settings} />}
+
       <div className="mg-editor-body">
         {showDpl && tab === "dpl" && (
           <DplEditor
+            ref={dplEditorRef}
             value={dplText}
             onChange={(v) => {
               setDplText(v);

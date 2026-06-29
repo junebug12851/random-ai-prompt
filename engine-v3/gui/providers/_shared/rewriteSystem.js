@@ -20,11 +20,21 @@ export const KEYWORD_SYSTEM =
   "their plain meaning. No duplicates, no numbering, no sentences. Reply with ONLY the comma-separated " +
   "keywords — no preamble, no quotes, no explanation.";
 
+export const EXPAND_SYSTEM =
+  "You extend a word list. The user gives a sample of entries from one list (each a short word or " +
+  "phrase, one per line). Infer the list's theme/category and style, then invent NEW entries that fit " +
+  "right in. Reply with EXACTLY 25 new entries, one per line, matching the sample's style, length, and " +
+  "casing. Do NOT repeat any of the sample entries and do NOT repeat yourself. No numbering, no bullets, " +
+  "no commentary, no blank lines — only the 25 entries, one per line.";
+
 /**
  * The system instruction for a rewrite mode.
- * @param {string} [mode] `"keyword"` for the tag list, anything else (default) for the prose fix.
+ * @param {string} [mode] `"keyword"` for the tag list, `"expand"` for the list-grow prompt, anything
+ *   else (default) for the prose fix.
  * @returns {string} The system prompt text.
  */
 export function systemFor(mode) {
-  return mode === "keyword" ? KEYWORD_SYSTEM : REWRITE_SYSTEM;
+  if (mode === "keyword") return KEYWORD_SYSTEM;
+  if (mode === "expand") return EXPAND_SYSTEM;
+  return REWRITE_SYSTEM;
 }

@@ -1,6 +1,7 @@
 ---
 description: Ice / snow / cold
 ---
+
 Start
 ===
 - ice walls
@@ -8,7 +9,7 @@ Start
 - glacier
 - iceberg
 - frost
-- {intensity} snow drifts
+- $intensity-word snow drifts
 - icicles
 - cold
 - snow

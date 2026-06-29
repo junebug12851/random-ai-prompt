@@ -23,6 +23,12 @@
   --dpl-weight: #e6b673; /* ( ) [ ] | :weight */
   --dpl-gate: #d8a0f0; /* NN% / maybe / otherwise */
   --dpl-keyword: #d8a0f0; /* one of / repeat / insert / go to */
+  --dpl-dial: #f2899e; /* i25% / f80% dials, [i<..]/[f<..], $intensity / $focus */
+  --dpl-fmdelim: #6b7280; /* --- front-matter fences */
+  --dpl-fmkey: #9aa7ff; /* front-matter key */
+  --dpl-fmval: #9aa6b2; /* front-matter value */
+  --dpl-section: #56b6c2; /* a section heading name */
+  --dpl-section-special: #e5c07b; /* Start / Auto Begin / Auto End */
 
   /* Surfaces (charcoal, neutral) */
   --bg: #1c1c1f;
@@ -80,6 +86,12 @@
     --dpl-weight: #b5722a;
     --dpl-gate: #9333c4;
     --dpl-keyword: #9333c4;
+    --dpl-dial: #c2185b;
+    --dpl-fmdelim: #9aa1ab;
+    --dpl-fmkey: #5a4fcf;
+    --dpl-fmval: #5b6470;
+    --dpl-section: #0c7b8c;
+    --dpl-section-special: #b07400;
   }
 }
 
@@ -2955,6 +2967,29 @@ button.ghost:hover {
   color: var(--faint);
   font-style: italic;
 }
+.cm-dpl-dial {
+  color: var(--dpl-dial);
+  font-weight: 600;
+}
+.cm-dpl-fmdelim {
+  color: var(--dpl-fmdelim);
+  font-weight: 700;
+}
+.cm-dpl-fmkey {
+  color: var(--dpl-fmkey);
+  font-weight: 600;
+}
+.cm-dpl-fmval {
+  color: var(--dpl-fmval);
+}
+.cm-dpl-secname {
+  color: var(--dpl-section);
+  font-weight: 700;
+}
+.cm-dpl-secname-special {
+  color: var(--dpl-section-special);
+  font-weight: 700;
+}
 
 /* Autocomplete dropdown */
 .cm-tooltip.cm-tooltip-autocomplete {
@@ -3356,6 +3391,34 @@ button.ghost:hover {
 .gear-corner:hover,
 .gear-corner.on {
   color: var(--accent);
+}
+
+/* Live DPL validity icon — ✓ clean / ✕ on errors; shares the corner cluster with preview + gear. */
+.dpl-status {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+}
+.dpl-status.ok {
+  color: var(--ok, #16a34a);
+}
+.dpl-status.warn {
+  color: var(--warn, #d97706);
+}
+.dpl-status.bad {
+  color: var(--error, #dc2626);
+}
+/* In the Manage editor head, sit it just left of Save with a little breathing room. */
+.mg-status {
+  margin-right: 4px;
 }
 
 /* ---------- Prompt result: click-to-copy text + DPL hover example ---------- */

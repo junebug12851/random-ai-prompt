@@ -1,17 +1,33 @@
 ---
 description: A house nestled in nature
 ---
+
 Start
 ===
 house
 - {style/building}
-- {intensity} garden
+- $intensity-word garden
 - porch
 - chimney
 - 50% picket fence
 - winding path
 - {time}
-- [>70%] wraparound veranda and flower beds
-- [<25%] small modest cottage
+- [i>70%] wraparound veranda and flower beds
+- [i<25%] small modest cottage
 
-{#nature}, {#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] flower beds, potted plants
+[f<60%] a tree shading the yard
+[f<55%] a mailbox by the road
+[f<50%] curtained windows, warm light inside
+[f<45%] a parked car in the driveway
+[f<40%] bird bath, garden ornaments
+
+; out-of-subject fluff — only at low focus
+[f<25%] neighboring houses down the street
+[f<20%] distant rolling hills
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<45%] {#wildlife}
+[f<70%] {#weather}

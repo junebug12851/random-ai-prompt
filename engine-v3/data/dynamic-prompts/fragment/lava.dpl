@@ -1,6 +1,7 @@
 ---
 description: Lava / magma / heat
 ---
+
 Start
 ===
 - magma
@@ -8,7 +9,7 @@ Start
 - lava pool
 - obsidian
 - molten rock
-- {intensity} embers
+- $intensity-word embers
 - heat haze
 - fire
 - sparks

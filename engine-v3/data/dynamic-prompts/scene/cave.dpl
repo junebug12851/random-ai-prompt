@@ -1,6 +1,7 @@
 ---
 description: A cave of different types and seasons
 ---
+
 cave-type
 ===
 - one of:
@@ -12,17 +13,33 @@ cave-type
 Start
 ===
 cave, cave walls
+cavern
 - subterranean interior
 - 50% +cave-type
-- cavern
-- {intensity} stalagmites
-- {intensity} stalactites
-- {#color} crystal
-- {#color} gemstone
-- bioluminescent glow
-- tunnels
-- underground pool
-- [>70%] vast echoing chamber
-- [<25%] cramped narrow passage
+- rugged rock walls
+- $intensity-word stalagmites
+- $intensity-word stalactites
+- [i>70%] vast echoing chamber
+- [i<25%] cramped narrow passage
 
-{#nature}, {#wildlife}, {#water}, {#eerie}, {#mystical}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] {#color} crystal
+[f<65%] underground pool
+[f<55%] bioluminescent glow
+[f<55%] {#color} gemstone
+[f<50%] dripping water, damp stone
+[f<45%] winding tunnels, mineral veins
+[f<35%] carved structures, ancient stone pillars
+
+; out-of-subject fluff — only at low focus
+[f<25%] distant settlement, abandoned mine cart
+[f<20%] underground waterfall
+[f<15%] glimpse of a city beyond the entrance
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<60%] {#water}
+[f<45%] {#wildlife}
+[f<45%] {#eerie}
+[f<35%] {#mystical}
+[f<70%] {#weather}

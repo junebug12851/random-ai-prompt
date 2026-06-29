@@ -1,6 +1,7 @@
 ---
 description: An interior room
 ---
+
 Start
 ===
 room, interior, {room}
@@ -8,7 +9,7 @@ room, interior, {room}
 - {style/general}
 - furniture
 - window
-- {intensity} clutter
+- $intensity-word clutter
 - {time}
-- [>70%] richly decorated, ornate
-- [<25%] minimalist, sparse
+- [i>70%] richly decorated, ornate
+- [i<25%] minimalist, sparse

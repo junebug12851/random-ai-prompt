@@ -1,21 +1,36 @@
 ---
 description: A castle with grounds and fortifications
 ---
+
 Start
 ===
 castle, {view}
-- moat
-- courtyard
 - castle keep
-- {intensity} stone walls
+- $intensity-word stone walls
 - fortified tower
 - battlements
-- drawbridge
-- gatehouse
-- banners
 - {style/building}
 - {time}
-- [>70%] sprawling outer bailey
-- [<25%] lone weathered tower
+- [i>70%] sprawling outer bailey
+- [i<25%] lone weathered tower
 
-{#wildlife}, {#water}, {#nature}, {#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] moat, drawbridge
+[f<60%] gatehouse, portcullis
+[f<55%] courtyard, inner ward
+[f<50%] banners, heraldic flags
+[f<45%] arrow slits, crenellations
+[f<40%] a stable and blacksmith
+
+; out-of-subject fluff — only at low focus
+[f<25%] a village clustered below the walls
+[f<20%] knights patrolling the ramparts
+[f<15%] a dragon circling overhead
+
+; atmosphere garnish
+[f<65%] {#nature}
+[f<50%] {#water}
+[f<45%] {#wildlife}
+[f<45%] {#eerie}
+[f<35%] {#mystical}
+[f<70%] {#weather}

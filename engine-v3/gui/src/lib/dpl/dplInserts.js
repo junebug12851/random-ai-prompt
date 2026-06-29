@@ -8,7 +8,7 @@
  * / `otherwise`; choices `one of` / `N of` / `A to B of` with an optional `(NN% nothing)` miss;
  * `repeat N times`; flow `go to` / `go back`; refs `insert` / `+call` / `insert js:` (external JS
  * file only — no inline JS); a leading `[weight]`; `===` headings; `;` comments) plus the downstream
- * SD-prompt emphasis (`()` / `[]` / `:weight` / `a|b`).
+ * engine emphasis (`()` / `[]` / `:weight`), translated per-dialect by the emphasis stage.
  *
  * Template conventions:
  *   - `${1:foo}` is a numbered tab stop with a default — the editor selects it so you can type over it.
@@ -209,12 +209,12 @@ export const DPL_INSERTS = [
   {
     key: "emphasis",
     label: "Emphasis",
-    hint: "Nudge how strongly a phrase is weighted.",
+    hint: "Nudge how strongly a phrase is weighted (the engine translates it for each AI).",
     items: [
       {
         id: "emph",
         label: "Emphasize",
-        desc: "Increase attention on the wrapped text (≈ ×1.1).",
+        desc: "More attention on the wrapped text. Each extra ( adds a level (+10), capped at 5.",
         syntax: "(text)",
         template: "(${sel})",
         wrap: true,
@@ -222,7 +222,7 @@ export const DPL_INSERTS = [
       {
         id: "emph-strong",
         label: "Emphasize strongly",
-        desc: "Stack emphasis for an even stronger weight.",
+        desc: "Stack ( for more — (((text))) is the strongest. Renders as a weight (SD/MJ), braces (NovelAI), or an intensity word (plain).",
         syntax: "((text))",
         template: "((${sel}))",
         wrap: true,
@@ -230,7 +230,7 @@ export const DPL_INSERTS = [
       {
         id: "de-emph",
         label: "De-emphasize",
-        desc: "Reduce attention on the wrapped text.",
+        desc: "Less attention on the wrapped text. Stack [ for less; floors at the lowest level (never zero).",
         syntax: "[text]",
         template: "[${sel}]",
         wrap: true,
@@ -238,16 +238,9 @@ export const DPL_INSERTS = [
       {
         id: "emph-weight",
         label: "Weighted phrase",
-        desc: "Set an explicit numeric weight on a phrase.",
+        desc: "Set an explicit numeric weight (passed through as-is).",
         syntax: "(text:1.2)",
         template: "(${1:text}:${2:1.2})",
-      },
-      {
-        id: "alternation",
-        label: "Alternation",
-        desc: "Step between options across sampling steps.",
-        syntax: "a|b|c",
-        template: "${1:optionA}|${2:optionB}",
       },
     ],
   },
