@@ -12,7 +12,12 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { readFile, writeFile, saveSidecar, fsOp, restoreDefault } from "../lib/manageApi.js";
+import { rewritePrompt } from "../lib/rewrite.js";
+import { effectiveKey } from "../lib/sessionKeys.js";
+import { getProvider } from "../lib/providers/index.js";
 import CodeEditor from "./CodeEditor.jsx";
+
+const AI_SAMPLE = 25; // entries sampled and new entries requested per AI expand round
 
 const ROW_H = 30; // px per entry row (fixed, for windowing)
 const OVERSCAN = 8;
@@ -20,10 +25,12 @@ const OVERSCAN = 8;
 /**
  * @param {object} props
  * @param {object} props.entry The selected `{ root, path, ext, label, kind }` (kind: list | group).
+ * @param {object} [props.settings] App settings — used to reach the rewrite (text) provider + key
+ *   for AI Expand.
  * @param {Function} props.onChanged Hot-apply + refresh after a write; gets the new path on rename.
  * @returns {JSX.Element}
  */
-export default function ManageListEditor({ entry, onChanged }) {
+export default function ManageListEditor({ entry, settings = {}, onChanged }) {
   const base = entry.path;
   const folder = base.includes("/") ? base.slice(0, base.lastIndexOf("/")) : "";
 
@@ -45,6 +52,7 @@ export default function ManageListEditor({ entry, onChanged }) {
   const [editVal, setEditVal] = useState("");
   const [scrollTop, setScrollTop] = useState(0);
   const [viewH, setViewH] = useState(480);
+  const [expanding, setExpanding] = useState(false);
   const scrollerRef = useRef(null);
 
   useEffect(() => {
@@ -183,6 +191,80 @@ export default function ManageListEditor({ entry, onChanged }) {
     setDirty(true);
     setStatus("Sorted A–Z.");
     setEditIdx(-1);
+  }
+
+  // AI Expand: send a random sample of existing entries to the text (rewrite) provider and ask for
+  // 25 fresh ones in the same vein, then merge in the unique ones. There's no way to guarantee the
+  // model avoids entries it can't see, so the result is deduped on the way in and the net-new count
+  // is reported. Added rows land at the top, marked dirty, for the user to review before saving.
+  async function aiExpand() {
+    const providerId = settings.rewriteProvider;
+    if (!providerId || providerId === "none") {
+      setStatus("");
+      setError("Pick a text (AI) provider first — Home → gear → Auto-fix.");
+      return;
+    }
+    const key = effectiveKey(providerId, settings);
+    const provider = getProvider(providerId);
+    if (provider?.needsKey && !key) {
+      setStatus("");
+      setError(`No API key for ${provider?.label || providerId} — add it under Home → gear → Auto-fix.`);
+      return;
+    }
+
+    const pool = lines.map((l) => l.trim()).filter(Boolean);
+    if (!pool.length) {
+      setStatus("");
+      setError("Add a few entries first so the AI has something to learn from.");
+      return;
+    }
+
+    // Random sample without lodash (Fisher–Yates on a copy).
+    const shuffled = pool.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const sample = shuffled.slice(0, AI_SAMPLE);
+
+    setError("");
+    setStatus("");
+    setExpanding(true);
+    try {
+      const out = await rewritePrompt({ providerId, prompt: sample.join("\n"), key, mode: "expand" });
+      // One entry per line (tolerate a stray "- " / "1. " prefix); fall back to comma-separated.
+      let candidates = out
+        .split(/\r?\n/)
+        .map((s) => s.replace(/^\s*[-*•]?\s*\d*[.)]?\s*/, "").trim())
+        .filter(Boolean);
+      if (candidates.length <= 1) candidates = out.split(",").map((s) => s.trim()).filter(Boolean);
+
+      const have = new Set(pool.map((l) => l.toLowerCase()));
+      const added = [];
+      for (const c of candidates) {
+        const k = c.toLowerCase();
+        if (have.has(k)) continue;
+        have.add(k);
+        added.push(c);
+      }
+
+      if (!added.length) {
+        setStatus("The AI returned only entries you already have — try again.");
+        return;
+      }
+      setLines((a) => [...added, ...a]);
+      setDirty(true);
+      setEditIdx(-1);
+      const dropped = candidates.length - added.length;
+      setStatus(
+        `Added ${added.length} new ${added.length === 1 ? "entry" : "entries"}${dropped ? ` (${dropped} duplicate${dropped === 1 ? "" : "s"} dropped)` : ""}. Review, then Save.`,
+      );
+      if (scrollerRef.current) scrollerRef.current.scrollTop = 0;
+    } catch (e) {
+      setError(`AI expand failed: ${e.message || e}`);
+    } finally {
+      setExpanding(false);
+    }
   }
 
   async function save() {
@@ -332,6 +414,14 @@ export default function ManageListEditor({ entry, onChanged }) {
             </button>
             <button className="link-btn" onClick={dedupe} disabled={saving || lines.length < 2} title="Remove duplicate entries">
               Dedupe
+            </button>
+            <button
+              className="link-btn"
+              onClick={aiExpand}
+              disabled={saving || expanding || lines.length === 0}
+              title="Use AI to add 25 new unique entries in the same style"
+            >
+              {expanding ? "Expanding…" : "AI Expand"}
             </button>
             <span className="mg-count-note">
               {filtered ? `${filtered.length.toLocaleString()} match` : `${lines.length.toLocaleString()} entries`}
