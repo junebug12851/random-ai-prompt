@@ -12,6 +12,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../src/gatedLists.js";
 import DplEditor from "./DplEditor.jsx";
+import DplStatus from "./DplStatus.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
 const JS_BOILERPLATE = `/**
@@ -169,6 +170,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
           Rename
         </button>
         <div className="grow" />
+        {tab === "dpl" && dplText !== null && <DplStatus value={dplText} className="mg-status" />}
         <button className="primary" onClick={save} disabled={saving || (!dirty && !jsTouched.current)}>
           {saving ? "Saving…" : "Save"}
         </button>

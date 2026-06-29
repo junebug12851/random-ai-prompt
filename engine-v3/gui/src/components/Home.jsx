@@ -34,6 +34,7 @@ import InlineImageControls from "./InlineImageControls.jsx";
 import LivePreview from "./LivePreview.jsx";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
+import DplStatus from "./DplStatus.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
@@ -853,6 +854,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 label={editMode === "negative" ? "Negative preview" : "Prompt preview"}
                 triggerClassName="preview-corner"
               />
+              {/* Live DPL validity — between the preview and the gear; ✓ clean, ✕ on errors. */}
+              <DplStatus value={activeValue || ""} className="status-corner" />
               {/* Prompt-settings gear — sits in the corner cluster, to the right of the preview. */}
               <div className="field-menu-wrap prompt-settings-gear">
                 <button
