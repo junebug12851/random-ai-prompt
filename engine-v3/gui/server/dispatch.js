@@ -66,6 +66,11 @@ import segmindUpscaleServer from "../providers/segmind/code/upscale-server.js";
 import comfyuiUpscaleServer from "../providers/comfyui/code/upscale-server.js";
 import veniceUpscaleServer from "../providers/venice/code/upscale-server.js";
 import clipdropUpscaleServer from "../providers/clipdrop/code/upscale-server.js";
+import wavespeedUpscaleServer from "../providers/wavespeed/code/upscale-server.js";
+import claidUpscaleServer from "../providers/claid/code/upscale-server.js";
+import deepimageUpscaleServer from "../providers/deepimage/code/upscale-server.js";
+import neuralloveUpscaleServer from "../providers/neurallove/code/upscale-server.js";
+import vanceaiUpscaleServer from "../providers/vanceai/code/upscale-server.js";
 
 /**
  * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't / shouldn't call
@@ -81,6 +86,11 @@ export const upscaleAdapters = {
   comfyui: asFn(comfyuiUpscaleServer),
   venice: asFn(veniceUpscaleServer),
   clipdrop: asFn(clipdropUpscaleServer),
+  wavespeed: asFn(wavespeedUpscaleServer),
+  claid: asFn(claidUpscaleServer),
+  deepimage: asFn(deepimageUpscaleServer),
+  neurallove: asFn(neuralloveUpscaleServer),
+  vanceai: asFn(vanceaiUpscaleServer),
 };
 
 /**

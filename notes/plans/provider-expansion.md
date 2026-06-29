@@ -43,6 +43,13 @@ adapters return remote URLs directly — a possible future simplification.
 
 - **Generation-capable (also upscale):** Krea (gen + 2/4/8/16× upscale), Ideogram v3 (already a thin
   provider — upgrade), Adobe Firefly (gen + upscale; SFW-only).
+**Enhancer status (upscale-only, via the proxy):** ✅ DeepAI, Picsart, Segmind (2.20–2.21) · Venice,
+Clipdrop (2.24) · WaveSpeed, Claid/Let's Enhance, Deep-Image, neural.love, VanceAI (2.25, best-effort
+async/sync — verify live). ⛔ **Pixelbin/Upscale.media skipped** — it's a CDN transform-URL model
+(upload to their storage → `sr.upscale()` URL with an account-specific cloud/zone), not a POST-image
+API, so it doesn't fit the proxy pattern. Remaining: Topaz/Magnific (premium), Cloudinary (URL model),
+API4AI/Slazzer (RapidAPI/uncertain) — low priority.
+
 - **Upscale-only services (new modules):** Topaz Labs, Magnific (creative, up to 16K), Clipdrop/Jasper,
   Claid.ai / Let's Enhance, Picsart, Pixelbin / Upscale.media (≤8×), Cloudinary, DeepAI Super-Resolution,
   Deep-Image.ai, VanceAI, neural.love, Venice (2×/4×), Slazzer, API4AI, Segmind ESRGAN, WaveSpeed
