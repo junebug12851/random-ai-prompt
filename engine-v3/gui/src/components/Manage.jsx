@@ -19,6 +19,8 @@ import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../l
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
+import ManageDetail from "./manage/ManageDetail.jsx";
+import { Caret, GearIcon, EditIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
 
 // Data-root keys are fixed; their display titles are localized via `msgs` below.
 const ROOTS = ["dynamic-prompts", "lists"];
@@ -77,83 +79,7 @@ const msgs = defineMessages({
   refreshAria: { id: "manage.refreshAria", defaultMessage: "Refresh catalog" },
   loadingCatalog: { id: "manage.loadingCatalog", defaultMessage: "Loading the catalog…" },
   nothingMatches: { id: "manage.nothingMatches", defaultMessage: "Nothing matches." },
-  detailEmpty: {
-    id: "manage.detailEmpty",
-    defaultMessage: "Select a block, list, or folder on the left to inspect it. Editing arrives next.",
-  },
-  rootParen: { id: "manage.rootParen", defaultMessage: "(root)" },
-  mPath: { id: "manage.mPath", defaultMessage: "Path" },
-  mType: { id: "manage.mType", defaultMessage: "Type" },
-  mAttributes: { id: "manage.mAttributes", defaultMessage: "Attributes" },
-  mEntries: { id: "manage.mEntries", defaultMessage: "Entries" },
-  typeCategory: { id: "manage.typeCategory", defaultMessage: "Category (top-level)" },
-  typeSubfolder: { id: "manage.typeSubfolder", defaultMessage: "Subfolder" },
-  attrNone: { id: "manage.attrNone", defaultMessage: "none" },
-  folderSoon: {
-    id: "manage.folderSoon",
-    defaultMessage: "The folder settings editor (rename, priority, markers) arrives next.",
-  },
-  mGating: { id: "manage.mGating", defaultMessage: "Gating" },
-  mNsfwVal: { id: "manage.mNsfwVal", defaultMessage: "NSFW" },
-  mSidecar: { id: "manage.mSidecar", defaultMessage: "Sidecar" },
-  mSidecarVal: { id: "manage.mSidecarVal", defaultMessage: "has a JS sidecar" },
-  loading: { id: "manage.loading", defaultMessage: "Loading…" },
-  entrySoon: {
-    id: "manage.entrySoon",
-    defaultMessage: "A full editor (with save + hot-apply) arrives next.",
-  },
-  moreLines: {
-    id: "manage.moreLines",
-    defaultMessage: "… {count} more lines (full editor coming).",
-  },
 });
-
-const ico = {
-  width: 15,
-  height: 15,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-};
-const Caret = ({ open }) => (
-  <svg {...ico} width={13} height={13} style={{ transform: open ? "rotate(90deg)" : "none" }} aria-hidden="true">
-    <polyline points="9 6 15 12 9 18" />
-  </svg>
-);
-const GearIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-);
-const EditIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z" />
-  </svg>
-);
-const RefreshIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <polyline points="23 4 23 10 17 10" />
-    <polyline points="1 20 1 14 7 14" />
-    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-  </svg>
-);
-const RestoreIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
-    <polyline points="21 3 21 8 16 8" />
-  </svg>
-);
-const TrashIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-  </svg>
-);
 
 /** Collect the paths of every category (depth-1) folder, to expand them by default. */
 function defaultExpanded(models) {
@@ -644,83 +570,3 @@ function badgeTitle(intl, m) {
   return m;
 }
 
-/**
- * The right-pane detail/preview for the current selection. The real editors land in the next phases;
- * for now this shows what was selected (path, kind, attributes) and a read-only content preview.
- * @param {object} props
- * @param {object|null} props.selected The selected entry or folder.
- * @returns {JSX.Element}
- */
-function ManageDetail({ selected }) {
-  const intl = useIntl();
-  if (!selected) {
-    return (
-      <section className="card mg-detail mg-detail-empty">
-        <p>{intl.formatMessage(msgs.detailEmpty)}</p>
-      </section>
-    );
-  }
-  if (selected.kind === "folder") {
-    return (
-      <section className="card mg-detail">
-        <h2 className="mg-detail-title">{selected.name || intl.formatMessage(msgs.rootParen)}</h2>
-        <dl className="mg-meta">
-          <dt>{intl.formatMessage(msgs.mPath)}</dt>
-          <dd>
-            <code>{selected.root}/{selected.path}</code>
-          </dd>
-          <dt>{intl.formatMessage(msgs.mType)}</dt>
-          <dd>{intl.formatMessage(selected.isCategory ? msgs.typeCategory : msgs.typeSubfolder)}</dd>
-          <dt>{intl.formatMessage(msgs.mAttributes)}</dt>
-          <dd>{selected.markers.length ? selected.markers.join(", ") : intl.formatMessage(msgs.attrNone)}</dd>
-          <dt>{intl.formatMessage(msgs.mEntries)}</dt>
-          <dd>{selected.entryCount}</dd>
-        </dl>
-        <p className="mg-soon">{intl.formatMessage(msgs.folderSoon)}</p>
-      </section>
-    );
-  }
-  return (
-    <section className="card mg-detail">
-      <h2 className="mg-detail-title">
-        {selected.label} <span className={`mg-kind kind-${selected.kind}`}>{selected.kind}</span>
-      </h2>
-      <dl className="mg-meta">
-        <dt>{intl.formatMessage(msgs.mPath)}</dt>
-        <dd>
-          <code>{selected.root}/{selected.path}.{selected.ext}</code>
-        </dd>
-        {selected.nsfw && (
-          <>
-            <dt>{intl.formatMessage(msgs.mGating)}</dt>
-            <dd>{intl.formatMessage(msgs.mNsfwVal)}</dd>
-          </>
-        )}
-        {selected.hasJsSidecar && (
-          <>
-            <dt>{intl.formatMessage(msgs.mSidecar)}</dt>
-            <dd>{intl.formatMessage(msgs.mSidecarVal)}</dd>
-          </>
-        )}
-      </dl>
-      <div className="mg-preview">
-        {selected.loading ? (
-          <p className="empty">{intl.formatMessage(msgs.loading)}</p>
-        ) : selected.error ? (
-          <p className="error">{selected.error}</p>
-        ) : (
-          <pre className="mg-preview-pre">{previewText(intl, selected.text)}</pre>
-        )}
-      </div>
-      <p className="mg-soon">{intl.formatMessage(msgs.entrySoon)}</p>
-    </section>
-  );
-}
-
-// Cap the read-only preview so an enormous list stays snappy here; the real editor handles full size.
-function previewText(intl, text) {
-  if (text == null) return "";
-  const lines = text.split("\n");
-  if (lines.length <= 500) return text;
-  return `${lines.slice(0, 500).join("\n")}\n\n${intl.formatMessage(msgs.moreLines, { count: lines.length - 500 })}`;
-}
