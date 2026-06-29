@@ -13,7 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { dispatch, dispatchRewrite } from "./server/dispatch.js";
+import { dispatch, dispatchRewrite, dispatchUpscale } from "./server/dispatch.js";
 import {
   resolveManagePath,
   buildManageSnapshot,
@@ -196,6 +196,49 @@ export function apiPlugin() {
             return send(res, 200, out);
           } catch (e) {
             return send(res, 502, { error: e.message || "Generation failed" });
+          }
+        }
+
+        // --- AI-upscale proxy (for hosted providers the browser can't call directly, e.g. Replicate) ---
+        // Inlines the local source image as a data URI (the upstream can't reach our localhost
+        // output folder), runs the provider's upscale-server adapter, then fetches the result(s)
+        // server-side (no browser CORS) and returns them as data URLs so the output folder saves them.
+        if (u.pathname === "/api/upscale" && req.method === "POST") {
+          const body = await readJson(req);
+          const { providerId, image, key, params } = body || {};
+          if (!providerId || !key) return send(res, 400, { error: "Missing providerId or key" });
+          let imageDataUri;
+          if (typeof image === "string" && image.startsWith("data:")) {
+            imageDataUri = image;
+          } else {
+            const fp = resolveOutputFile(image);
+            if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Source image not found" });
+            const ext = path.extname(fp).slice(1).toLowerCase() || "png";
+            imageDataUri = `data:${IMAGE_TYPES[ext] || "image/png"};base64,${fs.readFileSync(fp).toString("base64")}`;
+          }
+          try {
+            const { images } = await dispatchUpscale({ providerId, image: imageDataUri, key, params });
+            const out = [];
+            for (const src of images || []) {
+              if (typeof src !== "string") continue;
+              if (src.startsWith("data:")) {
+                out.push(src);
+                continue;
+              }
+              try {
+                const up = await fetch(src);
+                if (!up.ok) continue;
+                const ct = (up.headers.get("content-type") || "image/png").split(";")[0];
+                const buf = Buffer.from(await up.arrayBuffer());
+                out.push(`data:${ct};base64,${buf.toString("base64")}`);
+              } catch {
+                // skip a result we couldn't fetch back
+              }
+            }
+            if (!out.length) return send(res, 502, { error: "Upscale produced no image" });
+            return send(res, 200, { images: out });
+          } catch (e) {
+            return send(res, 502, { error: e.message || "Upscale failed" });
           }
         }
 

@@ -59,6 +59,31 @@ export async function dispatch({ providerId, prompt, key, params }) {
   return adapter({ prompt, key, params });
 }
 
+import replicateUpscaleServer from "../providers/replicate/code/upscale-server.js";
+
+/**
+ * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't call directly
+ * (CORS). Browser-direct upscalers (Stability, fal, Leonardo) never hit this; they run client-side.
+ * @type {Record<string, (args: object) => Promise<{images: string[]}>>}
+ */
+export const upscaleAdapters = {
+  replicate: asFn(replicateUpscaleServer),
+};
+
+/**
+ * Dispatch an AI-upscale request to a provider's server-side upscale adapter.
+ * @param {object} req `{ providerId, image (data URI), key, params }`.
+ * @returns {Promise<{images: string[]}>} Upscaled image URL(s).
+ * @throws {Error} If the provider has no upscale adapter or the key/image is missing.
+ */
+export async function dispatchUpscale({ providerId, image, key, params }) {
+  const adapter = upscaleAdapters[providerId];
+  if (!adapter) throw new Error(`No upscale adapter for provider "${providerId}".`);
+  if (!key) throw new Error("Missing API key.");
+  if (!image) throw new Error("Missing source image.");
+  return adapter({ image, key, params });
+}
+
 import openaiRewrite from "../providers/openai/code/rewrite.js";
 import geminiRewrite from "../providers/gemini/code/rewrite.js";
 import grokRewrite from "../providers/grok/code/rewrite.js";

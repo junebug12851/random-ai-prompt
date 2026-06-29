@@ -21,7 +21,9 @@ export default {
     cfg: false,
     seed: false,
     batch: { min: 1, max: 4 },
+    upscale: true, // Universal Upscaler (≤2×): init-image upload → submit → poll — see code/upscale.js
   },
   loadGenerate: () => import("./code/generate.js").then((m) => m.default),
+  loadUpscale: () => import("./code/upscale.js").then((m) => m.default),
   loadSettings: () => import("./settings.js").then((m) => m.default),
 };
