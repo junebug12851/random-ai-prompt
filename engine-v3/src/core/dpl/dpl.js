@@ -163,7 +163,7 @@ const INTENSITY_WORDS = [
 ];
 
 /** The natural-language word for an intensity percent 1..100 (the `$intensity-word` token). */
-function intensityWord(p) {
+export function intensityWord(p) {
   const i = Math.min(100, Math.max(1, Math.round(p)));
   return INTENSITY_WORDS[i - 1];
 }

@@ -24,11 +24,14 @@ import promptSalt from "../prompt-modules/prompt-salt.js";
 import cleanup from "../prompt-modules/cleanup.js";
 import { makeDynamicPromptStage } from "./stages/dynamicPrompt.js";
 import { makeListStage } from "./stages/list.js";
+import emphasis from "./stages/emphasis.js";
 import { createListStore } from "./listStore.js";
 
 // v3-only pipeline. The legacy `<expansion>` stage was removed (v1/v2-era); the
 // dynamic-prompt stage internally re-expands up to 10 passes, so one entry suffices.
-const DEFAULT_ORDER = ["dynamic-prompt", "prompt-salt", "list", "cleanup"];
+// `emphasis` runs after `list` so it sees the fully expanded text (typed `()`/`[]` from the
+// prompt box AND from rendered DPL blocks) and translates it into the active dialect.
+const DEFAULT_ORDER = ["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"];
 
 /**
  * Create a framework-agnostic prompt engine that runs the same pipeline as the CLI.
@@ -43,6 +46,7 @@ export function createEngine(loader) {
     "dynamic-prompt": makeDynamicPromptStage(loader),
     "prompt-salt": promptSalt,
     list: makeListStage(store),
+    emphasis,
     cleanup,
   };
 

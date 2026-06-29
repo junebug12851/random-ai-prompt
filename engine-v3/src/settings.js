@@ -185,10 +185,11 @@ export default {
   // 1. Expand dynamic prompts (the stage re-expands up to 10 passes internally)
   // 2. Auto-add salt if requested
   // 3. Expand lists with list items
-  // 4. Cleanup extra spaces and commas
+  // 4. Render typed ()/[] emphasis into the active dialect (SD/MJ weight, NAI braces, plain words)
+  // 5. Cleanup extra spaces and commas
   // (The legacy `<expansion>` stage was removed — v1/v2-era.)
   /*--prompt-modules <comma-seperated dynamic prompts>*/
-  promptModules: ["dynamic-prompt", "prompt-salt", "list", "cleanup"],
+  promptModules: ["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"],
 
   // Auto-add artists dynamic prompt at end of prompt
   /*--auto-artists <true/false>*/
