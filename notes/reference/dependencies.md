@@ -76,6 +76,25 @@ and only treats DPL structural keywords as keywords at the **start of a line**, 
 isn't mis-highlighted. CodeMirror is framework-agnostic ESM and bundles cleanly under Vite/Rolldown (the
 main chunk grew ~accordingly; the >500 kB chunk warning is pre-existing).
 
+### SPA internationalization — react-intl + FormatJS (added 2.15.0)
+
+The SPA is internationalized with **react-intl**; the IDs/catalogs are produced by the **FormatJS**
+tooling. All in `gui/package.json`:
+
+| Package | Major | Purpose |
+|---------|-------|---------|
+| `react-intl` | 7 | The runtime i18n API: `IntlProvider`, `useIntl`, `defineMessages`, `FormattedMessage`, ICU formatting. |
+| `babel-plugin-formatjs` | 10 | Build-time plugin (wired into `@vitejs/plugin-react`'s `babel.plugins`) that auto-fills each message's `id` from its `defaultMessage`+`description`, using the **same** `idInterpolationPattern` as the extractor so bundle IDs match the catalog IDs. |
+| `@formatjs/cli` | 6 | The `formatjs extract`/`compile` CLI behind the `i18n:*` scripts. Extracts `src/i18n/messages/en.json`; compiles the `en-XA` **pseudo-locale** (requires `--ast`) to `src/i18n/compiled/`. |
+| `eslint-plugin-formatjs` | 5 | The `enforce-default-message` rule, run by `npm run lint:i18n` via the focused, gui-scoped `gui/eslint.config.js`. |
+| `eslint` | 9 | Needed locally in `gui/` to run `lint:i18n` (the repo-root ESLint config ignores `gui/**`). |
+
+The i18n module lives at `gui/src/i18n/` (`config.js`, `loadMessages.js`, `I18nProvider.jsx`, `index.js`).
+`loadMessages.js` bundles the compiled catalogs with `import.meta.glob` (same mechanism as the engine's
+browser data loader). The source locale `en` needs no catalog — react-intl renders from the inline
+`defaultMessage` kept in the bundle (`babel-plugin-formatjs` `removeDefaultMessage: false`). Regenerate
+catalogs with `npm run i18n` after touching messages.
+
 ## Bumping deps
 
 - Update `package.json`, run `npm install`, then **re-run the verification** in

@@ -5,7 +5,17 @@
  * @module gui/components/LivePreview
  */
 import { useEffect, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { expandPrompt } from "../lib/promptEngine.js";
+
+const msgs = defineMessages({
+  preview: { id: "livePreview.preview", defaultMessage: "Preview" },
+  live: {
+    id: "livePreview.live",
+    defaultMessage: "{label} (live)",
+    description: "Tooltip on the live-preview eye button",
+  },
+});
 
 const EyeIcon = () => (
   <svg
@@ -32,12 +42,9 @@ const EyeIcon = () => (
  * @param {string} [props.triggerClassName] Class for the trigger button.
  * @returns {JSX.Element}
  */
-export default function LivePreview({
-  getDpl,
-  settings,
-  label = "Preview",
-  triggerClassName = "field-act",
-}) {
+export default function LivePreview({ getDpl, settings, label, triggerClassName = "field-act" }) {
+  const intl = useIntl();
+  const lbl = label ?? intl.formatMessage(msgs.preview);
   const [hover, setHover] = useState(false);
   const [ex, setEx] = useState("");
   const getRef = useRef(getDpl);
@@ -74,15 +81,15 @@ export default function LivePreview({
       <button
         type="button"
         className={triggerClassName}
-        title={`${label} (live)`}
-        aria-label={`${label} (live)`}
+        title={intl.formatMessage(msgs.live, { label: lbl })}
+        aria-label={intl.formatMessage(msgs.live, { label: lbl })}
         tabIndex={-1}
       >
         <EyeIcon />
       </button>
       {hover && ex && (
         <div className="live-preview-pop" role="tooltip">
-          <span className="live-preview-label">{label}</span>
+          <span className="live-preview-label">{lbl}</span>
           <span className="live-preview-text">{ex}</span>
         </div>
       )}

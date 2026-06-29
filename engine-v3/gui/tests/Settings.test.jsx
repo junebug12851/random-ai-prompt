@@ -6,7 +6,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { useState } from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "./testUtils.jsx";
 import Settings from "../src/components/Settings.jsx";
 import ProviderBox from "../src/components/ProviderBox.jsx";
 import ProviderGear from "../src/components/ProviderGear.jsx";

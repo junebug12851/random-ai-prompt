@@ -16,15 +16,25 @@ export const ONLINE = import.meta.env.VITE_ONLINE === "true";
 export const FULL_VERSION_URL = "https://github.com/junebug12851/random-ai-prompt";
 
 /**
- * The hover tooltip for a control that's only in the full version.
- * @param {string} feature A short noun phrase, e.g. "The gallery" or "NSFW content".
- * @param {string} [reason] Optional extra sentence explaining *why* (e.g. a provider that can't be
- *   called from a browser). Inserted before the call-to-action.
+ * The hover tooltip for a control that's only in the full version. Takes an
+ * `intl` instance (from `useIntl()`) so the sentence is localized; the `feature`
+ * noun phrase should already be localized by the caller.
+ * @param {import("react-intl").IntlShape} intl The react-intl instance.
+ * @param {string} feature An already-localized noun phrase, e.g. "The gallery".
+ * @param {string} [reason] Optional already-localized clause explaining *why*
+ *   (e.g. a provider that can't be called from a browser).
  * @returns {string} The tooltip text.
  */
-export function lockedHint(feature, reason) {
-  const why = reason ? ` ${reason}` : "";
-  return `${feature} is only available in the full desktop version.${why} Click to get it on GitHub.`;
+export function lockedHint(intl, feature, reason) {
+  return intl.formatMessage(
+    {
+      id: "online.lockedHint",
+      defaultMessage:
+        "{feature} is only available in the full desktop version.{why} Click to get it on GitHub.",
+      description: "Tooltip on a control disabled in the online demo build",
+    },
+    { feature, why: reason ? ` ${reason}` : "" },
+  );
 }
 
 /** Open the full-version download page in a new tab (used when a locked control is clicked). */

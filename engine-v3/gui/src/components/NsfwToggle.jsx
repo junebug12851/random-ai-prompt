@@ -9,7 +9,33 @@
  * @module gui/components/NsfwToggle
  */
 import { useEffect, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { lockedHint, openFullVersion } from "../lib/online.js";
+
+const msgs = defineMessages({
+  nsfwContent: {
+    id: "nsfw.feature",
+    defaultMessage: "NSFW content",
+    description: "Feature noun phrase used in the online-locked tooltip",
+  },
+  titleOn: {
+    id: "nsfw.titleOn",
+    defaultMessage: "Adult content is on — click to switch back to SFW",
+  },
+  titleOff: { id: "nsfw.titleOff", defaultMessage: "Show adult (NSFW) content" },
+  confirmTitle: { id: "nsfw.confirmTitle", defaultMessage: "Show adult content?" },
+  confirmBody: {
+    id: "nsfw.confirmBody",
+    defaultMessage:
+      "Enabling NSFW unlocks explicit adult words, artists, and generators in prompts and previews. Only continue if you are 18 or older and want to see this material.",
+  },
+  confirmNote: {
+    id: "nsfw.confirmNote",
+    defaultMessage: "Your choice is remembered in this browser. You can switch back to SFW anytime.",
+  },
+  cancel: { id: "nsfw.cancel", defaultMessage: "Cancel" },
+  enable: { id: "nsfw.enable", defaultMessage: "Enable NSFW" },
+});
 
 /**
  * @param {object} props
@@ -20,6 +46,7 @@ import { lockedHint, openFullVersion } from "../lib/online.js";
  * @returns {JSX.Element} The right-aligned NSFW switch (+ its confirm dialog).
  */
 export default function NsfwToggle({ settings, setSettings, locked = false }) {
+  const intl = useIntl();
   const on = !locked && settings.includeAdult === true;
   const [confirming, setConfirming] = useState(false);
 
@@ -58,10 +85,10 @@ export default function NsfwToggle({ settings, setSettings, locked = false }) {
         onClick={toggle}
         title={
           locked
-            ? lockedHint("NSFW content")
+            ? lockedHint(intl, intl.formatMessage(msgs.nsfwContent))
             : on
-              ? "Adult content is on — click to switch back to SFW"
-              : "Show adult (NSFW) content"
+              ? intl.formatMessage(msgs.titleOn)
+              : intl.formatMessage(msgs.titleOff)
         }
       >
         <span className="switch-label">NSFW</span>
@@ -74,18 +101,15 @@ export default function NsfwToggle({ settings, setSettings, locked = false }) {
         <>
           <div className="modal-overlay" onClick={() => setConfirming(false)} />
           <div className="modal" role="dialog" aria-modal="true" aria-labelledby="nsfw-confirm-title">
-            <h2 id="nsfw-confirm-title">Show adult content?</h2>
-            <p>
-              Enabling NSFW unlocks explicit adult words, artists, and generators in prompts and previews. Only continue
-              if you are 18 or older and want to see this material.
-            </p>
-            <p className="modal-note">Your choice is remembered in this browser. You can switch back to SFW anytime.</p>
+            <h2 id="nsfw-confirm-title">{intl.formatMessage(msgs.confirmTitle)}</h2>
+            <p>{intl.formatMessage(msgs.confirmBody)}</p>
+            <p className="modal-note">{intl.formatMessage(msgs.confirmNote)}</p>
             <div className="modal-actions">
               <button type="button" className="btn-ghost" onClick={() => setConfirming(false)}>
-                Cancel
+                {intl.formatMessage(msgs.cancel)}
               </button>
               <button type="button" className="btn-danger" onClick={enable}>
-                Enable NSFW
+                {intl.formatMessage(msgs.enable)}
               </button>
             </div>
           </div>

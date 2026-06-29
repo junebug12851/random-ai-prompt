@@ -13,6 +13,7 @@
  * @module gui/components/Home
  */
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import {
   getBlocks,
   generatePrompt,
@@ -134,6 +135,111 @@ const GearIcon = () => (
   </svg>
 );
 
+const msgs = defineMessages({
+  aiFallback: { id: "home.aiFallback", defaultMessage: "AI" },
+  rewriteNoKey: {
+    id: "home.rewriteNoKey",
+    defaultMessage: "Auto-rewrite is on but the rewrite provider has no API key (gear → Auto-fix).",
+  },
+  rewriteFailed: { id: "home.rewriteFailed", defaultMessage: "Auto-rewrite failed: {error}" },
+  confirmDeleteImage: {
+    id: "home.confirmDeleteImage",
+    defaultMessage:
+      "Delete this image from disk too?\n\nOK = delete the file\nCancel = just remove it from view",
+  },
+  confirmDeleteBatch: {
+    id: "home.confirmDeleteBatch",
+    defaultMessage: "Delete this batch's image files from disk too?",
+  },
+  confirmDeletePromptImgs: {
+    id: "home.confirmDeletePromptImgs",
+    defaultMessage: "Delete all of this prompt's image files from disk too?",
+  },
+  confirmClearAll: {
+    id: "home.confirmClearAll",
+    defaultMessage:
+      "Clear all results — delete their {count, plural, one {# image file} other {# image files}} from disk too?",
+  },
+  buildingBlocks: { id: "home.buildingBlocks", defaultMessage: "Building blocks" },
+  searchBlocks: { id: "home.searchBlocks", defaultMessage: "Search blocks…" },
+  noBlocks: { id: "home.noBlocks", defaultMessage: "No building blocks match “{query}”." },
+  all: { id: "home.all", defaultMessage: "All" },
+  moreFilter: {
+    id: "home.moreFilter",
+    defaultMessage: "+{count} more — keep typing to filter",
+  },
+  composeModeAria: {
+    id: "home.composeModeAria",
+    defaultMessage: "Edit the prompt or the negative prompt",
+  },
+  tabPrompt: { id: "home.tabPrompt", defaultMessage: "Prompt" },
+  tabNegative: { id: "home.tabNegative", defaultMessage: "Negative" },
+  ariaNegative: { id: "home.ariaNegative", defaultMessage: "Negative prompt (DPL)" },
+  ariaPrompt: { id: "home.ariaPrompt", defaultMessage: "Prompt (DPL)" },
+  phNegative: {
+    id: "home.phNegative",
+    defaultMessage: "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, '{#bad-anatomy}'",
+  },
+  phTry: { id: "home.phTry", defaultMessage: "Try: {suggestion}" },
+  phPrompt: {
+    id: "home.phPrompt",
+    defaultMessage: "Type a prompt, or use the building blocks on the left…",
+  },
+  clearNegative: { id: "home.clearNegative", defaultMessage: "Clear the negative prompt" },
+  clearPrompt: { id: "home.clearPrompt", defaultMessage: "Clear the prompt" },
+  negativePreview: { id: "home.negativePreview", defaultMessage: "Negative preview" },
+  promptPreview: { id: "home.promptPreview", defaultMessage: "Prompt preview" },
+  promptSettings: { id: "home.promptSettings", defaultMessage: "Prompt settings" },
+  close: { id: "home.close", defaultMessage: "close" },
+  promptsPerRunTitle: {
+    id: "home.promptsPerRunTitle",
+    defaultMessage: "How many prompts to generate per run",
+  },
+  promptsLabel: { id: "home.promptsLabel", defaultMessage: "Prompts" },
+  promptsPerRunAria: { id: "home.promptsPerRunAria", defaultMessage: "Prompts per run" },
+  autoFixOn: {
+    id: "home.autoFixOn",
+    defaultMessage: "Auto-fix the prompt with {provider} before generating",
+  },
+  autoFixOff: {
+    id: "home.autoFixOff",
+    defaultMessage: "Pick a Text provider (header → Providers) to enable auto-fix",
+  },
+  autoFixAria: { id: "home.autoFixAria", defaultMessage: "Auto-fix prompt" },
+  keywordOn: {
+    id: "home.keywordOn",
+    defaultMessage:
+      "Keyword-translate the prompt with {provider} (use a clean tag list instead) before generating",
+  },
+  keywordOff: {
+    id: "home.keywordOff",
+    defaultMessage: "Pick a Text provider (header → Providers) to enable keyword translate",
+  },
+  keywordAria: { id: "home.keywordAria", defaultMessage: "Keyword-translate prompt" },
+  shareLink: { id: "home.shareLink", defaultMessage: "Share link" },
+  randomTitle: { id: "home.randomTitle", defaultMessage: "Random — drop a suggestion in" },
+  randomAria: { id: "home.randomAria", defaultMessage: "Random suggestion" },
+  generateTitle: {
+    id: "home.generateTitle",
+    defaultMessage: "{count, plural, one {Generate prompt} other {Generate prompts}}",
+  },
+  generateAria: { id: "home.generateAria", defaultMessage: "Generate prompt" },
+  shareInputAria: {
+    id: "home.shareInputAria",
+    defaultMessage: "Shareable link that restores these settings",
+  },
+  copied: { id: "home.copied", defaultMessage: "✓ Copied" },
+  copy: { id: "home.copy", defaultMessage: "Copy" },
+  promptsHeading: { id: "home.promptsHeading", defaultMessage: "Prompts" },
+  generatedCount: {
+    id: "home.generatedCount",
+    defaultMessage: "{count} generated · {provider}",
+  },
+  clearAllTitle: { id: "home.clearAllTitle", defaultMessage: "Clear all results" },
+  clearAll: { id: "home.clearAll", defaultMessage: "Clear all" },
+  example: { id: "home.example", defaultMessage: "Example:" },
+});
+
 /**
  * The compose workspace.
  * @param {object} props
@@ -143,6 +249,7 @@ const GearIcon = () => (
  * @returns {JSX.Element}
  */
 export default function Home({ settings, setSettings, onOpenImage }) {
+  const intl = useIntl();
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState(""); // top group: Blocks | Lists
@@ -180,7 +287,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     settings.rewriteProvider && settings.rewriteProvider !== "none"
       ? getProvider(settings.rewriteProvider)
       : null;
-  const rewriteLabel = rewriteProv?.rewriteLabel || rewriteProv?.label || "AI";
+  const rewriteLabel =
+    rewriteProv?.rewriteLabel || rewriteProv?.label || intl.formatMessage(msgs.aiFallback);
   const hasRewrite = !!rewriteProv;
   const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
   const [providerDefaults, setProviderDefaults] = useState({});
@@ -245,7 +353,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       const useKeyword = settings.autoKeyword && hasRewriteProvider;
       const rkey = useFix || useKeyword ? effectiveKey(settings.rewriteProvider, settings) : "";
       if ((useFix || useKeyword) && !rkey) {
-        setImgError("Auto-rewrite is on but the rewrite provider has no API key (gear → Auto-fix).");
+        setImgError(intl.formatMessage(msgs.rewriteNoKey));
       }
 
       // --- Main prompt: fix → keyword-translate (per the toggles), once per prompt, then cache. ---
@@ -278,7 +386,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
             );
           }
         } catch (e) {
-          setImgError("Auto-rewrite failed: " + (e.message || e));
+          setImgError(intl.formatMessage(msgs.rewriteFailed, { error: e.message || String(e) }));
         }
       }
 
@@ -371,9 +479,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   function removeImage(promptId, batchId, img) {
     if (
       isOutputFile(img) &&
-      confirm(
-        "Delete this image from disk too?\n\nOK = delete the file\nCancel = just remove it from view",
-      )
+      confirm(intl.formatMessage(msgs.confirmDeleteImage))
     ) {
       deleteImageFile(img);
     }
@@ -397,7 +503,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   function removeBatch(promptId, batchId) {
     const b = prompts.find((x) => x.id === promptId)?.batches.find((y) => y.id === batchId);
     const imgs = b?.images || [];
-    if (imgs.some(isOutputFile) && confirm("Delete this batch's image files from disk too?")) {
+    if (imgs.some(isOutputFile) && confirm(intl.formatMessage(msgs.confirmDeleteBatch))) {
       imgs.forEach(deleteImageFile);
     }
     setPrompts((ps) =>
@@ -412,7 +518,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     const imgs = (prompts.find((x) => x.id === promptId)?.batches || []).flatMap((b) => b.images);
     if (
       imgs.some(isOutputFile) &&
-      confirm("Delete all of this prompt's image files from disk too?")
+      confirm(intl.formatMessage(msgs.confirmDeletePromptImgs))
     ) {
       imgs.forEach(deleteImageFile);
     }
@@ -428,7 +534,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     const imgs = allImagesOf(prompts);
     if (
       imgs.length &&
-      confirm(`Clear all results — delete their ${imgs.length} image file(s) from disk too?`)
+      confirm(intl.formatMessage(msgs.confirmClearAll, { count: imgs.length }))
     ) {
       imgs.forEach(deleteImageFile);
     }
@@ -664,17 +770,17 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       {/* ---- Left panel: building-block palette ---- */}
       <aside className="sidebar">
         <div className="panel-head">
-          <h3 className="panel-title">Building blocks</h3>
+          <h3 className="panel-title">{intl.formatMessage(msgs.buildingBlocks)}</h3>
           <input
             className="picker-filter"
-            placeholder="Search blocks…"
+            placeholder={intl.formatMessage(msgs.searchBlocks)}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
 
         {filtered.length === 0 ? (
-          <p className="empty">No building blocks match “{query}”.</p>
+          <p className="empty">{intl.formatMessage(msgs.noBlocks, { query })}</p>
         ) : (
           <>
             {/* Both groups (Blocks / Lists) are always listed, each with an "All" row and its folder
@@ -701,7 +807,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                         className={`cat-tab sub${isActiveGroup && effSub === "All" ? " on" : ""}`}
                         onClick={selectGroup}
                       >
-                        <span className="cat-name">All</span>
+                        <span className="cat-name">{intl.formatMessage(msgs.all)}</span>
                         <span className="count-pill">
                           {b.items.filter((i) => !i.category).length}
                         </span>
@@ -769,7 +875,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 )}
                 {activeItems.length > 400 && (
                   <span className="picker-more">
-                    +{activeItems.length - 400} more — keep typing to filter
+                    {intl.formatMessage(msgs.moreFilter, { count: activeItems.length - 400 })}
                   </span>
                 )}
               </div>
@@ -789,7 +895,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
               <div
                 className="compose-mode"
                 role="tablist"
-                aria-label="Edit the prompt or the negative prompt"
+                aria-label={intl.formatMessage(msgs.composeModeAria)}
               >
                 <button
                   type="button"
@@ -798,7 +904,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   className={`cm-tab${editMode === "prompt" ? " on" : ""}`}
                   onClick={() => setComposeMode("prompt")}
                 >
-                  Prompt
+                  {intl.formatMessage(msgs.tabPrompt)}
                 </button>
                 <button
                   type="button"
@@ -807,7 +913,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   className={`cm-tab${editMode === "negative" ? " on" : ""}`}
                   onClick={() => setComposeMode("negative")}
                 >
-                  Negative
+                  {intl.formatMessage(msgs.tabNegative)}
                 </button>
               </div>
             )}
@@ -819,13 +925,13 @@ export default function Home({ settings, setSettings, onOpenImage }) {
               value={activeValue}
               onChange={setActiveValue}
               settings={settings}
-              ariaLabel={editMode === "negative" ? "Negative prompt (DPL)" : "Prompt (DPL)"}
+              ariaLabel={intl.formatMessage(editMode === "negative" ? msgs.ariaNegative : msgs.ariaPrompt)}
               placeholder={
                 editMode === "negative"
-                  ? "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, {#bad-anatomy}"
+                  ? intl.formatMessage(msgs.phNegative)
                   : suggestion
-                    ? `Try: ${suggestion}`
-                    : "Type a prompt, or use the building blocks on the left…"
+                    ? intl.formatMessage(msgs.phTry, { suggestion })
+                    : intl.formatMessage(msgs.phPrompt)
               }
             />
             <div className="composer-corner">
@@ -833,10 +939,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 <button
                   className="clear-x"
                   onClick={() => setActiveValue("")}
-                  title={editMode === "negative" ? "Clear the negative prompt" : "Clear the prompt"}
-                  aria-label={
-                    editMode === "negative" ? "Clear the negative prompt" : "Clear the prompt"
-                  }
+                  title={intl.formatMessage(editMode === "negative" ? msgs.clearNegative : msgs.clearPrompt)}
+                  aria-label={intl.formatMessage(editMode === "negative" ? msgs.clearNegative : msgs.clearPrompt)}
                 >
                   ✕
                 </button>
@@ -851,7 +955,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                       : suggestion || "{#random-words}"
                 }
                 settings={settings}
-                label={editMode === "negative" ? "Negative preview" : "Prompt preview"}
+                label={intl.formatMessage(editMode === "negative" ? msgs.negativePreview : msgs.promptPreview)}
                 triggerClassName="preview-corner"
               />
               {/* Live DPL validity — between the preview and the gear; ✓ clean, ✕ on errors. */}
@@ -861,8 +965,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 <button
                   className={`gear-corner${menuOpen ? " on" : ""}`}
                   onClick={() => setMenuOpen((o) => !o)}
-                  title="Prompt settings"
-                  aria-label="Prompt settings"
+                  title={intl.formatMessage(msgs.promptSettings)}
+                  aria-label={intl.formatMessage(msgs.promptSettings)}
                   aria-haspopup="dialog"
                   aria-expanded={menuOpen}
                 >
@@ -871,11 +975,11 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 {menuOpen && (
                   <>
                     <div className="gear-pop-scrim" onClick={() => setMenuOpen(false)} />
-                    <div className="gear-pop" role="dialog" aria-label="Prompt settings">
+                    <div className="gear-pop" role="dialog" aria-label={intl.formatMessage(msgs.promptSettings)}>
                       <div className="gear-pop-head">
-                        <span>Prompt settings</span>
+                        <span>{intl.formatMessage(msgs.promptSettings)}</span>
                         <button className="link-btn" onClick={() => setMenuOpen(false)}>
-                          close
+                          {intl.formatMessage(msgs.close)}
                         </button>
                       </div>
                       <div className="gear-pop-body">
@@ -889,8 +993,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
 
             <div className="field-bar">
               <div className="prompt-tools">
-                <label className="field-count" title="How many prompts to generate per run">
-                  <span className="field-count-label">Prompts</span>
+                <label className="field-count" title={intl.formatMessage(msgs.promptsPerRunTitle)}>
+                  <span className="field-count-label">{intl.formatMessage(msgs.promptsLabel)}</span>
                   <input
                     type="number"
                     min={1}
@@ -902,7 +1006,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                         promptCount: Math.max(1, Number(e.target.value) || 1),
                       })
                     }
-                    aria-label="Prompts per run"
+                    aria-label={intl.formatMessage(msgs.promptsPerRunAria)}
                   />
                 </label>
 
@@ -920,11 +1024,11 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 disabled={!hasRewrite}
                 title={
                   hasRewrite
-                    ? `Auto-fix the prompt with ${rewriteLabel} before generating`
-                    : "Pick a Text provider (header → Providers) to enable auto-fix"
+                    ? intl.formatMessage(msgs.autoFixOn, { provider: rewriteLabel })
+                    : intl.formatMessage(msgs.autoFixOff)
                 }
                 aria-pressed={hasRewrite && !!settings.autoFix}
-                aria-label="Auto-fix prompt"
+                aria-label={intl.formatMessage(msgs.autoFixAria)}
               >
                 <WandIcon />
               </button>
@@ -934,11 +1038,11 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 disabled={!hasRewrite}
                 title={
                   hasRewrite
-                    ? `Keyword-translate the prompt with ${rewriteLabel} (use a clean tag list instead) before generating`
-                    : "Pick a Text provider (header → Providers) to enable keyword translate"
+                    ? intl.formatMessage(msgs.keywordOn, { provider: rewriteLabel })
+                    : intl.formatMessage(msgs.keywordOff)
                 }
                 aria-pressed={hasRewrite && !!settings.autoKeyword}
-                aria-label="Keyword-translate prompt"
+                aria-label={intl.formatMessage(msgs.keywordAria)}
               >
                 <TagIcon />
               </button>
@@ -946,8 +1050,8 @@ export default function Home({ settings, setSettings, onOpenImage }) {
               <button
                 className={`field-act${panel === "share" ? " on" : ""}`}
                 onClick={toggleShare}
-                title="Share link"
-                aria-label="Share link"
+                title={intl.formatMessage(msgs.shareLink)}
+                aria-label={intl.formatMessage(msgs.shareLink)}
                 aria-pressed={panel === "share"}
               >
                 <ShareIcon />
@@ -956,16 +1060,16 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 className="field-act"
                 onClick={useSuggestion}
                 disabled={!suggestion}
-                title="Random — drop a suggestion in"
-                aria-label="Random suggestion"
+                title={intl.formatMessage(msgs.randomTitle)}
+                aria-label={intl.formatMessage(msgs.randomAria)}
               >
                 <ShuffleIcon />
               </button>
               <button
                 className="field-act primary"
                 onClick={buildPrompts}
-                title={`Generate prompt${settings.promptCount > 1 ? "s" : ""}`}
-                aria-label="Generate prompt"
+                title={intl.formatMessage(msgs.generateTitle, { count: settings.promptCount })}
+                aria-label={intl.formatMessage(msgs.generateAria)}
               >
                 <SparkleIcon />
               </button>
@@ -984,10 +1088,10 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                   readOnly
                   value={shareLink}
                   onFocus={(e) => e.target.select()}
-                  aria-label="Shareable link that restores these settings"
+                  aria-label={intl.formatMessage(msgs.shareInputAria)}
                 />
                 <button className="primary" onClick={() => copyLink()}>
-                  {copied ? "✓ Copied" : "Copy"}
+                  {intl.formatMessage(copied ? msgs.copied : msgs.copy)}
                 </button>
               </div>
             </div>
@@ -1000,13 +1104,16 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         {prompts.length > 0 && (
           <section className="card results-card">
             <div className="results-head">
-              <h2>Prompts</h2>
+              <h2>{intl.formatMessage(msgs.promptsHeading)}</h2>
               <div className="results-head-right">
                 <span className="count">
-                  {prompts.length} generated · {provider?.label}
+                  {intl.formatMessage(msgs.generatedCount, {
+                    count: prompts.length,
+                    provider: provider?.label,
+                  })}
                 </span>
-                <button className="link-btn" onClick={clearAll} title="Clear all results">
-                  Clear all
+                <button className="link-btn" onClick={clearAll} title={intl.formatMessage(msgs.clearAllTitle)}>
+                  {intl.formatMessage(msgs.clearAll)}
                 </button>
               </div>
             </div>
@@ -1055,7 +1162,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           {tip.description && <div className="block-tip-desc">{tip.description}</div>}
           {tipEx && (
             <div className="block-tip-ex">
-              <span className="block-tip-ex-label">Example:</span> {tipEx}
+              <span className="block-tip-ex-label">{intl.formatMessage(msgs.example)}</span> {tipEx}
             </div>
           )}
         </div>

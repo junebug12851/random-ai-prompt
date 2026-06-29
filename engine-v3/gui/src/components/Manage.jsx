@@ -12,6 +12,7 @@
  * @module gui/components/Manage
  */
 import { useEffect, useMemo, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { getTree, getRemoteManifest, restoreDefault, fsOp } from "../lib/manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../lib/promptEngine.js";
 import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../lib/manageTree.js";
@@ -19,10 +20,93 @@ import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
 
-const ROOTS = [
-  ["dynamic-prompts", "Blocks"],
-  ["lists", "Lists"],
-];
+// Data-root keys are fixed; their display titles are localized via `msgs` below.
+const ROOTS = ["dynamic-prompts", "lists"];
+
+const msgs = defineMessages({
+  blocks: { id: "manage.blocks", defaultMessage: "Blocks" },
+  lists: { id: "manage.lists", defaultMessage: "Lists" },
+  newFilePromptList: { id: "manage.newFilePromptList", defaultMessage: "New list name:" },
+  newFilePromptBlock: { id: "manage.newFilePromptBlock", defaultMessage: "New block name:" },
+  newFolderPrompt: { id: "manage.newFolderPrompt", defaultMessage: "New subfolder name:" },
+  deleteEntryConfirm: {
+    id: "manage.deleteEntryConfirm",
+    defaultMessage: "Delete {label} ({root}/{path})? This removes the file from disk.",
+  },
+  ghostTitle: {
+    id: "manage.ghostTitle",
+    defaultMessage: "{path} — deleted locally; restore from the repo",
+  },
+  ghostTag: { id: "manage.ghostTag", defaultMessage: "ghost" },
+  restoreTitle: { id: "manage.restoreTitle", defaultMessage: "Restore {label} from the repo" },
+  restoreAria: { id: "manage.restoreAria", defaultMessage: "Restore {label}" },
+  nsfw: { id: "manage.nsfw", defaultMessage: "NSFW" },
+  nsfwTag: { id: "manage.nsfwTag", defaultMessage: "18+" },
+  jsTitle: { id: "manage.jsTitle", defaultMessage: "Has a JS sidecar" },
+  jsTag: { id: "manage.jsTag", defaultMessage: "JS" },
+  editTitle: { id: "manage.editTitle", defaultMessage: "Edit {label}" },
+  deleteTitle: { id: "manage.deleteTitle", defaultMessage: "Delete {label}" },
+  lockedTitle: { id: "manage.lockedTitle", defaultMessage: "Manage is a local-mode feature" },
+  lockedBody: {
+    id: "manage.lockedBody",
+    defaultMessage:
+      "The content manager edits the prompt files on your disk, so it needs the local app (the dev server or a local build). It isn’t available in the online version.",
+  },
+  collapse: { id: "manage.collapse", defaultMessage: "Collapse" },
+  expand: { id: "manage.expand", defaultMessage: "Expand" },
+  folderSettings: { id: "manage.folderSettings", defaultMessage: "Folder settings — {name}" },
+  settingsFor: { id: "manage.settingsFor", defaultMessage: "Settings for {name}" },
+  addTo: { id: "manage.addTo", defaultMessage: "Add to {name}" },
+  newList: { id: "manage.newList", defaultMessage: "New list" },
+  newBlock: { id: "manage.newBlock", defaultMessage: "New block" },
+  newSubfolder: { id: "manage.newSubfolder", defaultMessage: "New subfolder" },
+  newFolder: { id: "manage.newFolder", defaultMessage: "New folder" },
+  badgePrefix: { id: "manage.badgePrefix", defaultMessage: "prefix" },
+  badgeGroup: { id: "manage.badgeGroup", defaultMessage: "group" },
+  badgeForcePrefixTitle: {
+    id: "manage.badgeForcePrefixTitle",
+    defaultMessage: "Force-prefix folder — its path shows in the token",
+  },
+  badgeGroupTitle: {
+    id: "manage.badgeGroupTitle",
+    defaultMessage: "Group folder — referencing it picks one random member",
+  },
+  panelTitle: { id: "manage.panelTitle", defaultMessage: "Manage" },
+  searchPh: { id: "manage.searchPh", defaultMessage: "Search…" },
+  refreshTitle: { id: "manage.refreshTitle", defaultMessage: "Refresh catalog (re-read from disk)" },
+  refreshAria: { id: "manage.refreshAria", defaultMessage: "Refresh catalog" },
+  loadingCatalog: { id: "manage.loadingCatalog", defaultMessage: "Loading the catalog…" },
+  nothingMatches: { id: "manage.nothingMatches", defaultMessage: "Nothing matches." },
+  detailEmpty: {
+    id: "manage.detailEmpty",
+    defaultMessage: "Select a block, list, or folder on the left to inspect it. Editing arrives next.",
+  },
+  rootParen: { id: "manage.rootParen", defaultMessage: "(root)" },
+  mPath: { id: "manage.mPath", defaultMessage: "Path" },
+  mType: { id: "manage.mType", defaultMessage: "Type" },
+  mAttributes: { id: "manage.mAttributes", defaultMessage: "Attributes" },
+  mEntries: { id: "manage.mEntries", defaultMessage: "Entries" },
+  typeCategory: { id: "manage.typeCategory", defaultMessage: "Category (top-level)" },
+  typeSubfolder: { id: "manage.typeSubfolder", defaultMessage: "Subfolder" },
+  attrNone: { id: "manage.attrNone", defaultMessage: "none" },
+  folderSoon: {
+    id: "manage.folderSoon",
+    defaultMessage: "The folder settings editor (rename, priority, markers) arrives next.",
+  },
+  mGating: { id: "manage.mGating", defaultMessage: "Gating" },
+  mNsfwVal: { id: "manage.mNsfwVal", defaultMessage: "NSFW" },
+  mSidecar: { id: "manage.mSidecar", defaultMessage: "Sidecar" },
+  mSidecarVal: { id: "manage.mSidecarVal", defaultMessage: "has a JS sidecar" },
+  loading: { id: "manage.loading", defaultMessage: "Loading…" },
+  entrySoon: {
+    id: "manage.entrySoon",
+    defaultMessage: "A full editor (with save + hot-apply) arrives next.",
+  },
+  moreLines: {
+    id: "manage.moreLines",
+    defaultMessage: "… {count} more lines (full editor coming).",
+  },
+});
 
 const ico = {
   width: 15,
@@ -80,6 +164,11 @@ function defaultExpanded(models) {
   return set;
 }
 
+/** Localized display title for a data root. */
+function rootTitle(intl, root) {
+  return intl.formatMessage(root === "lists" ? msgs.lists : msgs.blocks);
+}
+
 /**
  * The Manage workspace.
  * @param {object} props
@@ -89,6 +178,7 @@ function defaultExpanded(models) {
  * @returns {JSX.Element}
  */
 export default function Manage({ settings, available, active }) {
+  const intl = useIntl();
   const [tree, setTree] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -106,7 +196,7 @@ export default function Manage({ settings, available, active }) {
       setTree(t);
       setManifest(m);
       if (initialExpand) {
-        const models = ROOTS.map(([root]) => ({
+        const models = ROOTS.map((root) => ({
           root,
           model: buildManageModel(t[root], root, { includeAdult: settings.includeAdult }),
         }));
@@ -155,7 +245,8 @@ export default function Manage({ settings, available, active }) {
 
   const models = useMemo(() => {
     if (!tree) return [];
-    return ROOTS.map(([root, title]) => {
+    return ROOTS.map((root) => {
+      const title = rootTitle(intl, root);
       const full = buildManageModel(tree[root], root, { includeAdult: settings.includeAdult });
       // Inject "ghost" entries: files on the stable branch that are missing locally (restorable).
       if (manifest?.[root]) {
@@ -168,7 +259,7 @@ export default function Manage({ settings, available, active }) {
       const model = q ? filterModel(full, q) || { ...full, children: [], entries: [] } : full;
       return { root, title, model };
     });
-  }, [tree, manifest, settings.includeAdult, query]);
+  }, [tree, manifest, settings.includeAdult, query, intl]);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -208,7 +299,9 @@ export default function Manage({ settings, available, active }) {
   // Create a new block/list file in a folder, then open it for editing.
   async function newFile(root, folder) {
     setAddMenu(null);
-    const name = cleanName(window.prompt(`New ${root === "lists" ? "list" : "block"} name:`));
+    const name = cleanName(
+      window.prompt(intl.formatMessage(root === "lists" ? msgs.newFilePromptList : msgs.newFilePromptBlock)),
+    );
     if (!name) return;
     const ext = root === "lists" ? "txt" : "dpl";
     const path = folder ? `${folder}/${name}` : name;
@@ -232,7 +325,7 @@ export default function Manage({ settings, available, active }) {
   // Create a new subfolder.
   async function newFolder(root, folder) {
     setAddMenu(null);
-    const name = cleanName(window.prompt("New subfolder name:"));
+    const name = cleanName(window.prompt(intl.formatMessage(msgs.newFolderPrompt)));
     if (!name) return;
     const path = folder ? `${folder}/${name}` : name;
     try {
@@ -266,7 +359,12 @@ export default function Manage({ settings, available, active }) {
 
   // Delete an entry's files (content + sidecars) after confirming.
   async function deleteEntry(e) {
-    if (!window.confirm(`Delete ${e.label} (${e.root}/${e.path})? This removes the file from disk.`)) return;
+    if (
+      !window.confirm(
+        intl.formatMessage(msgs.deleteEntryConfirm, { label: e.label, root: e.root, path: e.path }),
+      )
+    )
+      return;
     try {
       await fsOp("delete", { root: e.root, path: `${e.path}.${e.ext}` });
       for (const side of ["js", "json"]) {
@@ -297,13 +395,13 @@ export default function Manage({ settings, available, active }) {
   // "ghost" (deleted locally, still upstream) is faded and offers only Restore.
   const EntryPill = ({ e }) =>
     e.ghost ? (
-      <span className={`mg-pill kind-${e.kind} is-ghost`} title={`${e.path} — deleted locally; restore from the repo`}>
+      <span className={`mg-pill kind-${e.kind} is-ghost`} title={intl.formatMessage(msgs.ghostTitle, { path: e.path })}>
         <span className="mg-pill-label">{e.label}</span>
-        <span className="mg-ghost-tag">ghost</span>
+        <span className="mg-ghost-tag">{intl.formatMessage(msgs.ghostTag)}</span>
         <button
           className="mg-pill-act"
-          title={`Restore ${e.label} from the repo`}
-          aria-label={`Restore ${e.label}`}
+          title={intl.formatMessage(msgs.restoreTitle, { label: e.label })}
+          aria-label={intl.formatMessage(msgs.restoreAria, { label: e.label })}
           onClick={() => restoreGhost(e)}
         >
           <RestoreIcon />
@@ -319,22 +417,22 @@ export default function Manage({ settings, available, active }) {
       >
         <span className="mg-pill-label">{e.label}</span>
         {e.nsfw && (
-          <span className="mg-nsfw" title="NSFW">
-            18+
+          <span className="mg-nsfw" title={intl.formatMessage(msgs.nsfw)}>
+            {intl.formatMessage(msgs.nsfwTag)}
           </span>
         )}
         {e.hasJsSidecar && (
-          <span className="mg-js" title="Has a JS sidecar">
-            JS
+          <span className="mg-js" title={intl.formatMessage(msgs.jsTitle)}>
+            {intl.formatMessage(msgs.jsTag)}
           </span>
         )}
-        <button className="mg-pill-act" title={`Edit ${e.label}`} aria-label={`Edit ${e.label}`} onClick={() => openEntry(e)}>
+        <button className="mg-pill-act" title={intl.formatMessage(msgs.editTitle, { label: e.label })} aria-label={intl.formatMessage(msgs.editTitle, { label: e.label })} onClick={() => openEntry(e)}>
           <EditIcon />
         </button>
         <button
           className="mg-pill-act mg-pill-del"
-          title={`Delete ${e.label}`}
-          aria-label={`Delete ${e.label}`}
+          title={intl.formatMessage(msgs.deleteTitle, { label: e.label })}
+          aria-label={intl.formatMessage(msgs.deleteTitle, { label: e.label })}
           onClick={() => deleteEntry(e)}
         >
           <TrashIcon />
@@ -345,11 +443,8 @@ export default function Manage({ settings, available, active }) {
   if (!available) {
     return (
       <div className="manage-locked">
-        <h2>Manage is a local-mode feature</h2>
-        <p>
-          The content manager edits the prompt files on your disk, so it needs the local app (the dev
-          server or a local build). It isn’t available in the online version.
-        </p>
+        <h2>{intl.formatMessage(msgs.lockedTitle)}</h2>
+        <p>{intl.formatMessage(msgs.lockedBody)}</p>
       </div>
     );
   }
@@ -386,15 +481,15 @@ export default function Manage({ settings, available, active }) {
           }}
         >
           <button className="mg-twirl" onClick={() => toggle(key)} aria-expanded={open}
-            aria-label={open ? "Collapse" : "Expand"}>
+            aria-label={intl.formatMessage(open ? msgs.collapse : msgs.expand)}>
             <Caret open={open} />
           </button>
           <span className="mg-folder-name" onClick={() => toggle(key)}>{node.name}</span>
           {!node.ghostFolder && (
             <button
               className="mg-gear"
-              title={`Folder settings — ${node.name}`}
-              aria-label={`Settings for ${node.name}`}
+              title={intl.formatMessage(msgs.folderSettings, { name: node.name })}
+              aria-label={intl.formatMessage(msgs.settingsFor, { name: node.name })}
               onClick={() => setSelected({ type: "folder", ...node })}
             >
               <GearIcon />
@@ -404,23 +499,23 @@ export default function Manage({ settings, available, active }) {
             <span className="mg-add-wrap">
               <button
                 className="mg-add"
-                title={`Add to ${node.name}`}
-                aria-label={`Add to ${node.name}`}
+                title={intl.formatMessage(msgs.addTo, { name: node.name })}
+                aria-label={intl.formatMessage(msgs.addTo, { name: node.name })}
                 onClick={() => setAddMenu((m) => (m && m.folder === node.path && m.root === root ? null : { root, folder: node.path }))}
               >
                 +
               </button>
               {addMenu && addMenu.root === root && addMenu.folder === node.path && (
                 <span className="mg-add-menu" role="menu">
-                  <button onClick={() => newFile(root, node.path)}>New {root === "lists" ? "list" : "block"}</button>
-                  <button onClick={() => newFolder(root, node.path)}>New subfolder</button>
+                  <button onClick={() => newFile(root, node.path)}>{intl.formatMessage(root === "lists" ? msgs.newList : msgs.newBlock)}</button>
+                  <button onClick={() => newFolder(root, node.path)}>{intl.formatMessage(msgs.newSubfolder)}</button>
                 </span>
               )}
             </span>
           )}
           {node.markers.map((m) => (
-            <span key={m} className={`mg-badge mg-badge-${m}`} title={badgeTitle(m)}>
-              {m === "force-prefix" ? "prefix" : "group"}
+            <span key={m} className={`mg-badge mg-badge-${m}`} title={badgeTitle(intl, m)}>
+              {intl.formatMessage(m === "force-prefix" ? msgs.badgePrefix : msgs.badgeGroup)}
             </span>
           ))}
           <span className="mg-count count-pill">{node.entryCount}</span>
@@ -447,19 +542,19 @@ export default function Manage({ settings, available, active }) {
     <div className="workspace manage">
       <aside className="sidebar mg-sidebar">
         <div className="panel-head">
-          <h3 className="panel-title">Manage</h3>
+          <h3 className="panel-title">{intl.formatMessage(msgs.panelTitle)}</h3>
           <div className="mg-head-actions">
             <input
               className="picker-filter"
-              placeholder="Search…"
+              placeholder={intl.formatMessage(msgs.searchPh)}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <button
               className={`mg-refresh${refreshing ? " spinning" : ""}`}
               onClick={onRefresh}
-              title="Refresh catalog (re-read from disk)"
-              aria-label="Refresh catalog"
+              title={intl.formatMessage(msgs.refreshTitle)}
+              aria-label={intl.formatMessage(msgs.refreshAria)}
               disabled={refreshing}
             >
               <RefreshIcon />
@@ -468,7 +563,7 @@ export default function Manage({ settings, available, active }) {
         </div>
 
         {loading && !tree ? (
-          <p className="empty">Loading the catalog…</p>
+          <p className="empty">{intl.formatMessage(msgs.loadingCatalog)}</p>
         ) : error ? (
           <p className="error">{error}</p>
         ) : (
@@ -496,22 +591,22 @@ export default function Manage({ settings, available, active }) {
                   <span className="mg-add-wrap">
                     <button
                       className="mg-add"
-                      title={`Add to ${title}`}
-                      aria-label={`Add to ${title}`}
+                      title={intl.formatMessage(msgs.addTo, { name: title })}
+                      aria-label={intl.formatMessage(msgs.addTo, { name: title })}
                       onClick={() => setAddMenu((m) => (m && m.root === root && m.folder === "" ? null : { root, folder: "" }))}
                     >
                       +
                     </button>
                     {addMenu && addMenu.root === root && addMenu.folder === "" && (
                       <span className="mg-add-menu" role="menu">
-                        <button onClick={() => newFile(root, "")}>New {root === "lists" ? "list" : "block"}</button>
-                        <button onClick={() => newFolder(root, "")}>New folder</button>
+                        <button onClick={() => newFile(root, "")}>{intl.formatMessage(root === "lists" ? msgs.newList : msgs.newBlock)}</button>
+                        <button onClick={() => newFolder(root, "")}>{intl.formatMessage(msgs.newFolder)}</button>
                       </span>
                     )}
                   </span>
                 </div>
                 {model.children.length === 0 && model.entries.length === 0 ? (
-                  <p className="empty">Nothing matches.</p>
+                  <p className="empty">{intl.formatMessage(msgs.nothingMatches)}</p>
                 ) : (
                   <>
                     {model.children.map((c) => (
@@ -543,9 +638,9 @@ export default function Manage({ settings, available, active }) {
   );
 }
 
-function badgeTitle(m) {
-  if (m === "force-prefix") return "Force-prefix folder — its path shows in the token";
-  if (m === "group") return "Group folder — referencing it picks one random member";
+function badgeTitle(intl, m) {
+  if (m === "force-prefix") return intl.formatMessage(msgs.badgeForcePrefixTitle);
+  if (m === "group") return intl.formatMessage(msgs.badgeGroupTitle);
   return m;
 }
 
@@ -557,30 +652,31 @@ function badgeTitle(m) {
  * @returns {JSX.Element}
  */
 function ManageDetail({ selected }) {
+  const intl = useIntl();
   if (!selected) {
     return (
       <section className="card mg-detail mg-detail-empty">
-        <p>Select a block, list, or folder on the left to inspect it. Editing arrives next.</p>
+        <p>{intl.formatMessage(msgs.detailEmpty)}</p>
       </section>
     );
   }
   if (selected.kind === "folder") {
     return (
       <section className="card mg-detail">
-        <h2 className="mg-detail-title">{selected.name || "(root)"}</h2>
+        <h2 className="mg-detail-title">{selected.name || intl.formatMessage(msgs.rootParen)}</h2>
         <dl className="mg-meta">
-          <dt>Path</dt>
+          <dt>{intl.formatMessage(msgs.mPath)}</dt>
           <dd>
             <code>{selected.root}/{selected.path}</code>
           </dd>
-          <dt>Type</dt>
-          <dd>{selected.isCategory ? "Category (top-level)" : "Subfolder"}</dd>
-          <dt>Attributes</dt>
-          <dd>{selected.markers.length ? selected.markers.join(", ") : "none"}</dd>
-          <dt>Entries</dt>
+          <dt>{intl.formatMessage(msgs.mType)}</dt>
+          <dd>{intl.formatMessage(selected.isCategory ? msgs.typeCategory : msgs.typeSubfolder)}</dd>
+          <dt>{intl.formatMessage(msgs.mAttributes)}</dt>
+          <dd>{selected.markers.length ? selected.markers.join(", ") : intl.formatMessage(msgs.attrNone)}</dd>
+          <dt>{intl.formatMessage(msgs.mEntries)}</dt>
           <dd>{selected.entryCount}</dd>
         </dl>
-        <p className="mg-soon">The folder settings editor (rename, priority, markers) arrives next.</p>
+        <p className="mg-soon">{intl.formatMessage(msgs.folderSoon)}</p>
       </section>
     );
   }
@@ -590,41 +686,41 @@ function ManageDetail({ selected }) {
         {selected.label} <span className={`mg-kind kind-${selected.kind}`}>{selected.kind}</span>
       </h2>
       <dl className="mg-meta">
-        <dt>Path</dt>
+        <dt>{intl.formatMessage(msgs.mPath)}</dt>
         <dd>
           <code>{selected.root}/{selected.path}.{selected.ext}</code>
         </dd>
         {selected.nsfw && (
           <>
-            <dt>Gating</dt>
-            <dd>NSFW</dd>
+            <dt>{intl.formatMessage(msgs.mGating)}</dt>
+            <dd>{intl.formatMessage(msgs.mNsfwVal)}</dd>
           </>
         )}
         {selected.hasJsSidecar && (
           <>
-            <dt>Sidecar</dt>
-            <dd>has a JS sidecar</dd>
+            <dt>{intl.formatMessage(msgs.mSidecar)}</dt>
+            <dd>{intl.formatMessage(msgs.mSidecarVal)}</dd>
           </>
         )}
       </dl>
       <div className="mg-preview">
         {selected.loading ? (
-          <p className="empty">Loading…</p>
+          <p className="empty">{intl.formatMessage(msgs.loading)}</p>
         ) : selected.error ? (
           <p className="error">{selected.error}</p>
         ) : (
-          <pre className="mg-preview-pre">{previewText(selected.text)}</pre>
+          <pre className="mg-preview-pre">{previewText(intl, selected.text)}</pre>
         )}
       </div>
-      <p className="mg-soon">A full editor (with save + hot-apply) arrives next.</p>
+      <p className="mg-soon">{intl.formatMessage(msgs.entrySoon)}</p>
     </section>
   );
 }
 
 // Cap the read-only preview so an enormous list stays snappy here; the real editor handles full size.
-function previewText(text) {
+function previewText(intl, text) {
   if (text == null) return "";
   const lines = text.split("\n");
   if (lines.length <= 500) return text;
-  return `${lines.slice(0, 500).join("\n")}\n\n… ${lines.length - 500} more lines (full editor coming).`;
+  return `${lines.slice(0, 500).join("\n")}\n\n${intl.formatMessage(msgs.moreLines, { count: lines.length - 500 })}`;
 }

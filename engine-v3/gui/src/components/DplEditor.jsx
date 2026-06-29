@@ -10,6 +10,7 @@
  * @module gui/components/DplEditor
  */
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { useIntl } from "react-intl";
 import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, placeholder as placeholderExt, drawSelection } from "@codemirror/view";
 import { history, defaultKeymap, historyKeymap, insertNewlineAndIndent } from "@codemirror/commands";
@@ -21,16 +22,18 @@ import { validateDpl } from "../lib/dpl/validateDpl.js";
 
 // CodeMirror linter fed by the shared DPL validator — underlines bad spots and shows the message on
 // hover; the gutter marks each line with an issue. The same validator backs the editors' status icon.
-const dplLinter = linter((view) => {
-  const text = view.state.doc.toString();
-  const len = text.length;
-  return validateDpl(text).map((d) => ({
-    from: Math.min(d.from, len),
-    to: Math.min(Math.max(d.to, d.from + 1), len),
-    severity: d.severity,
-    message: d.message,
-  }));
-});
+// A factory so the linter can read the live `intl` (via a ref) for localized diagnostics.
+const makeDplLinter = (intlRef) =>
+  linter((view) => {
+    const text = view.state.doc.toString();
+    const len = text.length;
+    return validateDpl(text, intlRef.current).map((d) => ({
+      from: Math.min(d.from, len),
+      to: Math.min(Math.max(d.to, d.from + 1), len),
+      severity: d.severity,
+      message: d.message,
+    }));
+  });
 
 // Render a token into a concrete example for the autocomplete info panel (no auto-FX/auto-artist
 // noise, mirroring the eye-icon live preview).
@@ -53,11 +56,14 @@ function DplEditor(
   { value, onChange, placeholder = "", className = "", ariaLabel, settings },
   ref,
 ) {
+  const intl = useIntl();
   const hostRef = useRef(null);
   const viewRef = useRef(null);
   const valueRef = useRef(value);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const intlRef = useRef(intl);
+  intlRef.current = intl;
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const placeholderCompartment = useRef(new Compartment());
@@ -109,7 +115,7 @@ function DplEditor(
         drawSelection(),
         EditorView.lineWrapping,
         dplLanguage(),
-        dplLinter,
+        makeDplLinter(intlRef),
         autocompletion({
           override: [
             dplCompletionSource(getDplCompletions, {

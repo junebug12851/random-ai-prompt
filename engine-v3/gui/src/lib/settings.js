@@ -19,6 +19,10 @@ const STORAGE_KEY = "rap.settings.v2";
  *   params are read by the providers).
  */
 export const defaultSettings = {
+  // UI language. "auto" follows the browser; otherwise a supported locale code
+  // (see gui/src/i18n/config.js). Persisted here like any other preference.
+  locale: "auto",
+
   // Prompt
   prompt: "{#random-words}",
   promptCount: 1,

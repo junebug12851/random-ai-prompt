@@ -4,6 +4,21 @@
  * @module gui/components/TokenPicker
  */
 import { useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
+
+const msgs = defineMessages({
+  filter: {
+    id: "tokenPicker.filter",
+    defaultMessage: "Filter {count}…",
+    description: "Placeholder for the token search box (count = number of tokens)",
+  },
+  insert: { id: "tokenPicker.insert", defaultMessage: "Insert" },
+  more: {
+    id: "tokenPicker.more",
+    defaultMessage: "+{count} more — keep typing",
+    description: "Hint shown when results are truncated",
+  },
+});
 
 // A searchable grid of tokens. Click one to insert it into the prompt. Capped at
 // a few hundred rendered chips so the big lists (danbooru, etc.) stay snappy.
@@ -14,6 +29,7 @@ import { useState } from "react";
  * @returns {JSX.Element}
  */
 export default function TokenPicker({ tokens, onInsert }) {
+  const intl = useIntl();
   const [q, setQ] = useState("");
   const filtered = q ? tokens.filter((t) => t.toLowerCase().includes(q.toLowerCase())) : tokens;
   const shown = filtered.slice(0, 400);
@@ -22,18 +38,25 @@ export default function TokenPicker({ tokens, onInsert }) {
     <div className="picker">
       <input
         className="picker-filter"
-        placeholder={`Filter ${tokens.length}…`}
+        placeholder={intl.formatMessage(msgs.filter, { count: tokens.length })}
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
       <div className="picker-list">
         {shown.map((t) => (
-          <button key={t} className="chip" title="Insert" onClick={() => onInsert(t)}>
+          <button
+            key={t}
+            className="chip"
+            title={intl.formatMessage(msgs.insert)}
+            onClick={() => onInsert(t)}
+          >
             {t}
           </button>
         ))}
         {filtered.length > shown.length && (
-          <span className="picker-more">+{filtered.length - shown.length} more — keep typing</span>
+          <span className="picker-more">
+            {intl.formatMessage(msgs.more, { count: filtered.length - shown.length })}
+          </span>
         )}
       </div>
     </div>

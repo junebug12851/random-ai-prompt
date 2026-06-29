@@ -6,8 +6,17 @@
  * @module gui/components/ProviderGear
  */
 import { useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { getProvider } from "../lib/providers/index.js";
 import ProviderBox from "./ProviderBox.jsx";
+
+const msgs = defineMessages({
+  tierApi: { id: "providerGear.tier.api", defaultMessage: "image API" },
+  tierSyntax: { id: "providerGear.tier.syntax", defaultMessage: "copy-prompt" },
+  tierPlain: { id: "providerGear.tier.plain", defaultMessage: "plain text" },
+  settings: { id: "providerGear.settings", defaultMessage: "Provider settings" },
+  close: { id: "providerGear.close", defaultMessage: "close" },
+});
 
 /**
  * The gear cog icon.
@@ -39,24 +48,22 @@ function GearIcon() {
  * @returns {(JSX.Element|null)}
  */
 export default function ProviderGear({ settings, setSettings }) {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const provider = getProvider(settings.provider);
   if (!provider) return null;
 
-  const tierLabel =
-    provider.tier === "api"
-      ? "image API"
-      : provider.tier === "syntax"
-        ? "copy-prompt"
-        : "plain text";
+  const tierLabel = intl.formatMessage(
+    provider.tier === "api" ? msgs.tierApi : provider.tier === "syntax" ? msgs.tierSyntax : msgs.tierPlain,
+  );
 
   return (
     <div className="field-menu-wrap provider-gear">
       <button
         className={`ps-gear${open ? " on" : ""}`}
         onClick={() => setOpen((o) => !o)}
-        title="Provider settings"
-        aria-label="Provider settings"
+        title={intl.formatMessage(msgs.settings)}
+        aria-label={intl.formatMessage(msgs.settings)}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -65,14 +72,18 @@ export default function ProviderGear({ settings, setSettings }) {
       {open && (
         <>
           <div className="gear-pop-scrim" onClick={() => setOpen(false)} />
-          <div className="gear-pop provider-gear-pop" role="dialog" aria-label="Provider settings">
+          <div
+            className="gear-pop provider-gear-pop"
+            role="dialog"
+            aria-label={intl.formatMessage(msgs.settings)}
+          >
             <div className="gear-pop-head">
               <span className="gear-pop-title">
                 <span className="gph-label">{provider.label}</span>
                 <span className="provider-tag">{tierLabel}</span>
               </span>
               <button className="link-btn" onClick={() => setOpen(false)}>
-                close
+                {intl.formatMessage(msgs.close)}
               </button>
             </div>
             <div className="gear-pop-body">
