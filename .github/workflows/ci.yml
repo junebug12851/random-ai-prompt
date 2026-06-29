@@ -50,8 +50,8 @@ jobs:
       - name: Import smoke test (full ES-module graph + all dynamic prompts)
         run: npm run smoke
 
-      - name: Unit / integration / snapshot / regression tests (Vitest, Node)
-        run: npm run test:unit
+      - name: Unit / integration / snapshot / regression tests + coverage gate (Vitest, Node)
+        run: npm run test:coverage
 
   gui:
     name: Build & unit-test the SPA
@@ -74,8 +74,8 @@ jobs:
       - name: Build gui
         run: npm --prefix gui run build
 
-      - name: Unit / component / contract tests (Vitest, jsdom)
-        run: npm --prefix gui run test
+      - name: Unit / component / contract tests + coverage gate (Vitest, jsdom)
+        run: npm --prefix gui run test:coverage
 
   e2e:
     name: E2E & accessibility (Playwright)
@@ -102,3 +102,65 @@ jobs:
 
       - name: E2E, accessibility & visual regression
         run: npm run test:e2e
+
+  cross-browser:
+    name: Cross-browser E2E (Firefox + WebKit + mobile)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine-v3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: engine-v3/package-lock.json
+
+      - name: Install dependencies (root + gui)
+        run: |
+          npm install --no-audit --no-fund
+          npm --prefix gui install --no-audit --no-fund
+
+      - name: Install Playwright browsers (chromium + firefox + webkit)
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      # Visual-regression baselines are Chromium-only, so they're skipped here; this job is
+      # the E2E + accessibility specs across every engine (the `test:e2e:all` wrapper sets
+      # PLAYWRIGHT_ALL_BROWSERS so the extra projects run).
+      - name: E2E & accessibility across all browsers (visual skipped)
+        env:
+          PLAYWRIGHT_SKIP_VISUAL: "1"
+        run: npm run test:e2e:all
+
+  perf:
+    name: Performance budgets (bundle size + Lighthouse)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine-v3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: engine-v3/package-lock.json
+
+      - name: Install dependencies (root + gui)
+        run: |
+          npm install --no-audit --no-fund
+          npm --prefix gui install --no-audit --no-fund
+
+      # Hard gate: the SPA's shipped JS (gzipped) must stay under the budget in
+      # scripts/check-bundle-size.mjs. `test:perf` builds then checks.
+      - name: Bundle-size budget
+        run: npm run test:perf
+
+      # Informational: Lighthouse scores can flake on shared runners, so this reports
+      # but does not block the merge (the bundle budget above is the hard gate).
+      - name: Lighthouse CI (informational)
+        run: npm run test:lhci
+        continue-on-error: true

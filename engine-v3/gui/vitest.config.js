@@ -17,8 +17,32 @@ export default mergeConfig(viteConfig, {
       provider: "v8",
       reportsDirectory: "coverage",
       include: ["src/**/*.{js,jsx}"],
-      exclude: ["src/main.jsx", "**/*.test.{js,jsx}"],
+      exclude: [
+        "src/main.jsx",
+        "src/i18n/compiled/**",
+        // A CodeMirror StreamLanguage grammar (verified via the e2e editor specs, not unit-mounted)
+        // and a one-line re-export shim — neither is meaningfully unit-coverable.
+        "src/lib/dpl/dplLanguage.js",
+        "src/lib/providers/index.js",
+        "**/*.test.{js,jsx}",
+      ],
       reporter: ["text", "html"],
+      // CI gate (owner-approved). The well-covered logic lives in src/lib (~73% lines);
+      // it gets a real floor. The components/editors are exercised by the Playwright e2e
+      // flows rather than unit-mounted, so the GLOBAL floor is intentionally modest — it
+      // catches a gross regression without forcing every editor to be unit-tested.
+      thresholds: {
+        lines: 25,
+        statements: 25,
+        functions: 25,
+        branches: 18,
+        "src/lib/**/*.js": {
+          lines: 65,
+          statements: 65,
+          functions: 60,
+          branches: 50,
+        },
+      },
     },
   },
 });
