@@ -9,13 +9,24 @@ city, street view, {city}
 - towering skyscrapers
 - $intensity-word crowd
 - storefronts
-- neon signage
-- traffic
 - sidewalk
 - {time}
-- city park
 - [i>70%] dense downtown skyline
 - [i<25%] quiet empty street
-- reflective wet pavement
 
-{#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] neon signage
+[f<60%] traffic, parked cars
+[f<55%] reflective wet pavement
+[f<50%] street trees, planters
+[f<45%] billboards, advertisements
+[f<35%] street vendors, market stalls
+
+; out-of-subject fluff — only at low focus
+[f<25%] a small park with a pond
+[f<20%] distant mountains on the horizon
+[f<15%] a river crossing the city
+
+; atmosphere garnish
+[f<50%] {#nature}
+[f<70%] {#weather}

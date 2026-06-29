@@ -9,13 +9,27 @@ Start
 - $intensity-word crowd
 - fountain
 - walkway
-- flower beds
 - shade trees
-- pond
 - {time}
-- 20% {#eerie}
-- 25% {#mystical}
 - [i>70%] festival, food stalls
 - [i<25%] quiet empty park
 
-{#wildlife}, {#water}, {#nature}, {#weather}
+; extra depth — admitted at lower focus, stripped as focus rises
+[f<65%] flower beds, manicured lawns
+[f<60%] a pond with ducks
+[f<55%] a gazebo, picnic tables
+[f<50%] a playground
+[f<45%] street lamps, winding paths
+[f<40%] a statue or monument
+
+; out-of-subject fluff — only at low focus
+[f<25%] city skyline beyond the trees
+[f<20%] a street performer drawing a crowd
+
+; atmosphere garnish
+[f<70%] {#nature}
+[f<55%] {#wildlife}
+[f<50%] {#water}
+[f<45%] {#eerie}
+[f<35%] {#mystical}
+[f<70%] {#weather}
