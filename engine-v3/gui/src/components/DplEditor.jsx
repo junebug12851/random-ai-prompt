@@ -12,9 +12,9 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, placeholder as placeholderExt, drawSelection } from "@codemirror/view";
-import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
-import { autocompletion, completionKeymap, snippet } from "@codemirror/autocomplete";
-import { dplLanguage, dplCompletionSource, dplKindBadge } from "../lib/dpl/dplLanguage.js";
+import { history, defaultKeymap, historyKeymap, insertNewlineAndIndent } from "@codemirror/commands";
+import { autocompletion, completionKeymap, snippet, startCompletion } from "@codemirror/autocomplete";
+import { dplLanguage, dplCompletionSource, dplKindBadge, inFrontMatter } from "../lib/dpl/dplLanguage.js";
 import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
 
 // Render a token into a concrete example for the autocomplete info panel (no auto-FX/auto-artist
@@ -104,7 +104,24 @@ function DplEditor(
           icons: false,
           addToOptions: [{ render: dplKindBadge, position: 70 }],
         }),
-        keymap.of([...completionKeymap, ...historyKeymap, ...defaultKeymap]),
+        keymap.of([
+          ...completionKeymap,
+          // Inside the leading `---` front-matter block, pressing Enter drops to a fresh line and
+          // immediately re-opens the key suggestions, so the front-matter keys are discoverable
+          // one after another. (Placed after completionKeymap so Enter still *accepts* an open
+          // completion; only a plain Enter falls through to here.)
+          {
+            key: "Enter",
+            run: (view) => {
+              if (!inFrontMatter(view.state, view.state.selection.main.head)) return false;
+              const handled = insertNewlineAndIndent(view);
+              if (inFrontMatter(view.state, view.state.selection.main.head)) startCompletion(view);
+              return handled;
+            },
+          },
+          ...historyKeymap,
+          ...defaultKeymap,
+        ]),
         placeholderCompartment.current.of(placeholderExt(placeholder)),
         labelCompartment.current.of(
           ariaLabel ? EditorView.contentAttributes.of({ "aria-label": ariaLabel }) : [],

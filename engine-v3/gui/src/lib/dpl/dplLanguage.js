@@ -392,7 +392,7 @@ const makeInfo = (it, expand, getSettings) => () => {
 };
 
 /** Is `pos` inside the leading `---` … `---` front-matter block? */
-function inFrontMatter(state, pos) {
+export function inFrontMatter(state, pos) {
   const doc = state.doc;
   if (doc.lines < 1 || doc.line(1).text.trim() !== "---") return false;
   const cur = doc.lineAt(pos).number;
