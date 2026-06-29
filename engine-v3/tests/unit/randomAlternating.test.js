@@ -17,9 +17,9 @@ const base = (mode, chance, maxLevels) => ({
 
 describe("randomAlternating — disabled / Midjourney", () => {
   it("is a no-op (returns the keyword, wasUsed:true) when alternating is off", () => {
-    expect(randomAlternating({ keywordAlternating: false, mode: "StableDiffusion" }, "fox")).toEqual(
-      { keyword: "fox", wasUsed: true },
-    );
+    expect(
+      randomAlternating({ keywordAlternating: false, mode: "StableDiffusion" }, "fox"),
+    ).toEqual({ keyword: "fox", wasUsed: true });
   });
 
   it("is a no-op for Midjourney (unsupported)", () => {

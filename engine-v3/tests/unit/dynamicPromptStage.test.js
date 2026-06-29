@@ -114,9 +114,7 @@ describe("dynamicPrompt — groups and {#any}", () => {
   });
 
   it("{#any} picks one generator from the whole catalog", () => {
-    const stage = makeDynamicPromptStage(
-      loader({ modules: { only: { default: () => "solo" } } }),
-    );
+    const stage = makeDynamicPromptStage(loader({ modules: { only: { default: () => "solo" } } }));
     expect(run(stage, "{#any}")).toBe("solo");
   });
 });
@@ -136,7 +134,9 @@ describe("dynamicPrompt — NSFW gating", () => {
 describe("dynamicPrompt — auto-append", () => {
   it("appends {#fx} once when autoAddFx is on, resolving nested tokens", () => {
     const stage = makeDynamicPromptStage(
-      loader({ modules: { fx: { default: () => "boom {#spark}" }, spark: { default: () => "zap" } } }),
+      loader({
+        modules: { fx: { default: () => "boom {#spark}" }, spark: { default: () => "zap" } },
+      }),
     );
     const out = run(stage, "base", S({ autoAddFx: true }));
     expect(out).toContain("boom");

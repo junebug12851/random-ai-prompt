@@ -22,7 +22,12 @@ describe("computeButtonNames — auto-prefix collision growth", () => {
 });
 
 describe("resolveListLines — reserved keyword wildcard", () => {
-  const data = { color: ["red"], "art/artist": ["picasso"], "danbooru/d/general": ["dan"], size: ["big"] };
+  const data = {
+    color: ["red"],
+    "art/artist": ["picasso"],
+    "danbooru/d/general": ["dan"],
+    size: ["big"],
+  };
   const readers = {
     names: ["color", "art/artist", "danbooru/d/general", "size"],
     readListFile: (n) => data[n] ?? null,

@@ -16,7 +16,11 @@ const loader = {
 };
 
 let adult = false;
-const settingsAccessor = () => ({ settings: { includeAdult: adult }, imageSettings: {}, upscaleSettings: {} });
+const settingsAccessor = () => ({
+  settings: { includeAdult: adult },
+  imageSettings: {},
+  upscaleSettings: {},
+});
 
 describe("promptFilesAndSuggestions — configuration guard", () => {
   it("throws if loadAll runs before configure (fresh instance)", async () => {
