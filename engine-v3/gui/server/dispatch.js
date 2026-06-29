@@ -64,6 +64,8 @@ import deepaiUpscaleServer from "../providers/deepai/code/upscale-server.js";
 import picsartUpscaleServer from "../providers/picsart/code/upscale-server.js";
 import segmindUpscaleServer from "../providers/segmind/code/upscale-server.js";
 import comfyuiUpscaleServer from "../providers/comfyui/code/upscale-server.js";
+import veniceUpscaleServer from "../providers/venice/code/upscale-server.js";
+import clipdropUpscaleServer from "../providers/clipdrop/code/upscale-server.js";
 
 /**
  * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't / shouldn't call
@@ -77,6 +79,8 @@ export const upscaleAdapters = {
   picsart: asFn(picsartUpscaleServer),
   segmind: asFn(segmindUpscaleServer),
   comfyui: asFn(comfyuiUpscaleServer),
+  venice: asFn(veniceUpscaleServer),
+  clipdrop: asFn(clipdropUpscaleServer),
 };
 
 /**
