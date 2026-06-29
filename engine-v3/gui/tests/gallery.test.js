@@ -8,6 +8,7 @@ import {
   promptText,
   promptLayers,
   negativeLayers,
+  linkAncestry,
 } from "../src/lib/gallery.js";
 
 afterEach(() => {
@@ -55,6 +56,47 @@ describe("searchHaystack", () => {
 
   it("tolerates a missing sidecar (no meta)", () => {
     expect(searchHaystack({ file: "a.png", meta: null })).toBe("a.png");
+  });
+});
+
+describe("linkAncestry", () => {
+  const feed = () => [
+    { name: "base", path: "/api/output/base.png", meta: { provider: "comfyui" } },
+    {
+      name: "kid1",
+      path: "/api/output/kid1.png",
+      meta: { provider: "comfyui", parent: "base", derivedKind: "reroll", derivedSource: "dpl" },
+    },
+    {
+      name: "kid2",
+      path: "/api/output/kid2.png",
+      meta: { provider: "comfyui", parent: "base", derivedKind: "variation", derivedSource: "ai" },
+    },
+    {
+      name: "orphan",
+      path: "/api/output/orphan.png",
+      meta: { provider: "comfyui", parent: "gone" }, // parent not in the feed
+    },
+  ];
+
+  it("hangs each child off its parent's children list (reverse link built on scan)", () => {
+    const linked = linkAncestry(feed());
+    const base = linked.find((i) => i.name === "base");
+    expect(base.children.map((c) => c.name)).toEqual(["kid1", "kid2"]);
+    expect(base.children[0]).toMatchObject({ kind: "reroll", source: "dpl", path: "/api/output/kid1.png" });
+    expect(base.children[1]).toMatchObject({ kind: "variation", source: "ai" });
+  });
+
+  it("gives every item a children array and ignores links to absent parents", () => {
+    const linked = linkAncestry(feed());
+    expect(linked.find((i) => i.name === "kid1").children).toEqual([]);
+    // A child whose parent isn't present is simply not linked (self-healing), no crash.
+    expect(linked.find((i) => i.name === "orphan").children).toEqual([]);
+  });
+
+  it("tolerates items without a sidecar", () => {
+    const linked = linkAncestry([{ name: "x", path: "/api/output/x.png", meta: null }]);
+    expect(linked[0].children).toEqual([]);
   });
 });
 

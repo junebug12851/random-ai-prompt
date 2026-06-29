@@ -1209,14 +1209,32 @@
   "single.convertTitle": {
     "defaultMessage": "Convert & download"
   },
+  "single.copiedMd": {
+    "defaultMessage": "✓ Copied"
+  },
   "single.copy": {
     "defaultMessage": "copy"
+  },
+  "single.copyMd": {
+    "defaultMessage": "Copy as Markdown"
+  },
+  "single.copyMdTitle": {
+    "defaultMessage": "Copy the prompt, negative, and details as a Markdown block"
   },
   "single.delete": {
     "defaultMessage": "Delete"
   },
   "single.deleteTitle": {
     "defaultMessage": "Delete from disk"
+  },
+  "single.deriveError": {
+    "defaultMessage": "Couldn't make another: {error}"
+  },
+  "single.deriveLocked": {
+    "defaultMessage": "{provider} doesn't support seeds — re-roll & variations need seed control"
+  },
+  "single.derivedCount": {
+    "defaultMessage": "{count, plural, one {# derived image} other {# derived images}}"
   },
   "single.detail.cfg": {
     "defaultMessage": "CFG"
@@ -1260,6 +1278,9 @@
   "single.find": {
     "defaultMessage": "Find “{term}”"
   },
+  "single.fromLayer": {
+    "defaultMessage": "from {layer}"
+  },
   "single.galleryFallback": {
     "defaultMessage": "gallery"
   },
@@ -1268,6 +1289,24 @@
   },
   "single.keywordsEdited": {
     "defaultMessage": "Keywords · edited"
+  },
+  "single.layerAi": {
+    "defaultMessage": "translation"
+  },
+  "single.layerDpl": {
+    "defaultMessage": "DPL"
+  },
+  "single.layerMissing": {
+    "defaultMessage": "This image has no {layer} layer to vary from"
+  },
+  "single.layerRoll": {
+    "defaultMessage": "original roll"
+  },
+  "single.lineage": {
+    "defaultMessage": "Lineage"
+  },
+  "single.makeAnother": {
+    "defaultMessage": "Make another"
   },
   "single.negativeTitle": {
     "defaultMessage": "Negative prompt"
@@ -1302,6 +1341,21 @@
   "single.openFull": {
     "defaultMessage": "Open full image in a new tab"
   },
+  "single.parentLink": {
+    "defaultMessage": "↑ Parent"
+  },
+  "single.parentTitle": {
+    "defaultMessage": "Open the image this was made from"
+  },
+  "single.pendingReroll": {
+    "defaultMessage": "Rolling a new image…"
+  },
+  "single.pendingSub": {
+    "defaultMessage": "The new image will appear here as soon as the provider returns it."
+  },
+  "single.pendingVariation": {
+    "defaultMessage": "Generating a variation…"
+  },
   "single.prev": {
     "defaultMessage": "← Prev"
   },
@@ -1329,6 +1383,12 @@
   "single.rebuilding": {
     "defaultMessage": "Rebuilding…"
   },
+  "single.reroll": {
+    "defaultMessage": "Re-roll"
+  },
+  "single.rerollTitle": {
+    "defaultMessage": "Re-roll the recipe — a fresh random prompt from the DPL, with a new seed"
+  },
   "single.reveal": {
     "defaultMessage": "Reveal"
   },
@@ -1340,6 +1400,36 @@
   },
   "single.sentToModel": {
     "defaultMessage": "Sent to model"
+  },
+  "single.typeBase": {
+    "defaultMessage": "Base image"
+  },
+  "single.typeReroll": {
+    "defaultMessage": "Re-roll"
+  },
+  "single.typeVariation": {
+    "defaultMessage": "Variation"
+  },
+  "single.varAi": {
+    "defaultMessage": "Translated"
+  },
+  "single.varAiTitle": {
+    "defaultMessage": "Vary from the AI translation — same words, new seed"
+  },
+  "single.varDpl": {
+    "defaultMessage": "DPL"
+  },
+  "single.varDplTitle": {
+    "defaultMessage": "Vary from the DPL recipe — re-rolls the random parts, new seed"
+  },
+  "single.varRoll": {
+    "defaultMessage": "Original"
+  },
+  "single.varRollTitle": {
+    "defaultMessage": "Vary from the original engine roll — same words, new seed"
+  },
+  "single.variation": {
+    "defaultMessage": "Variation"
   },
   "tokenPicker.filter": {
     "defaultMessage": "Filter {count}…",

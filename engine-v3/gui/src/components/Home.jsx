@@ -39,6 +39,32 @@ import DplStatus from "./DplStatus.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
+// App-orchestration keys that don't describe HOW an image was made — kept out of the sidecar's
+// settings snapshot so the single view's details table reflects only the provider's own knobs
+// (e.g. an OpenAI image shouldn't carry another provider's sampler/steps from `providerParams`).
+const SNAPSHOT_DROP = new Set([
+  "keys", "providerParams", "prompt", "promptCount", "locale", "includeAdult", "autoFix",
+  "autoKeyword", "autoAddFx", "autoAddArtists", "rewriteProvider", "wrapper", "wrapperName",
+  "wrapperParams", "useAutoSections", "provider",
+]);
+
+/**
+ * A clean, provider-scoped settings snapshot for an image sidecar: scalar provider knobs only,
+ * with app-orchestration keys, nested objects (like `providerParams`), and empties dropped.
+ * @param {object} obj The flattened settings (`flat` + the final negative prompt).
+ * @returns {object} The trimmed snapshot.
+ */
+function cleanSnapshot(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (SNAPSHOT_DROP.has(k)) continue;
+    if (v === null || v === undefined || v === "") continue;
+    if (typeof v === "object" || typeof v === "function") continue;
+    out[k] = v;
+  }
+  return out;
+}
+
 // A group's flat `items` array is a run of [folder pill, its chips, folder pill, its chips, …].
 // Split it back into folder sub-categories so the palette can offer an "All" view plus one sub-tab
 // per folder. A pill that carries a token (an insertable group like {#scene} / {word}) is kept on
@@ -436,8 +462,9 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         key,
       });
       // The full record of how these images were made, written as a sidecar next to each one
-      // (read back by the photo gallery). The settings snapshot drops API keys — never to disk.
-      const { keys: _keys, ...settingsSnapshot } = { ...flat, negativePrompt: negFinal };
+      // (read back by the photo gallery). The snapshot is provider-scoped (API keys, app
+      // orchestration, and foreign provider params all dropped — never to disk).
+      const settingsSnapshot = cleanSnapshot({ ...flat, negativePrompt: negFinal });
       const meta = {
         prompt: { dpl: promptDpl, roll: promptRoll, ai: promptAi, final: text },
         negative: {
