@@ -167,7 +167,7 @@ Comprehensive, measured perf pass across all three surfaces:
   the gallery/feed if needed), preconnect/preload hints, image `loading=lazy`/`decoding=async`,
   and confirm the lazy chunks prefetch sensibly.
 
-### Workstream C — Web-vitals / SEO "page-rank" greenlight (Lighthouse)
+### Workstream C — Web-vitals / SEO "page-rank" greenlight (Lighthouse) — ✅ DONE (2.28.11)
 Drive the existing `test:lhci` (Lighthouse CI) green across Performance / Accessibility / Best
 Practices / **SEO**. Concretely: a descriptive `<title>` + meta description, canonical URL, Open
 Graph/Twitter card tags, `lang` on `<html>`, `robots`/`sitemap` for the deployed site, favicon/PWA
