@@ -24,7 +24,7 @@ import { readSharedSettings } from "./lib/share.js";
 import { fetchGallery, linkAncestry } from "./lib/gallery.js";
 import { fetchMagick } from "./lib/magick.js";
 import { deleteImageFile } from "./lib/output.js";
-import { deriveImage as runDerive } from "./lib/derive.js";
+import { deriveImage as runDerive, resizeImage as runResize } from "./lib/derive.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
@@ -115,7 +115,8 @@ function AppShell({ settings, setSettings }) {
   const [query, setQuery] = useState(""); // gallery search (lifted so it persists + chips can set it)
   const [current, setCurrent] = useState(null); // the image open in the single view
   const [returnTo, setReturnTo] = useState("generate"); // where the single view's Back goes
-  const [deriveError, setDeriveError] = useState(""); // last re-roll / variation failure (single view)
+  const [deriveError, setDeriveError] = useState(""); // last re-roll / variation / resize failure
+  const [derivations, setDerivations] = useState([]); // in-flight ops: { id, parentPath, kind }
   const [magick, setMagick] = useState({ available: false, formats: [] });
   const [managerOk, setManagerOk] = useState(false); // local-mode content backend present?
 
@@ -208,37 +209,44 @@ function AppShell({ settings, setSettings }) {
     setCurrent((cur) => (cur && cur.path === path ? { ...cur, meta } : cur));
   }
 
-  // Re-roll / vary the open image: generate a NEW image from a chosen prompt layer, land on it.
-  // The single view shows a loading placeholder (a `pending` current) while the provider runs, with
-  // the resolved prompt filling in first; on success we refresh the feed (rebuilding ancestry) and
-  // open the freshly saved child. On failure we surface the error and stay on the source image.
+  // After a derive/resize lands, refresh the feed (rebuilds ancestry) and re-sync the open image to
+  // its fresh copy so its children strips update in place — without leaving the current image.
+  async function refreshAndResync(parentPath) {
+    const fresh = await loadFeed();
+    setCurrent((cur) => (cur ? fresh.find((i) => i.path === cur.path) || cur : cur));
+    return fresh;
+  }
+
+  // Re-roll / vary the open image: generate a NEW image from a chosen prompt layer. We deliberately
+  // DON'T navigate away — a live placeholder appears in the matching strip below the image (via the
+  // `derivations` list), and the finished child slots into that strip once the feed refreshes.
   async function deriveImage(item, kind, source) {
     setDeriveError("");
-    setReturnTo((r) => (view === "single" ? r : view));
-    setCurrent({
-      pending: true,
-      parentName: item.name,
-      derivedKind: kind,
-      derivedSource: source,
-      meta: { provider: item.meta?.provider, providerLabel: item.meta?.providerLabel },
-    });
-    setView("single");
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setDerivations((d) => [...d, { id, parentPath: item.path, kind }]);
     try {
-      const { path } = await runDerive({
-        item,
-        kind,
-        source,
-        settings,
-        onText: (text) =>
-          setCurrent((c) =>
-            c && c.pending ? { ...c, meta: { ...c.meta, prompt: { final: text } } } : c,
-          ),
-      });
-      const fresh = await loadFeed();
-      setCurrent(fresh.find((i) => i.path === path) || item);
+      await runDerive({ item, kind, source, settings });
+      await refreshAndResync(item.path);
     } catch (e) {
       setDeriveError(e.message || String(e));
-      setCurrent(item); // revert to the source image
+    } finally {
+      setDerivations((d) => d.filter((x) => x.id !== id));
+    }
+  }
+
+  // Resize (downscale / upscale via ImageMagick) the open image into a new tracked child — same
+  // in-place, live-placeholder flow as a derive, landing in the Resizes strip.
+  async function resizeImage(item, scale) {
+    setDeriveError("");
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setDerivations((d) => [...d, { id, parentPath: item.path, kind: "resize" }]);
+    try {
+      await runResize({ item, scale });
+      await refreshAndResync(item.path);
+    } catch (e) {
+      setDeriveError(e.message || String(e));
+    } finally {
+      setDerivations((d) => d.filter((x) => x.id !== id));
     }
   }
 
@@ -334,6 +342,8 @@ function AppShell({ settings, setSettings }) {
                 onSearch={searchFor}
                 onMetaUpdate={updateItemMeta}
                 onDerive={deriveImage}
+                onResize={resizeImage}
+                derivations={derivations}
                 deriveError={deriveError}
               />
             </div>

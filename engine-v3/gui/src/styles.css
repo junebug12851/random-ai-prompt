@@ -3016,6 +3016,139 @@ button.ghost:hover {
   color: var(--muted);
   max-width: 24rem;
 }
+.g-pending-spinner.small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+/* Left column = image + its derived strips, stacked */
+.g-single-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+/* Inline prompt-layer actions (re-roll / vary), styled like the copy link */
+.g-text-acts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.g-copy.g-act {
+  color: var(--accent);
+}
+.g-copy.g-act.is-locked {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Re-Rolls / Variations / Resizes strips below the image */
+.g-strips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.g-strip-label {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.g-strip-count {
+  opacity: 0.7;
+}
+.g-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.g-strip-thumb {
+  border: 1px solid var(--border);
+  background: #000;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.g-strip-thumb:hover {
+  border-color: var(--accent-strong);
+}
+.g-strip-thumb.is-pending {
+  cursor: default;
+  background: var(--panel-2);
+}
+.g-strip-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Locked tool controls (convert / resize): visible but greyed with a 🔒, like the online locks */
+.g-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.g-tool.is-locked .g-convert,
+.g-tool.is-locked .g-resize {
+  opacity: 0.55;
+}
+.g-tool-lock {
+  margin-left: 0.3rem;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+.g-resize {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.g-resize:hover {
+  background: var(--chip-hover);
+}
+
+/* Details card head: a row of small actions (View Raw / Copy MD / Copy JSON) */
+.g-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.g-card-action.on {
+  border-color: var(--accent-strong);
+  color: var(--fg);
+}
+
+/* Raw-JSON syntax highlighting (View Raw) */
+.g-json .json-key {
+  color: var(--accent);
+}
+.g-json .json-str {
+  color: #7ec699;
+}
+.g-json .json-num {
+  color: #f0a35e;
+}
+.g-json .json-bool {
+  color: #d19a66;
+}
+.g-json .json-null {
+  color: var(--muted);
+}
 
 @media (max-width: 720px) {
   .g-single-body {

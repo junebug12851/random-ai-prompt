@@ -14,18 +14,19 @@ import { effectiveKey } from "./sessionKeys.js";
 import { ingestImage } from "./output.js";
 import { promptLayers, negativeLayers } from "./gallery.js";
 
-/** The captured prompt layers a derive can draw from: the DPL recipe, the AI translation, the roll. */
-export const DERIVE_SOURCES = ["dpl", "ai", "roll"];
+/** The captured prompt layers a derive can draw from. */
+export const DERIVE_SOURCES = ["dpl", "final", "ai", "roll"];
 
 /**
  * Whether a given source layer is present on a sidecar (so its button can be enabled).
  * @param {object} meta The sidecar.
- * @param {"dpl"|"ai"|"roll"} source The layer.
+ * @param {"dpl"|"final"|"ai"|"roll"} source The layer.
  * @returns {boolean}
  */
 export function hasSource(meta, source) {
   const p = promptLayers(meta);
   if (source === "dpl") return !!p.dpl;
+  if (source === "final") return !!p.final;
   if (source === "ai") return !!p.ai;
   if (source === "roll") return !!p.roll;
   return false;
@@ -44,12 +45,13 @@ export function canDerive(meta) {
 
 /**
  * Resolve the prompt text a derive sends, from the chosen source layer:
- * - `dpl`  → re-run the DPL recipe through the engine (random tokens re-roll → new wording).
- * - `ai`   → the AI translation, verbatim (a visual variation of the same words).
- * - `roll` → the original engine roll, verbatim.
+ * - `dpl`   → re-run the DPL recipe through the engine (random tokens re-roll → new wording).
+ * - `final` → the sent-to-model text, verbatim (a visual variation of exactly what was sent).
+ * - `ai`    → the AI translation, verbatim.
+ * - `roll`  → the original engine roll, verbatim.
  * Returns null when that layer isn't on the sidecar.
  * @param {object} meta The sidecar.
- * @param {"dpl"|"ai"|"roll"} source The layer.
+ * @param {"dpl"|"final"|"ai"|"roll"} source The layer.
  * @param {object} settings Current app settings (word lists for a DPL re-roll).
  * @returns {?string}
  */
@@ -60,6 +62,7 @@ export function resolveDeriveText(meta, source, settings) {
     const mode = meta?.settings?.mode ?? settings?.mode;
     return generatePrompt({ ...settings, mode, prompt: p.dpl }).trim();
   }
+  if (source === "final") return p.final ? String(p.final) : null;
   if (source === "ai") return p.ai ? String(p.ai) : null;
   if (source === "roll") return p.roll ? String(p.roll) : null;
   return null;
@@ -70,7 +73,7 @@ export function resolveDeriveText(meta, source, settings) {
  * @param {object} args
  * @param {object} args.item The source gallery item (`{ name, meta, ... }`).
  * @param {"reroll"|"variation"} args.kind Which action triggered this (recorded for the UI label).
- * @param {"dpl"|"ai"|"roll"} args.source Which prompt layer to draw from.
+ * @param {"dpl"|"final"|"ai"|"roll"} args.source Which prompt layer to draw from.
  * @param {object} args.settings Current app settings (BYOK key + engine word lists).
  * @param {Function} [args.onText] `(text)` — the resolved prompt, fired before the image returns.
  * @returns {Promise<{path: string, meta: object}>} The new image's served path + its sidecar.
@@ -122,4 +125,45 @@ export async function deriveImage({ item, kind, source, settings, onText }) {
   };
   const path = await ingestImage(images[0], childMeta);
   return { path, meta: childMeta };
+}
+
+/** The resize factors the single view offers (downscale < 1 < upscale). */
+export const RESIZE_SCALES = [0.25, 0.5, 2, 4];
+
+/**
+ * Resize a saved image by a factor via the dev server's ImageMagick bridge, persisting the result
+ * as a new tracked child (ancestry `derivedKind: "resize"`). Downscale/upscale only differ by the
+ * factor (<1 vs >1). AI upscaling is a separate, provider-gated path (no provider offers it yet).
+ * @param {object} args
+ * @param {object} args.item The source gallery item.
+ * @param {number} args.scale The resize factor (e.g. 0.5 to halve, 2 to double).
+ * @returns {Promise<{path: string, meta: object}>} The new image's served path + its sidecar.
+ * @throws {Error} When ImageMagick is unavailable or the resize fails.
+ */
+export async function resizeImage({ item, scale }) {
+  const meta = item?.meta || {};
+  const childMeta = {
+    prompt: meta.prompt || null,
+    negative: meta.negative || null,
+    provider: meta.provider,
+    providerLabel: meta.providerLabel,
+    settings: { ...(meta.settings || {}), resizeScale: scale },
+    parent: item.name,
+    derivedKind: "resize",
+    resizeScale: scale,
+    savedAt: new Date().toISOString(),
+  };
+  let res;
+  try {
+    res = await fetch("/api/image/resize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: item.path, scale, meta: childMeta }),
+    });
+  } catch {
+    throw new Error("Resize needs the local app (no dev server).");
+  }
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || !d.path) throw new Error(d.error || "Resize failed.");
+  return { path: d.path, meta: childMeta };
 }
