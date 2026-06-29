@@ -8,9 +8,42 @@
  * @module gui/components/ApiKeyField
  */
 import { useEffect, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { getProvider } from "../lib/providers/index.js";
 import { getSessionKey, setSessionKey } from "../lib/sessionKeys.js";
 import { metaFor } from "../lib/providerMeta.js";
+
+const msgs = defineMessages({
+  infoTip: {
+    id: "apiKey.infoTip",
+    defaultMessage:
+      "Your key for this provider. Kept in memory for this session only — click the save icon to store it in this browser.",
+  },
+  ariaKey: {
+    id: "apiKey.aria",
+    defaultMessage: "{provider} API key",
+    description: "aria-label for the key input (provider = provider name)",
+  },
+  placeholder: {
+    id: "apiKey.placeholder",
+    defaultMessage: "API key — not saved unless you save it",
+  },
+  confirmSave: {
+    id: "apiKey.confirmSave",
+    defaultMessage:
+      "Save this API key in your browser? It will persist on this device until you clear it.",
+  },
+  confirmClear: {
+    id: "apiKey.confirmClear",
+    defaultMessage: "Remove the saved API key from this browser?",
+  },
+  saveUpdateTitle: { id: "apiKey.saveUpdateTitle", defaultMessage: "Update the saved key in this browser" },
+  saveTitle: { id: "apiKey.saveTitle", defaultMessage: "Save key in this browser" },
+  saveAria: { id: "apiKey.saveAria", defaultMessage: "Save API key" },
+  clearTitle: { id: "apiKey.clearTitle", defaultMessage: "Remove the saved key from this browser" },
+  clearAria: { id: "apiKey.clearAria", defaultMessage: "Clear saved API key" },
+  getKey: { id: "apiKey.getKey", defaultMessage: "Get a key ↗" },
+});
 
 /**
  * A small info "i" with a tooltip.
@@ -36,6 +69,7 @@ function InfoTip({ text }) {
  * @returns {(JSX.Element|null)}
  */
 export default function ApiKeyField({ settings, setSettings, providerId }) {
+  const intl = useIntl();
   const id = providerId ?? settings.provider;
   const provider = id && id !== "none" ? getProvider(id) : null;
   const pid = provider?.id;
@@ -59,13 +93,11 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
   };
   const saveKey = () => {
     if (!keyInput) return;
-    if (
-      confirm("Save this API key in your browser? It will persist on this device until you clear it.")
-    )
+    if (confirm(intl.formatMessage(msgs.confirmSave)))
       setSettings((s) => ({ ...s, keys: { ...s.keys, [pid]: keyInput } }));
   };
   const clearKey = () => {
-    if (!confirm("Remove the saved API key from this browser?")) return;
+    if (!confirm(intl.formatMessage(msgs.confirmClear))) return;
     setSettings((s) => {
       const keys = { ...s.keys };
       delete keys[pid];
@@ -78,13 +110,13 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
 
   return (
     <div className="hkey">
-      <InfoTip text="Your key for this provider. Kept in memory for this session only — click the save icon to store it in this browser." />
+      <InfoTip text={intl.formatMessage(msgs.infoTip)} />
       <div className={`hkey-input${saved ? " saved" : ""}`}>
         <input
           type="password"
           autoComplete="off"
-          aria-label={`${provider.label} API key`}
-          placeholder="API key — not saved unless you save it"
+          aria-label={intl.formatMessage(msgs.ariaKey, { provider: provider.label })}
+          placeholder={intl.formatMessage(msgs.placeholder)}
           value={keyInput}
           onChange={(e) => onKeyInput(e.target.value)}
         />
@@ -93,8 +125,8 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
           className="hkey-icon save"
           onClick={saveKey}
           disabled={!canSave}
-          title={saved ? "Update the saved key in this browser" : "Save key in this browser"}
-          aria-label="Save API key"
+          title={intl.formatMessage(saved ? msgs.saveUpdateTitle : msgs.saveTitle)}
+          aria-label={intl.formatMessage(msgs.saveAria)}
         >
           <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
             <path
@@ -111,8 +143,8 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
             type="button"
             className="hkey-icon clear"
             onClick={clearKey}
-            title="Remove the saved key from this browser"
-            aria-label="Clear saved API key"
+            title={intl.formatMessage(msgs.clearTitle)}
+            aria-label={intl.formatMessage(msgs.clearAria)}
           >
             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
               <path
@@ -128,7 +160,7 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
       </div>
       {keyUrl && (
         <a className="key-link" href={keyUrl} target="_blank" rel="noreferrer">
-          Get a key ↗
+          {intl.formatMessage(msgs.getKey)}
         </a>
       )}
     </div>

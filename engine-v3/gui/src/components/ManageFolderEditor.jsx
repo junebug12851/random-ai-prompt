@@ -6,7 +6,47 @@
  * @module gui/components/ManageFolderEditor
  */
 import { useEffect, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { readFile, saveSidecar, setMarker, fsOp } from "../lib/manageApi.js";
+
+const msgs = defineMessages({
+  folderName: { id: "folderEd.folderName", defaultMessage: "Folder name" },
+  category: { id: "folderEd.category", defaultMessage: "category" },
+  folder: { id: "folderEd.folder", defaultMessage: "folder" },
+  rename: { id: "folderEd.rename", defaultMessage: "Rename" },
+  saving: { id: "folderEd.saving", defaultMessage: "Saving…" },
+  save: { id: "folderEd.save", defaultMessage: "Save" },
+  description: { id: "folderEd.description", defaultMessage: "Description" },
+  descriptionPh: { id: "folderEd.descriptionPh", defaultMessage: "Category tooltip" },
+  priority: { id: "folderEd.priority", defaultMessage: "Priority" },
+  priorityPh: {
+    id: "folderEd.priorityPh",
+    defaultMessage: "1000 (lower sorts higher; blank = default)",
+  },
+  forcePrefixTitle: {
+    id: "folderEd.forcePrefixTitle",
+    defaultMessage: "Show this folder's path in the token (e.g. d/general)",
+  },
+  forcePrefix: { id: "folderEd.forcePrefix", defaultMessage: "Force prefix" },
+  groupMode: { id: "folderEd.groupMode", defaultMessage: "Group mode" },
+  groupAuto: { id: "folderEd.groupAuto", defaultMessage: "Auto (group when it has 2+ members)" },
+  groupAlways: { id: "folderEd.groupAlways", defaultMessage: "Always a group" },
+  groupNever: { id: "folderEd.groupNever", defaultMessage: "Never a group" },
+  forceListTitle: {
+    id: "folderEd.forceListTitle",
+    defaultMessage: "Keep this folder as its own sub-category even with a single list",
+  },
+  forceList: { id: "folderEd.forceList", defaultMessage: "Force list category" },
+  deleteFolder: { id: "folderEd.deleteFolder", defaultMessage: "Delete folder" },
+  loading: { id: "folderEd.loading", defaultMessage: "Loading…" },
+  saved: { id: "folderEd.saved", defaultMessage: "Saved." },
+  renamed: { id: "folderEd.renamed", defaultMessage: "Renamed." },
+  deleteConfirm: {
+    id: "folderEd.deleteConfirm",
+    defaultMessage:
+      'Delete the folder "{name}" and everything in it ({count, plural, one {# entry} other {# entries}})? This can\'t be undone.',
+  },
+});
 
 /**
  * @param {object} props
@@ -15,6 +55,7 @@ import { readFile, saveSidecar, setMarker, fsOp } from "../lib/manageApi.js";
  * @returns {JSX.Element}
  */
 export default function ManageFolderEditor({ node, onChanged }) {
+  const intl = useIntl();
   const { root, path } = node;
   const parent = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
 
@@ -73,7 +114,7 @@ export default function ManageFolderEditor({ node, onChanged }) {
       await setMarker(root, path, "_force-prefix", forcePrefix);
       await setMarker(root, path, "_enable-group-list", groupMode === "always");
       await setMarker(root, path, "_disable-group-list", groupMode === "never");
-      setStatus("Saved.");
+      setStatus(intl.formatMessage(msgs.saved));
       await onChanged?.();
     } catch (e) {
       setError(e.message || String(e));
@@ -95,7 +136,7 @@ export default function ManageFolderEditor({ node, onChanged }) {
       } catch {
         // no folder sidecar to move
       }
-      setStatus("Renamed.");
+      setStatus(intl.formatMessage(msgs.renamed));
       await onChanged?.({ ...node, path: target, name: clean });
     } catch (e) {
       setError(e.message || String(e));
@@ -107,7 +148,7 @@ export default function ManageFolderEditor({ node, onChanged }) {
   async function remove() {
     if (
       !window.confirm(
-        `Delete the folder "${node.name}" and everything in it (${node.entryCount} entr${node.entryCount === 1 ? "y" : "ies"})? This can't be undone.`,
+        intl.formatMessage(msgs.deleteConfirm, { name: node.name, count: node.entryCount }),
       )
     )
       return;
@@ -127,7 +168,12 @@ export default function ManageFolderEditor({ node, onChanged }) {
     }
   }
 
-  if (loading) return <section className="card mg-detail"><p className="empty">Loading…</p></section>;
+  if (loading)
+    return (
+      <section className="card mg-detail">
+        <p className="empty">{intl.formatMessage(msgs.loading)}</p>
+      </section>
+    );
 
   return (
     <section className="card mg-detail mg-editor">
@@ -136,15 +182,17 @@ export default function ManageFolderEditor({ node, onChanged }) {
           className="mg-name-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          aria-label="Folder name"
+          aria-label={intl.formatMessage(msgs.folderName)}
         />
-        <span className="mg-kind">{node.isCategory ? "category" : "folder"}</span>
+        <span className="mg-kind">
+          {intl.formatMessage(node.isCategory ? msgs.category : msgs.folder)}
+        </span>
         <button className="link-btn" onClick={rename} disabled={saving || name.trim() === node.name}>
-          Rename
+          {intl.formatMessage(msgs.rename)}
         </button>
         <div className="grow" />
         <button className="primary" onClick={save} disabled={saving}>
-          {saving ? "Saving…" : "Save"}
+          {intl.formatMessage(saving ? msgs.saving : msgs.save)}
         </button>
       </div>
 
@@ -153,44 +201,44 @@ export default function ManageFolderEditor({ node, onChanged }) {
       </p>
 
       <label className="mg-field">
-        <span>Description</span>
-        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Category tooltip" />
+        <span>{intl.formatMessage(msgs.description)}</span>
+        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={intl.formatMessage(msgs.descriptionPh)} />
       </label>
 
       <label className="mg-field">
-        <span>Priority</span>
+        <span>{intl.formatMessage(msgs.priority)}</span>
         <input
           type="number"
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          placeholder="1000 (lower sorts higher; blank = default)"
+          placeholder={intl.formatMessage(msgs.priorityPh)}
         />
       </label>
 
       <label className="mg-field mg-check">
         <input type="checkbox" checked={forcePrefix} onChange={(e) => setForcePrefix(e.target.checked)} />
-        <span title="Show this folder's path in the token (e.g. d/general)">Force prefix</span>
+        <span title={intl.formatMessage(msgs.forcePrefixTitle)}>{intl.formatMessage(msgs.forcePrefix)}</span>
       </label>
 
       <label className="mg-field">
-        <span>Group mode</span>
+        <span>{intl.formatMessage(msgs.groupMode)}</span>
         <select value={groupMode} onChange={(e) => setGroupMode(e.target.value)}>
-          <option value="auto">Auto (group when it has 2+ members)</option>
-          <option value="always">Always a group</option>
-          <option value="never">Never a group</option>
+          <option value="auto">{intl.formatMessage(msgs.groupAuto)}</option>
+          <option value="always">{intl.formatMessage(msgs.groupAlways)}</option>
+          <option value="never">{intl.formatMessage(msgs.groupNever)}</option>
         </select>
       </label>
 
       {root === "lists" && (
         <label className="mg-field mg-check">
           <input type="checkbox" checked={forceList} onChange={(e) => setForceList(e.target.checked)} />
-          <span title="Keep this folder as its own sub-category even with a single list">Force list category</span>
+          <span title={intl.formatMessage(msgs.forceListTitle)}>{intl.formatMessage(msgs.forceList)}</span>
         </label>
       )}
 
       <div className="mg-editor-foot">
         <button className="link-btn mg-danger" onClick={remove} disabled={saving}>
-          Delete folder
+          {intl.formatMessage(msgs.deleteFolder)}
         </button>
         {status && <span className="mg-ok">{status}</span>}
         {error && <span className="error">{error}</span>}

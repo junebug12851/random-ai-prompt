@@ -8,6 +8,7 @@
  * @module gui/components/ManageBlockEditor
  */
 import { useEffect, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../src/gatedLists.js";
@@ -27,6 +28,46 @@ export default function (settings, imageSettings, upscaleSettings) {
 // export const suggestion_exclude = true; // keep this generator out of random suggestions
 `;
 
+const msgs = defineMessages({
+  genName: { id: "blockEd.genName", defaultMessage: "Generator name" },
+  block: { id: "blockEd.block", defaultMessage: "block" },
+  rename: { id: "blockEd.rename", defaultMessage: "Rename" },
+  saving: { id: "blockEd.saving", defaultMessage: "Saving…" },
+  save: { id: "blockEd.save", defaultMessage: "Save" },
+  savedJs: {
+    id: "blockEd.savedJs",
+    defaultMessage: "Saved — reload the app to run the changed JS.",
+  },
+  saved: { id: "blockEd.saved", defaultMessage: "Saved." },
+  renamed: { id: "blockEd.renamed", defaultMessage: "Renamed." },
+  description: { id: "blockEd.description", defaultMessage: "Description" },
+  descriptionPh: { id: "blockEd.descriptionPh", defaultMessage: "Editor tooltip for this block" },
+  nsfwFromNameTitle: {
+    id: "blockEd.nsfwFromNameTitle",
+    defaultMessage: "This name contains an nsfw token, so it is always NSFW.",
+  },
+  nsfwDisabledTitle: {
+    id: "blockEd.nsfwDisabledTitle",
+    defaultMessage: "NSFW option only available in NSFW mode.",
+  },
+  nsfwMarkTitle: {
+    id: "blockEd.nsfwMarkTitle",
+    defaultMessage: "Mark this block as NSFW (gated behind adult mode).",
+  },
+  nsfwLabel: { id: "blockEd.nsfwLabel", defaultMessage: "NSFW" },
+  nsfwLabelFromName: { id: "blockEd.nsfwLabelFromName", defaultMessage: "NSFW (from name)" },
+  tabDpl: { id: "blockEd.tabDpl", defaultMessage: "DPL" },
+  tabJs: { id: "blockEd.tabJs", defaultMessage: "JS sidecar" },
+  ariaDpl: { id: "blockEd.ariaDpl", defaultMessage: "Generator DPL" },
+  ariaJs: { id: "blockEd.ariaJs", defaultMessage: "Generator JS sidecar" },
+  createJs: { id: "blockEd.createJs", defaultMessage: "+ Create JS sidecar" },
+  jsNote: {
+    id: "blockEd.jsNote",
+    defaultMessage: "JS runs on reload — DPL and the rest hot-apply.",
+  },
+  loading: { id: "blockEd.loading", defaultMessage: "Loading…" },
+});
+
 /**
  * @param {object} props
  * @param {object} props.entry The selected generator entry `{ root, path, ext, label, hasJsSidecar }`.
@@ -36,6 +77,7 @@ export default function (settings, imageSettings, upscaleSettings) {
  * @returns {JSX.Element}
  */
 export default function ManageBlockEditor({ entry, settings, onChanged }) {
+  const intl = useIntl();
   const base = entry.path; // logical key, no extension
   const folder = base.includes("/") ? base.slice(0, base.lastIndexOf("/")) : "";
   const nameNsfw = hasNsfwToken(base);
@@ -121,7 +163,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         nsfw: !nameNsfw && nsfwFlag ? true : null,
       });
       setDirty(false);
-      setStatus(jsTouched.current ? "Saved — reload the app to run the changed JS." : "Saved.");
+      setStatus(intl.formatMessage(jsTouched.current ? msgs.savedJs : msgs.saved));
       await onChanged?.();
     } catch (e) {
       setError(e.message || String(e));
@@ -144,7 +186,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       } catch {
         // no sidecar to move — fine
       }
-      setStatus("Renamed.");
+      setStatus(intl.formatMessage(msgs.renamed));
       await onChanged?.({ ...entry, path: target, label: clean });
     } catch (e) {
       setError(e.message || String(e));
@@ -153,7 +195,12 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     }
   }
 
-  if (loading) return <section className="card mg-detail"><p className="empty">Loading…</p></section>;
+  if (loading)
+    return (
+      <section className="card mg-detail">
+        <p className="empty">{intl.formatMessage(msgs.loading)}</p>
+      </section>
+    );
 
   const hasJs = jsText !== null;
   const showDpl = dplText !== null;
@@ -165,28 +212,28 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
           className="mg-name-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          aria-label="Generator name"
+          aria-label={intl.formatMessage(msgs.genName)}
         />
-        <span className="mg-kind kind-generator">block</span>
+        <span className="mg-kind kind-generator">{intl.formatMessage(msgs.block)}</span>
         <button className="link-btn" onClick={rename} disabled={saving || name.trim() === entry.label}>
-          Rename
+          {intl.formatMessage(msgs.rename)}
         </button>
         <div className="grow" />
         {tab === "dpl" && dplText !== null && <DplStatus value={dplText} className="mg-status" />}
         <button className="primary" onClick={save} disabled={saving || (!dirty && !jsTouched.current)}>
-          {saving ? "Saving…" : "Save"}
+          {intl.formatMessage(saving ? msgs.saving : msgs.save)}
         </button>
       </div>
 
       <label className="mg-field">
-        <span>Description</span>
+        <span>{intl.formatMessage(msgs.description)}</span>
         <input
           value={description}
           onChange={(e) => {
             setDescription(e.target.value);
             setDirty(true);
           }}
-          placeholder="Editor tooltip for this block"
+          placeholder={intl.formatMessage(msgs.descriptionPh)}
         />
       </label>
 
@@ -201,25 +248,21 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
           }}
         />
         <span
-          title={
-            nameNsfw
-              ? "This name contains an 'nsfw' token, so it's always NSFW."
-              : !includeAdult
-                ? "NSFW option only available in NSFW mode."
-                : "Mark this block as NSFW (gated behind adult mode)."
-          }
+          title={intl.formatMessage(
+            nameNsfw ? msgs.nsfwFromNameTitle : !includeAdult ? msgs.nsfwDisabledTitle : msgs.nsfwMarkTitle,
+          )}
         >
-          NSFW{nameNsfw ? " (from name)" : ""}
+          {intl.formatMessage(nameNsfw ? msgs.nsfwLabelFromName : msgs.nsfwLabel)}
         </span>
       </label>
 
       {showDpl && hasJs && (
         <div className="mg-tabs" role="tablist">
           <button role="tab" aria-selected={tab === "dpl"} className={`mg-tab${tab === "dpl" ? " on" : ""}`} onClick={() => setTab("dpl")}>
-            DPL
+            {intl.formatMessage(msgs.tabDpl)}
           </button>
           <button role="tab" aria-selected={tab === "js"} className={`mg-tab${tab === "js" ? " on" : ""}`} onClick={() => setTab("js")}>
-            JS sidecar
+            {intl.formatMessage(msgs.tabJs)}
           </button>
         </div>
       )}
@@ -237,7 +280,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
             }}
             settings={settings}
             className="mg-cm"
-            ariaLabel="Generator DPL"
+            ariaLabel={intl.formatMessage(msgs.ariaDpl)}
           />
         )}
         {hasJs && tab === "js" && (
@@ -250,7 +293,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
             }}
             language={javascript}
             className="mg-cm"
-            ariaLabel="Generator JS sidecar"
+            ariaLabel={intl.formatMessage(msgs.ariaJs)}
           />
         )}
       </div>
@@ -258,10 +301,10 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       <div className="mg-editor-foot">
         {!hasJs && (
           <button className="link-btn" onClick={createJsSidecar}>
-            + Create JS sidecar
+            {intl.formatMessage(msgs.createJs)}
           </button>
         )}
-        {hasJs && <span className="mg-note">JS runs on reload — DPL and the rest hot-apply.</span>}
+        {hasJs && <span className="mg-note">{intl.formatMessage(msgs.jsNote)}</span>}
         {status && <span className="mg-ok">{status}</span>}
         {error && <span className="error">{error}</span>}
       </div>

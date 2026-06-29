@@ -5,12 +5,64 @@
  * were removed — that's better expressed in the prompt itself (DPL).
  * @module gui/components/Settings
  */
+import { useIntl, defineMessages } from "react-intl";
 import { Num, Toggle, Select, Group } from "./Field.jsx";
 import { getListNames } from "../lib/promptEngine.js";
 import { defaultSettings } from "../lib/settings.js";
+import { AUTO_LOCALE, SUPPORTED_LOCALES, LOCALES } from "../i18n/index.js";
 
-// Source-list options: every list, plus "false" meaning fully random.
-const listOptions = [{ value: "false", label: "(fully random)" }, ...getListNames()];
+const msgs = defineMessages({
+  resetBtn: { id: "settings.reset", defaultMessage: "Reset to defaults" },
+  resetConfirm: {
+    id: "settings.resetConfirm",
+    defaultMessage: "Reset all settings to defaults?",
+  },
+  groupLanguage: { id: "settings.group.language", defaultMessage: "Language" },
+  localeLabel: { id: "settings.locale", defaultMessage: "Display language" },
+  localeAuto: {
+    id: "settings.locale.auto",
+    defaultMessage: "Auto (browser)",
+    description: "Locale option that follows the browser's language",
+  },
+  groupVocabulary: { id: "settings.group.vocabulary", defaultMessage: "Vocabulary" },
+  fullyRandom: {
+    id: "settings.list.fullyRandom",
+    defaultMessage: "(fully random)",
+    description: "Source-list option meaning draw from the whole dictionary",
+  },
+  keywordList: { id: "settings.keywordList", defaultMessage: "Keyword list" },
+  artistList: { id: "settings.artistList", defaultMessage: "Artist list" },
+  groupEmphasis: { id: "settings.group.emphasis", defaultMessage: "Emphasis" },
+  randEmphasize: {
+    id: "settings.randEmphasize",
+    defaultMessage: "Randomly emphasize keywords",
+  },
+  emphasisChance: { id: "settings.emphasisChance", defaultMessage: "Emphasis chance" },
+  extraLevelChance: { id: "settings.extraLevelChance", defaultMessage: "Extra-level chance" },
+  maxLevels: { id: "settings.maxLevels", defaultMessage: "Max levels" },
+  deEmphasisChance: { id: "settings.deEmphasisChance", defaultMessage: "De-emphasis chance" },
+  groupEditing: { id: "settings.group.editing", defaultMessage: "Editing & alternating" },
+  keywordEditing: { id: "settings.keywordEditing", defaultMessage: "Keyword editing" },
+  editingMin: { id: "settings.editingMin", defaultMessage: "Editing min" },
+  editingMax: { id: "settings.editingMax", defaultMessage: "Editing max" },
+  keywordAlternating: {
+    id: "settings.keywordAlternating",
+    defaultMessage: "Keyword alternating",
+  },
+  alternatingMaxLevels: {
+    id: "settings.alternatingMaxLevels",
+    defaultMessage: "Alternating max levels",
+  },
+  groupSalt: { id: "settings.group.salt", defaultMessage: "Salt & lists" },
+  promptSalt: { id: "settings.promptSalt", defaultMessage: "Prompt salt" },
+  saltStart: {
+    id: "settings.saltStart",
+    defaultMessage: "Salt start (-1 = random)",
+  },
+  noAnd: { id: "settings.noAnd", defaultMessage: "Don't combine with AND" },
+  usedOnce: { id: "settings.usedOnce", defaultMessage: "List entries used once" },
+  reloadLists: { id: "settings.reloadLists", defaultMessage: "Reload lists each prompt" },
+});
 
 /**
  * The prompt-knobs form.
@@ -20,7 +72,21 @@ const listOptions = [{ value: "false", label: "(fully random)" }, ...getListName
  * @returns {JSX.Element}
  */
 export default function Settings({ settings, setSettings }) {
+  const intl = useIntl();
   const set = (patch) => setSettings({ ...settings, ...patch });
+
+  // Source-list options: every list, plus "(fully random)" meaning fully random.
+  // List names themselves are content identifiers (not UI strings) and stay as-is.
+  const listOptions = [
+    { value: "false", label: intl.formatMessage(msgs.fullyRandom) },
+    ...getListNames(),
+  ];
+
+  // Locale options: "Auto (browser)" plus each registered locale by its endonym.
+  const localeOptions = [
+    { value: AUTO_LOCALE, label: intl.formatMessage(msgs.localeAuto) },
+    ...SUPPORTED_LOCALES.map((code) => ({ value: code, label: LOCALES[code].label })),
+  ];
 
   return (
     <div className="settings">
@@ -28,36 +94,45 @@ export default function Settings({ settings, setSettings }) {
         <button
           className="ghost"
           onClick={() => {
-            if (confirm("Reset all settings to defaults?")) setSettings({ ...defaultSettings });
+            if (confirm(intl.formatMessage(msgs.resetConfirm))) setSettings({ ...defaultSettings });
           }}
         >
-          Reset to defaults
+          {intl.formatMessage(msgs.resetBtn)}
         </button>
       </div>
 
-      <Group title="Vocabulary">
+      <Group title={intl.formatMessage(msgs.groupLanguage)}>
         <Select
-          label="Keyword list"
+          label={intl.formatMessage(msgs.localeLabel)}
+          value={settings.locale ?? AUTO_LOCALE}
+          onChange={(v) => set({ locale: v })}
+          options={localeOptions}
+        />
+      </Group>
+
+      <Group title={intl.formatMessage(msgs.groupVocabulary)}>
+        <Select
+          label={intl.formatMessage(msgs.keywordList)}
           value={settings.keywordsFilename}
           onChange={(v) => set({ keywordsFilename: v })}
           options={listOptions}
         />
         <Select
-          label="Artist list"
+          label={intl.formatMessage(msgs.artistList)}
           value={settings.artistFilename}
           onChange={(v) => set({ artistFilename: v })}
           options={listOptions}
         />
       </Group>
 
-      <Group title="Emphasis">
+      <Group title={intl.formatMessage(msgs.groupEmphasis)}>
         <Toggle
-          label="Randomly emphasize keywords"
+          label={intl.formatMessage(msgs.randEmphasize)}
           value={settings.keywordEmphasis}
           onChange={(v) => set({ keywordEmphasis: v })}
         />
         <Num
-          label="Emphasis chance"
+          label={intl.formatMessage(msgs.emphasisChance)}
           step={0.05}
           min={0}
           max={1}
@@ -65,7 +140,7 @@ export default function Settings({ settings, setSettings }) {
           onChange={(v) => set({ emphasisChance: v })}
         />
         <Num
-          label="Extra-level chance"
+          label={intl.formatMessage(msgs.extraLevelChance)}
           step={0.05}
           min={0}
           max={1}
@@ -73,13 +148,13 @@ export default function Settings({ settings, setSettings }) {
           onChange={(v) => set({ emphasisLevelChance: v })}
         />
         <Num
-          label="Max levels"
+          label={intl.formatMessage(msgs.maxLevels)}
           min={0}
           value={settings.emphasisMaxLevels}
           onChange={(v) => set({ emphasisMaxLevels: v })}
         />
         <Num
-          label="De-emphasis chance"
+          label={intl.formatMessage(msgs.deEmphasisChance)}
           step={0.05}
           min={0}
           max={1}
@@ -88,57 +163,57 @@ export default function Settings({ settings, setSettings }) {
         />
       </Group>
 
-      <Group title="Editing & alternating">
+      <Group title={intl.formatMessage(msgs.groupEditing)}>
         <Toggle
-          label="Keyword editing"
+          label={intl.formatMessage(msgs.keywordEditing)}
           value={settings.keywordEditing}
           onChange={(v) => set({ keywordEditing: v })}
         />
         <Num
-          label="Editing min"
+          label={intl.formatMessage(msgs.editingMin)}
           value={settings.keywordEditingMin}
           onChange={(v) => set({ keywordEditingMin: v })}
         />
         <Num
-          label="Editing max"
+          label={intl.formatMessage(msgs.editingMax)}
           value={settings.keywordEditingMax}
           onChange={(v) => set({ keywordEditingMax: v })}
         />
         <Toggle
-          label="Keyword alternating"
+          label={intl.formatMessage(msgs.keywordAlternating)}
           value={settings.keywordAlternating}
           onChange={(v) => set({ keywordAlternating: v })}
         />
         <Num
-          label="Alternating max levels"
+          label={intl.formatMessage(msgs.alternatingMaxLevels)}
           value={settings.keywordAlternatingMaxLevels}
           onChange={(v) => set({ keywordAlternatingMaxLevels: v })}
         />
       </Group>
 
-      <Group title="Salt & lists">
+      <Group title={intl.formatMessage(msgs.groupSalt)}>
         <Toggle
-          label="Prompt salt"
+          label={intl.formatMessage(msgs.promptSalt)}
           value={settings.promptSalt}
           onChange={(v) => set({ promptSalt: v })}
         />
         <Num
-          label="Salt start (-1 = random)"
+          label={intl.formatMessage(msgs.saltStart)}
           value={settings.promptSaltStart}
           onChange={(v) => set({ promptSaltStart: v })}
         />
         <Toggle
-          label="Don't combine with AND"
+          label={intl.formatMessage(msgs.noAnd)}
           value={settings.noAnd}
           onChange={(v) => set({ noAnd: v })}
         />
         <Toggle
-          label="List entries used once"
+          label={intl.formatMessage(msgs.usedOnce)}
           value={settings.listEntriesUsedOnce}
           onChange={(v) => set({ listEntriesUsedOnce: v })}
         />
         <Toggle
-          label="Reload lists each prompt"
+          label={intl.formatMessage(msgs.reloadLists)}
           value={settings.reloadListsOnPromptChange}
           onChange={(v) => set({ reloadListsOnPromptChange: v })}
         />

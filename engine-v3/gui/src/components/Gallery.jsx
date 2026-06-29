@@ -10,8 +10,41 @@
  * @module gui/components/Gallery
  */
 import { useMemo, useState } from "react";
+import { useIntl, defineMessages, FormattedMessage } from "react-intl";
 import { searchHaystack, promptText } from "../lib/gallery.js";
 import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
+
+const msgs = defineMessages({
+  title: { id: "gallery.title", defaultMessage: "Photo gallery" },
+  loading: { id: "gallery.loading", defaultMessage: "loading…" },
+  countImages: {
+    id: "gallery.countImages",
+    defaultMessage: "{count, plural, one {# image} other {# images}}",
+  },
+  countMatches: {
+    id: "gallery.countMatches",
+    defaultMessage: "{count, plural, one {# match} other {# matches}}",
+  },
+  searchPlaceholder: {
+    id: "gallery.searchPlaceholder",
+    defaultMessage: "Search prompts, DPL, provider…",
+  },
+  rescanTitle: { id: "gallery.rescanTitle", defaultMessage: "Rescan the output folder" },
+  refresh: { id: "gallery.refresh", defaultMessage: "Refresh" },
+  emptyNone: { id: "gallery.emptyNone", defaultMessage: "No images yet." },
+  noMatch: {
+    id: "gallery.noMatch",
+    defaultMessage: "No images match “{query}”.",
+  },
+  openAria: {
+    id: "gallery.openAria",
+    defaultMessage: "Open: {label}",
+    description: "aria-label on a gallery thumbnail (label = the image's prompt)",
+  },
+  openDefault: { id: "gallery.openDefault", defaultMessage: "Open in default app" },
+  reveal: { id: "gallery.reveal", defaultMessage: "Reveal in file explorer" },
+  delete: { id: "gallery.delete", defaultMessage: "Delete image" },
+});
 
 /**
  * A thumbnail that fades in once loaded and spans wide/tall by its natural aspect ratio. Hovering
@@ -19,13 +52,19 @@ import { isOutputFile, openImageFile, revealImageFile } from "../lib/output.js";
  * file explorer, and delete.
  */
 function Thumb({ item, onOpen, onDelete }) {
+  const intl = useIntl();
   const [loaded, setLoaded] = useState(false);
   const [shape, setShape] = useState(""); // "" | "wide" | "tall"
   const label = promptText(item) || item.file;
   const onDisk = isOutputFile(item.path);
   return (
     <div className={`g-cell${shape ? " " + shape : ""}`}>
-      <button className="g-open" onClick={() => onOpen(item)} title={label} aria-label={`Open: ${label}`}>
+      <button
+        className="g-open"
+        onClick={() => onOpen(item)}
+        title={label}
+        aria-label={intl.formatMessage(msgs.openAria, { label })}
+      >
         <img
           src={item.path}
           alt={label}
@@ -42,16 +81,16 @@ function Thumb({ item, onOpen, onDelete }) {
       <div className="img-actions">
         {onDisk && (
           <>
-            <button title="Open in default app" onClick={() => openImageFile(item.path)}>
+            <button title={intl.formatMessage(msgs.openDefault)} onClick={() => openImageFile(item.path)}>
               ↗
             </button>
-            <button title="Reveal in file explorer" onClick={() => revealImageFile(item.path)}>
+            <button title={intl.formatMessage(msgs.reveal)} onClick={() => revealImageFile(item.path)}>
               ⌖
             </button>
           </>
         )}
         {onDelete && (
-          <button title="Delete image" onClick={() => onDelete(item)}>
+          <button title={intl.formatMessage(msgs.delete)} onClick={() => onDelete(item)}>
             ✕
           </button>
         )}
@@ -81,6 +120,7 @@ export default function Gallery({
   onRefresh,
   onDelete,
 }) {
+  const intl = useIntl();
   const q = query.trim().toLowerCase();
   const filtered = useMemo(
     () => (q ? items.filter((it) => searchHaystack(it).includes(q)) : items),
@@ -92,39 +132,49 @@ export default function Gallery({
       <div className="g-inner">
         <div className="g-head">
           <div className="g-head-left">
-            <h2 className="g-title">Photo gallery</h2>
+            <h2 className="g-title">{intl.formatMessage(msgs.title)}</h2>
             <span className="g-count">
-              {loading ? "loading…" : `${items.length} image${items.length === 1 ? "" : "s"}`}
-              {!loading && q && ` · ${filtered.length} match${filtered.length === 1 ? "" : "es"}`}
+              {loading
+                ? intl.formatMessage(msgs.loading)
+                : intl.formatMessage(msgs.countImages, { count: items.length })}
+              {!loading &&
+                q &&
+                ` · ${intl.formatMessage(msgs.countMatches, { count: filtered.length })}`}
             </span>
           </div>
           <div className="g-head-right">
             <input
               className="g-search"
-              placeholder="Search prompts, DPL, provider…"
+              placeholder={intl.formatMessage(msgs.searchPlaceholder)}
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
             />
-            <button className="link-btn" onClick={onRefresh} title="Rescan the output folder">
-              Refresh
+            <button
+              className="link-btn"
+              onClick={onRefresh}
+              title={intl.formatMessage(msgs.rescanTitle)}
+            >
+              {intl.formatMessage(msgs.refresh)}
             </button>
           </div>
         </div>
 
         {!loading && items.length === 0 && (
           <div className="g-empty">
-            <p>No images yet.</p>
+            <p>{intl.formatMessage(msgs.emptyNone)}</p>
             <p className="g-empty-sub">
-              Generate some images and they'll appear here, read straight from your{" "}
-              <code>output/</code> folder. (The gallery needs the local dev server — a static build
-              has no folder to read.)
+              <FormattedMessage
+                id="gallery.emptySub"
+                defaultMessage="Generate some images and they'll appear here, read straight from your <code>output/</code> folder. (The gallery needs the local dev server — a static build has no folder to read.)"
+                values={{ code: (chunks) => <code>{chunks}</code> }}
+              />
             </p>
           </div>
         )}
 
         {!loading && items.length > 0 && filtered.length === 0 && (
           <div className="g-empty">
-            <p>No images match “{query}”.</p>
+            <p>{intl.formatMessage(msgs.noMatch, { query })}</p>
           </div>
         )}
 

@@ -10,8 +10,43 @@
  * @module gui/components/PromptResult
  */
 import { useEffect, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { isOutputFile, openImageFile, revealImageFile, openImageInNewTab } from "../lib/output.js";
 import { expandPrompt } from "../lib/promptEngine.js";
+
+const msgs = defineMessages({
+  resultAlt: { id: "promptResult.resultAlt", defaultMessage: "result" },
+  dplTitle: {
+    id: "promptResult.dplTitle",
+    defaultMessage: "The DPL this was rolled from — click to copy",
+  },
+  example: { id: "promptResult.example", defaultMessage: "Example:" },
+  originalTitle: {
+    id: "promptResult.originalTitle",
+    defaultMessage: "Original prompt (before auto-fix) — click to copy\n\n{original}",
+  },
+  copyTitle: { id: "promptResult.copyTitle", defaultMessage: "Click to copy\n\n{text}" },
+  genTitle: {
+    id: "promptResult.genTitle",
+    defaultMessage: "Generate a batch of images for this prompt",
+  },
+  moreImages: { id: "promptResult.moreImages", defaultMessage: "More images" },
+  genImages: { id: "promptResult.genImages", defaultMessage: "Generate images" },
+  clearTitle: {
+    id: "promptResult.clearTitle",
+    defaultMessage: "Clear this prompt's images (asks about deleting from disk)",
+  },
+  clear: { id: "promptResult.clear", defaultMessage: "clear" },
+  batch: { id: "promptResult.batch", defaultMessage: "Batch {n}" },
+  rendering: { id: "promptResult.rendering", defaultMessage: "rendering…" },
+  removeBatch: { id: "promptResult.removeBatch", defaultMessage: "remove batch" },
+  renderingAria: { id: "promptResult.renderingAria", defaultMessage: "rendering" },
+  openSingle: { id: "promptResult.openSingle", defaultMessage: "Open in the single view" },
+  openNewTab: { id: "promptResult.openNewTab", defaultMessage: "Open in a new tab" },
+  openDefault: { id: "promptResult.openDefault", defaultMessage: "Open in default app" },
+  reveal: { id: "promptResult.reveal", defaultMessage: "Reveal in file explorer" },
+  removeImage: { id: "promptResult.removeImage", defaultMessage: "Remove image" },
+});
 
 /**
  * A result image that fades in once it has actually loaded.
@@ -19,11 +54,12 @@ import { expandPrompt } from "../lib/promptEngine.js";
  * @returns {JSX.Element}
  */
 function ResultImage({ src }) {
+  const intl = useIntl();
   const [loaded, setLoaded] = useState(false);
   return (
     <img
       src={src}
-      alt="result"
+      alt={intl.formatMessage(msgs.resultAlt)}
       className={`result-img${loaded ? " loaded" : ""}`}
       loading="lazy"
       onLoad={() => setLoaded(true)}
@@ -38,6 +74,7 @@ function ResultImage({ src }) {
  * @returns {JSX.Element}
  */
 function DplHoverCode({ dpl, settings }) {
+  const intl = useIntl();
   const [hover, setHover] = useState(false);
   const [ex, setEx] = useState("");
   const settingsRef = useRef(settings);
@@ -68,7 +105,7 @@ function DplHoverCode({ dpl, settings }) {
     >
       <code
         className="prompt-dpl"
-        title="The DPL this was rolled from — click to copy"
+        title={intl.formatMessage(msgs.dplTitle)}
         onClick={() => navigator.clipboard?.writeText(dpl).catch(() => {})}
       >
         {dpl}
@@ -78,7 +115,7 @@ function DplHoverCode({ dpl, settings }) {
           <div className="dpl-hover-full">{dpl}</div>
           {ex && (
             <div className="dpl-hover-ex">
-              <span className="dpl-hover-ex-label">Example:</span> {ex}
+              <span className="dpl-hover-ex-label">{intl.formatMessage(msgs.example)}</span> {ex}
             </div>
           )}
         </div>
@@ -132,6 +169,7 @@ export default function PromptResult({
   onClearImages,
   onImageClick,
 }) {
+  const intl = useIntl();
   const hasImages = prompt.batches.some((b) => b.images.length);
   return (
     <li className="prompt-result">
@@ -142,7 +180,7 @@ export default function PromptResult({
           {prompt.original && (
             <code
               className="prompt-dpl prompt-original"
-              title={`Original prompt (before auto-fix) — click to copy\n\n${prompt.original}`}
+              title={intl.formatMessage(msgs.originalTitle, { original: prompt.original })}
               onClick={() => navigator.clipboard?.writeText(prompt.original).catch(() => {})}
             >
               {prompt.original}
@@ -150,7 +188,7 @@ export default function PromptResult({
           )}
           <span
             className="prompt-text"
-            title={`Click to copy\n\n${prompt.text}`}
+            title={intl.formatMessage(msgs.copyTitle, { text: prompt.text })}
             onClick={() => onCopy(prompt.text)}
           >
             {prompt.text}
@@ -161,19 +199,19 @@ export default function PromptResult({
             <button
               className="gen-btn"
               onClick={() => onGenerate(prompt.id)}
-              title="Generate a batch of images for this prompt"
+              title={intl.formatMessage(msgs.genTitle)}
             >
               <ImageIcon />
-              {prompt.batches.length ? "More images" : "Generate images"}
+              {intl.formatMessage(prompt.batches.length ? msgs.moreImages : msgs.genImages)}
             </button>
           )}
           {hasImages && (
             <button
               className="copy-mini"
-              title="Clear this prompt's images (asks about deleting from disk)"
+              title={intl.formatMessage(msgs.clearTitle)}
               onClick={() => onClearImages(prompt.id)}
             >
-              clear
+              {intl.formatMessage(msgs.clear)}
             </button>
           )}
         </div>
@@ -182,13 +220,15 @@ export default function PromptResult({
       {prompt.batches.map((b, bi) => (
         <div className="batch" key={b.id}>
           <div className="batch-head">
-            <span className="batch-label">Batch {prompt.batches.length - bi}</span>
+            <span className="batch-label">
+              {intl.formatMessage(msgs.batch, { n: prompt.batches.length - bi })}
+            </span>
             {b.busy ? (
-              <span className="batch-status">rendering…</span>
+              <span className="batch-status">{intl.formatMessage(msgs.rendering)}</span>
             ) : (
               b.images.length > 0 && (
                 <button className="link-btn" onClick={() => onRemoveBatch(prompt.id, b.id)}>
-                  remove batch
+                  {intl.formatMessage(msgs.removeBatch)}
                 </button>
               )
             )}
@@ -197,7 +237,7 @@ export default function PromptResult({
             <div className="gallery">
               {Array.from({ length: b.count || 1 }).map((_, i) => (
                 <figure key={i} className="skeleton-fig">
-                  <div className="img-skeleton" aria-label="rendering" />
+                  <div className="img-skeleton" aria-label={intl.formatMessage(msgs.renderingAria)} />
                 </figure>
               ))}
             </div>
@@ -209,7 +249,7 @@ export default function PromptResult({
                     href={img}
                     target="_blank"
                     rel="noreferrer"
-                    title={onImageClick ? "Open in the single view" : "Open in a new tab"}
+                    title={intl.formatMessage(onImageClick ? msgs.openSingle : msgs.openNewTab)}
                     onClick={(e) => {
                       e.preventDefault();
                       if (onImageClick) onImageClick(img);
@@ -221,11 +261,11 @@ export default function PromptResult({
                   <div className="img-actions">
                     {isOutputFile(img) && (
                       <>
-                        <button title="Open in default app" onClick={() => openImageFile(img)}>
+                        <button title={intl.formatMessage(msgs.openDefault)} onClick={() => openImageFile(img)}>
                           ↗
                         </button>
                         <button
-                          title="Reveal in file explorer"
+                          title={intl.formatMessage(msgs.reveal)}
                           onClick={() => revealImageFile(img)}
                         >
                           ⌖
@@ -233,7 +273,7 @@ export default function PromptResult({
                       </>
                     )}
                     <button
-                      title="Remove image"
+                      title={intl.formatMessage(msgs.removeImage)}
                       onClick={() => onRemoveImage(prompt.id, b.id, img)}
                     >
                       ✕

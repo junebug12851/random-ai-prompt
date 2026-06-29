@@ -1,0 +1,7435 @@
+{
+  "apiKey.aria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " ȦƤĪ ķḗḗẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.clearAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř şȧȧṽḗḗḓ ȦƤĪ ķḗḗẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.clearTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗḿǿǿṽḗḗ ŧħḗḗ şȧȧṽḗḗḓ ķḗḗẏ ƒřǿǿḿ ŧħīş ƀřǿǿẇşḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.confirmClear": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗḿǿǿṽḗḗ ŧħḗḗ şȧȧṽḗḗḓ ȦƤĪ ķḗḗẏ ƒřǿǿḿ ŧħīş ƀřǿǿẇşḗḗř?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.confirmSave": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ ŧħīş ȦƤĪ ķḗḗẏ īƞ ẏǿǿŭŭř ƀřǿǿẇşḗḗř? Īŧ ẇīŀŀ ƥḗḗřşīşŧ ǿǿƞ ŧħīş ḓḗḗṽīƈḗḗ ŭŭƞŧīŀ ẏǿǿŭŭ ƈŀḗḗȧȧř īŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.getKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗŧ ȧȧ ķḗḗẏ ↗"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.infoTip": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẏǿǿŭŭř ķḗḗẏ ƒǿǿř ŧħīş ƥřǿǿṽīḓḗḗř. Ķḗḗƥŧ īƞ ḿḗḗḿǿǿřẏ ƒǿǿř ŧħīş şḗḗşşīǿǿƞ ǿǿƞŀẏ — ƈŀīƈķ ŧħḗḗ şȧȧṽḗḗ īƈǿǿƞ ŧǿǿ şŧǿǿřḗḗ īŧ īƞ ŧħīş ƀřǿǿẇşḗḗř."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.placeholder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦƤĪ ķḗḗẏ — ƞǿǿŧ şȧȧṽḗḗḓ ŭŭƞŀḗḗşş ẏǿǿŭŭ şȧȧṽḗḗ īŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.saveAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ ȦƤĪ ķḗḗẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.saveTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ ķḗḗẏ īƞ ŧħīş ƀřǿǿẇşḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "apiKey.saveUpdateTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥḓȧȧŧḗḗ ŧħḗḗ şȧȧṽḗḗḓ ķḗḗẏ īƞ ŧħīş ƀřǿǿẇşḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.deleteConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ŧħīş īḿȧȧɠḗḗ ȧȧƞḓ īŧş ḿḗḗŧȧȧḓȧȧŧȧȧ ƒřǿǿḿ ḓīşķ? Ŧħīş ƈȧȧƞ'ŧ ƀḗḗ ŭŭƞḓǿǿƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.feature.gallery": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ɠȧȧŀŀḗḗřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.feature.single": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ şīƞɠŀḗḗ-īḿȧȧɠḗḗ ṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.footer": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧǿǿřḗḗḓ ǿǿƞŀẏ īƞ ŧħīş ƀřǿǿẇşḗḗř · ƀřīƞɠ ẏǿǿŭŭř ǿǿẇƞ ȦƤĪ ķḗḗẏ · ƞǿǿŧħīƞɠ şȧȧṽḗḗḓ ǿǿƞ ȧȧ şḗḗřṽḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.manageLocked": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ ƞḗḗḗḗḓş ŧħḗḗ ŀǿǿƈȧȧŀ ȧȧƥƥ (ƒīŀḗḗ ȧȧƈƈḗḗşş) — ŭŭƞȧȧṽȧȧīŀȧȧƀŀḗḗ ǿǿƞŀīƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.switchView": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şẇīŧƈħ ṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.gallery": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠȧȧŀŀḗḗřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.generate": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.manage": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.single": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şīƞɠŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.ariaDpl": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧǿǿř ḒƤĿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.ariaJs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧǿǿř ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.block": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƀŀǿǿƈķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.createJs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "+ Ƈřḗḗȧȧŧḗḗ ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.description": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗşƈřīƥŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.descriptionPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧǿǿř ŧǿǿǿǿŀŧīƥ ƒǿǿř ŧħīş ƀŀǿǿƈķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.genName": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧǿǿř ƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.jsNote": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ĴŞ řŭŭƞş ǿǿƞ řḗḗŀǿǿȧȧḓ — ḒƤĿ ȧȧƞḓ ŧħḗḗ řḗḗşŧ ħǿǿŧ-ȧȧƥƥŀẏ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.nsfwDisabledTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ ǿǿƥŧīǿǿƞ ǿǿƞŀẏ ȧȧṽȧȧīŀȧȧƀŀḗḗ īƞ ȠŞƑẆ ḿǿǿḓḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.nsfwFromNameTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħīş ƞȧȧḿḗḗ ƈǿǿƞŧȧȧīƞş ȧȧƞ ƞşƒẇ ŧǿǿķḗḗƞ, şǿǿ īŧ īş ȧȧŀẇȧȧẏş ȠŞƑẆ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.nsfwLabel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.nsfwLabelFromName": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ (ƒřǿǿḿ ƞȧȧḿḗḗ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.nsfwMarkTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧřķ ŧħīş ƀŀǿǿƈķ ȧȧş ȠŞƑẆ (ɠȧȧŧḗḗḓ ƀḗḗħīƞḓ ȧȧḓŭŭŀŧ ḿǿǿḓḗḗ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.rename": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.renamed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.save": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.saved": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.savedJs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗḓ — řḗḗŀǿǿȧȧḓ ŧħḗḗ ȧȧƥƥ ŧǿǿ řŭŭƞ ŧħḗḗ ƈħȧȧƞɠḗḗḓ ĴŞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.saving": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.tabDpl": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ḒƤĿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "blockEd.tabJs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.bullet.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧ ƀŭŭŀŀḗḗŧ; ȧȧ şīḿƥŀḗḗ ƀŭŭŀŀḗḗŧ ḓḗḗƒȧȧŭŭŀŧş ŧǿǿ ȧȧ 50% ƈħȧȧƞƈḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.bullet.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓŭŭŀŀḗḗŧ ŀīƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.call.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧŀŀ ȧȧ ɠḗḗƞḗḗřȧȧŧǿǿř ǿǿř şḗḗƈŧīǿǿƞ ƀẏ ƞȧȧḿḗḗ (→ "
+    },
+    {
+      "type": 1,
+      "value": "token"
+    },
+    {
+      "type": 0,
+      "value": ")."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.call.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧŀŀ (+ƞȧȧḿḗḗ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.chance.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗḗḗƥ ȧȧ ŀīƞḗḗ ǿǿƞŀẏ şǿǿḿḗḗ ǿǿƒ ŧħḗḗ ŧīḿḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.chance.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.choose.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ƒřǿǿḿ ȧȧ şḗḗŧ ǿǿƒ ǿǿƥŧīǿǿƞş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.choose.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈħǿǿǿǿşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.code.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞŀīƞḗḗ ĴŞ, ƈǿǿḿḿḗḗƞŧş, ȧȧƞḓ ḗḗƞɠīƞḗḗ ƈǿǿƞŧřǿǿŀş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.code.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿḓḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.comment.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧ ƞǿǿŧḗḗ īɠƞǿǿřḗḗḓ ƀẏ ŧħḗḗ ḗḗƞɠīƞḗḗ (ŧǿǿ ḗḗƞḓ ǿǿƒ ŀīƞḗḗ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.comment.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿḿḿḗḗƞŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.deEmph.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀḗḗşş ȧȧŧŧḗḗƞŧīǿǿƞ ǿǿƞ ŧħḗḗ ẇřȧȧƥƥḗḗḓ ŧḗḗẋŧ. Şŧȧȧƈķ [ ƒǿǿř ŀḗḗşş; ƒŀǿǿǿǿřş ȧȧŧ ŧħḗḗ ŀǿǿẇḗḗşŧ ŀḗḗṽḗḗŀ (ƞḗḗṽḗḗř ẑḗḗřǿǿ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.deEmph.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗ-ḗḗḿƥħȧȧşīẑḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emph.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿǿǿřḗḗ ȧȧŧŧḗḗƞŧīǿǿƞ ǿǿƞ ŧħḗḗ ẇřȧȧƥƥḗḗḓ ŧḗḗẋŧ. Ḗȧȧƈħ ḗḗẋŧřȧȧ ( ȧȧḓḓş ȧȧ ŀḗḗṽḗḗŀ (+10), ƈȧȧƥƥḗḗḓ ȧȧŧ 5."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emph.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḿƥħȧȧşīẑḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphStrong.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧȧȧƈķ ( ƒǿǿř ḿǿǿřḗḗ — (((ŧḗḗẋŧ))) īş ŧħḗḗ şŧřǿǿƞɠḗḗşŧ. Řḗḗƞḓḗḗřş ȧȧş ȧȧ ẇḗḗīɠħŧ (ŞḒ/ḾĴ), ƀřȧȧƈḗḗş (ȠǿǿṽḗḗŀȦĪ), ǿǿř ȧȧƞ īƞŧḗḗƞşīŧẏ ẇǿǿřḓ (ƥŀȧȧīƞ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphStrong.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḿƥħȧȧşīẑḗḗ şŧřǿǿƞɠŀẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphWeight.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŧ ȧȧƞ ḗḗẋƥŀīƈīŧ ƞŭŭḿḗḗřīƈ ẇḗḗīɠħŧ (ƥȧȧşşḗḗḓ ŧħřǿǿŭŭɠħ ȧȧş-īş)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphWeight.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇḗḗīɠħŧḗḗḓ ƥħřȧȧşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphasis.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞŭŭḓɠḗḗ ħǿǿẇ şŧřǿǿƞɠŀẏ ȧȧ ƥħřȧȧşḗḗ īş ẇḗḗīɠħŧḗḗḓ (ŧħḗḗ ḗḗƞɠīƞḗḗ ŧřȧȧƞşŀȧȧŧḗḗş īŧ ƒǿǿř ḗḗȧȧƈħ ȦĪ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.emphasis.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḿƥħȧȧşīş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.flow.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ĵŭŭḿƥ ƀḗḗŧẇḗḗḗḗƞ şḗḗƈŧīǿǿƞş ȧȧƞḓ ƥŭŭŀŀ īƞ ǿǿŧħḗḗř ƀŀǿǿƈķş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.flow.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒŀǿǿẇ & ƈȧȧŀŀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.goback.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧǿǿƥ / řḗḗŧŭŭřƞ ƒřǿǿḿ ŧħḗḗ ƈŭŭřřḗḗƞŧ şḗḗƈŧīǿǿƞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.goback.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠǿǿ ƀȧȧƈķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.goto.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ĵŭŭḿƥ īƞŧǿǿ ȧȧƞǿǿŧħḗḗř ƞȧȧḿḗḗḓ şḗḗƈŧīǿǿƞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.goto.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠǿǿ ŧǿǿ şḗḗƈŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.heading.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧ ƞȧȧḿḗḗḓ şḗḗƈŧīǿǿƞ ẏǿǿŭŭ ƈȧȧƞ ĵŭŭḿƥ ŧǿǿ ẇīŧħ “ɠǿǿ ŧǿǿ”."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.heading.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗƈŧīǿǿƞ ħḗḗȧȧḓīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.insert.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ ȧȧƞǿǿŧħḗḗř ɠḗḗƞḗḗřȧȧŧǿǿř ǿǿř ŀīşŧ ƀẏ ƞȧȧḿḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.insert.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ ƀẏ ƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.insertJs.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ ŧħḗḗ ǿǿŭŭŧƥŭŭŧ ǿǿƒ ȧȧ ƞȧȧḿḗḗḓ ĴŞ ƀŀǿǿƈķ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.insertJs.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ ĴŞ ƀŀǿǿƈķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.maybe.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "50% ƈħȧȧƞƈḗḗ ŧħīş ŀīƞḗḗ īş ķḗḗƥŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.maybe.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧẏƀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.nOf.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ḗḗẋȧȧƈŧŀẏ Ƞ ǿǿƒ ŧħḗḗ ǿǿƥŧīǿǿƞş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.nOf.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞ ǿǿƒ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.oneOf.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ḗḗẋȧȧƈŧŀẏ ǿǿƞḗḗ ǿǿƒ ŧħḗḗ ǿǿƥŧīǿǿƞş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.oneOf.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƞḗḗ ǿǿƒ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.oneOfNothing.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ǿǿƞḗḗ — ƀŭŭŧ şǿǿḿḗḗŧīḿḗḗş ƞǿǿŧħīƞɠ ȧȧŧ ȧȧŀŀ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.oneOfNothing.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƞḗḗ ǿǿƒ, ǿǿř ƞǿǿŧħīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.otherwise.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řŭŭƞş ǿǿƞŀẏ ẇħḗḗƞ ŧħḗḗ ƈħȧȧƞƈḗḗ ĵŭŭşŧ ȧȧƀǿǿṽḗḗ īŧ ƒȧȧīŀḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.otherwise.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿŧħḗḗřẇīşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.pctChance.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŭŭşŧǿǿḿ ƥřǿǿƀȧȧƀīŀīŧẏ ŧħḗḗ ŀīƞḗḗ īş ķḗḗƥŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.pctChance.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞ% ƈħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.rangeOf.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ȧȧ řȧȧƞḓǿǿḿ ƈǿǿŭŭƞŧ ƀḗḗŧẇḗḗḗḗƞ Ƞ ȧȧƞḓ Ḿ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.rangeOf.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞ ŧǿǿ Ḿ ǿǿƒ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeat.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗř ŧħḗḗ şȧȧḿḗḗ ƀǿǿḓẏ şḗḗṽḗḗřȧȧŀ ŧīḿḗḗş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeat.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƥḗḗȧȧŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeatN.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗř ŧħḗḗ ƀǿǿḓẏ ḗḗẋȧȧƈŧŀẏ Ƞ ŧīḿḗḗş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeatN.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƥḗḗȧȧŧ Ƞ ŧīḿḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeatRange.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗř ŧħḗḗ ƀǿǿḓẏ ȧȧ řȧȧƞḓǿǿḿ Ƞ–Ḿ ŧīḿḗḗş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.repeatRange.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƥḗḗȧȧŧ Ƞ ŧǿǿ Ḿ ŧīḿḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.salt.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞĵḗḗƈŧ ȧȧ řȧȧƞḓǿǿḿ ƞŭŭḿƀḗḗř ŧǿǿ ƞŭŭḓɠḗḗ ŧħḗḗ řḗḗşŭŭŀŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.salt.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗḗḗḓ şȧȧŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.structure.hint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓŭŭŀŀḗḗŧş, ǿǿřḓḗḗřīƞɠ, ȧȧƞḓ şḗḗƈŧīǿǿƞş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.structure.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧřŭŭƈŧŭŭřḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.weight.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƞ ȧȧ ŀīƞḗḗ'ş ǿǿřḓḗḗř — ȧȧ ŀǿǿẇḗḗř ƞŭŭḿƀḗḗř şǿǿřŧş ḗḗȧȧřŀīḗḗř, ẇħḗḗřḗḗṽḗḗř ẏǿǿŭŭ ŧẏƥḗḗ īŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplIns.weight.label": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřīǿǿřīŧẏ ẇḗḗīɠħŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplInsertBar.example": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ḗḗẋȧȧḿƥŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplInsertBar.insert": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplInsertBar.toolbar": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ ḒƤĿ şẏƞŧȧȧẋ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.extraClose": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧ "
+    },
+    {
+      "type": 1,
+      "value": "closeBrace"
+    },
+    {
+      "type": 0,
+      "value": " ẇīŧħ ƞǿǿ ḿȧȧŧƈħīƞɠ "
+    },
+    {
+      "type": 1,
+      "value": "openBrace"
+    },
+    {
+      "type": 0,
+      "value": "."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.frontMatterUnclosed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒřǿǿƞŧ ḿȧȧŧŧḗḗř ǿǿƥḗḗƞḗḗḓ ẇīŧħ --- ƀŭŭŧ ƞḗḗṽḗḗř ƈŀǿǿşḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.goToMissing": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "\"ɠǿǿ ŧǿǿ "
+    },
+    {
+      "type": 1,
+      "value": "target"
+    },
+    {
+      "type": 0,
+      "value": "\" — ŧħīş ƀŀǿǿƈķ ħȧȧş ƞǿǿ şḗḗƈŧīǿǿƞ ƞȧȧḿḗḗḓ \""
+    },
+    {
+      "type": 1,
+      "value": "target"
+    },
+    {
+      "type": 0,
+      "value": "\"."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.inconsistentIndent": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞḓḗḗƞŧḗḗḓ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "indent"
+    },
+    {
+      "type": 0,
+      "value": ", ƀŭŭŧ ŧħḗḗ ƒīŀḗḗ şŧȧȧřŧḗḗḓ īƞḓḗḗƞŧīƞɠ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "started"
+    },
+    {
+      "type": 0,
+      "value": "."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.mixedIndent": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿīẋḗḗḓ ŧȧȧƀş ȧȧƞḓ şƥȧȧƈḗḗş īƞ ŧħḗḗ īƞḓḗḗƞŧȧȧŧīǿǿƞ — ŭŭşḗḗ ǿǿƞḗḗ ǿǿř ŧħḗḗ ǿǿŧħḗḗř."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.name.bracket": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƀřȧȧƈķḗḗŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.name.parenthesis": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƥȧȧřḗḗƞŧħḗḗşīş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.parseError": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥȧȧřşḗḗ ḗḗřřǿǿř: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.unbalanced": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƞƀȧȧŀȧȧƞƈḗḗḓ "
+    },
+    {
+      "type": 1,
+      "value": "char"
+    },
+    {
+      "type": 0,
+      "value": " "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.unclosedOpen": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƞƈŀǿǿşḗḗḓ "
+    },
+    {
+      "type": 1,
+      "value": "openBrace"
+    },
+    {
+      "type": 0,
+      "value": " — ȧȧ "
+    },
+    {
+      "type": 1,
+      "value": "listTok"
+    },
+    {
+      "type": 0,
+      "value": " ǿǿř "
+    },
+    {
+      "type": 1,
+      "value": "genTok"
+    },
+    {
+      "type": 0,
+      "value": " ŧǿǿķḗḗƞ ḿŭŭşŧ ƈŀǿǿşḗḗ ǿǿƞ ŧħḗḗ şȧȧḿḗḗ ŀīƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.word.aTab": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȧȧ ŧȧȧƀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.word.spaces": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "şƥȧȧƈḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplLint.word.tabs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ŧȧȧƀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplStatus.errors": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḒƤĿ ḗḗřřǿǿř"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḒƤĿ ḗḗřřǿǿřş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplStatus.noProblems": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ṽȧȧŀīḓ ḒƤĿ — ƞǿǿ ƥřǿǿƀŀḗḗḿş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplStatus.valid": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ṽȧȧŀīḓ ḒƤĿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dplStatus.validWarn": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ṽȧȧŀīḓ ḒƤĿ, "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ẇȧȧřƞīƞɠ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ẇȧȧřƞīƞɠş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.category": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈȧȧŧḗḗɠǿǿřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.deleteConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ŧħḗḗ ƒǿǿŀḓḗḗř \""
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "\" ȧȧƞḓ ḗḗṽḗḗřẏŧħīƞɠ īƞ īŧ ("
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḗḗƞŧřẏ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḗḗƞŧřīḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": ")? Ŧħīş ƈȧȧƞ'ŧ ƀḗḗ ŭŭƞḓǿǿƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.deleteFolder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.description": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗşƈřīƥŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.descriptionPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧŧḗḗɠǿǿřẏ ŧǿǿǿǿŀŧīƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.folder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.folderName": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒǿǿŀḓḗḗř ƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.forceList": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒǿǿřƈḗḗ ŀīşŧ ƈȧȧŧḗḗɠǿǿřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.forceListTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗḗḗƥ ŧħīş ƒǿǿŀḓḗḗř ȧȧş īŧş ǿǿẇƞ şŭŭƀ-ƈȧȧŧḗḗɠǿǿřẏ ḗḗṽḗḗƞ ẇīŧħ ȧȧ şīƞɠŀḗḗ ŀīşŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.forcePrefix": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒǿǿřƈḗḗ ƥřḗḗƒīẋ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.forcePrefixTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şħǿǿẇ ŧħīş ƒǿǿŀḓḗḗř'ş ƥȧȧŧħ īƞ ŧħḗḗ ŧǿǿķḗḗƞ (ḗḗ.ɠ. ḓ/ɠḗḗƞḗḗřȧȧŀ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.groupAlways": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŀẇȧȧẏş ȧȧ ɠřǿǿŭŭƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.groupAuto": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ (ɠřǿǿŭŭƥ ẇħḗḗƞ īŧ ħȧȧş 2+ ḿḗḗḿƀḗḗřş)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.groupMode": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠřǿǿŭŭƥ ḿǿǿḓḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.groupNever": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗṽḗḗř ȧȧ ɠřǿǿŭŭƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.priority": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřīǿǿřīŧẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.priorityPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "1000 (ŀǿǿẇḗḗř şǿǿřŧş ħīɠħḗḗř; ƀŀȧȧƞķ = ḓḗḗƒȧȧŭŭŀŧ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.rename": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.renamed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.save": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.saved": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "folderEd.saving": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.countImages": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.countMatches": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḿȧȧŧƈħ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḿȧȧŧƈħḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.delete": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ īḿȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.emptyNone": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ īḿȧȧɠḗḗş ẏḗḗŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.emptySub": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ şǿǿḿḗḗ īḿȧȧɠḗḗş ȧȧƞḓ ŧħḗḗẏ'ŀŀ ȧȧƥƥḗḗȧȧř ħḗḗřḗḗ, řḗḗȧȧḓ şŧřȧȧīɠħŧ ƒřǿǿḿ ẏǿǿŭŭř "
+    },
+    {
+      "type": 8,
+      "value": "code",
+      "children": [
+        {
+          "type": 0,
+          "value": "ǿǿŭŭŧƥŭŭŧ/"
+        }
+      ]
+    },
+    {
+      "type": 0,
+      "value": " ƒǿǿŀḓḗḗř. (Ŧħḗḗ ɠȧȧŀŀḗḗřẏ ƞḗḗḗḗḓş ŧħḗḗ ŀǿǿƈȧȧŀ ḓḗḗṽ şḗḗřṽḗḗř — ȧȧ şŧȧȧŧīƈ ƀŭŭīŀḓ ħȧȧş ƞǿǿ ƒǿǿŀḓḗḗř ŧǿǿ řḗḗȧȧḓ.)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.noMatch": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ īḿȧȧɠḗḗş ḿȧȧŧƈħ “"
+    },
+    {
+      "type": 1,
+      "value": "query"
+    },
+    {
+      "type": 0,
+      "value": "”."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.openAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ: "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.openDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ īƞ ḓḗḗƒȧȧŭŭŀŧ ȧȧƥƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.refresh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƒřḗḗşħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.rescanTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşƈȧȧƞ ŧħḗḗ ǿǿŭŭŧƥŭŭŧ ƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.reveal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗȧȧŀ īƞ ƒīŀḗḗ ḗḗẋƥŀǿǿřḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.searchPlaceholder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗȧȧřƈħ ƥřǿǿḿƥŧş, ḒƤĿ, ƥřǿǿṽīḓḗḗř…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.title": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥħǿǿŧǿǿ ɠȧȧŀŀḗḗřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.aiFallback": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦĪ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.all": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŀŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.ariaNegative": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ (ḒƤĿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.ariaPrompt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ (ḒƤĿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.autoFixAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ-ƒīẋ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.autoFixOff": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ȧȧ Ŧḗḗẋŧ ƥřǿǿṽīḓḗḗř (ħḗḗȧȧḓḗḗř → Ƥřǿǿṽīḓḗḗřş) ŧǿǿ ḗḗƞȧȧƀŀḗḗ ȧȧŭŭŧǿǿ-ƒīẋ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.autoFixOn": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ-ƒīẋ ŧħḗḗ ƥřǿǿḿƥŧ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " ƀḗḗƒǿǿřḗḗ ɠḗḗƞḗḗřȧȧŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.buildingBlocks": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓŭŭīŀḓīƞɠ ƀŀǿǿƈķş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.clearAll": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ȧȧŀŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.clearAllTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ȧȧŀŀ řḗḗşŭŭŀŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.clearNegative": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ŧħḗḗ ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.clearPrompt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ŧħḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.close": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈŀǿǿşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.composeModeAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧ ŧħḗḗ ƥřǿǿḿƥŧ ǿǿř ŧħḗḗ ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.confirmClearAll": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ȧȧŀŀ řḗḗşŭŭŀŧş — ḓḗḗŀḗḗŧḗḗ ŧħḗḗīř "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ ƒīŀḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ ƒīŀḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " ƒřǿǿḿ ḓīşķ ŧǿǿǿǿ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.confirmDeleteBatch": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ŧħīş ƀȧȧŧƈħ'ş īḿȧȧɠḗḗ ƒīŀḗḗş ƒřǿǿḿ ḓīşķ ŧǿǿǿǿ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.confirmDeleteImage": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ŧħīş īḿȧȧɠḗḗ ƒřǿǿḿ ḓīşķ ŧǿǿǿǿ? ǾĶ = ḓḗḗŀḗḗŧḗḗ ŧħḗḗ ƒīŀḗḗ Ƈȧȧƞƈḗḗŀ = ĵŭŭşŧ řḗḗḿǿǿṽḗḗ īŧ ƒřǿǿḿ ṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.confirmDeletePromptImgs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ȧȧŀŀ ǿǿƒ ŧħīş ƥřǿǿḿƥŧ'ş īḿȧȧɠḗḗ ƒīŀḗḗş ƒřǿǿḿ ḓīşķ ŧǿǿǿǿ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.copied": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "✓ Ƈǿǿƥīḗḗḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.copy": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿƥẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.example": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋȧȧḿƥŀḗḗ:"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.generateAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.generateTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 0,
+              "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ ƥřǿǿḿƥŧ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ ƥřǿǿḿƥŧş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.generatedCount": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " ɠḗḗƞḗḗřȧȧŧḗḗḓ · "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.keywordAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ-ŧřȧȧƞşŀȧȧŧḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.keywordOff": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ȧȧ Ŧḗḗẋŧ ƥřǿǿṽīḓḗḗř (ħḗḗȧȧḓḗḗř → Ƥřǿǿṽīḓḗḗřş) ŧǿǿ ḗḗƞȧȧƀŀḗḗ ķḗḗẏẇǿǿřḓ ŧřȧȧƞşŀȧȧŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.keywordOn": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ-ŧřȧȧƞşŀȧȧŧḗḗ ŧħḗḗ ƥřǿǿḿƥŧ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " (ŭŭşḗḗ ȧȧ ƈŀḗḗȧȧƞ ŧȧȧɠ ŀīşŧ īƞşŧḗḗȧȧḓ) ƀḗḗƒǿǿřḗḗ ɠḗḗƞḗḗřȧȧŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.moreFilter": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "+"
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " ḿǿǿřḗḗ — ķḗḗḗḗƥ ŧẏƥīƞɠ ŧǿǿ ƒīŀŧḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.negativePreview": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗɠȧȧŧīṽḗḗ ƥřḗḗṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.noBlocks": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ƀŭŭīŀḓīƞɠ ƀŀǿǿƈķş ḿȧȧŧƈħ “"
+    },
+    {
+      "type": 1,
+      "value": "query"
+    },
+    {
+      "type": 0,
+      "value": "”."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.phNegative": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ — ẇħȧȧŧ ŧǿǿ ķḗḗḗḗƥ ǿǿŭŭŧ (ḒƤĿ), ḗḗ.ɠ. ƀŀŭŭřřẏ, ŀǿǿẇřḗḗş, {#ƀȧȧḓ-ȧȧƞȧȧŧǿǿḿẏ}"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.phPrompt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧẏƥḗḗ ȧȧ ƥřǿǿḿƥŧ, ǿǿř ŭŭşḗḗ ŧħḗḗ ƀŭŭīŀḓīƞɠ ƀŀǿǿƈķş ǿǿƞ ŧħḗḗ ŀḗḗƒŧ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.phTry": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧřẏ: "
+    },
+    {
+      "type": 1,
+      "value": "suggestion"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptPreview": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ ƥřḗḗṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptsHeading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptsLabel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptsPerRunAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧş ƥḗḗř řŭŭƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.promptsPerRunTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ħǿǿẇ ḿȧȧƞẏ ƥřǿǿḿƥŧş ŧǿǿ ɠḗḗƞḗḗřȧȧŧḗḗ ƥḗḗř řŭŭƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.randomAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧƞḓǿǿḿ şŭŭɠɠḗḗşŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.randomTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧƞḓǿǿḿ — ḓřǿǿƥ ȧȧ şŭŭɠɠḗḗşŧīǿǿƞ īƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.rewriteFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ-řḗḗẇřīŧḗḗ ƒȧȧīŀḗḗḓ: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.rewriteNoKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ-řḗḗẇřīŧḗḗ īş ǿǿƞ ƀŭŭŧ ŧħḗḗ řḗḗẇřīŧḗḗ ƥřǿǿṽīḓḗḗř ħȧȧş ƞǿǿ ȦƤĪ ķḗḗẏ (ɠḗḗȧȧř → Ȧŭŭŧǿǿ-ƒīẋ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.searchBlocks": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗȧȧřƈħ ƀŀǿǿƈķş…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.shareInputAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şħȧȧřḗḗȧȧƀŀḗḗ ŀīƞķ ŧħȧȧŧ řḗḗşŧǿǿřḗḗş ŧħḗḗşḗḗ şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.shareLink": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şħȧȧřḗḗ ŀīƞķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.tabNegative": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗɠȧȧŧīṽḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.tabPrompt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.height": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ħḗḗīɠħŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.images": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īḿȧȧɠḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.imagesTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īḿȧȧɠḗḗş ɠḗḗƞḗḗřȧȧŧḗḗḓ ƥḗḗř ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.ratio": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧŧīǿǿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.size": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şīẑḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.sizeTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿŭŭŧƥŭŭŧ şīẑḗḗ — ẇīḓŧħ × ħḗḗīɠħŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "inlineImg.width": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇīḓŧħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.addEntriesFirst": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧḓḓ ȧȧ ƒḗḗẇ ḗḗƞŧřīḗḗş ƒīřşŧ şǿǿ ŧħḗḗ ȦĪ ħȧȧş şǿǿḿḗḗŧħīƞɠ ŧǿǿ ŀḗḗȧȧřƞ ƒřǿǿḿ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.addEntry": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "+ Ȧḓḓ ḗḗƞŧřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.addedStatus": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧḓḓḗḗḓ "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ƞḗḗẇ ḗḗƞŧřẏ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ƞḗḗẇ ḗḗƞŧřīḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 1,
+      "value": "dropped"
+    },
+    {
+      "type": 0,
+      "value": ". Řḗḗṽīḗḗẇ, ŧħḗḗƞ Şȧȧṽḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.aiExpand": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦĪ Ḗẋƥȧȧƞḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.aiExpandTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭşḗḗ ȦĪ ŧǿǿ ȧȧḓḓ 25 ƞḗḗẇ ŭŭƞīɋŭŭḗḗ ḗḗƞŧřīḗḗş īƞ ŧħḗḗ şȧȧḿḗḗ şŧẏŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.clickToEdit": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀīƈķ ŧǿǿ ḗḗḓīŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.countEntries": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 2,
+      "value": "count",
+      "style": null
+    },
+    {
+      "type": 0,
+      "value": " ḗḗƞŧřīḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.countMatch": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 2,
+      "value": "count",
+      "style": null
+    },
+    {
+      "type": 0,
+      "value": " ḿȧȧŧƈħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.dedupe": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗḓŭŭƥḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.dedupeTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗḿǿǿṽḗḗ ḓŭŭƥŀīƈȧȧŧḗḗ ḗḗƞŧřīḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.deleteEntryAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ḗḗƞŧřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.deleteTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.description": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗşƈřīƥŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.descriptionPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀīşŧ ŧǿǿǿǿŀŧīƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.droppedClause": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "("
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḓŭŭƥŀīƈȧȧŧḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḓŭŭƥŀīƈȧȧŧḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " ḓřǿǿƥƥḗḗḓ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.empty": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "(ḗḗḿƥŧẏ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.expandFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦĪ ḗḗẋƥȧȧƞḓ ƒȧȧīŀḗḗḓ: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.expanding": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋƥȧȧƞḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.listName": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀīşŧ ƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.noDupes": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ḓŭŭƥŀīƈȧȧŧḗḗş ƒǿǿŭŭƞḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.noKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ȦƤĪ ķḗḗẏ ƒǿǿř "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " — ȧȧḓḓ īŧ ŭŭƞḓḗḗř Ħǿǿḿḗḗ → ɠḗḗȧȧř → Ȧŭŭŧǿǿ-ƒīẋ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.onlyDupes": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ȦĪ řḗḗŧŭŭřƞḗḗḓ ǿǿƞŀẏ ḗḗƞŧřīḗḗş ẏǿǿŭŭ ȧȧŀřḗḗȧȧḓẏ ħȧȧṽḗḗ — ŧřẏ ȧȧɠȧȧīƞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.pickProvider": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ȧȧ ŧḗḗẋŧ (ȦĪ) ƥřǿǿṽīḓḗḗř ƒīřşŧ — Ħǿǿḿḗḗ → ɠḗḗȧȧř → Ȧŭŭŧǿǿ-ƒīẋ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.rawAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧẇ ŀīşŧ ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.removedDupes": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗḿǿǿṽḗḗḓ "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḓŭŭƥŀīƈȧȧŧḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " ḓŭŭƥŀīƈȧȧŧḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.rename": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.renamed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞȧȧḿḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.restoreConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşŧǿǿřḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " ŧǿǿ ŧħḗḗ ḓḗḗƒȧȧŭŭŀŧ ƒřǿǿḿ ŧħḗḗ řḗḗƥǿǿ? Ŧħīş ǿǿṽḗḗřẇřīŧḗḗş ẏǿǿŭŭř ŀǿǿƈȧȧŀ ƈǿǿƥẏ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.restoreDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşŧǿǿřḗḗ ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.restoreTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒḗḗŧƈħ ŧħḗḗ ḓḗḗƒȧȧŭŭŀŧ ƒřǿǿḿ ŧħḗḗ řḗḗƥǿǿ (ḿȧȧşŧḗḗř)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.restored": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşŧǿǿřḗḗḓ ƒřǿǿḿ ḓḗḗƒȧȧŭŭŀŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.save": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.saved": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.saving": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.searchPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗȧȧřƈħ "
+    },
+    {
+      "type": 2,
+      "value": "count",
+      "style": null
+    },
+    {
+      "type": 0,
+      "value": " ḗḗƞŧřīḗḗş…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.sort": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şǿǿřŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.sortTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şǿǿřŧ ḗḗƞŧřīḗḗş Ȧ–Ẑ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.sortedAZ": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şǿǿřŧḗḗḓ Ȧ–Ẑ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.tabEntries": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞŧřīḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "listEd.tabRaw": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "livePreview.live": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": " (ŀīṽḗḗ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "livePreview.preview": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřḗḗṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.addTo": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧḓḓ ŧǿǿ "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.attrNone": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƞǿǿƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.badgeForcePrefixTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒǿǿřƈḗḗ-ƥřḗḗƒīẋ ƒǿǿŀḓḗḗř — īŧş ƥȧȧŧħ şħǿǿẇş īƞ ŧħḗḗ ŧǿǿķḗḗƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.badgeGroup": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ɠřǿǿŭŭƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.badgeGroupTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠřǿǿŭŭƥ ƒǿǿŀḓḗḗř — řḗḗƒḗḗřḗḗƞƈīƞɠ īŧ ƥīƈķş ǿǿƞḗḗ řȧȧƞḓǿǿḿ ḿḗḗḿƀḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.badgePrefix": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƥřḗḗƒīẋ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.blocks": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓŀǿǿƈķş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.collapse": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿŀŀȧȧƥşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.deleteEntryConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": " ("
+    },
+    {
+      "type": 1,
+      "value": "root"
+    },
+    {
+      "type": 0,
+      "value": "/"
+    },
+    {
+      "type": 1,
+      "value": "path"
+    },
+    {
+      "type": 0,
+      "value": ")? Ŧħīş řḗḗḿǿǿṽḗḗş ŧħḗḗ ƒīŀḗḗ ƒřǿǿḿ ḓīşķ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.deleteTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.detailEmpty": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧ ȧȧ ƀŀǿǿƈķ, ŀīşŧ, ǿǿř ƒǿǿŀḓḗḗř ǿǿƞ ŧħḗḗ ŀḗḗƒŧ ŧǿǿ īƞşƥḗḗƈŧ īŧ. Ḗḓīŧīƞɠ ȧȧřřīṽḗḗş ƞḗḗẋŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.editTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧ "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.entrySoon": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧ ƒŭŭŀŀ ḗḗḓīŧǿǿř (ẇīŧħ şȧȧṽḗḗ + ħǿǿŧ-ȧȧƥƥŀẏ) ȧȧřřīṽḗḗş ƞḗḗẋŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.expand": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋƥȧȧƞḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.folderSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒǿǿŀḓḗḗř şḗḗŧŧīƞɠş — "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.folderSoon": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ƒǿǿŀḓḗḗř şḗḗŧŧīƞɠş ḗḗḓīŧǿǿř (řḗḗƞȧȧḿḗḗ, ƥřīǿǿřīŧẏ, ḿȧȧřķḗḗřş) ȧȧřřīṽḗḗş ƞḗḗẋŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.ghostTag": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ɠħǿǿşŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.ghostTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "path"
+    },
+    {
+      "type": 0,
+      "value": " — ḓḗḗŀḗḗŧḗḗḓ ŀǿǿƈȧȧŀŀẏ; řḗḗşŧǿǿřḗḗ ƒřǿǿḿ ŧħḗḗ řḗḗƥǿǿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.jsTag": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ĴŞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.jsTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ħȧȧş ȧȧ ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.lists": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀīşŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.loadingCatalog": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ ŧħḗḗ ƈȧȧŧȧȧŀǿǿɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.lockedBody": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ƈǿǿƞŧḗḗƞŧ ḿȧȧƞȧȧɠḗḗř ḗḗḓīŧş ŧħḗḗ ƥřǿǿḿƥŧ ƒīŀḗḗş ǿǿƞ ẏǿǿŭŭř ḓīşķ, şǿǿ īŧ ƞḗḗḗḗḓş ŧħḗḗ ŀǿǿƈȧȧŀ ȧȧƥƥ (ŧħḗḗ ḓḗḗṽ şḗḗřṽḗḗř ǿǿř ȧȧ ŀǿǿƈȧȧŀ ƀŭŭīŀḓ). Īŧ īşƞ’ŧ ȧȧṽȧȧīŀȧȧƀŀḗḗ īƞ ŧħḗḗ ǿǿƞŀīƞḗḗ ṽḗḗřşīǿǿƞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.lockedTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ īş ȧȧ ŀǿǿƈȧȧŀ-ḿǿǿḓḗḗ ƒḗḗȧȧŧŭŭřḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mAttributes": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŧŧřīƀŭŭŧḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mEntries": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞŧřīḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mGating": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠȧȧŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mNsfwVal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mPath": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥȧȧŧħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mSidecar": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mSidecarVal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ħȧȧş ȧȧ ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.mType": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧẏƥḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.moreLines": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "… "
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " ḿǿǿřḗḗ ŀīƞḗḗş (ƒŭŭŀŀ ḗḗḓīŧǿǿř ƈǿǿḿīƞɠ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newBlock": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ ƀŀǿǿƈķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newFilePromptBlock": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ ƀŀǿǿƈķ ƞȧȧḿḗḗ:"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newFilePromptList": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ ŀīşŧ ƞȧȧḿḗḗ:"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newFolder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ ƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newFolderPrompt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ şŭŭƀƒǿǿŀḓḗḗř ƞȧȧḿḗḗ:"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newList": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ ŀīşŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.newSubfolder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẇ şŭŭƀƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.nothingMatches": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿŧħīƞɠ ḿȧȧŧƈħḗḗş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.nsfw": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.nsfwTag": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "18+"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.panelTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.refreshAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƒřḗḗşħ ƈȧȧŧȧȧŀǿǿɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.refreshTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƒřḗḗşħ ƈȧȧŧȧȧŀǿǿɠ (řḗḗ-řḗḗȧȧḓ ƒřǿǿḿ ḓīşķ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.restoreAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşŧǿǿřḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.restoreTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşŧǿǿřḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": " ƒřǿǿḿ ŧħḗḗ řḗḗƥǿǿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.rootParen": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "(řǿǿǿǿŧ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.searchPh": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗȧȧřƈħ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.settingsFor": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŧŧīƞɠş ƒǿǿř "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.typeCategory": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧŧḗḗɠǿǿřẏ (ŧǿǿƥ-ŀḗḗṽḗḗŀ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "manage.typeSubfolder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŭŭƀƒǿǿŀḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.cancel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧƞƈḗḗŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.confirmBody": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞȧȧƀŀīƞɠ ȠŞƑẆ ŭŭƞŀǿǿƈķş ḗḗẋƥŀīƈīŧ ȧȧḓŭŭŀŧ ẇǿǿřḓş, ȧȧřŧīşŧş, ȧȧƞḓ ɠḗḗƞḗḗřȧȧŧǿǿřş īƞ ƥřǿǿḿƥŧş ȧȧƞḓ ƥřḗḗṽīḗḗẇş. Ǿƞŀẏ ƈǿǿƞŧīƞŭŭḗḗ īƒ ẏǿǿŭŭ ȧȧřḗḗ 18 ǿǿř ǿǿŀḓḗḗř ȧȧƞḓ ẇȧȧƞŧ ŧǿǿ şḗḗḗḗ ŧħīş ḿȧȧŧḗḗřīȧȧŀ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.confirmNote": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẏǿǿŭŭř ƈħǿǿīƈḗḗ īş řḗḗḿḗḗḿƀḗḗřḗḗḓ īƞ ŧħīş ƀřǿǿẇşḗḗř. Ẏǿǿŭŭ ƈȧȧƞ şẇīŧƈħ ƀȧȧƈķ ŧǿǿ ŞƑẆ ȧȧƞẏŧīḿḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.confirmTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şħǿǿẇ ȧȧḓŭŭŀŧ ƈǿǿƞŧḗḗƞŧ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.enable": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞȧȧƀŀḗḗ ȠŞƑẆ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.feature": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ ƈǿǿƞŧḗḗƞŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.titleOff": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şħǿǿẇ ȧȧḓŭŭŀŧ (ȠŞƑẆ) ƈǿǿƞŧḗḗƞŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "nsfw.titleOn": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧḓŭŭŀŧ ƈǿǿƞŧḗḗƞŧ īş ǿǿƞ — ƈŀīƈķ ŧǿǿ şẇīŧƈħ ƀȧȧƈķ ŧǿǿ ŞƑẆ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "online.lockedHint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "feature"
+    },
+    {
+      "type": 0,
+      "value": " īş ǿǿƞŀẏ ȧȧṽȧȧīŀȧȧƀŀḗḗ īƞ ŧħḗḗ ƒŭŭŀŀ ḓḗḗşķŧǿǿƥ ṽḗḗřşīǿǿƞ."
+    },
+    {
+      "type": 1,
+      "value": "why"
+    },
+    {
+      "type": 0,
+      "value": " Ƈŀīƈķ ŧǿǿ ɠḗḗŧ īŧ ǿǿƞ ƓīŧĦŭŭƀ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.batch": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓȧȧŧƈħ "
+    },
+    {
+      "type": 1,
+      "value": "n"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.clear": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈŀḗḗȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.clearTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř ŧħīş ƥřǿǿḿƥŧ'ş īḿȧȧɠḗḗş (ȧȧşķş ȧȧƀǿǿŭŭŧ ḓḗḗŀḗḗŧīƞɠ ƒřǿǿḿ ḓīşķ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.copyTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀīƈķ ŧǿǿ ƈǿǿƥẏ "
+    },
+    {
+      "type": 1,
+      "value": "text"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.dplTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ḒƤĿ ŧħīş ẇȧȧş řǿǿŀŀḗḗḓ ƒřǿǿḿ — ƈŀīƈķ ŧǿǿ ƈǿǿƥẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.example": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋȧȧḿƥŀḗḗ:"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.genImages": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ īḿȧȧɠḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.genTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ ȧȧ ƀȧȧŧƈħ ǿǿƒ īḿȧȧɠḗḗş ƒǿǿř ŧħīş ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.moreImages": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿǿǿřḗḗ īḿȧȧɠḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.openDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ īƞ ḓḗḗƒȧȧŭŭŀŧ ȧȧƥƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.openNewTab": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ īƞ ȧȧ ƞḗḗẇ ŧȧȧƀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.openSingle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ īƞ ŧħḗḗ şīƞɠŀḗḗ ṽīḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.originalTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿřīɠīƞȧȧŀ ƥřǿǿḿƥŧ (ƀḗḗƒǿǿřḗḗ ȧȧŭŭŧǿǿ-ƒīẋ) — ƈŀīƈķ ŧǿǿ ƈǿǿƥẏ "
+    },
+    {
+      "type": 1,
+      "value": "original"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.removeBatch": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "řḗḗḿǿǿṽḗḗ ƀȧȧŧƈħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.removeImage": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗḿǿǿṽḗḗ īḿȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.rendering": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "řḗḗƞḓḗḗřīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.renderingAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "řḗḗƞḓḗḗřīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.resultAlt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "řḗḗşŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "promptResult.reveal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗȧȧŀ īƞ ƒīŀḗḗ ḗḗẋƥŀǿǿřḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerBox.loading": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿȧȧḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerBox.noSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħīş ƥřǿǿṽīḓḗḗř ħȧȧş ƞǿǿ ḗḗẋŧřȧȧ şḗḗŧŧīƞɠş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.close": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈŀǿǿşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.settings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿṽīḓḗḗř şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.tier.api": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "īḿȧȧɠḗḗ ȦƤĪ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.tier.plain": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƥŀȧȧīƞ ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.tier.syntax": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈǿǿƥẏ-ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerPicker.keyBadge": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ķḗḗẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerPicker.lockBadge": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "🔒 ƒŭŭŀŀ ṽḗḗřşīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerPicker.title": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": " ƥřǿǿṽīḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.group.local": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿƈȧȧŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.group.online": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƞŀīƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.group.rewrite": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ & ķḗḗẏẇǿǿřḓ řḗḗẇřīŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.hintOff": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥīƈķ ȧȧ Ŧḗḗẋŧ ȦĪ ŧǿǿ ḗḗƞȧȧƀŀḗḗ ȧȧŭŭŧǿǿ-ƒīẋ / ķḗḗẏẇǿǿřḓ řḗḗẇřīŧīƞɠ (ŧǿǿɠɠŀḗḗḓ ǿǿƞ ŧħḗḗ ƥřǿǿḿƥŧ ƀǿǿẋ)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.hintOn": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧḗḗẋŧ ȦĪ řḗḗẇřīŧḗḗş ẏǿǿŭŭř ƥřǿǿḿƥŧ & ķḗḗẏẇǿǿřḓş — ŧŭŭřƞ īŧ ǿǿƞ ƥḗḗř řŭŭƞ ẇīŧħ ŧħḗḗ ẇȧȧƞḓ / ŧȧȧɠ ƀŭŭŧŧǿǿƞş ǿǿƞ ŧħḗḗ ƥřǿǿḿƥŧ ƀǿǿẋ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.image": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īḿȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.off": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƒƒ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.offDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ƥřǿǿḿƥŧ ǿǿř ķḗḗẏẇǿǿřḓ řḗḗẇřīŧīƞɠ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.providers": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿṽīḓḗḗřş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.reason.local": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īŧ řŭŭƞş ǿǿƞ ẏǿǿŭŭř ǿǿẇƞ ḿȧȧƈħīƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.reason.proxy": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħīş ƥřǿǿṽīḓḗḗř ƈȧȧƞ'ŧ ƀḗḗ ƈȧȧŀŀḗḗḓ ḓīřḗḗƈŧŀẏ ƒřǿǿḿ ȧȧ ƀřǿǿẇşḗḗř, şǿǿ īŧ īşƞ'ŧ ȧȧṽȧȧīŀȧȧƀŀḗḗ ǿǿƞŀīƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.sharesKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "şħȧȧřḗḗş ŧħḗḗ īḿȧȧɠḗḗ ķḗḗẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.text": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.alternatingMaxLevels": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŀŧḗḗřƞȧȧŧīƞɠ ḿȧȧẋ ŀḗḗṽḗḗŀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.artistList": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧřŧīşŧ ŀīşŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.deEmphasisChance": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗ-ḗḗḿƥħȧȧşīş ƈħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.editingMax": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧīƞɠ ḿȧȧẋ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.editingMin": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧīƞɠ ḿīƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.emphasisChance": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḿƥħȧȧşīş ƈħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.extraLevelChance": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋŧřȧȧ-ŀḗḗṽḗḗŀ ƈħȧȧƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.group.editing": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧīƞɠ & ȧȧŀŧḗḗřƞȧȧŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.group.emphasis": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḿƥħȧȧşīş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.group.language": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀȧȧƞɠŭŭȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.group.salt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧŀŧ & ŀīşŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.group.vocabulary": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ṽǿǿƈȧȧƀŭŭŀȧȧřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.keywordAlternating": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ ȧȧŀŧḗḗřƞȧȧŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.keywordEditing": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ ḗḗḓīŧīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.keywordList": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ ŀīşŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.list.fullyRandom": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "(ƒŭŭŀŀẏ řȧȧƞḓǿǿḿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.locale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓīşƥŀȧȧẏ ŀȧȧƞɠŭŭȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.locale.auto": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ (ƀřǿǿẇşḗḗř)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.maxLevels": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧẋ ŀḗḗṽḗḗŀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.noAnd": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓǿǿƞ'ŧ ƈǿǿḿƀīƞḗḗ ẇīŧħ ȦȠḒ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.promptSalt": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ şȧȧŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.randEmphasize": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧƞḓǿǿḿŀẏ ḗḗḿƥħȧȧşīẑḗḗ ķḗḗẏẇǿǿřḓş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.reloadLists": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗŀǿǿȧȧḓ ŀīşŧş ḗḗȧȧƈħ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.reset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ ŧǿǿ ḓḗḗƒȧȧŭŭŀŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.resetConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ ȧȧŀŀ şḗḗŧŧīƞɠş ŧǿǿ ḓḗḗƒȧȧŭŭŀŧş?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.saltStart": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧŀŧ şŧȧȧřŧ (-1 = řȧȧƞḓǿǿḿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.usedOnce": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀīşŧ ḗḗƞŧřīḗḗş ŭŭşḗḗḓ ǿǿƞƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settingsDrawer.close": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀǿǿşḗḗ şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settingsDrawer.title": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.aiTranslation": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦĪ ŧřȧȧƞşŀȧȧŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.allSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŀŀ şḗḗŧŧīƞɠş ("
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": ")"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.back": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "← Ɓȧȧƈķ ŧǿǿ "
+    },
+    {
+      "type": 1,
+      "value": "target"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.backTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓȧȧƈķ (Ḗşƈ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.convertOption": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿƞṽḗḗřŧ & ḓǿǿẇƞŀǿǿȧȧḓ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.convertTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿƞṽḗḗřŧ & ḓǿǿẇƞŀǿǿȧȧḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.copy": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈǿǿƥẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.delete": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.deleteTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ ƒřǿǿḿ ḓīşķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.cfg": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƇƑƓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.file": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒīŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.model": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿǿǿḓḗḗŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.provider": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿṽīḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.sampler": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧḿƥŀḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.saved": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.seed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗḗḗḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.size": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şīẑḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.detail.steps": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧḗḗƥş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.details": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŧȧȧīŀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.downloadPng": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓǿǿẇƞŀǿǿȧȧḓ ƤȠƓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.dplSource": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ḒƤĿ şǿǿŭŭřƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.engineRoll": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞɠīƞḗḗ řǿǿŀŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.find": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒīƞḓ “"
+    },
+    {
+      "type": 1,
+      "value": "term"
+    },
+    {
+      "type": 0,
+      "value": "”"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.galleryFallback": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ɠȧȧŀŀḗḗřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.keywords": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.keywordsEdited": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓş · ḗḗḓīŧḗḗḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.negativeTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.next": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẋŧ →"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.nextTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞḗḗẋŧ īḿȧȧɠḗḗ (→)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.noImage": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ īḿȧȧɠḗḗ ŀǿǿȧȧḓḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.noImageSub": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ ȧȧƞ īḿȧȧɠḗḗ ǿǿř ǿǿƥḗḗƞ ǿǿƞḗḗ ƒřǿǿḿ ŧħḗḗ ɠȧȧŀŀḗḗřẏ ȧȧƞḓ īŧ'ŀŀ şħǿǿẇ ħḗḗřḗḗ īƞ ƒŭŭŀŀ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.noKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " ħȧȧş ƞǿǿ ȦƤĪ ķḗḗẏ — ȧȧḓḓ ǿǿƞḗḗ ǿǿƞ ŧħḗḗ Ɠḗḗƞḗḗřȧȧŧḗḗ şƈřḗḗḗḗƞ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.noKeywords": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ḿǿǿḓḗḗŀ řḗḗŧŭŭřƞḗḗḓ ƞǿǿ ŭŭşȧȧƀŀḗḗ ķḗḗẏẇǿǿřḓş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.noMeta": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ḿḗḗŧȧȧḓȧȧŧȧȧ şīḓḗḗƈȧȧř ẇȧȧş ƒǿǿŭŭƞḓ ƒǿǿř ŧħīş īḿȧȧɠḗḗ — īŧ ḿȧȧẏ ƥřḗḗ-ḓȧȧŧḗḗ şīḓḗḗƈȧȧřş ǿǿř īŧş "
+    },
+    {
+      "type": 8,
+      "value": "code",
+      "children": [
+        {
+          "type": 0,
+          "value": ".ĵşǿǿƞ"
+        }
+      ]
+    },
+    {
+      "type": 0,
+      "value": " ƒīŀḗḗ ẇȧȧş řḗḗḿǿǿṽḗḗḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.open": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.openDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ īƞ ŧħḗḗ ḓḗḗƒȧȧŭŭŀŧ ȧȧƥƥ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.openFull": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƥḗḗƞ ƒŭŭŀŀ īḿȧȧɠḗḗ īƞ ȧȧ ƞḗḗẇ ŧȧȧƀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.prev": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "← Ƥřḗḗṽ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.prevTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřḗḗṽīǿǿŭŭş īḿȧȧɠḗḗ (←)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.promptTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.providerFallback": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ řḗḗẇřīŧḗḗ ƥřǿǿṽīḓḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.rawMeta": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řȧȧẇ ḿḗḗŧȧȧḓȧȧŧȧȧ (ĴŞǾȠ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.rebuild": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƀŭŭīŀḓ ẇīŧħ ȦĪ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.rebuildFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ķḗḗẏẇǿǿřḓ řḗḗƀŭŭīŀḓ ƒȧȧīŀḗḗḓ: "
+    },
+    {
+      "type": 1,
+      "value": "error"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.rebuildTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗƞḓ ŧħḗḗ ƥřǿǿḿƥŧ ŧǿǿ ŧħḗḗ ȦĪ, ƀřḗḗȧȧķ īŧ īƞŧǿǿ ȧȧ ƈŀḗḗȧȧƞ ȧȧŀƥħȧȧƀḗḗŧīƈȧȧŀ ķḗḗẏẇǿǿřḓ ŀīşŧ, ȧȧƞḓ şȧȧṽḗḗ īŧ ǿǿṽḗḗř ŧħḗḗşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.rebuilding": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƀŭŭīŀḓīƞɠ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.reveal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗȧȧŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.revealTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗȧȧŀ īƞ ƒīŀḗḗ ḗḗẋƥŀǿǿřḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.saveFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿŭŭŀḓƞ'ŧ şȧȧṽḗḗ ķḗḗẏẇǿǿřḓş (ƞǿǿ ŀǿǿƈȧȧŀ şḗḗřṽḗḗř?)."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "single.sentToModel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗƞŧ ŧǿǿ ḿǿǿḓḗḗŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "tokenPicker.filter": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƒīŀŧḗḗř "
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": "…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "tokenPicker.insert": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īƞşḗḗřŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "tokenPicker.more": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "+"
+    },
+    {
+      "type": 1,
+      "value": "count"
+    },
+    {
+      "type": 0,
+      "value": " ḿǿǿřḗḗ — ķḗḗḗḗƥ ŧẏƥīƞɠ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.autoToggleLabel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŀŀǿǿẇ ŭŭşḗḗḓ ƀŀǿǿƈķş ŧǿǿ ḗḗẋŧḗḗƞḓ ƈŭŭřřḗḗƞŧ ẇřȧȧƥƥḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.autoToggleTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇħḗḗƞ ǿǿƞ, ƀŀǿǿƈķş ḿȧȧẏ ȧȧḓḓ ŧħḗḗīř ǿǿẇƞ Ȧŭŭŧǿǿ Ɓḗḗɠīƞ / Ȧŭŭŧǿǿ Ḗƞḓ ƒřȧȧḿīƞɠ ŧǿǿ ŧħḗḗ ƥřǿǿḿƥŧ. Ẇħḗḗƞ ǿǿƒƒ, ǿǿƞŀẏ ŧħīş ẇřȧȧƥƥḗḗř ƒřȧȧḿḗḗş īŧ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.cancel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧƞƈḗḗŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.close": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀǿǿşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.deletePreset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ “"
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "”"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.deletePresetAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.editDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧ ŧħḗḗ Ḓḗḗƒȧȧŭŭŀŧ ẇřȧȧƥƥḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.editPreset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧ “"
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": "”"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.end": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗƞḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.endAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř ḗḗƞḓ (ḒƤĿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.endPlaceholder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗřḗḗḓ ȧȧƒŧḗḗř ŧħḗḗ ƥřǿǿḿƥŧ — ḗḗ.ɠ. {#ƒẋ}, {#ȧȧřŧīşŧş}"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.endPlaceholderNew": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗřḗḗḓ ȧȧƒŧḗḗř ŧħḗḗ ƥřǿǿḿƥŧ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.footHint": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥş ḗḗṽḗḗřẏ ɠḗḗƞḗḗřȧȧŧḗḗḓ ƥřǿǿḿƥŧ: şŧȧȧřŧ, ẏǿǿŭŭř ƥřǿǿḿƥŧ, ḗḗƞḓ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.head": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.manage": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ Ẇřȧȧƥƥḗḗřş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.manageAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿȧȧƞȧȧɠḗḗ ẇřȧȧƥƥḗḗřş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.nameAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř ƞȧȧḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.nameDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.nameNone": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.namePlaceholder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř ƞȧȧḿḗḗ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.newPreset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "+ Ƞḗḗẇ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.noSaved": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ şȧȧṽḗḗḓ ẇřȧȧƥƥḗḗřş — Ḿȧȧƞȧȧɠḗḗ ƥřḗḗşḗḗŧş ŧǿǿ ȧȧḓḓ ǿǿƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.presetsAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř ƥřḗḗşḗḗŧş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertEndAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗřŧ Ḗƞḓ ŧǿǿ ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertEndDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ Ḗƞḓ ŧǿǿ ŧħḗḗ ƀŭŭīŀŧ-īƞ ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertEndNormal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ Ḗƞḓ ŧǿǿ ŧħḗḗ ḓḗḗƒȧȧŭŭŀŧ ẇřȧȧƥƥḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertStartAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗṽḗḗřŧ Şŧȧȧřŧ ŧǿǿ ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertStartDefault": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ Şŧȧȧřŧ ŧǿǿ ŧħḗḗ ƀŭŭīŀŧ-īƞ ḓḗḗƒȧȧŭŭŀŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.revertStartNormal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗşḗḗŧ Şŧȧȧřŧ ŧǿǿ ŧħḗḗ ḓḗḗƒȧȧŭŭŀŧ ẇřȧȧƥƥḗḗř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.save": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şȧȧṽḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.start": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şŧȧȧřŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.startAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř şŧȧȧřŧ (ḒƤĿ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.startPlaceholder": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗřḗḗḓ ƀḗḗƒǿǿřḗḗ ŧħḗḗ ƥřǿǿḿƥŧ — ḗḗ.ɠ. ȧȧ şŧẏŀḗḗ ǿǿř ƒřȧȧḿīƞɠ ŀḗḗȧȧḓ-īƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.startPlaceholderNew": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Řḗḗƞḓḗḗřḗḗḓ ƀḗḗƒǿǿřḗḗ ŧħḗḗ ƥřǿǿḿƥŧ…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "wrapper.triggerTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇřȧȧƥƥḗḗř: "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    },
+    {
+      "type": 0,
+      "value": " — ƒřȧȧḿḗḗş ḗḗṽḗḗřẏ ƥřǿǿḿƥŧ ẇīŧħ ȧȧ şŧȧȧřŧ ȧȧƞḓ ḗḗƞḓ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ]
+}
