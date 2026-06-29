@@ -21,9 +21,12 @@ import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
 import { useSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
-import { fetchGallery } from "./lib/gallery.js";
+import { fetchGallery, linkAncestry } from "./lib/gallery.js";
 import { fetchMagick } from "./lib/magick.js";
-import { deleteImageFile } from "./lib/output.js";
+import { deleteImageFile, ingestImage } from "./lib/output.js";
+import { deriveImage as runDerive, resizeImage as runResize } from "./lib/derive.js";
+import { softLockedForNsfw } from "./lib/contentPolicy.js";
+import { effectiveKey } from "./lib/sessionKeys.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
@@ -77,6 +80,11 @@ const msgs = defineMessages({
     defaultMessage: "Delete this image and its metadata from disk? This can't be undone.",
     description: "Confirm dialog before deleting an image from disk",
   },
+  nsfwProceed: {
+    id: "app.nsfwProceed",
+    defaultMessage: "NSFW mode is on. Continue with {provider} anyway?",
+    description: "Soft confirm before using a safe-for-work-only provider while NSFW mode is on",
+  },
   footer: {
     id: "app.footer",
     defaultMessage:
@@ -114,6 +122,8 @@ function AppShell({ settings, setSettings }) {
   const [query, setQuery] = useState(""); // gallery search (lifted so it persists + chips can set it)
   const [current, setCurrent] = useState(null); // the image open in the single view
   const [returnTo, setReturnTo] = useState("generate"); // where the single view's Back goes
+  const [deriveError, setDeriveError] = useState(""); // last re-roll / variation / resize failure
+  const [derivations, setDerivations] = useState([]); // in-flight ops: { id, parentPath, kind }
   const [magick, setMagick] = useState({ available: false, formats: [] });
   const [managerOk, setManagerOk] = useState(false); // local-mode content backend present?
 
@@ -158,7 +168,7 @@ function AppShell({ settings, setSettings }) {
 
   async function loadFeed() {
     setLoadingItems(true);
-    const it = await fetchGallery();
+    const it = linkAncestry(await fetchGallery());
     setItems(it);
     setLoadingItems(false);
     return it;
@@ -204,6 +214,91 @@ function AppShell({ settings, setSettings }) {
     if (!meta) return;
     setItems((list) => list.map((x) => (x.path === path ? { ...x, meta } : x)));
     setCurrent((cur) => (cur && cur.path === path ? { ...cur, meta } : cur));
+  }
+
+  // After a derive/resize lands, refresh the feed (rebuilds ancestry) and re-sync the open image to
+  // its fresh copy so its children strips update in place — without leaving the current image.
+  async function refreshAndResync(parentPath) {
+    const fresh = await loadFeed();
+    setCurrent((cur) => (cur ? fresh.find((i) => i.path === cur.path) || cur : cur));
+    return fresh;
+  }
+
+  // Re-roll / vary the open image: generate a NEW image from a chosen prompt layer. We deliberately
+  // DON'T navigate away — a live placeholder appears in the matching strip below the image (via the
+  // `derivations` list), and the finished child slots into that strip once the feed refreshes.
+  // Soft NSFW gate: if the provider about to be called is safe-for-work-only and NSFW mode is on,
+  // ask once before proceeding. Returns false only when the user declines. Never hard-blocks.
+  function nsfwOkFor(provider) {
+    if (!softLockedForNsfw(provider, settings.includeAdult)) return true;
+    return confirm(intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }));
+  }
+
+  async function deriveImage(item, kind, source) {
+    setDeriveError("");
+    if (!nsfwOkFor(getProvider(item.meta?.provider))) return;
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setDerivations((d) => [...d, { id, parentPath: item.path, kind }]);
+    try {
+      await runDerive({ item, kind, source, settings });
+      await refreshAndResync(item.path);
+    } catch (e) {
+      setDeriveError(e.message || String(e));
+    } finally {
+      setDerivations((d) => d.filter((x) => x.id !== id));
+    }
+  }
+
+  // AI upscale: run a provider's upscale adapter on the open image and save the result as a tracked
+  // child (Resizes strip), same live-placeholder flow as a derive. Dormant until a provider ships a
+  // `loadUpscale` adapter + `capabilities.upscale`; the single view only offers providers that have.
+  async function upscaleImage(item, providerId) {
+    setDeriveError("");
+    const prov = getProvider(providerId);
+    if (!prov?.loadUpscale) return;
+    if (!nsfwOkFor(prov)) return;
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setDerivations((d) => [...d, { id, parentPath: item.path, kind: "resize" }]);
+    try {
+      const upscale = await prov.loadUpscale();
+      const key = effectiveKey(prov.id, settings);
+      const src = item.path.startsWith("/") ? new URL(item.path, location.origin).href : item.path;
+      const { images } = await upscale({ image: src, key, settings: item.meta?.settings || {} });
+      if (!images || !images.length) throw new Error("The upscaler returned no image.");
+      const childMeta = {
+        prompt: item.meta?.prompt || null,
+        negative: item.meta?.negative || null,
+        provider: item.meta?.provider,
+        providerLabel: item.meta?.providerLabel,
+        settings: { ...(item.meta?.settings || {}), aiUpscaleBy: prov.id },
+        parent: item.name,
+        derivedKind: "resize",
+        aiUpscaleBy: prov.id,
+        savedAt: new Date().toISOString(),
+      };
+      await ingestImage(images[0], childMeta);
+      await refreshAndResync(item.path);
+    } catch (e) {
+      setDeriveError(e.message || String(e));
+    } finally {
+      setDerivations((d) => d.filter((x) => x.id !== id));
+    }
+  }
+
+  // Resize (downscale / upscale via ImageMagick) the open image into a new tracked child — same
+  // in-place, live-placeholder flow as a derive, landing in the Resizes strip.
+  async function resizeImage(item, scale) {
+    setDeriveError("");
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setDerivations((d) => [...d, { id, parentPath: item.path, kind: "resize" }]);
+    try {
+      await runResize({ item, scale });
+      await refreshAndResync(item.path);
+    } catch (e) {
+      setDeriveError(e.message || String(e));
+    } finally {
+      setDerivations((d) => d.filter((x) => x.id !== id));
+    }
   }
 
   // Delete an image (+ sidecar) from disk; in the single view, land on a neighbor (or leave).
@@ -297,6 +392,11 @@ function AppShell({ settings, setSettings }) {
                 onDelete={deleteItem}
                 onSearch={searchFor}
                 onMetaUpdate={updateItemMeta}
+                onDerive={deriveImage}
+                onResize={resizeImage}
+                onUpscale={upscaleImage}
+                derivations={derivations}
+                deriveError={deriveError}
               />
             </div>
           </>

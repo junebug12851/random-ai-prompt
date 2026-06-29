@@ -26,6 +26,7 @@ import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
+import { softLockedForNsfw } from "../lib/contentPolicy.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
@@ -38,6 +39,32 @@ import DplInsertBar from "./DplInsertBar.jsx";
 import DplStatus from "./DplStatus.jsx";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
+
+// App-orchestration keys that don't describe HOW an image was made — kept out of the sidecar's
+// settings snapshot so the single view's details table reflects only the provider's own knobs
+// (e.g. an OpenAI image shouldn't carry another provider's sampler/steps from `providerParams`).
+const SNAPSHOT_DROP = new Set([
+  "keys", "providerParams", "prompt", "promptCount", "locale", "includeAdult", "autoFix",
+  "autoKeyword", "autoAddFx", "autoAddArtists", "rewriteProvider", "wrapper", "wrapperName",
+  "wrapperParams", "useAutoSections", "provider",
+]);
+
+/**
+ * A clean, provider-scoped settings snapshot for an image sidecar: scalar provider knobs only,
+ * with app-orchestration keys, nested objects (like `providerParams`), and empties dropped.
+ * @param {object} obj The flattened settings (`flat` + the final negative prompt).
+ * @returns {object} The trimmed snapshot.
+ */
+function cleanSnapshot(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (SNAPSHOT_DROP.has(k)) continue;
+    if (v === null || v === undefined || v === "") continue;
+    if (typeof v === "object" || typeof v === "function") continue;
+    out[k] = v;
+  }
+  return out;
+}
 
 // A group's flat `items` array is a run of [folder pill, its chips, folder pill, its chips, …].
 // Split it back into folder sub-categories so the palette can offer an "All" view plus one sub-tab
@@ -238,6 +265,10 @@ const msgs = defineMessages({
   clearAllTitle: { id: "home.clearAllTitle", defaultMessage: "Clear all results" },
   clearAll: { id: "home.clearAll", defaultMessage: "Clear all" },
   example: { id: "home.example", defaultMessage: "Example:" },
+  nsfwProceed: {
+    id: "home.nsfwProceed",
+    defaultMessage: "NSFW mode is on. Generate with {provider} anyway?",
+  },
 });
 
 /**
@@ -436,8 +467,9 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         key,
       });
       // The full record of how these images were made, written as a sidecar next to each one
-      // (read back by the photo gallery). The settings snapshot drops API keys — never to disk.
-      const { keys: _keys, ...settingsSnapshot } = { ...flat, negativePrompt: negFinal };
+      // (read back by the photo gallery). The snapshot is provider-scoped (API keys, app
+      // orchestration, and foreign provider params all dropped — never to disk).
+      const settingsSnapshot = cleanSnapshot({ ...flat, negativePrompt: negFinal });
       const meta = {
         prompt: { dpl: promptDpl, roll: promptRoll, ai: promptAi, final: text },
         negative: {
@@ -673,8 +705,13 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       }
       // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
       setPrompts((prev) => [...out, ...prev]);
-      // Auto-render: kick off an image batch for each new prompt (api providers only).
-      if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
+      // Auto-render: kick off an image batch for each new prompt (api providers only). If the chosen
+      // provider is safe-for-work-only and NSFW mode is on, ask once before sending — never block the
+      // prompt build, and never tell the user it's disallowed.
+      const nsfwOk =
+        !softLockedForNsfw(provider, settings.includeAdult) ||
+        confirm(intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }));
+      if (canGenerateImages && nsfwOk) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
     } catch (e) {
       setError(e.message || String(e));
     }

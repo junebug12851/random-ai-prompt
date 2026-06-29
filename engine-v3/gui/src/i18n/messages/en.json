@@ -53,6 +53,10 @@
     "defaultMessage": "Manage needs the local app (file access) — unavailable online",
     "description": "Tooltip when the Manage tab is unavailable (no local backend)"
   },
+  "app.nsfwProceed": {
+    "defaultMessage": "NSFW mode is on. Continue with {provider} anyway?",
+    "description": "Soft confirm before using a safe-for-work-only provider while NSFW mode is on"
+  },
   "app.switchView": {
     "defaultMessage": "Switch view",
     "description": "aria-label for the top-bar view switcher"
@@ -577,6 +581,9 @@
   "home.noBlocks": {
     "defaultMessage": "No building blocks match “{query}”."
   },
+  "home.nsfwProceed": {
+    "defaultMessage": "NSFW mode is on. Generate with {provider} anyway?"
+  },
   "home.phNegative": {
     "defaultMessage": "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, '{#bad-anatomy}'"
   },
@@ -1059,6 +1066,10 @@
     "defaultMessage": "🔒 full version",
     "description": "Badge on a provider only available in the full desktop version"
   },
+  "providerPicker.softLock": {
+    "defaultMessage": "NSFW mode is on — {label} is a safe-for-work service",
+    "description": "Neutral soft-lock tooltip (never says the user can't use it)"
+  },
   "providerPicker.title": {
     "defaultMessage": "{label} provider",
     "description": "Tooltip on the provider dropdown trigger (label = Image/Text)"
@@ -1191,8 +1202,17 @@
   "settingsDrawer.title": {
     "defaultMessage": "Settings"
   },
+  "single.aiNeedsKey": {
+    "defaultMessage": "{provider} — add a key to use"
+  },
   "single.aiTranslation": {
     "defaultMessage": "AI translation"
+  },
+  "single.aiUpscale": {
+    "defaultMessage": "AI Upscale · {provider}"
+  },
+  "single.aiUpscaleNone": {
+    "defaultMessage": "AI Upscale — no provider added yet"
   },
   "single.allSettings": {
     "defaultMessage": "All settings ({count})"
@@ -1203,20 +1223,50 @@
   "single.backTitle": {
     "defaultMessage": "Back (Esc)"
   },
+  "single.confirmReroll": {
+    "defaultMessage": "Re-roll from the DPL recipe? A new image is generated with a new seed."
+  },
+  "single.confirmVary": {
+    "defaultMessage": "Make a variation from the {layer}? A new image is generated with a new seed."
+  },
+  "single.convertLocked": {
+    "defaultMessage": "Converting needs ImageMagick installed — it isn't, so this is locked"
+  },
   "single.convertOption": {
     "defaultMessage": "Convert & download…"
   },
   "single.convertTitle": {
     "defaultMessage": "Convert & download"
   },
+  "single.copiedGeneric": {
+    "defaultMessage": "✓ Copied"
+  },
   "single.copy": {
     "defaultMessage": "copy"
+  },
+  "single.copyJson": {
+    "defaultMessage": "Copy as JSON"
+  },
+  "single.copyJsonTitle": {
+    "defaultMessage": "Copy the full raw metadata as JSON"
+  },
+  "single.copyMd": {
+    "defaultMessage": "Copy as Markdown"
+  },
+  "single.copyMdTitle": {
+    "defaultMessage": "Copy the prompt, negative, and details as a Markdown block"
   },
   "single.delete": {
     "defaultMessage": "Delete"
   },
   "single.deleteTitle": {
     "defaultMessage": "Delete from disk"
+  },
+  "single.deriveError": {
+    "defaultMessage": "Couldn't make another: {error}"
+  },
+  "single.deriveLocked": {
+    "defaultMessage": "{provider} doesn't support seeds — re-roll & variations need seed control"
   },
   "single.detail.cfg": {
     "defaultMessage": "CFG"
@@ -1260,6 +1310,9 @@
   "single.find": {
     "defaultMessage": "Find “{term}”"
   },
+  "single.fromLayer": {
+    "defaultMessage": "from {layer}"
+  },
   "single.galleryFallback": {
     "defaultMessage": "gallery"
   },
@@ -1268,6 +1321,27 @@
   },
   "single.keywordsEdited": {
     "defaultMessage": "Keywords · edited"
+  },
+  "single.layerAi": {
+    "defaultMessage": "translation"
+  },
+  "single.layerDpl": {
+    "defaultMessage": "DPL"
+  },
+  "single.layerFinal": {
+    "defaultMessage": "sent prompt"
+  },
+  "single.layerMissing": {
+    "defaultMessage": "This image has no {layer} layer to vary from"
+  },
+  "single.layerRoll": {
+    "defaultMessage": "original roll"
+  },
+  "single.lineage": {
+    "defaultMessage": "Lineage"
+  },
+  "single.needsMagickOpt": {
+    "defaultMessage": "Needs ImageMagick"
   },
   "single.negativeTitle": {
     "defaultMessage": "Negative prompt"
@@ -1302,6 +1376,12 @@
   "single.openFull": {
     "defaultMessage": "Open full image in a new tab"
   },
+  "single.parentLink": {
+    "defaultMessage": "↑ Parent"
+  },
+  "single.parentTitle": {
+    "defaultMessage": "Open the image this was made from"
+  },
   "single.prev": {
     "defaultMessage": "← Prev"
   },
@@ -1313,9 +1393,6 @@
   },
   "single.providerFallback": {
     "defaultMessage": "The rewrite provider"
-  },
-  "single.rawMeta": {
-    "defaultMessage": "Raw metadata (JSON)"
   },
   "single.rebuild": {
     "defaultMessage": "Rebuild with AI"
@@ -1329,6 +1406,36 @@
   "single.rebuilding": {
     "defaultMessage": "Rebuilding…"
   },
+  "single.rerollAction": {
+    "defaultMessage": "re-roll"
+  },
+  "single.rerollTitle": {
+    "defaultMessage": "Re-roll the recipe — a fresh random prompt from the DPL, with a new seed"
+  },
+  "single.resizeDown": {
+    "defaultMessage": "{label} (downscale)"
+  },
+  "single.resizeGroupAi": {
+    "defaultMessage": "AI"
+  },
+  "single.resizeGroupMagick": {
+    "defaultMessage": "ImageMagick"
+  },
+  "single.resizeLocked": {
+    "defaultMessage": "Resizing needs ImageMagick installed — it isn't, so this is locked"
+  },
+  "single.resizeNeedsMagick": {
+    "defaultMessage": "{label} — needs ImageMagick"
+  },
+  "single.resizeOption": {
+    "defaultMessage": "Resize…"
+  },
+  "single.resizeTitle": {
+    "defaultMessage": "Resize into a new image"
+  },
+  "single.resizeUp": {
+    "defaultMessage": "{label} (upscale)"
+  },
   "single.reveal": {
     "defaultMessage": "Reveal"
   },
@@ -1340,6 +1447,39 @@
   },
   "single.sentToModel": {
     "defaultMessage": "Sent to model"
+  },
+  "single.stripRerolls": {
+    "defaultMessage": "Re-Rolls"
+  },
+  "single.stripResizes": {
+    "defaultMessage": "Resizes"
+  },
+  "single.stripVariations": {
+    "defaultMessage": "Variations"
+  },
+  "single.typeBase": {
+    "defaultMessage": "Base image"
+  },
+  "single.typeReroll": {
+    "defaultMessage": "Re-roll"
+  },
+  "single.typeResize": {
+    "defaultMessage": "Resize"
+  },
+  "single.typeVariation": {
+    "defaultMessage": "Variation"
+  },
+  "single.varyAction": {
+    "defaultMessage": "vary"
+  },
+  "single.varyTitle": {
+    "defaultMessage": "Make a variation from this layer (new seed)"
+  },
+  "single.viewRaw": {
+    "defaultMessage": "View Raw"
+  },
+  "single.viewTable": {
+    "defaultMessage": "View Table"
   },
   "tokenPicker.filter": {
     "defaultMessage": "Filter {count}…",

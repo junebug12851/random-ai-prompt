@@ -70,6 +70,33 @@ export async function fetchGallery() {
 }
 
 /**
+ * Annotate feed items with parent→children ancestry, rebuilt fresh on every scan (the v1-2 index
+ * did the same in `indexImages.deepLink`). Each child sidecar names its `parent` (the base name of
+ * the image it was re-rolled / varied from); this walks the feed and hangs each child off that
+ * parent's `children` list. Lightweight and self-healing — a child whose parent was deleted simply
+ * isn't linked. Returns a new array; every item gains `children: [{ name, path, kind, source }]`.
+ * @param {GalleryItem[]} items The feed.
+ * @returns {GalleryItem[]} The same items, each with a `children` array (empty when none).
+ */
+export function linkAncestry(items) {
+  const present = new Set(items.map((it) => it.name));
+  const kids = new Map();
+  for (const it of items) {
+    const parent = it.meta && it.meta.parent;
+    if (parent && present.has(parent)) {
+      if (!kids.has(parent)) kids.set(parent, []);
+      kids.get(parent).push({
+        name: it.name,
+        path: it.path,
+        kind: it.meta.derivedKind || "variation",
+        source: it.meta.derivedSource || null,
+      });
+    }
+  }
+  return items.map((it) => ({ ...it, children: kids.get(it.name) || [] }));
+}
+
+/**
  * Build the lowercase searchable text for an item (every prompt/negative layer + provider).
  * @param {GalleryItem} item The gallery item.
  * @returns {string} A lowercase haystack for substring search.
