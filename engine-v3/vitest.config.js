@@ -24,14 +24,27 @@ export default defineConfig({
       include: [
         "src/core/**/*.js",
         "src/contentSafety.js",
-        "src/diffSettings.js",
         "src/gatedLists.js",
         "src/listManifest.js",
-        "src/helpers/keywordRepeater.js",
+        "src/dynPromptManifest.js",
+        "src/promptFilesAndSuggestions.js",
+        "src/helpers/*.js",
         "src/prompt-modules/cleanup.js",
         "src/prompt-modules/prompt-salt.js",
       ],
+      // The browser loader is exercised by the SPA (jsdom) suite via import.meta.glob,
+      // so it isn't measurable from the Node environment — exclude it from the Node gate.
+      exclude: ["src/core/browserLoader.js"],
       reporter: ["text", "html"],
+      // CI gate (owner-approved). Set with headroom below the measured numbers
+      // (lines ~93 / statements ~90 / functions ~93 / branches ~80) so a real
+      // regression fails CI without flaking on minor churn. Tighten as coverage grows.
+      thresholds: {
+        statements: 88,
+        branches: 76,
+        functions: 88,
+        lines: 90,
+      },
     },
   },
 });

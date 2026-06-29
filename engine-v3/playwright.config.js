@@ -36,6 +36,12 @@ export default defineConfig({
   //   so the committed `*-chromium-linux.png` baselines match CI. Regenerate them on
   //   the same runner via the "Update visual baselines (Linux)" workflow
   //   (`.github/workflows/visual-baselines.yml`), then commit the downloaded PNGs.
+  //
+  // Cross-browser: the default run is Chromium-only (the fast local gate, and the
+  // only browser with committed visual baselines). Set `PLAYWRIGHT_ALL_BROWSERS=1`
+  // (the `test:e2e:all` script / the CI cross-browser job) to also run Firefox, WebKit,
+  // and a mobile (Pixel 7) viewport. Visual-regression stays Chromium-only — pixel
+  // baselines are per-engine — so the extra projects skip `visual.spec.js`.
   projects: [
     {
       name: "chromium",
@@ -44,6 +50,25 @@ export default defineConfig({
         channel: process.platform === "win32" ? "chrome" : undefined,
       },
     },
+    ...(process.env.PLAYWRIGHT_ALL_BROWSERS
+      ? [
+          {
+            name: "firefox",
+            use: { ...devices["Desktop Firefox"] },
+            testIgnore: "**/visual.spec.js",
+          },
+          {
+            name: "webkit",
+            use: { ...devices["Desktop Safari"] },
+            testIgnore: "**/visual.spec.js",
+          },
+          {
+            name: "mobile-chrome",
+            use: { ...devices["Pixel 7"] },
+            testIgnore: "**/visual.spec.js",
+          },
+        ]
+      : []),
   ],
   webServer: {
     command: `npm run web:build && npm --prefix gui run preview -- --port ${PORT} --strictPort`,

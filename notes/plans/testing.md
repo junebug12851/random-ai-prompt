@@ -1,5 +1,36 @@
 # Testing
 
+## 2026-06-29 — comprehensive coverage expansion
+
+A full pass took the suite from "every test type represented" to "every module covered,
+thoroughly, with valid/invalid/edge inputs" (plan: `notes/plans/testing-coverage-plan.md`).
+**419 headless tests** now pass (Node 226 + SPA 193, up from ~138 + ~60).
+
+- **Engine (Node):** direct unit tests for the `random*` helpers, the loader-injected stages
+  (`listStore`/`list`/`dynamicPrompt`), `dynPromptManifest`, `promptFilesAndSuggestions`,
+  `engine` edges, `settings`/`aliases` guards, extra `listManifest` cases, and a real-data
+  `nodeLoader` integration test.
+- **SPA (jsdom):** `gui/tests/lib/**` (keywords, manageTree, output, rewrite, online,
+  sessionKeys, providerMeta, wrapperStore, dplInserts, dialects, useProvider),
+  `gui/tests/providers/**` (transport, server/rewrite adapters, browser generate wrappers,
+  dispatch + Netlify handlers), `gui/tests/components/**` (NsfwToggle, PromptResult, DplStatus,
+  DplInsertBar, ProviderPicker, ApiKeyField). Network is mocked with **MSW**
+  (`gui/tests/msw/`, wired into `tests/setup.js`, `onUnhandledRequest: "bypass"`).
+- **Coverage gates (CI-enforced):** root `vitest.config.js` thresholds — statements 88 /
+  branches 76 / functions 88 / lines 90 (engine ~93% lines); `gui/vitest.config.js` —
+  modest global floor + a `src/lib/**` floor (lines/statements 65, functions 60, branches 50).
+  CI now runs `test:coverage` (Node) and `test:coverage` (SPA) so the gates actually fire.
+  `browserLoader.js`, `dpl/dplLanguage.js`, and `providers/index.js` are excluded (covered via
+  the browser/e2e path or not meaningfully unit-coverable).
+- **Performance:** `npm run test:perf` builds the SPA and runs `scripts/check-bundle-size.mjs`
+  (gzipped-JS budget, currently 763 KB vs a 900 KB budget); `npm run test:lhci` runs Lighthouse
+  CI (`lighthouserc.json`, informational in CI — the bundle budget is the hard gate).
+- **Cross-browser:** `npm run test:e2e:all` (sets `PLAYWRIGHT_ALL_BROWSERS`) runs the e2e +
+  a11y specs on Chromium + Firefox + WebKit + a Pixel-7 mobile viewport; visual-regression
+  stays Chromium-only. One-time: `npx playwright install firefox webkit`.
+- **New CI jobs:** `cross-browser` (FF/WebKit/mobile, visual skipped) and `perf` (bundle budget
+  hard gate + Lighthouse informational), alongside the existing check/gui/e2e jobs.
+
 ## The reality (as of 2026-06-22)
 
 The project now has a **full automated test suite** built on **Vitest** (Node + jsdom)
