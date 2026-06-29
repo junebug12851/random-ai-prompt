@@ -19,7 +19,7 @@
  * @brief Keyword randomizer (StableDiffusion only): prompt-editing forms edit-in / swap / edit-out.
  */
 
-import _ from "lodash";
+import { randomInt } from "./random.js";
 
 /**
  * Prompt-editing "edit-in": `[kw:n]` — kw appears after step n.
@@ -28,7 +28,7 @@ import _ from "lodash";
  * @returns {string} The edit-in form.
  */
 function editIn(settings, keyword) {
-  return `[${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}:${randomInt(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 /**
@@ -38,7 +38,7 @@ function editIn(settings, keyword) {
  * @returns {string} The swap form.
  */
 function swapOut(settings, keyword) {
-  return `[${keyword}:${keyword}:${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}:${keyword}:${randomInt(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 /**
@@ -48,7 +48,7 @@ function swapOut(settings, keyword) {
  * @returns {string} The edit-out form.
  */
 function editOut(settings, keyword) {
-  return `[${keyword}::${_.random(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
+  return `[${keyword}::${randomInt(settings.keywordEditingMin, settings.keywordEditingMax)}]`;
 }
 
 /**
@@ -67,7 +67,7 @@ export default function randomEditing(settings, keyword) {
   }
 
   // Figure out what kind of editing
-  switch (_.random(0, 2, false)) {
+  switch (randomInt(0, 2)) {
     case 0:
       keyword = editIn(settings, keyword);
       break;

@@ -19,7 +19,7 @@
  * @brief Keyword randomizer: per-engine emphasis / de-emphasis (SD parens-brackets, NAI braces, Midjourney ::factor). Notes: notes/reference/prompt-dsl.md.
  */
 
-import _ from "lodash";
+import { randomFloat } from "./random.js";
 
 /**
  * StableDiffusion emphasis: wrap the keyword in N nested `()` (emphasis) or `[]`
@@ -41,7 +41,7 @@ function processSd(settings, lessEmphasis, keyword) {
     suffix += lessEmphasis ? "]" : ")";
     count++;
   } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    randomFloat() < settings.emphasisLevelChance &&
     count < settings.emphasisMaxLevels
   );
 
@@ -71,7 +71,7 @@ function processNAI(settings, lessEmphasis, keyword) {
     suffix += lessEmphasis ? "]" : ")";
     count++;
   } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    randomFloat() < settings.emphasisLevelChance &&
     count < settings.emphasisMaxLevels
   );
 
@@ -97,7 +97,7 @@ function processMdj(settings, lessEmphasis, keyword) {
   do {
     count++;
   } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    randomFloat() < settings.emphasisLevelChance &&
     count < settings.emphasisMaxLevels
   );
 
@@ -139,7 +139,7 @@ function processPlain(settings, lessEmphasis, keyword) {
   do {
     count++;
   } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    randomFloat() < settings.emphasisLevelChance &&
     count < settings.emphasisMaxLevels
   );
 
@@ -170,7 +170,7 @@ export default function randomEmphasis(settings, keyword) {
   }
 
   // Roll to see if this keword gets less emphasis
-  let lessEmphasis = _.random(0.0, 1.0, true) < settings.deEmphasisChance;
+  let lessEmphasis = randomFloat() < settings.deEmphasisChance;
 
   // Process according to mode
   if (settings.mode == "StableDiffusion") keyword = processSd(settings, lessEmphasis, keyword);

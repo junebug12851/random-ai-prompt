@@ -19,7 +19,7 @@
  * @brief Emit N {keyword} / {artist} tokens for generators that want a variable count. Named exports on purpose (do not flip to default).
  */
 
-import _ from "lodash";
+import { randomFloat, randomInt } from "./random.js";
 import { keywordAlias, artistAlias } from "./aliases.js";
 
 // Maps the `keyword`/`artist` repeat targets to their alias list name. Kept here
@@ -56,7 +56,7 @@ function processRepeat(count, keyword, alias) {
  * @returns {string} The joined keyword tokens.
  */
 function keywordRepeater(keyword, alias, settings) {
-  const keywordCount = _.random(settings.keywordCount, settings.keywordMaxCount, false);
+  const keywordCount = randomInt(settings.keywordCount, settings.keywordMaxCount);
   return processRepeat(keywordCount, keyword, alias);
 }
 
@@ -70,8 +70,8 @@ function keywordRepeater(keyword, alias, settings) {
  */
 function artistRepeater(artist, alias, settings) {
   const artistCount =
-    settings.includeArtist && _.random(0.0, 1.0, true) < 0.5
-      ? _.random(settings.minArtist, settings.maxArtist, false)
+    settings.includeArtist && randomFloat() < 0.5
+      ? randomInt(settings.minArtist, settings.maxArtist)
       : 0;
 
   return processRepeat(artistCount, artist, alias);

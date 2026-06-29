@@ -3,7 +3,7 @@
  * @brief Browser-safe list store: once-only depletion and alias resolution behind the injected loader.
  */
 
-import _ from "lodash";
+import { randomInt, sample } from "../helpers/random.js";
 import { keywordAlias, artistAlias } from "../helpers/aliases.js";
 import { isGatedList } from "../gatedLists.js";
 
@@ -43,13 +43,13 @@ export function createListStore(loader) {
     if (name == artistAlias && String(settings.artistFilename) != "false")
       return settings.artistFilename;
     if (name == keywordAlias && String(settings.keywordsFilename) == "false")
-      return _.sample(
+      return sample(
         loader
           .listNames()
           .filter((n) => !isArtistName(settings, n) && (settings.includeAdult || !isGatedList(n))),
       );
     if (name == artistAlias && String(settings.artistFilename) == "false")
-      return _.sample(
+      return sample(
         loader
           .listNames()
           .filter((n) => isArtistName(settings, n) && (settings.includeAdult || !isGatedList(n))),
@@ -83,7 +83,7 @@ export function createListStore(loader) {
     if (list.length <= 0) list = reload(settings, name);
     if (list.length <= 0) return "";
 
-    const index = _.random(0, list.length - 1);
+    const index = randomInt(0, list.length - 1);
     const entry = list[index];
 
     if (settings.listEntriesUsedOnce) list.splice(index, 1);

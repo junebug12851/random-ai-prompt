@@ -3,7 +3,7 @@
  * @brief core/ port of the {name} stage (loader-injected).
  */
 
-import _ from "lodash";
+import { randomFloat, shuffle } from "../../helpers/random.js";
 import randomEmphasis from "../../helpers/randomEmphasis.js";
 import randomEditing from "../../helpers/randomEditing.js";
 import randomAlternating from "../../helpers/randomAlternating.js";
@@ -26,15 +26,15 @@ export function makeListStage(store) {
   function sampleFile(name, settings, emphasis) {
     emphasis = emphasis === undefined ? true : emphasis == true;
 
-    if (!emphasis || _.random(0.0, 1.0, true) > settings.emphasisChance)
+    if (!emphasis || randomFloat() > settings.emphasisChance)
       return store.pull(settings, name);
 
     let targList = promptFuncsSd;
     if (settings.mode == "NovelAI") targList = promptFuncsNai;
     else if (settings.mode == "Midjourney") targList = promptFuncsMdj;
 
-    if (promptFuncsTmp.length == 0) promptFuncsTmp = _.clone(targList);
-    promptFuncsTmp = _.shuffle(promptFuncsTmp);
+    if (promptFuncsTmp.length == 0) promptFuncsTmp = [...targList];
+    promptFuncsTmp = shuffle(promptFuncsTmp);
 
     name = `{${name}}`;
     name = promptFuncsTmp[0](settings, name).keyword;
