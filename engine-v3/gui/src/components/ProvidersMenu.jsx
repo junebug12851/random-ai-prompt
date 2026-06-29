@@ -111,14 +111,15 @@ export default function ProvidersMenu({ settings, setSettings }) {
   // Image providers grouped Local / Online. Plain text needs no machine or network, so it lists
   // under Local alongside the local Stable Diffusion engines. Upscale-only providers (enhancers like
   // DeepAI) can't generate, so they're excluded here — they live in the Upscaler / Enhancer row.
+  const notImageRole = (p) => p.upscaleOnly || p.textOnly; // enhancers + text-only providers
   const imageGroups = [
     {
       title: intl.formatMessage(msgs.groupLocal),
-      items: provs.filter((p) => (p.local || p.id === "plain") && !p.upscaleOnly).map(toOption),
+      items: provs.filter((p) => (p.local || p.id === "plain") && !notImageRole(p)).map(toOption),
     },
     {
       title: intl.formatMessage(msgs.groupOnline),
-      items: provs.filter((p) => !p.local && p.id !== "plain" && !p.upscaleOnly).map(toOption),
+      items: provs.filter((p) => !p.local && p.id !== "plain" && !notImageRole(p)).map(toOption),
     },
   ];
 
