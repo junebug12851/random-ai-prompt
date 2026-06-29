@@ -12,6 +12,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../src/gatedLists.js";
 import DplEditor from "./DplEditor.jsx";
+import DplInsertBar from "./DplInsertBar.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
 const JS_BOILERPLATE = `/**
@@ -52,6 +53,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
   const [nsfwFlag, setNsfwFlag] = useState(false);
   const [dirty, setDirty] = useState(false);
   const jsTouched = useRef(false);
+  const dplEditorRef = useRef(null);
 
   // (Re)load whenever the selected generator changes.
   useEffect(() => {
@@ -221,9 +223,12 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         </div>
       )}
 
+      {showDpl && tab === "dpl" && <DplInsertBar editorRef={dplEditorRef} settings={settings} />}
+
       <div className="mg-editor-body">
         {showDpl && tab === "dpl" && (
           <DplEditor
+            ref={dplEditorRef}
             value={dplText}
             onChange={(v) => {
               setDplText(v);

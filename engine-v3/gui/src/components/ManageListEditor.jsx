@@ -145,6 +145,46 @@ export default function ManageListEditor({ entry, onChanged }) {
     setEditIdx(-1);
   }
 
+  // Drop duplicate entries (case-insensitive, trimmed; keeps the first occurrence and the original
+  // order). Empty lines collapse to one. Reports how many were removed.
+  function dedupe() {
+    setStatus("");
+    setError("");
+    setLines((a) => {
+      const seen = new Set();
+      const out = [];
+      for (const l of a) {
+        const key = l.trim().toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(l);
+      }
+      const removed = a.length - out.length;
+      if (removed > 0) {
+        setDirty(true);
+        setStatus(`Removed ${removed.toLocaleString()} duplicate${removed === 1 ? "" : "s"}.`);
+        return out;
+      }
+      setStatus("No duplicates found.");
+      return a;
+    });
+    setEditIdx(-1);
+  }
+
+  // Sort entries alphabetically (case-insensitive, locale-aware).
+  function sortLines() {
+    setStatus("");
+    setError("");
+    setLines((a) =>
+      a
+        .slice()
+        .sort((x, y) => x.trim().toLowerCase().localeCompare(y.trim().toLowerCase())),
+    );
+    setDirty(true);
+    setStatus("Sorted A–Z.");
+    setEditIdx(-1);
+  }
+
   async function save() {
     setSaving(true);
     setError("");
@@ -286,6 +326,12 @@ export default function ManageListEditor({ entry, onChanged }) {
             />
             <button className="link-btn" onClick={addLine}>
               + Add entry
+            </button>
+            <button className="link-btn" onClick={sortLines} disabled={saving || lines.length < 2} title="Sort entries A–Z">
+              Sort
+            </button>
+            <button className="link-btn" onClick={dedupe} disabled={saving || lines.length < 2} title="Remove duplicate entries">
+              Dedupe
             </button>
             <span className="mg-count-note">
               {filtered ? `${filtered.length.toLocaleString()} match` : `${lines.length.toLocaleString()} entries`}
