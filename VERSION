@@ -19,4 +19,4 @@
 # dependency was taken to its current major (Express 5, yargs 18, open 11,
 # node-fetch dropped for the built-in fetch). That is a breaking jump for anyone
 # running an old Node, hence the MAJOR bump.
-2.18.2
+2.19.0

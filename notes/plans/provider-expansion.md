@@ -28,8 +28,8 @@ against current docs before coding — APIs drift.**
 |---|---|---|---|
 | Stability AI | image, text | **upscale** | ✅ DONE (2.18.1) — `v2beta/stable-image/upscale/fast` (sync ~4×) |
 | fal | image | **upscale** | ✅ DONE (2.18.2) — `fal-ai/esrgan` (sync ~4×), data-URI in / data-URL out |
-| Leonardo | image | **upscale** (Universal Upscaler) | TODO — heavier: `POST /init-image` (presigned S3 upload) → `POST /variations/universal-upscaler` (`upscaleMultiplier` ≤ 2) → poll `/variations/{id}`; browser-direct but 5-step |
-| Replicate | image | **upscale** (Real-ESRGAN) | TODO — `hosted-proxy`: needs an **upscale action through the proxy dispatch** (`callProxy` + `server/dispatch.js` + netlify fn) since the browser can't call Replicate (CORS); `/v1/predictions` w/ `version` + `Prefer: wait`, data-URI image |
+| Leonardo | image | **upscale** (Universal Upscaler) | ✅ DONE (2.19.0) — `init-image` presigned upload → `variations/universal-upscaler` (≤2×) → poll; best-effort, verify live |
+| Replicate | image | **upscale** (Real-ESRGAN) | ✅ DONE (2.19.0) — via the new `/api/upscale` proxy: `dispatchUpscale` → `nightmareai/real-esrgan` `/v1/models/.../predictions` w/ `Prefer: wait`; server inlines the image + returns data URLs |
 | ComfyUI / local-webui / forge / sdnext | image (local) | **upscale** via local nodes / Extras tab | TODO — local graph / `/sdapi/v1/extra-single-image` |
 
 **Save-model note:** the AI-upscale result must come back as a `data:` URL (the `/api/image` ingest
@@ -62,7 +62,8 @@ Firefly (SFW), Topaz/Magnific/Claid/Let's Enhance/Picsart/Cloudinary/Pixelbin/De
 ## Suggested order
 
 1. (done) framework + NSFW soft-lock.
-2. In-repo upscale: Stability → fal → Replicate → Leonardo → local engines.
+2. (done) In-repo upscale: Stability, fal, Leonardo, Replicate (2.18.1–2.19.0). Next: local engines
+   (ComfyUI / forge / sdnext / local-webui via Extras / nodes).
 3. New generation providers: Krea, Firefly, Ideogram v3 upgrade.
 4. Hosted upscale-only services in batches (Topaz, Magnific, Claid, Picsart, DeepAI, …).
 5. Local upscalers (Real-ESRGAN/Upscayl/chaiNNer) as `local-direct`.

@@ -20,7 +20,9 @@ export default {
     cfg: false,
     seed: false,
     batch: { min: 1, max: 4 },
+    upscale: true, // Real-ESRGAN via the proxy (hosted-proxy can't be browser-direct) — code/upscale.js
   },
   loadGenerate: () => import("./code/generate.js").then((m) => m.default),
+  loadUpscale: () => import("./code/upscale.js").then((m) => m.default),
   loadSettings: () => import("./settings.js").then((m) => m.default),
 };
