@@ -1,5 +1,7 @@
 # random-ai-prompt
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/927e1b3b-338c-48e0-8959-03dcd055cb87/deploy-status)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
+
 A random AI prompt + image generator for Stable Diffusion (and other) image models. This repository
 holds **two separate engines**. Pick the one you want:
 
