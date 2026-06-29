@@ -11,6 +11,8 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  // Built for safe-for-work content. Never hard-blocked — soft-locked (icon + confirm) in NSFW mode.
+  contentPolicy: "sfw-only",
   capabilities: {
     models: true,
     aspectRatio: true,

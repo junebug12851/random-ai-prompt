@@ -53,6 +53,10 @@
     "defaultMessage": "Manage needs the local app (file access) — unavailable online",
     "description": "Tooltip when the Manage tab is unavailable (no local backend)"
   },
+  "app.nsfwProceed": {
+    "defaultMessage": "NSFW mode is on. Continue with {provider} anyway?",
+    "description": "Soft confirm before using a safe-for-work-only provider while NSFW mode is on"
+  },
   "app.switchView": {
     "defaultMessage": "Switch view",
     "description": "aria-label for the top-bar view switcher"
@@ -577,6 +581,9 @@
   "home.noBlocks": {
     "defaultMessage": "No building blocks match “{query}”."
   },
+  "home.nsfwProceed": {
+    "defaultMessage": "NSFW mode is on. Generate with {provider} anyway?"
+  },
   "home.phNegative": {
     "defaultMessage": "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, '{#bad-anatomy}'"
   },
@@ -1059,6 +1066,10 @@
     "defaultMessage": "🔒 full version",
     "description": "Badge on a provider only available in the full desktop version"
   },
+  "providerPicker.softLock": {
+    "defaultMessage": "NSFW mode is on — {label} is a safe-for-work service",
+    "description": "Neutral soft-lock tooltip (never says the user can't use it)"
+  },
   "providerPicker.title": {
     "defaultMessage": "{label} provider",
     "description": "Tooltip on the provider dropdown trigger (label = Image/Text)"
@@ -1191,14 +1202,17 @@
   "settingsDrawer.title": {
     "defaultMessage": "Settings"
   },
+  "single.aiNeedsKey": {
+    "defaultMessage": "{provider} — add a key to use"
+  },
   "single.aiTranslation": {
     "defaultMessage": "AI translation"
   },
   "single.aiUpscale": {
-    "defaultMessage": "AI Upscale"
+    "defaultMessage": "AI Upscale · {provider}"
   },
-  "single.aiUpscaleLocked": {
-    "defaultMessage": "AI Upscale — not offered by {provider}"
+  "single.aiUpscaleNone": {
+    "defaultMessage": "AI Upscale — no provider added yet"
   },
   "single.allSettings": {
     "defaultMessage": "All settings ({count})"

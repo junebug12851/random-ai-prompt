@@ -227,6 +227,28 @@
       "value": "]"
     }
   ],
+  "app.nsfwProceed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ ḿǿǿḓḗḗ īş ǿǿƞ. Ƈǿǿƞŧīƞŭŭḗḗ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " ȧȧƞẏẇȧȧẏ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.switchView": [
     {
       "type": 0,
@@ -3033,6 +3055,28 @@
       "value": "]"
     }
   ],
+  "home.nsfwProceed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ ḿǿǿḓḗḗ īş ǿǿƞ. Ɠḗḗƞḗḗřȧȧŧḗḗ ẇīŧħ "
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " ȧȧƞẏẇȧȧẏ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "home.phNegative": [
     {
       "type": 0,
@@ -5508,6 +5552,28 @@
       "value": "]"
     }
   ],
+  "providerPicker.softLock": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȠŞƑẆ ḿǿǿḓḗḗ īş ǿǿƞ — "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": " īş ȧȧ şȧȧƒḗḗ-ƒǿǿř-ẇǿǿřķ şḗḗřṽīƈḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providerPicker.title": [
     {
       "type": 0,
@@ -6114,6 +6180,24 @@
       "value": "]"
     }
   ],
+  "single.aiNeedsKey": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 1,
+      "value": "provider"
+    },
+    {
+      "type": 0,
+      "value": " — ȧȧḓḓ ȧȧ ķḗḗẏ ŧǿǿ ŭŭşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "single.aiTranslation": [
     {
       "type": 0,
@@ -6135,25 +6219,25 @@
     },
     {
       "type": 0,
-      "value": "ȦĪ Ŭƥşƈȧȧŀḗḗ"
+      "value": "ȦĪ Ŭƥşƈȧȧŀḗḗ · "
+    },
+    {
+      "type": 1,
+      "value": "provider"
     },
     {
       "type": 0,
       "value": "]"
     }
   ],
-  "single.aiUpscaleLocked": [
+  "single.aiUpscaleNone": [
     {
       "type": 0,
       "value": "["
     },
     {
       "type": 0,
-      "value": "ȦĪ Ŭƥşƈȧȧŀḗḗ — ƞǿǿŧ ǿǿƒƒḗḗřḗḗḓ ƀẏ "
-    },
-    {
-      "type": 1,
-      "value": "provider"
+      "value": "ȦĪ Ŭƥşƈȧȧŀḗḗ — ƞǿǿ ƥřǿǿṽīḓḗḗř ȧȧḓḓḗḗḓ ẏḗḗŧ"
     },
     {
       "type": 0,

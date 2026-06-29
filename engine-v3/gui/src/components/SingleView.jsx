@@ -30,7 +30,7 @@ import {
 import { parseKeywords, normalizeKeywordList } from "../lib/keywords.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
-import { getProvider } from "../lib/providers/index.js";
+import { getProvider, providers } from "../lib/providers/index.js";
 import { canDerive, hasSource, RESIZE_SCALES } from "../lib/derive.js";
 
 const msgs = defineMessages({
@@ -166,10 +166,11 @@ const msgs = defineMessages({
     id: "single.resizeLocked",
     defaultMessage: "Resizing needs ImageMagick installed — it isn't, so this is locked",
   },
-  aiUpscale: { id: "single.aiUpscale", defaultMessage: "AI Upscale" },
-  aiUpscaleLocked: {
-    id: "single.aiUpscaleLocked",
-    defaultMessage: "AI Upscale — not offered by {provider}",
+  aiUpscale: { id: "single.aiUpscale", defaultMessage: "AI Upscale · {provider}" },
+  aiNeedsKey: { id: "single.aiNeedsKey", defaultMessage: "{provider} — add a key to use" },
+  aiUpscaleNone: {
+    id: "single.aiUpscaleNone",
+    defaultMessage: "AI Upscale — no provider added yet",
   },
 });
 
@@ -558,6 +559,7 @@ export default function SingleView({
   onMetaUpdate,
   onDerive,
   onResize,
+  onUpscale,
   derivations = [],
   deriveError,
 }) {
@@ -693,16 +695,20 @@ export default function SingleView({
     a.remove();
   };
 
-  // --- Resize control (ImageMagick down/up-scale + a provider-gated AI Upscale) ---
+  // --- Resize control (ImageMagick down/up-scale + provider AI Upscale) ---
   const magickOk = magick.available;
-  const aiUpscale = !!caps.upscale; // no provider offers this yet → always locked, but visible
+  // Providers that ship an AI upscale adapter; a key-gated one is offered but disabled until keyed.
+  const upscalers = providers
+    .filter((pp) => pp.capabilities?.upscale && pp.loadUpscale)
+    .map((pp) => ({ id: pp.id, label: pp.label, ready: !pp.needsKey || !!effectiveKey(pp.id, settings) }));
+  const hasUpscalers = upscalers.length > 0;
   const onResizePick = (e) => {
     const val = e.target.value;
     e.target.selectedIndex = 0;
     if (!val) return;
     const [kind, raw] = val.split(":");
     if (kind === "mag" && onResize) onResize(item, Number(raw));
-    // "ai" is locked (disabled option) — no action.
+    else if (kind === "ai" && onUpscale) onUpscale(item, raw);
   };
 
   return (
@@ -780,7 +786,7 @@ export default function SingleView({
 
                   {/* Resize — ImageMagick down/up-scale + a (locked) AI Upscale, always visible. */}
                   {onResize && (
-                    <span className={`g-tool${magickOk || aiUpscale ? "" : " is-locked"}`}>
+                    <span className={`g-tool${magickOk || hasUpscalers ? "" : " is-locked"}`}>
                       <select
                         className="g-resize"
                         defaultValue=""
@@ -802,16 +808,22 @@ export default function SingleView({
                           })}
                         </optgroup>
                         <optgroup label={intl.formatMessage(msgs.resizeGroupAi)}>
-                          <option value="ai:up" disabled={!aiUpscale}>
-                            {aiUpscale
-                              ? intl.formatMessage(msgs.aiUpscale)
-                              : intl.formatMessage(msgs.aiUpscaleLocked, {
-                                  provider: m.providerLabel || prov?.label || "this provider",
-                                })}
-                          </option>
+                          {hasUpscalers ? (
+                            upscalers.map((u) => (
+                              <option key={u.id} value={`ai:${u.id}`} disabled={!u.ready}>
+                                {u.ready
+                                  ? intl.formatMessage(msgs.aiUpscale, { provider: u.label })
+                                  : intl.formatMessage(msgs.aiNeedsKey, { provider: u.label })}
+                              </option>
+                            ))
+                          ) : (
+                            <option value="ai:none" disabled>
+                              {intl.formatMessage(msgs.aiUpscaleNone)}
+                            </option>
+                          )}
                         </optgroup>
                       </select>
-                      {!magickOk && <span className="g-tool-lock" aria-hidden="true">🔒</span>}
+                      {!magickOk && !hasUpscalers && <span className="g-tool-lock" aria-hidden="true">🔒</span>}
                     </span>
                   )}
 

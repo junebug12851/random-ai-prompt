@@ -25,6 +25,11 @@ const msgs = defineMessages({
     defaultMessage: "key",
     description: "Badge marking a provider that needs a bring-your-own API key",
   },
+  softLock: {
+    id: "providerPicker.softLock",
+    defaultMessage: "NSFW mode is on — {label} is a safe-for-work service",
+    description: "Neutral soft-lock tooltip (never says the user can't use it)",
+  },
 });
 
 /**
@@ -73,13 +78,28 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
                   {g.items.map((it) => (
                     <button
                       key={it.id}
-                      className={`ps-item${it.id === value ? " on" : ""}${it.locked ? " is-locked" : ""}`}
+                      className={`ps-item${it.id === value ? " on" : ""}${it.locked ? " is-locked" : ""}${it.softLock ? " is-soft" : ""}`}
                       aria-disabled={it.locked || undefined}
-                      title={it.locked ? lockedHint(intl, it.label, it.lockReason) : undefined}
+                      title={
+                        it.locked
+                          ? lockedHint(intl, it.label, it.lockReason)
+                          : it.softLock
+                            ? intl.formatMessage(msgs.softLock, { label: it.label })
+                            : undefined
+                      }
                       onClick={() => (it.locked ? openFullVersion() : choose(it.id))}
                     >
                       <span className="ps-item-head">
-                        <span className="ps-item-label">{it.label}</span>
+                        <span className="ps-item-label">
+                          {/* Soft-lock (SFW-only provider while NSFW mode is on): a neutral icon,
+                              still selectable — the confirm happens at use, never here. */}
+                          {it.softLock && (
+                            <span className="ps-soft" aria-hidden="true" title={intl.formatMessage(msgs.softLock, { label: it.label })}>
+                              🔒
+                            </span>
+                          )}
+                          {it.label}
+                        </span>
                         {it.locked ? (
                           <span className="ps-lock">{intl.formatMessage(msgs.lockBadge)}</span>
                         ) : (

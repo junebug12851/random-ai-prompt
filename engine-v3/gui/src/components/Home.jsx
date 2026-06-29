@@ -26,6 +26,7 @@ import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
+import { softLockedForNsfw } from "../lib/contentPolicy.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
@@ -264,6 +265,10 @@ const msgs = defineMessages({
   clearAllTitle: { id: "home.clearAllTitle", defaultMessage: "Clear all results" },
   clearAll: { id: "home.clearAll", defaultMessage: "Clear all" },
   example: { id: "home.example", defaultMessage: "Example:" },
+  nsfwProceed: {
+    id: "home.nsfwProceed",
+    defaultMessage: "NSFW mode is on. Generate with {provider} anyway?",
+  },
 });
 
 /**
@@ -700,8 +705,13 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       }
       // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
       setPrompts((prev) => [...out, ...prev]);
-      // Auto-render: kick off an image batch for each new prompt (api providers only).
-      if (canGenerateImages) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
+      // Auto-render: kick off an image batch for each new prompt (api providers only). If the chosen
+      // provider is safe-for-work-only and NSFW mode is on, ask once before sending — never block the
+      // prompt build, and never tell the user it's disallowed.
+      const nsfwOk =
+        !softLockedForNsfw(provider, settings.includeAdult) ||
+        confirm(intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }));
+      if (canGenerateImages && nsfwOk) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
     } catch (e) {
       setError(e.message || String(e));
     }

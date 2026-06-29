@@ -3150,6 +3150,16 @@ button.ghost:hover {
   color: var(--muted);
 }
 
+/* Soft lock (SFW-only provider while NSFW mode is on) — a neutral icon, still selectable */
+.ps-soft {
+  margin-right: 0.32rem;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+.ps-item.is-soft .ps-item-label {
+  color: var(--fg);
+}
+
 @media (max-width: 720px) {
   .g-single-body {
     grid-template-columns: 1fr;
