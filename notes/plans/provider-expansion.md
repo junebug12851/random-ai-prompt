@@ -30,7 +30,8 @@ against current docs before coding — APIs drift.**
 | fal | image | **upscale** | ✅ DONE (2.18.2) — `fal-ai/esrgan` (sync ~4×), data-URI in / data-URL out |
 | Leonardo | image | **upscale** (Universal Upscaler) | ✅ DONE (2.19.0) — `init-image` presigned upload → `variations/universal-upscaler` (≤2×) → poll; best-effort, verify live |
 | Replicate | image | **upscale** (Real-ESRGAN) | ✅ DONE (2.19.0) — via the new `/api/upscale` proxy: `dispatchUpscale` → `nightmareai/real-esrgan` `/v1/models/.../predictions` w/ `Prefer: wait`; server inlines the image + returns data URLs |
-| ComfyUI / local-webui / forge / sdnext | image (local) | **upscale** via local nodes / Extras tab | ⛔ DEFERRED — **the A1111/local-webui adapter is stale** (owner flag, 2026-06-29): the `local-webui` generate adapter (which Forge + SD.Next reuse) is old and likely no longer works against current A1111/Forge/SD.Next, so building an Extras upscaler (`/sdapi/v1/extra-single-image`) on it isn't trustworthy. **Blocked on a `local-webui` modernization pass** (re-verify the `/sdapi/v1/txt2img` contract — e.g. `sampler_index` → `sampler_name`, current param names — against a live WebUI) before the local upscaler is added. ComfyUI upscale separately needs a model-specific graph. |
+| Forge / SD.Next (local-webui) | image (local) | **upscale** via Extras tab | ✅ DONE (2.22.0) — modernized the `local-webui` txt2img adapter first (`sampler_index` → `sampler_name` + `scheduler` + `batch_size`), then added the shared Extras upscaler (`/sdapi/v1/extra-single-image`, `R-ESRGAN 4x+`). Best-effort — verify against a live WebUI. |
+| ComfyUI | image (local) | **upscale** via an upscale node graph | TODO — needs a model-specific workflow graph (an Upscale Model Loader + upscale node); deferred. |
 
 **Save-model note:** the AI-upscale result must come back as a `data:` URL (the `/api/image` ingest
 only persists data/localhost sources, for SSRF safety), so each adapter inlines the **input** image as
@@ -66,8 +67,8 @@ Firefly (SFW), Topaz/Magnific/Claid/Let's Enhance/Picsart/Cloudinary/Pixelbin/De
 3. (in progress) Hosted upscale-only enhancers: DeepAI (2.20.0), Picsart + Segmind (2.21.0). Remaining
    (Topaz, Magnific, Claid, Clipdrop, Pixelbin, VanceAI, neural.love, …) are mostly **async / niche /
    best-effort** — diminishing returns; add on request.
-4. ⛔ Local SD upscalers (ComfyUI / Forge / SD.Next) — **DEFERRED**: the local-webui A1111 adapter is
-   stale (owner flag). Needs a modernization + live re-verify pass first (see the table above).
+4. (done) Local SD: **modernized the A1111/local-webui adapter** + added Forge/SD.Next Extras upscalers
+   (2.22.0). ComfyUI upscale still TODO (needs a graph).
 5. New generation providers: Krea, Firefly, Ideogram v3 upgrade (real value, online-capable, but each a
    researched best-effort BYOK module).
 5. Local upscalers (Real-ESRGAN/Upscayl/chaiNNer) as `local-direct`.

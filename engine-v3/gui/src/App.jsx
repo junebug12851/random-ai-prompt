@@ -263,7 +263,10 @@ function AppShell({ settings, setSettings }) {
       const upscale = await prov.loadUpscale();
       const key = effectiveKey(prov.id, settings);
       const src = item.path.startsWith("/") ? new URL(item.path, location.origin).href : item.path;
-      const { images } = await upscale({ image: src, key, settings: item.meta?.settings || {} });
+      // Pass the LIVE app settings merged with this upscaler's own params (e.g. a local WebUI's URL),
+      // not the source image's frozen generation snapshot.
+      const upSettings = { ...settings, ...(settings.providerParams?.[prov.id] || {}) };
+      const { images } = await upscale({ image: src, key, settings: upSettings });
       if (!images || !images.length) throw new Error("The upscaler returned no image.");
       const childMeta = {
         prompt: item.meta?.prompt || null,
