@@ -135,7 +135,7 @@ Release to `main` only on the owner's explicit go-ahead (refactors don't auto-re
 
 ## Additional workstreams (added 2026-06-29, from owner requests)
 
-### Workstream A — Seedable engine RNG (de-lodash randomness) — **separate, larger refactor**
+### Workstream A — Seedable engine RNG (de-lodash randomness) — ✅ DONE (2.28.4)
 The engine's random passes (emphasis, alternating, list `_.shuffle`/`_.sample`, keyword repeat,
 random-editing, suggestion assembly, prompt-salt) call lodash `_.random`/`_.sample`/`_.shuffle`.
 **lodash captures `Math.random` at import**, so the test seam `withSeed` (which swaps `Math.random`)

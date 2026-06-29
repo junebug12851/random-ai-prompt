@@ -11,7 +11,7 @@
 // Generators live flat under data/dynamic-prompts/<category>/. A bare `{#name}` is
 // resolved by PATH SUFFIX (the same rule lists use), so references stay short and
 // folder-independent; `{#category/name}` addresses one explicitly.
-import _ from "lodash";
+import { sample } from "../../helpers/random.js";
 import { resolveName } from "../../listManifest.js";
 import { isReservedAny, dynGroupMembers } from "../../dynPromptManifest.js";
 import { isGatedDynPrompt } from "../../gatedLists.js";
@@ -139,7 +139,7 @@ export function makeDynamicPromptStage(loader) {
       else if (variant === "nsfw")
         ok = includeAdult ? pool : []; // -nsfw is nothing when adult off
       else ok = includeAdult ? pool : pool.filter((n) => !isNsfw(n));
-      const key = ok.length ? _.sample(ok) : null;
+      const key = ok.length ? sample(ok) : null;
       return key ? run(key, settings, imageSettings, upscaleSettings, intensity, focus, dedup) : "";
     }
 

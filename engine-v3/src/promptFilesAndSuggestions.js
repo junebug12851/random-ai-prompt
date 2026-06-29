@@ -3,7 +3,7 @@
  * @brief Loader-injected dynamic-prompt classifier (full vs partial) and random promptSuggestion() builder; also feeds the web file pickers. Notes: notes/reference/dynamic-prompts.md.
  */
 
-import _ from "lodash";
+import { randomFloat, randomInt, sample } from "./helpers/random.js";
 
 import cleanup from "./prompt-modules/cleanup.js";
 import { isGatedList, hasNsfwToken, isGatedDynPrompt } from "./gatedLists.js";
@@ -208,11 +208,11 @@ function prePrompt(maxCount) {
   // Garnish with a few partial generators and lists (each ~25%). Pools may be empty (v3 has no
   // partials; expansions are unified into generators), so guard every sample.
   for (let i = 0; i < maxCount; i++) {
-    if (partialPool.length && _.random(0.0, 1.0, true) < 0.25)
-      prePrompt += `, {#${_.sample(partialPool)}}`;
+    if (partialPool.length && randomFloat() < 0.25)
+      prePrompt += `, {#${sample(partialPool)}}`;
 
-    if (listPool.length && _.random(0.0, 1.0, true) < 0.25)
-      prePrompt += `, {${_.sample(listPool)}}`;
+    if (listPool.length && randomFloat() < 0.25)
+      prePrompt += `, {${sample(listPool)}}`;
   }
 
   return prePrompt;
@@ -234,22 +234,22 @@ function promptSuggestion(full) {
   let maxOptions = full == true ? 3 : 0;
   let maxCount = full == true ? 3 : 1;
 
-  switch (_.random(0, maxOptions, false)) {
+  switch (randomInt(0, maxOptions)) {
     // Option 0: Pick 1 full dynamic prompt
     case 0:
-      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}}`;
+      ret = `${prePrompt(maxCount)}, {#${sample(fullPool)}}`;
       break;
 
     case 1:
-      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :1.1`;
+      ret = `${prePrompt(maxCount)}, {#${sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${sample(fullPool)}} :1.1`;
       break;
 
     case 2:
-      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :1.1 AND ${prePrompt(maxCount)}, {#${_.sample(fullPool)}} :0.50`;
+      ret = `${prePrompt(maxCount)}, {#${sample(fullPool)}} :0.75 AND ${prePrompt(maxCount)}, {#${sample(fullPool)}} :1.1 AND ${prePrompt(maxCount)}, {#${sample(fullPool)}} :0.50`;
       break;
 
     case 3:
-      ret = `${prePrompt(maxCount)}, {#${_.sample(fullPool)}}, ${prePrompt(maxCount)}, {#${_.sample(fullPool)}}`;
+      ret = `${prePrompt(maxCount)}, {#${sample(fullPool)}}, ${prePrompt(maxCount)}, {#${sample(fullPool)}}`;
       break;
   }
 
