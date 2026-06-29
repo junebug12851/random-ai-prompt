@@ -111,12 +111,26 @@ import openaiRewrite from "../providers/openai/code/rewrite.js";
 import geminiRewrite from "../providers/gemini/code/rewrite.js";
 import grokRewrite from "../providers/grok/code/rewrite.js";
 import { systemFor } from "../providers/_shared/rewriteSystem.js";
+import { makeChatRewrite } from "../providers/_shared/openaiCompatRewrite.js";
 
-/** @type {Record<string, (args: object) => Promise<{text: string}>>} Auto-fix text rewriters. */
+/**
+ * Auto-fix text rewriters. OpenAI/Gemini/Grok have bespoke browser-direct adapters; the OpenAI-
+ * compatible providers (DeepSeek, Mistral, Together, Perplexity — proxied because their browser CORS
+ * isn't assured) share the generic `makeChatRewrite` factory, just a base URL + default model.
+ * @type {Record<string, (args: object) => Promise<{text: string}>>}
+ */
 export const rewriteAdapters = {
   openai: asFn(openaiRewrite),
   gemini: asFn(geminiRewrite),
   grok: asFn(grokRewrite),
+  deepseek: makeChatRewrite({ baseUrl: "https://api.deepseek.com", model: "deepseek-chat", label: "DeepSeek" }),
+  mistral: makeChatRewrite({ baseUrl: "https://api.mistral.ai/v1", model: "mistral-small-latest", label: "Mistral" }),
+  together: makeChatRewrite({
+    baseUrl: "https://api.together.xyz/v1",
+    model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    label: "Together",
+  }),
+  perplexity: makeChatRewrite({ baseUrl: "https://api.perplexity.ai", model: "sonar", label: "Perplexity" }),
 };
 
 /**

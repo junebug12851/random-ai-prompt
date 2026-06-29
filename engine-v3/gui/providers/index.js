@@ -47,10 +47,11 @@ export function getProvider(id) {
 }
 
 /**
- * @returns {object[]} Providers that can rewrite a prompt (auto-fix) — i.e. expose `loadRewrite`.
+ * @returns {object[]} Providers that can rewrite a prompt (auto-fix): browser-direct ones expose
+ *   `loadRewrite`; proxied ones declare `rewrite: true` (a server adapter lives in server/dispatch.js).
  */
 export function rewriteProviders() {
-  return providers.filter((p) => p.loadRewrite);
+  return providers.filter((p) => p.loadRewrite || p.rewrite);
 }
 
 export { DIALECTS, engineModeFor };
