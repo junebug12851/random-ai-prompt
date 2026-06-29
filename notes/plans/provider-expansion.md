@@ -24,13 +24,19 @@ against current docs before coding — APIs drift.**
 
 ### Already in repo — add `upscale` (fastest)
 
-| Provider | Has now | Add | Endpoint to verify |
+| Provider | Has now | Add | Status / endpoint |
 |---|---|---|---|
-| Stability AI | image, text | **upscale** (conservative / creative / fast) | `v2beta/stable-image/upscale/*` |
-| fal | image | **upscale** (Topaz, Real-ESRGAN, clarity) | `fal-ai/topaz/upscale/image`, ESRGAN models |
-| Replicate | image | **upscale** (Real-ESRGAN, SwinIR, SD x4) | predictions API + model version (async poll) |
-| Leonardo | image | **upscale** (Universal Upscaler) | `createVariationUpscale` |
-| ComfyUI / local-webui / forge / sdnext | image (local) | **upscale** via local nodes / Extras tab | local graph / `/sdapi/v1/extra-single-image` |
+| Stability AI | image, text | **upscale** | ✅ DONE (2.18.1) — `v2beta/stable-image/upscale/fast` (sync ~4×) |
+| fal | image | **upscale** | ✅ DONE (2.18.2) — `fal-ai/esrgan` (sync ~4×), data-URI in / data-URL out |
+| Leonardo | image | **upscale** (Universal Upscaler) | TODO — heavier: `POST /init-image` (presigned S3 upload) → `POST /variations/universal-upscaler` (`upscaleMultiplier` ≤ 2) → poll `/variations/{id}`; browser-direct but 5-step |
+| Replicate | image | **upscale** (Real-ESRGAN) | TODO — `hosted-proxy`: needs an **upscale action through the proxy dispatch** (`callProxy` + `server/dispatch.js` + netlify fn) since the browser can't call Replicate (CORS); `/v1/predictions` w/ `version` + `Prefer: wait`, data-URI image |
+| ComfyUI / local-webui / forge / sdnext | image (local) | **upscale** via local nodes / Extras tab | TODO — local graph / `/sdapi/v1/extra-single-image` |
+
+**Save-model note:** the AI-upscale result must come back as a `data:` URL (the `/api/image` ingest
+only persists data/localhost sources, for SSRF safety), so each adapter inlines the **input** image as
+a data URI and fetches the provider-CDN **output** back into a data URL (Stability already returns
+base64; fal fetches its CDN result — CORS-open). A CDN-host allowlist on the ingest endpoint would let
+adapters return remote URLs directly — a possible future simplification.
 
 ### New hosted providers — generation and/or upscale
 
