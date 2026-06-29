@@ -145,6 +145,12 @@ export const rewriteAdapters = {
   }),
   moonshot: makeChatRewrite({ baseUrl: "https://api.moonshot.ai/v1", model: "moonshot-v1-8k", label: "Moonshot" }),
   ai21: makeChatRewrite({ baseUrl: "https://api.ai21.com/studio/v1", model: "jamba-large", label: "AI21" }),
+  huggingface: makeChatRewrite({
+    baseUrl: "https://router.huggingface.co/v1",
+    model: "meta-llama/Llama-3.3-70B-Instruct",
+    label: "Hugging Face",
+  }),
+  llama: makeChatRewrite({ baseUrl: "https://api.llama.com/compat/v1", model: "Llama-3.3-70B-Instruct", label: "Meta Llama" }),
   anthropic: anthropicRewrite,
   cohere: cohereRewrite,
 };
