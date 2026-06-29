@@ -51,6 +51,13 @@ const msgs = defineMessages({
     defaultMessage:
       "Pick a Text AI to enable auto-fix / keyword rewriting (toggled on the prompt box).",
   },
+  upscale: { id: "providersMenu.upscale", defaultMessage: "Upscaler / Enhancer" },
+  groupUpscale: { id: "providersMenu.group.upscale", defaultMessage: "Upscale / enhance" },
+  upscaleHint: {
+    id: "providersMenu.upscaleHint",
+    defaultMessage:
+      "Used in the single-image view to upscale a saved image. Pick a provider and add its key.",
+  },
 });
 
 /**
@@ -97,15 +104,31 @@ export default function ProvidersMenu({ settings, setSettings }) {
   const text = textId !== "none" ? getProvider(textId) : null;
 
   // Image providers grouped Local / Online. Plain text needs no machine or network, so it lists
-  // under Local alongside the local Stable Diffusion engines.
+  // under Local alongside the local Stable Diffusion engines. Upscale-only providers (enhancers like
+  // DeepAI) can't generate, so they're excluded here — they live in the Upscaler / Enhancer row.
   const imageGroups = [
     {
       title: intl.formatMessage(msgs.groupLocal),
-      items: provs.filter((p) => p.local || p.id === "plain").map(toOption),
+      items: provs.filter((p) => (p.local || p.id === "plain") && !p.upscaleOnly).map(toOption),
     },
     {
       title: intl.formatMessage(msgs.groupOnline),
-      items: provs.filter((p) => !p.local && p.id !== "plain").map(toOption),
+      items: provs.filter((p) => !p.local && p.id !== "plain" && !p.upscaleOnly).map(toOption),
+    },
+  ];
+
+  // Upscaler / Enhancer providers: anything that ships an upscale adapter (the in-repo image
+  // providers that also upscale + the upscale-only enhancers). Local-only feature (the single view),
+  // so this row is hidden in the online build. Selecting one is just for key entry + a default.
+  const upscaleId =
+    settings.upscaleProvider && settings.upscaleProvider !== "none" ? settings.upscaleProvider : "none";
+  const upscaleGroups = [
+    {
+      title: intl.formatMessage(msgs.groupUpscale),
+      items: [
+        { id: "none", label: intl.formatMessage(msgs.off), description: intl.formatMessage(msgs.offDesc) },
+        ...provs.filter((p) => p.capabilities?.upscale && p.loadUpscale).map(toOption),
+      ],
     },
   ];
   // Text providers: Off, then the rewrite-capable AIs. A provider in the text role uses its chat
@@ -127,6 +150,7 @@ export default function ProvidersMenu({ settings, setSettings }) {
 
   const pickImage = (id) => setSettings((s) => ({ ...s, provider: id, mode: providerMode(id) }));
   const pickText = (id) => setSettings((s) => ({ ...s, rewriteProvider: id }));
+  const pickUpscale = (id) => setSettings((s) => ({ ...s, upscaleProvider: id }));
 
   return (
     <div className="provider-select providers-menu">
@@ -175,6 +199,29 @@ export default function ProvidersMenu({ settings, setSettings }) {
             <p className="pm-hint">
               {text ? intl.formatMessage(msgs.hintOn) : intl.formatMessage(msgs.hintOff)}
             </p>
+
+            {/* Upscaler / Enhancer — local-only (the single image view), so hidden online. */}
+            {!ONLINE && (
+              <>
+                <div className="pm-row">
+                  <ProviderPicker
+                    label={intl.formatMessage(msgs.upscale)}
+                    value={upscaleId}
+                    groups={upscaleGroups}
+                    onPick={pickUpscale}
+                  />
+                  {upscaleId !== "none" && upscaleId !== imageId && upscaleId !== textId ? (
+                    <ApiKeyField settings={settings} setSettings={setSettings} providerId={upscaleId} />
+                  ) : (
+                    upscaleId !== "none" &&
+                    getProvider(upscaleId)?.needsKey && (
+                      <span className="pm-shared">{intl.formatMessage(msgs.sharesKey)}</span>
+                    )
+                  )}
+                </div>
+                <p className="pm-hint">{intl.formatMessage(msgs.upscaleHint)}</p>
+              </>
+            )}
           </div>
         </>
       )}
