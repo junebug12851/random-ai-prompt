@@ -1,0 +1,49 @@
+name: Deploy (Netlify)
+
+# Continuous deploy of the online SPA to Netlify (prompt.fairyfox.io) on every push to main.
+# The Netlify site is NOT git-connected (it has a manual-CLI history), so THIS workflow is its
+# continuous deploy. It is a safe no-op until the owner adds the NETLIFY_AUTH_TOKEN repo secret
+# (Settings -> Secrets and variables -> Actions -> New repository secret). The site id is public
+# (not a secret), so it lives here in the env. `netlify deploy --build` runs netlify.toml's build
+# (VITE_ONLINE=true -> the online variant) and publishes to production.
+# See notes/reference/deployment.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build + deploy to Netlify
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_SITE_ID: 927e1b3b-338c-48e0-8959-03dcd055cb87
+    steps:
+      - uses: actions/checkout@v4
+
+      # Gate: only deploy when the token secret is present, so the workflow never fails for forks
+      # or before the owner has configured it.
+      - name: Check for Netlify token
+        id: gate
+        run: |
+          if [ -n "${{ secrets.NETLIFY_AUTH_TOKEN }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::NETLIFY_AUTH_TOKEN not set — skipping deploy. Add the secret to enable auto-deploy."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.ready == 'true'
+        with:
+          node-version: 24
+
+      - name: Build + deploy (netlify.toml -> production)
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: npx --yes netlify-cli@26 deploy --build --prod --site "$NETLIFY_SITE_ID"

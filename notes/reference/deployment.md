@@ -8,7 +8,7 @@ How the project ships. There are three independent pipelines, each with one home
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `main`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
-| **Web app deploy** | `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (separate from the GitHub release). |
+| **Web app deploy** | `.github/workflows/netlify-deploy.yml` + `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (`prompt.fairyfox.io`); auto-deploys on push to `main` (gated on the `NETLIFY_AUTH_TOKEN` secret). |
 
 ## CI — `.github/workflows/ci.yml`
 
@@ -41,15 +41,27 @@ SPA's stable chrome changes (the Windows `*-win32.png` set is refreshed locally 
 
 ## Docs site — `.github/workflows/pages.yml`
 
-On every push to `main`, runs `npm ci` then `npm run docs` (`scripts/build-docs.mjs` → **JSDoc** with
-the **docdash** template) and deploys `docs/jsdoc` to GitHub Pages. `README.md` is the home
-(jsdoc `opts.readme`), so the site is the README + the **code API** (per-function JSDoc) + the **full
-living notes** wired in as tutorial pages (hierarchy mirrors the `notes/` tree). See
-[`documentation.md`](documentation.md).
+On every push to `main` (re-enabled 2026-06-29), installs deps then runs `npm run docs`
+(`scripts/build-docs.mjs` → **JSDoc** with the **docdash** template) and deploys `docs/jsdoc` to
+GitHub Pages. `README.md` is the home (jsdoc `opts.readme`), so the site is the README + the **code
+API** (per-function JSDoc) + the **full living notes** wired in as tutorial pages (hierarchy mirrors
+the `notes/` tree). See [`documentation.md`](documentation.md).
 
-**One-time repo setup:** Settings → Pages → Build and deployment → Source = **GitHub Actions**. The
-workflow needs `pages: write` + `id-token: write` and the `github-pages` environment (already declared
-in the workflow).
+**The engine-v3 split straddle (fixed 2026-06-29):** `build-docs.mjs` keeps two roots — `root`
+(engine-v3: code `src/`+`data/`, the transpiled-JSX `tmp/`, the docdash binary) and `repoRoot`
+(engine-v3's parent: `notes/`, `assets/`, `README.md`, `list-credits.md`, **and `jsdoc.config.json`**).
+JSDoc runs from `repoRoot` via the engine-v3-pinned binary (`node engine-v3/node_modules/jsdoc/jsdoc.js`,
+**not** `npx jsdoc`, which would fetch a different version); `jsdoc.config.json` `source.include`
+reaches into `engine-v3/src` etc., and the site is written to the repo-root `docs/jsdoc` (so
+`pages.yml` uploads `docs/jsdoc`, not `engine-v3/docs/jsdoc`). JSDoc exits non-zero on **recoverable**
+TS-style type-expression warnings (`import("react").Ref`, `() => string`, `Error & {…}`, deep
+generics) yet still writes the full site; the build **tolerates** that when `index.html` landed
+(only a missing index is fatal). The remaining cleanup is tightening those JSDoc types so JSDoc is
+silent — cosmetic, deferred.
+
+**One-time repo setup (already done):** Settings → Pages → Source = **GitHub Actions** (`pages` API
+`build_type: "workflow"`). The workflow needs `pages: write` + `id-token: write` and the
+`github-pages` environment (declared in the workflow).
 
 ## Software release — `.github/workflows/release.yml`
 
@@ -148,11 +160,15 @@ apex lives elsewhere), so this record can't be created from the API. Once it res
 auto-provisions a Let's Encrypt cert for `prompt.fairyfox.io`; enable *Force HTTPS* in the domain
 panel. This only adds the `prompt` subdomain — the apex/docs records are untouched.
 
-**Continuous deploy (optional, not set up):** the current site is a **manual CLI deploy** — it does
-**not** rebuild on `git push`. To make pushes to `main` auto-deploy, either connect the repo in the
-Netlify UI (*Site configuration → Build & deploy → Link repository*, which installs the Netlify GitHub
-App), or add a deploy step to `ci.yml` using a `NETLIFY_AUTH_TOKEN` secret + the site id. Until then,
-re-deploy a new release with `netlify deploy --prod --build` from the repo root.
+**Continuous deploy (set up 2026-06-29 — `.github/workflows/netlify-deploy.yml`):** the site is **not
+git-connected** (manual-CLI history), so a dedicated workflow IS the continuous deploy. On every push
+to `main` it runs `netlify deploy --build --prod --site <id>` (the site id `927e1b3b-…` is public, in
+the workflow `env`). It's a **gated no-op until the owner adds the `NETLIFY_AUTH_TOKEN` repo secret**
+(Settings → Secrets and variables → Actions → New repository secret; generate the token at Netlify →
+User settings → Applications → Personal access tokens). Once the secret is present, pushes to `main`
+auto-publish to `prompt.fairyfox.io`. A manual deploy is still available any time:
+`netlify deploy --prod --build` from the repo root (the CLI is linked via `.netlify/state.json`).
+Alternatively the repo can be git-connected in the Netlify UI instead of using the token workflow.
 
 ## Policy (standing rules)
 
@@ -165,14 +181,14 @@ re-deploy a new release with `netlify deploy --prod --build` from the repo root.
 
 ## Not done yet (intentional)
 
-- **Netlify online deploy is LIVE (2026-06-27)** — site `prompt-fairyfox` is deployed and serving the
-  online build at `prompt-fairyfox.netlify.app`, custom domain `prompt.fairyfox.io` attached. The only
-  thing left is the owner adding the `prompt` CNAME at the `fairyfox.io` DNS host (see *Online demo
-  deploy* above). It's a manual CLI deploy, not git-connected — see the continuous-deploy note.
-- **Docs/release pipelines still deliberately dormant.** `main` advancing is the single trigger for the
-  Pages docs deploy and the software Release; **GitHub Pages is not enabled** yet (Settings → Pages →
-  Source still unset), so nothing ships there until the owner says go. Planned homes: **GitHub Pages for
-  the docs** (like the sibling project), **Netlify for the app** (functions).
+- **Netlify online deploy is LIVE (2026-06-27)** — site `prompt-fairyfox` serves the online build at
+  `prompt.fairyfox.io`. **Continuous deploy on push to `main` is now wired** (`netlify-deploy.yml`),
+  pending the owner adding the `NETLIFY_AUTH_TOKEN` secret (see *Continuous deploy* above). The `prompt`
+  CNAME at the `fairyfox.io` DNS host is already resolving (cert approved).
+- **Docs + release pipelines are LIVE.** `main` advancing triggers the Pages docs deploy (`pages.yml`,
+  re-enabled 2026-06-29 after the engine-v3 doc-build straddle fix) and the version-gated software
+  Release (`release.yml`). GitHub Pages source is **GitHub Actions** (already configured); the docs
+  serve under `fairyfox.io/random-ai-prompt/`.
 - The hosted BYOK provider dispatch in `gui/netlify/functions/generate.js` is a stub (migration
   phase 2). Local generation works today; the hosted path is wired but not yet pointed at a provider.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged
