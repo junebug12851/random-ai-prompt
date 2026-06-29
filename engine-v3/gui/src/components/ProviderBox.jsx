@@ -7,10 +7,19 @@
  * @module gui/components/ProviderBox
  */
 import { useEffect } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { Text, Num, Toggle, Select } from "./Field.jsx";
 import { getProvider } from "../lib/providers/index.js";
 import { useProviderSettings } from "../lib/useProvider.js";
 import { infoFor } from "../../providers/_shared/fieldInfo.js";
+
+const msgs = defineMessages({
+  noSettings: {
+    id: "providerBox.noSettings",
+    defaultMessage: "This provider has no extra settings.",
+  },
+  loading: { id: "providerBox.loading", defaultMessage: "Loading…" },
+});
 
 /**
  * A small info "i" with a tooltip.
@@ -75,6 +84,7 @@ function ProviderField({ f, params, setParam, optionData }) {
  * @returns {(JSX.Element|null)}
  */
 export default function ProviderBox({ settings, setSettings }) {
+  const intl = useIntl();
   const provider = getProvider(settings.provider);
   const pid = provider?.id;
   const { schema, options } = useProviderSettings(pid);
@@ -124,7 +134,7 @@ export default function ProviderBox({ settings, setSettings }) {
   if (!fields.length)
     return (
       <p className="hint provider-controls-empty">
-        {schema ? "This provider has no extra settings." : "Loading…"}
+        {intl.formatMessage(schema ? msgs.noSettings : msgs.loading)}
       </p>
     );
 

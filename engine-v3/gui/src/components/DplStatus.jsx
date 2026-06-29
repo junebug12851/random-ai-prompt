@@ -6,7 +6,21 @@
  * @module gui/components/DplStatus
  */
 import { useMemo } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { dplStatus } from "../lib/dpl/validateDpl.js";
+
+const msgs = defineMessages({
+  noProblems: { id: "dplStatus.noProblems", defaultMessage: "Valid DPL — no problems." },
+  valid: { id: "dplStatus.valid", defaultMessage: "Valid DPL" },
+  validWarn: {
+    id: "dplStatus.validWarn",
+    defaultMessage: "Valid DPL, {count, plural, one {# warning} other {# warnings}}",
+  },
+  errors: {
+    id: "dplStatus.errors",
+    defaultMessage: "{count, plural, one {# DPL error} other {# DPL errors}}",
+  },
+});
 
 /**
  * @param {object} props
@@ -15,17 +29,18 @@ import { dplStatus } from "../lib/dpl/validateDpl.js";
  * @returns {JSX.Element}
  */
 export default function DplStatus({ value, className = "" }) {
+  const intl = useIntl();
   const { errors, warnings, diagnostics } = useMemo(() => dplStatus(value || ""), [value]);
   const ok = errors === 0;
 
   const title = diagnostics.length
     ? diagnostics.map((d) => `${d.severity === "error" ? "✕" : "!"} ${d.message}`).join("\n")
-    : "Valid DPL — no problems.";
+    : intl.formatMessage(msgs.noProblems);
   const label = ok
     ? warnings
-      ? `Valid DPL, ${warnings} warning${warnings === 1 ? "" : "s"}`
-      : "Valid DPL"
-    : `${errors} DPL error${errors === 1 ? "" : "s"}`;
+      ? intl.formatMessage(msgs.validWarn, { count: warnings })
+      : intl.formatMessage(msgs.valid)
+    : intl.formatMessage(msgs.errors, { count: errors });
 
   return (
     <span

@@ -11,9 +11,26 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.12.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.15.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)). Latest stable release on `main` is `2.11.2`;
-`2.12.0` (the Manage tab) is on `dev`, pending the owner's go-ahead to release.
+`2.12.0`–`2.14.0` are on `dev` and `2.15.0` (SPA internationalization) is on `feature/i18n-react-intl`,
+all pending the owner's go-ahead to release.
+
+**SPA internationalization (2.15.0 — branch `feature/i18n-react-intl`):** the whole React SPA is
+internationalized with **react-intl** + the full **FormatJS** pipeline. Every user-facing string across
+all ~28 components (text, `title`/`placeholder`/`aria-label`, `confirm`/`prompt`, ICU plurals/numbers) is a
+`defineMessages` / `intl.formatMessage` / `<FormattedMessage>` call — **~407 messages**, English rendering
+byte-identically (visual baselines untouched). New `gui/src/i18n/` (`config.js` locale registry +
+`resolveLocale`, `loadMessages.js` `import.meta.glob` catalog loader, `I18nProvider.jsx`); `App.jsx` split
+into a thin root + `AppShell`; a **Display language** selector in Settings persisted to `settings.locale`
+(`"auto"` follows the browser). Tooling: `babel-plugin-formatjs` (auto IDs) in the Vite react plugin;
+`@formatjs/cli` scripts (`i18n:extract` → `src/i18n/messages/en.json`, `i18n:pseudo` → an `en-XA`
+pseudo-locale); `gui/eslint.config.js` + `npm run lint:i18n` (`eslint-plugin-formatjs`). **Only English is
+shipped** as a real locale (the app's DPL/prompt jargon makes machine translation low-quality; adding a real
+language is now a one-file job). The two remaining English-only spots are the DPL-technical lib modules
+`validateDpl.js` (editor lint diagnostics) and `dplInserts.js` (the DPL syntax catalog) — isomorphic
+non-React modules shared with the core/tests, deferred to avoid destabilizing the tested validator. See
+[`version/2026-06.md`](version/2026-06.md).
 
 **Manage tab (2.12.0 — on `dev`):** a 4th SPA tab, the in-app content manager (local mode only — gated
 on a file-backend capability probe, locked online). It edits the real `data/lists` + `data/dynamic-prompts`
@@ -258,8 +275,9 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (18 warnings, pre-existing) |
 | Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
-| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 99 passed (incl. DPL intensity) |
-| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 51 passed |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 128 passed |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 60 passed (IntlProvider render wrapper added for i18n) |
+| `npm run lint:i18n` (gui — `eslint-plugin-formatjs`) | ✅ 0 problems |
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `gui` SPA `vite build` | ✅ green |

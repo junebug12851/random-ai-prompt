@@ -6,7 +6,26 @@
  * @module gui/components/ProviderPicker
  */
 import { useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { lockedHint, openFullVersion } from "../lib/online.js";
+
+const msgs = defineMessages({
+  providerTitle: {
+    id: "providerPicker.title",
+    defaultMessage: "{label} provider",
+    description: "Tooltip on the provider dropdown trigger (label = Image/Text)",
+  },
+  lockBadge: {
+    id: "providerPicker.lockBadge",
+    defaultMessage: "🔒 full version",
+    description: "Badge on a provider only available in the full desktop version",
+  },
+  keyBadge: {
+    id: "providerPicker.keyBadge",
+    defaultMessage: "key",
+    description: "Badge marking a provider that needs a bring-your-own API key",
+  },
+});
 
 /**
  * @param {object} props
@@ -19,6 +38,7 @@ import { lockedHint, openFullVersion } from "../lib/online.js";
  * @returns {JSX.Element}
  */
 export default function ProviderPicker({ label, value, groups, onPick }) {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const all = groups.flatMap((g) => g.items);
   const current = all.find((it) => it.id === value) || all[0];
@@ -33,7 +53,7 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
       <button
         className="ps-trigger"
         onClick={() => setOpen((o) => !o)}
-        title={`${label} provider`}
+        title={intl.formatMessage(msgs.providerTitle, { label })}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -55,15 +75,15 @@ export default function ProviderPicker({ label, value, groups, onPick }) {
                       key={it.id}
                       className={`ps-item${it.id === value ? " on" : ""}${it.locked ? " is-locked" : ""}`}
                       aria-disabled={it.locked || undefined}
-                      title={it.locked ? lockedHint(it.label, it.lockReason) : undefined}
+                      title={it.locked ? lockedHint(intl, it.label, it.lockReason) : undefined}
                       onClick={() => (it.locked ? openFullVersion() : choose(it.id))}
                     >
                       <span className="ps-item-head">
                         <span className="ps-item-label">{it.label}</span>
                         {it.locked ? (
-                          <span className="ps-lock">🔒 full version</span>
+                          <span className="ps-lock">{intl.formatMessage(msgs.lockBadge)}</span>
                         ) : (
-                          it.needsKey && <span className="ps-key">key</span>
+                          it.needsKey && <span className="ps-key">{intl.formatMessage(msgs.keyBadge)}</span>
                         )}
                       </span>
                       {it.description && <span className="ps-item-desc">{it.description}</span>}

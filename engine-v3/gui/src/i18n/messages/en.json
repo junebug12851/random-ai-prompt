@@ -1,0 +1,1241 @@
+{
+  "apiKey.aria": {
+    "defaultMessage": "{provider} API key",
+    "description": "aria-label for the key input (provider = provider name)"
+  },
+  "apiKey.clearAria": {
+    "defaultMessage": "Clear saved API key"
+  },
+  "apiKey.clearTitle": {
+    "defaultMessage": "Remove the saved key from this browser"
+  },
+  "apiKey.confirmClear": {
+    "defaultMessage": "Remove the saved API key from this browser?"
+  },
+  "apiKey.confirmSave": {
+    "defaultMessage": "Save this API key in your browser? It will persist on this device until you clear it."
+  },
+  "apiKey.getKey": {
+    "defaultMessage": "Get a key ↗"
+  },
+  "apiKey.infoTip": {
+    "defaultMessage": "Your key for this provider. Kept in memory for this session only — click the save icon to store it in this browser."
+  },
+  "apiKey.placeholder": {
+    "defaultMessage": "API key — not saved unless you save it"
+  },
+  "apiKey.saveAria": {
+    "defaultMessage": "Save API key"
+  },
+  "apiKey.saveTitle": {
+    "defaultMessage": "Save key in this browser"
+  },
+  "apiKey.saveUpdateTitle": {
+    "defaultMessage": "Update the saved key in this browser"
+  },
+  "app.deleteConfirm": {
+    "defaultMessage": "Delete this image and its metadata from disk? This can't be undone.",
+    "description": "Confirm dialog before deleting an image from disk"
+  },
+  "app.feature.gallery": {
+    "defaultMessage": "The gallery",
+    "description": "Noun phrase for the gallery, used in the online-locked tooltip"
+  },
+  "app.feature.single": {
+    "defaultMessage": "The single-image view",
+    "description": "Noun phrase for the single view, used in the online-locked tooltip"
+  },
+  "app.footer": {
+    "defaultMessage": "Stored only in this browser · bring your own API key · nothing saved on a server",
+    "description": "Privacy footer line"
+  },
+  "app.manageLocked": {
+    "defaultMessage": "Manage needs the local app (file access) — unavailable online",
+    "description": "Tooltip when the Manage tab is unavailable (no local backend)"
+  },
+  "app.switchView": {
+    "defaultMessage": "Switch view",
+    "description": "aria-label for the top-bar view switcher"
+  },
+  "app.tab.gallery": {
+    "defaultMessage": "Gallery"
+  },
+  "app.tab.generate": {
+    "defaultMessage": "Generate"
+  },
+  "app.tab.manage": {
+    "defaultMessage": "Manage"
+  },
+  "app.tab.single": {
+    "defaultMessage": "Single"
+  },
+  "blockEd.ariaDpl": {
+    "defaultMessage": "Generator DPL"
+  },
+  "blockEd.ariaJs": {
+    "defaultMessage": "Generator JS sidecar"
+  },
+  "blockEd.block": {
+    "defaultMessage": "block"
+  },
+  "blockEd.createJs": {
+    "defaultMessage": "+ Create JS sidecar"
+  },
+  "blockEd.description": {
+    "defaultMessage": "Description"
+  },
+  "blockEd.descriptionPh": {
+    "defaultMessage": "Editor tooltip for this block"
+  },
+  "blockEd.genName": {
+    "defaultMessage": "Generator name"
+  },
+  "blockEd.jsNote": {
+    "defaultMessage": "JS runs on reload — DPL and the rest hot-apply."
+  },
+  "blockEd.loading": {
+    "defaultMessage": "Loading…"
+  },
+  "blockEd.nsfwDisabledTitle": {
+    "defaultMessage": "NSFW option only available in NSFW mode."
+  },
+  "blockEd.nsfwFromNameTitle": {
+    "defaultMessage": "This name contains an nsfw token, so it is always NSFW."
+  },
+  "blockEd.nsfwLabel": {
+    "defaultMessage": "NSFW"
+  },
+  "blockEd.nsfwLabelFromName": {
+    "defaultMessage": "NSFW (from name)"
+  },
+  "blockEd.nsfwMarkTitle": {
+    "defaultMessage": "Mark this block as NSFW (gated behind adult mode)."
+  },
+  "blockEd.rename": {
+    "defaultMessage": "Rename"
+  },
+  "blockEd.renamed": {
+    "defaultMessage": "Renamed."
+  },
+  "blockEd.save": {
+    "defaultMessage": "Save"
+  },
+  "blockEd.saved": {
+    "defaultMessage": "Saved."
+  },
+  "blockEd.savedJs": {
+    "defaultMessage": "Saved — reload the app to run the changed JS."
+  },
+  "blockEd.saving": {
+    "defaultMessage": "Saving…"
+  },
+  "blockEd.tabDpl": {
+    "defaultMessage": "DPL"
+  },
+  "blockEd.tabJs": {
+    "defaultMessage": "JS sidecar"
+  },
+  "dplInsertBar.example": {
+    "defaultMessage": "example"
+  },
+  "dplInsertBar.insert": {
+    "defaultMessage": "Insert"
+  },
+  "dplInsertBar.toolbar": {
+    "defaultMessage": "Insert DPL syntax"
+  },
+  "dplStatus.errors": {
+    "defaultMessage": "{count, plural, one {# DPL error} other {# DPL errors}}"
+  },
+  "dplStatus.noProblems": {
+    "defaultMessage": "Valid DPL — no problems."
+  },
+  "dplStatus.valid": {
+    "defaultMessage": "Valid DPL"
+  },
+  "dplStatus.validWarn": {
+    "defaultMessage": "Valid DPL, {count, plural, one {# warning} other {# warnings}}"
+  },
+  "folderEd.category": {
+    "defaultMessage": "category"
+  },
+  "folderEd.deleteConfirm": {
+    "defaultMessage": "Delete the folder \"{name}\" and everything in it ({count, plural, one {# entry} other {# entries}})? This can't be undone."
+  },
+  "folderEd.deleteFolder": {
+    "defaultMessage": "Delete folder"
+  },
+  "folderEd.description": {
+    "defaultMessage": "Description"
+  },
+  "folderEd.descriptionPh": {
+    "defaultMessage": "Category tooltip"
+  },
+  "folderEd.folder": {
+    "defaultMessage": "folder"
+  },
+  "folderEd.folderName": {
+    "defaultMessage": "Folder name"
+  },
+  "folderEd.forceList": {
+    "defaultMessage": "Force list category"
+  },
+  "folderEd.forceListTitle": {
+    "defaultMessage": "Keep this folder as its own sub-category even with a single list"
+  },
+  "folderEd.forcePrefix": {
+    "defaultMessage": "Force prefix"
+  },
+  "folderEd.forcePrefixTitle": {
+    "defaultMessage": "Show this folder's path in the token (e.g. d/general)"
+  },
+  "folderEd.groupAlways": {
+    "defaultMessage": "Always a group"
+  },
+  "folderEd.groupAuto": {
+    "defaultMessage": "Auto (group when it has 2+ members)"
+  },
+  "folderEd.groupMode": {
+    "defaultMessage": "Group mode"
+  },
+  "folderEd.groupNever": {
+    "defaultMessage": "Never a group"
+  },
+  "folderEd.loading": {
+    "defaultMessage": "Loading…"
+  },
+  "folderEd.priority": {
+    "defaultMessage": "Priority"
+  },
+  "folderEd.priorityPh": {
+    "defaultMessage": "1000 (lower sorts higher; blank = default)"
+  },
+  "folderEd.rename": {
+    "defaultMessage": "Rename"
+  },
+  "folderEd.renamed": {
+    "defaultMessage": "Renamed."
+  },
+  "folderEd.save": {
+    "defaultMessage": "Save"
+  },
+  "folderEd.saved": {
+    "defaultMessage": "Saved."
+  },
+  "folderEd.saving": {
+    "defaultMessage": "Saving…"
+  },
+  "gallery.countImages": {
+    "defaultMessage": "{count, plural, one {# image} other {# images}}"
+  },
+  "gallery.countMatches": {
+    "defaultMessage": "{count, plural, one {# match} other {# matches}}"
+  },
+  "gallery.delete": {
+    "defaultMessage": "Delete image"
+  },
+  "gallery.emptyNone": {
+    "defaultMessage": "No images yet."
+  },
+  "gallery.emptySub": {
+    "defaultMessage": "Generate some images and they'll appear here, read straight from your <code>output/</code> folder. (The gallery needs the local dev server — a static build has no folder to read.)"
+  },
+  "gallery.loading": {
+    "defaultMessage": "loading…"
+  },
+  "gallery.noMatch": {
+    "defaultMessage": "No images match “{query}”."
+  },
+  "gallery.openAria": {
+    "defaultMessage": "Open: {label}",
+    "description": "aria-label on a gallery thumbnail (label = the image's prompt)"
+  },
+  "gallery.openDefault": {
+    "defaultMessage": "Open in default app"
+  },
+  "gallery.refresh": {
+    "defaultMessage": "Refresh"
+  },
+  "gallery.rescanTitle": {
+    "defaultMessage": "Rescan the output folder"
+  },
+  "gallery.reveal": {
+    "defaultMessage": "Reveal in file explorer"
+  },
+  "gallery.searchPlaceholder": {
+    "defaultMessage": "Search prompts, DPL, provider…"
+  },
+  "gallery.title": {
+    "defaultMessage": "Photo gallery"
+  },
+  "home.aiFallback": {
+    "defaultMessage": "AI"
+  },
+  "home.all": {
+    "defaultMessage": "All"
+  },
+  "home.ariaNegative": {
+    "defaultMessage": "Negative prompt (DPL)"
+  },
+  "home.ariaPrompt": {
+    "defaultMessage": "Prompt (DPL)"
+  },
+  "home.autoFixAria": {
+    "defaultMessage": "Auto-fix prompt"
+  },
+  "home.autoFixOff": {
+    "defaultMessage": "Pick a Text provider (header → Providers) to enable auto-fix"
+  },
+  "home.autoFixOn": {
+    "defaultMessage": "Auto-fix the prompt with {provider} before generating"
+  },
+  "home.buildingBlocks": {
+    "defaultMessage": "Building blocks"
+  },
+  "home.clearAll": {
+    "defaultMessage": "Clear all"
+  },
+  "home.clearAllTitle": {
+    "defaultMessage": "Clear all results"
+  },
+  "home.clearNegative": {
+    "defaultMessage": "Clear the negative prompt"
+  },
+  "home.clearPrompt": {
+    "defaultMessage": "Clear the prompt"
+  },
+  "home.close": {
+    "defaultMessage": "close"
+  },
+  "home.composeModeAria": {
+    "defaultMessage": "Edit the prompt or the negative prompt"
+  },
+  "home.confirmClearAll": {
+    "defaultMessage": "Clear all results — delete their {count, plural, one {# image file} other {# image files}} from disk too?"
+  },
+  "home.confirmDeleteBatch": {
+    "defaultMessage": "Delete this batch's image files from disk too?"
+  },
+  "home.confirmDeleteImage": {
+    "defaultMessage": "Delete this image from disk too? OK = delete the file Cancel = just remove it from view"
+  },
+  "home.confirmDeletePromptImgs": {
+    "defaultMessage": "Delete all of this prompt's image files from disk too?"
+  },
+  "home.copied": {
+    "defaultMessage": "✓ Copied"
+  },
+  "home.copy": {
+    "defaultMessage": "Copy"
+  },
+  "home.example": {
+    "defaultMessage": "Example:"
+  },
+  "home.generateAria": {
+    "defaultMessage": "Generate prompt"
+  },
+  "home.generateTitle": {
+    "defaultMessage": "{count, plural, one {Generate prompt} other {Generate prompts}}"
+  },
+  "home.generatedCount": {
+    "defaultMessage": "{count} generated · {provider}"
+  },
+  "home.keywordAria": {
+    "defaultMessage": "Keyword-translate prompt"
+  },
+  "home.keywordOff": {
+    "defaultMessage": "Pick a Text provider (header → Providers) to enable keyword translate"
+  },
+  "home.keywordOn": {
+    "defaultMessage": "Keyword-translate the prompt with {provider} (use a clean tag list instead) before generating"
+  },
+  "home.moreFilter": {
+    "defaultMessage": "+{count} more — keep typing to filter"
+  },
+  "home.negativePreview": {
+    "defaultMessage": "Negative preview"
+  },
+  "home.noBlocks": {
+    "defaultMessage": "No building blocks match “{query}”."
+  },
+  "home.phNegative": {
+    "defaultMessage": "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, '{#bad-anatomy}'"
+  },
+  "home.phPrompt": {
+    "defaultMessage": "Type a prompt, or use the building blocks on the left…"
+  },
+  "home.phTry": {
+    "defaultMessage": "Try: {suggestion}"
+  },
+  "home.promptPreview": {
+    "defaultMessage": "Prompt preview"
+  },
+  "home.promptSettings": {
+    "defaultMessage": "Prompt settings"
+  },
+  "home.promptsHeading": {
+    "defaultMessage": "Prompts"
+  },
+  "home.promptsLabel": {
+    "defaultMessage": "Prompts"
+  },
+  "home.promptsPerRunAria": {
+    "defaultMessage": "Prompts per run"
+  },
+  "home.promptsPerRunTitle": {
+    "defaultMessage": "How many prompts to generate per run"
+  },
+  "home.randomAria": {
+    "defaultMessage": "Random suggestion"
+  },
+  "home.randomTitle": {
+    "defaultMessage": "Random — drop a suggestion in"
+  },
+  "home.rewriteFailed": {
+    "defaultMessage": "Auto-rewrite failed: {error}"
+  },
+  "home.rewriteNoKey": {
+    "defaultMessage": "Auto-rewrite is on but the rewrite provider has no API key (gear → Auto-fix)."
+  },
+  "home.searchBlocks": {
+    "defaultMessage": "Search blocks…"
+  },
+  "home.shareInputAria": {
+    "defaultMessage": "Shareable link that restores these settings"
+  },
+  "home.shareLink": {
+    "defaultMessage": "Share link"
+  },
+  "home.tabNegative": {
+    "defaultMessage": "Negative"
+  },
+  "home.tabPrompt": {
+    "defaultMessage": "Prompt"
+  },
+  "inlineImg.height": {
+    "defaultMessage": "Height"
+  },
+  "inlineImg.images": {
+    "defaultMessage": "Images"
+  },
+  "inlineImg.imagesTitle": {
+    "defaultMessage": "Images generated per prompt"
+  },
+  "inlineImg.ratio": {
+    "defaultMessage": "Ratio"
+  },
+  "inlineImg.size": {
+    "defaultMessage": "Size"
+  },
+  "inlineImg.sizeTitle": {
+    "defaultMessage": "Output size — width × height"
+  },
+  "inlineImg.width": {
+    "defaultMessage": "Width"
+  },
+  "listEd.addEntriesFirst": {
+    "defaultMessage": "Add a few entries first so the AI has something to learn from."
+  },
+  "listEd.addEntry": {
+    "defaultMessage": "+ Add entry"
+  },
+  "listEd.addedStatus": {
+    "defaultMessage": "Added {count, plural, one {# new entry} other {# new entries}}{dropped}. Review, then Save."
+  },
+  "listEd.aiExpand": {
+    "defaultMessage": "AI Expand"
+  },
+  "listEd.aiExpandTitle": {
+    "defaultMessage": "Use AI to add 25 new unique entries in the same style"
+  },
+  "listEd.clickToEdit": {
+    "defaultMessage": "Click to edit"
+  },
+  "listEd.countEntries": {
+    "defaultMessage": "{count, number} entries"
+  },
+  "listEd.countMatch": {
+    "defaultMessage": "{count, number} match"
+  },
+  "listEd.dedupe": {
+    "defaultMessage": "Dedupe"
+  },
+  "listEd.dedupeTitle": {
+    "defaultMessage": "Remove duplicate entries"
+  },
+  "listEd.deleteEntryAria": {
+    "defaultMessage": "Delete entry"
+  },
+  "listEd.deleteTitle": {
+    "defaultMessage": "Delete"
+  },
+  "listEd.description": {
+    "defaultMessage": "Description"
+  },
+  "listEd.descriptionPh": {
+    "defaultMessage": "List tooltip"
+  },
+  "listEd.droppedClause": {
+    "defaultMessage": "({count, plural, one {# duplicate} other {# duplicates}} dropped)"
+  },
+  "listEd.empty": {
+    "defaultMessage": "(empty)"
+  },
+  "listEd.expandFailed": {
+    "defaultMessage": "AI expand failed: {error}"
+  },
+  "listEd.expanding": {
+    "defaultMessage": "Expanding…"
+  },
+  "listEd.listName": {
+    "defaultMessage": "List name"
+  },
+  "listEd.loading": {
+    "defaultMessage": "Loading…"
+  },
+  "listEd.noDupes": {
+    "defaultMessage": "No duplicates found."
+  },
+  "listEd.noKey": {
+    "defaultMessage": "No API key for {provider} — add it under Home → gear → Auto-fix."
+  },
+  "listEd.onlyDupes": {
+    "defaultMessage": "The AI returned only entries you already have — try again."
+  },
+  "listEd.pickProvider": {
+    "defaultMessage": "Pick a text (AI) provider first — Home → gear → Auto-fix."
+  },
+  "listEd.rawAria": {
+    "defaultMessage": "Raw list text"
+  },
+  "listEd.removedDupes": {
+    "defaultMessage": "Removed {count, plural, one {# duplicate} other {# duplicates}}."
+  },
+  "listEd.rename": {
+    "defaultMessage": "Rename"
+  },
+  "listEd.renamed": {
+    "defaultMessage": "Renamed."
+  },
+  "listEd.restoreConfirm": {
+    "defaultMessage": "Restore {name} to the default from the repo? This overwrites your local copy."
+  },
+  "listEd.restoreDefault": {
+    "defaultMessage": "Restore default"
+  },
+  "listEd.restoreTitle": {
+    "defaultMessage": "Fetch the default from the repo (master)"
+  },
+  "listEd.restored": {
+    "defaultMessage": "Restored from default."
+  },
+  "listEd.save": {
+    "defaultMessage": "Save"
+  },
+  "listEd.saved": {
+    "defaultMessage": "Saved."
+  },
+  "listEd.saving": {
+    "defaultMessage": "Saving…"
+  },
+  "listEd.searchPh": {
+    "defaultMessage": "Search {count, number} entries…"
+  },
+  "listEd.sort": {
+    "defaultMessage": "Sort"
+  },
+  "listEd.sortTitle": {
+    "defaultMessage": "Sort entries A–Z"
+  },
+  "listEd.sortedAZ": {
+    "defaultMessage": "Sorted A–Z."
+  },
+  "listEd.tabEntries": {
+    "defaultMessage": "Entries"
+  },
+  "listEd.tabRaw": {
+    "defaultMessage": "Raw"
+  },
+  "livePreview.live": {
+    "defaultMessage": "{label} (live)",
+    "description": "Tooltip on the live-preview eye button"
+  },
+  "livePreview.preview": {
+    "defaultMessage": "Preview"
+  },
+  "manage.addTo": {
+    "defaultMessage": "Add to {name}"
+  },
+  "manage.attrNone": {
+    "defaultMessage": "none"
+  },
+  "manage.badgeForcePrefixTitle": {
+    "defaultMessage": "Force-prefix folder — its path shows in the token"
+  },
+  "manage.badgeGroup": {
+    "defaultMessage": "group"
+  },
+  "manage.badgeGroupTitle": {
+    "defaultMessage": "Group folder — referencing it picks one random member"
+  },
+  "manage.badgePrefix": {
+    "defaultMessage": "prefix"
+  },
+  "manage.blocks": {
+    "defaultMessage": "Blocks"
+  },
+  "manage.collapse": {
+    "defaultMessage": "Collapse"
+  },
+  "manage.deleteEntryConfirm": {
+    "defaultMessage": "Delete {label} ({root}/{path})? This removes the file from disk."
+  },
+  "manage.deleteTitle": {
+    "defaultMessage": "Delete {label}"
+  },
+  "manage.detailEmpty": {
+    "defaultMessage": "Select a block, list, or folder on the left to inspect it. Editing arrives next."
+  },
+  "manage.editTitle": {
+    "defaultMessage": "Edit {label}"
+  },
+  "manage.entrySoon": {
+    "defaultMessage": "A full editor (with save + hot-apply) arrives next."
+  },
+  "manage.expand": {
+    "defaultMessage": "Expand"
+  },
+  "manage.folderSettings": {
+    "defaultMessage": "Folder settings — {name}"
+  },
+  "manage.folderSoon": {
+    "defaultMessage": "The folder settings editor (rename, priority, markers) arrives next."
+  },
+  "manage.ghostTag": {
+    "defaultMessage": "ghost"
+  },
+  "manage.ghostTitle": {
+    "defaultMessage": "{path} — deleted locally; restore from the repo"
+  },
+  "manage.jsTag": {
+    "defaultMessage": "JS"
+  },
+  "manage.jsTitle": {
+    "defaultMessage": "Has a JS sidecar"
+  },
+  "manage.lists": {
+    "defaultMessage": "Lists"
+  },
+  "manage.loading": {
+    "defaultMessage": "Loading…"
+  },
+  "manage.loadingCatalog": {
+    "defaultMessage": "Loading the catalog…"
+  },
+  "manage.lockedBody": {
+    "defaultMessage": "The content manager edits the prompt files on your disk, so it needs the local app (the dev server or a local build). It isn’t available in the online version."
+  },
+  "manage.lockedTitle": {
+    "defaultMessage": "Manage is a local-mode feature"
+  },
+  "manage.mAttributes": {
+    "defaultMessage": "Attributes"
+  },
+  "manage.mEntries": {
+    "defaultMessage": "Entries"
+  },
+  "manage.mGating": {
+    "defaultMessage": "Gating"
+  },
+  "manage.mNsfwVal": {
+    "defaultMessage": "NSFW"
+  },
+  "manage.mPath": {
+    "defaultMessage": "Path"
+  },
+  "manage.mSidecar": {
+    "defaultMessage": "Sidecar"
+  },
+  "manage.mSidecarVal": {
+    "defaultMessage": "has a JS sidecar"
+  },
+  "manage.mType": {
+    "defaultMessage": "Type"
+  },
+  "manage.moreLines": {
+    "defaultMessage": "… {count} more lines (full editor coming)."
+  },
+  "manage.newBlock": {
+    "defaultMessage": "New block"
+  },
+  "manage.newFilePromptBlock": {
+    "defaultMessage": "New block name:"
+  },
+  "manage.newFilePromptList": {
+    "defaultMessage": "New list name:"
+  },
+  "manage.newFolder": {
+    "defaultMessage": "New folder"
+  },
+  "manage.newFolderPrompt": {
+    "defaultMessage": "New subfolder name:"
+  },
+  "manage.newList": {
+    "defaultMessage": "New list"
+  },
+  "manage.newSubfolder": {
+    "defaultMessage": "New subfolder"
+  },
+  "manage.nothingMatches": {
+    "defaultMessage": "Nothing matches."
+  },
+  "manage.nsfw": {
+    "defaultMessage": "NSFW"
+  },
+  "manage.nsfwTag": {
+    "defaultMessage": "18+"
+  },
+  "manage.panelTitle": {
+    "defaultMessage": "Manage"
+  },
+  "manage.refreshAria": {
+    "defaultMessage": "Refresh catalog"
+  },
+  "manage.refreshTitle": {
+    "defaultMessage": "Refresh catalog (re-read from disk)"
+  },
+  "manage.restoreAria": {
+    "defaultMessage": "Restore {label}"
+  },
+  "manage.restoreTitle": {
+    "defaultMessage": "Restore {label} from the repo"
+  },
+  "manage.rootParen": {
+    "defaultMessage": "(root)"
+  },
+  "manage.searchPh": {
+    "defaultMessage": "Search…"
+  },
+  "manage.settingsFor": {
+    "defaultMessage": "Settings for {name}"
+  },
+  "manage.typeCategory": {
+    "defaultMessage": "Category (top-level)"
+  },
+  "manage.typeSubfolder": {
+    "defaultMessage": "Subfolder"
+  },
+  "nsfw.cancel": {
+    "defaultMessage": "Cancel"
+  },
+  "nsfw.confirmBody": {
+    "defaultMessage": "Enabling NSFW unlocks explicit adult words, artists, and generators in prompts and previews. Only continue if you are 18 or older and want to see this material."
+  },
+  "nsfw.confirmNote": {
+    "defaultMessage": "Your choice is remembered in this browser. You can switch back to SFW anytime."
+  },
+  "nsfw.confirmTitle": {
+    "defaultMessage": "Show adult content?"
+  },
+  "nsfw.enable": {
+    "defaultMessage": "Enable NSFW"
+  },
+  "nsfw.feature": {
+    "defaultMessage": "NSFW content",
+    "description": "Feature noun phrase used in the online-locked tooltip"
+  },
+  "nsfw.titleOff": {
+    "defaultMessage": "Show adult (NSFW) content"
+  },
+  "nsfw.titleOn": {
+    "defaultMessage": "Adult content is on — click to switch back to SFW"
+  },
+  "online.lockedHint": {
+    "defaultMessage": "{feature} is only available in the full desktop version.{why} Click to get it on GitHub.",
+    "description": "Tooltip on a control disabled in the online demo build"
+  },
+  "promptResult.batch": {
+    "defaultMessage": "Batch {n}"
+  },
+  "promptResult.clear": {
+    "defaultMessage": "clear"
+  },
+  "promptResult.clearTitle": {
+    "defaultMessage": "Clear this prompt's images (asks about deleting from disk)"
+  },
+  "promptResult.copyTitle": {
+    "defaultMessage": "Click to copy {text}"
+  },
+  "promptResult.dplTitle": {
+    "defaultMessage": "The DPL this was rolled from — click to copy"
+  },
+  "promptResult.example": {
+    "defaultMessage": "Example:"
+  },
+  "promptResult.genImages": {
+    "defaultMessage": "Generate images"
+  },
+  "promptResult.genTitle": {
+    "defaultMessage": "Generate a batch of images for this prompt"
+  },
+  "promptResult.moreImages": {
+    "defaultMessage": "More images"
+  },
+  "promptResult.openDefault": {
+    "defaultMessage": "Open in default app"
+  },
+  "promptResult.openNewTab": {
+    "defaultMessage": "Open in a new tab"
+  },
+  "promptResult.openSingle": {
+    "defaultMessage": "Open in the single view"
+  },
+  "promptResult.originalTitle": {
+    "defaultMessage": "Original prompt (before auto-fix) — click to copy {original}"
+  },
+  "promptResult.removeBatch": {
+    "defaultMessage": "remove batch"
+  },
+  "promptResult.removeImage": {
+    "defaultMessage": "Remove image"
+  },
+  "promptResult.rendering": {
+    "defaultMessage": "rendering…"
+  },
+  "promptResult.renderingAria": {
+    "defaultMessage": "rendering"
+  },
+  "promptResult.resultAlt": {
+    "defaultMessage": "result"
+  },
+  "promptResult.reveal": {
+    "defaultMessage": "Reveal in file explorer"
+  },
+  "providerBox.loading": {
+    "defaultMessage": "Loading…"
+  },
+  "providerBox.noSettings": {
+    "defaultMessage": "This provider has no extra settings."
+  },
+  "providerGear.close": {
+    "defaultMessage": "close"
+  },
+  "providerGear.settings": {
+    "defaultMessage": "Provider settings"
+  },
+  "providerGear.tier.api": {
+    "defaultMessage": "image API"
+  },
+  "providerGear.tier.plain": {
+    "defaultMessage": "plain text"
+  },
+  "providerGear.tier.syntax": {
+    "defaultMessage": "copy-prompt"
+  },
+  "providerPicker.keyBadge": {
+    "defaultMessage": "key",
+    "description": "Badge marking a provider that needs a bring-your-own API key"
+  },
+  "providerPicker.lockBadge": {
+    "defaultMessage": "🔒 full version",
+    "description": "Badge on a provider only available in the full desktop version"
+  },
+  "providerPicker.title": {
+    "defaultMessage": "{label} provider",
+    "description": "Tooltip on the provider dropdown trigger (label = Image/Text)"
+  },
+  "providersMenu.group.local": {
+    "defaultMessage": "Local"
+  },
+  "providersMenu.group.online": {
+    "defaultMessage": "Online"
+  },
+  "providersMenu.group.rewrite": {
+    "defaultMessage": "Prompt & keyword rewrite"
+  },
+  "providersMenu.hintOff": {
+    "defaultMessage": "Pick a Text AI to enable auto-fix / keyword rewriting (toggled on the prompt box)."
+  },
+  "providersMenu.hintOn": {
+    "defaultMessage": "Text AI rewrites your prompt & keywords — turn it on per run with the wand / tag buttons on the prompt box."
+  },
+  "providersMenu.image": {
+    "defaultMessage": "Image"
+  },
+  "providersMenu.off": {
+    "defaultMessage": "Off"
+  },
+  "providersMenu.offDesc": {
+    "defaultMessage": "No prompt or keyword rewriting."
+  },
+  "providersMenu.providers": {
+    "defaultMessage": "Providers"
+  },
+  "providersMenu.reason.local": {
+    "defaultMessage": "It runs on your own machine."
+  },
+  "providersMenu.reason.proxy": {
+    "defaultMessage": "This provider can't be called directly from a browser, so it isn't available online."
+  },
+  "providersMenu.sharesKey": {
+    "defaultMessage": "shares the image key"
+  },
+  "providersMenu.text": {
+    "defaultMessage": "Text"
+  },
+  "settings.alternatingMaxLevels": {
+    "defaultMessage": "Alternating max levels"
+  },
+  "settings.artistList": {
+    "defaultMessage": "Artist list"
+  },
+  "settings.deEmphasisChance": {
+    "defaultMessage": "De-emphasis chance"
+  },
+  "settings.editingMax": {
+    "defaultMessage": "Editing max"
+  },
+  "settings.editingMin": {
+    "defaultMessage": "Editing min"
+  },
+  "settings.emphasisChance": {
+    "defaultMessage": "Emphasis chance"
+  },
+  "settings.extraLevelChance": {
+    "defaultMessage": "Extra-level chance"
+  },
+  "settings.group.editing": {
+    "defaultMessage": "Editing & alternating"
+  },
+  "settings.group.emphasis": {
+    "defaultMessage": "Emphasis"
+  },
+  "settings.group.language": {
+    "defaultMessage": "Language"
+  },
+  "settings.group.salt": {
+    "defaultMessage": "Salt & lists"
+  },
+  "settings.group.vocabulary": {
+    "defaultMessage": "Vocabulary"
+  },
+  "settings.keywordAlternating": {
+    "defaultMessage": "Keyword alternating"
+  },
+  "settings.keywordEditing": {
+    "defaultMessage": "Keyword editing"
+  },
+  "settings.keywordList": {
+    "defaultMessage": "Keyword list"
+  },
+  "settings.list.fullyRandom": {
+    "defaultMessage": "(fully random)",
+    "description": "Source-list option meaning draw from the whole dictionary"
+  },
+  "settings.locale": {
+    "defaultMessage": "Display language"
+  },
+  "settings.locale.auto": {
+    "defaultMessage": "Auto (browser)",
+    "description": "Locale option that follows the browser's language"
+  },
+  "settings.maxLevels": {
+    "defaultMessage": "Max levels"
+  },
+  "settings.noAnd": {
+    "defaultMessage": "Don't combine with AND"
+  },
+  "settings.promptSalt": {
+    "defaultMessage": "Prompt salt"
+  },
+  "settings.randEmphasize": {
+    "defaultMessage": "Randomly emphasize keywords"
+  },
+  "settings.reloadLists": {
+    "defaultMessage": "Reload lists each prompt"
+  },
+  "settings.reset": {
+    "defaultMessage": "Reset to defaults"
+  },
+  "settings.resetConfirm": {
+    "defaultMessage": "Reset all settings to defaults?"
+  },
+  "settings.saltStart": {
+    "defaultMessage": "Salt start (-1 = random)"
+  },
+  "settings.usedOnce": {
+    "defaultMessage": "List entries used once"
+  },
+  "settingsDrawer.close": {
+    "defaultMessage": "Close settings"
+  },
+  "settingsDrawer.title": {
+    "defaultMessage": "Settings"
+  },
+  "single.aiTranslation": {
+    "defaultMessage": "AI translation"
+  },
+  "single.allSettings": {
+    "defaultMessage": "All settings ({count})"
+  },
+  "single.back": {
+    "defaultMessage": "← Back to {target}"
+  },
+  "single.backTitle": {
+    "defaultMessage": "Back (Esc)"
+  },
+  "single.convertOption": {
+    "defaultMessage": "Convert & download…"
+  },
+  "single.convertTitle": {
+    "defaultMessage": "Convert & download"
+  },
+  "single.copy": {
+    "defaultMessage": "copy"
+  },
+  "single.delete": {
+    "defaultMessage": "Delete"
+  },
+  "single.deleteTitle": {
+    "defaultMessage": "Delete from disk"
+  },
+  "single.detail.cfg": {
+    "defaultMessage": "CFG"
+  },
+  "single.detail.file": {
+    "defaultMessage": "File"
+  },
+  "single.detail.model": {
+    "defaultMessage": "Model"
+  },
+  "single.detail.provider": {
+    "defaultMessage": "Provider"
+  },
+  "single.detail.sampler": {
+    "defaultMessage": "Sampler"
+  },
+  "single.detail.saved": {
+    "defaultMessage": "Saved"
+  },
+  "single.detail.seed": {
+    "defaultMessage": "Seed"
+  },
+  "single.detail.size": {
+    "defaultMessage": "Size"
+  },
+  "single.detail.steps": {
+    "defaultMessage": "Steps"
+  },
+  "single.details": {
+    "defaultMessage": "Details"
+  },
+  "single.downloadPng": {
+    "defaultMessage": "Download PNG"
+  },
+  "single.dplSource": {
+    "defaultMessage": "DPL source"
+  },
+  "single.engineRoll": {
+    "defaultMessage": "Engine roll"
+  },
+  "single.find": {
+    "defaultMessage": "Find “{term}”"
+  },
+  "single.galleryFallback": {
+    "defaultMessage": "gallery"
+  },
+  "single.keywords": {
+    "defaultMessage": "Keywords"
+  },
+  "single.keywordsEdited": {
+    "defaultMessage": "Keywords · edited"
+  },
+  "single.negativeTitle": {
+    "defaultMessage": "Negative prompt"
+  },
+  "single.next": {
+    "defaultMessage": "Next →"
+  },
+  "single.nextTitle": {
+    "defaultMessage": "Next image (→)"
+  },
+  "single.noImage": {
+    "defaultMessage": "No image loaded."
+  },
+  "single.noImageSub": {
+    "defaultMessage": "Generate an image or open one from the gallery and it'll show here in full."
+  },
+  "single.noKey": {
+    "defaultMessage": "{provider} has no API key — add one on the Generate screen."
+  },
+  "single.noKeywords": {
+    "defaultMessage": "The model returned no usable keywords."
+  },
+  "single.noMeta": {
+    "defaultMessage": "No metadata sidecar was found for this image — it may pre-date sidecars or its <code>.json</code> file was removed."
+  },
+  "single.open": {
+    "defaultMessage": "Open"
+  },
+  "single.openDefault": {
+    "defaultMessage": "Open in the default app"
+  },
+  "single.openFull": {
+    "defaultMessage": "Open full image in a new tab"
+  },
+  "single.prev": {
+    "defaultMessage": "← Prev"
+  },
+  "single.prevTitle": {
+    "defaultMessage": "Previous image (←)"
+  },
+  "single.promptTitle": {
+    "defaultMessage": "Prompt"
+  },
+  "single.providerFallback": {
+    "defaultMessage": "The rewrite provider"
+  },
+  "single.rawMeta": {
+    "defaultMessage": "Raw metadata (JSON)"
+  },
+  "single.rebuild": {
+    "defaultMessage": "Rebuild with AI"
+  },
+  "single.rebuildFailed": {
+    "defaultMessage": "Keyword rebuild failed: {error}"
+  },
+  "single.rebuildTitle": {
+    "defaultMessage": "Send the prompt to the AI, break it into a clean alphabetical keyword list, and save it over these"
+  },
+  "single.rebuilding": {
+    "defaultMessage": "Rebuilding…"
+  },
+  "single.reveal": {
+    "defaultMessage": "Reveal"
+  },
+  "single.revealTitle": {
+    "defaultMessage": "Reveal in file explorer"
+  },
+  "single.saveFailed": {
+    "defaultMessage": "Couldn't save keywords (no local server?)."
+  },
+  "single.sentToModel": {
+    "defaultMessage": "Sent to model"
+  },
+  "tokenPicker.filter": {
+    "defaultMessage": "Filter {count}…",
+    "description": "Placeholder for the token search box (count = number of tokens)"
+  },
+  "tokenPicker.insert": {
+    "defaultMessage": "Insert"
+  },
+  "tokenPicker.more": {
+    "defaultMessage": "+{count} more — keep typing",
+    "description": "Hint shown when results are truncated"
+  },
+  "wrapper.autoToggleLabel": {
+    "defaultMessage": "Allow used blocks to extend current wrapper"
+  },
+  "wrapper.autoToggleTitle": {
+    "defaultMessage": "When on, blocks may add their own Auto Begin / Auto End framing to the prompt. When off, only this wrapper frames it."
+  },
+  "wrapper.cancel": {
+    "defaultMessage": "Cancel"
+  },
+  "wrapper.close": {
+    "defaultMessage": "Close"
+  },
+  "wrapper.deletePreset": {
+    "defaultMessage": "Delete “{name}”"
+  },
+  "wrapper.deletePresetAria": {
+    "defaultMessage": "Delete {name}"
+  },
+  "wrapper.editDefault": {
+    "defaultMessage": "Edit the Default wrapper"
+  },
+  "wrapper.editPreset": {
+    "defaultMessage": "Edit “{name}”"
+  },
+  "wrapper.end": {
+    "defaultMessage": "End"
+  },
+  "wrapper.endAria": {
+    "defaultMessage": "Wrapper end (DPL)"
+  },
+  "wrapper.endPlaceholder": {
+    "defaultMessage": "Rendered after the prompt — e.g. '{#fx}', '{#artists}'"
+  },
+  "wrapper.endPlaceholderNew": {
+    "defaultMessage": "Rendered after the prompt…"
+  },
+  "wrapper.footHint": {
+    "defaultMessage": "Wraps every generated prompt: start, your prompt, end."
+  },
+  "wrapper.head": {
+    "defaultMessage": "Wrapper"
+  },
+  "wrapper.manage": {
+    "defaultMessage": "Manage Wrappers"
+  },
+  "wrapper.manageAria": {
+    "defaultMessage": "Manage wrappers"
+  },
+  "wrapper.nameAria": {
+    "defaultMessage": "Wrapper name"
+  },
+  "wrapper.nameDefault": {
+    "defaultMessage": "Default"
+  },
+  "wrapper.nameNone": {
+    "defaultMessage": "None"
+  },
+  "wrapper.namePlaceholder": {
+    "defaultMessage": "Wrapper name…"
+  },
+  "wrapper.newPreset": {
+    "defaultMessage": "+ New"
+  },
+  "wrapper.noSaved": {
+    "defaultMessage": "No saved wrappers — Manage presets to add one."
+  },
+  "wrapper.presetsAria": {
+    "defaultMessage": "Wrapper presets"
+  },
+  "wrapper.revertEndAria": {
+    "defaultMessage": "Revert End to default"
+  },
+  "wrapper.revertEndDefault": {
+    "defaultMessage": "Reset End to the built-in default"
+  },
+  "wrapper.revertEndNormal": {
+    "defaultMessage": "Reset End to the default wrapper"
+  },
+  "wrapper.revertStartAria": {
+    "defaultMessage": "Revert Start to default"
+  },
+  "wrapper.revertStartDefault": {
+    "defaultMessage": "Reset Start to the built-in default"
+  },
+  "wrapper.revertStartNormal": {
+    "defaultMessage": "Reset Start to the default wrapper"
+  },
+  "wrapper.save": {
+    "defaultMessage": "Save"
+  },
+  "wrapper.start": {
+    "defaultMessage": "Start"
+  },
+  "wrapper.startAria": {
+    "defaultMessage": "Wrapper start (DPL)"
+  },
+  "wrapper.startPlaceholder": {
+    "defaultMessage": "Rendered before the prompt — e.g. a style or framing lead-in"
+  },
+  "wrapper.startPlaceholderNew": {
+    "defaultMessage": "Rendered before the prompt…"
+  },
+  "wrapper.triggerTitle": {
+    "defaultMessage": "Wrapper: {name} — frames every prompt with a start and end"
+  }
+}

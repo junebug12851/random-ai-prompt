@@ -8,8 +8,19 @@
  * `providerParams[id]` namespace the provider gear (`ProviderBox`) uses, so the two stay in sync.
  * @module gui/components/InlineImageControls
  */
+import { useIntl, defineMessages } from "react-intl";
 import { getProvider } from "../lib/providers/index.js";
 import { useProviderSettings } from "../lib/useProvider.js";
+
+const msgs = defineMessages({
+  imagesTitle: { id: "inlineImg.imagesTitle", defaultMessage: "Images generated per prompt" },
+  images: { id: "inlineImg.images", defaultMessage: "Images" },
+  ratio: { id: "inlineImg.ratio", defaultMessage: "Ratio" },
+  size: { id: "inlineImg.size", defaultMessage: "Size" },
+  sizeTitle: { id: "inlineImg.sizeTitle", defaultMessage: "Output size — width × height" },
+  width: { id: "inlineImg.width", defaultMessage: "Width" },
+  height: { id: "inlineImg.height", defaultMessage: "Height" },
+});
 
 // Keys a provider may use to express output size / aspect. The first matching field wins (rendered
 // as its native control — select or text); only when there's none do we fall back to the
@@ -24,6 +35,7 @@ const SIZE_KEYS = ["size", "imageSize", "aspectRatio", "ar"];
  * @returns {(JSX.Element|null)}
  */
 export default function InlineImageControls({ settings, setSettings }) {
+  const intl = useIntl();
   const provider = getProvider(settings.provider);
   const pid = provider?.id;
   const { schema, options } = useProviderSettings(pid);
@@ -49,22 +61,23 @@ export default function InlineImageControls({ settings, setSettings }) {
 
   if (!batch && !sizeField && !(width && height)) return null;
 
-  const sizeLabel =
-    sizeField && (sizeField.key === "aspectRatio" || sizeField.key === "ar") ? "Ratio" : "Size";
+  const sizeLabel = intl.formatMessage(
+    sizeField && (sizeField.key === "aspectRatio" || sizeField.key === "ar") ? msgs.ratio : msgs.size,
+  );
   const sizeOptions = sizeField ? sizeField.options || options[sizeField.optionsFrom] || [] : [];
 
   return (
     <>
       {batch && (
-        <label className="field-count" title="Images generated per prompt">
-          <span className="field-count-label">Images</span>
+        <label className="field-count" title={intl.formatMessage(msgs.imagesTitle)}>
+          <span className="field-count-label">{intl.formatMessage(msgs.images)}</span>
           <input
             type="number"
             min={batch.min ?? 1}
             max={batch.max}
             value={params.batchSize ?? defaults.batchSize ?? 1}
             onChange={(e) => setParam("batchSize", Math.max(1, Number(e.target.value) || 1))}
-            aria-label="Images generated per prompt"
+            aria-label={intl.formatMessage(msgs.imagesTitle)}
           />
         </label>
       )}
@@ -102,8 +115,8 @@ export default function InlineImageControls({ settings, setSettings }) {
       ) : (
         width &&
         height && (
-          <label className="field-count field-size" title="Output size — width × height">
-            <span className="field-count-label">Size</span>
+          <label className="field-count field-size" title={intl.formatMessage(msgs.sizeTitle)}>
+            <span className="field-count-label">{intl.formatMessage(msgs.size)}</span>
             <span className="field-size-wh">
               <input
                 type="number"
@@ -112,7 +125,7 @@ export default function InlineImageControls({ settings, setSettings }) {
                 step={width.step}
                 value={params.imageWidth ?? defaults.imageWidth ?? 512}
                 onChange={(e) => setParam("imageWidth", Number(e.target.value) || 0)}
-                aria-label="Width"
+                aria-label={intl.formatMessage(msgs.width)}
               />
               <span className="field-size-x" aria-hidden="true">
                 ×
@@ -124,7 +137,7 @@ export default function InlineImageControls({ settings, setSettings }) {
                 step={height.step}
                 value={params.imageHeight ?? defaults.imageHeight ?? 512}
                 onChange={(e) => setParam("imageHeight", Number(e.target.value) || 0)}
-                aria-label="Height"
+                aria-label={intl.formatMessage(msgs.height)}
               />
             </span>
           </label>

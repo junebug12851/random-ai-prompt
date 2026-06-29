@@ -10,8 +10,15 @@
  * @module gui/components/DplInsertBar
  */
 import { useEffect, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import { DPL_INSERTS } from "../lib/dpl/dplInserts.js";
 import { expandPrompt } from "../lib/promptEngine.js";
+
+const msgs = defineMessages({
+  toolbar: { id: "dplInsertBar.toolbar", defaultMessage: "Insert DPL syntax" },
+  insert: { id: "dplInsertBar.insert", defaultMessage: "Insert" },
+  example: { id: "dplInsertBar.example", defaultMessage: "example" },
+});
 
 /** Roll one item's `example` DPL into a concrete string (no auto-FX/artist noise). */
 const rollExample = (dpl, settings) => {
@@ -30,6 +37,7 @@ const rollExample = (dpl, settings) => {
  * @returns {JSX.Element}
  */
 export default function DplInsertBar({ editorRef, settings }) {
+  const intl = useIntl();
   const [open, setOpen] = useState(null); // open category key, or null
   const [examples, setExamples] = useState({}); // item id -> rolled example (for the open menu)
   const settingsRef = useRef(settings);
@@ -71,8 +79,8 @@ export default function DplInsertBar({ editorRef, settings }) {
   };
 
   return (
-    <div className="dpl-insert-bar" role="toolbar" aria-label="Insert DPL syntax">
-      <span className="dpl-insert-lead">Insert</span>
+    <div className="dpl-insert-bar" role="toolbar" aria-label={intl.formatMessage(msgs.toolbar)}>
+      <span className="dpl-insert-lead">{intl.formatMessage(msgs.insert)}</span>
       {DPL_INSERTS.map((cat, idx) => (
         <div className="dpl-ins-wrap" key={cat.key}>
           <button
@@ -110,7 +118,7 @@ export default function DplInsertBar({ editorRef, settings }) {
                   <code className="dpl-ins-item-syntax">{it.syntax}</code>
                   {it.example && (
                     <span className="dpl-ins-item-ex">
-                      <span className="dpl-ins-item-ex-label">example</span>
+                      <span className="dpl-ins-item-ex-label">{intl.formatMessage(msgs.example)}</span>
                       <span className="dpl-ins-item-ex-text">{examples[it.id] ?? "…"}</span>
                     </span>
                   )}

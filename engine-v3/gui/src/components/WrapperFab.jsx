@@ -8,6 +8,7 @@
  * @module gui/components/WrapperFab
  */
 import { useEffect, useRef, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import DplEditor from "./DplEditor.jsx";
 import {
   getWrappers,
@@ -44,6 +45,84 @@ const RevertIcon = () => (
   </svg>
 );
 
+const msgs = defineMessages({
+  triggerTitle: {
+    id: "wrapper.triggerTitle",
+    defaultMessage: "Wrapper: {name} — frames every prompt with a start and end",
+  },
+  presetsAria: { id: "wrapper.presetsAria", defaultMessage: "Wrapper presets" },
+  wrapperHead: { id: "wrapper.head", defaultMessage: "Wrapper" },
+  manage: { id: "wrapper.manage", defaultMessage: "Manage Wrappers" },
+  autoToggleTitle: {
+    id: "wrapper.autoToggleTitle",
+    defaultMessage:
+      "When on, blocks may add their own Auto Begin / Auto End framing to the prompt. When off, only this wrapper frames it.",
+  },
+  autoToggleLabel: {
+    id: "wrapper.autoToggleLabel",
+    defaultMessage: "Allow used blocks to extend current wrapper",
+  },
+  nameDefault: { id: "wrapper.nameDefault", defaultMessage: "Default" },
+  nameNone: { id: "wrapper.nameNone", defaultMessage: "None" },
+  noSaved: {
+    id: "wrapper.noSaved",
+    defaultMessage: "No saved wrappers — Manage presets to add one.",
+  },
+  manageAria: { id: "wrapper.manageAria", defaultMessage: "Manage wrappers" },
+  close: { id: "wrapper.close", defaultMessage: "Close" },
+  editDefault: { id: "wrapper.editDefault", defaultMessage: "Edit the Default wrapper" },
+  editPreset: { id: "wrapper.editPreset", defaultMessage: "Edit “{name}”" },
+  deletePreset: { id: "wrapper.deletePreset", defaultMessage: "Delete “{name}”" },
+  deletePresetAria: { id: "wrapper.deletePresetAria", defaultMessage: "Delete {name}" },
+  newPreset: { id: "wrapper.newPreset", defaultMessage: "+ New" },
+  namePlaceholder: { id: "wrapper.namePlaceholder", defaultMessage: "Wrapper name…" },
+  nameAria: { id: "wrapper.nameAria", defaultMessage: "Wrapper name" },
+  start: { id: "wrapper.start", defaultMessage: "Start" },
+  end: { id: "wrapper.end", defaultMessage: "End" },
+  revertStartDefault: {
+    id: "wrapper.revertStartDefault",
+    defaultMessage: "Reset Start to the built-in default",
+  },
+  revertStartNormal: {
+    id: "wrapper.revertStartNormal",
+    defaultMessage: "Reset Start to the default wrapper",
+  },
+  revertEndDefault: {
+    id: "wrapper.revertEndDefault",
+    defaultMessage: "Reset End to the built-in default",
+  },
+  revertEndNormal: {
+    id: "wrapper.revertEndNormal",
+    defaultMessage: "Reset End to the default wrapper",
+  },
+  revertStartAria: { id: "wrapper.revertStartAria", defaultMessage: "Revert Start to default" },
+  revertEndAria: { id: "wrapper.revertEndAria", defaultMessage: "Revert End to default" },
+  startAria: { id: "wrapper.startAria", defaultMessage: "Wrapper start (DPL)" },
+  endAria: { id: "wrapper.endAria", defaultMessage: "Wrapper end (DPL)" },
+  startPlaceholderNew: {
+    id: "wrapper.startPlaceholderNew",
+    defaultMessage: "Rendered before the prompt…",
+  },
+  startPlaceholder: {
+    id: "wrapper.startPlaceholder",
+    defaultMessage: "Rendered before the prompt — e.g. a style or framing lead-in",
+  },
+  endPlaceholderNew: {
+    id: "wrapper.endPlaceholderNew",
+    defaultMessage: "Rendered after the prompt…",
+  },
+  endPlaceholder: {
+    id: "wrapper.endPlaceholder",
+    defaultMessage: "Rendered after the prompt — e.g. '{#fx}', '{#artists}'",
+  },
+  footHint: {
+    id: "wrapper.footHint",
+    defaultMessage: "Wraps every generated prompt: start, your prompt, end.",
+  },
+  cancel: { id: "wrapper.cancel", defaultMessage: "Cancel" },
+  save: { id: "wrapper.save", defaultMessage: "Save" },
+});
+
 /**
  * @param {object} props
  * @param {object} props.settings Current settings (reads `wrapper` / `wrapperName`).
@@ -51,6 +130,15 @@ const RevertIcon = () => (
  * @returns {JSX.Element}
  */
 export default function WrapperFab({ settings, setSettings }) {
+  const intl = useIntl();
+  // The built-in "Default" / "None" presets are stored under those literal keys but shown
+  // localized; custom preset names are user content and shown verbatim.
+  const displayName = (n) =>
+    n === "Default"
+      ? intl.formatMessage(msgs.nameDefault)
+      : n === "None"
+        ? intl.formatMessage(msgs.nameNone)
+        : n;
   const [view, setView] = useState(""); // "" | "list" | "manage"
   const [wrappers, setWrappers] = useState(() => getWrappers());
   const refresh = () => setWrappers(getWrappers());
@@ -183,8 +271,8 @@ export default function WrapperFab({ settings, setSettings }) {
         ref={btnRef}
         className={`field-act wrap-trigger${isActive ? " on" : ""}`}
         onClick={() => (view === "list" ? setView("") : openList())}
-        title={`Wrapper: ${activeName} — frames every prompt with a start and end`}
-        aria-label="Wrapper presets"
+        title={intl.formatMessage(msgs.triggerTitle, { name: displayName(activeName) })}
+        aria-label={intl.formatMessage(msgs.presetsAria)}
         aria-pressed={view === "list"}
       >
         <WrapIcon />
@@ -196,39 +284,41 @@ export default function WrapperFab({ settings, setSettings }) {
           <div
             className="wrap-pop"
             role="menu"
-            aria-label="Wrapper presets"
+            aria-label={intl.formatMessage(msgs.presetsAria)}
             style={pos ? { position: "fixed", right: pos.right, bottom: pos.bottom, maxHeight: pos.maxHeight } : undefined}
           >
             <div className="wrap-pop-head">
-              <span>Wrapper</span>
+              <span>{intl.formatMessage(msgs.wrapperHead)}</span>
               <button className="wrap-manage-btn" onClick={() => openManage()}>
-                Manage Wrappers
+                {intl.formatMessage(msgs.manage)}
               </button>
             </div>
-            <label className="wrap-auto-toggle" title="When on, blocks may add their own Auto Begin / Auto End framing to the prompt. When off, only this wrapper frames it.">
+            <label className="wrap-auto-toggle" title={intl.formatMessage(msgs.autoToggleTitle)}>
               <input
                 type="checkbox"
                 checked={settings.useAutoSections !== false}
                 onChange={(e) => setSettings({ ...settings, useAutoSections: e.target.checked })}
               />
-              <span>Allow used blocks to extend current wrapper</span>
+              <span>{intl.formatMessage(msgs.autoToggleLabel)}</span>
             </label>
             <div className="wrap-pop-list">
               <button
                 className={`wrap-pop-item${activeName === "Default" ? " on" : ""}`}
                 onClick={() => applyWrapper("Default")}
               >
-                <span className="wrap-pop-name">Default</span>
+                <span className="wrap-pop-name">{intl.formatMessage(msgs.nameDefault)}</span>
                 {activeName === "Default" && <span className="wrap-check">✓</span>}
               </button>
               <button
                 className={`wrap-pop-item${activeName === "None" ? " on" : ""}`}
                 onClick={() => applyWrapper("None")}
               >
-                <span className="wrap-pop-name">None</span>
+                <span className="wrap-pop-name">{intl.formatMessage(msgs.nameNone)}</span>
                 {activeName === "None" && <span className="wrap-check">✓</span>}
               </button>
-              {names.length === 0 && <p className="wrap-empty">No saved wrappers — Manage presets to add one.</p>}
+              {names.length === 0 && (
+                <p className="wrap-empty">{intl.formatMessage(msgs.noSaved)}</p>
+              )}
               {names.map((n) => (
                 <button
                   key={n}
@@ -247,11 +337,15 @@ export default function WrapperFab({ settings, setSettings }) {
       {view === "manage" && (
         <>
           <div className="wrap-modal-overlay" onClick={() => setView("list")} />
-          <div className="wrap-modal" role="dialog" aria-label="Manage wrappers">
+          <div className="wrap-modal" role="dialog" aria-label={intl.formatMessage(msgs.manageAria)}>
             <div className="wrap-modal-head">
-              <h2>Manage Wrappers</h2>
+              <h2>{intl.formatMessage(msgs.manage)}</h2>
               <div className="grow" />
-              <button className="drawer-close" onClick={() => setView("list")} aria-label="Close">
+              <button
+                className="drawer-close"
+                onClick={() => setView("list")}
+                aria-label={intl.formatMessage(msgs.close)}
+              >
                 ×
               </button>
             </div>
@@ -262,31 +356,31 @@ export default function WrapperFab({ settings, setSettings }) {
                 <div className="wrap-preset-pills">
                   {/* The Default is always present and can't be deleted (use the per-pane revert to reset). */}
                   <span className={`wrap-preset-pill${sel === "Default" ? " on" : ""}`}>
-                    <button className="wrap-preset-pick" onClick={() => editPreset("Default")} title="Edit the Default wrapper">
-                      Default
+                    <button className="wrap-preset-pick" onClick={() => editPreset("Default")} title={intl.formatMessage(msgs.editDefault)}>
+                      {intl.formatMessage(msgs.nameDefault)}
                     </button>
                   </span>
                   {names.map((n) => (
                     <span key={n} className={`wrap-preset-pill${sel === n ? " on" : ""}`}>
-                      <button className="wrap-preset-pick" onClick={() => editPreset(n)} title={`Edit “${n}”`}>
+                      <button className="wrap-preset-pick" onClick={() => editPreset(n)} title={intl.formatMessage(msgs.editPreset, { name: n })}>
                         {n}
                       </button>
-                      <button className="wrap-preset-del" onClick={() => del(n)} title={`Delete “${n}”`} aria-label={`Delete ${n}`}>
+                      <button className="wrap-preset-del" onClick={() => del(n)} title={intl.formatMessage(msgs.deletePreset, { name: n })} aria-label={intl.formatMessage(msgs.deletePresetAria, { name: n })}>
                         ×
                       </button>
                     </span>
                   ))}
                   <button className="wrap-preset-new" onClick={newPreset}>
-                    + New
+                    {intl.formatMessage(msgs.newPreset)}
                   </button>
                 </div>
                 <input
                   className="panel-input wrap-name"
-                  placeholder="Wrapper name…"
+                  placeholder={intl.formatMessage(msgs.namePlaceholder)}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   readOnly={sel === "Default"}
-                  aria-label="Wrapper name"
+                  aria-label={intl.formatMessage(msgs.nameAria)}
                 />
               </div>
 
@@ -294,13 +388,13 @@ export default function WrapperFab({ settings, setSettings }) {
               <div className="wrap-grid">
                 <label className="wrap-box">
                   <span className="wrap-box-head">
-                    <span className="wrap-box-label">Start</span>
+                    <span className="wrap-box-label">{intl.formatMessage(msgs.start)}</span>
                     <button
                       type="button"
                       className="wrap-revert"
                       onClick={() => revertPane("start")}
-                      title={sel === "Default" ? "Reset Start to the built-in default" : "Reset Start to the default wrapper"}
-                      aria-label="Revert Start to default"
+                      title={intl.formatMessage(sel === "Default" ? msgs.revertStartDefault : msgs.revertStartNormal)}
+                      aria-label={intl.formatMessage(msgs.revertStartAria)}
                     >
                       <RevertIcon />
                     </button>
@@ -309,19 +403,19 @@ export default function WrapperFab({ settings, setSettings }) {
                     value={start}
                     onChange={setStart}
                     settings={settings}
-                    ariaLabel="Wrapper start (DPL)"
-                    placeholder={isNew ? def.start || "Rendered before the prompt…" : "Rendered before the prompt — e.g. a style or framing lead-in"}
+                    ariaLabel={intl.formatMessage(msgs.startAria)}
+                    placeholder={isNew ? def.start || intl.formatMessage(msgs.startPlaceholderNew) : intl.formatMessage(msgs.startPlaceholder)}
                   />
                 </label>
                 <label className="wrap-box">
                   <span className="wrap-box-head">
-                    <span className="wrap-box-label">End</span>
+                    <span className="wrap-box-label">{intl.formatMessage(msgs.end)}</span>
                     <button
                       type="button"
                       className="wrap-revert"
                       onClick={() => revertPane("end")}
-                      title={sel === "Default" ? "Reset End to the built-in default" : "Reset End to the default wrapper"}
-                      aria-label="Revert End to default"
+                      title={intl.formatMessage(sel === "Default" ? msgs.revertEndDefault : msgs.revertEndNormal)}
+                      aria-label={intl.formatMessage(msgs.revertEndAria)}
                     >
                       <RevertIcon />
                     </button>
@@ -330,21 +424,21 @@ export default function WrapperFab({ settings, setSettings }) {
                     value={end}
                     onChange={setEnd}
                     settings={settings}
-                    ariaLabel="Wrapper end (DPL)"
-                    placeholder={isNew ? def.end || "Rendered after the prompt…" : "Rendered after the prompt — e.g. {#fx}, {#artists}"}
+                    ariaLabel={intl.formatMessage(msgs.endAria)}
+                    placeholder={isNew ? def.end || intl.formatMessage(msgs.endPlaceholderNew) : intl.formatMessage(msgs.endPlaceholder)}
                   />
                 </label>
               </div>
             </div>
 
             <div className="wrap-modal-foot">
-              <span className="wrap-foot-hint">Wraps every generated prompt: start, your prompt, end.</span>
+              <span className="wrap-foot-hint">{intl.formatMessage(msgs.footHint)}</span>
               <div className="grow" />
               <button className="ghost" onClick={() => setView("list")}>
-                Cancel
+                {intl.formatMessage(msgs.cancel)}
               </button>
               <button className="primary" onClick={save} disabled={!name.trim()}>
-                Save
+                {intl.formatMessage(msgs.save)}
               </button>
             </div>
           </div>

@@ -17,6 +17,8 @@
  * @module gui/App
  */
 import { useEffect, useState } from "react";
+import { useIntl, defineMessages } from "react-intl";
+import { I18nProvider } from "./i18n/index.js";
 import { useSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
 import { fetchGallery } from "./lib/gallery.js";
@@ -35,21 +37,77 @@ import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 
-// [id, label, lockedFeatureName]. Gallery/Single are local-only — online shows them disabled.
+// [id, labelKey, featureKey]. Gallery/Single are local-only — online shows them disabled.
 // Manage needs the local-mode file backend (a runtime capability, not the build stage).
+// labelKey/featureKey index into `msgs` below so the strings are localized at render.
 const TABS = [
-  ["generate", "Generate", null],
-  ["gallery", "Gallery", "The gallery"],
-  ["single", "Single", "The single-image view"],
-  ["manage", "Manage", "The content manager"],
+  ["generate", "tabGenerate", null],
+  ["gallery", "tabGallery", "featureGallery"],
+  ["single", "tabSingle", "featureSingle"],
+  ["manage", "tabManage", null],
 ];
 
+const msgs = defineMessages({
+  switchView: {
+    id: "app.switchView",
+    defaultMessage: "Switch view",
+    description: "aria-label for the top-bar view switcher",
+  },
+  tabGenerate: { id: "app.tab.generate", defaultMessage: "Generate" },
+  tabGallery: { id: "app.tab.gallery", defaultMessage: "Gallery" },
+  tabSingle: { id: "app.tab.single", defaultMessage: "Single" },
+  tabManage: { id: "app.tab.manage", defaultMessage: "Manage" },
+  featureGallery: {
+    id: "app.feature.gallery",
+    defaultMessage: "The gallery",
+    description: "Noun phrase for the gallery, used in the online-locked tooltip",
+  },
+  featureSingle: {
+    id: "app.feature.single",
+    defaultMessage: "The single-image view",
+    description: "Noun phrase for the single view, used in the online-locked tooltip",
+  },
+  manageLocked: {
+    id: "app.manageLocked",
+    defaultMessage: "Manage needs the local app (file access) — unavailable online",
+    description: "Tooltip when the Manage tab is unavailable (no local backend)",
+  },
+  deleteConfirm: {
+    id: "app.deleteConfirm",
+    defaultMessage: "Delete this image and its metadata from disk? This can't be undone.",
+    description: "Confirm dialog before deleting an image from disk",
+  },
+  footer: {
+    id: "app.footer",
+    defaultMessage:
+      "Stored only in this browser · bring your own API key · nothing saved on a server",
+    description: "Privacy footer line",
+  },
+});
+
 /**
- * The application shell component.
- * @returns {JSX.Element} The app (top bar + the three views + footer).
+ * The application root: owns settings and establishes the i18n boundary so the
+ * whole shell (and its localized strings) renders under a configured provider.
+ * @returns {JSX.Element}
  */
 export default function App() {
   const [settings, setSettings] = useSettings();
+  return (
+    <I18nProvider locale={settings.locale}>
+      <AppShell settings={settings} setSettings={setSettings} />
+    </I18nProvider>
+  );
+}
+
+/**
+ * The application shell component (top bar + the views + footer).
+ * @param {object} props
+ * @param {object} props.settings The current settings.
+ * @param {Function} props.setSettings Update the settings.
+ * @returns {JSX.Element}
+ */
+function AppShell({ settings, setSettings }) {
+  const intl = useIntl();
   const [view, setView] = useState("generate"); // "generate" | "gallery" | "single"
   const [items, setItems] = useState([]); // the saved-image feed (newest first)
   const [loadingItems, setLoadingItems] = useState(true);
@@ -150,7 +208,7 @@ export default function App() {
 
   // Delete an image (+ sidecar) from disk; in the single view, land on a neighbor (or leave).
   async function deleteItem(item) {
-    if (!confirm("Delete this image and its metadata from disk? This can't be undone.")) return;
+    if (!confirm(intl.formatMessage(msgs.deleteConfirm))) return;
     await deleteImageFile(item.path);
     const i = items.findIndex((x) => x.path === item.path);
     const neighbor = items[i + 1] || items[i - 1] || null;
@@ -159,7 +217,7 @@ export default function App() {
     if (!neighbor && view === "single") setView(returnTo);
   }
 
-  const returnLabel = returnTo === "generate" ? "Generate" : "Gallery";
+  const returnLabel = intl.formatMessage(returnTo === "generate" ? msgs.tabGenerate : msgs.tabGallery);
 
   return (
     <div className="app">
@@ -168,15 +226,16 @@ export default function App() {
           <img src="/logo.png" alt="" />
           <span className="wordmark">Random AI Prompt</span>
         </div>
-        <div className="view-switch" role="tablist" aria-label="Switch view">
-          {TABS.map(([id, label, lockFeature]) => {
+        <div className="view-switch" role="tablist" aria-label={intl.formatMessage(msgs.switchView)}>
+          {TABS.map(([id, labelKey, featureKey]) => {
+            const label = intl.formatMessage(msgs[labelKey]);
             // Manage is gated on the local-mode backend (a runtime capability); Gallery/Single are
             // gated on the online build. Manage clicks while locked are inert (no full-version link).
             const locked = id === "manage" ? !managerOk : ONLINE && id !== "generate";
             const hint =
               id === "manage"
-                ? "Manage needs the local app (file access) — unavailable online"
-                : lockedHint(lockFeature);
+                ? intl.formatMessage(msgs.manageLocked)
+                : lockedHint(intl, featureKey ? intl.formatMessage(msgs[featureKey]) : label);
             return (
               <button
                 key={id}
@@ -250,9 +309,7 @@ export default function App() {
         )}
       </main>
 
-      <footer>
-        Stored only in this browser · bring your own API key · nothing saved on a server
-      </footer>
+      <footer>{intl.formatMessage(msgs.footer)}</footer>
     </div>
   );
 }

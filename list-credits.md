@@ -195,3 +195,21 @@ and Australian word list.  It is under the following copyright:
 The variant word lists were created from a list of variants found in
 the 12dicts supplement package as well as a list of variants I created
 myself.
+
+
+Frameworks, libraries & tools
+==================================================================================================
+
+The web GUI (engine-v3/gui) is internationalized with react-intl, with message IDs and catalogs
+produced by the FormatJS toolchain:
+
+  react-intl              https://formatjs.io/docs/react-intl/          BSD-3-Clause
+  @formatjs/cli           https://formatjs.io/docs/tooling/cli/         MIT
+  babel-plugin-formatjs   https://formatjs.io/docs/tooling/babel-plugin/ MIT
+  eslint-plugin-formatjs  https://formatjs.io/docs/tooling/linter/      MIT
+
+FormatJS is maintained by the FormatJS contributors. Only English is shipped as a translated locale;
+the pipeline is in place for community translations.
+
+AI assistance: the internationalization pass (react-intl integration, string extraction across the
+SPA, and the FormatJS pipeline) was implemented with Claude (Anthropic).

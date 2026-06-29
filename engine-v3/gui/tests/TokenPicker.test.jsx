@@ -3,7 +3,7 @@
  * (gui/src/components/TokenPicker.jsx).
  */
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "./testUtils.jsx";
 import TokenPicker from "../src/components/TokenPicker.jsx";
 
 describe("TokenPicker", () => {

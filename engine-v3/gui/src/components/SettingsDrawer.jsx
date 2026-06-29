@@ -5,7 +5,13 @@
  * @module gui/components/SettingsDrawer
  */
 import { useEffect } from "react";
+import { useIntl, defineMessages } from "react-intl";
 import Settings from "./Settings.jsx";
+
+const msgs = defineMessages({
+  settings: { id: "settingsDrawer.title", defaultMessage: "Settings" },
+  close: { id: "settingsDrawer.close", defaultMessage: "Close settings" },
+});
 
 /**
  * @param {object} props
@@ -16,6 +22,7 @@ import Settings from "./Settings.jsx";
  * @returns {(JSX.Element|null)}
  */
 export default function SettingsDrawer({ open, onClose, settings, setSettings }) {
+  const intl = useIntl();
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -28,11 +35,15 @@ export default function SettingsDrawer({ open, onClose, settings, setSettings })
   return (
     <>
       <div className="drawer-overlay" onClick={onClose} />
-      <aside className="drawer" role="dialog" aria-label="Settings">
+      <aside className="drawer" role="dialog" aria-label={intl.formatMessage(msgs.settings)}>
         <div className="drawer-head">
-          <h2>Settings</h2>
+          <h2>{intl.formatMessage(msgs.settings)}</h2>
           <div className="spacer" />
-          <button className="drawer-close" onClick={onClose} aria-label="Close settings">
+          <button
+            className="drawer-close"
+            onClick={onClose}
+            aria-label={intl.formatMessage(msgs.close)}
+          >
             ×
           </button>
         </div>

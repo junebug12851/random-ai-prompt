@@ -2,6 +2,40 @@
 
 Key structural choices and why. (Things tried and rejected live in [`rejected.md`](rejected.md).)
 
+## SPA i18n: react-intl + FormatJS, English-only shipped, pipeline-ready (2026-06-28)
+
+The SPA was internationalized with **react-intl** driven by the **FormatJS** toolchain. Choices and why:
+
+- **react-intl over i18next.** react-intl is ICU-MessageFormat-native (correct plurals/gender/number/date
+  via the platform `Intl`), integrates as React context + hooks, and pairs with a mature build-time
+  extractor (`@formatjs/cli`) + babel plugin. The app already needed correct plurals (counts everywhere)
+  and `Intl` number formatting, which is react-intl's strength.
+- **Inline `defaultMessage` is the source of truth; the catalog is generated.** Every string is authored
+  in-place as `defineMessages`/`<FormattedMessage>` with an explicit, namespaced `id` and an English
+  `defaultMessage`. `npm run i18n:extract` produces `src/i18n/messages/en.json`; we do **not** hand-write
+  the English catalog. The source locale (`en`) ships **no** runtime catalog — react-intl renders from the
+  inline `defaultMessage` (`babel-plugin-formatjs` keeps it in the bundle). Only non-source locales get a
+  compiled catalog, loaded via `import.meta.glob` (mirroring the engine's browser data loader).
+- **English is the only shipped real locale (deliberate).** The owner's bar was "ship a language only if
+  the translation is genuinely good." The app is thick with untranslatable-by-machine domain jargon (DPL,
+  prompt "salt", wrappers, expansions, dynamic-prompt tokens, NSFW gating) that can't be verified, so no
+  other language ships. The whole pipeline is in place, so adding a real, human-reviewed language is a
+  one-file drop-in (`compiled/<locale>.json` + a `LOCALES` entry). A generated **`en-XA` pseudo-locale**
+  (accented/expanded English) ships as a coverage aid — flipping to it surfaces any un-internationalized
+  string instantly.
+- **i18n boundary at the app root.** `App.jsx` is a thin root that owns settings and wraps the tree in
+  `I18nProvider`; the former body moved to `AppShell` (so the shell can use `useIntl`). Locale lives in
+  `settings.locale` (persisted; `"auto"` resolves from `navigator.languages`).
+- **gui-scoped ESLint, not the root config.** The repo-root ESLint config intentionally ignores `gui/**`,
+  so a separate, minimal `gui/eslint.config.js` runs **only** `eslint-plugin-formatjs`
+  (`enforce-default-message`) — it does not pull in `js.recommended`, so it won't flood the never-linted
+  SPA with unrelated findings. Run via `npm run lint:i18n` (not part of the root headless gate).
+- **Deferred: the DPL-technical lib modules.** `gui/src/lib/dpl/validateDpl.js` (editor lint diagnostics)
+  and `gui/src/lib/dpl/dplInserts.js` (the DPL syntax teaching catalog) stay English for now. They are
+  isomorphic non-React modules — `validateDpl` is shared with the core engine and covered by a test suite
+  keyed on its English messages — so threading i18n through them is a separate, riskier refactor rather
+  than part of this UI-layer pass.
+
 ## `dynamic-prompts/` lives under `data/`, not `src/` (2026-06-21)
 
 The `#name` generators were moved from `src/dynamic-prompts/` to `data/dynamic-prompts/`. They are
