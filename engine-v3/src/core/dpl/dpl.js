@@ -8,7 +8,7 @@
 // layer; each section is a layer; each line is a layer. Weights are LOCAL sort keys
 // (lower = rendered earlier) — a layer only reorders its own children and never the parent.
 // `compileDpl(source, bridge)` returns the same shape as a JS generator module
-// (`{ default, full, suggestion_exclude }`) so the existing engine/loader are untouched.
+// (`{ default, suggestion_exclude }`) so the existing engine/loader are untouched.
 //
 // Plain text is valid DPL (every line is just an always-on layer), so the prompt box and the
 // generator files share one language. See notes/reference/dpl-design.md for the full spec and
@@ -808,19 +808,18 @@ function weightedSampleN(opts, n) {
 }
 
 // ---------------------------------------------------------------------------
-// Compile: source -> { default, full, suggestion_exclude }
+// Compile: source -> { default, suggestion_exclude }
 // ---------------------------------------------------------------------------
 
 /**
  * Compile a `.dpl` source into a dynamic-prompt module object (same shape as a JS generator).
  * @param {string} source The `.dpl` file text.
  * @param {object} [bridge] Optional JS bridge: `{ resolveJs(path, ctx) }` for `{js:}` / `insert js:` / `script`.
- * @returns {{default: Function, full: boolean, suggestion_exclude: boolean, stacking: boolean, meta: object}} The module.
+ * @returns {{default: Function, suggestion_exclude: boolean, stacking: boolean, meta: object}} The module.
  */
 export function compileDpl(source, bridge = null) {
   const { meta, body } = parseFrontMatter(source);
   const sections = parseSections(lexLines(body));
-  const full = meta.type === "full";
   const suggestion_exclude = meta.suggestions === "off" || meta.suggestions === "false";
   // A `stacking` (alias `multi`) generator opts OUT of global single-layer dedup: it may be imported
   // and rendered more than once (the many decorative fragments that garnish several clauses). Default
@@ -870,7 +869,6 @@ export function compileDpl(source, bridge = null) {
 
   return {
     default: defaultFn,
-    full,
     suggestion_exclude,
     stacking,
     meta,

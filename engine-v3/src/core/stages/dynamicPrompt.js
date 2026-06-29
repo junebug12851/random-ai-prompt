@@ -5,7 +5,7 @@
 
 // Dynamic-prompt stage: `{#name}` -> the output of the matching generator.
 // Loader-injected port. The loader returns the plugin module namespace
-// ({ default, full, suggestion_exclude }); we call `.default(...)`. Same
+// ({ default, suggestion_exclude }); we call `.default(...)`. Same
 // danbooru/auto-fx logic in Node and the browser.
 //
 // Generators live flat under data/dynamic-prompts/<category>/. A bare `{#name}` is

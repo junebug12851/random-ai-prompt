@@ -29,7 +29,7 @@ for (const { key, file } of dplFiles(root)) {
   try {
     const mod = compileDpl(fs.readFileSync(file, "utf8"), bridge);
     const sample = Array.from({ length: 3 }, () => mod.default({}, {}, {}));
-    console.log(`\n=== ${key}  (full=${mod.full})`);
+    console.log(`\n=== ${key}`);
     sample.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
     if (sample.some((s) => typeof s !== "string")) throw new Error("non-string output");
   } catch (e) {

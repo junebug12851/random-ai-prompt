@@ -64,13 +64,13 @@ generator from it:
 | `expansion/` | Reusable lighting / detail accents referenced from other generators (`{#rays}`, `{#dap}`, …); not listed as pickable chips |
 | `user/` | Community-submitted generators (`{#user-name}`) |
 
-## Full vs partial
+## Keeping a generator out of suggestions
 
-`export const full = true` marks a generator that stands alone as a complete scene; its absence
-marks a **partial** fragment meant to garnish other prompts. `export const suggestion_exclude`
-keeps a valid prompt out of random suggestions. These flags (read by
-`src/promptFilesAndSuggestions.js`) drive `{#random}` suggestions and the web editor's dynamic
-sections.
+There is no full/partial distinction — every generator is just a "prompt", and the whole set is
+the `{#random}` suggestion pool. `export const suggestion_exclude` (front matter: `suggestions:
+off`) keeps a valid generator out of that pool. How densely a generator renders is governed by the
+**intensity** and **focus** dials, not by a standalone/fragment flag. (The old `full` / `partial`
+concept is gone.)
 
 ## Adult gating
 
@@ -112,7 +112,7 @@ export default function (settings, imageSettings, upscaleSettings) {
   if (Math.random() < 0.5) prompt += ", {#weather}";
   return prompt;
 }
-export const full = true; // omit for a partial fragment
+// export const suggestion_exclude = true; // keep this generator out of {#random} suggestions
 ```
 
 Generators import shared helpers out of `src/` (e.g. `../../../src/helpers/keywordRepeater.js`

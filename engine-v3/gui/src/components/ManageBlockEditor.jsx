@@ -22,7 +22,6 @@ export default function (settings, imageSettings, upscaleSettings) {
   return "";
 }
 
-// export const full = true;             // treat the output as a full prompt
 // export const suggestion_exclude = true; // keep this generator out of random suggestions
 `;
 

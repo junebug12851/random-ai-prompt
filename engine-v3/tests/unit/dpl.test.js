@@ -39,10 +39,10 @@ describe("DPL: plain text & front-matter", () => {
     expect(render("hello world")).toBe("hello world");
   });
 
-  it("parses front-matter flags (type: full, suggestions: off)", () => {
-    const mod = compileDpl("---\ntype: full\nsuggestions: off\n---\nbody text");
-    expect(mod.full).toBe(true);
+  it("parses front-matter flags (suggestions: off)", () => {
+    const mod = compileDpl("---\nsuggestions: off\n---\nbody text");
     expect(mod.suggestion_exclude).toBe(true);
+    expect(mod.full).toBeUndefined();
     expect(mod.default()).toBe("body text");
   });
 

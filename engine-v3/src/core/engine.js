@@ -14,7 +14,7 @@
 // Loader interface:
 //   readListLines(name)      -> string[] | null
 //   listNames()              -> string[]
-//   loadDynamicPrompt(key)   -> { default, full?, suggestion_exclude? } | null
+//   loadDynamicPrompt(key)   -> { default, suggestion_exclude? } | null
 //
 // The pure stages (prompt-salt, cleanup) and the random* helpers are imported
 // and reused directly — only the file/plugin access is reimplemented behind the

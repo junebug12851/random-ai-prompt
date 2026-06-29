@@ -302,7 +302,6 @@ const FM_KEYS = [
     label: "stacking: true",
     info: "Let this block render more than once (skip global single-layer dedup). Default: once per prompt.",
   },
-  { label: "type: full", info: "Mark as a complete standalone scene (vs a partial fragment)." },
   { label: "script: ", info: "Delegate the whole block to a JS file (advanced)." },
 ];
 
