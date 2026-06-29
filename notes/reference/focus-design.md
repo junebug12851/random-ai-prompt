@@ -67,14 +67,15 @@ An intensity and a focus condition may sit in one bracket, with a weight, in any
 | Token | Expands to | Example at 50% |
 |-------|------------|----------------|
 | `$focus` | the **percent** (the dial is inherently a percent) | `50%` |
-| `$focus-word` | the **word** (loose → pure) | `balanced` |
+| `$focus-word` | the **word** (loose → topic-only) | `normal` |
 
 (There is no `$focus%` — the dial is already a percent, so the bare `$focus` carries the `%`.)
 
-`$focus-word` is a **100-step scale — one word per percent**, broad → pure, centred on **50 ≈
-`balanced`**. It runs `everything` / `sprawling` / `kitchen-sink` at the low (loose) end, through
-`balanced` in the middle, up to `precise` / `singular` / `pure` / `essence` at the high (focused) end.
-The full list is the `FOCUS_WORDS` array in `src/core/dpl/dpl.js` — edit it there to retune a word.
+`$focus-word` is a **100-step scale — one word per percent** on the *relevance* axis (how much non-topic
+detail is allowed), centred on **50 ≈ `normal`**. It runs `anything-goes` / `loose` / `broad` at the low
+end, through `related` → `relevant` → `normal` → `on-topic` in the middle, up to `specific` → `exact` →
+`strict` → `singular` → `pure` → `topic-only` at the high end. The full list is the `FOCUS_WORDS` array in
+`src/core/dpl/dpl.js`; the clean single-word subset is also the `look/focus` list.
 
 A relative ` ±NN%` modifier works on any focus reference, taken *of the value* (`$focus-word +25%`,
 `{#weather f-40%}`), clamped 1–100 — same math as intensity.

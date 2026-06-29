@@ -184,10 +184,10 @@ describe("DPL: dial keyword tokens ($intensity / $focus)", () => {
   });
 
   it("expands $focus-word from the 100-step scale; $focus is the percent", () => {
-    // Focus scale (broad→pure): 10→kitchen-sink, 50→balanced, 95→purified.
-    expect(renderAtF("Start\n===\n$focus-word scene", 10)).toBe("kitchen-sink scene");
-    expect(renderAtF("Start\n===\n$focus-word scene", 50)).toBe("balanced scene");
-    expect(renderAtF("Start\n===\n$focus-word scene", 95)).toBe("purified scene");
+    // Focus scale (loose→topic-only): 10→lenient, 50→normal, 95→isolated.
+    expect(renderAtF("Start\n===\n$focus-word scene", 10)).toBe("lenient scene");
+    expect(renderAtF("Start\n===\n$focus-word scene", 50)).toBe("normal scene");
+    expect(renderAtF("Start\n===\n$focus-word scene", 95)).toBe("isolated scene");
     expect(renderAtF("Start\n===\nf $focus", 80)).toBe("f 80%");
   });
 
