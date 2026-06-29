@@ -31,8 +31,11 @@
     "test:web:coverage": "npm --prefix gui run test:coverage",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:all": "node scripts/run-e2e-all.mjs",
+    "test:perf": "npm run web:build && node scripts/check-bundle-size.mjs",
+    "test:lhci": "lhci autorun",
     "test": "npm run lint && npm run smoke && npm run test:unit && npm run test:web",
-    "test:all": "npm run test && npm run test:e2e"
+    "test:all": "npm run test && npm run test:e2e && npm run test:perf"
   },
   "dependencies": {
     "compromise": "^14.15.1",
@@ -43,6 +46,7 @@
     "@babel/core": "^8.0.1",
     "@babel/preset-react": "^8.0.1",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.0",
     "@vitest/coverage-v8": "^4.1.9",
     "docdash": "^2.0.2",

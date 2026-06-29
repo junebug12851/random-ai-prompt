@@ -31,6 +31,10 @@ gui/coverage/
 /playwright-report/
 /test-results/
 /.vitest/
+engine-v3/coverage/
+engine-v3/gui/coverage/
+engine-v3/playwright-report/
+engine-v3/test-results/
 
 # Local-file storage backend (dev only)
 engine-v3/gui/.gui-storage.json
