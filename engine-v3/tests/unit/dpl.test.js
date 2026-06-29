@@ -169,30 +169,32 @@ describe("DPL: intensity — auto-scaling", () => {
 });
 
 describe("DPL: dial keyword tokens ($intensity / $focus)", () => {
-  it("expands $intensity-word to the magnitude word and $intensity / $intensity% to the value", () => {
+  it("expands $intensity-word from the 100-step scale; $intensity is the percent", () => {
+    // 100-word scale (1..100): 20→ultra-tiny, 50→normal, 85→immense.
     expect(renderAt("Start\n===\n$intensity-word amount of grass", 20)).toBe(
-      "tiny amount of grass",
+      "ultra-tiny amount of grass",
     );
     expect(renderAt("Start\n===\n$intensity-word amount of grass", 50)).toBe(
       "normal amount of grass",
     );
     expect(renderAt("Start\n===\n$intensity-word amount of grass", 85)).toBe(
-      "huge amount of grass",
+      "immense amount of grass",
     );
     expect(renderAt("Start\n===\nlevel $intensity", 50)).toBe("level 50%");
   });
 
-  it("expands $focus-word and $focus (a percent) from the focus dial", () => {
-    expect(renderAtF("Start\n===\n$focus-word scene", 10)).toBe("loose scene");
+  it("expands $focus-word from the 100-step scale; $focus is the percent", () => {
+    // Focus scale (broad→pure): 10→kitchen-sink, 50→balanced, 95→purified.
+    expect(renderAtF("Start\n===\n$focus-word scene", 10)).toBe("kitchen-sink scene");
     expect(renderAtF("Start\n===\n$focus-word scene", 50)).toBe("balanced scene");
-    expect(renderAtF("Start\n===\n$focus-word scene", 95)).toBe("pure scene");
+    expect(renderAtF("Start\n===\n$focus-word scene", 95)).toBe("purified scene");
     expect(renderAtF("Start\n===\nf $focus", 80)).toBe("f 80%");
   });
 
   it("applies a relative ±NN% modifier to a dial keyword", () => {
-    // 50 × 1.5 = 75 → "large"; 50 × 0.5 = 25 → "small".
-    expect(renderAt("Start\n===\n$intensity-word +50%", 50)).toBe("large");
-    expect(renderAt("Start\n===\n$intensity-word -50%", 50)).toBe("small");
+    // 50 × 1.5 = 75 → "crowded"; 50 × 0.5 = 25 → "itty-bitty".
+    expect(renderAt("Start\n===\n$intensity-word +50%", 50)).toBe("crowded");
+    expect(renderAt("Start\n===\n$intensity-word -50%", 50)).toBe("itty-bitty");
     expect(renderAt("Start\n===\n$intensity +50%", 50)).toBe("75%");
   });
 

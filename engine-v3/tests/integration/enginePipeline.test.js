@@ -102,8 +102,8 @@ describe("engine — intensity dial", () => {
       makeFakeLoader({ dpl: { mood: "base $intensity-word\n[i<10%] calm\n[i>80%] intense" } }),
     );
     const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
-    expect(engine.expand("{#mood i5%}", settings, {}, {})).toBe("base tiny, calm");
-    expect(engine.expand("{#mood i95%}", settings, {}, {})).toBe("base massive, intense");
+    expect(engine.expand("{#mood i5%}", settings, {}, {})).toBe("base speck, calm");
+    expect(engine.expand("{#mood i95%}", settings, {}, {})).toBe("base gargantuan, intense");
     // Unspecified → the 50% default: neither edge condition fires.
     expect(engine.expand("{#mood}", settings, {}, {})).toBe("base normal");
   });
@@ -130,8 +130,12 @@ describe("engine — focus dial", () => {
     );
     const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
     // Low focus admits the fluff "distant city"; high focus drops it and keeps only essentials.
-    expect(engine.expand("{#scene f10%}", settings, {}, {})).toBe("core loose, distant city");
-    expect(engine.expand("{#scene f95%}", settings, {}, {})).toBe("core pure, strictly essential");
+    expect(engine.expand("{#scene f10%}", settings, {}, {})).toBe(
+      "core kitchen-sink, distant city",
+    );
+    expect(engine.expand("{#scene f95%}", settings, {}, {})).toBe(
+      "core purified, strictly essential",
+    );
     expect(engine.expand("{#scene}", settings, {}, {})).toBe("core balanced");
   });
 

@@ -56,24 +56,228 @@ function clampFocus(v) {
   return r > 100 ? 100 : r;
 }
 
-/** The natural-language magnitude word for an intensity percent (the `$intensity-word` token). */
+// A 100-step intensity word scale: one word per percent, least → most, with 50 ≈ "normal". Curated
+// to size / amount / scale / proportion terms (kept the intentional "tiny" run). `$intensity-word`
+// at intensity N renders INTENSITY_WORDS[N-1].
+const INTENSITY_WORDS = [
+  "barely-there", // 1
+  "near-zero", // 2
+  "negligible", // 3
+  "trace", // 4
+  "speck", // 5
+  "fleck", // 6
+  "smidge", // 7
+  "pinch", // 8
+  "dab", // 9
+  "sliver", // 10
+  "scrap", // 11
+  "crumb", // 12
+  "morsel", // 13
+  "drop", // 14
+  "sprinkle", // 15
+  "spoonful", // 16
+  "handful", // 17
+  "palmful", // 18
+  "pocketful", // 19
+  "ultra-tiny", // 20
+  "extra-tiny", // 21
+  "very tiny", // 22
+  "tiny", // 23
+  "teensy", // 24
+  "itty-bitty", // 25
+  "minuscule", // 26
+  "miniature", // 27
+  "mini", // 28
+  "diminutive", // 29
+  "little", // 30
+  "small", // 31
+  "compact", // 32
+  "undersized", // 33
+  "pint-sized", // 34
+  "scant", // 35
+  "sparse", // 36
+  "meager", // 37
+  "skimpy", // 38
+  "slight", // 39
+  "thin", // 40
+  "slim", // 41
+  "narrow", // 42
+  "short", // 43
+  "reduced", // 44
+  "partial", // 45
+  "modest", // 46
+  "moderate", // 47
+  "medium", // 48
+  "average", // 49
+  "normal", // 50
+  "full-size", // 51
+  "regular", // 52
+  "standard", // 53
+  "noticeable", // 54
+  "decent", // 55
+  "respectable", // 56
+  "sizable", // 57
+  "ample", // 58
+  "roomy", // 59
+  "generous", // 60
+  "broad", // 61
+  "wide", // 62
+  "large", // 63
+  "big", // 64
+  "hefty", // 65
+  "bulky", // 66
+  "oversized", // 67
+  "substantial", // 68
+  "considerable", // 69
+  "abundant", // 70
+  "plentiful", // 71
+  "copious", // 72
+  "overflowing", // 73
+  "packed", // 74
+  "crowded", // 75
+  "expansive", // 76
+  "extensive", // 77
+  "sweeping", // 78
+  "great", // 79
+  "major", // 80
+  "giant", // 81
+  "jumbo", // 82
+  "huge", // 83
+  "enormous", // 84
+  "immense", // 85
+  "massive", // 86
+  "gigantic", // 87
+  "tremendous", // 88
+  "colossal", // 89
+  "mammoth", // 90
+  "titanic", // 91
+  "monumental", // 92
+  "vast", // 93
+  "towering", // 94
+  "gargantuan", // 95
+  "humongous", // 96
+  "mega", // 97
+  "immeasurable", // 98
+  "limitless", // 99
+  "beyond measure", // 100
+];
+
+/** The natural-language word for an intensity percent 1..100 (the `$intensity-word` token). */
 function intensityWord(p) {
-  if (p <= 24) return "tiny";
-  if (p <= 40) return "small";
-  if (p <= 60) return "normal";
-  if (p <= 75) return "large";
-  if (p <= 90) return "huge";
-  return "massive";
+  const i = Math.min(100, Math.max(1, Math.round(p)));
+  return INTENSITY_WORDS[i - 1];
 }
 
-/** The natural-language word for a focus percent (the `$focus-word` token); ascends loose → pure. */
+// A 100-step focus word scale: one word per percent, broad/everything → pure/essence, 50 ≈ "balanced".
+// `$focus-word` at focus N renders FOCUS_WORDS[N-1]. (Focus is the relevance/purity axis, so these are
+// breadth → precision words, not size words.)
+const FOCUS_WORDS = [
+  "everything", // 1
+  "all-inclusive", // 2
+  "all-encompassing", // 3
+  "maximal", // 4
+  "sprawling", // 5
+  "boundless", // 6
+  "limitless", // 7
+  "wide-open", // 8
+  "anything-goes", // 9
+  "kitchen-sink", // 10
+  "overstuffed", // 11
+  "cluttered", // 12
+  "busy", // 13
+  "packed", // 14
+  "crowded", // 15
+  "dense", // 16
+  "layered", // 17
+  "elaborate", // 18
+  "ornate", // 19
+  "embellished", // 20
+  "decorative", // 21
+  "garnished", // 22
+  "padded", // 23
+  "abundant", // 24
+  "rich", // 25
+  "full", // 26
+  "lush", // 27
+  "expansive", // 28
+  "wide-ranging", // 29
+  "broad", // 30
+  "wide", // 31
+  "sweeping", // 32
+  "generous", // 33
+  "loose", // 34
+  "relaxed", // 35
+  "open", // 36
+  "roomy", // 37
+  "airy", // 38
+  "casual", // 39
+  "varied", // 40
+  "mixed", // 41
+  "eclectic", // 42
+  "diffuse", // 43
+  "scattered", // 44
+  "spread-out", // 45
+  "wandering", // 46
+  "soft", // 47
+  "hazy", // 48
+  "loose-knit", // 49
+  "balanced", // 50
+  "centered", // 51
+  "even", // 52
+  "measured", // 53
+  "composed", // 54
+  "orderly", // 55
+  "tidy", // 56
+  "neat", // 57
+  "trimmed", // 58
+  "pared-back", // 59
+  "streamlined", // 60
+  "lean", // 61
+  "spare", // 62
+  "simple", // 63
+  "clean", // 64
+  "uncluttered", // 65
+  "minimal", // 66
+  "minimalist", // 67
+  "restrained", // 68
+  "disciplined", // 69
+  "deliberate", // 70
+  "selective", // 71
+  "curated", // 72
+  "refined", // 73
+  "distilled", // 74
+  "concentrated", // 75
+  "condensed", // 76
+  "tight", // 77
+  "narrow", // 78
+  "focused", // 79
+  "honed", // 80
+  "sharpened", // 81
+  "precise", // 82
+  "exact", // 83
+  "pointed", // 84
+  "targeted", // 85
+  "pinpoint", // 86
+  "laser-sharp", // 87
+  "singular", // 88
+  "single-minded", // 89
+  "stripped-down", // 90
+  "bare", // 91
+  "essential", // 92
+  "elemental", // 93
+  "fundamental", // 94
+  "purified", // 95
+  "pure", // 96
+  "absolute", // 97
+  "unadulterated", // 98
+  "quintessential", // 99
+  "essence", // 100
+];
+
+/** The natural-language word for a focus percent 1..100 (the `$focus-word` token); broad → pure. */
 function focusWord(p) {
-  if (p <= 24) return "loose";
-  if (p <= 40) return "broad";
-  if (p <= 60) return "balanced";
-  if (p <= 75) return "focused";
-  if (p <= 90) return "tight";
-  return "pure";
+  const i = Math.min(100, Math.max(1, Math.round(p)));
+  return FOCUS_WORDS[i - 1];
 }
 
 /** Scale an authored count by intensity: round(n × intensity/100), never below 0. */

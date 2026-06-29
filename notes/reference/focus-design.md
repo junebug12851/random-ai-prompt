@@ -71,16 +71,10 @@ An intensity and a focus condition may sit in one bracket, with a weight, in any
 
 (There is no `$focus%` — the dial is already a percent, so the bare `$focus` carries the `%`.)
 
-The word ladder (tunable in `dpl.js`, ascends loose → pure):
-
-| Percent | Word |
-|---------|------|
-| 1–24 | `loose` |
-| 25–40 | `broad` |
-| 41–60 | `balanced` |
-| 61–75 | `focused` |
-| 76–90 | `tight` |
-| 91–100 | `pure` |
+`$focus-word` is a **100-step scale — one word per percent**, broad → pure, centred on **50 ≈
+`balanced`**. It runs `everything` / `sprawling` / `kitchen-sink` at the low (loose) end, through
+`balanced` in the middle, up to `precise` / `singular` / `pure` / `essence` at the high (focused) end.
+The full list is the `FOCUS_WORDS` array in `src/core/dpl/dpl.js` — edit it there to retune a word.
 
 A relative ` ±NN%` modifier works on any focus reference, taken *of the value* (`$focus-word +25%`,
 `{#weather f-40%}`), clamped 1–100 — same math as intensity.

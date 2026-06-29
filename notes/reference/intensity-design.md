@@ -112,24 +112,19 @@ payload. The tokens use a **`$` sigil** (not `{…}`, which means `{list}`):
 (There is no `$intensity%` — the dial is already a percent, so the bare `$intensity` carries the `%`.)
 
 ```
-$intensity-word amount of grass    ; "normal amount of grass" at 50%, "tiny amount of grass" at 20%
+$intensity-word amount of grass    ; "normal amount of grass" at 50%, "ultra-tiny" at 20%, "immense" at 85
 a $intensity-word cluster of clouds
 detail level $intensity            ; "detail level 50%"
 ```
 
-The matching `$focus`, `$focus%`, `$focus-word` tokens read the focus dial (see
+The matching `$focus`, `$focus-word` tokens read the focus dial (see
 [`focus-design.md`](focus-design.md)).
 
-**The word ladder** (ascending; boundaries are tunable in `dpl.js`):
-
-| Percent | Word |
-|---------|------|
-| 1–24 | `tiny` |
-| 25–40 | `small` |
-| 41–60 | `normal` |
-| 61–75 | `large` |
-| 76–90 | `huge` |
-| 91–100 | `massive` |
+**The word scale.** `$intensity-word` is a **100-step scale — one word per percent**, least → most,
+centred on **50 ≈ `normal`**. It runs `barely-there` / `near-zero` / `speck` at the bottom, through the
+`tiny` family and `normal` in the middle, up to `huge` / `colossal` / `mega` / `beyond measure` at the
+top (curated to size / amount / scale / proportion terms). The full list is the `INTENSITY_WORDS` array
+in `src/core/dpl/dpl.js` — edit it there to retune a word.
 
 These tokens are resolved in the DPL inline renderer (where intensity is known), so they only carry meaning
 inside a generator — not in the raw prompt box, which has no single intensity.
