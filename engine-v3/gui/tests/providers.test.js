@@ -75,7 +75,10 @@ describe("local WebUI provider — txt2img contract (via /api/forward proxy)", (
       cfg_scale: 8,
       width: 768,
       height: 512,
-      sampler_index: "Euler a",
+      // Modernized contract: current A1111/Forge/SD.Next use `sampler_name` (not the deprecated
+      // `sampler_index`) plus a separate `scheduler`.
+      sampler_name: "Euler a",
+      scheduler: "Automatic",
     });
 
     expect(result.images).toEqual(["data:image/png;base64,AAAA", "data:image/png;base64,BBBB"]);

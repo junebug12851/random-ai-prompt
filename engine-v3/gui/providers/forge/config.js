@@ -20,7 +20,9 @@ export default {
     seed: true,
     size: "freeform",
     batch: { min: 1, max: 8 },
+    upscale: true, // A1111 Extras upscaler (R-ESRGAN 4x+) — shared local-webui/code/upscale.js
   },
   loadGenerate: () => import("../local-webui/code/generate.js").then((m) => m.default),
+  loadUpscale: () => import("../local-webui/code/upscale.js").then((m) => m.default),
   loadSettings: () => import("../local-webui/settings.js").then((m) => m.default),
 };
