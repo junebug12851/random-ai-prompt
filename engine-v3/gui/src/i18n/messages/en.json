@@ -135,6 +135,186 @@
   "blockEd.tabJs": {
     "defaultMessage": "JS sidecar"
   },
+  "dplIns.bullet.desc": {
+    "defaultMessage": "A bullet; a simple bullet defaults to a 50% chance."
+  },
+  "dplIns.bullet.label": {
+    "defaultMessage": "Bullet line"
+  },
+  "dplIns.call.desc": {
+    "defaultMessage": "Call a generator or section by name (→ {token})."
+  },
+  "dplIns.call.label": {
+    "defaultMessage": "Call (+name)"
+  },
+  "dplIns.chance.hint": {
+    "defaultMessage": "Keep a line only some of the time."
+  },
+  "dplIns.chance.label": {
+    "defaultMessage": "Chance"
+  },
+  "dplIns.choose.hint": {
+    "defaultMessage": "Pick from a set of options."
+  },
+  "dplIns.choose.label": {
+    "defaultMessage": "Choose"
+  },
+  "dplIns.code.hint": {
+    "defaultMessage": "Inline JS, comments, and engine controls."
+  },
+  "dplIns.code.label": {
+    "defaultMessage": "Code"
+  },
+  "dplIns.comment.desc": {
+    "defaultMessage": "A note ignored by the engine (to end of line)."
+  },
+  "dplIns.comment.label": {
+    "defaultMessage": "Comment"
+  },
+  "dplIns.deEmph.desc": {
+    "defaultMessage": "Less attention on the wrapped text. Stack [ for less; floors at the lowest level (never zero)."
+  },
+  "dplIns.deEmph.label": {
+    "defaultMessage": "De-emphasize"
+  },
+  "dplIns.emph.desc": {
+    "defaultMessage": "More attention on the wrapped text. Each extra ( adds a level (+10), capped at 5."
+  },
+  "dplIns.emph.label": {
+    "defaultMessage": "Emphasize"
+  },
+  "dplIns.emphStrong.desc": {
+    "defaultMessage": "Stack ( for more — (((text))) is the strongest. Renders as a weight (SD/MJ), braces (NovelAI), or an intensity word (plain)."
+  },
+  "dplIns.emphStrong.label": {
+    "defaultMessage": "Emphasize strongly"
+  },
+  "dplIns.emphWeight.desc": {
+    "defaultMessage": "Set an explicit numeric weight (passed through as-is)."
+  },
+  "dplIns.emphWeight.label": {
+    "defaultMessage": "Weighted phrase"
+  },
+  "dplIns.emphasis.hint": {
+    "defaultMessage": "Nudge how strongly a phrase is weighted (the engine translates it for each AI)."
+  },
+  "dplIns.emphasis.label": {
+    "defaultMessage": "Emphasis"
+  },
+  "dplIns.flow.hint": {
+    "defaultMessage": "Jump between sections and pull in other blocks."
+  },
+  "dplIns.flow.label": {
+    "defaultMessage": "Flow & calls"
+  },
+  "dplIns.goback.desc": {
+    "defaultMessage": "Stop / return from the current section."
+  },
+  "dplIns.goback.label": {
+    "defaultMessage": "Go back"
+  },
+  "dplIns.goto.desc": {
+    "defaultMessage": "Jump into another named section."
+  },
+  "dplIns.goto.label": {
+    "defaultMessage": "Go to section"
+  },
+  "dplIns.heading.desc": {
+    "defaultMessage": "A named section you can jump to with “go to”."
+  },
+  "dplIns.heading.label": {
+    "defaultMessage": "Section heading"
+  },
+  "dplIns.insert.desc": {
+    "defaultMessage": "Insert another generator or list by name."
+  },
+  "dplIns.insert.label": {
+    "defaultMessage": "Insert by name"
+  },
+  "dplIns.insertJs.desc": {
+    "defaultMessage": "Insert the output of a named JS block."
+  },
+  "dplIns.insertJs.label": {
+    "defaultMessage": "Insert JS block"
+  },
+  "dplIns.maybe.desc": {
+    "defaultMessage": "50% chance this line is kept."
+  },
+  "dplIns.maybe.label": {
+    "defaultMessage": "Maybe"
+  },
+  "dplIns.nOf.desc": {
+    "defaultMessage": "Pick exactly N of the options."
+  },
+  "dplIns.nOf.label": {
+    "defaultMessage": "N of"
+  },
+  "dplIns.oneOf.desc": {
+    "defaultMessage": "Pick exactly one of the options."
+  },
+  "dplIns.oneOf.label": {
+    "defaultMessage": "One of"
+  },
+  "dplIns.oneOfNothing.desc": {
+    "defaultMessage": "Pick one — but sometimes nothing at all."
+  },
+  "dplIns.oneOfNothing.label": {
+    "defaultMessage": "One of, or nothing"
+  },
+  "dplIns.otherwise.desc": {
+    "defaultMessage": "Runs only when the chance just above it failed."
+  },
+  "dplIns.otherwise.label": {
+    "defaultMessage": "Otherwise"
+  },
+  "dplIns.pctChance.desc": {
+    "defaultMessage": "Custom probability the line is kept."
+  },
+  "dplIns.pctChance.label": {
+    "defaultMessage": "N% chance"
+  },
+  "dplIns.rangeOf.desc": {
+    "defaultMessage": "Pick a random count between N and M."
+  },
+  "dplIns.rangeOf.label": {
+    "defaultMessage": "N to M of"
+  },
+  "dplIns.repeat.hint": {
+    "defaultMessage": "Render the same body several times."
+  },
+  "dplIns.repeat.label": {
+    "defaultMessage": "Repeat"
+  },
+  "dplIns.repeatN.desc": {
+    "defaultMessage": "Render the body exactly N times."
+  },
+  "dplIns.repeatN.label": {
+    "defaultMessage": "Repeat N times"
+  },
+  "dplIns.repeatRange.desc": {
+    "defaultMessage": "Render the body a random N–M times."
+  },
+  "dplIns.repeatRange.label": {
+    "defaultMessage": "Repeat N to M times"
+  },
+  "dplIns.salt.desc": {
+    "defaultMessage": "Inject a random number to nudge the result."
+  },
+  "dplIns.salt.label": {
+    "defaultMessage": "Seed salt"
+  },
+  "dplIns.structure.hint": {
+    "defaultMessage": "Bullets, ordering, and sections."
+  },
+  "dplIns.structure.label": {
+    "defaultMessage": "Structure"
+  },
+  "dplIns.weight.desc": {
+    "defaultMessage": "Pin a line's order — a lower number sorts earlier, wherever you type it."
+  },
+  "dplIns.weight.label": {
+    "defaultMessage": "Priority weight"
+  },
   "dplInsertBar.example": {
     "defaultMessage": "example"
   },
@@ -143,6 +323,45 @@
   },
   "dplInsertBar.toolbar": {
     "defaultMessage": "Insert DPL syntax"
+  },
+  "dplLint.extraClose": {
+    "defaultMessage": "A {closeBrace} with no matching {openBrace}."
+  },
+  "dplLint.frontMatterUnclosed": {
+    "defaultMessage": "Front matter opened with --- but never closed."
+  },
+  "dplLint.goToMissing": {
+    "defaultMessage": "\"go to {target}\" — this block has no section named \"{target}\"."
+  },
+  "dplLint.inconsistentIndent": {
+    "defaultMessage": "Indented with {indent}, but the file started indenting with {started}."
+  },
+  "dplLint.mixedIndent": {
+    "defaultMessage": "Mixed tabs and spaces in the indentation — use one or the other."
+  },
+  "dplLint.name.bracket": {
+    "defaultMessage": "bracket"
+  },
+  "dplLint.name.parenthesis": {
+    "defaultMessage": "parenthesis"
+  },
+  "dplLint.parseError": {
+    "defaultMessage": "Parse error: {error}"
+  },
+  "dplLint.unbalanced": {
+    "defaultMessage": "Unbalanced {char} {name}."
+  },
+  "dplLint.unclosedOpen": {
+    "defaultMessage": "Unclosed {openBrace} — a {listTok} or {genTok} token must close on the same line."
+  },
+  "dplLint.word.aTab": {
+    "defaultMessage": "a tab"
+  },
+  "dplLint.word.spaces": {
+    "defaultMessage": "spaces"
+  },
+  "dplLint.word.tabs": {
+    "defaultMessage": "tabs"
   },
   "dplStatus.errors": {
     "defaultMessage": "{count, plural, one {# DPL error} other {# DPL errors}}"

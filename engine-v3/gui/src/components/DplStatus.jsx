@@ -30,7 +30,10 @@ const msgs = defineMessages({
  */
 export default function DplStatus({ value, className = "" }) {
   const intl = useIntl();
-  const { errors, warnings, diagnostics } = useMemo(() => dplStatus(value || ""), [value]);
+  const { errors, warnings, diagnostics } = useMemo(
+    () => dplStatus(value || "", intl),
+    [value, intl],
+  );
   const ok = errors === 0;
 
   const title = diagnostics.length

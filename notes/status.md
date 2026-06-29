@@ -27,10 +27,10 @@ into a thin root + `AppShell`; a **Display language** selector in Settings persi
 `@formatjs/cli` scripts (`i18n:extract` → `src/i18n/messages/en.json`, `i18n:pseudo` → an `en-XA`
 pseudo-locale); `gui/eslint.config.js` + `npm run lint:i18n` (`eslint-plugin-formatjs`). **Only English is
 shipped** as a real locale (the app's DPL/prompt jargon makes machine translation low-quality; adding a real
-language is now a one-file job). The two remaining English-only spots are the DPL-technical lib modules
-`validateDpl.js` (editor lint diagnostics) and `dplInserts.js` (the DPL syntax catalog) — isomorphic
-non-React modules shared with the core/tests, deferred to avoid destabilizing the tested validator. See
-[`version/2026-06.md`](version/2026-06.md).
+language is now a one-file job). Coverage is **complete (~480 messages)** — including the DPL-technical lib
+modules: `validateDpl.js` (editor lint diagnostics) takes an optional `intl` with a `createIntl` English
+fallback so its message-asserting tests stay green, and `dplInserts.js` (the DPL syntax catalog) is a
+`getDplInserts(intl)` builder. See [`version/2026-06.md`](version/2026-06.md).
 
 **Manage tab (2.12.0 — on `dev`):** a 4th SPA tab, the in-app content manager (local mode only — gated
 on a file-backend capability probe, locked online). It edits the real `data/lists` + `data/dynamic-prompts`

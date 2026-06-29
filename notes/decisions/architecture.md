@@ -30,11 +30,16 @@ The SPA was internationalized with **react-intl** driven by the **FormatJS** too
   so a separate, minimal `gui/eslint.config.js` runs **only** `eslint-plugin-formatjs`
   (`enforce-default-message`) — it does not pull in `js.recommended`, so it won't flood the never-linted
   SPA with unrelated findings. Run via `npm run lint:i18n` (not part of the root headless gate).
-- **Deferred: the DPL-technical lib modules.** `gui/src/lib/dpl/validateDpl.js` (editor lint diagnostics)
-  and `gui/src/lib/dpl/dplInserts.js` (the DPL syntax teaching catalog) stay English for now. They are
-  isomorphic non-React modules — `validateDpl` is shared with the core engine and covered by a test suite
-  keyed on its English messages — so threading i18n through them is a separate, riskier refactor rather
-  than part of this UI-layer pass.
+- **The DPL-technical lib modules are localized via an `intl` parameter, not React hooks.**
+  `gui/src/lib/dpl/validateDpl.js` (editor lint diagnostics) and `gui/src/lib/dpl/dplInserts.js` (the DPL
+  syntax teaching catalog) are non-React isomorphic modules, so they can't use `useIntl`. Instead they take
+  an `intl` argument: `validateDpl(text, intl?)` and `getDplInserts(intl)`. `validateDpl` defaults to a
+  module-level **`createIntl` English instance** when no `intl` is passed, so non-React callers and the
+  message-asserting test suite get identical English with zero changes. Literal braces in messages (`{list}`,
+  `{#name}`, `'{'`) are passed as **arguments** so ICU substitutes them verbatim rather than parsing them.
+  Call sites thread their `intl` in: `DplStatus` (via `useIntl`), the `DplEditor` CodeMirror linter (via an
+  `intlRef` so the once-built editor reads the live locale), and `DplInsertBar` (memoized
+  `getDplInserts(intl)`).
 
 ## `dynamic-prompts/` lives under `data/`, not `src/` (2026-06-21)
 

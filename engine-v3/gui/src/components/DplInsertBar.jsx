@@ -9,9 +9,9 @@
  * calls, …) is hard to discover by typing, so this lays it out, organized and navigable.
  * @module gui/components/DplInsertBar
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import { DPL_INSERTS } from "../lib/dpl/dplInserts.js";
+import { getDplInserts } from "../lib/dpl/dplInserts.js";
 import { expandPrompt } from "../lib/promptEngine.js";
 
 const msgs = defineMessages({
@@ -38,6 +38,7 @@ const rollExample = (dpl, settings) => {
  */
 export default function DplInsertBar({ editorRef, settings }) {
   const intl = useIntl();
+  const DPL_INSERTS = useMemo(() => getDplInserts(intl), [intl]);
   const [open, setOpen] = useState(null); // open category key, or null
   const [examples, setExamples] = useState({}); // item id -> rolled example (for the open menu)
   const settingsRef = useRef(settings);
