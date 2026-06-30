@@ -25,6 +25,14 @@ const msgs = defineMessages({
   roleImage: { id: "providerGear.role.image", defaultMessage: "Image" },
   roleText: { id: "providerGear.role.text", defaultMessage: "Text" },
   roleUpscale: { id: "providerGear.role.upscale", defaultMessage: "Upscale" },
+  noTextSettings: {
+    id: "providerGear.noTextSettings",
+    defaultMessage: "This text AI uses its built-in model — no extra settings here.",
+  },
+  noUpscaleSettings: {
+    id: "providerGear.noUpscaleSettings",
+    defaultMessage: "No separate upscale settings — this provider reuses its image settings above.",
+  },
 });
 
 /**
@@ -61,18 +69,22 @@ function GearIcon() {
  * @param {Function} props.setSettings Update the settings.
  * @returns {JSX.Element}
  */
-function GearSection({ role, provider, open, onToggle, settings, setSettings }) {
+function GearSection({ roleId, role, provider, open, onToggle, settings, setSettings }) {
   const intl = useIntl();
   const tierLabel = intl.formatMessage(
     provider.tier === "api" ? msgs.tierApi : provider.tier === "syntax" ? msgs.tierSyntax : msgs.tierPlain,
   );
+  // A provider has ONE settings schema — its native one (image-generation for image providers,
+  // upscale params for upscale-only enhancers). So only render it for the role that schema serves:
+  //   • image   → the provider's image-gen schema (correct).
+  //   • text    → a rewrite AI has no applicable settings (it uses a fixed chat model) → note.
+  //   • upscale → only upscale-ONLY providers carry an upscale schema; a dual image+upscale provider's
+  //               schema is image-gen, edited under its Image section → note.
+  // This stops the old behaviour of showing image-gen knobs (model/sampler/steps) under Text/Upscale.
+  const showSchema = roleId === "image" || (roleId === "upscale" && provider.upscaleOnly);
   return (
     <div className={`gear-acc-item${open ? " on" : ""}`}>
-      <button
-        className="gear-acc-head"
-        onClick={onToggle}
-        aria-expanded={open}
-      >
+      <button className="gear-acc-head" onClick={onToggle} aria-expanded={open}>
         <span className="gear-acc-caret" aria-hidden="true">
           ▸
         </span>
@@ -82,7 +94,13 @@ function GearSection({ role, provider, open, onToggle, settings, setSettings }) 
       </button>
       {open && (
         <div className="gear-acc-body">
-          <ProviderBox settings={settings} setSettings={setSettings} providerId={provider.id} />
+          {showSchema ? (
+            <ProviderBox settings={settings} setSettings={setSettings} providerId={provider.id} />
+          ) : (
+            <p className="hint provider-controls-empty">
+              {intl.formatMessage(roleId === "text" ? msgs.noTextSettings : msgs.noUpscaleSettings)}
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -156,6 +174,7 @@ export default function ProviderGear({ settings, setSettings }) {
                   {sections.map((s) => (
                     <GearSection
                       key={s.id}
+                      roleId={s.id}
                       role={s.role}
                       provider={s.provider}
                       open={expanded.has(s.id)}

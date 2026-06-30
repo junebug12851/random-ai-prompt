@@ -1107,6 +1107,12 @@
   "providerGear.close": {
     "defaultMessage": "close"
   },
+  "providerGear.noTextSettings": {
+    "defaultMessage": "This text AI uses its built-in model — no extra settings here."
+  },
+  "providerGear.noUpscaleSettings": {
+    "defaultMessage": "No separate upscale settings — this provider reuses its image settings above."
+  },
   "providerGear.none": {
     "defaultMessage": "No provider selected — pick one in the Providers menu to see its settings."
   },

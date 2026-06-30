@@ -5748,6 +5748,34 @@
       "value": "]"
     }
   ],
+  "providerGear.noTextSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħīş ŧḗḗẋŧ ȦĪ ŭŭşḗḗş īŧş ƀŭŭīŀŧ-īƞ ḿǿǿḓḗḗŀ — ƞǿǿ ḗḗẋŧřȧȧ şḗḗŧŧīƞɠş ħḗḗřḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.noUpscaleSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ şḗḗƥȧȧřȧȧŧḗḗ ŭŭƥşƈȧȧŀḗḗ şḗḗŧŧīƞɠş — ŧħīş ƥřǿǿṽīḓḗḗř řḗḗŭŭşḗḗş īŧş īḿȧȧɠḗḗ şḗḗŧŧīƞɠş ȧȧƀǿǿṽḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providerGear.none": [
     {
       "type": 0,
