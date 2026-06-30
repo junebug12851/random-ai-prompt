@@ -33,6 +33,25 @@ const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 // suggestion_exclude }` module a JS generator exports, so the engine/classifier are untouched.
 const dplCache = new Map();
 
+// --- catalog / read caches -------------------------------------------------
+// The on-disk data/ tree is static for the life of a Node process: the dev
+// server's Manage tab hot-edits through a SEPARATE runtimeLoader, never this
+// loader, and the CLI/engine/tests only read. So the directory walks (which
+// recursively `readdirSync` the whole tree) and the line resolution (the
+// `keyword` wildcard unions the ENTIRE vocabulary) are memoized. This turns what
+// used to be ~200 `readdirSync` + a full-corpus union *per generated prompt* into
+// one-time work. `nodeLoader.refresh()` drops every cache if the data ever
+// changes mid-process.
+const _physicalNamesCache = new Map(); // regex source -> string[]
+const _markedDirsCache = new Map(); // `${base}|${marker}` -> string[]
+const _listLinesCache = new Map(); // `${name}|${includeAdult}` -> string[]|null
+const _listMetaCache = new Map(); // name -> object|null
+const _dynMetaCache = new Map(); // name -> object|null
+const _dynGroupCache = new Map(); // name -> string[]|null
+let _dynGeneratorNames = null; // string[]
+let _dynNamesSorted = null; // string[] (compareNames-sorted)
+let _listNames = null; // string[] (allListNames over lists + groups)
+
 // Bridge handed to a compiled `.dpl`: resolves JS sidecars (`script:` / `{js:}` / `insert js:`)
 // relative to the `.dpl` file (or root-absolute with a leading `/`), and lets JS hand control
 // back to the engine (prompt/list/expand resolve as tokens the pipeline finishes downstream).
@@ -61,6 +80,7 @@ function makeDplBridge(fileDir) {
 // is the generator; a `.js` is a generator only when no same-name `.dpl` exists (otherwise it is
 // that `.dpl`'s sidecar).
 function dynGeneratorNames() {
+  if (_dynGeneratorNames) return _dynGeneratorNames;
   const dpl = new Set();
   const js = new Set();
   const walk = (dir, prefix) => {
@@ -82,7 +102,8 @@ function dynGeneratorNames() {
   walk(dynPromptsRoot, "");
   const names = new Set(dpl);
   for (const n of js) if (!dpl.has(n)) names.add(n);
-  return [...names];
+  _dynGeneratorNames = [...names];
+  return _dynGeneratorNames;
 }
 
 // Read a list file's lines (`name.txt`) or a group file's lines (`name.group`),
@@ -103,15 +124,22 @@ function readGroupFile(name) {
 }
 // Optional `<name>.json` sidecar metadata (currently `{ description }`), or null.
 function readListMeta(name) {
+  if (_listMetaCache.has(name)) return _listMetaCache.get(name);
+  let meta = null;
   try {
-    return JSON.parse(fs.readFileSync(path.join(listsRoot, `${name}.json`), "utf8"));
+    meta = JSON.parse(fs.readFileSync(path.join(listsRoot, `${name}.json`), "utf8"));
   } catch {
-    return null;
+    meta = null;
   }
+  _listMetaCache.set(name, meta);
+  return meta;
 }
 
 // Folders (relative "/"-joined paths) under `base` that contain a given marker file.
 function markedDirs(marker, base = listsRoot) {
+  const cacheKey = `${base}|${marker}`;
+  const cached = _markedDirsCache.get(cacheKey);
+  if (cached) return cached;
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -124,6 +152,7 @@ function markedDirs(marker, base = listsRoot) {
   } catch {
     // ignore
   }
+  _markedDirsCache.set(cacheKey, out);
   return out;
 }
 const forcedPrefixDirs = () => markedDirs("_force-prefix");
@@ -131,6 +160,8 @@ const forcedPrefixDirs = () => markedDirs("_force-prefix");
 // Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
 // Files starting with `_` are internal/config (markers etc.) and never lists.
 function physicalNames(re) {
+  const cached = _physicalNamesCache.get(re.source);
+  if (cached) return cached;
   const out = [];
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -144,16 +175,21 @@ function physicalNames(re) {
   } catch {
     // ignore
   }
+  _physicalNamesCache.set(re.source, out);
   return out;
 }
 const physicalListNames = () => physicalNames(/\.(txt|group)$/);
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
+let _groupListDirs = null;
 const groupListDirs = () =>
-  autoGroupListDirs(
+  (_groupListDirs ??= autoGroupListDirs(
     logicalListNames(physicalNames(/\.txt$/)),
     markedDirs("_enable-group-list"),
     markedDirs("_disable-group-list"),
-  );
+  ));
+// Full list-name set (lists + implied-group dirs), memoized. Used by readListLines + listNames.
+const allNames = () =>
+  (_listNames ??= allListNames([...logicalListNames(physicalListNames()), ...groupListDirs()]));
 
 /**
  * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
@@ -162,17 +198,21 @@ const groupListDirs = () =>
  */
 export const nodeLoader = {
   readListLines(name, includeAdult = false) {
+    const cacheKey = `${name}|${includeAdult ? 1 : 0}`;
+    if (_listLinesCache.has(cacheKey)) return _listLinesCache.get(cacheKey);
     const dirs = groupListDirs();
-    const names = allListNames([...logicalListNames(physicalListNames()), ...dirs]);
+    const names = allNames();
     const canonical = resolveName(name, names);
-    return resolveListLines(
+    const lines = resolveListLines(
       canonical,
       { names, readListFile, readGroupFile, groupListDirs: dirs },
       includeAdult,
     );
+    _listLinesCache.set(cacheKey, lines);
+    return lines;
   },
   listNames() {
-    return allListNames([...logicalListNames(physicalListNames()), ...groupListDirs()]);
+    return allNames();
   },
   forcedPrefixDirs() {
     return forcedPrefixDirs();
@@ -205,16 +245,20 @@ export const nodeLoader = {
   // Dynamic-prompt catalog keys (`.dpl`, sidecar `.js` excluded; `.js`-only generators included),
   // skipping `_`-prefixed internals, in the guaranteed natural order.
   dynamicPromptNames() {
-    return dynGeneratorNames().sort(compareNames);
+    return (_dynNamesSorted ??= [...dynGeneratorNames()].sort(compareNames));
   },
   // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
   // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
   readDynPromptMeta(name) {
+    if (_dynMetaCache.has(name)) return _dynMetaCache.get(name);
+    let meta = null;
     try {
-      return JSON.parse(fs.readFileSync(path.join(dynPromptsRoot, `${name}.json`), "utf8"));
+      meta = JSON.parse(fs.readFileSync(path.join(dynPromptsRoot, `${name}.json`), "utf8"));
     } catch {
-      return null;
+      meta = null;
     }
+    _dynMetaCache.set(name, meta);
+    return meta;
   },
   // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
   dynPromptForcedPrefixDirs() {
@@ -243,10 +287,30 @@ export const nodeLoader = {
   },
   // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.
   readDynPromptGroup(name) {
+    if (_dynGroupCache.has(name)) return _dynGroupCache.get(name);
+    let lines = null;
     try {
-      return fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
+      lines = fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
     } catch {
-      return null;
+      lines = null;
     }
+    _dynGroupCache.set(name, lines);
+    return lines;
+  },
+  // Drop every memoized catalog/read cache. Call if the on-disk data/ tree is
+  // mutated mid-process (the dev server's Manage tab does NOT — it uses a separate
+  // runtime loader — so this exists for tests/tooling that edit data/ in place).
+  refresh() {
+    _physicalNamesCache.clear();
+    _markedDirsCache.clear();
+    _listLinesCache.clear();
+    _listMetaCache.clear();
+    _dynMetaCache.clear();
+    _dynGroupCache.clear();
+    dplCache.clear();
+    _dynGeneratorNames = null;
+    _dynNamesSorted = null;
+    _listNames = null;
+    _groupListDirs = null;
   },
 };
