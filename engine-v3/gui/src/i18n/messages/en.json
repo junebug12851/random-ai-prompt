@@ -695,8 +695,15 @@
   "linksMenu.homeDesc": {
     "defaultMessage": "The fairyfox project home"
   },
+  "linksMenu.language": {
+    "defaultMessage": "Language"
+  },
   "linksMenu.links": {
     "defaultMessage": "Links"
+  },
+  "linksMenu.localeAuto": {
+    "defaultMessage": "Auto (browser)",
+    "description": "Locale option that follows the browser's language"
   },
   "linksMenu.menu": {
     "defaultMessage": "Menu"
@@ -1100,6 +1107,24 @@
   "providerGear.close": {
     "defaultMessage": "close"
   },
+  "providerGear.noTextSettings": {
+    "defaultMessage": "This text AI uses its built-in model — no extra settings here."
+  },
+  "providerGear.noUpscaleSettings": {
+    "defaultMessage": "No separate upscale settings — this provider reuses its image settings above."
+  },
+  "providerGear.none": {
+    "defaultMessage": "No provider selected — pick one in the Providers menu to see its settings."
+  },
+  "providerGear.role.image": {
+    "defaultMessage": "Image"
+  },
+  "providerGear.role.text": {
+    "defaultMessage": "Text"
+  },
+  "providerGear.role.upscale": {
+    "defaultMessage": "Upscale"
+  },
   "providerGear.settings": {
     "defaultMessage": "Provider settings"
   },
@@ -1140,6 +1165,12 @@
   "providersMenu.group.upscale": {
     "defaultMessage": "Upscale / enhance"
   },
+  "providersMenu.group.upscaleLocal": {
+    "defaultMessage": "Local"
+  },
+  "providersMenu.group.upscaleOnline": {
+    "defaultMessage": "Online"
+  },
   "providersMenu.hintOff": {
     "defaultMessage": "Pick a Text AI to enable auto-fix / keyword rewriting (toggled on the prompt box)."
   },
@@ -1169,6 +1200,18 @@
   },
   "providersMenu.text": {
     "defaultMessage": "Text"
+  },
+  "providersMenu.unset": {
+    "defaultMessage": "Unset"
+  },
+  "providersMenu.unsetDesc": {
+    "defaultMessage": "No text AI selected — prompt & keyword rewriting stays off."
+  },
+  "providersMenu.unsetImageDesc": {
+    "defaultMessage": "No image provider — generate prompts only, no images."
+  },
+  "providersMenu.unsetUpscaleDesc": {
+    "defaultMessage": "No upscaler selected."
   },
   "providersMenu.upscale": {
     "defaultMessage": "Upscaler / Enhancer"
@@ -1206,9 +1249,6 @@
   "settings.group.emphasis": {
     "defaultMessage": "Emphasis"
   },
-  "settings.group.language": {
-    "defaultMessage": "Language"
-  },
   "settings.group.salt": {
     "defaultMessage": "Salt & lists"
   },
@@ -1228,15 +1268,11 @@
     "defaultMessage": "(fully random)",
     "description": "Source-list option meaning draw from the whole dictionary"
   },
-  "settings.locale": {
-    "defaultMessage": "Display language"
-  },
-  "settings.locale.auto": {
-    "defaultMessage": "Auto (browser)",
-    "description": "Locale option that follows the browser's language"
-  },
   "settings.maxLevels": {
     "defaultMessage": "Max levels"
+  },
+  "settings.naturalArtistStyle": {
+    "defaultMessage": "Natural language for artists & styles"
   },
   "settings.noAnd": {
     "defaultMessage": "Don't combine with AND"

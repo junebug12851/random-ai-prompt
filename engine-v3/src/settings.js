@@ -191,6 +191,11 @@ export default {
   /*--prompt-modules <comma-seperated dynamic prompts>*/
   promptModules: ["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"],
 
+  // Frame artists / styles in natural language: "by <artist>" and "in the style of <style>", so a
+  // reader (and the model) can tell an artist from a style. Off = raw names.
+  /*--natural-artist-style <true/false>*/
+  naturalArtistStyle: true,
+
   // Auto-add artists dynamic prompt at end of prompt
   /*--auto-artists <true/false>*/
   autoAddArtists: true,

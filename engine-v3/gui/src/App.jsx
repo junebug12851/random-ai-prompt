@@ -19,8 +19,8 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
-import { hydrate, isHydrated } from "../storage/cache.js";
-import { useSettings } from "./lib/settings.js";
+import { hydrate, isHydrated, rehydrate, msSinceLastWrite } from "../storage/cache.js";
+import { useSettings, loadSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
 import { fetchGallery, linkAncestry } from "./lib/gallery.js";
 import { fetchMagick } from "./lib/magick.js";
@@ -217,6 +217,46 @@ function AppShell({ settings, setSettings }) {
     setOpened((o) => (o.has(view) ? o : new Set(o).add(view)));
   }, [view]);
 
+  // Local mode: one SSE stream makes the app aware of changes to its own files and hot-reloads.
+  //   • data     → re-read the live catalog (lists / dynamic-prompts) so Generate + Manage reflect
+  //                external edits (Manage's tree refreshes via its subscribeCatalog).
+  //   • output   → reload the gallery feed so images added / removed / changed on disk appear.
+  //   • settings → re-read settings from disk so an external edit applies — but skip events caused
+  //                by our OWN writes (msSinceLastWrite) and only swap when the value actually
+  //                changed, so we never fight or clobber the app's own saves (never-corrupt rule).
+  // A no-op online (no backend) or until the local content backend is detected.
+  useEffect(() => {
+    if (ONLINE || !managerOk) return undefined;
+    let es;
+    const timers = {};
+    const debounce = (key, fn, ms = 250) => {
+      clearTimeout(timers[key]);
+      timers[key] = setTimeout(fn, ms);
+    };
+    try {
+      es = new EventSource("/api/manage/watch");
+      es.addEventListener("data", () =>
+        debounce("data", () => refreshCatalog().catch(() => {})),
+      );
+      es.addEventListener("output", () => debounce("output", () => loadFeed()));
+      es.addEventListener("settings", () =>
+        debounce("settings", async () => {
+          if (msSinceLastWrite() < 1500) return; // our own save — ignore
+          await rehydrate();
+          const fresh = loadSettings();
+          setSettings((prev) => (JSON.stringify(prev) === JSON.stringify(fresh) ? prev : fresh));
+        }),
+      );
+    } catch {
+      /* no SSE here — the manual refresh paths still work */
+    }
+    return () => {
+      if (es) es.close();
+      for (const t of Object.values(timers)) clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [managerOk]);
+
   async function loadFeed() {
     setLoadingItems(true);
     const it = linkAncestry(await fetchGallery());
@@ -412,7 +452,7 @@ function AppShell({ settings, setSettings }) {
         <ProvidersMenu settings={settings} setSettings={setSettings} />
         <ProviderGear settings={settings} setSettings={setSettings} />
         <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
-        <LinksMenu />
+        <LinksMenu settings={settings} setSettings={setSettings} />
       </header>
 
       <main>

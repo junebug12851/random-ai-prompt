@@ -40,6 +40,19 @@ const msgs = defineMessages({
   },
   off: { id: "providersMenu.off", defaultMessage: "Off" },
   offDesc: { id: "providersMenu.offDesc", defaultMessage: "No prompt or keyword rewriting." },
+  unset: { id: "providersMenu.unset", defaultMessage: "Unset" },
+  unsetDesc: {
+    id: "providersMenu.unsetDesc",
+    defaultMessage: "No text AI selected — prompt & keyword rewriting stays off.",
+  },
+  unsetImageDesc: {
+    id: "providersMenu.unsetImageDesc",
+    defaultMessage: "No image provider — generate prompts only, no images.",
+  },
+  unsetUpscaleDesc: {
+    id: "providersMenu.unsetUpscaleDesc",
+    defaultMessage: "No upscaler selected.",
+  },
   sharesKey: { id: "providersMenu.sharesKey", defaultMessage: "shares the image key" },
   hintOn: {
     id: "providersMenu.hintOn",
@@ -53,6 +66,8 @@ const msgs = defineMessages({
   },
   upscale: { id: "providersMenu.upscale", defaultMessage: "Upscaler / Enhancer" },
   groupUpscale: { id: "providersMenu.group.upscale", defaultMessage: "Upscale / enhance" },
+  groupUpscaleLocal: { id: "providersMenu.group.upscaleLocal", defaultMessage: "Local" },
+  groupUpscaleOnline: { id: "providersMenu.group.upscaleOnline", defaultMessage: "Online" },
   upscaleHint: {
     id: "providersMenu.upscaleHint",
     defaultMessage:
@@ -100,8 +115,9 @@ export default function ProvidersMenu({ settings, setSettings }) {
     };
   };
 
-  const imageId = settings.provider;
-  const image = getProvider(imageId);
+  // Image can be left Unset ("none") — prompts only, no images.
+  const imageId = settings.provider || "none";
+  const image = imageId !== "none" ? getProvider(imageId) : null;
   const textId =
     settings.rewriteProvider && settings.rewriteProvider !== "none"
       ? settings.rewriteProvider
@@ -112,10 +128,20 @@ export default function ProvidersMenu({ settings, setSettings }) {
   // under Local alongside the local Stable Diffusion engines. Upscale-only providers (enhancers like
   // DeepAI) can't generate, so they're excluded here — they live in the Upscaler / Enhancer row.
   const notImageRole = (p) => p.upscaleOnly || p.textOnly; // enhancers + text-only providers
+  // Plain text needs no machine/key/network, so it's the universal default — pin it to the very top
+  // of the Local group, above the local Stable Diffusion engines.
+  const localImage = provs
+    .filter((p) => (p.local || p.id === "plain") && !notImageRole(p))
+    .sort((a, b) => (a.id === "plain" ? -1 : b.id === "plain" ? 1 : 0));
   const imageGroups = [
     {
       title: intl.formatMessage(msgs.groupLocal),
-      items: provs.filter((p) => (p.local || p.id === "plain") && !notImageRole(p)).map(toOption),
+      items: [
+        // Unset is offered as an option (not the default — Plain text is); choosing it generates
+        // prompts only, no images.
+        { id: "none", label: intl.formatMessage(msgs.unset), description: intl.formatMessage(msgs.unsetImageDesc) },
+        ...localImage.map(toOption),
+      ],
     },
     {
       title: intl.formatMessage(msgs.groupOnline),
@@ -128,13 +154,19 @@ export default function ProvidersMenu({ settings, setSettings }) {
   // so this row is hidden in the online build. Selecting one is just for key entry + a default.
   const upscaleId =
     settings.upscaleProvider && settings.upscaleProvider !== "none" ? settings.upscaleProvider : "none";
+  // Grouped Local / Online like the image picker. "Off" leads the Local group (no machine needed).
+  const upscaleCapable = provs.filter((p) => p.capabilities?.upscale && p.loadUpscale);
   const upscaleGroups = [
     {
-      title: intl.formatMessage(msgs.groupUpscale),
+      title: intl.formatMessage(msgs.groupUpscaleLocal),
       items: [
-        { id: "none", label: intl.formatMessage(msgs.off), description: intl.formatMessage(msgs.offDesc) },
-        ...provs.filter((p) => p.capabilities?.upscale && p.loadUpscale).map(toOption),
+        { id: "none", label: intl.formatMessage(msgs.unset), description: intl.formatMessage(msgs.unsetUpscaleDesc) },
+        ...upscaleCapable.filter((p) => p.local).map(toOption),
       ],
+    },
+    {
+      title: intl.formatMessage(msgs.groupUpscaleOnline),
+      items: upscaleCapable.filter((p) => !p.local).map(toOption),
     },
   ];
   // Text providers: Off, then the rewrite-capable AIs. A provider in the text role uses its chat
@@ -146,8 +178,8 @@ export default function ProvidersMenu({ settings, setSettings }) {
       items: [
         {
           id: "none",
-          label: intl.formatMessage(msgs.off),
-          description: intl.formatMessage(msgs.offDesc),
+          label: intl.formatMessage(msgs.unset),
+          description: intl.formatMessage(msgs.unsetDesc),
         },
         ...rewriteProviders().map(toTextOption),
       ],
@@ -168,7 +200,7 @@ export default function ProvidersMenu({ settings, setSettings }) {
         aria-expanded={open}
       >
         <span className="provider-select-label">{intl.formatMessage(msgs.providers)}</span>
-        <span className="ps-current">{image?.label}</span>
+        <span className="ps-current">{image?.label || intl.formatMessage(msgs.unset)}</span>
         <span className="ps-caret">▾</span>
       </button>
       {open && (
@@ -191,6 +223,7 @@ export default function ProvidersMenu({ settings, setSettings }) {
                 value={textId}
                 groups={textGroups}
                 onPick={pickText}
+                hint={text ? intl.formatMessage(msgs.hintOn) : intl.formatMessage(msgs.hintOff)}
               />
               {/* Same provider for both rows already shares one key — show it once. */}
               {textId !== imageId ? (
@@ -202,10 +235,6 @@ export default function ProvidersMenu({ settings, setSettings }) {
               )}
             </div>
 
-            <p className="pm-hint">
-              {text ? intl.formatMessage(msgs.hintOn) : intl.formatMessage(msgs.hintOff)}
-            </p>
-
             {/* Upscaler / Enhancer — a local-only feature (the single-image view). Shown online too,
                 but LOCKED with a tooltip so visitors can see the feature exists. */}
             <div className="pm-row">
@@ -216,6 +245,7 @@ export default function ProvidersMenu({ settings, setSettings }) {
                 onPick={pickUpscale}
                 locked={ONLINE}
                 lockReason={intl.formatMessage(msgs.upscaleLockedReason)}
+                hint={intl.formatMessage(msgs.upscaleHint)}
               />
               {!ONLINE &&
                 (upscaleId !== "none" && upscaleId !== imageId && upscaleId !== textId ? (
@@ -227,7 +257,6 @@ export default function ProvidersMenu({ settings, setSettings }) {
                   )
                 ))}
             </div>
-            <p className="pm-hint">{intl.formatMessage(msgs.upscaleHint)}</p>
           </div>
         </>
       )}

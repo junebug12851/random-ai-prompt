@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.30.1",
+  "version": "2.33.1",
   "description": "Random AI prompt engine (v3) + web GUI. The original pre-revival CLI/classic server is the frozen, separate engine-v1-2/.",
   "type": "module",
   "main": "src/core/engine.js",
@@ -15,6 +15,8 @@
     "web:dev": "npm --prefix gui run dev",
     "web:build": "npm --prefix gui run build",
     "web:preview": "npm --prefix gui run preview",
+    "start": "npm run web:build && node gui/server/serve.js",
+    "serve": "node gui/server/serve.js",
     "web:install": "npm --prefix gui install",
     "postinstall": "npm --prefix gui install",
     "lint": "eslint .",

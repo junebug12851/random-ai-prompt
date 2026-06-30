@@ -3603,6 +3603,20 @@
       "value": "]"
     }
   ],
+  "linksMenu.language": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀȧȧƞɠŭŭȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "linksMenu.links": [
     {
       "type": 0,
@@ -3611,6 +3625,20 @@
     {
       "type": 0,
       "value": "Ŀīƞķş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.localeAuto": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ (ƀřǿǿẇşḗḗř)"
     },
     {
       "type": 0,
@@ -5720,6 +5748,90 @@
       "value": "]"
     }
   ],
+  "providerGear.noTextSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħīş ŧḗḗẋŧ ȦĪ ŭŭşḗḗş īŧş ƀŭŭīŀŧ-īƞ ḿǿǿḓḗḗŀ — ƞǿǿ ḗḗẋŧřȧȧ şḗḗŧŧīƞɠş ħḗḗřḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.noUpscaleSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ şḗḗƥȧȧřȧȧŧḗḗ ŭŭƥşƈȧȧŀḗḗ şḗḗŧŧīƞɠş — ŧħīş ƥřǿǿṽīḓḗḗř řḗḗŭŭşḗḗş īŧş īḿȧȧɠḗḗ şḗḗŧŧīƞɠş ȧȧƀǿǿṽḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.none": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ƥřǿǿṽīḓḗḗř şḗḗŀḗḗƈŧḗḗḓ — ƥīƈķ ǿǿƞḗḗ īƞ ŧħḗḗ Ƥřǿǿṽīḓḗḗřş ḿḗḗƞŭŭ ŧǿǿ şḗḗḗḗ īŧş şḗḗŧŧīƞɠş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.role.image": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īḿȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.role.text": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.role.upscale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥşƈȧȧŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providerGear.settings": [
     {
       "type": 0,
@@ -5900,6 +6012,34 @@
       "value": "]"
     }
   ],
+  "providersMenu.group.upscaleLocal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿƈȧȧŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.group.upscaleOnline": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƞŀīƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providersMenu.hintOff": [
     {
       "type": 0,
@@ -6034,6 +6174,62 @@
     {
       "type": 0,
       "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƞşḗḗŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unsetDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ŧḗḗẋŧ ȦĪ şḗḗŀḗḗƈŧḗḗḓ — ƥřǿǿḿƥŧ & ķḗḗẏẇǿǿřḓ řḗḗẇřīŧīƞɠ şŧȧȧẏş ǿǿƒƒ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unsetImageDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ īḿȧȧɠḗḗ ƥřǿǿṽīḓḗḗř — ɠḗḗƞḗḗřȧȧŧḗḗ ƥřǿǿḿƥŧş ǿǿƞŀẏ, ƞǿǿ īḿȧȧɠḗḗş."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unsetUpscaleDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ŭŭƥşƈȧȧŀḗḗř şḗḗŀḗḗƈŧḗḗḓ."
     },
     {
       "type": 0,
@@ -6208,20 +6404,6 @@
       "value": "]"
     }
   ],
-  "settings.group.language": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ŀȧȧƞɠŭŭȧȧɠḗḗ"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
   "settings.group.salt": [
     {
       "type": 0,
@@ -6306,34 +6488,6 @@
       "value": "]"
     }
   ],
-  "settings.locale": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ḓīşƥŀȧȧẏ ŀȧȧƞɠŭŭȧȧɠḗḗ"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
-  "settings.locale.auto": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ȧŭŭŧǿǿ (ƀřǿǿẇşḗḗř)"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
   "settings.maxLevels": [
     {
       "type": 0,
@@ -6342,6 +6496,20 @@
     {
       "type": 0,
       "value": "Ḿȧȧẋ ŀḗḗṽḗḗŀş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "settings.naturalArtistStyle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞȧȧŧŭŭřȧȧŀ ŀȧȧƞɠŭŭȧȧɠḗḗ ƒǿǿř ȧȧřŧīşŧş & şŧẏŀḗḗş"
     },
     {
       "type": 0,
