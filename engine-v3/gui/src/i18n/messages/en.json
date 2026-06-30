@@ -33,6 +33,10 @@
   "apiKey.saveUpdateTitle": {
     "defaultMessage": "Update the saved key in this browser"
   },
+  "app.deleteAction": {
+    "defaultMessage": "Delete",
+    "description": "Accept-button label on the delete-image confirm dialog"
+  },
   "app.deleteConfirm": {
     "defaultMessage": "Delete this image and its metadata from disk? This can't be undone.",
     "description": "Confirm dialog before deleting an image from disk"
@@ -150,6 +154,12 @@
   },
   "blockEd.tabJs": {
     "defaultMessage": "JS sidecar"
+  },
+  "dialog.cancel": {
+    "defaultMessage": "Cancel"
+  },
+  "dialog.ok": {
+    "defaultMessage": "OK"
   },
   "dplIns.bullet.desc": {
     "defaultMessage": "A bullet; a simple bullet defaults to a 50% chance."

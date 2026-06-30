@@ -404,6 +404,30 @@ body {
   outline: none;
   box-shadow: var(--ring);
 }
+/* Destructive (delete) accept button — a real red, distinct from the accent primary. */
+.modal-actions .btn-destructive {
+  background: #e5484d;
+  color: #fff;
+}
+.modal-actions .btn-destructive:hover {
+  background: #d13b40;
+}
+/* Text input for a prompt() dialog. */
+.modal-input {
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.modal-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
 
 /* ---------- Workspace (two-pane, fills the window) ---------- */
 main {

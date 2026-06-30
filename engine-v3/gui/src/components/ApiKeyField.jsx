@@ -12,6 +12,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { getProvider } from "../lib/providers/index.js";
 import { getSessionKey, setSessionKey } from "../lib/sessionKeys.js";
 import { metaFor } from "../lib/providerMeta.js";
+import { dialog } from "../lib/dialog.js";
 
 const msgs = defineMessages({
   infoTip: {
@@ -91,13 +92,13 @@ export default function ApiKeyField({ settings, setSettings, providerId }) {
     setKeyInput(val);
     setSessionKey(pid, val); // in memory only — not persisted until Save
   };
-  const saveKey = () => {
+  const saveKey = async () => {
     if (!keyInput) return;
-    if (confirm(intl.formatMessage(msgs.confirmSave)))
+    if (await dialog.confirm({ message: intl.formatMessage(msgs.confirmSave) }))
       setSettings((s) => ({ ...s, keys: { ...s.keys, [pid]: keyInput } }));
   };
-  const clearKey = () => {
-    if (!confirm(intl.formatMessage(msgs.confirmClear))) return;
+  const clearKey = async () => {
+    if (!(await dialog.confirm({ message: intl.formatMessage(msgs.confirmClear) }))) return;
     setSettings((s) => {
       const keys = { ...s.keys };
       delete keys[pid];

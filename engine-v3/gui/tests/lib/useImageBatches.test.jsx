@@ -18,6 +18,7 @@ vi.mock("../../src/lib/sessionKeys.js", () => ({ effectiveKey: vi.fn(() => "key"
 
 import { useImageBatches } from "../../src/lib/home/useImageBatches.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../../src/lib/output.js";
+import { dialog } from "../../src/lib/dialog.js";
 
 const wrapper = ({ children }) => (
   <IntlProvider locale="en" messages={{}} onError={() => {}}>
@@ -41,7 +42,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   isOutputFile.mockReturnValue(false);
   ingestImage.mockResolvedValue({ path: "/api/output/x.png", file: "x.png" });
-  window.confirm = vi.fn(() => true);
+  dialog.confirm = vi.fn(async () => true);
 });
 
 describe("useImageBatches.makeBatch", () => {
@@ -60,47 +61,57 @@ describe("useImageBatches.makeBatch", () => {
 });
 
 describe("useImageBatches lifecycle handlers", () => {
-  it("removeImage drops one image (and removes the batch when it empties)", () => {
+  it("removeImage drops one image (and removes the batch when it empties)", async () => {
     const { result } = mount();
     act(() =>
       result.current.setPrompts([
         { id: 1, batches: [{ id: 9, busy: false, images: ["a", "b"] }] },
       ]),
     );
-    act(() => result.current.removeImage(1, 9, "a"));
+    await act(async () => {
+      await result.current.removeImage(1, 9, "a");
+    });
     expect(result.current.prompts[0].batches[0].images).toEqual(["b"]);
   });
 
-  it("removeBatch drops the whole batch", () => {
+  it("removeBatch drops the whole batch", async () => {
     const { result } = mount();
     act(() =>
       result.current.setPrompts([
         { id: 1, batches: [{ id: 9, images: ["a"] }, { id: 10, images: ["b"] }] },
       ]),
     );
-    act(() => result.current.removeBatch(1, 9));
+    await act(async () => {
+      await result.current.removeBatch(1, 9);
+    });
     expect(result.current.prompts[0].batches.map((b) => b.id)).toEqual([10]);
   });
 
-  it("clearImages empties a prompt's batches", () => {
+  it("clearImages empties a prompt's batches", async () => {
     const { result } = mount();
     act(() => result.current.setPrompts([{ id: 1, batches: [{ id: 9, images: ["a"] }] }]));
-    act(() => result.current.clearImages(1));
+    await act(async () => {
+      await result.current.clearImages(1);
+    });
     expect(result.current.prompts[0].batches).toEqual([]);
   });
 
-  it("clearAll empties the whole list", () => {
+  it("clearAll empties the whole list", async () => {
     const { result } = mount();
     act(() => result.current.setPrompts([{ id: 1, batches: [{ id: 9, images: ["a"] }] }]));
-    act(() => result.current.clearAll());
+    await act(async () => {
+      await result.current.clearAll();
+    });
     expect(result.current.prompts).toEqual([]);
   });
 
-  it("deletes the file from disk when the image is an on-disk output and confirmed", () => {
+  it("deletes the file from disk when the image is an on-disk output and confirmed", async () => {
     isOutputFile.mockReturnValue(true);
     const { result } = mount();
     act(() => result.current.setPrompts([{ id: 1, batches: [{ id: 9, images: ["/api/output/a.png"] }] }]));
-    act(() => result.current.removeImage(1, 9, "/api/output/a.png"));
+    await act(async () => {
+      await result.current.removeImage(1, 9, "/api/output/a.png");
+    });
     expect(deleteImageFile).toHaveBeenCalledWith("/api/output/a.png");
   });
 });
