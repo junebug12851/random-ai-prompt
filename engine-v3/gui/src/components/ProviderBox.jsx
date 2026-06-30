@@ -81,11 +81,14 @@ function ProviderField({ f, params, setParam, optionData }) {
  * @param {object} props
  * @param {object} props.settings The current settings.
  * @param {Function} props.setSettings Update the settings.
+ * @param {string} [props.providerId] Which provider's controls to render. Defaults to the active
+ *   image provider (`settings.provider`); the gear accordion passes the text / upscale provider id
+ *   so one box can drive any provider row.
  * @returns {(JSX.Element|null)}
  */
-export default function ProviderBox({ settings, setSettings }) {
+export default function ProviderBox({ settings, setSettings, providerId }) {
   const intl = useIntl();
-  const provider = getProvider(settings.provider);
+  const provider = getProvider(providerId || settings.provider);
   const pid = provider?.id;
   const { schema, options } = useProviderSettings(pid);
   const params = settings.providerParams?.[pid] || {};

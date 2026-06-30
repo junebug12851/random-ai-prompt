@@ -37,6 +37,7 @@ import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
+import AppMenu from "./components/AppMenu.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
 
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
@@ -411,6 +412,7 @@ function AppShell({ settings, setSettings }) {
         {/* Header controls live on every tab now (not just Generate). */}
         <ProvidersMenu settings={settings} setSettings={setSettings} />
         <ProviderGear settings={settings} setSettings={setSettings} />
+        <AppMenu settings={settings} setSettings={setSettings} />
         <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
         <LinksMenu />
       </header>

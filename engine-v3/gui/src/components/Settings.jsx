@@ -9,20 +9,12 @@ import { useIntl, defineMessages } from "react-intl";
 import { Num, Toggle, Select, Group } from "./Field.jsx";
 import { getListNames } from "../lib/promptEngine.js";
 import { defaultSettings } from "../lib/settings.js";
-import { AUTO_LOCALE, SUPPORTED_LOCALES, LOCALES } from "../i18n/index.js";
 
 const msgs = defineMessages({
   resetBtn: { id: "settings.reset", defaultMessage: "Reset to defaults" },
   resetConfirm: {
     id: "settings.resetConfirm",
     defaultMessage: "Reset all settings to defaults?",
-  },
-  groupLanguage: { id: "settings.group.language", defaultMessage: "Language" },
-  localeLabel: { id: "settings.locale", defaultMessage: "Display language" },
-  localeAuto: {
-    id: "settings.locale.auto",
-    defaultMessage: "Auto (browser)",
-    description: "Locale option that follows the browser's language",
   },
   groupVocabulary: { id: "settings.group.vocabulary", defaultMessage: "Vocabulary" },
   fullyRandom: {
@@ -82,12 +74,6 @@ export default function Settings({ settings, setSettings }) {
     ...getListNames(),
   ];
 
-  // Locale options: "Auto (browser)" plus each registered locale by its endonym.
-  const localeOptions = [
-    { value: AUTO_LOCALE, label: intl.formatMessage(msgs.localeAuto) },
-    ...SUPPORTED_LOCALES.map((code) => ({ value: code, label: LOCALES[code].label })),
-  ];
-
   return (
     <div className="settings">
       <div className="settings-actions">
@@ -100,15 +86,6 @@ export default function Settings({ settings, setSettings }) {
           {intl.formatMessage(msgs.resetBtn)}
         </button>
       </div>
-
-      <Group title={intl.formatMessage(msgs.groupLanguage)}>
-        <Select
-          label={intl.formatMessage(msgs.localeLabel)}
-          value={settings.locale ?? AUTO_LOCALE}
-          onChange={(v) => set({ locale: v })}
-          options={localeOptions}
-        />
-      </Group>
 
       <Group title={intl.formatMessage(msgs.groupVocabulary)}>
         <Select

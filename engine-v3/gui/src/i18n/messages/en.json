@@ -85,6 +85,22 @@
   "app.tab.single.desc": {
     "defaultMessage": "View one image up close — details, re-rolls, and resizes"
   },
+  "appMenu.appSettings": {
+    "defaultMessage": "App settings"
+  },
+  "appMenu.close": {
+    "defaultMessage": "close"
+  },
+  "appMenu.group.language": {
+    "defaultMessage": "Language"
+  },
+  "appMenu.locale": {
+    "defaultMessage": "Display language"
+  },
+  "appMenu.locale.auto": {
+    "defaultMessage": "Auto (browser)",
+    "description": "Locale option that follows the browser's language"
+  },
   "blockEd.ariaDpl": {
     "defaultMessage": "Generator DPL"
   },
@@ -1100,6 +1116,15 @@
   "providerGear.close": {
     "defaultMessage": "close"
   },
+  "providerGear.role.image": {
+    "defaultMessage": "Image"
+  },
+  "providerGear.role.text": {
+    "defaultMessage": "Text"
+  },
+  "providerGear.role.upscale": {
+    "defaultMessage": "Upscale"
+  },
   "providerGear.settings": {
     "defaultMessage": "Provider settings"
   },
@@ -1140,6 +1165,12 @@
   "providersMenu.group.upscale": {
     "defaultMessage": "Upscale / enhance"
   },
+  "providersMenu.group.upscaleLocal": {
+    "defaultMessage": "Local"
+  },
+  "providersMenu.group.upscaleOnline": {
+    "defaultMessage": "Online"
+  },
   "providersMenu.hintOff": {
     "defaultMessage": "Pick a Text AI to enable auto-fix / keyword rewriting (toggled on the prompt box)."
   },
@@ -1169,6 +1200,12 @@
   },
   "providersMenu.text": {
     "defaultMessage": "Text"
+  },
+  "providersMenu.unset": {
+    "defaultMessage": "Unset"
+  },
+  "providersMenu.unsetDesc": {
+    "defaultMessage": "No text AI selected — prompt & keyword rewriting stays off."
   },
   "providersMenu.upscale": {
     "defaultMessage": "Upscaler / Enhancer"
@@ -1206,9 +1243,6 @@
   "settings.group.emphasis": {
     "defaultMessage": "Emphasis"
   },
-  "settings.group.language": {
-    "defaultMessage": "Language"
-  },
   "settings.group.salt": {
     "defaultMessage": "Salt & lists"
   },
@@ -1227,13 +1261,6 @@
   "settings.list.fullyRandom": {
     "defaultMessage": "(fully random)",
     "description": "Source-list option meaning draw from the whole dictionary"
-  },
-  "settings.locale": {
-    "defaultMessage": "Display language"
-  },
-  "settings.locale.auto": {
-    "defaultMessage": "Auto (browser)",
-    "description": "Locale option that follows the browser's language"
   },
   "settings.maxLevels": {
     "defaultMessage": "Max levels"

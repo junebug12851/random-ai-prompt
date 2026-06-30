@@ -77,9 +77,11 @@ export const defaultSettings = {
   listEntriesUsedOnce: true,
   reloadListsOnPromptChange: true,
 
-  // Generation / providers
+  // Generation / providers. Default to Plain text: it needs no machine, key, or network — it just
+  // copies a plain-text prompt — so it's the one provider that works for everyone out of the box
+  // (local SD engines or BYOK APIs are opt-in from the header Providers menu).
   generateImages: false,
-  provider: "comfyui",
+  provider: "plain",
   localWebuiUrl: "http://127.0.0.1:7860",
   keys: {}, // { [providerId]: "sk-..." } — kept in this browser only
   // Per-provider knobs, namespaced so switching providers never clobbers another's values.

@@ -375,6 +375,76 @@
       "value": "]"
     }
   ],
+  "appMenu.appSettings": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧƥƥ şḗḗŧŧīƞɠş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "appMenu.close": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƈŀǿǿşḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "appMenu.group.language": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀȧȧƞɠŭŭȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "appMenu.locale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓīşƥŀȧȧẏ ŀȧȧƞɠŭŭȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "appMenu.locale.auto": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ȧŭŭŧǿǿ (ƀřǿǿẇşḗḗř)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "blockEd.ariaDpl": [
     {
       "type": 0,
@@ -5720,6 +5790,48 @@
       "value": "]"
     }
   ],
+  "providerGear.role.image": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Īḿȧȧɠḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.role.text": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providerGear.role.upscale": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƥşƈȧȧŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providerGear.settings": [
     {
       "type": 0,
@@ -5900,6 +6012,34 @@
       "value": "]"
     }
   ],
+  "providersMenu.group.upscaleLocal": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀǿǿƈȧȧŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.group.upscaleOnline": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ǿƞŀīƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "providersMenu.hintOff": [
     {
       "type": 0,
@@ -6034,6 +6174,34 @@
     {
       "type": 0,
       "value": "Ŧḗḗẋŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unset": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŭƞşḗḗŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "providersMenu.unsetDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƞǿǿ ŧḗḗẋŧ ȦĪ şḗḗŀḗḗƈŧḗḗḓ — ƥřǿǿḿƥŧ & ķḗḗẏẇǿǿřḓ řḗḗẇřīŧīƞɠ şŧȧȧẏş ǿǿƒƒ."
     },
     {
       "type": 0,
@@ -6208,20 +6376,6 @@
       "value": "]"
     }
   ],
-  "settings.group.language": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ŀȧȧƞɠŭŭȧȧɠḗḗ"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
   "settings.group.salt": [
     {
       "type": 0,
@@ -6300,34 +6454,6 @@
     {
       "type": 0,
       "value": "(ƒŭŭŀŀẏ řȧȧƞḓǿǿḿ)"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
-  "settings.locale": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ḓīşƥŀȧȧẏ ŀȧȧƞɠŭŭȧȧɠḗḗ"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
-  "settings.locale.auto": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Ȧŭŭŧǿǿ (ƀřǿǿẇşḗḗř)"
     },
     {
       "type": 0,
