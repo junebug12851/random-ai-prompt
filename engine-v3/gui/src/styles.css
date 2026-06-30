@@ -42,8 +42,10 @@
   /* Text */
   --fg: #fafafa;
   --fg-soft: #d6d6dc;
-  --muted: #9a9aa4;
-  --faint: #74747e;
+  /* `--muted` / `--faint` lightened to clear WCAG AA 4.5:1 on the darkest panels and the
+     accent-soft (green) active-tab background — see the Lighthouse accessibility pass. */
+  --muted: #aaaab2;
+  --faint: #97979f;
 
   /* Lines */
   --border: #34343c;
