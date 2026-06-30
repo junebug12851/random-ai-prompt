@@ -161,6 +161,93 @@ body {
   flex: 1;
 }
 
+/* ---------- Header links menu (GitHub / docs / fairyfox) ---------- */
+.links-menu {
+  position: relative;
+  flex: none;
+}
+.links-trigger {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
+}
+.links-trigger:hover,
+.links-trigger.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.links-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+.links-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 42;
+  width: 260px;
+  max-width: 90vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.links-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  text-decoration: none;
+}
+.links-item:hover {
+  background: var(--chip-hover);
+}
+.links-item-icon {
+  flex: none;
+  display: inline-flex;
+  color: var(--muted);
+}
+.links-item:hover .links-item-icon {
+  color: var(--accent);
+}
+.links-item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.links-item-label {
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+.links-item-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.links-item-ext {
+  flex: none;
+  display: inline-flex;
+  color: var(--faint);
+}
+
 /* ---------- NSFW switch (right-aligned in the title bar) ---------- */
 .nsfw-toggle {
   display: flex;
@@ -489,6 +576,9 @@ select {
      is zeroed below so it doesn't skew that center.) */
   align-items: center;
   gap: 0.5rem;
+  /* Breathing room between the toolbar row and the prompt window below it (otherwise the insert
+     bar sits flush against the composer field). */
+  margin-bottom: 0.6rem;
 }
 .compose-toolbar .dpl-insert-bar {
   flex: 1;
@@ -910,14 +1000,30 @@ select {
   overflow: auto;
   padding: 0.7rem 0.8rem 1rem;
 }
+/* Description callout at the top of the chip area — a left-aligned info card with an accent
+   edge (replaces the old centered text + underline). */
 .cat-hint {
-  margin: 0 0 0.9rem;
-  padding-bottom: 0.6rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.65rem;
   font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--muted);
-  text-align: center;
-  border-bottom: 1px solid var(--border-soft);
+  line-height: 1.45;
+  color: var(--fg-soft);
+  text-align: left;
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+.cat-hint-icon {
+  flex: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+.cat-hint-text {
+  min-width: 0;
 }
 .picker-list {
   display: flex;
@@ -3273,6 +3379,45 @@ button.ghost:hover {
   font-weight: 700;
 }
 
+/* ---- Generic code highlighting (JS sidecars in Manage) — reuses the DPL palette ---- */
+.cm-tok-keyword {
+  color: var(--dpl-keyword);
+  font-weight: 600;
+}
+.cm-tok-string {
+  color: var(--dpl-list);
+}
+.cm-tok-number {
+  color: var(--dpl-weight);
+}
+.cm-tok-comment {
+  color: var(--faint);
+  font-style: italic;
+}
+.cm-tok-func {
+  color: var(--dpl-gen);
+  font-weight: 600;
+}
+.cm-tok-prop {
+  color: var(--dpl-ref);
+}
+.cm-tok-type {
+  color: var(--dpl-dial);
+}
+.cm-tok-def {
+  color: var(--dpl-gen);
+}
+.cm-tok-operator {
+  color: var(--dpl-gate);
+}
+/* Matched-bracket emphasis for the code editor. */
+.cm-matchingBracket {
+  background: var(--accent-soft);
+  color: var(--accent);
+  outline: 1px solid var(--accent);
+  border-radius: 2px;
+}
+
 /* Autocomplete dropdown */
 .cm-tooltip.cm-tooltip-autocomplete {
   background: var(--elevated);
@@ -3591,6 +3736,10 @@ button.ghost:hover {
 .composer-field .prompt-input.dpl-editor .cm-content {
   font-size: 1.05rem;
 }
+/* Indent only the first visual row so the upper-left validity icon never sits on the text. */
+.composer-field .prompt-input.dpl-editor .cm-line:first-child {
+  text-indent: 1.8rem;
+}
 
 /* Context: the negative-prompt box (matches the base textarea look) */
 .negative-textarea.dpl-editor {
@@ -3633,6 +3782,16 @@ button.ghost:hover {
 /* The clear-x sits inline in the corner cluster (no longer absolutely positioned). */
 .composer-corner .clear-x {
   position: static;
+}
+/* The validity icon lives alone in the upper-LEFT corner of the prompt box (flipped from the
+   right). The editor's first line is indented (below) so typed text clears it. */
+.composer-corner-left {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 2;
 }
 /* The live-preview trigger as a bare icon (no button chrome) in the corner. */
 .preview-corner {
@@ -3996,6 +4155,19 @@ button.ghost:hover {
   background: var(--dpl-gate);
 }
 .mg-pill.on {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+/* The whole pill is the click target now (opens the editor) — show it's interactive. */
+.mg-pill.is-clickable {
+  cursor: pointer;
+}
+.mg-pill.is-clickable:hover {
+  background: var(--chip-hover);
+  border-color: var(--accent);
+}
+.mg-pill.is-clickable:focus-visible {
+  outline: none;
   border-color: var(--accent);
   box-shadow: var(--ring);
 }

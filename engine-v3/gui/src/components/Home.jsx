@@ -415,6 +415,10 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                     : intl.formatMessage(msgs.phPrompt)
               }
             />
+            {/* Live DPL validity — pinned to the box's upper-LEFT corner; ✓ clean, ✕ on errors. */}
+            <div className="composer-corner-left">
+              <DplStatus value={activeValue || ""} className="status-corner" />
+            </div>
             <div className="composer-corner">
               {activeValue && (
                 <button
@@ -439,8 +443,6 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                 label={intl.formatMessage(editMode === "negative" ? msgs.negativePreview : msgs.promptPreview)}
                 triggerClassName="preview-corner"
               />
-              {/* Live DPL validity — between the preview and the gear; ✓ clean, ✕ on errors. */}
-              <DplStatus value={activeValue || ""} className="status-corner" />
               {/* Prompt-settings gear — sits in the corner cluster, to the right of the preview. */}
               <div className="field-menu-wrap prompt-settings-gear">
                 <button

@@ -14,7 +14,7 @@ const msgs = defineMessages({
   buildingBlocks: { id: "home.buildingBlocks", defaultMessage: "Building blocks" },
   searchBlocks: { id: "home.searchBlocks", defaultMessage: "Search blocks…" },
   noBlocks: { id: "home.noBlocks", defaultMessage: "No building blocks match “{query}”." },
-  all: { id: "home.all", defaultMessage: "All" },
+  all: { id: "home.all", defaultMessage: "all" },
   moreFilter: {
     id: "home.moreFilter",
     defaultMessage: "+{count} more — keep typing to filter",
@@ -168,9 +168,23 @@ export default function BlockPalette({ includeAdult, onInsert, onShowTip, onMove
           </nav>
 
           <div className="chip-area">
-            {active && active.hint && !searching && effSub === "All" && (
-              <p className="cat-hint">{active.hint}</p>
-            )}
+            {/* Description callout: the group hint on the "all" view, or the selected folder's
+                own description when a sub-tab is active. */}
+            {!searching &&
+              (() => {
+                const desc =
+                  effSub === "All"
+                    ? active?.hint
+                    : subCats.find((c) => c.label === effSub)?.description;
+                return desc ? (
+                  <p className="cat-hint">
+                    <span className="cat-hint-icon" aria-hidden="true">
+                      ⓘ
+                    </span>
+                    <span className="cat-hint-text">{desc}</span>
+                  </p>
+                ) : null;
+              })()}
             <div className="picker-list">
               {activeItems.slice(0, 400).map((i, idx) =>
                 i.category ? (
