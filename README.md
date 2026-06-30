@@ -2,8 +2,16 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/927e1b3b-338c-48e0-8959-03dcd055cb87/deploy-status)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
 
+**▶ Try it online: [prompt.fairyfox.io](https://prompt.fairyfox.io)** · **📖 Docs:
+[fairyfox.io/random-ai-prompt](https://fairyfox.io/random-ai-prompt/)**
+
 A random AI prompt + image generator for Stable Diffusion (and other) image models. This repository
 holds **two separate engines**. Pick the one you want:
+
+The hosted web app at **[prompt.fairyfox.io](https://prompt.fairyfox.io)** runs the active engine
+right in your browser (bring your own API key — nothing is stored on a server); the gallery, the
+single-image view, the local Stable Diffusion providers, and NSFW mode need the full desktop version
+you build from source below.
 
 ## 🟢 `engine-v3/` — the active project
 
@@ -35,7 +43,8 @@ npm run web:build    # outputs the built site to gui/dist/
 
 Contributing? The verification gate is `npm test` (lint + smoke + Vitest, Node + jsdom); end-to-end
 specs run with `npm run test:e2e`. See [`notes/`](notes/) (start at
-[`notes/status.md`](notes/status.md)) for the full developer guide.
+[`notes/status.md`](notes/status.md)) for the full developer guide. The generated API reference +
+the living notes are published at **[fairyfox.io/random-ai-prompt](https://fairyfox.io/random-ai-prompt/)**.
 
 ## 🟠 `engine-v1-2/` — the original, frozen
 

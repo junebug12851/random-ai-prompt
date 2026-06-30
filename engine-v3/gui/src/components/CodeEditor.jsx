@@ -8,7 +8,41 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { EditorState, Compartment } from "@codemirror/state";
 import { EditorView, keymap, placeholder as placeholderExt, drawSelection, lineNumbers } from "@codemirror/view";
-import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
+import { history, defaultKeymap, historyKeymap, indentWithTab } from "@codemirror/commands";
+import {
+  bracketMatching,
+  indentOnInput,
+  syntaxHighlighting,
+  HighlightStyle,
+} from "@codemirror/language";
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
+import { tags as t } from "@lezer/highlight";
+
+// Token → CSS class. Colors are set theme-aware in styles.css (`.cm-tok-*`), reusing the same
+// palette as the DPL highlighter so code reads consistently in both light and dark themes.
+const codeHighlightStyle = HighlightStyle.define([
+  {
+    tag: [t.keyword, t.moduleKeyword, t.controlKeyword, t.operatorKeyword, t.definitionKeyword],
+    class: "cm-tok-keyword",
+  },
+  { tag: [t.string, t.special(t.string), t.regexp], class: "cm-tok-string" },
+  { tag: [t.number, t.bool, t.null, t.atom], class: "cm-tok-number" },
+  { tag: [t.lineComment, t.blockComment, t.comment, t.docComment], class: "cm-tok-comment" },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], class: "cm-tok-func" },
+  { tag: [t.propertyName], class: "cm-tok-prop" },
+  { tag: [t.typeName, t.className, t.namespace], class: "cm-tok-type" },
+  { tag: [t.definition(t.variableName)], class: "cm-tok-def" },
+  { tag: [t.operator, t.derefOperator], class: "cm-tok-operator" },
+]);
+
+// Editor niceties enabled only when a language is supplied (i.e. editing real code, not a raw
+// word list): syntax highlighting, bracket matching, auto-close brackets, and indent-on-input.
+const codeBasics = [
+  syntaxHighlighting(codeHighlightStyle),
+  bracketMatching(),
+  closeBrackets(),
+  indentOnInput(),
+];
 
 /**
  * @param {object} props
@@ -51,7 +85,14 @@ function CodeEditor(
       ...(showGutter ? [lineNumbers()] : []),
       ...(wrap ? [EditorView.lineWrapping] : []),
       langCompartment.of(language ? language() : []),
-      keymap.of([...historyKeymap, ...defaultKeymap]),
+      // Code affordances (highlighting, bracket matching, …) only when a language is set.
+      ...(language ? codeBasics : []),
+      // Bracket-close + Tab-indent keys only in code mode; plain-text lists keep normal Tab nav.
+      keymap.of(
+        language
+          ? [...closeBracketsKeymap, ...historyKeymap, ...defaultKeymap, indentWithTab]
+          : [...historyKeymap, ...defaultKeymap],
+      ),
       placeholderExt(placeholder),
       ariaLabel ? EditorView.contentAttributes.of({ "aria-label": ariaLabel }) : [],
       EditorView.theme({ "&": { height: "100%" }, ".cm-scroller": { overflow: "auto" } }),

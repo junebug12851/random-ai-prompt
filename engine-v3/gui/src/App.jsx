@@ -37,6 +37,7 @@ import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
+import LinksMenu from "./components/LinksMenu.jsx";
 
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
 // is split into separate chunks the browser fetches only when the view is first opened —
@@ -46,14 +47,14 @@ const Gallery = lazy(() => import("./components/Gallery.jsx"));
 const SingleView = lazy(() => import("./components/SingleView.jsx"));
 const Manage = lazy(() => import("./components/Manage.jsx"));
 
-// [id, labelKey, featureKey]. Gallery/Single are local-only — online shows them disabled.
+// [id, labelKey, featureKey, descKey]. Gallery/Single are local-only — online shows them disabled.
 // Manage needs the local-mode file backend (a runtime capability, not the build stage).
-// labelKey/featureKey index into `msgs` below so the strings are localized at render.
+// labelKey/featureKey/descKey index into `msgs` below so the strings are localized at render.
 const TABS = [
-  ["generate", "tabGenerate", null],
-  ["gallery", "tabGallery", "featureGallery"],
-  ["single", "tabSingle", "featureSingle"],
-  ["manage", "tabManage", null],
+  ["generate", "tabGenerate", null, "tabGenerateDesc"],
+  ["gallery", "tabGallery", "featureGallery", "tabGalleryDesc"],
+  ["single", "tabSingle", "featureSingle", "tabSingleDesc"],
+  ["manage", "tabManage", null, "tabManageDesc"],
 ];
 
 const msgs = defineMessages({
@@ -66,6 +67,19 @@ const msgs = defineMessages({
   tabGallery: { id: "app.tab.gallery", defaultMessage: "Gallery" },
   tabSingle: { id: "app.tab.single", defaultMessage: "Single" },
   tabManage: { id: "app.tab.manage", defaultMessage: "Manage" },
+  tabGenerateDesc: {
+    id: "app.tab.generate.desc",
+    defaultMessage: "Compose prompts and generate images",
+  },
+  tabGalleryDesc: { id: "app.tab.gallery.desc", defaultMessage: "Browse your saved images" },
+  tabSingleDesc: {
+    id: "app.tab.single.desc",
+    defaultMessage: "View one image up close — details, re-rolls, and resizes",
+  },
+  tabManageDesc: {
+    id: "app.tab.manage.desc",
+    defaultMessage: "Edit the building blocks and word lists on disk",
+  },
   featureGallery: {
     id: "app.feature.gallery",
     defaultMessage: "The gallery",
@@ -357,12 +371,12 @@ function AppShell({ settings, setSettings }) {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">
+        <div className="brand" title="Random AI Prompt">
           <img src="/logo.png" alt="" />
           <span className="wordmark">Random AI Prompt</span>
         </div>
         <div className="view-switch" role="tablist" aria-label={intl.formatMessage(msgs.switchView)}>
-          {TABS.map(([id, labelKey, featureKey]) => {
+          {TABS.map(([id, labelKey, featureKey, descKey]) => {
             const label = intl.formatMessage(msgs[labelKey]);
             // Manage is gated on the local-mode backend (a runtime capability); Gallery/Single are
             // gated on the online build. Manage clicks while locked are inert (no full-version link).
@@ -371,6 +385,8 @@ function AppShell({ settings, setSettings }) {
               id === "manage"
                 ? intl.formatMessage(msgs.manageLocked)
                 : lockedHint(intl, featureKey ? intl.formatMessage(msgs[featureKey]) : label);
+            // Unlocked tabs get a plain descriptive tooltip; locked ones explain why.
+            const tabTitle = locked ? hint : intl.formatMessage(msgs[descKey]);
             return (
               <button
                 key={id}
@@ -378,7 +394,7 @@ function AppShell({ settings, setSettings }) {
                 aria-selected={!locked && view === id}
                 aria-disabled={locked || undefined}
                 className={`vs-tab${!locked && view === id ? " on" : ""}${locked ? " is-locked" : ""}`}
-                title={locked ? hint : undefined}
+                title={tabTitle}
                 onClick={() => (locked ? (id !== "manage" ? openFullVersion() : undefined) : go(id))}
               >
                 {label}
@@ -392,9 +408,11 @@ function AppShell({ settings, setSettings }) {
           })}
         </div>
         <div className="topbar-spacer" />
-        {view === "generate" && <ProvidersMenu settings={settings} setSettings={setSettings} />}
-        {view === "generate" && <ProviderGear settings={settings} setSettings={setSettings} />}
+        {/* Header controls live on every tab now (not just Generate). */}
+        <ProvidersMenu settings={settings} setSettings={setSettings} />
+        <ProviderGear settings={settings} setSettings={setSettings} />
         <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
+        <LinksMenu />
       </header>
 
       <main>
