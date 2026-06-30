@@ -67,6 +67,8 @@ export const defaultSettings = {
   includeArtist: false,
   minArtist: 0,
   maxArtist: 2,
+  // Frame artists as "by <artist>" and styles as "in the style of <style>" in the generated prompt.
+  naturalArtistStyle: true,
   autoAddArtists: false,
   autoAddFx: false,
   promptSalt: false,

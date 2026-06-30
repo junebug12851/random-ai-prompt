@@ -1265,6 +1265,9 @@
   "settings.maxLevels": {
     "defaultMessage": "Max levels"
   },
+  "settings.naturalArtistStyle": {
+    "defaultMessage": "Natural language for artists & styles"
+  },
   "settings.noAnd": {
     "defaultMessage": "Don't combine with AND"
   },

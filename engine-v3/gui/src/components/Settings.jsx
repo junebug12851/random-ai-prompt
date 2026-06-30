@@ -24,6 +24,10 @@ const msgs = defineMessages({
   },
   keywordList: { id: "settings.keywordList", defaultMessage: "Keyword list" },
   artistList: { id: "settings.artistList", defaultMessage: "Artist list" },
+  naturalArtistStyle: {
+    id: "settings.naturalArtistStyle",
+    defaultMessage: "Natural language for artists & styles",
+  },
   groupEmphasis: { id: "settings.group.emphasis", defaultMessage: "Emphasis" },
   randEmphasize: {
     id: "settings.randEmphasize",
@@ -99,6 +103,11 @@ export default function Settings({ settings, setSettings }) {
           value={settings.artistFilename}
           onChange={(v) => set({ artistFilename: v })}
           options={listOptions}
+        />
+        <Toggle
+          label={intl.formatMessage(msgs.naturalArtistStyle)}
+          value={settings.naturalArtistStyle !== false}
+          onChange={(v) => set({ naturalArtistStyle: v })}
         />
       </Group>
 
