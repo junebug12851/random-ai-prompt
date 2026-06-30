@@ -126,13 +126,12 @@ export default function ProviderGear({ settings, setSettings }) {
       return next;
     });
 
-  // Each role may be unset ("none") — the image too (prompts only). Only set roles get a section.
-  const imageId = settings.provider && settings.provider !== "none" ? settings.provider : null;
+  // Text / Upscale may be unset ("none"); the image provider is always set (Plain/"Unset" is real).
+  const image = getProvider(settings.provider);
   const textId =
     settings.rewriteProvider && settings.rewriteProvider !== "none" ? settings.rewriteProvider : null;
   const upscaleId =
     settings.upscaleProvider && settings.upscaleProvider !== "none" ? settings.upscaleProvider : null;
-  const image = imageId ? getProvider(imageId) : null;
   const text = textId ? getProvider(textId) : null;
   const upscale = upscaleId ? getProvider(upscaleId) : null;
 

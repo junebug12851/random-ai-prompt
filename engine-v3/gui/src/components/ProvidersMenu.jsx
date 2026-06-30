@@ -45,10 +45,6 @@ const msgs = defineMessages({
     id: "providersMenu.unsetDesc",
     defaultMessage: "No text AI selected — prompt & keyword rewriting stays off.",
   },
-  unsetImageDesc: {
-    id: "providersMenu.unsetImageDesc",
-    defaultMessage: "No image provider — generate prompts only, no images.",
-  },
   unsetUpscaleDesc: {
     id: "providersMenu.unsetUpscaleDesc",
     defaultMessage: "No upscaler selected.",
@@ -115,9 +111,8 @@ export default function ProvidersMenu({ settings, setSettings }) {
     };
   };
 
-  // Image can be left Unset ("none") — prompts only, no images.
-  const imageId = settings.provider || "none";
-  const image = imageId !== "none" ? getProvider(imageId) : null;
+  const imageId = settings.provider;
+  const image = getProvider(imageId);
   const textId =
     settings.rewriteProvider && settings.rewriteProvider !== "none"
       ? settings.rewriteProvider
@@ -136,12 +131,8 @@ export default function ProvidersMenu({ settings, setSettings }) {
   const imageGroups = [
     {
       title: intl.formatMessage(msgs.groupLocal),
-      items: [
-        // Unset is offered as an option (not the default — Plain text is); choosing it generates
-        // prompts only, no images.
-        { id: "none", label: intl.formatMessage(msgs.unset), description: intl.formatMessage(msgs.unsetImageDesc) },
-        ...localImage.map(toOption),
-      ],
+      // Plain text is the universal default and is labeled "Unset" (its config) — pinned to the top.
+      items: localImage.map(toOption),
     },
     {
       title: intl.formatMessage(msgs.groupOnline),
@@ -200,7 +191,7 @@ export default function ProvidersMenu({ settings, setSettings }) {
         aria-expanded={open}
       >
         <span className="provider-select-label">{intl.formatMessage(msgs.providers)}</span>
-        <span className="ps-current">{image?.label || intl.formatMessage(msgs.unset)}</span>
+        <span className="ps-current">{image?.label}</span>
         <span className="ps-caret">▾</span>
       </button>
       {open && (
