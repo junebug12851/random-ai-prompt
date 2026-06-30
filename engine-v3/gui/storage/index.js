@@ -5,7 +5,8 @@
  * dev-server `/api/storage` endpoint (falling back to the browser backend if unreachable).
  *
  * Providers (and the app) read/write through this layer and never care where the data
- * lives. Namespaces are arbitrary JSON-blob keys, e.g. `settings`, `presets:<providerId>`.
+ * lives. Namespaces are `/`-delimited JSON-blob keys, e.g. `settings`, `presets/<providerId>`,
+ * `providers/<providerId>` — slashes map to subfolders in the local-file backend.
  * @module gui/storage
  */
 import { browserStorage } from "./browser.js";
@@ -29,12 +30,12 @@ export { browserStorage, localFileStorage };
 
 /**
  * A per-provider preset store, layered on the active backend. Each provider "owns" its
- * presets — they live under the `presets:<providerId>` namespace as `{ [name]: paramsPatch }`.
+ * presets — they live under the `presets/<providerId>` namespace as `{ [name]: paramsPatch }`.
  * @param {string} providerId The provider id.
  * @returns {{ list: Function, get: Function, save: Function, remove: Function }}
  */
 export function presetStore(providerId) {
-  const ns = `presets:${providerId}`;
+  const ns = `presets/${providerId}`;
   return {
     /** @returns {Promise<object>} All presets `{ name: paramsPatch }`. */
     async list() {

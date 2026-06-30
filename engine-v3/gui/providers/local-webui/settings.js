@@ -3,17 +3,10 @@
  * capability-driven UI renders `fields`; `defaults` seed a fresh install.
  * @module gui/providers/local-webui/settings
  */
+import defaults from "./local-webui.json";
+
 export default {
-  defaults: {
-    localWebuiUrl: "http://127.0.0.1:7860",
-    sampler: "Euler",
-    imageSteps: 32,
-    cfg: 11,
-    imageWidth: 512,
-    imageHeight: 512,
-    seed: -1,
-    negativePrompt: "",
-  },
+  defaults,
   fields: [
     { key: "localWebuiUrl", label: "WebUI URL", type: "text" },
     { key: "sampler", label: "Sampler", type: "select", optionsFrom: "samplers" },

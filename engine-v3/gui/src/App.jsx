@@ -19,6 +19,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
+import { hydrate, isHydrated } from "../storage/cache.js";
 import { useSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
 import { fetchGallery, linkAncestry } from "./lib/gallery.js";
@@ -104,6 +105,28 @@ const msgs = defineMessages({
  * @returns {JSX.Element}
  */
 export default function App() {
+  // Gate the first render on the storage cache hydrating (loads settings/presets/wrappers/provider
+  // overrides from the backend, migrating any legacy localStorage). The stores read synchronously
+  // from the cache afterward, so nothing below here has to be storage-aware. Hydration is fast
+  // (localStorage online; one fetch locally) — a blank frame, like the lazy panes' Suspense fallback.
+  const [ready, setReady] = useState(isHydrated());
+  useEffect(() => {
+    if (ready) return undefined;
+    let alive = true;
+    hydrate().finally(() => alive && setReady(true));
+    return () => {
+      alive = false;
+    };
+  }, [ready]);
+  if (!ready) return null;
+  return <HydratedApp />;
+}
+
+/**
+ * The app once the storage cache is hydrated: owns settings and establishes the i18n boundary.
+ * @returns {JSX.Element}
+ */
+function HydratedApp() {
   const [settings, setSettings] = useSettings();
   return (
     <I18nProvider locale={settings.locale}>

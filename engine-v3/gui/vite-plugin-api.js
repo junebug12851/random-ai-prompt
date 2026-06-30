@@ -30,8 +30,11 @@ import {
   resolveOutputFile,
   readJson,
   send,
-  readStore,
-  writeStore,
+  readNs,
+  writeNs,
+  removeNs,
+  listNs,
+  migrateLegacyStore,
 } from "./vite-api-helpers.js";
 
 /**
@@ -42,6 +45,8 @@ export function apiPlugin() {
   return {
     name: "rap-api-middleware",
     configureServer(server) {
+      // One-time: fold any legacy flat `.gui-storage.json` into the per-namespace user-settings folder.
+      migrateLegacyStore();
       server.middlewares.use(async (req, res, next) => {
         if (!req.url) return next();
         const u = new URL(req.url, "http://localhost");
@@ -542,23 +547,20 @@ export function apiPlugin() {
             : send(res, 502, { error: out.error });
         }
 
-        // --- Local-file storage tier ---
+        // --- Local-file storage tier (one user-settings folder, one file per namespace) ---
         if (u.pathname === "/api/storage") {
-          const store = readStore();
           if (req.method === "GET" && u.searchParams.get("keys")) {
-            return send(res, 200, { keys: Object.keys(store) });
+            return send(res, 200, { keys: listNs() });
           }
           const ns = u.searchParams.get("ns");
-          if (req.method === "GET") return send(res, 200, { value: store[ns] ?? null });
+          if (req.method === "GET") return send(res, 200, { value: readNs(ns) ?? null });
           if (req.method === "PUT") {
             const body = await readJson(req);
-            store[ns] = body?.value;
-            writeStore(store);
+            if (!writeNs(ns, body?.value)) return send(res, 400, { error: "Invalid namespace" });
             return send(res, 200, { ok: true });
           }
           if (req.method === "DELETE") {
-            delete store[ns];
-            writeStore(store);
+            removeNs(ns);
             return send(res, 200, { ok: true });
           }
         }

@@ -13,8 +13,14 @@ import { server } from "./msw/server.js";
 
 beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 
-beforeEach(() => {
+beforeEach(async () => {
   localStorage.clear();
+  // The storage cache is a module singleton that survives between tests (localStorage.clear()
+  // doesn't touch it) — reset it so each test starts from an empty, un-hydrated cache. Imported
+  // dynamically (not at setup top-level) so it doesn't pre-bind gui/storage/* before a test file's
+  // own `vi.mock("../../storage/index.js")` can register (config.test.js relies on that mock).
+  const { resetCache } = await import("../storage/cache.js");
+  resetCache();
 });
 
 afterEach(() => {

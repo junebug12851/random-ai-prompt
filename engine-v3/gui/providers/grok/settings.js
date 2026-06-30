@@ -2,8 +2,10 @@
  * Grok (xAI) — provider-owned settings.
  * @module gui/providers/grok/settings
  */
+import defaults from "./grok.json";
+
 export default {
-  defaults: { model: "grok-2-image", batchSize: 1 },
+  defaults,
   fields: [
     {
       key: "model",

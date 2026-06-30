@@ -1,12 +1,14 @@
 /**
- * Browser-local "wrapper" presets: a named pair of DPL snippets — a START and an END —
- * that frame the prompt (the v3 root layer = open + middle + close). Stored in localStorage
- * only, the no-server equivalent of a saved wrapper. See notes/plans/v3-layers.md.
+ * "Wrapper" presets: a named pair of DPL snippets — a START and an END — that frame the prompt
+ * (the v3 root layer = open + middle + close). Persisted through the storage layer (a file in the
+ * user-settings folder locally; localStorage only online): the preset library under the `wrappers`
+ * namespace, the editable built-in Default under `wrapper-default`. See notes/plans/v3-layers.md.
  * @module gui/lib/wrapperStore
  */
+import { getCached, setCached, removeCached } from "../../storage/cache.js";
 
-const KEY = "rap.wrappers.v1";
-const DEFAULT_KEY = "rap.wrapper.default.v1";
+const KEY = "wrappers";
+const DEFAULT_KEY = "wrapper-default";
 
 // The hard-coded SEED for the built-in "Default" wrapper. Kept deliberately clean — NO quality-booster
 // spam (no "masterpiece, best quality, highly detailed, …"): the START is empty, and the END only adds
@@ -29,14 +31,9 @@ export const DEFAULT_WRAPPER = DEFAULT_WRAPPER_SEED;
  * @returns {{start: string, end: string}} The live default.
  */
 export function getDefaultWrapper() {
-  try {
-    const raw = localStorage.getItem(DEFAULT_KEY);
-    if (raw) {
-      const o = JSON.parse(raw);
-      return { start: o.start || "", end: o.end || "" };
-    }
-  } catch {
-    // fall through to seed
+  const o = getCached(DEFAULT_KEY);
+  if (o && (o.start !== undefined || o.end !== undefined)) {
+    return { start: o.start || "", end: o.end || "" };
   }
   return { ...DEFAULT_WRAPPER_SEED };
 }
@@ -47,11 +44,7 @@ export function getDefaultWrapper() {
  * @returns {void}
  */
 export function saveDefaultWrapper(value) {
-  try {
-    localStorage.setItem(DEFAULT_KEY, JSON.stringify({ start: value.start || "", end: value.end || "" }));
-  } catch {
-    // best-effort
-  }
+  setCached(DEFAULT_KEY, { start: value.start || "", end: value.end || "" });
 }
 
 /**
@@ -59,28 +52,16 @@ export function saveDefaultWrapper(value) {
  * @returns {void}
  */
 export function resetDefaultWrapper() {
-  try {
-    localStorage.removeItem(DEFAULT_KEY);
-  } catch {
-    // best-effort
-  }
+  removeCached(DEFAULT_KEY);
 }
 
-/** @returns {object} The wrapper presets (`{ name: { start, end } }`). */
+/** @returns {object} The wrapper presets (`{ name: { start, end } }`), a shallow copy. */
 function read() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || "{}");
-  } catch {
-    return {};
-  }
+  return { ...(getCached(KEY) || {}) };
 }
 /** @param {object} obj The presets to persist. @returns {void} */
 function write(obj) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(obj));
-  } catch {
-    // best-effort
-  }
+  setCached(KEY, obj);
 }
 
 /** @returns {object} All wrapper presets (`{ name: { start, end } }`). */

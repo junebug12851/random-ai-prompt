@@ -13,7 +13,12 @@ import { promisify } from "node:util";
 const execP = promisify(exec);
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
+// Legacy single-file store (pre-folder layout). Kept only so we can migrate it once.
 const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
+// The one user-settings folder: every namespace is a `.json` file under here, with `/`-delimited
+// namespaces (e.g. `providers/openai`) becoming subfolders (`user-settings/providers/openai.json`).
+// This is the local-mode equivalent of the browser's `localStorage` — all user storage in one place.
+export const USER_DIR = path.join(guiRoot, "user-settings");
 // The central output folder — every provider's generated images land here on disk
 // (engine-v3/output, the project's runtime output dir), served back via /api/output/<file>.
 export const OUTPUT_DIR = path.join(guiRoot, "..", "output");
@@ -136,23 +141,127 @@ export function send(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
-/** @returns {object} The on-disk store (or `{}`). */
-export function readStore() {
+/**
+ * Resolve a storage namespace to a safe absolute `.json` file under {@link USER_DIR}. Namespaces are
+ * `/`-delimited (e.g. `providers/openai`); each segment must be a clean filename. Rejects empty
+ * segments, `.`/`..`, and backslashes (path traversal). Also guards the final path stays within
+ * USER_DIR.
+ * @param {string} ns The namespace.
+ * @param {string} [dir] The base folder (defaults to {@link USER_DIR}).
+ * @returns {string|null} The absolute file path, or null if the namespace is invalid.
+ */
+export function nsToFile(ns, dir = USER_DIR) {
+  if (typeof ns !== "string" || !ns) return null;
+  const segments = ns.split("/");
+  for (const seg of segments) {
+    if (!seg || seg === "." || seg === ".." || seg.includes("\\") || seg.includes("\0")) return null;
+  }
+  const abs = path.join(dir, ...segments) + ".json";
+  const rel = path.relative(dir, abs);
+  if (rel.startsWith("..") || path.isAbsolute(rel)) return null;
+  return abs;
+}
+
+/**
+ * Read one namespace's value from its file.
+ * @param {string} ns The namespace.
+ * @param {string} [dir] The base folder (defaults to {@link USER_DIR}).
+ * @returns {*} The stored value, or null if absent / unreadable.
+ */
+export function readNs(ns, dir = USER_DIR) {
+  const fp = nsToFile(ns, dir);
+  if (!fp) return null;
   try {
-    return JSON.parse(fs.readFileSync(STORE_FILE, "utf8"));
+    return JSON.parse(fs.readFileSync(fp, "utf8"));
   } catch {
-    return {};
+    return null;
   }
 }
 
 /**
- * @param {object} store The store to persist.
+ * Write one namespace's value to its file (creating subfolders as needed).
+ * @param {string} ns The namespace.
+ * @param {*} value The JSON value to store.
+ * @param {string} [dir] The base folder (defaults to {@link USER_DIR}).
+ * @returns {boolean} True on success.
+ */
+export function writeNs(ns, value, dir = USER_DIR) {
+  const fp = nsToFile(ns, dir);
+  if (!fp) return false;
+  try {
+    fs.mkdirSync(path.dirname(fp), { recursive: true });
+    fs.writeFileSync(fp, JSON.stringify(value, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Delete one namespace's file (best-effort; prunes a now-empty subfolder).
+ * @param {string} ns The namespace.
+ * @param {string} [dir] The base folder (defaults to {@link USER_DIR}).
  * @returns {void}
  */
-export function writeStore(store) {
+export function removeNs(ns, dir = USER_DIR) {
+  const fp = nsToFile(ns, dir);
+  if (!fp) return;
   try {
-    fs.writeFileSync(STORE_FILE, JSON.stringify(store, null, 2));
+    fs.rmSync(fp, { force: true });
+    const parent = path.dirname(fp);
+    if (parent !== dir && fs.existsSync(parent) && fs.readdirSync(parent).length === 0) {
+      fs.rmdirSync(parent);
+    }
   } catch {
     // best-effort
+  }
+}
+
+/**
+ * List every stored namespace by walking the folder (subfolders ⇒ `/`-delimited namespaces).
+ * @param {string} [dir] The base folder (defaults to {@link USER_DIR}).
+ * @returns {string[]} The namespaces (no `.json` suffix, forward-slash separated).
+ */
+export function listNs(dir = USER_DIR) {
+  const out = [];
+  const walk = (d, prefix) => {
+    let entries;
+    try {
+      entries = fs.readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.isDirectory()) {
+        walk(path.join(d, e.name), prefix ? `${prefix}/${e.name}` : e.name);
+      } else if (e.isFile() && e.name.endsWith(".json")) {
+        const base = e.name.slice(0, -5);
+        out.push(prefix ? `${prefix}/${base}` : base);
+      }
+    }
+  };
+  walk(dir, "");
+  return out;
+}
+
+/**
+ * One-time migration of the legacy flat `.gui-storage.json` into the per-namespace folder layout.
+ * Each top-level key becomes a file (old `presets:<id>` colon keys map to a `presets/<id>` subpath).
+ * Runs only when the old file exists and the new folder doesn't, then renames the old file aside so
+ * it's preserved but not re-migrated. Best-effort — never throws into the server.
+ * @returns {void}
+ */
+export function migrateLegacyStore() {
+  try {
+    if (!fs.existsSync(STORE_FILE) || fs.existsSync(USER_DIR)) return;
+    const store = JSON.parse(fs.readFileSync(STORE_FILE, "utf8"));
+    if (store && typeof store === "object") {
+      for (const [key, value] of Object.entries(store)) {
+        writeNs(key.replace(/:/g, "/"), value);
+      }
+    }
+    fs.renameSync(STORE_FILE, `${STORE_FILE}.migrated`);
+  } catch {
+    // best-effort: a failed migration just means the old file is read fresh next start
   }
 }

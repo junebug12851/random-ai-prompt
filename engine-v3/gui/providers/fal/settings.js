@@ -3,8 +3,10 @@
  * size presets.
  * @module gui/providers/fal/settings
  */
+import defaults from "./fal.json";
+
 export default {
-  defaults: { model: "fal-ai/flux/schnell", imageSize: "square_hd", batchSize: 1 },
+  defaults,
   fields: [
     { key: "model", label: "Model", type: "select", optionsFrom: "models" },
     {

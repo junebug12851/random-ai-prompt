@@ -1,0 +1,5 @@
+{
+  "model": "black-forest-labs/flux-schnell",
+  "aspectRatio": "1:1",
+  "batchSize": 1
+}

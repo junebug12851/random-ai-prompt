@@ -2,13 +2,10 @@
  * Leonardo AI — provider-owned settings. `model` is a Leonardo model UUID (labeled).
  * @module gui/providers/leonardo/settings
  */
+import defaults from "./leonardo.json";
+
 export default {
-  defaults: {
-    model: "de7d3faf-762f-48e0-b3b7-9d0ac3a3fcf3",
-    imageWidth: 1024,
-    imageHeight: 1024,
-    batchSize: 1,
-  },
+  defaults,
   fields: [
     {
       key: "model",

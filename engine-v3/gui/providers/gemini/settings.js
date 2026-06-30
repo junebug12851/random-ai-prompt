@@ -2,8 +2,10 @@
  * Google Gemini — provider-owned settings. `model` is a Gemini image model id.
  * @module gui/providers/gemini/settings
  */
+import defaults from "./gemini.json";
+
 export default {
-  defaults: { model: "gemini-2.5-flash-image" },
+  defaults,
   fields: [
     {
       key: "model",
