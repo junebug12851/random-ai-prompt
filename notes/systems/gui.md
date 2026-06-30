@@ -19,6 +19,20 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 | `src/lib/catalog.js` | The token catalog (lists / expansions / dynamic prompts) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
 | `src/lib/providers/` | The generation providers (see below). |
+| `src/lib/dialog.js` / `src/components/DialogHost.jsx` | In-app dialog system (see below). |
+
+## In-app dialogs
+
+The SPA uses **no** native `alert` / `confirm` / `prompt`. Instead, `src/lib/dialog.js` is a tiny
+Promise-based external store exposing a singleton `dialog` with `alert` / `confirm` / `prompt`
+(resolve contract mirrors the natives: `confirm`→boolean, `prompt`→string|null, `alert`→undefined).
+A single `<DialogHost>` is mounted once at the app root (inside the i18n boundary) and renders the
+active request as an accessible modal via a portal, resolving the pending promise on the user's
+choice. It's a store (not React context) **on purpose**: the non-component hook/lib callers
+(`lib/home/useImageBatches.js`, `lib/manage/useManageTree.js`) call `dialog.confirm(...)` the same way
+a component does. Styling reuses the existing `.modal` / `.modal-overlay` / `.modal-actions` classes
+(+ `.modal-input`, `.btn-destructive`). Because the formerly-synchronous natives are now Promises,
+every caller `await`s — keep that in mind when adding a dialog to a previously-sync handler.
 
 ## The provider model
 

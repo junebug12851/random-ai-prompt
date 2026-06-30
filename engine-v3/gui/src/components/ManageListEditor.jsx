@@ -14,6 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { msgs } from "../lib/manage/listEditorMessages.js";
 import { readFile, writeFile, saveSidecar, fsOp, restoreDefault } from "../lib/manageApi.js";
+import { dialog } from "../lib/dialog.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { getProvider } from "../lib/providers/index.js";
@@ -296,7 +297,9 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
 
   async function restore() {
     if (
-      !confirm(intl.formatMessage(msgs.restoreConfirm, { name: `${entry.label}.${entry.ext}` }))
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.restoreConfirm, { name: `${entry.label}.${entry.ext}` }),
+      }))
     )
       return;
     setSaving(true);

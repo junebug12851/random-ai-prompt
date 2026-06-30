@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { readFile, saveSidecar, setMarker, fsOp } from "../lib/manageApi.js";
+import { dialog } from "../lib/dialog.js";
 
 const msgs = defineMessages({
   folderName: { id: "folderEd.folderName", defaultMessage: "Folder name" },
@@ -147,9 +148,14 @@ export default function ManageFolderEditor({ node, onChanged }) {
 
   async function remove() {
     if (
-      !window.confirm(
-        intl.formatMessage(msgs.deleteConfirm, { name: node.name, count: node.entryCount }),
-      )
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.deleteConfirm, {
+          name: node.name,
+          count: node.entryCount,
+        }),
+        confirmLabel: intl.formatMessage(msgs.deleteFolder),
+        destructive: true,
+      }))
     )
       return;
     setSaving(true);

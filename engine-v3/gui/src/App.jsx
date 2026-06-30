@@ -33,11 +33,13 @@ import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
 import { refreshCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
+import { dialog } from "./lib/dialog.js";
 import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
+import DialogHost from "./components/DialogHost.jsx";
 
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
 // is split into separate chunks the browser fetches only when the view is first opened —
@@ -100,6 +102,11 @@ const msgs = defineMessages({
     defaultMessage: "Delete this image and its metadata from disk? This can't be undone.",
     description: "Confirm dialog before deleting an image from disk",
   },
+  deleteAction: {
+    id: "app.deleteAction",
+    defaultMessage: "Delete",
+    description: "Accept-button label on the delete-image confirm dialog",
+  },
   nsfwProceed: {
     id: "app.nsfwProceed",
     defaultMessage: "NSFW mode is on. Continue with {provider} anyway?",
@@ -145,6 +152,7 @@ function HydratedApp() {
   return (
     <I18nProvider locale={settings.locale}>
       <AppShell settings={settings} setSettings={setSettings} />
+      <DialogHost />
     </I18nProvider>
   );
 }
@@ -320,14 +328,16 @@ function AppShell({ settings, setSettings }) {
   // `derivations` list), and the finished child slots into that strip once the feed refreshes.
   // Soft NSFW gate: if the provider about to be called is safe-for-work-only and NSFW mode is on,
   // ask once before proceeding. Returns false only when the user declines. Never hard-blocks.
-  function nsfwOkFor(provider) {
+  async function nsfwOkFor(provider) {
     if (!softLockedForNsfw(provider, settings.includeAdult)) return true;
-    return confirm(intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }));
+    return dialog.confirm({
+      message: intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }),
+    });
   }
 
   async function deriveImage(item, kind, source) {
     setDeriveError("");
-    if (!nsfwOkFor(getProvider(item.meta?.provider))) return;
+    if (!(await nsfwOkFor(getProvider(item.meta?.provider)))) return;
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setDerivations((d) => [...d, { id, parentPath: item.path, kind }]);
     try {
@@ -347,7 +357,7 @@ function AppShell({ settings, setSettings }) {
     setDeriveError("");
     const prov = getProvider(providerId);
     if (!prov?.loadUpscale) return;
-    if (!nsfwOkFor(prov)) return;
+    if (!(await nsfwOkFor(prov))) return;
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setDerivations((d) => [...d, { id, parentPath: item.path, kind: "resize" }]);
     try {
@@ -397,7 +407,14 @@ function AppShell({ settings, setSettings }) {
 
   // Delete an image (+ sidecar) from disk; in the single view, land on a neighbor (or leave).
   async function deleteItem(item) {
-    if (!confirm(intl.formatMessage(msgs.deleteConfirm))) return;
+    if (
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.deleteConfirm),
+        confirmLabel: intl.formatMessage(msgs.deleteAction),
+        destructive: true,
+      }))
+    )
+      return;
     await deleteImageFile(item.path);
     const i = items.findIndex((x) => x.path === item.path);
     const neighbor = items[i + 1] || items[i - 1] || null;

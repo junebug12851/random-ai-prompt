@@ -20,6 +20,7 @@ import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
 import { softLockedForNsfw } from "../lib/contentPolicy.js";
+import { dialog } from "../lib/dialog.js";
 import WrapperButton from "./WrapperFab.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
@@ -270,7 +271,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
 
   // Generate from whatever is typed; if the box is empty, fall back to the
   // current suggestion (or a fresh random roll) so it's never a no-op.
-  function buildPrompts() {
+  async function buildPrompts() {
     setError("");
     try {
       // Frame each prompt with the active wrapper (start, your prompt, end) — the v3 root layer.
@@ -320,7 +321,9 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       // prompt build, and never tell the user it's disallowed.
       const nsfwOk =
         !softLockedForNsfw(provider, settings.includeAdult) ||
-        confirm(intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }));
+        (await dialog.confirm({
+          message: intl.formatMessage(msgs.nsfwProceed, { provider: provider?.label }),
+        }));
       if (canGenerateImages && nsfwOk) out.forEach((p) => makeBatch(p.id, p.text, p.dpl));
     } catch (e) {
       setError(e.message || String(e));

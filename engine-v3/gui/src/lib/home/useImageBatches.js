@@ -12,6 +12,7 @@ import { rewritePrompt } from "../rewrite.js";
 import { expandPrompt } from "../promptEngine.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../output.js";
 import { effectiveKey } from "../sessionKeys.js";
+import { dialog } from "../dialog.js";
 import { cleanSnapshot } from "./snapshot.js";
 
 const msgs = defineMessages({
@@ -216,8 +217,8 @@ export function useImageBatches({ settings, provider, flat }) {
   }
 
   // Remove a single image — optionally deleting the file from disk.
-  function removeImage(promptId, batchId, img) {
-    if (isOutputFile(img) && confirm(intl.formatMessage(msgs.confirmDeleteImage))) {
+  async function removeImage(promptId, batchId, img) {
+    if (isOutputFile(img) && (await dialog.confirm({ message: intl.formatMessage(msgs.confirmDeleteImage) }))) {
       deleteImageFile(img);
     }
     setPrompts((ps) =>
@@ -237,10 +238,10 @@ export function useImageBatches({ settings, provider, flat }) {
   }
 
   // Remove a whole batch — optionally deleting its files from disk.
-  function removeBatch(promptId, batchId) {
+  async function removeBatch(promptId, batchId) {
     const b = prompts.find((x) => x.id === promptId)?.batches.find((y) => y.id === batchId);
     const imgs = b?.images || [];
-    if (imgs.some(isOutputFile) && confirm(intl.formatMessage(msgs.confirmDeleteBatch))) {
+    if (imgs.some(isOutputFile) && (await dialog.confirm({ message: intl.formatMessage(msgs.confirmDeleteBatch) }))) {
       imgs.forEach(deleteImageFile);
     }
     setPrompts((ps) =>
@@ -251,9 +252,9 @@ export function useImageBatches({ settings, provider, flat }) {
   }
 
   // Clear all of a prompt's images — optionally deleting from disk.
-  function clearImages(promptId) {
+  async function clearImages(promptId) {
     const imgs = (prompts.find((x) => x.id === promptId)?.batches || []).flatMap((b) => b.images);
-    if (imgs.some(isOutputFile) && confirm(intl.formatMessage(msgs.confirmDeletePromptImgs))) {
+    if (imgs.some(isOutputFile) && (await dialog.confirm({ message: intl.formatMessage(msgs.confirmDeletePromptImgs) }))) {
       imgs.forEach(deleteImageFile);
     }
     setPrompts((ps) => ps.map((x) => (x.id === promptId ? { ...x, batches: [] } : x)));
@@ -264,9 +265,9 @@ export function useImageBatches({ settings, provider, flat }) {
     (list || []).flatMap((p) => p.batches.flatMap((b) => b.images)).filter(isOutputFile);
 
   // Clear every result — optionally deleting all their image files from disk.
-  function clearAll() {
+  async function clearAll() {
     const imgs = allImagesOf(prompts);
-    if (imgs.length && confirm(intl.formatMessage(msgs.confirmClearAll, { count: imgs.length }))) {
+    if (imgs.length && (await dialog.confirm({ message: intl.formatMessage(msgs.confirmClearAll, { count: imgs.length }) }))) {
       imgs.forEach(deleteImageFile);
     }
     setPrompts([]);

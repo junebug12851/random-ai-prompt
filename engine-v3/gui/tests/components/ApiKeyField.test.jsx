@@ -3,10 +3,11 @@
  * (renders only for key-needing providers; session entry + explicit save).
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../testUtils.jsx";
 import ApiKeyField from "../../src/components/ApiKeyField.jsx";
+import { dialog } from "../../src/lib/dialog.js";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -31,7 +32,7 @@ describe("ApiKeyField", () => {
 
   it("enables Save once a key is typed and persists it on confirm", async () => {
     const user = userEvent.setup();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.spyOn(dialog, "confirm").mockResolvedValue(true);
     const setSettings = vi.fn();
     render(<ApiKeyField settings={{ provider: "openai", keys: {} }} setSettings={setSettings} />);
 
@@ -42,17 +43,19 @@ describe("ApiKeyField", () => {
     expect(save).toBeEnabled();
 
     await user.click(save);
+    await waitFor(() => expect(setSettings).toHaveBeenCalled());
     const updater = setSettings.mock.calls[0][0];
     expect(updater({ keys: {} })).toEqual({ keys: { openai: "sk-test" } });
   });
 
   it("does not persist when the save confirm is declined", async () => {
     const user = userEvent.setup();
-    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.spyOn(dialog, "confirm").mockResolvedValue(false);
     const setSettings = vi.fn();
     render(<ApiKeyField settings={{ provider: "openai", keys: {} }} setSettings={setSettings} />);
     await user.type(keyInput(), "sk-test");
     await user.click(screen.getByRole("button", { name: /save api key/i }));
+    await Promise.resolve();
     expect(setSettings).not.toHaveBeenCalled();
   });
 });
