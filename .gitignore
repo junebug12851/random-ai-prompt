@@ -50,3 +50,4 @@ engine-v3/playwright-report/
 engine-v3/test-results/
 engine-v3/scripts/list-cleanup/out/
 engine-v3/tmp/
+engine-v3/.lighthouseci/
