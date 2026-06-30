@@ -247,6 +247,17 @@ body {
   display: inline-flex;
   color: var(--faint);
 }
+.links-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* Divider between the external links and the app's own legal pages. */
+.links-sep {
+  height: 1px;
+  margin: 0.35rem 0.15rem;
+  background: var(--border-soft);
+}
 
 /* ---------- NSFW switch (right-aligned in the title bar) ---------- */
 .nsfw-toggle {
