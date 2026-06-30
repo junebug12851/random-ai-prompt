@@ -114,9 +114,13 @@ able to destabilize the running app, so it lands as its own reviewable step with
 
 - [x] `gui/storage/merge.js` — deep merge + diff, with tests.
 - [x] `gui/storage/config.js` — versioned load/save + cascade, with tests.
-- [ ] Dev-server `/api/storage` → `user-settings/` folder layout (+ old-file migration, list/clear).
-- [ ] Route app settings / customStore / wrapperStore through the config layer (async hydrate +
-      legacy migration). No direct `localStorage` in local mode.
-- [ ] Provider params via cascade (defaults-then-`providers/<id>` override, save diff only).
+- [x] Dev-server `/api/storage` → `user-settings/` folder layout (+ old-file migration, list).
+- [x] Provider defaults extracted to literal `<id>.json` sidecars (static providers).
+- [x] Route app settings / customStore / wrapperStore through the layer via the boot-time hydration
+      cache (`gui/storage/cache.js`); legacy `localStorage` keys migrated forward. No direct
+      `localStorage` in local mode.
+- [x] Provider params persisted as per-provider override files (`providers/<id>`), reassembled into
+      `providerParams` on load.
 - [ ] Manage "Storage / Cache" panel: list, view, delete, clear-all, export/import.
-- [ ] Full gate green (lint, smoke, test:unit, test:web, gui build) + notes/version/credits.
+- [x] Gate green through the wiring (lint, smoke, test:unit 242, test:web 265, gui build) +
+      notes/version (2.29.0). Manage panel + credits still to come.
