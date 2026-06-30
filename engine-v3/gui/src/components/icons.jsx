@@ -104,3 +104,33 @@ export const ExternalLinkIcon = () => (
     <path d="M21 14v7H3V3h7" />
   </svg>
 );
+
+// Shield (privacy policy).
+export const ShieldIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+// Document with lines (terms & conditions).
+export const FileTextIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <path d="M14 2v6h6" />
+    <line x1="8" y1="13" x2="16" y2="13" />
+    <line x1="8" y1="17" x2="16" y2="17" />
+    <line x1="8" y1="9" x2="10" y2="9" />
+  </svg>
+);
+
+// Cookie (cookies policy).
+export const CookieIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5z" />
+    <path d="M8.5 8.5h.01" />
+    <path d="M15 9h.01" />
+    <path d="M8 14h.01" />
+    <path d="M13 15h.01" />
+    <path d="M16 14h.01" />
+  </svg>
+);
