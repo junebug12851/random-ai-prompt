@@ -1,18 +1,37 @@
 /**
- * The header overflow menu: a single icon button that opens a small popover of external links —
- * the project's GitHub repo, the live web app's home (the fairyfox hub), and the project docs.
- * Lives in the top bar on every tab. Each item opens in a new tab with `rel="noopener noreferrer"`.
+ * The header overflow menu: a single icon button that opens a small popover of links —
+ * the project's GitHub repo, the live web app's home (the fairyfox hub), and the project docs,
+ * followed (below a separator) by the app's own legal pages (Privacy, Terms, Cookies).
+ * Lives in the top bar on every tab. Every item opens in a new tab with `rel="noopener noreferrer"`;
+ * the legal pages are same-origin static pages under `/legal/`, opened in a new tab too so the
+ * app keeps its in-memory state.
  * @module gui/components/LinksMenu
  */
 import { useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import { MenuIcon, GitHubIcon, BookIcon, HomeIcon, ExternalLinkIcon } from "./icons.jsx";
+import {
+  MenuIcon,
+  GitHubIcon,
+  BookIcon,
+  HomeIcon,
+  ExternalLinkIcon,
+  ShieldIcon,
+  FileTextIcon,
+  CookieIcon,
+} from "./icons.jsx";
 
 // External destinations. Kept here (not in `online.js`) so the menu owns its own link set.
 const LINKS = {
   github: "https://github.com/junebug12851/random-ai-prompt",
   docs: "https://fairyfox.io/random-ai-prompt/",
   home: "https://fairyfox.io",
+};
+
+// The app's own legal pages — same-origin static pages served from `gui/public/legal/`.
+const LEGAL = {
+  privacy: "/legal/privacy.html",
+  terms: "/legal/terms.html",
+  cookies: "/legal/cookies.html",
 };
 
 const msgs = defineMessages({
@@ -24,6 +43,12 @@ const msgs = defineMessages({
   docsDesc: { id: "linksMenu.docsDesc", defaultMessage: "API reference and developer guide" },
   home: { id: "linksMenu.home", defaultMessage: "fairyfox.io" },
   homeDesc: { id: "linksMenu.homeDesc", defaultMessage: "The fairyfox project home" },
+  privacy: { id: "linksMenu.privacy", defaultMessage: "Privacy Policy" },
+  privacyDesc: { id: "linksMenu.privacyDesc", defaultMessage: "What we collect (almost nothing)" },
+  terms: { id: "linksMenu.terms", defaultMessage: "Terms & Conditions" },
+  termsDesc: { id: "linksMenu.termsDesc", defaultMessage: "The rules for using the app" },
+  cookies: { id: "linksMenu.cookies", defaultMessage: "Cookies Policy" },
+  cookiesDesc: { id: "linksMenu.cookiesDesc", defaultMessage: "We don't use cookies" },
 });
 
 /**
@@ -43,10 +68,19 @@ export default function LinksMenu() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const items = [
-    { href: LINKS.github, Icon: GitHubIcon, label: msgs.github, desc: msgs.githubDesc },
-    { href: LINKS.docs, Icon: BookIcon, label: msgs.docs, desc: msgs.docsDesc },
-    { href: LINKS.home, Icon: HomeIcon, label: msgs.home, desc: msgs.homeDesc },
+  // `external: true` items get the little outbound-link glyph; the legal pages are part of the app
+  // (same origin), so they omit it even though they also open in a new tab.
+  const groups = [
+    [
+      { href: LINKS.github, Icon: GitHubIcon, label: msgs.github, desc: msgs.githubDesc, external: true },
+      { href: LINKS.docs, Icon: BookIcon, label: msgs.docs, desc: msgs.docsDesc, external: true },
+      { href: LINKS.home, Icon: HomeIcon, label: msgs.home, desc: msgs.homeDesc, external: true },
+    ],
+    [
+      { href: LEGAL.privacy, Icon: ShieldIcon, label: msgs.privacy, desc: msgs.privacyDesc },
+      { href: LEGAL.terms, Icon: FileTextIcon, label: msgs.terms, desc: msgs.termsDesc },
+      { href: LEGAL.cookies, Icon: CookieIcon, label: msgs.cookies, desc: msgs.cookiesDesc },
+    ],
   ];
 
   return (
@@ -65,27 +99,34 @@ export default function LinksMenu() {
         <>
           <div className="links-scrim" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="links-pop" role="menu" aria-label={intl.formatMessage(msgs.links)}>
-            {items.map(({ href, Icon, label, desc }) => (
-              <a
-                key={href}
-                className="links-item"
-                role="menuitem"
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setOpen(false)}
-              >
-                <span className="links-item-icon" aria-hidden="true">
-                  <Icon />
-                </span>
-                <span className="links-item-text">
-                  <span className="links-item-label">{intl.formatMessage(label)}</span>
-                  <span className="links-item-desc">{intl.formatMessage(desc)}</span>
-                </span>
-                <span className="links-item-ext" aria-hidden="true">
-                  <ExternalLinkIcon />
-                </span>
-              </a>
+            {groups.map((items, gi) => (
+              <div key={gi} className="links-group" role="group">
+                {gi > 0 && <div className="links-sep" role="separator" />}
+                {items.map(({ href, Icon, label, desc, external }) => (
+                  <a
+                    key={href}
+                    className="links-item"
+                    role="menuitem"
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="links-item-icon" aria-hidden="true">
+                      <Icon />
+                    </span>
+                    <span className="links-item-text">
+                      <span className="links-item-label">{intl.formatMessage(label)}</span>
+                      <span className="links-item-desc">{intl.formatMessage(desc)}</span>
+                    </span>
+                    {external && (
+                      <span className="links-item-ext" aria-hidden="true">
+                        <ExternalLinkIcon />
+                      </span>
+                    )}
+                  </a>
+                ))}
+              </div>
             ))}
           </div>
         </>

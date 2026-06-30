@@ -95,6 +95,22 @@ browser data loader). The source locale `en` needs no catalog — react-intl ren
 `defaultMessage` kept in the bundle (`babel-plugin-formatjs` `removeDefaultMessage: false`). Regenerate
 catalogs with `npm run i18n` after touching messages.
 
+### SPA fonts — self-hosted via @fontsource (added 2.30.1)
+
+The SPA's fonts are **self-hosted** (no Google Fonts request — removes the IP-to-Google transfer). In
+`gui/package.json` as devDependencies, used only as the **source** of the `.woff2` files:
+
+| Package | Purpose |
+|---------|---------|
+| `@fontsource/maven-pro` | Source of the body-font `.woff2` (weights 400/500/600/700, latin). |
+| `@fontsource/space-grotesk` | Source of the display-font `.woff2` (weights 500/600/700, latin). |
+
+The actual files shipped are the seven `gui/public/fonts/*-latin-<wt>-normal.woff2` (committed static
+assets) declared via `@font-face` in `gui/public/fonts/fonts.css`, which both `index.html` and the
+static `public/legal/*.html` pages load. The packages aren't imported at build or runtime — to refresh
+fonts, `npm i` then re-copy `node_modules/@fontsource/<f>/files/<f>-latin-<wt>-normal.woff2` into
+`public/fonts/`.
+
 ## Bumping deps
 
 - Update `package.json`, run `npm install`, then **re-run the verification** in

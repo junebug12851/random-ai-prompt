@@ -277,6 +277,20 @@
       "value": "]"
     }
   ],
+  "app.tab.gallery.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɓřǿǿẇşḗḗ ẏǿǿŭŭř şȧȧṽḗḗḓ īḿȧȧɠḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.tab.generate": [
     {
       "type": 0,
@@ -285,6 +299,20 @@
     {
       "type": 0,
       "value": "Ɠḗḗƞḗḗřȧȧŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.generate.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿḿƥǿǿşḗḗ ƥřǿǿḿƥŧş ȧȧƞḓ ɠḗḗƞḗḗřȧȧŧḗḗ īḿȧȧɠḗḗş"
     },
     {
       "type": 0,
@@ -305,6 +333,20 @@
       "value": "]"
     }
   ],
+  "app.tab.manage.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗḓīŧ ŧħḗḗ ƀŭŭīŀḓīƞɠ ƀŀǿǿƈķş ȧȧƞḓ ẇǿǿřḓ ŀīşŧş ǿǿƞ ḓīşķ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.tab.single": [
     {
       "type": 0,
@@ -313,6 +355,20 @@
     {
       "type": 0,
       "value": "Şīƞɠŀḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.tab.single.desc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ṽīḗḗẇ ǿǿƞḗḗ īḿȧȧɠḗḗ ŭŭƥ ƈŀǿǿşḗḗ — ḓḗḗŧȧȧīŀş, řḗḗ-řǿǿŀŀş, ȧȧƞḓ řḗḗşīẑḗḗş"
     },
     {
       "type": 0,
@@ -2562,7 +2618,7 @@
     },
     {
       "type": 0,
-      "value": "Ȧŀŀ"
+      "value": "ȧȧŀŀ"
     },
     {
       "type": 0,
@@ -3429,6 +3485,202 @@
     {
       "type": 0,
       "value": "Ẇīḓŧħ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.cookies": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈǿǿǿǿķīḗḗş Ƥǿǿŀīƈẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.cookiesDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇḗḗ ḓǿǿƞ'ŧ ŭŭşḗḗ ƈǿǿǿǿķīḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.docs": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřǿǿĵḗḗƈŧ ḓǿǿƈş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.docsDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ȦƤĪ řḗḗƒḗḗřḗḗƞƈḗḗ ȧȧƞḓ ḓḗḗṽḗḗŀǿǿƥḗḗř ɠŭŭīḓḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.github": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƓīŧĦŭŭƀ řḗḗƥǿǿşīŧǿǿřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.githubDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şǿǿŭŭřƈḗḗ ƈǿǿḓḗḗ, īşşŭŭḗḗş, ȧȧƞḓ řḗḗŀḗḗȧȧşḗḗş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.home": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ƒȧȧīřẏƒǿǿẋ.īǿǿ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.homeDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ ƒȧȧīřẏƒǿǿẋ ƥřǿǿĵḗḗƈŧ ħǿǿḿḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.links": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŀīƞķş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.menu": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḿḗḗƞŭŭ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.privacy": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƥřīṽȧȧƈẏ Ƥǿǿŀīƈẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.privacyDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ẇħȧȧŧ ẇḗḗ ƈǿǿŀŀḗḗƈŧ (ȧȧŀḿǿǿşŧ ƞǿǿŧħīƞɠ)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.terms": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧḗḗřḿş & Ƈǿǿƞḓīŧīǿǿƞş"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "linksMenu.termsDesc": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ŧħḗḗ řŭŭŀḗḗş ƒǿǿř ŭŭşīƞɠ ŧħḗḗ ȧȧƥƥ"
     },
     {
       "type": 0,

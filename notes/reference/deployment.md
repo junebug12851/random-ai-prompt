@@ -101,14 +101,14 @@ publishing: `gh workflow run release.yml -f dry_run=true`, then `gh run watch`.
 The `gui/` SPA is built and hosted on Netlify, independent of the GitHub release:
 
 ```
-command   = npm --prefix gui install && npm --prefix gui run build
-publish   = gui/dist
-functions = gui/netlify/functions
+command = npm --prefix gui install && npm --prefix gui run build
+publish = gui/dist
 ```
 
-`/api/*` routes to the serverless functions (the stateless BYOK generation proxy — see
-[`../systems/gui.md`](../systems/gui.md)); every other path falls back to `index.html` for
-client-side routing.
+The deployed site is fully static — **no `functions` and no `/api/*` redirect** (both were removed once
+the serverless proxy was retired, 2.30.1). Every path falls back to `index.html` for client-side
+routing, except real files in the publish dir (`/legal/*.html`, `/fonts/*`), which are served directly
+and take precedence over the SPA fallback.
 
 **`VITE_ONLINE=true` is set in `netlify.toml` itself** (`[build.environment]`), so a Netlify build is
 the **online variant** with no extra dashboard config. (Vite inlines `import.meta.env.VITE_ONLINE` at
@@ -130,9 +130,11 @@ In the online build the disabled-with-tooltip set is therefore: Gallery / Single
 providers (ComfyUI/Forge/SDNext/local-webui), the three non-CORS hosted providers above, and the NSFW
 toggle — all greyed with a click-through to the full desktop version (`gui/src/lib/online.js`).
 
-The Netlify functions (`gui/netlify/functions/`) and `server/dispatch.js` remain in the repo for the
-**local** dev proxy (which the desktop full version uses for the non-CORS providers); the deployed
-online site simply never calls them.
+The standalone Netlify function files (`gui/netlify/functions/generate.js` + `rewrite.js`) were
+**removed (2.30.1)** — they were only ever invoked by Netlify's runtime, and the online site no longer
+uses them. `server/dispatch.js` and the Vite dev middleware (`gui/vite-plugin-api.js`, serving
+`/api/generate` + `/api/rewrite`) **remain** as the **local** dev proxy that the desktop full version
+uses for the non-CORS providers.
 
 ### Online demo deploy — `prompt.fairyfox.io`
 
@@ -189,7 +191,8 @@ Alternatively the repo can be git-connected in the Netlify UI instead of using t
   re-enabled 2026-06-29 after the engine-v3 doc-build straddle fix) and the version-gated software
   Release (`release.yml`). GitHub Pages source is **GitHub Actions** (already configured); the docs
   serve under `fairyfox.io/random-ai-prompt/`.
-- The hosted BYOK provider dispatch in `gui/netlify/functions/generate.js` is a stub (migration
-  phase 2). Local generation works today; the hosted path is wired but not yet pointed at a provider.
+- The serverless hosted-proxy path was **retired** (its `gui/netlify/functions/` files removed, 2.30.1);
+  the online build is browser-direct only, and non-CORS providers are locked online (use the desktop
+  app). `server/dispatch.js` + the Vite dev middleware remain for the local dev proxy.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged
   binary is ever wanted.

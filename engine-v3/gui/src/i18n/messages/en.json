@@ -64,14 +64,26 @@
   "app.tab.gallery": {
     "defaultMessage": "Gallery"
   },
+  "app.tab.gallery.desc": {
+    "defaultMessage": "Browse your saved images"
+  },
   "app.tab.generate": {
     "defaultMessage": "Generate"
+  },
+  "app.tab.generate.desc": {
+    "defaultMessage": "Compose prompts and generate images"
   },
   "app.tab.manage": {
     "defaultMessage": "Manage"
   },
+  "app.tab.manage.desc": {
+    "defaultMessage": "Edit the building blocks and word lists on disk"
+  },
   "app.tab.single": {
     "defaultMessage": "Single"
+  },
+  "app.tab.single.desc": {
+    "defaultMessage": "View one image up close — details, re-rolls, and resizes"
   },
   "blockEd.ariaDpl": {
     "defaultMessage": "Generator DPL"
@@ -495,7 +507,7 @@
     "defaultMessage": "AI"
   },
   "home.all": {
-    "defaultMessage": "All"
+    "defaultMessage": "all"
   },
   "home.ariaNegative": {
     "defaultMessage": "Negative prompt (DPL)"
@@ -658,6 +670,48 @@
   },
   "inlineImg.width": {
     "defaultMessage": "Width"
+  },
+  "linksMenu.cookies": {
+    "defaultMessage": "Cookies Policy"
+  },
+  "linksMenu.cookiesDesc": {
+    "defaultMessage": "We don't use cookies"
+  },
+  "linksMenu.docs": {
+    "defaultMessage": "Project docs"
+  },
+  "linksMenu.docsDesc": {
+    "defaultMessage": "API reference and developer guide"
+  },
+  "linksMenu.github": {
+    "defaultMessage": "GitHub repository"
+  },
+  "linksMenu.githubDesc": {
+    "defaultMessage": "Source code, issues, and releases"
+  },
+  "linksMenu.home": {
+    "defaultMessage": "fairyfox.io"
+  },
+  "linksMenu.homeDesc": {
+    "defaultMessage": "The fairyfox project home"
+  },
+  "linksMenu.links": {
+    "defaultMessage": "Links"
+  },
+  "linksMenu.menu": {
+    "defaultMessage": "Menu"
+  },
+  "linksMenu.privacy": {
+    "defaultMessage": "Privacy Policy"
+  },
+  "linksMenu.privacyDesc": {
+    "defaultMessage": "What we collect (almost nothing)"
+  },
+  "linksMenu.terms": {
+    "defaultMessage": "Terms & Conditions"
+  },
+  "linksMenu.termsDesc": {
+    "defaultMessage": "The rules for using the app"
   },
   "listEd.addEntriesFirst": {
     "defaultMessage": "Add a few entries first so the AI has something to learn from."

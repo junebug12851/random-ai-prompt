@@ -203,6 +203,33 @@ assistance the project builds on. Keep it current **by default, without being as
 person, data source, framework, tool, service, or AI assistant contributes, add them under the right
 section. (It's the analog of an in-app credits screen; treat it as a living document.)
 
+## Keep the Legal Docs Accurate — Your Responsibility (a standing instruction)
+
+The app's three legal documents live as self-hosted static pages at
+`engine-v3/gui/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
+`.links-sep` separator; contact address `fairy@fairyfox.io`). They were rewritten to describe **what the
+app actually does** — no accounts, no analytics/cookies/tracking, settings + bring-your-own API keys
+stored only on the user's device (`rap.store.` localStorage / local files), prompts + keys sent directly
+from the device to the chosen provider (no server relay — providers that can't be called directly from a
+browser are locked out of the web build), and Netlify as the hosting processor. Fonts are **self-hosted**
+from `gui/public/fonts/`
+(no Google Fonts request), so the chosen AI provider + the Netlify hosting logs are the only third-party
+data flows. They cover web + desktop + the future mobile/Android build; age is 18+ (desktop NSFW
+capability).
+
+Keep them accurate **by default, without being asked** — they are a living compliance surface, like the
+credits and the notes. **Whenever a change touches the app's data practices, re-read the three pages and
+update them in the same change** (and bump their "Last updated" date). Concretely, treat these as
+triggers to re-check the docs: adding/removing an analytics, telemetry, error-reporting, or A/B tool;
+introducing any cookie or server-side storage of user data; adding/removing a third-party network
+dependency (fonts, CDNs, providers) or a new provider/proxy path; changing what's stored locally or how
+keys are handled; adding accounts/auth; shipping the mobile app or app-store distribution; or changing
+hosting. If a change makes a statement in the docs untrue, fixing the docs is part of that change — not a
+follow-up. When unsure whether a change is material, flag it and ask. (Not legal advice; for high-stakes
+changes recommend a real review.) Fonts are now self-hosted (`gui/public/fonts/`, sourced from the
+`@fontsource` packages), which removed the former IP-to-Google transfer — if you ever re-add a CDN font
+or any other third-party request, update the docs to disclose it.
+
 ## Maintaining the Notes — Your Responsibility
 
 The notes are a **living document**. Keep them current as you work — don't wait to be asked.
@@ -219,6 +246,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Made / rejected a structural decision | `notes/decisions/architecture.md` / `notes/decisions/rejected.md` |
 | Finished or unblocked a task | Update `notes/plans/next-steps.md` |
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
+| Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `engine-v3/gui/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
 | Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run. See `notes/reference/process-reports.md` |
