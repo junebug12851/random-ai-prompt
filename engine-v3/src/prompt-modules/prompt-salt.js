@@ -19,13 +19,13 @@
  * @brief Pipeline stage: inject the {salt} / [n] seed-salt (random or incrementing). Notes: notes/reference/prompt-dsl.md.
  */
 
-import _ from "lodash";
+import { randomInt } from "../helpers/random.js";
 
 /**
  * @returns {string} A fresh random salt token like `[1234567890]`.
  */
 function getRndSalt() {
-  return `[${_.random(1000000000, 9999999999, false)}]`;
+  return `[${randomInt(1000000000, 9999999999)}]`;
 }
 
 /**

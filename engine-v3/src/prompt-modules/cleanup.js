@@ -19,8 +19,6 @@
  * @brief Pipeline stage: the final whitespace / comma / AND tidy. Notes: notes/reference/prompt-dsl.md.
  */
 
-import _ from "lodash";
-
 /*
  * 1. Remove empty commas that don't look good
  * 2. Remove extra spaces that don't look good

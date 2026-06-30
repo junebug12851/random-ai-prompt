@@ -12,23 +12,14 @@
  * toggle (the anime word lists mix SFW + explicit adult tags and need a proper split first).
  * @module gui/components/Home
  */
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import {
-  getBlocks,
-  generatePrompt,
-  renderWrapperPart,
-  expandPrompt,
-  subscribeCatalog,
-} from "../lib/promptEngine.js";
+import { generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
 import { flattenForProvider } from "../lib/useProvider.js";
-import { ingestImage, isOutputFile, deleteImageFile } from "../lib/output.js";
 import { softLockedForNsfw } from "../lib/contentPolicy.js";
-import { effectiveKey } from "../lib/sessionKeys.js";
-import { rewritePrompt } from "../lib/rewrite.js";
 import WrapperButton from "./WrapperFab.jsx";
 import PromptResult from "./PromptResult.jsx";
 import Settings from "./Settings.jsx";
@@ -37,164 +28,14 @@ import LivePreview from "./LivePreview.jsx";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
 import DplStatus from "./DplStatus.jsx";
+import BlockPalette from "./home/BlockPalette.jsx";
+import { ShareIcon, ShuffleIcon, SparkleIcon, WandIcon, TagIcon, GearIcon } from "./icons.jsx";
+import { useImageBatches } from "../lib/home/useImageBatches.js";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
 
-// App-orchestration keys that don't describe HOW an image was made — kept out of the sidecar's
-// settings snapshot so the single view's details table reflects only the provider's own knobs
-// (e.g. an OpenAI image shouldn't carry another provider's sampler/steps from `providerParams`).
-const SNAPSHOT_DROP = new Set([
-  "keys", "providerParams", "prompt", "promptCount", "locale", "includeAdult", "autoFix",
-  "autoKeyword", "autoAddFx", "autoAddArtists", "rewriteProvider", "wrapper", "wrapperName",
-  "wrapperParams", "useAutoSections", "provider",
-]);
-
-/**
- * A clean, provider-scoped settings snapshot for an image sidecar: scalar provider knobs only,
- * with app-orchestration keys, nested objects (like `providerParams`), and empties dropped.
- * @param {object} obj The flattened settings (`flat` + the final negative prompt).
- * @returns {object} The trimmed snapshot.
- */
-function cleanSnapshot(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (SNAPSHOT_DROP.has(k)) continue;
-    if (v === null || v === undefined || v === "") continue;
-    if (typeof v === "object" || typeof v === "function") continue;
-    out[k] = v;
-  }
-  return out;
-}
-
-// A group's flat `items` array is a run of [folder pill, its chips, folder pill, its chips, …].
-// Split it back into folder sub-categories so the palette can offer an "All" view plus one sub-tab
-// per folder. A pill that carries a token (an insertable group like {#scene} / {word}) is kept on
-// its category so the folder sub-tab can offer the whole-group insert at the top.
-// Categories that get NO sub-tab of their own — the wildcard/engine pseudo-folders. They still
-// appear in the All view as a normal category pill (header + their buttons); they just don't earn a
-// folder shortcut in the tree. Every real folder (scene, subject, user, …) keeps its sub-tab.
-const MERGED_CATS = ["any", "special"];
-
-// The folder sub-categories to show for a group: real folders only (the merged wildcard dropped).
-// For Lists, a folder holding a single list is folded into All too, unless its sidecar forces it
-// (`forceList`). Their buttons still appear under All regardless.
-function foldersOf(group) {
-  let cats = splitCats(group.items).filter((c) => !MERGED_CATS.includes(c.label));
-  if (group.title === "Lists") cats = cats.filter((c) => c.items.length > 1 || c.forceList);
-  return cats;
-}
-
-function splitCats(items) {
-  const cats = [];
-  let cur = null;
-  for (const it of items) {
-    if (it.category) {
-      cur = {
-        label: it.label,
-        token: it.token,
-        description: it.description,
-        forceList: it.forceList,
-        items: [],
-      };
-      cats.push(cur);
-    } else {
-      if (!cur) {
-        cur = { label: "misc", items: [] };
-        cats.push(cur);
-      }
-      cur.items.push(it);
-    }
-  }
-  return cats;
-}
-
-// Crisp monochrome action icons (stroke = currentColor) so the four field
-// buttons read as one cohesive set.
-const ico = {
-  width: 18,
-  height: 18,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-};
-const ShareIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <circle cx="18" cy="5" r="3" />
-    <circle cx="6" cy="12" r="3" />
-    <circle cx="18" cy="19" r="3" />
-    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-  </svg>
-);
-const ShuffleIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <polyline points="16 3 21 3 21 8" />
-    <line x1="4" y1="20" x2="21" y2="3" />
-    <polyline points="21 16 21 21 16 21" />
-    <line x1="15" y1="15" x2="21" y2="21" />
-    <line x1="4" y1="4" x2="9" y2="9" />
-  </svg>
-);
-const SparkleIcon = () => (
-  <svg {...ico} fill="currentColor" stroke="none" aria-hidden="true">
-    <path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" />
-    <path d="M19 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" />
-  </svg>
-);
-const WandIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h0M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5" />
-  </svg>
-);
-const TagIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L3 13V3h10l7.59 7.59a2 2 0 0 1 0 2.82z" />
-    <line x1="7" y1="7" x2="7.01" y2="7" />
-  </svg>
-);
-const GearIcon = () => (
-  <svg {...ico} aria-hidden="true">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-);
-
 const msgs = defineMessages({
   aiFallback: { id: "home.aiFallback", defaultMessage: "AI" },
-  rewriteNoKey: {
-    id: "home.rewriteNoKey",
-    defaultMessage: "Auto-rewrite is on but the rewrite provider has no API key (gear → Auto-fix).",
-  },
-  rewriteFailed: { id: "home.rewriteFailed", defaultMessage: "Auto-rewrite failed: {error}" },
-  confirmDeleteImage: {
-    id: "home.confirmDeleteImage",
-    defaultMessage:
-      "Delete this image from disk too?\n\nOK = delete the file\nCancel = just remove it from view",
-  },
-  confirmDeleteBatch: {
-    id: "home.confirmDeleteBatch",
-    defaultMessage: "Delete this batch's image files from disk too?",
-  },
-  confirmDeletePromptImgs: {
-    id: "home.confirmDeletePromptImgs",
-    defaultMessage: "Delete all of this prompt's image files from disk too?",
-  },
-  confirmClearAll: {
-    id: "home.confirmClearAll",
-    defaultMessage:
-      "Clear all results — delete their {count, plural, one {# image file} other {# image files}} from disk too?",
-  },
-  buildingBlocks: { id: "home.buildingBlocks", defaultMessage: "Building blocks" },
-  searchBlocks: { id: "home.searchBlocks", defaultMessage: "Search blocks…" },
-  noBlocks: { id: "home.noBlocks", defaultMessage: "No building blocks match “{query}”." },
-  all: { id: "home.all", defaultMessage: "All" },
-  moreFilter: {
-    id: "home.moreFilter",
-    defaultMessage: "+{count} more — keep typing to filter",
-  },
   composeModeAria: {
     id: "home.composeModeAria",
     defaultMessage: "Edit the prompt or the negative prompt",
@@ -281,11 +122,6 @@ const msgs = defineMessages({
  */
 export default function Home({ settings, setSettings, onOpenImage }) {
   const intl = useIntl();
-  const [version, setVersion] = useState(0); // bump to refresh custom blocks
-  const [query, setQuery] = useState("");
-  const [activeCat, setActiveCat] = useState(""); // top group: Blocks | Lists
-  const [activeSub, setActiveSub] = useState("All"); // folder sub-tab within the active group
-  const [prompts, setPrompts] = useState([]);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState("");
   const [panel, setPanel] = useState(""); // "" | "save" | "share"
@@ -297,16 +133,6 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
   const [tip, setTip] = useState(null); // { token, label, description, x, y }
   const [tipEx, setTipEx] = useState("");
-
-  // Rebuild the block palette when custom blocks change or the NSFW switch flips (nsfw-flagged
-  // generators are hidden entirely when adult is off).
-  const blocks = useMemo(
-    () => getBlocks({ includeAdult: settings.includeAdult }),
-    [version, settings.includeAdult],
-  );
-
-  // Rebuild the palette when the catalog hot-applies (a Manage edit / refresh re-reads disk).
-  useEffect(() => subscribeCatalog(() => setVersion((v) => v + 1)), []);
 
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
   const provider = getProvider(settings.provider);
@@ -323,9 +149,6 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const hasRewrite = !!rewriteProv;
   const [providerFmt, setProviderFmt] = useState(null); // syntax/plain tier: prompt formatter
   const [providerDefaults, setProviderDefaults] = useState({});
-  const [imgError, setImgError] = useState("");
-  const idCounter = useRef(0);
-  const nextId = () => ++idCounter.current;
   const promptEditorRef = useRef(null);
 
   useEffect(() => {
@@ -346,232 +169,19 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const flat = flattenForProvider(settings, providerDefaults);
   const canGenerateImages = provider?.tier === "api" && !!provider?.loadGenerate;
 
-  // Add a fresh batch of images beneath a prompt via the active provider's generate adapter.
-  // `promptText` is passed for auto-render (state may not be committed yet); manual clicks omit it.
-  async function makeBatch(promptId, promptText, promptDplArg) {
-    let text = promptText ?? prompts.find((x) => x.id === promptId)?.text;
-    if (!text) return;
-    const entry0 = prompts.find((x) => x.id === promptId);
-    // Each prompt + negative is recorded in three layers in the sidecar: the DPL source, the
-    // deterministic engine roll, and (when auto-fix is on) the AI translation. `final` is what
-    // was actually sent. `*Arg` params carry the values for auto-render, where the just-added
-    // entry isn't in committed state yet.
-    const promptDpl = promptDplArg ?? entry0?.dpl ?? null;
-    let promptRoll = text; // deterministic engine roll (pre-AI)
-    let promptAi = null; // AI translation, or null
-    if (entry0?.original) {
-      // This prompt was already auto-fixed on a prior batch — reuse that mapping.
-      promptRoll = entry0.original;
-      promptAi = entry0.text;
-      text = entry0.text;
-    }
-    const batchId = nextId();
-    const count = Math.max(1, Number(flat.batchSize) || 1);
-    setImgError("");
-    setPrompts((ps) =>
-      ps.map((x) =>
-        x.id === promptId
-          ? { ...x, batches: [{ id: batchId, busy: true, count, images: [] }, ...x.batches] }
-          : x,
-      ),
-    );
-    try {
-      // Two independent rewrite passes share one text provider: prose auto-fix (`autoFix`) and
-      // keyword/tag-list translation (`autoKeyword`). When both are on they chain — fix first,
-      // then keyword-translate the fixed text.
-      const hasRewriteProvider = settings.rewriteProvider && settings.rewriteProvider !== "none";
-      const useFix = settings.autoFix && hasRewriteProvider;
-      const useKeyword = settings.autoKeyword && hasRewriteProvider;
-      const rkey = useFix || useKeyword ? effectiveKey(settings.rewriteProvider, settings) : "";
-      if ((useFix || useKeyword) && !rkey) {
-        setImgError(intl.formatMessage(msgs.rewriteNoKey));
-      }
-
-      // --- Main prompt: fix → keyword-translate (per the toggles), once per prompt, then cache. ---
-      if ((useFix || useKeyword) && rkey && !entry0?.original) {
-        try {
-          let working = text;
-          if (useFix) {
-            const fixed = await rewritePrompt({
-              providerId: settings.rewriteProvider,
-              prompt: working,
-              key: rkey,
-            });
-            if (fixed && fixed.trim()) working = fixed.trim();
-          }
-          if (useKeyword) {
-            const tagged = await rewritePrompt({
-              providerId: settings.rewriteProvider,
-              prompt: working,
-              key: rkey,
-              mode: "keyword",
-            });
-            if (tagged && tagged.trim()) working = tagged.trim();
-          }
-          if (working !== text) {
-            promptRoll = text;
-            text = working;
-            promptAi = text;
-            setPrompts((ps) =>
-              ps.map((x) => (x.id === promptId ? { ...x, original: promptRoll, text } : x)),
-            );
-          }
-        } catch (e) {
-          setImgError(intl.formatMessage(msgs.rewriteFailed, { error: e.message || String(e) }));
-        }
-      }
-
-      // --- Negative prompt: roll its DPL, then AI-translate it too (when auto-fix is on). ---
-      const negDpl = flat.negativePrompt || "";
-      let negRoll = negDpl ? expandPrompt(negDpl, { ...settings, mode: flat.mode }) : "";
-      let negAi = null;
-      if (entry0?.negRoll !== undefined) {
-        // Already processed on a prior batch — reuse so we don't re-call the rewrite API.
-        negRoll = entry0.negRoll;
-        negAi = entry0.negAi ?? null;
-      } else if ((useFix || useKeyword) && rkey && negRoll.trim()) {
-        try {
-          let workingNeg = negRoll;
-          if (useFix) {
-            const fixedNeg = await rewritePrompt({
-              providerId: settings.rewriteProvider,
-              prompt: workingNeg,
-              key: rkey,
-            });
-            if (fixedNeg && fixedNeg.trim()) workingNeg = fixedNeg.trim();
-          }
-          if (useKeyword) {
-            const taggedNeg = await rewritePrompt({
-              providerId: settings.rewriteProvider,
-              prompt: workingNeg,
-              key: rkey,
-              mode: "keyword",
-            });
-            if (taggedNeg && taggedNeg.trim()) workingNeg = taggedNeg.trim();
-          }
-          if (workingNeg !== negRoll) negAi = workingNeg;
-        } catch {
-          // Best-effort: a failed negative rewrite just falls back to the rolled negative.
-        }
-      }
-      const negFinal = negAi || negRoll;
-      setPrompts((ps) =>
-        ps.map((x) => (x.id === promptId ? { ...x, negRoll, negAi } : x)),
-      );
-
-      const generate = await provider.loadGenerate();
-      const key = effectiveKey(provider.id, settings);
-      const { images: imgs } = await generate({
-        prompt: text,
-        settings: { ...flat, negativePrompt: negFinal },
-        key,
-      });
-      // The full record of how these images were made, written as a sidecar next to each one
-      // (read back by the photo gallery). The snapshot is provider-scoped (API keys, app
-      // orchestration, and foreign provider params all dropped — never to disk).
-      const settingsSnapshot = cleanSnapshot({ ...flat, negativePrompt: negFinal });
-      const meta = {
-        prompt: { dpl: promptDpl, roll: promptRoll, ai: promptAi, final: text },
-        negative: {
-          dpl: negDpl || null,
-          roll: negRoll || null,
-          ai: negAi,
-          final: negFinal || null,
-        },
-        provider: provider.id,
-        providerLabel: provider.label,
-        settings: settingsSnapshot,
-        savedAt: new Date().toISOString(),
-      };
-      // Funnel every provider's images into the central output folder, then display the saved copies.
-      const saved = await Promise.all((imgs || []).map((img) => ingestImage(img, meta)));
-      setPrompts((ps) =>
-        ps.map((x) =>
-          x.id === promptId
-            ? {
-                ...x,
-                batches: x.batches.map((b) =>
-                  b.id === batchId ? { ...b, busy: false, images: saved } : b,
-                ),
-              }
-            : x,
-        ),
-      );
-    } catch (e) {
-      setImgError(e.message || String(e));
-      setPrompts((ps) =>
-        ps.map((x) =>
-          x.id === promptId ? { ...x, batches: x.batches.filter((b) => b.id !== batchId) } : x,
-        ),
-      );
-    }
-  }
-
-  // Remove a single image — optionally deleting the file from disk.
-  function removeImage(promptId, batchId, img) {
-    if (
-      isOutputFile(img) &&
-      confirm(intl.formatMessage(msgs.confirmDeleteImage))
-    ) {
-      deleteImageFile(img);
-    }
-    setPrompts((ps) =>
-      ps.map((x) =>
-        x.id === promptId
-          ? {
-              ...x,
-              batches: x.batches
-                .map((b) =>
-                  b.id === batchId ? { ...b, images: b.images.filter((i) => i !== img) } : b,
-                )
-                .filter((b) => b.busy || b.images.length),
-            }
-          : x,
-      ),
-    );
-  }
-
-  // Remove a whole batch — optionally deleting its files from disk.
-  function removeBatch(promptId, batchId) {
-    const b = prompts.find((x) => x.id === promptId)?.batches.find((y) => y.id === batchId);
-    const imgs = b?.images || [];
-    if (imgs.some(isOutputFile) && confirm(intl.formatMessage(msgs.confirmDeleteBatch))) {
-      imgs.forEach(deleteImageFile);
-    }
-    setPrompts((ps) =>
-      ps.map((x) =>
-        x.id === promptId ? { ...x, batches: x.batches.filter((y) => y.id !== batchId) } : x,
-      ),
-    );
-  }
-
-  // Clear all of a prompt's images — optionally deleting from disk.
-  function clearImages(promptId) {
-    const imgs = (prompts.find((x) => x.id === promptId)?.batches || []).flatMap((b) => b.images);
-    if (
-      imgs.some(isOutputFile) &&
-      confirm(intl.formatMessage(msgs.confirmDeletePromptImgs))
-    ) {
-      imgs.forEach(deleteImageFile);
-    }
-    setPrompts((ps) => ps.map((x) => (x.id === promptId ? { ...x, batches: [] } : x)));
-  }
-
-  // All on-disk image files across a list of prompt results.
-  const allImagesOf = (list) =>
-    (list || []).flatMap((p) => p.batches.flatMap((b) => b.images)).filter(isOutputFile);
-
-  // Clear every result — optionally deleting all their image files from disk.
-  function clearAll() {
-    const imgs = allImagesOf(prompts);
-    if (
-      imgs.length &&
-      confirm(intl.formatMessage(msgs.confirmClearAll, { count: imgs.length }))
-    ) {
-      imgs.forEach(deleteImageFile);
-    }
-    setPrompts([]);
-  }
+  // The generated-prompt list and its image-batch lifecycle (run a batch + the rewrite passes,
+  // and remove/clear images/batches/all) live in their own hook; Home just drives them.
+  const {
+    prompts,
+    setPrompts,
+    nextId,
+    imgError,
+    makeBatch,
+    removeImage,
+    removeBatch,
+    clearImages,
+    clearAll,
+  } = useImageBatches({ settings, provider, flat });
 
   const prompt = settings.prompt;
   const setPrompt = (p) => setSettings({ ...settings, prompt: p });
@@ -744,182 +354,16 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     navigator.clipboard?.writeText(text).catch(() => {});
   }
 
-  // Filter blocks by the single search box (matches token or label). Category pills
-  // (the Lists folder headers) are kept only when a following entry survives.
-  const q = query.trim().toLowerCase();
-  const matchItem = (i) =>
-    (i.token || "").toLowerCase().includes(q) || (i.label || "").toLowerCase().includes(q);
-  function filterItems(items) {
-    if (!q) return items;
-    const out = [];
-    for (let k = 0; k < items.length; k++) {
-      const i = items[k];
-      if (i.category) {
-        let any = false;
-        for (let j = k + 1; j < items.length && !items[j].category; j++)
-          if (matchItem(items[j])) {
-            any = true;
-            break;
-          }
-        if (any) out.push(i);
-      } else if (matchItem(i)) {
-        out.push(i);
-      }
-    }
-    return out;
-  }
-  const effItems = (b) => b.items;
-  const filtered = blocks
-    .map((b) => ({ ...b, items: filterItems(effItems(b)) }))
-    .filter((b) => b.items.some((i) => !i.category));
-
-  // The active top group (Blocks / Lists), falling back to the first available.
-  const active = filtered.find((b) => b.title === activeCat) || filtered[0] || null;
-  const searching = !!q;
-  // Folder sub-categories of the active group, and the currently-selected one (default All).
-  const subCats = active ? foldersOf(active) : [];
-  const effSub =
-    activeSub === "All" || subCats.some((c) => c.label === activeSub) ? activeSub : "All";
-
-  // The chips to render. Searching → the flat matched run. All → every chip across folders, plus
-  // the insertable group pills (the plain folder headers are sub-tabs now, so they're dropped). A
-  // folder sub-tab → that folder's chips, led by its whole-group insert pill when it has one.
-  let activeItems;
-  if (searching) {
-    activeItems = active ? active.items.filter((i) => !i.category) : [];
-  } else if (effSub === "All") {
-    // All = every category shown with its pill header + buttons (special/any included as pills).
-    activeItems = active ? active.items : [];
-  } else {
-    const cat = subCats.find((c) => c.label === effSub);
-    activeItems = cat
-      ? [
-          ...(cat.token
-            ? [{ category: true, token: cat.token, label: cat.label, description: cat.description }]
-            : []),
-          ...cat.items,
-        ]
-      : [];
-  }
-
   return (
     <div className="workspace">
       {/* ---- Left panel: building-block palette ---- */}
-      <aside className="sidebar">
-        <div className="panel-head">
-          <h3 className="panel-title">{intl.formatMessage(msgs.buildingBlocks)}</h3>
-          <input
-            className="picker-filter"
-            placeholder={intl.formatMessage(msgs.searchBlocks)}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-
-        {filtered.length === 0 ? (
-          <p className="empty">{intl.formatMessage(msgs.noBlocks, { query })}</p>
-        ) : (
-          <>
-            {/* Both groups (Blocks / Lists) are always listed, each with an "All" row and its folder
-                sub-categories indented beneath it. The group header is a plain label; its "All" row
-                carries the selection. Sub-tabs are hidden while searching (results go flat). */}
-            <nav className="cat-tabs">
-              {filtered.map((b) => {
-                const isActiveGroup = !!active && active.title === b.title;
-                const groupFolders = foldersOf(b);
-                const selectGroup = () => {
-                  setActiveCat(b.title);
-                  setActiveSub("All");
-                };
-                return (
-                  <Fragment key={b.title}>
-                    <button className="cat-tab" onClick={selectGroup}>
-                      <span className="cat-name">{b.title}</span>
-                      <span className="count-pill">
-                        {b.items.filter((i) => !i.category).length}
-                      </span>
-                    </button>
-                    {!searching && (
-                      <button
-                        className={`cat-tab sub${isActiveGroup && effSub === "All" ? " on" : ""}`}
-                        onClick={selectGroup}
-                      >
-                        <span className="cat-name">{intl.formatMessage(msgs.all)}</span>
-                        <span className="count-pill">
-                          {b.items.filter((i) => !i.category).length}
-                        </span>
-                      </button>
-                    )}
-                    {!searching &&
-                      groupFolders.map((c) => (
-                        <button
-                          key={c.label}
-                          className={`cat-tab sub${isActiveGroup && effSub === c.label ? " on" : ""}`}
-                          onClick={() => {
-                            setActiveCat(b.title);
-                            setActiveSub(c.label);
-                          }}
-                          title={c.description || c.label}
-                        >
-                          <span className="cat-name">{c.label}</span>
-                          <span className="count-pill">{c.items.length}</span>
-                        </button>
-                      ))}
-                  </Fragment>
-                );
-              })}
-            </nav>
-
-            <div className="chip-area">
-              {active && active.hint && !searching && effSub === "All" && (
-                <p className="cat-hint">{active.hint}</p>
-              )}
-              <div className="picker-list">
-                {activeItems.slice(0, 400).map((i, idx) =>
-                  i.category ? (
-                    i.token ? (
-                      <button
-                        key={`cat-${i.label}-${idx}`}
-                        className="cat-pill cat-pill-group"
-                        onMouseEnter={(e) => showTip(i, e)}
-                        onMouseMove={moveTip}
-                        onMouseLeave={hideTip}
-                        onClick={() => insert(i.token)}
-                      >
-                        {i.label}
-                      </button>
-                    ) : (
-                      <span
-                        key={`cat-${i.label}-${idx}`}
-                        className="cat-pill"
-                        title={i.description || i.label}
-                      >
-                        {i.label}
-                      </span>
-                    )
-                  ) : (
-                    <button
-                      key={i.token}
-                      className="chip"
-                      onMouseEnter={(e) => showTip(i, e)}
-                      onMouseMove={moveTip}
-                      onMouseLeave={hideTip}
-                      onClick={() => insert(i.token)}
-                    >
-                      {i.label}
-                    </button>
-                  ),
-                )}
-                {activeItems.length > 400 && (
-                  <span className="picker-more">
-                    {intl.formatMessage(msgs.moreFilter, { count: activeItems.length - 400 })}
-                  </span>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-      </aside>
+      <BlockPalette
+        includeAdult={settings.includeAdult}
+        onInsert={insert}
+        onShowTip={showTip}
+        onMoveTip={moveTip}
+        onHideTip={hideTip}
+      />
 
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">

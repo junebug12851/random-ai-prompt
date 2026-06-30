@@ -11,89 +11,21 @@
  * @module gui/components/ManageListEditor
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useIntl, defineMessages } from "react-intl";
+import { useIntl } from "react-intl";
+import { msgs } from "../lib/manage/listEditorMessages.js";
 import { readFile, writeFile, saveSidecar, fsOp, restoreDefault } from "../lib/manageApi.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { getProvider } from "../lib/providers/index.js";
 import CodeEditor from "./CodeEditor.jsx";
+import {
+  parseAiCandidates,
+  mergeNew,
+  dedupeLines,
+  sortLines as sortEntries,
+} from "../lib/manage/listEditorOps.js";
 
 const AI_SAMPLE = 25; // entries sampled and new entries requested per AI expand round
-
-const msgs = defineMessages({
-  removedDupes: {
-    id: "listEd.removedDupes",
-    defaultMessage: "Removed {count, plural, one {# duplicate} other {# duplicates}}.",
-  },
-  noDupes: { id: "listEd.noDupes", defaultMessage: "No duplicates found." },
-  sortedAZ: { id: "listEd.sortedAZ", defaultMessage: "Sorted A–Z." },
-  pickProvider: {
-    id: "listEd.pickProvider",
-    defaultMessage: "Pick a text (AI) provider first — Home → gear → Auto-fix.",
-  },
-  noKey: {
-    id: "listEd.noKey",
-    defaultMessage: "No API key for {provider} — add it under Home → gear → Auto-fix.",
-  },
-  addEntriesFirst: {
-    id: "listEd.addEntriesFirst",
-    defaultMessage: "Add a few entries first so the AI has something to learn from.",
-  },
-  onlyDupes: {
-    id: "listEd.onlyDupes",
-    defaultMessage: "The AI returned only entries you already have — try again.",
-  },
-  addedStatus: {
-    id: "listEd.addedStatus",
-    defaultMessage:
-      "Added {count, plural, one {# new entry} other {# new entries}}{dropped}. Review, then Save.",
-  },
-  droppedClause: {
-    id: "listEd.droppedClause",
-    defaultMessage: " ({count, plural, one {# duplicate} other {# duplicates}} dropped)",
-  },
-  expandFailed: { id: "listEd.expandFailed", defaultMessage: "AI expand failed: {error}" },
-  saved: { id: "listEd.saved", defaultMessage: "Saved." },
-  renamed: { id: "listEd.renamed", defaultMessage: "Renamed." },
-  restoreConfirm: {
-    id: "listEd.restoreConfirm",
-    defaultMessage: "Restore {name} to the default from the repo? This overwrites your local copy.",
-  },
-  restored: { id: "listEd.restored", defaultMessage: "Restored from default." },
-  loading: { id: "listEd.loading", defaultMessage: "Loading…" },
-  clickToEdit: { id: "listEd.clickToEdit", defaultMessage: "Click to edit" },
-  empty: { id: "listEd.empty", defaultMessage: "(empty)" },
-  deleteEntryAria: { id: "listEd.deleteEntryAria", defaultMessage: "Delete entry" },
-  deleteTitle: { id: "listEd.deleteTitle", defaultMessage: "Delete" },
-  listName: { id: "listEd.listName", defaultMessage: "List name" },
-  rename: { id: "listEd.rename", defaultMessage: "Rename" },
-  tabEntries: { id: "listEd.tabEntries", defaultMessage: "Entries" },
-  tabRaw: { id: "listEd.tabRaw", defaultMessage: "Raw" },
-  saving: { id: "listEd.saving", defaultMessage: "Saving…" },
-  save: { id: "listEd.save", defaultMessage: "Save" },
-  description: { id: "listEd.description", defaultMessage: "Description" },
-  descriptionPh: { id: "listEd.descriptionPh", defaultMessage: "List tooltip" },
-  searchPh: { id: "listEd.searchPh", defaultMessage: "Search {count, number} entries…" },
-  addEntry: { id: "listEd.addEntry", defaultMessage: "+ Add entry" },
-  sortTitle: { id: "listEd.sortTitle", defaultMessage: "Sort entries A–Z" },
-  sort: { id: "listEd.sort", defaultMessage: "Sort" },
-  dedupeTitle: { id: "listEd.dedupeTitle", defaultMessage: "Remove duplicate entries" },
-  dedupe: { id: "listEd.dedupe", defaultMessage: "Dedupe" },
-  aiExpandTitle: {
-    id: "listEd.aiExpandTitle",
-    defaultMessage: "Use AI to add 25 new unique entries in the same style",
-  },
-  expanding: { id: "listEd.expanding", defaultMessage: "Expanding…" },
-  aiExpand: { id: "listEd.aiExpand", defaultMessage: "AI Expand" },
-  countMatch: { id: "listEd.countMatch", defaultMessage: "{count, number} match" },
-  countEntries: { id: "listEd.countEntries", defaultMessage: "{count, number} entries" },
-  rawAria: { id: "listEd.rawAria", defaultMessage: "Raw list text" },
-  restoreTitle: {
-    id: "listEd.restoreTitle",
-    defaultMessage: "Fetch the default from the repo (master)",
-  },
-  restoreDefault: { id: "listEd.restoreDefault", defaultMessage: "Restore default" },
-});
 
 const ROW_H = 30; // px per entry row (fixed, for windowing)
 const OVERSCAN = 8;
@@ -236,15 +168,7 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
     setStatus("");
     setError("");
     setLines((a) => {
-      const seen = new Set();
-      const out = [];
-      for (const l of a) {
-        const key = l.trim().toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        out.push(l);
-      }
-      const removed = a.length - out.length;
+      const { lines: out, removed } = dedupeLines(a);
       if (removed > 0) {
         setDirty(true);
         setStatus(intl.formatMessage(msgs.removedDupes, { count: removed }));
@@ -260,11 +184,7 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
   function sortLines() {
     setStatus("");
     setError("");
-    setLines((a) =>
-      a
-        .slice()
-        .sort((x, y) => x.trim().toLowerCase().localeCompare(y.trim().toLowerCase())),
-    );
+    setLines((a) => sortEntries(a));
     setDirty(true);
     setStatus(intl.formatMessage(msgs.sortedAZ));
     setEditIdx(-1);
@@ -309,21 +229,8 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
     setExpanding(true);
     try {
       const out = await rewritePrompt({ providerId, prompt: sample.join("\n"), key, mode: "expand" });
-      // One entry per line (tolerate a stray "- " / "1. " prefix); fall back to comma-separated.
-      let candidates = out
-        .split(/\r?\n/)
-        .map((s) => s.replace(/^\s*[-*•]?\s*\d*[.)]?\s*/, "").trim())
-        .filter(Boolean);
-      if (candidates.length <= 1) candidates = out.split(",").map((s) => s.trim()).filter(Boolean);
-
-      const have = new Set(pool.map((l) => l.toLowerCase()));
-      const added = [];
-      for (const c of candidates) {
-        const k = c.toLowerCase();
-        if (have.has(k)) continue;
-        have.add(k);
-        added.push(c);
-      }
+      const candidates = parseAiCandidates(out);
+      const added = mergeNew(pool, candidates);
 
       if (!added.length) {
         setStatus(intl.formatMessage(msgs.onlyDupes));

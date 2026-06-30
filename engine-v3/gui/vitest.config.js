@@ -20,9 +20,10 @@ export default mergeConfig(viteConfig, {
       exclude: [
         "src/main.jsx",
         "src/i18n/compiled/**",
-        // A CodeMirror StreamLanguage grammar (verified via the e2e editor specs, not unit-mounted)
-        // and a one-line re-export shim — neither is meaningfully unit-coverable.
+        // CodeMirror language support — the StreamLanguage grammar and its context-aware
+        // autocomplete source — verified via the e2e editor specs, not unit-mounted.
         "src/lib/dpl/dplLanguage.js",
+        "src/lib/dpl/dplComplete.js",
         "src/lib/providers/index.js",
         "**/*.test.{js,jsx}",
       ],

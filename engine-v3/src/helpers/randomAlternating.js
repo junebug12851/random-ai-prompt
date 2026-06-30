@@ -19,7 +19,7 @@
  * @brief Keyword randomizer: alternating kw|kw|... (StableDiffusion wraps the run in brackets).
  */
 
-import _ from "lodash";
+import { randomFloat } from "./random.js";
 
 /**
  * Randomly build an alternation `kw|kw|…` (StableDiffusion wraps it in `[...]`),
@@ -47,7 +47,7 @@ export default function randomAlternating(settings, keyword) {
     keyword += `|${name}`;
     count++;
   } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
+    randomFloat() < settings.emphasisLevelChance &&
     count < settings.keywordAlternatingMaxLevels
   );
 

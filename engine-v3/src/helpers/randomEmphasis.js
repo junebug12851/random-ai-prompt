@@ -19,7 +19,7 @@
  * @brief Keyword randomizer: per-engine emphasis / de-emphasis (SD parens-brackets, NAI braces, Midjourney ::factor). Notes: notes/reference/prompt-dsl.md.
  */
 
-import _ from "lodash";
+import { randomFloat } from "./random.js";
 
 /**
  * StableDiffusion emphasis: wrap the keyword in N nested `()` (emphasis) or `[]`
@@ -40,10 +40,7 @@ function processSd(settings, lessEmphasis, keyword) {
     prefix += lessEmphasis ? "[" : "(";
     suffix += lessEmphasis ? "]" : ")";
     count++;
-  } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Update modified keyword with emphais/de-emphasis
   keyword = `${prefix}${keyword}${suffix}`;
@@ -70,10 +67,7 @@ function processNAI(settings, lessEmphasis, keyword) {
     prefix += lessEmphasis ? "[" : "(";
     suffix += lessEmphasis ? "]" : ")";
     count++;
-  } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Update modified keyword with emphais/de-emphasis
   keyword = `${prefix}${keyword}${suffix}`;
@@ -96,10 +90,7 @@ function processMdj(settings, lessEmphasis, keyword) {
   // Randomly add emphasis/de-emphasis levels based on chance for each level up to set max
   do {
     count++;
-  } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Base factor
   let factor = 1.0;
@@ -138,10 +129,7 @@ function processPlain(settings, lessEmphasis, keyword) {
   let count = 0;
   do {
     count++;
-  } while (
-    _.random(0.0, 1.0, true) < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   const ladder = lessEmphasis
     ? settings.plainDeEmphasisWords || PLAIN_LESS
@@ -170,7 +158,7 @@ export default function randomEmphasis(settings, keyword) {
   }
 
   // Roll to see if this keword gets less emphasis
-  let lessEmphasis = _.random(0.0, 1.0, true) < settings.deEmphasisChance;
+  let lessEmphasis = randomFloat() < settings.deEmphasisChance;
 
   // Process according to mode
   if (settings.mode == "StableDiffusion") keyword = processSd(settings, lessEmphasis, keyword);
