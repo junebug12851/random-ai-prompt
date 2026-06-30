@@ -2,8 +2,10 @@
  * Ideogram — provider-owned settings (v2 aspect-ratio enum format).
  * @module gui/providers/ideogram/settings
  */
+import defaults from "./ideogram.json";
+
 export default {
-  defaults: { model: "V_2", aspectRatio: "ASPECT_1_1" },
+  defaults,
   fields: [
     { key: "model", label: "Model", type: "select", options: ["V_2", "V_2_TURBO", "V_3"] },
     {

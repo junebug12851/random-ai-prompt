@@ -1,0 +1,14 @@
+{
+  "comfyUrl": "http://127.0.0.1:8188",
+  "comfyCheckpoint": "v1-5-pruned-emaonly-fp16.safetensors",
+  "comfyUpscaleModel": "",
+  "sampler": "euler",
+  "scheduler": "normal",
+  "imageSteps": 20,
+  "cfg": 7,
+  "imageWidth": 512,
+  "imageHeight": 512,
+  "batchSize": 1,
+  "seed": -1,
+  "negativePrompt": ""
+}

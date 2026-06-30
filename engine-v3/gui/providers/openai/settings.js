@@ -3,12 +3,10 @@
  * actually supports (model, size, count); no samplers/steps/cfg/negatives.
  * @module gui/providers/openai/settings
  */
+import defaults from "./openai.json";
+
 export default {
-  defaults: {
-    model: "gpt-image-1",
-    size: "1024x1024",
-    batchSize: 1,
-  },
+  defaults,
   fields: [
     { key: "model", label: "Model", type: "select", optionsFrom: "models" },
     { key: "size", label: "Size", type: "select", optionsFrom: "sizes" },

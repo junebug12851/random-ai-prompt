@@ -3,8 +3,10 @@
  * Negative prompt accepts DPL (rolled out before sending).
  * @module gui/providers/stability/settings
  */
+import defaults from "./stability.json";
+
 export default {
-  defaults: { model: "core", aspectRatio: "1:1", negativePrompt: "" },
+  defaults,
   fields: [
     { key: "model", label: "Model", type: "select", options: ["core", "sd3", "ultra"] },
     {

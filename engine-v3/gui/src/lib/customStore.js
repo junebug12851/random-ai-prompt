@@ -1,33 +1,20 @@
 /**
- * Browser-local "saved" content — the no-server equivalent of "Save Preset".
- * Custom presets (`{name: settingsPatch}`) live in localStorage only.
+ * Saved setting presets — the no-server equivalent of "Save Preset". Custom presets
+ * (`{name: settingsPatch}`) persist through the storage layer (a file in the user-settings folder
+ * locally; localStorage only online), under the `presets` namespace.
  * @module gui/lib/customStore
  */
+import { getCached, setCached } from "../../storage/cache.js";
 
-const PRESET_KEY = "rap.customPresets.v1";
+const PRESETS_NS = "presets";
 
-/**
- * @param {string} key The localStorage key.
- * @returns {object} The parsed object (or `{}` on miss / parse error).
- */
-function read(key) {
-  try {
-    return JSON.parse(localStorage.getItem(key) || "{}");
-  } catch {
-    return {};
-  }
+/** @returns {object} The cached presets object (or `{}`). */
+function read() {
+  return getCached(PRESETS_NS) || {};
 }
-/**
- * @param {string} key The localStorage key.
- * @param {object} obj The object to store.
- * @returns {void}
- */
-function write(key, obj) {
-  try {
-    localStorage.setItem(key, JSON.stringify(obj));
-  } catch {
-    // best-effort
-  }
+/** @param {object} obj The object to store. @returns {void} */
+function write(obj) {
+  setCached(PRESETS_NS, obj);
 }
 
 /**
@@ -35,7 +22,7 @@ function write(key, obj) {
  */
 // Custom presets: { name: settingsPatch }. Merge over settings like built-ins.
 export function getCustomPresets() {
-  return read(PRESET_KEY);
+  return read();
 }
 /**
  * Save (or overwrite) a custom preset.
@@ -44,9 +31,9 @@ export function getCustomPresets() {
  * @returns {void}
  */
 export function saveCustomPreset(name, patch) {
-  const o = read(PRESET_KEY);
+  const o = { ...read() };
   o[name] = patch;
-  write(PRESET_KEY, o);
+  write(o);
 }
 /**
  * Remove a custom preset.
@@ -54,7 +41,7 @@ export function saveCustomPreset(name, patch) {
  * @returns {void}
  */
 export function removeCustomPreset(name) {
-  const o = read(PRESET_KEY);
+  const o = { ...read() };
   delete o[name];
-  write(PRESET_KEY, o);
+  write(o);
 }

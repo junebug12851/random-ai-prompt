@@ -1,0 +1,5 @@
+{
+  "model": "fal-ai/flux/schnell",
+  "imageSize": "square_hd",
+  "batchSize": 1
+}

@@ -5,14 +5,19 @@
  * @module gui/lib/settings
  */
 import { useEffect, useState } from "react";
+import { getCached, setCached, cachedKeys } from "../../storage/cache.js";
 
-// Settings live ONLY in this browser (localStorage). No accounts, no server
-// storage. BYOK API keys are part of settings and likewise never leave the
-// browser except when sent per-request to the generation proxy.
+// Settings persist through the storage layer (see gui/storage/): a real file in the one
+// user-settings folder when running locally, and localStorage ONLY in the online build. No
+// accounts, no server storage. BYOK API keys are part of settings and likewise never leave the
+// machine except when sent per-request to the generation proxy.
 //
-// The prompt-knob field names match the engine's settings (settings.js) so they
-// flow straight into prompt generation; image params are read by the providers.
-const STORAGE_KEY = "rap.settings.v2";
+// The prompt-knob field names match the engine's settings (settings.js) so they flow straight into
+// prompt generation; image params are read by the providers. Per-provider params don't live inside
+// this blob on disk — they're fanned out to one override file per provider (`providers/<id>`),
+// mirroring each provider's own `<id>.json` defaults — and reassembled into `providerParams` here.
+const SETTINGS_NS = "settings";
+const PROVIDER_PREFIX = "providers/";
 
 /**
  * @constant {object} The default SPA settings (prompt knobs match the engine; image
@@ -117,28 +122,37 @@ function migrate(settings) {
 }
 
 /**
- * @returns {object} The settings from localStorage merged over the defaults.
+ * The settings from the storage cache merged over the defaults, with `providerParams` reassembled
+ * from the per-provider override namespaces. Requires the cache to be hydrated first (the app gates
+ * its first render on {@link module:gui/storage/cache.hydrate}); before that it returns the defaults.
+ * @returns {object} The effective settings.
  */
 export function loadSettings() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...defaultSettings };
-    return migrate({ ...defaultSettings, ...JSON.parse(raw) });
-  } catch {
-    return { ...defaultSettings };
+  const base = getCached(SETTINGS_NS);
+  const merged = migrate({ ...defaultSettings, ...(base || {}) });
+  // Reassemble providerParams from each `providers/<id>` override file.
+  const providerParams = {};
+  for (const ns of cachedKeys()) {
+    if (!ns.startsWith(PROVIDER_PREFIX)) continue;
+    const params = getCached(ns);
+    if (params && Object.keys(params).length) providerParams[ns.slice(PROVIDER_PREFIX.length)] = params;
   }
+  merged.providerParams = providerParams;
+  return merged;
 }
 
 /**
- * Persist settings to localStorage (best-effort; ignores quota / private-mode errors).
+ * Persist settings through the storage layer: the main blob (minus `providerParams`) to the
+ * `settings` namespace, and each provider's params to its own `providers/<id>` override file. In
+ * local mode these are real files in the user-settings folder; online they're localStorage keys.
  * @param {object} settings The settings to save.
  * @returns {void}
  */
 export function saveSettings(settings) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  } catch {
-    // Ignore quota / private-mode write failures — settings are best-effort.
+  const { providerParams = {}, ...rest } = settings;
+  setCached(SETTINGS_NS, rest);
+  for (const [id, params] of Object.entries(providerParams)) {
+    setCached(`${PROVIDER_PREFIX}${id}`, params || {});
   }
 }
 

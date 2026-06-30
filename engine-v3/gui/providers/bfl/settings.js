@@ -2,8 +2,10 @@
  * Black Forest Labs (FLUX) — provider-owned settings. `model` is the BFL endpoint name.
  * @module gui/providers/bfl/settings
  */
+import defaults from "./bfl.json";
+
 export default {
-  defaults: { model: "flux-dev", aspectRatio: "1:1" },
+  defaults,
   fields: [
     {
       key: "model",

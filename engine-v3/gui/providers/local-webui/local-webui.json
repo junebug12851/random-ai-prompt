@@ -1,0 +1,10 @@
+{
+  "localWebuiUrl": "http://127.0.0.1:7860",
+  "sampler": "Euler",
+  "imageSteps": 32,
+  "cfg": 11,
+  "imageWidth": 512,
+  "imageHeight": 512,
+  "seed": -1,
+  "negativePrompt": ""
+}

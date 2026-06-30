@@ -36,8 +36,11 @@ engine-v3/gui/coverage/
 engine-v3/playwright-report/
 engine-v3/test-results/
 
-# Local-file storage backend (dev only)
+# Local-file storage backend (dev only) — the legacy flat file + its post-migration rename,
+# and the new per-namespace user-settings folder (all user data; never tracked).
 engine-v3/gui/.gui-storage.json
+engine-v3/gui/.gui-storage.json.migrated
+engine-v3/gui/user-settings/
 
 # Generated images (runtime output)
 engine-v3/output/
