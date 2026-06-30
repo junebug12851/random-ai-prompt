@@ -11,14 +11,12 @@
  * management backend isn't present (online build / static host) the tab is locked upstream in `App`.
  * @module gui/components/Manage
  */
-import { useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { useManageTree } from "../lib/manage/useManageTree.js";
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
 import ManageDetail from "./manage/ManageDetail.jsx";
-import ManageStorage from "./manage/ManageStorage.jsx";
 import { Caret, GearIcon, EditIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
 
 const msgs = defineMessages({
@@ -61,8 +59,6 @@ const msgs = defineMessages({
     defaultMessage: "Group folder — referencing it picks one random member",
   },
   panelTitle: { id: "manage.panelTitle", defaultMessage: "Manage" },
-  storageTitle: { id: "manage.storageTitle", defaultMessage: "Storage / Cache — view & manage saved data" },
-  storageBtn: { id: "manage.storageBtn", defaultMessage: "Storage" },
   searchPh: { id: "manage.searchPh", defaultMessage: "Search…" },
   refreshTitle: { id: "manage.refreshTitle", defaultMessage: "Refresh catalog (re-read from disk)" },
   refreshAria: { id: "manage.refreshAria", defaultMessage: "Refresh catalog" },
@@ -80,7 +76,6 @@ const msgs = defineMessages({
  */
 export default function Manage({ settings, available, active }) {
   const intl = useIntl();
-  const [storageOpen, setStorageOpen] = useState(false);
 
   const {
     tree,
@@ -278,14 +273,6 @@ export default function Manage({ settings, available, active }) {
             >
               <RefreshIcon />
             </button>
-            <button
-              className={`mg-storage-btn${storageOpen ? " on" : ""}`}
-              onClick={() => setStorageOpen((v) => !v)}
-              title={intl.formatMessage(msgs.storageTitle)}
-              aria-pressed={storageOpen}
-            >
-              {intl.formatMessage(msgs.storageBtn)}
-            </button>
           </div>
         </div>
 
@@ -351,9 +338,7 @@ export default function Manage({ settings, available, active }) {
       </aside>
 
       <div className="main-col mg-main">
-        {storageOpen ? (
-          <ManageStorage onClose={() => setStorageOpen(false)} />
-        ) : selected?.type === "folder" ? (
+        {selected?.type === "folder" ? (
           <ManageFolderEditor node={selected} onChanged={handleChanged} />
         ) : selected?.type === "entry" && selected.kind === "generator" ? (
           <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} />

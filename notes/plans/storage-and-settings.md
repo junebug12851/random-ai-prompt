@@ -121,10 +121,6 @@ able to destabilize the running app, so it lands as its own reviewable step with
       `localStorage` in local mode.
 - [x] Provider params persisted as per-provider override files (`providers/<id>`), reassembled into
       `providerParams` on load.
-- [x] Manage "Storage / Cache" panel: list, view, delete, clear-all, export/import
-      (`ManageStorage.jsx`, toggled from the Manage header; reads the backend directly).
-- [x] Gate green (lint 0 errors, smoke, test:unit 242, test:web 265, gui build) + notes/version
-      (2.29.0). **Open:** the Manage tab is local-mode only, so the cache panel isn't reachable in the
-      online build yet — an online localStorage manager is still an open design question (owner's call).
-      A deliberate UI change (new header button + hydrate gate) may need `npm run test:e2e:update` for
-      the visual baselines.
+- [ ] Manage "Storage / Cache" panel: list, view, delete, clear-all, export/import.
+- [x] Gate green through the wiring (lint, smoke, test:unit 242, test:web 265, gui build) +
+      notes/version (2.29.0). Manage panel + credits still to come.
