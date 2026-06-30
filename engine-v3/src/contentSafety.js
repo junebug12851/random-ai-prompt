@@ -40,7 +40,14 @@
 
 /* eslint-disable no-useless-escape */
 
-import { SLURS_CORE, SLURS_AMBIGUOUS, MINOR_SEXUAL, EXTREME, WHITELIST, NSFW_LEXICON } from "./safetyLexicons.js";
+import {
+  SLURS_CORE,
+  SLURS_AMBIGUOUS,
+  MINOR_SEXUAL,
+  EXTREME,
+  WHITELIST,
+  NSFW_LEXICON,
+} from "./safetyLexicons.js";
 
 /**
  * Normalize a raw list line to a lowercase, single-spaced token string.

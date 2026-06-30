@@ -40,10 +40,7 @@ function processSd(settings, lessEmphasis, keyword) {
     prefix += lessEmphasis ? "[" : "(";
     suffix += lessEmphasis ? "]" : ")";
     count++;
-  } while (
-    randomFloat() < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Update modified keyword with emphais/de-emphasis
   keyword = `${prefix}${keyword}${suffix}`;
@@ -70,10 +67,7 @@ function processNAI(settings, lessEmphasis, keyword) {
     prefix += lessEmphasis ? "[" : "(";
     suffix += lessEmphasis ? "]" : ")";
     count++;
-  } while (
-    randomFloat() < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Update modified keyword with emphais/de-emphasis
   keyword = `${prefix}${keyword}${suffix}`;
@@ -96,10 +90,7 @@ function processMdj(settings, lessEmphasis, keyword) {
   // Randomly add emphasis/de-emphasis levels based on chance for each level up to set max
   do {
     count++;
-  } while (
-    randomFloat() < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Base factor
   let factor = 1.0;
@@ -138,10 +129,7 @@ function processPlain(settings, lessEmphasis, keyword) {
   let count = 0;
   do {
     count++;
-  } while (
-    randomFloat() < settings.emphasisLevelChance &&
-    count < settings.emphasisMaxLevels
-  );
+  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   const ladder = lessEmphasis
     ? settings.plainDeEmphasisWords || PLAIN_LESS

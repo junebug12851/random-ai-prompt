@@ -9,12 +9,7 @@
  * separate files (`<name>-sfw.txt` / `<name>-nsfw.txt`), combined here per `includeAdult`.
  */
 
-import {
-  resolveName,
-  RESERVED_WILDCARD,
-  SFW_SUFFIX,
-  NSFW_SUFFIX,
-} from "./nameOrder.js";
+import { resolveName, RESERVED_WILDCARD, SFW_SUFFIX, NSFW_SUFFIX } from "./nameOrder.js";
 
 /** Recursion cutoff for group-includes-group nesting. */
 export const MAX_GROUP_DEPTH = 3;

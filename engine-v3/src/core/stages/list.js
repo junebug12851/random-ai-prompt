@@ -26,8 +26,7 @@ export function makeListStage(store) {
   function sampleFile(name, settings, emphasis) {
     emphasis = emphasis === undefined ? true : emphasis == true;
 
-    if (!emphasis || randomFloat() > settings.emphasisChance)
-      return store.pull(settings, name);
+    if (!emphasis || randomFloat() > settings.emphasisChance) return store.pull(settings, name);
 
     let targList = promptFuncsSd;
     if (settings.mode == "NovelAI") targList = promptFuncsNai;

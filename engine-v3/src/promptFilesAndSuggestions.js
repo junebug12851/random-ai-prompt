@@ -208,11 +208,9 @@ function prePrompt(maxCount) {
   // Garnish with a few partial generators and lists (each ~25%). Pools may be empty (v3 has no
   // partials; expansions are unified into generators), so guard every sample.
   for (let i = 0; i < maxCount; i++) {
-    if (partialPool.length && randomFloat() < 0.25)
-      prePrompt += `, {#${sample(partialPool)}}`;
+    if (partialPool.length && randomFloat() < 0.25) prePrompt += `, {#${sample(partialPool)}}`;
 
-    if (listPool.length && randomFloat() < 0.25)
-      prePrompt += `, {${sample(listPool)}}`;
+    if (listPool.length && randomFloat() < 0.25) prePrompt += `, {${sample(listPool)}}`;
   }
 
   return prePrompt;
