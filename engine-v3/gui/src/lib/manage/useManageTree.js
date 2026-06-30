@@ -88,33 +88,11 @@ export function useManageTree({ settings, available, active }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, available]);
 
-  // Refetch the tree when the catalog hot-applies (an edit elsewhere / a refresh).
+  // Refetch the tree when the catalog hot-applies — an edit here, OR an external file change picked
+  // up by the app-level file-watch (App.jsx), which calls refreshCatalog() and so notifies us here.
+  // The app owns the single SSE stream now, so Manage doesn't open its own; the manual Refresh
+  // button remains the fallback.
   useEffect(() => subscribeCatalog(() => available && loadTree()), [available]);
-
-  // External-edit auto-refresh: watch the data roots over SSE and reload on change (debounced). The
-  // manual Refresh button is the fallback if the stream isn't available.
-  useEffect(() => {
-    if (!available) return undefined;
-    let es;
-    let t;
-    try {
-      es = new EventSource("/api/manage/watch");
-      es.onmessage = () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          refreshCatalog().catch(() => {});
-          loadTree();
-        }, 300);
-      };
-    } catch {
-      /* no SSE — manual refresh still works */
-    }
-    return () => {
-      if (es) es.close();
-      clearTimeout(t);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [available]);
 
   const models = useMemo(() => {
     if (!tree) return [];

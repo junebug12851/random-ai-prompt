@@ -190,7 +190,12 @@ export function writeNs(ns, value, dir = USER_DIR) {
   if (!fp) return false;
   try {
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(value, null, 2));
+    // Atomic write: serialize to a temp file in the same folder, then rename over the target. A
+    // reader (e.g. the file-watch settings reload) therefore never sees a half-written file — it
+    // observes either the old contents or the complete new ones. Guards the never-corrupt rule.
+    const tmp = `${fp}.${process.pid}.${Date.now()}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(value, null, 2));
+    fs.renameSync(tmp, fp);
     return true;
   } catch {
     return false;

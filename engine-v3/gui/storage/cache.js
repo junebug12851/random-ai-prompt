@@ -17,6 +17,10 @@ import { loadConfig, saveConfig, removeConfig } from "./config.js";
 const cache = new Map();
 let hydrated = false;
 let hydrating = null;
+// When we last wrote to the backend. The file-watch settings reload uses this to ignore change
+// events caused by our OWN writes (so it never re-reads — and never risks clobbering — what the app
+// just saved). External edits aren't preceded by our write, so they still come through.
+let lastWriteAt = 0;
 
 /** Current schema version per namespace (settings keeps the old `v2` line). */
 const VERSIONS = { settings: 2 };
@@ -103,7 +107,36 @@ export function getCached(ns) {
  */
 export function setCached(ns, data) {
   cache.set(ns, data);
+  lastWriteAt = Date.now();
   return saveConfig(ns, data, { version: versionOf(ns) }).catch(() => {});
+}
+
+/**
+ * Milliseconds since the last cache write (settings/provider params). The file-watch reload uses
+ * this to skip change events triggered by the app's own saves.
+ * @returns {number} Elapsed ms since the last {@link setCached}/{@link removeCached}.
+ */
+export function msSinceLastWrite() {
+  return Date.now() - lastWriteAt;
+}
+
+/**
+ * Re-pull the core + per-provider namespaces from the backend into the cache (no legacy seeding).
+ * Used by the local-mode file-watch to reflect an EXTERNAL edit to the user-settings folder. Reads
+ * are best-effort per namespace, so a transient/partial read can't blank the others.
+ * @returns {Promise<void>}
+ */
+export async function rehydrate() {
+  if (!hydrated) return hydrate();
+  const keys = await storage.keys();
+  const nsList = new Set(CORE_NAMESPACES);
+  for (const k of keys) if (k.startsWith("providers/")) nsList.add(k);
+  await Promise.all(
+    [...nsList].map(async (ns) => {
+      const data = await loadConfig(ns, { version: versionOf(ns) });
+      if (data !== null && data !== undefined) cache.set(ns, data);
+    }),
+  );
 }
 
 /**
@@ -113,6 +146,7 @@ export function setCached(ns, data) {
  */
 export function removeCached(ns) {
   cache.delete(ns);
+  lastWriteAt = Date.now();
   return removeConfig(ns).catch(() => {});
 }
 

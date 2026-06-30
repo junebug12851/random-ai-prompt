@@ -1,8 +1,10 @@
 /**
  * The header provider-settings gear — a small gear button next to the provider picker that opens a
- * popover holding the active provider's own controls (`ProviderBox`). This keeps the provider's
- * knobs (model / size / sampler / negative prompt / …) out of the main prompt area while staying
- * one click from the provider selection. The popover header shows the provider's label + tier.
+ * popover holding an **accordion** of the chosen providers' own controls (`ProviderBox`): one
+ * section per role — Image (always), Text (when a rewrite AI is set), and Upscale (when an upscaler
+ * is set). This keeps every provider's knobs (model / size / sampler / negative prompt / …) out of
+ * the main prompt area while staying one click from the provider selection. Each section header
+ * shows that provider's label + tier and toggles its body open/closed.
  * @module gui/components/ProviderGear
  */
 import { useState } from "react";
@@ -16,6 +18,13 @@ const msgs = defineMessages({
   tierPlain: { id: "providerGear.tier.plain", defaultMessage: "plain text" },
   settings: { id: "providerGear.settings", defaultMessage: "Provider settings" },
   close: { id: "providerGear.close", defaultMessage: "close" },
+  none: {
+    id: "providerGear.none",
+    defaultMessage: "No provider selected — pick one in the Providers menu to see its settings.",
+  },
+  roleImage: { id: "providerGear.role.image", defaultMessage: "Image" },
+  roleText: { id: "providerGear.role.text", defaultMessage: "Text" },
+  roleUpscale: { id: "providerGear.role.upscale", defaultMessage: "Upscale" },
 });
 
 /**
@@ -42,6 +51,45 @@ function GearIcon() {
 }
 
 /**
+ * One accordion section: a provider role's header (label + tier) over its collapsible `ProviderBox`.
+ * @param {object} props
+ * @param {string} props.role Localized role name (Image / Text / Upscale).
+ * @param {object} props.provider The provider manifest.
+ * @param {boolean} props.open Whether the section body is expanded.
+ * @param {Function} props.onToggle Toggle this section.
+ * @param {object} props.settings The current settings.
+ * @param {Function} props.setSettings Update the settings.
+ * @returns {JSX.Element}
+ */
+function GearSection({ role, provider, open, onToggle, settings, setSettings }) {
+  const intl = useIntl();
+  const tierLabel = intl.formatMessage(
+    provider.tier === "api" ? msgs.tierApi : provider.tier === "syntax" ? msgs.tierSyntax : msgs.tierPlain,
+  );
+  return (
+    <div className={`gear-acc-item${open ? " on" : ""}`}>
+      <button
+        className="gear-acc-head"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <span className="gear-acc-caret" aria-hidden="true">
+          ▸
+        </span>
+        <span className="gear-acc-role">{role}</span>
+        <span className="gear-acc-name">{provider.label}</span>
+        <span className="provider-tag">{tierLabel}</span>
+      </button>
+      {open && (
+        <div className="gear-acc-body">
+          <ProviderBox settings={settings} setSettings={setSettings} providerId={provider.id} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * @param {object} props
  * @param {object} props.settings The current settings.
  * @param {Function} props.setSettings Update the settings.
@@ -50,12 +98,31 @@ function GearIcon() {
 export default function ProviderGear({ settings, setSettings }) {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
-  const provider = getProvider(settings.provider);
-  if (!provider) return null;
+  // Which accordion sections are expanded — Image leads, expanded by default.
+  const [expanded, setExpanded] = useState(() => new Set(["image"]));
+  const toggle = (id) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
-  const tierLabel = intl.formatMessage(
-    provider.tier === "api" ? msgs.tierApi : provider.tier === "syntax" ? msgs.tierSyntax : msgs.tierPlain,
-  );
+  // Each role may be unset ("none") — the image too (prompts only). Only set roles get a section.
+  const imageId = settings.provider && settings.provider !== "none" ? settings.provider : null;
+  const textId =
+    settings.rewriteProvider && settings.rewriteProvider !== "none" ? settings.rewriteProvider : null;
+  const upscaleId =
+    settings.upscaleProvider && settings.upscaleProvider !== "none" ? settings.upscaleProvider : null;
+  const image = imageId ? getProvider(imageId) : null;
+  const text = textId ? getProvider(textId) : null;
+  const upscale = upscaleId ? getProvider(upscaleId) : null;
+
+  const sections = [
+    image && { id: "image", role: intl.formatMessage(msgs.roleImage), provider: image },
+    text && { id: "text", role: intl.formatMessage(msgs.roleText), provider: text },
+    upscale && { id: "upscale", role: intl.formatMessage(msgs.roleUpscale), provider: upscale },
+  ].filter(Boolean);
 
   return (
     <div className="field-menu-wrap provider-gear">
@@ -78,16 +145,29 @@ export default function ProviderGear({ settings, setSettings }) {
             aria-label={intl.formatMessage(msgs.settings)}
           >
             <div className="gear-pop-head">
-              <span className="gear-pop-title">
-                <span className="gph-label">{provider.label}</span>
-                <span className="provider-tag">{tierLabel}</span>
-              </span>
+              <span className="gear-pop-title">{intl.formatMessage(msgs.settings)}</span>
               <button className="link-btn" onClick={() => setOpen(false)}>
                 {intl.formatMessage(msgs.close)}
               </button>
             </div>
             <div className="gear-pop-body">
-              <ProviderBox settings={settings} setSettings={setSettings} />
+              {sections.length ? (
+                <div className="gear-acc">
+                  {sections.map((s) => (
+                    <GearSection
+                      key={s.id}
+                      role={s.role}
+                      provider={s.provider}
+                      open={expanded.has(s.id)}
+                      onToggle={() => toggle(s.id)}
+                      settings={settings}
+                      setSettings={setSettings}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="hint provider-controls-empty">{intl.formatMessage(msgs.none)}</p>
+              )}
             </div>
           </div>
         </>
