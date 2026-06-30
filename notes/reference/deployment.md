@@ -10,6 +10,30 @@ How the project ships. There are three independent pipelines, each with one home
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
 | **Web app deploy** | `.github/workflows/netlify-deploy.yml` + `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (`prompt.fairyfox.io`); auto-deploys on push to `main` (gated on the `NETLIFY_AUTH_TOKEN` secret). |
 
+## Local edition — the release stage (`gui/server/serve.js`)
+
+**Editions vs. stages.** One code pool builds into two editions — the full **local** build and the
+**online** build (same code, local-only features gated off via `VITE_ONLINE`). Each edition has dev
+and release stages. The **online** edition's release is the static Netlify build above (no backend —
+BYOK calls go straight from the browser). The **local** edition needs a real release stage too, and
+this is it.
+
+- **Dev stage:** `npm run web` → the Vite dev server, with the `/api/*` backend attached as a plugin
+  middleware (`gui/vite-plugin-api.js`). For development only — **not** what end users run.
+- **Release stage:** `npm start` → `npm run web:build` (a real `vite build`) then `node
+  gui/server/serve.js` — a dependency-free standalone Node server that serves the built `dist/` as
+  static files (SPA fallback) **and** mounts the same `/api/*` backend. `npm run serve` serves an
+  already-built `dist/`. Port = `PORT` (default 4173); `NO_OPEN=1` skips opening the browser.
+- **One backend, two transports.** The handler lives once in `gui/server/apiHandler.js` and is mounted
+  by both the dev plugin and the release server, so the local backend can't drift between stages. This
+  fixed the earlier defect where the dev server was the *only* thing with a working backend, so it was
+  being used as the de-facto release — unprofessional and wrong. (Extracting the handler also fixed a
+  latent bug: the convert/resize/reveal/open routes used `exec`/`execP` that were never imported.)
+- **File-watch hot reload** rides the same backend: `/api/manage/watch` is an SSE stream tagging each
+  change with a scope — `data` (lists/dynamic-prompts → live catalog refresh), `output` (the gallery
+  feed), `settings` (re-read user settings, ignoring the app's own writes and guarded by atomic
+  storage writes so it never clobbers `user-settings`). The app opens one stream in `App.jsx`.
+
 ## CI — `.github/workflows/ci.yml`
 
 Runs on push to `dev`/`main`, on PRs, and on demand. Node 24. Three jobs: (1) **check** — `npm ci`,

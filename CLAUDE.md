@@ -114,7 +114,9 @@ its own deps + start scripts (`cd engine-v1-2 && npm install && node index.js` /
 ```
 cd engine-v3           # the project lives here — run all the below from engine-v3/
 npm install            # install deps
-npm run web            # start the web GUI (Vite dev server)
+npm run web            # DEV stage: the Vite dev server (HMR) — for development, not end users
+npm start              # RELEASE stage (local edition): build, then serve the built app + /api backend
+npm run serve          # serve an already-built local release (node gui/server/serve.js)
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
@@ -128,6 +130,16 @@ npm run test:all       # npm test + test:e2e
 npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
 
+- **Editions vs. stages — don't conflate them.** There is **one code pool** that builds into two
+  **editions**: the full **local** build and the **online** build (the same code with the local-only
+  features — Gallery/Single/Manage, local SD providers, NSFW — gated off via `VITE_ONLINE`). Each
+  edition has the usual **dev** and **release** stages. `npm run web` is the **dev** server (HMR) and
+  is **not** what end users run. The local edition's **release** stage is `npm start` (build →
+  `gui/server/serve.js`), a standalone Node server that serves the built `dist/` **plus** the `/api/*`
+  backend. The online edition's release is the static Netlify build (no backend — BYOK calls go
+  straight from the browser). The `/api/*` handler lives once in `gui/server/apiHandler.js` and is
+  mounted by **both** the dev-server Vite plugin (`gui/vite-plugin-api.js`) and the release server, so
+  the local backend is identical across stages.
 - Generating images requires a **Stable Diffusion WebUI running with `--api`** on the URL in
   `imageSettings.url` (default `http://127.0.0.1:7860`). Without it, prompt generation still runs but
   the image calls fail — that's expected, not a bug.
