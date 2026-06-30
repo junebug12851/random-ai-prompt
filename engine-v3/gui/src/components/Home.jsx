@@ -135,8 +135,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [tipEx, setTipEx] = useState("");
 
   // --- Active image provider (selection lives in settings; knobs are per-provider) ---
-  // The image provider can be left Unset ("none") — then we generate prompts only, no images.
-  const provider = settings.provider && settings.provider !== "none" ? getProvider(settings.provider) : null;
+  const provider = getProvider(settings.provider);
   const pid = provider?.id;
   const supportsNegative = !!provider?.capabilities?.negativePrompt;
   // The text (prompt-rewrite) provider, if one is chosen — drives the always-visible auto-fix /
@@ -154,7 +153,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
 
   useEffect(() => {
     let alive = true;
-    const p = settings.provider && settings.provider !== "none" ? getProvider(settings.provider) : null;
+    const p = getProvider(settings.provider);
     Promise.resolve(p?.loadSettings ? p.loadSettings() : { defaults: {} }).then(
       (m) => alive && setProviderDefaults(m?.defaults || {}),
     );

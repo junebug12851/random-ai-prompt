@@ -5,8 +5,10 @@
  * @module gui/providers/plain/config
  */
 export default {
+  // Surfaced as "Unset" in the image picker: it's the no-real-provider choice — the engine just emits
+  // a plain-text prompt (no image API), which is exactly "no image provider selected".
   id: "plain",
-  label: "Plain text",
+  label: "Unset",
   tier: "plain",
   dialect: "plain",
   transport: "none",

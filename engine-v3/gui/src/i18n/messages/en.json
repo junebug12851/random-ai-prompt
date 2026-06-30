@@ -1207,9 +1207,6 @@
   "providersMenu.unsetDesc": {
     "defaultMessage": "No text AI selected — prompt & keyword rewriting stays off."
   },
-  "providersMenu.unsetImageDesc": {
-    "defaultMessage": "No image provider — generate prompts only, no images."
-  },
   "providersMenu.unsetUpscaleDesc": {
     "defaultMessage": "No upscaler selected."
   },
