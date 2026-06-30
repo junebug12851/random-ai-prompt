@@ -193,6 +193,18 @@ const dpGroupDirs = autoGroupListDirs(
 );
 // Alias retained for the loader interface (no version generations — same set as above).
 const dpGroupDirsAll = dpGroupDirs;
+
+// The bundled catalog is fixed for the life of the page (the Manage tab's live edits go
+// through a SEPARATE runtime loader, never this one), so the full name set and each
+// resolved `{name}` line set are memoized. Without this, every generated prompt rebuilt
+// the whole name list and re-unioned the entire `keyword` wildcard vocabulary from scratch.
+let _allNames = null;
+const allNames = () =>
+  (_allNames ??= allListNames([
+    ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
+    ...groupListDirs,
+  ]));
+const _listLinesCache = new Map(); // `${name}|${includeAdult}` -> string[]|null
 /**
  * Browser data loader for the engine: Vite `import.meta.glob` bundles. Implements
  * `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`, `presetNames`, `loadPreset`.
@@ -200,12 +212,11 @@ const dpGroupDirsAll = dpGroupDirs;
  */
 export const browserLoader = {
   readListLines(name, includeAdult = false) {
-    const names = allListNames([
-      ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
-      ...groupListDirs,
-    ]);
+    const cacheKey = `${name}|${includeAdult ? 1 : 0}`;
+    if (_listLinesCache.has(cacheKey)) return _listLinesCache.get(cacheKey);
+    const names = allNames();
     const canonical = resolveName(name, names);
-    return resolveListLines(
+    const lines = resolveListLines(
       canonical,
       {
         names,
@@ -215,12 +226,11 @@ export const browserLoader = {
       },
       includeAdult,
     );
+    _listLinesCache.set(cacheKey, lines);
+    return lines;
   },
   listNames() {
-    return allListNames([
-      ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
-      ...groupListDirs,
-    ]);
+    return allNames();
   },
   forcedPrefixDirs() {
     return forcedDirs;

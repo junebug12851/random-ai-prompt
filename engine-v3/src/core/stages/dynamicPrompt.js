@@ -130,6 +130,8 @@ export function makeDynamicPromptStage(loader) {
     // unless adult is on — "acts like it doesn't exist".
     const isNsfw = (key) => loader.readDynPromptMeta?.(key)?.nsfw === true || isGatedDynPrompt(key);
     const gateOk = (key) => includeAdult || !isNsfw(key);
+    // Built once per stage call (was rebuilt for every `{#…}` token on every pass).
+    const resolvePool = [...names, ...groups];
 
     // Pick ONE generator from a pool (a group's members, or the whole catalog for {#any}),
     // honoring an explicit sfw/nsfw variant or the adult-mode default.
@@ -146,7 +148,6 @@ export function makeDynamicPromptStage(loader) {
     // Resolve one `{#…}` reference at a given intensity + focus (1..100), threading the dedup state.
     function expandGen(name, intensity, focus, dedup) {
       if (name.startsWith("user-")) name = name.slice("user-".length); // back-compat alias
-      const resolvePool = [...names, ...groups];
 
       // {#any} family — one random generator from the whole catalog.
       if (isReservedAny(name)) {
