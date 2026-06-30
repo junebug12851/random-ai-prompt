@@ -121,6 +121,10 @@ able to destabilize the running app, so it lands as its own reviewable step with
       `localStorage` in local mode.
 - [x] Provider params persisted as per-provider override files (`providers/<id>`), reassembled into
       `providerParams` on load.
-- [ ] Manage "Storage / Cache" panel: list, view, delete, clear-all, export/import.
+- [ ] **Manage "Storage / Cache" panel — DEFERRED (owner's design call).** A first cut (a local-mode
+      list/view/delete/clear-all/export-import panel) was built and then **reverted at the owner's
+      request**: how to surface storage management in-app — especially the **online** case, where the
+      only store is `localStorage` and the Manage tab isn't available — is an open UX question the owner
+      wants to design. Don't rebuild it without direction.
 - [x] Gate green through the wiring (lint, smoke, test:unit 242, test:web 265, gui build) +
-      notes/version (2.29.0). Manage panel + credits still to come.
+      notes/version (2.29.0).
