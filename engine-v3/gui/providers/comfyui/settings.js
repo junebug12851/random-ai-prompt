@@ -3,21 +3,12 @@
  * (server URL, checkpoint name, scheduler) the other providers don't have.
  * @module gui/providers/comfyui/settings
  */
+// Defaults are the literal sidecar (comfyui.json); fields/data stay here. Note: comfyUpscaleModel
+// is the `upscale_models/*` name for AI upscale — blank self-heals to the first installed model.
+import defaults from "./comfyui.json";
+
 export default {
-  defaults: {
-    comfyUrl: "http://127.0.0.1:8188",
-    comfyCheckpoint: "v1-5-pruned-emaonly-fp16.safetensors",
-    comfyUpscaleModel: "", // upscale_models/* name for AI upscale; blank self-heals to the first installed
-    sampler: "euler",
-    scheduler: "normal",
-    imageSteps: 20,
-    cfg: 7,
-    imageWidth: 512,
-    imageHeight: 512,
-    batchSize: 1,
-    seed: -1,
-    negativePrompt: "",
-  },
+  defaults,
   fields: [
     { key: "comfyUrl", label: "ComfyUI URL", type: "text" },
     { key: "comfyCheckpoint", label: "Checkpoint (.safetensors)", type: "text" },

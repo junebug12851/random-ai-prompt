@@ -3,8 +3,10 @@
  * server adapter posts to that model's endpoint.
  * @module gui/providers/replicate/settings
  */
+import defaults from "./replicate.json";
+
 export default {
-  defaults: { model: "black-forest-labs/flux-schnell", aspectRatio: "1:1", batchSize: 1 },
+  defaults,
   fields: [
     { key: "model", label: "Model", type: "select", optionsFrom: "models" },
     {
