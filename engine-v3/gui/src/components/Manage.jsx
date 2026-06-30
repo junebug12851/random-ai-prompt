@@ -17,7 +17,7 @@ import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
 import ManageDetail from "./manage/ManageDetail.jsx";
-import { Caret, GearIcon, EditIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
+import { Caret, GearIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
 
 const msgs = defineMessages({
   ghostTitle: {
@@ -122,10 +122,21 @@ export default function Manage({ settings, available, active }) {
         </button>
       </span>
     ) : (
+      // The whole pill opens the entry (click or Enter/Space) — no separate Edit icon. Delete
+      // stays as its own button and stops propagation so it doesn't also open the editor.
       <span
-        className={`mg-pill kind-${e.kind}${selected?.path === e.path ? " on" : ""}`}
-        title={e.path}
+        className={`mg-pill is-clickable kind-${e.kind}${selected?.path === e.path ? " on" : ""}`}
+        title={intl.formatMessage(msgs.editTitle, { label: e.label })}
+        role="button"
+        tabIndex={0}
         draggable
+        onClick={() => openEntry(e)}
+        onKeyDown={(ev) => {
+          if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            openEntry(e);
+          }
+        }}
         onDragStart={() => setDragEntry(e)}
         onDragEnd={() => setDragEntry(null)}
       >
@@ -140,14 +151,14 @@ export default function Manage({ settings, available, active }) {
             {intl.formatMessage(msgs.jsTag)}
           </span>
         )}
-        <button className="mg-pill-act" title={intl.formatMessage(msgs.editTitle, { label: e.label })} aria-label={intl.formatMessage(msgs.editTitle, { label: e.label })} onClick={() => openEntry(e)}>
-          <EditIcon />
-        </button>
         <button
           className="mg-pill-act mg-pill-del"
           title={intl.formatMessage(msgs.deleteTitle, { label: e.label })}
           aria-label={intl.formatMessage(msgs.deleteTitle, { label: e.label })}
-          onClick={() => deleteEntry(e)}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            deleteEntry(e);
+          }}
         >
           <TrashIcon />
         </button>
