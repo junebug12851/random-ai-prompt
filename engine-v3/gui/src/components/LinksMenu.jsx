@@ -9,6 +9,8 @@
  */
 import { useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
+import { Select } from "./Field.jsx";
+import { AUTO_LOCALE, SUPPORTED_LOCALES, LOCALES } from "../i18n/index.js";
 import {
   MenuIcon,
   GitHubIcon,
@@ -49,14 +51,26 @@ const msgs = defineMessages({
   termsDesc: { id: "linksMenu.termsDesc", defaultMessage: "The rules for using the app" },
   cookies: { id: "linksMenu.cookies", defaultMessage: "Cookies Policy" },
   cookiesDesc: { id: "linksMenu.cookiesDesc", defaultMessage: "We don't use cookies" },
+  language: { id: "linksMenu.language", defaultMessage: "Language" },
+  localeAuto: {
+    id: "linksMenu.localeAuto",
+    defaultMessage: "Auto (browser)",
+    description: "Locale option that follows the browser's language",
+  },
 });
 
 /**
  * @returns {JSX.Element} The header links menu.
  */
-export default function LinksMenu() {
+export default function LinksMenu({ settings, setSettings }) {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
+
+  // App-wide display-language picker lives in this menu (alongside the project links + legal pages).
+  const localeOptions = [
+    { value: AUTO_LOCALE, label: intl.formatMessage(msgs.localeAuto) },
+    ...SUPPORTED_LOCALES.map((code) => ({ value: code, label: LOCALES[code].label })),
+  ];
 
   // Close on Escape.
   useEffect(() => {
@@ -99,6 +113,17 @@ export default function LinksMenu() {
         <>
           <div className="links-scrim" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="links-pop" role="menu" aria-label={intl.formatMessage(msgs.links)}>
+            {setSettings && (
+              <div className="links-group links-lang" role="group">
+                <Select
+                  label={intl.formatMessage(msgs.language)}
+                  value={settings?.locale ?? AUTO_LOCALE}
+                  onChange={(v) => setSettings((s) => ({ ...s, locale: v }))}
+                  options={localeOptions}
+                />
+                <div className="links-sep" role="separator" />
+              </div>
+            )}
             {groups.map((items, gi) => (
               <div key={gi} className="links-group" role="group">
                 {gi > 0 && <div className="links-sep" role="separator" />}

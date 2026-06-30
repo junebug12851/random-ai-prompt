@@ -18,6 +18,10 @@ const msgs = defineMessages({
   tierPlain: { id: "providerGear.tier.plain", defaultMessage: "plain text" },
   settings: { id: "providerGear.settings", defaultMessage: "Provider settings" },
   close: { id: "providerGear.close", defaultMessage: "close" },
+  none: {
+    id: "providerGear.none",
+    defaultMessage: "No provider selected — pick one in the Providers menu to see its settings.",
+  },
   roleImage: { id: "providerGear.role.image", defaultMessage: "Image" },
   roleText: { id: "providerGear.role.text", defaultMessage: "Text" },
   roleUpscale: { id: "providerGear.role.upscale", defaultMessage: "Upscale" },
@@ -104,17 +108,18 @@ export default function ProviderGear({ settings, setSettings }) {
       return next;
     });
 
-  const image = getProvider(settings.provider);
-  if (!image) return null;
+  // Each role may be unset ("none") — the image too (prompts only). Only set roles get a section.
+  const imageId = settings.provider && settings.provider !== "none" ? settings.provider : null;
   const textId =
     settings.rewriteProvider && settings.rewriteProvider !== "none" ? settings.rewriteProvider : null;
   const upscaleId =
     settings.upscaleProvider && settings.upscaleProvider !== "none" ? settings.upscaleProvider : null;
+  const image = imageId ? getProvider(imageId) : null;
   const text = textId ? getProvider(textId) : null;
   const upscale = upscaleId ? getProvider(upscaleId) : null;
 
   const sections = [
-    { id: "image", role: intl.formatMessage(msgs.roleImage), provider: image },
+    image && { id: "image", role: intl.formatMessage(msgs.roleImage), provider: image },
     text && { id: "text", role: intl.formatMessage(msgs.roleText), provider: text },
     upscale && { id: "upscale", role: intl.formatMessage(msgs.roleUpscale), provider: upscale },
   ].filter(Boolean);
@@ -146,19 +151,23 @@ export default function ProviderGear({ settings, setSettings }) {
               </button>
             </div>
             <div className="gear-pop-body">
-              <div className="gear-acc">
-                {sections.map((s) => (
-                  <GearSection
-                    key={s.id}
-                    role={s.role}
-                    provider={s.provider}
-                    open={expanded.has(s.id)}
-                    onToggle={() => toggle(s.id)}
-                    settings={settings}
-                    setSettings={setSettings}
-                  />
-                ))}
-              </div>
+              {sections.length ? (
+                <div className="gear-acc">
+                  {sections.map((s) => (
+                    <GearSection
+                      key={s.id}
+                      role={s.role}
+                      provider={s.provider}
+                      open={expanded.has(s.id)}
+                      onToggle={() => toggle(s.id)}
+                      settings={settings}
+                      setSettings={setSettings}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="hint provider-controls-empty">{intl.formatMessage(msgs.none)}</p>
+              )}
             </div>
           </div>
         </>

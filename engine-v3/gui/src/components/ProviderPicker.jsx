@@ -42,7 +42,7 @@ const msgs = defineMessages({
  * @param {Function} props.onPick `(id)` — called when an option is chosen.
  * @returns {JSX.Element}
  */
-export default function ProviderPicker({ label, value, groups, onPick, locked, lockReason }) {
+export default function ProviderPicker({ label, value, groups, onPick, locked, lockReason, hint }) {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
   const all = groups.flatMap((g) => g.items);
@@ -58,7 +58,11 @@ export default function ProviderPicker({ label, value, groups, onPick, locked, l
       <button
         className={`ps-trigger${locked ? " is-locked" : ""}`}
         onClick={() => (locked ? openFullVersion() : setOpen((o) => !o))}
-        title={locked ? lockedHint(intl, label, lockReason) : intl.formatMessage(msgs.providerTitle, { label })}
+        title={
+          locked
+            ? lockedHint(intl, label, lockReason)
+            : hint || intl.formatMessage(msgs.providerTitle, { label })
+        }
         aria-haspopup="listbox"
         aria-expanded={locked ? false : open}
         aria-disabled={locked || undefined}

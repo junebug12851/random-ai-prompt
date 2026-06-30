@@ -85,22 +85,6 @@
   "app.tab.single.desc": {
     "defaultMessage": "View one image up close — details, re-rolls, and resizes"
   },
-  "appMenu.appSettings": {
-    "defaultMessage": "App settings"
-  },
-  "appMenu.close": {
-    "defaultMessage": "close"
-  },
-  "appMenu.group.language": {
-    "defaultMessage": "Language"
-  },
-  "appMenu.locale": {
-    "defaultMessage": "Display language"
-  },
-  "appMenu.locale.auto": {
-    "defaultMessage": "Auto (browser)",
-    "description": "Locale option that follows the browser's language"
-  },
   "blockEd.ariaDpl": {
     "defaultMessage": "Generator DPL"
   },
@@ -711,8 +695,15 @@
   "linksMenu.homeDesc": {
     "defaultMessage": "The fairyfox project home"
   },
+  "linksMenu.language": {
+    "defaultMessage": "Language"
+  },
   "linksMenu.links": {
     "defaultMessage": "Links"
+  },
+  "linksMenu.localeAuto": {
+    "defaultMessage": "Auto (browser)",
+    "description": "Locale option that follows the browser's language"
   },
   "linksMenu.menu": {
     "defaultMessage": "Menu"
@@ -1116,6 +1107,9 @@
   "providerGear.close": {
     "defaultMessage": "close"
   },
+  "providerGear.none": {
+    "defaultMessage": "No provider selected — pick one in the Providers menu to see its settings."
+  },
   "providerGear.role.image": {
     "defaultMessage": "Image"
   },
@@ -1206,6 +1200,12 @@
   },
   "providersMenu.unsetDesc": {
     "defaultMessage": "No text AI selected — prompt & keyword rewriting stays off."
+  },
+  "providersMenu.unsetImageDesc": {
+    "defaultMessage": "No image provider — generate prompts only, no images."
+  },
+  "providersMenu.unsetUpscaleDesc": {
+    "defaultMessage": "No upscaler selected."
   },
   "providersMenu.upscale": {
     "defaultMessage": "Upscaler / Enhancer"

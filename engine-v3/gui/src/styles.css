@@ -258,6 +258,16 @@ body {
   margin: 0.35rem 0.15rem;
   background: var(--border-soft);
 }
+/* The display-language picker at the top of the menu. */
+.links-lang {
+  padding: 0.15rem 0.15rem 0;
+}
+.links-lang .field {
+  gap: 0.25rem;
+}
+.links-lang select {
+  width: 100%;
+}
 
 /* ---------- NSFW switch (right-aligned in the title bar) ---------- */
 .nsfw-toggle {
