@@ -65,24 +65,29 @@ On top of the backend:
 ## On-disk layout (local mode)
 
 ```
-engine-v3/
-  user-settings/                 ← the ONE folder, gitignored (user data)
+engine-v3/gui/                   ← the dev server's root, so the folder lives here (not engine-v3/ root,
+  user-settings/                   and not to be confused with the Node engine's user-settings.json)
     settings.json                ← { __v, ...appSettings } (prompt knobs, image params, BYOK keys)
-    wrappers.json                ← saved START/END wrapper presets (+ edited Default)
+    wrapper-default.json         ← the editable built-in Default wrapper
+    wrappers.json                ← saved START/END wrapper presets
     presets.json                 ← custom setting presets
-    providers/
+    providers/                   ← created lazily, the first time a provider's settings are changed
       openai.json                ← override diff over gui/providers/openai defaults
       comfyui.json               ← …only the keys the user changed
       …
 ```
+(The whole folder is gitignored — `engine-v3/gui/user-settings/` — so BYOK keys in `settings.json`
+are never committed.)
 
 Provider **defaults** stay in the provider folder (`gui/providers/<id>/settings.js` `defaults`,
 optionally a sibling `<id>.json` if a literal sidecar is preferred). Same logical name on both sides
 (`<id>`), defaults-then-override, exactly as specified.
 
-The dev-server `/api/storage` endpoint maps a namespace to a file under `user-settings/`: `providers/x`
-→ `user-settings/providers/x.json`, everything else → `user-settings/<ns>.json`. It migrates the old
-flat `.gui-storage.json` on first run (split into per-namespace files) and then leaves it alone.
+The dev-server `/api/storage` endpoint maps a namespace to a file under `engine-v3/gui/user-settings/`:
+`providers/x` → `…/user-settings/providers/x.json`, everything else → `…/user-settings/<ns>.json`. The
+folder + each file are created lazily on first write, so it won't exist until the dev server is running
+and the app has saved something. It migrates the old flat `.gui-storage.json` on first server start
+(splitting it into per-namespace files, then renaming the old file `.gui-storage.json.migrated`).
 
 ## Cookies
 
