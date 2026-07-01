@@ -1,15 +1,16 @@
 /**
- * Accent presets — the single source of truth for the swatch grid, the generated
- * accent CSS (`scripts/gen-accents.mjs` → `styles/foundation/accents.css`), and
- * the contrast test (`tests/theme/accentContrast.test.js`).
+ * Built-in ("system") theme registry. Each system theme is a file in
+ * `./themes/*.json` — the file **is** the theme; there is no theme without a
+ * theme file. This module loads them (Vite / Vitest glob) into the ordered list
+ * the app + picker consume. The generator (`scripts/gen-accents.mjs`) reads the
+ * same folder via `fs` to emit the static `styles/foundation/accents.css`. User
+ * themes (Phase 7) merge on top of these at runtime.
  *
- * Each accent renders **bright neon on dark** and **soft pastel on light**, with a
- * per-accent `ink` (the readable text colour on an accent-filled button). Mint is
- * the shipped default and its values match `foundation/tokens.css` exactly, so it
- * needs no `[data-accent]` override — the generator skips it.
- *
- * `--accent-strong` (button hover) and `--accent-soft` (tints) are derived from
- * `--accent` in CSS, so they aren't part of the per-accent data here.
+ * Theme-file shape:
+ *   { id, label, swatch, dark: {accent, ink}, light: {accent, ink} }
+ * where `dark` is the neon tone and `light` the pastel tone; `ink` is the
+ * readable text colour on an accent-filled button. `--accent-strong` /
+ * `--accent-soft` derive from `--accent` in CSS, so they aren't in the file.
  * @module gui/theme/presets
  */
 
@@ -27,80 +28,23 @@
  * @property {AccentTone} light Pastel tone for the light base.
  */
 
-/** @type {Accent[]} */
-export const ACCENTS = [
-  {
-    id: "mint",
-    label: "Mint",
-    swatch: "#34e2a0",
-    dark: { accent: "#34e2a0", ink: "#06231a" },
-    light: { accent: "#34e2a0", ink: "#04150f" },
-  },
-  {
-    id: "teal",
-    label: "Teal",
-    swatch: "#3de8c8",
-    dark: { accent: "#3de8c8", ink: "#04231e" },
-    light: { accent: "#6fe6cf", ink: "#04231e" },
-  },
-  {
-    id: "cyan",
-    label: "Cyan",
-    swatch: "#46e6ff",
-    dark: { accent: "#46e6ff", ink: "#052430" },
-    light: { accent: "#7fe9ff", ink: "#052430" },
-  },
-  {
-    id: "blue",
-    label: "Blue",
-    swatch: "#5b9dff",
-    dark: { accent: "#5b9dff", ink: "#071630" },
-    light: { accent: "#8fbcff", ink: "#071630" },
-  },
-  {
-    id: "violet",
-    label: "Violet",
-    swatch: "#b18bff",
-    dark: { accent: "#b18bff", ink: "#1a0a2e" },
-    light: { accent: "#c7b0ff", ink: "#1a0a2e" },
-  },
-  {
-    id: "magenta",
-    label: "Magenta",
-    swatch: "#f27bff",
-    dark: { accent: "#f27bff", ink: "#2a082b" },
-    light: { accent: "#f4a8ff", ink: "#2a082b" },
-  },
-  {
-    id: "pink",
-    label: "Pink",
-    swatch: "#ff77a8",
-    dark: { accent: "#ff77a8", ink: "#2e0a18" },
-    light: { accent: "#ffa6c2", ink: "#2e0a18" },
-  },
-  {
-    id: "coral",
-    label: "Coral",
-    swatch: "#ff8a6b",
-    dark: { accent: "#ff8a6b", ink: "#2e1108" },
-    light: { accent: "#ffb199", ink: "#2e1108" },
-  },
-  {
-    id: "amber",
-    label: "Amber",
-    swatch: "#ffcb52",
-    dark: { accent: "#ffcb52", ink: "#2a1e04" },
-    light: { accent: "#ffdd8a", ink: "#2a1e04" },
-  },
-];
+// Eager-load every system theme file. Glob keys are paths
+// ("./themes/01-mint.json"); the NN- filename prefix defines picker order, so a
+// plain key sort yields the intended order.
+const modules = import.meta.glob("./themes/*.json", { eager: true, import: "default" });
 
-/** Default accent id (matches the mint tokens in foundation/tokens.css). */
+/** @type {Accent[]} The built-in themes, in filename order. */
+export const ACCENTS = Object.keys(modules)
+  .sort()
+  .map((key) => modules[key]);
+
+/** Default accent id (the mint theme; matches the :root tokens in tokens.css). */
 export const DEFAULT_ACCENT = "mint";
 
-/** All valid accent ids, in picker order. */
+/** All valid built-in accent ids, in picker order. */
 export const ACCENT_IDS = ACCENTS.map((a) => a.id);
 
-/** Normalize any stored/incoming accent id to a valid one. */
+/** Normalize any stored/incoming accent id to a valid built-in one. */
 export function normalizeAccent(id) {
   return ACCENT_IDS.includes(id) ? id : DEFAULT_ACCENT;
 }

@@ -1,0 +1,13 @@
+{
+  "id": "blue",
+  "label": "Blue",
+  "swatch": "#5b9dff",
+  "dark": {
+    "accent": "#5b9dff",
+    "ink": "#071630"
+  },
+  "light": {
+    "accent": "#8fbcff",
+    "ink": "#071630"
+  }
+}
