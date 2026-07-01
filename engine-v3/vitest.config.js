@@ -32,9 +32,10 @@ export default defineConfig({
         "src/prompt-modules/cleanup.js",
         "src/prompt-modules/prompt-salt.js",
       ],
-      // The browser loader is exercised by the SPA (jsdom) suite via import.meta.glob,
-      // so it isn't measurable from the Node environment — exclude it from the Node gate.
-      exclude: ["src/core/browserLoader.js"],
+      // The browser loader + its code-split prompt-corpus module are exercised by the SPA (jsdom)
+      // suite via import.meta.glob, so they aren't measurable from the Node environment — exclude them
+      // from the Node gate.
+      exclude: ["src/core/browserLoader.js", "src/core/browserCatalogData.js"],
       // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
       reporter: ["text", "html", "lcov"],
       // CI gate (owner-approved). Set with headroom below the measured numbers
