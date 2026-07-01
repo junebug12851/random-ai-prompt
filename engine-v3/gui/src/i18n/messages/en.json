@@ -1590,6 +1590,24 @@
   "single.viewTable": {
     "defaultMessage": "View Table"
   },
+  "theme.accent": {
+    "defaultMessage": "Accent"
+  },
+  "theme.appearance": {
+    "defaultMessage": "Appearance"
+  },
+  "theme.dark": {
+    "defaultMessage": "Dark"
+  },
+  "theme.light": {
+    "defaultMessage": "Light"
+  },
+  "theme.mode": {
+    "defaultMessage": "Mode"
+  },
+  "theme.system": {
+    "defaultMessage": "System"
+  },
   "tokenPicker.filter": {
     "defaultMessage": "Filter {count}…",
     "description": "Placeholder for the token search box (count = number of tokens)"

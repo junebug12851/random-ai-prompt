@@ -29,6 +29,7 @@
 @import url("./components/app-frame.css") layer(components);
 @import url("./components/title-bar.css") layer(components);
 @import url("./components/header-links-menu.css") layer(components);
+@import url("./components/theme-picker.css") layer(components);
 @import url("./components/nsfw-switch.css") layer(components);
 @import url("./components/confirm-dialog.css") layer(components);
 @import url("./components/workspace.css") layer(components);
