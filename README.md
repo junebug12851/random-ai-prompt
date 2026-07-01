@@ -4,18 +4,15 @@
 ![GitHub Forks](https://www.shieldcn.dev/github/forks/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Watchers](https://www.shieldcn.dev/github/watchers/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Contributors](https://www.shieldcn.dev/github/contributors/junebug12851/random-ai-prompt.svg?theme=emerald&variant=branded&size=xs&font=space-grotesk)
-
 ![Release](https://www.shieldcn.dev/github/release/junebug12851/random-ai-prompt.svg?variant=branded&size=xs&theme=stone&font=space-grotesk)
 ![Last commit](https://www.shieldcn.dev/github/last-commit/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Commits](https://www.shieldcn.dev/github/commits/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Branches](https://www.shieldcn.dev/github/branches/junebug12851/random-ai-prompt.svg?variant=ghost&size=xs&theme=stone&font=space-grotesk)
-
 ![Open issues](https://www.shieldcn.dev/github/open-issues/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Closed issues](https://www.shieldcn.dev/github/closed-issues/junebug12851/random-ai-prompt.svg?variant=ghost&size=xs&theme=stone&font=space-grotesk)
 ![Open PRs](https://www.shieldcn.dev/github/open-prs/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![Merged PRs](https://www.shieldcn.dev/github/merged-prs/junebug12851/random-ai-prompt.svg?variant=ghost&size=xs&theme=stone&font=space-grotesk)
 ![Closed PRs](https://www.shieldcn.dev/github/closed-prs/junebug12851/random-ai-prompt.svg?variant=ghost&size=xs&theme=stone&font=space-grotesk)
-
 ![CI](https://www.shieldcn.dev/github/ci/junebug12851/random-ai-prompt.svg?variant=secondary&size=xs&theme=stone&font=space-grotesk)
 ![License](https://www.shieldcn.dev/github/license/junebug12851/random-ai-prompt.svg?variant=ghost&size=xs&theme=stone&font=space-grotesk)
 ![Hosting · Netlify](https://www.shieldcn.dev/badge/Hosting-Netlify-00AD9F.svg?logo=netlify&variant=branded&size=xs&theme=stone&font=space-grotesk)
