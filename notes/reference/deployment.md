@@ -59,6 +59,27 @@ default-branch (`main`) coverage, so it populates after the first CI run on `mai
 a CI/build integration only — it receives coverage reports from CI, not any user data from the app — so
 the legal/privacy pages are unaffected.
 
+## Security & code-health integrations
+
+Free-for-OSS services layered on top of CI. None touch the shipped app or user data (CI/build only),
+so the legal pages are unaffected.
+
+- **Dependabot** (`.github/dependabot.yml`) — GitHub-native. Weekly, grouped dependency-update PRs for
+  `engine-v3` npm, `engine-v3/gui` npm, and the GitHub Actions; plus security alerts. Zero setup.
+- **CodeQL** (`.github/workflows/codeql.yml` + `.github/codeql/codeql-config.yml`) — GitHub-native SAST
+  on push/PR to dev & main + weekly; `javascript-typescript`, `security-and-quality` queries; frozen
+  `engine-v1-2/`, build output, and vendored deps are `paths-ignore`d. Findings → Security → Code scanning.
+- **OpenSSF Scorecard** (`.github/workflows/scorecard.yml`) — GitHub-native. Weekly supply-chain posture
+  score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`).
+- **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
+  — deep static analysis + coverage import + tech-debt / quality-gate badges. **Dormant** until the owner
+  enables it: sign in at https://sonarcloud.io with GitHub, add secret `SONAR_TOKEN`, and set repo
+  variable `SONAR_ENABLED=true` (the workflow's `if:` guard, so no spurious red X before setup). Confirm
+  the `projectKey`/`organization` in `sonar-project.properties` match what Sonar generates on import.
+- **CodeRabbit** (`.coderabbit.yaml`) — AI PR reviews. Activates on installing the GitHub app
+  (https://github.com/apps/coderabbitai); no secret. Auto-reviews PRs to dev/main; frozen/generated paths filtered.
+- **CodeFactor** — zero-config code-quality grade + badge; enable its GitHub app (https://www.codefactor.io).
+
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
 Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — the run steps use

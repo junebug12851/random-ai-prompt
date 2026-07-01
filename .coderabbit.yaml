@@ -1,0 +1,30 @@
+# CodeRabbit — AI code review on every PR (high-level summary + inline suggestions).
+# Free for open-source. Activates once you install the app: https://github.com/apps/coderabbitai
+# (sign in at https://coderabbit.ai with GitHub). No secret needed — it's a GitHub App.
+# Config reference: https://docs.coderabbit.ai/reference/configuration
+language: en-US
+early_access: false
+reviews:
+  profile: chill # concise, non-nitpicky; use "assertive" for more thorough reviews
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - dev
+      - main
+  # Don't review frozen code, build output, generated artifacts, the giant word lists, or vendored deps.
+  path_filters:
+    - "!engine-v1-2/**"
+    - "!**/dist/**"
+    - "!**/coverage/**"
+    - "!**/node_modules/**"
+    - "!docs/**"
+    - "!assets/references/**"
+    - "!engine-v3/data/lists/**"
+    - "!engine-v3/gui/src/i18n/compiled/**"
+chat:
+  auto_reply: true
