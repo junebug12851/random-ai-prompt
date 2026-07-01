@@ -33,10 +33,9 @@ import { effectiveKey } from "./lib/sessionKeys.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
-import { refreshCatalog } from "./lib/promptEngine.js";
+import { refreshCatalog, ensureCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
 import { dialog } from "./lib/dialog.js";
-import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
@@ -44,6 +43,10 @@ import LinksMenu from "./components/LinksMenu.jsx";
 import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
 
+// Home is lazy-loaded too: its subtree (the block palette, the DPL editor, live preview, the
+// per-prompt result cards) is a big slice of the app UI, so splitting it out of the entry chunk lets
+// the top bar / shell paint first (better FCP) while the Generate view streams in right behind it.
+const Home = lazy(() => import("./components/Home.jsx"));
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
 // is split into separate chunks the browser fetches only when the view is first opened —
 // keeping the initial Generate-screen payload small. Once opened, a pane stays mounted (so
@@ -226,6 +229,16 @@ function AppShell({ settings, setSettings }) {
       loadFeed();
     }
     fetchMagick().then(setMagick);
+    // Load the bundled prompt corpus — code-split off the initial module graph. The palette already
+    // renders from the (free) name catalog, so defer the heavy content fetch to idle time: that keeps
+    // it from competing with the preloaded fonts + first paint for bandwidth (better LCP), and the
+    // palette/generation fill in once it resolves (via the catalog-change notification). See
+    // promptEngine.ensureCatalog.
+    const idle =
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback
+        : (fn) => setTimeout(fn, 200);
+    idle(() => ensureCatalog());
     // Switch the engine from the build-time bundle to the live disk snapshot (local mode only).
     // A no-op online / on a static host — Generate keeps using the bundled catalog.
     refreshCatalog().catch(() => {});
@@ -489,11 +502,13 @@ function AppShell({ settings, setSettings }) {
 
       <main>
         <div className={`view-pane${view === "generate" ? " on" : ""}`}>
-          <Home
-            settings={settings}
-            setSettings={setSettings}
-            onOpenImage={ONLINE ? undefined : openGeneratedImage}
-          />
+          <Suspense fallback={null}>
+            <Home
+              settings={settings}
+              setSettings={setSettings}
+              onOpenImage={ONLINE ? undefined : openGeneratedImage}
+            />
+          </Suspense>
         </div>
         {/* Gallery + Single are local-only: the online build has no image feed and omits them.
             Each mounts (and fetches its chunk) only once first opened, then stays mounted. */}

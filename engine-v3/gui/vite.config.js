@@ -56,6 +56,14 @@ export default defineConfig({
     fs: { allow: [repoRoot] },
   },
   build: {
+    // Keep the code-split prompt corpus OFF the entry's <link rel="modulepreload"> list. The engine
+    // fetches it at runtime via an explicit import() after first paint (promptEngine.ensureCatalog);
+    // a modulepreload would drag its ~430 KB back onto the initial download and re-block LCP. The
+    // runtime import() still fetches the chunk when it's actually needed — it just isn't preloaded.
+    modulePreload: {
+      resolveDependencies: (_filename, deps) =>
+        deps.filter((dep) => !/(?:prompt-data|browserCatalogData)-/.test(dep)),
+    },
     rollupOptions: {
       output: {
         // Split the monolith into focused, independently-cacheable chunks (Vite 8 / Rolldown

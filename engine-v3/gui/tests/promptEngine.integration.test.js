@@ -4,7 +4,7 @@
  * browser loader (Vite import.meta.glob over the real bundled data), so it exercises
  * the whole prompt system the way the SPA does — no mocks.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import {
   generatePrompts,
   expandPrompt,
@@ -12,7 +12,12 @@ import {
   getBlocks,
   getListNames,
   getPresetNames,
+  ensureCatalog,
 } from "../src/lib/promptEngine.js";
+
+// The bundled catalog now loads lazily/asynchronously (kept off the first-paint graph), so trigger +
+// await it before exercising generation/blocks — mirrors how the SPA loads it from a mount effect.
+beforeAll(() => ensureCatalog());
 
 const settings = {
   prompt: "{#random-words}",
