@@ -38,17 +38,17 @@ function getRndSalt() {
  * @param {object} [upscaleSettings] Unused.
  * @returns {string} The prompt with salt resolved/appended.
  */
-export default function (prompt, settings, imageSettings, upscaleSettings) {
+export default function (prompt, settings, imageSettings, _upscaleSettings) {
   let foundSalt = false;
   let val = settings.promptSaltStart;
 
-  prompt = prompt.replaceAll(/\{salt\}/gm, function (match) {
+  prompt = prompt.replaceAll(/\{salt\}/gm, function () {
     foundSalt = true;
     imageSettings.usedSalt = val >= 0 ? `[${val}]` : getRndSalt();
     return val >= 0 ? `[${val}]` : getRndSalt();
   });
 
-  prompt = prompt.replaceAll(/\[\d+\]/gm, function (match) {
+  prompt = prompt.replaceAll(/\[\d+\]/gm, function () {
     foundSalt = true;
     imageSettings.usedSalt = val >= 0 ? `[${val}]` : getRndSalt();
     return val >= 0 ? `[${val}]` : getRndSalt();
@@ -63,7 +63,7 @@ export default function (prompt, settings, imageSettings, upscaleSettings) {
 
   // Remove brackets around used salt
   if (imageSettings.usedSalt != undefined)
-    imageSettings.usedSalt = imageSettings.usedSalt.replaceAll(/[\[\]]/gm, "");
+    imageSettings.usedSalt = imageSettings.usedSalt.replaceAll(/[[\]]/gm, "");
 
   if (val >= 0) {
     settings.promptSaltStart++;

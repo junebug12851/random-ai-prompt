@@ -70,7 +70,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
     const line = raw.replace(/\r$/, "");
     if (line.trim() === "") return;
     const name = line.split(",")[0] || "";
-    const keyword = name.replace(/[\/\\_]+/g, " ");
+    const keyword = name.replace(/[/\\_]+/g, " ");
     const r = classifyRemoval(keyword, { listType: "content" });
     if (r)
       findings.push({

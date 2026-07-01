@@ -29,6 +29,8 @@ remove, or bump a dependency.
 | `globals` | 16 | Node + browser global sets for the flat config. |
 | `prettier` | 3 | Formatting (`.prettierrc.json`). |
 | `eslint-config-prettier` | 10 | Turns off ESLint rules that conflict with Prettier. |
+| `stylelint` | 17 | CSS linting (`stylelint.config.mjs`); run via `lint:css`, folded into `npm run lint`. Added 2.35.3. |
+| `stylelint-config-standard` | 40 | Base CSS ruleset for stylelint (same family CodeFactor's CSS engine applies). Added 2.35.3. |
 
 ### Test tooling (added 2.6.0)
 

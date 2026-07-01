@@ -84,7 +84,7 @@ for (const fname of fs.readdirSync(listsDir).filter((f) => f.endsWith(".txt"))) 
     path.join(dataDir, "sources", "danbooru.csv"),
     "danbooru.csv",
     (l) => classifyRemoval(l, { listType: "content" }),
-    (line) => (line.split(",")[0] || "").replace(/[\/\\_]+/g, " "),
+    (line) => (line.split(",")[0] || "").replace(/[/\\_]+/g, " "),
   );
   if (n) console.log(`danbooru.csv: removed ${n}`);
 }
