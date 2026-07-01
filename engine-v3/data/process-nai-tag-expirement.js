@@ -66,8 +66,8 @@ _.forOwn(tags, (val, key) => {
 
     // Replace underscores and slashes with spaces, remove parenthesis
     entry = entry
-      .replaceAll(/[\/\\_]/gm, " ")
-      .replaceAll(/[\(\)]/gm, "")
+      .replaceAll(/[/\\_]/gm, " ")
+      .replaceAll(/[()]/gm, "")
       .replaceAll(/^(\W) (\W)$/gm, "$1_$2");
 
     // Add to results array

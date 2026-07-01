@@ -34,7 +34,7 @@ const leaks = [];
 for (const rel of names) {
   if (EXPECT_ADULT(rel)) continue;
   const lines = fs.readFileSync(path.join(listsDir, `${rel}.txt`), "utf8").split(/\r?\n/);
-  lines.forEach((raw, i) => {
+  lines.forEach((raw) => {
     const line = raw.replace(/\r$/, "");
     if (line.trim() === "") return;
     const rm = classifyRemoval(line, { listType: "content" });

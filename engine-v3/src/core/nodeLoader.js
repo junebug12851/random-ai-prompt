@@ -125,7 +125,7 @@ function readGroupFile(name) {
 // Optional `<name>.json` sidecar metadata (currently `{ description }`), or null.
 function readListMeta(name) {
   if (_listMetaCache.has(name)) return _listMetaCache.get(name);
-  let meta = null;
+  let meta;
   try {
     meta = JSON.parse(fs.readFileSync(path.join(listsRoot, `${name}.json`), "utf8"));
   } catch {
@@ -251,7 +251,7 @@ export const nodeLoader = {
   // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
   readDynPromptMeta(name) {
     if (_dynMetaCache.has(name)) return _dynMetaCache.get(name);
-    let meta = null;
+    let meta;
     try {
       meta = JSON.parse(fs.readFileSync(path.join(dynPromptsRoot, `${name}.json`), "utf8"));
     } catch {
@@ -288,7 +288,7 @@ export const nodeLoader = {
   // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.
   readDynPromptGroup(name) {
     if (_dynGroupCache.has(name)) return _dynGroupCache.get(name);
-    let lines = null;
+    let lines;
     try {
       lines = fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
     } catch {

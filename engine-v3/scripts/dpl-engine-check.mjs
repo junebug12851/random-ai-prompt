@@ -21,7 +21,7 @@ const cases = [
 
 let failed = 0;
 for (const c of cases) {
-  let out = "";
+  let out;
   try {
     out = engine.generate({ prompt: c, includeAdult: false });
   } catch (e) {

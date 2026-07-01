@@ -33,7 +33,7 @@
  * @param {object} [upscaleSettings] Unused.
  * @returns {string} The tidied prompt.
  */
-export default function (prompt, settings, imageSettings, upscaleSettings) {
+export default function (prompt, _settings, _imageSettings, _upscaleSettings) {
   // Get rid of extra spaces
   prompt = prompt.replaceAll(/ +/gm, " ");
 
