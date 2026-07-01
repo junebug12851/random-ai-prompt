@@ -123,11 +123,14 @@
   background: var(--chip-hover);
 }
 
-.g-danger {
+/* Delete / destructive action. Scoped under `.g-actions` (and qualified with
+   `button`) so it outranks the shared `.g-actions button` base + its :hover
+   without needing !important; the rule sits after those, so it wins the tie. */
+.g-actions button.g-danger {
   margin-left: auto;
-  border-color: #6b2230 !important;
-  background: #3a1620 !important;
-  color: #ffb3c0 !important;
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
 }
 
 /* Cards (prompt / negative / details / keywords) */

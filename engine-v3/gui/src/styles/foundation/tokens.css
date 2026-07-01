@@ -15,6 +15,11 @@
   --p-mint-ink-dark: #06231a; /* readable ink on mint, dark base */
   --p-mint-ink-light: #04150f; /* readable ink on mint, light base */
 
+  /* Danger / destructive (delete) — base-independent (same in dark & light). */
+  --p-danger-border: #6b2230;
+  --p-danger-bg: #3a1620;
+  --p-danger-fg: #ffb3c0;
+
   /* Neutral palette — dark base */
   --p-dark-canvas: #1c1c1f;
   --p-dark-input: #2a2a2f;
@@ -90,6 +95,11 @@
   --accent-strong: var(--p-mint-strong);
   --accent-ink: var(--p-mint-ink-dark); /* text on a green button */
   --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+
+  /* Destructive action (delete) — a real red, distinct from the accent. */
+  --danger-border: var(--p-danger-border);
+  --danger-bg: var(--p-danger-bg);
+  --danger-fg: var(--p-danger-fg);
 
   /* DPL syntax roles ({#generator} / {list} / +ref / weights / gates / …).
      --dpl-list reuses the accent; --dpl-ref reuses --dpl-gen. */
