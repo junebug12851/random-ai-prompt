@@ -1,0 +1,30 @@
+# Line-ending normalization for the whole repo.
+#
+# Store every text file with LF in git AND check it out with LF on every
+# platform (the `eol=lf` forces LF in the working tree, overriding a Windows
+# `core.autocrlf=true`). This stops the CRLF working-tree noise where tools
+# like Prettier (endOfLine: lf) flag every file on a Windows checkout.
+* text=auto eol=lf
+
+# Windows batch scripts must keep CRLF to run reliably under cmd.exe.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets — never normalize or diff as text.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.icns binary
+*.svg  text
+*.woff  binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.mp4 binary
+*.webm binary
