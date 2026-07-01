@@ -50,6 +50,15 @@ by the SemVer level.
 
 The release path is set by the SemVer level (see [`versioning.md`](versioning.md)):
 
+> **⚠ Local correction (pending hub adoption).** The upstream (hub) form of both flows below merged
+> into `main` but never brought `main` back to `dev`, so **every release left a merge commit on `main`
+> that `dev` never received** — `dev` drifts behind `main`, one commit per release, and any commit made
+> directly on `main` (which must never happen anyway) is stranded there. Observed live: `dev` was 32
+> commits behind `main`. **Invariant to hold: after every release, `dev` must CONTAIN `main`** — so the
+> release ends by fast-forwarding `dev` up to `main`. The corrected commands below do this. This fix is
+> proposed back to the hub standard in `notes/fairyfox-reports/2026-07-01-propose-git-workflow-backmerge.md`;
+> a scheduled `branch-sync` workflow guards the invariant.
+
 - **PATCH** (the default — fixes, docs, ordinary changes): release **directly** `dev → main`.
 
   ```sh
@@ -57,6 +66,8 @@ The release path is set by the SemVer level (see [`versioning.md`](versioning.md
   git merge --no-ff dev
   git push origin main                 # CI (release.yml) derives + creates the vX.Y.Z tag — do NOT tag by hand
   git checkout dev
+  git merge --ff-only main             # REQUIRED: catch dev up to main (fast-forward) so dev ⊇ main
+  git push origin dev
   ```
 
 - **MINOR / MAJOR** (a milestone): go through a **`release/X.Y.0`** branch. (MAJOR → `1.0.0` etc. is the
@@ -68,11 +79,15 @@ The release path is set by the SemVer level (see [`versioning.md`](versioning.md
   # … finalize: bump VERSION, finish the changelog entry, last polish …
   git checkout main
   git merge --no-ff release/X.Y.0
-  git checkout dev
-  git merge --no-ff release/X.Y.0       # carry the release finalizations back
   git branch -d release/X.Y.0
+  git checkout dev
+  git merge --ff-only main              # REQUIRED: fast-forward dev up to main (== the release merge)
   git push origin main dev              # CI creates the vX.Y.0 tag — do NOT tag by hand
   ```
+
+  (The old form merged the release branch into `dev` separately, creating a *different* merge commit
+  on `dev` than on `main` — leaving `main` one commit ahead of `dev`. Fast-forwarding `dev` to `main`
+  instead gives one shared merge commit and `dev == main` after the release.)
 
 A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
 the Pages docs (`pages.yml`). See [`deployment.md`](deployment.md).

@@ -1,0 +1,41 @@
+# Branch-sync guard.
+#
+# Enforces the git-flow invariant that DEV ALWAYS CONTAINS MAIN: after every
+# release, `dev` is fast-forwarded up to `main` (see reference/git-workflow.md).
+# If a release ever skips that back-merge — or something is committed directly on
+# `main` — `main` ends up with commits `dev` lacks, and `dev` silently drifts
+# behind (observed once: 32 commits, with main-only README/docs). This job fails
+# in that case so the drift is caught within a day instead of at the next release.
+#
+# Scheduled (daily backstop) + on-demand. Not run on push, to avoid racing a
+# release that pushes `main` and `dev` together. Root-caused + proposed back to
+# the hub standard in notes/fairyfox-reports/2026-07-01-propose-git-workflow-backmerge.md.
+name: Branch sync
+
+on:
+  schedule:
+    - cron: "17 8 * * *" # daily, 08:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  dev-contains-main:
+    name: dev must contain main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Assert dev contains all of main
+        run: |
+          git fetch --quiet origin main dev
+          ahead="$(git rev-list --count origin/dev..origin/main)"
+          if [ "$ahead" -ne 0 ]; then
+            echo "::error::main has $ahead commit(s) not in dev — a release likely skipped the mandatory back-merge (fast-forward main -> dev), or something was committed directly on main. Fix: git checkout dev && git merge --ff-only main && git push origin dev."
+            echo "Commits on main but not dev:"
+            git log --oneline origin/dev..origin/main
+            exit 1
+          fi
+          echo "OK — dev contains all of main (0 commits ahead)."

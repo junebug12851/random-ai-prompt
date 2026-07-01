@@ -182,7 +182,13 @@ After making changes, run this loop without being asked:
    A **PATCH** goes **directly** `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch
    (see `reference/git-workflow.md`). With the owner's go-ahead, confirm CI is green on the `dev` HEAD
    (`gh run list --branch dev -L 1`), then for a PATCH:
-   `git checkout main && git merge --no-ff dev && git push origin main && git checkout dev`.
+   `git checkout main && git merge --no-ff dev && git push origin main && git checkout dev && git merge --ff-only main && git push origin dev`.
+   **After every release `dev` must CONTAIN `main`** — the closing `git merge --ff-only main` on `dev`
+   (and `git push origin dev`) catches `dev` up to `main`'s release merge commit so it never drifts
+   behind. Skipping this back-merge is what once left `dev` 32 commits behind `main` (with `main`-only
+   README/docs). A MINOR/MAJOR ends the same way: after the `release/X.Y.0` branch merges into `main`,
+   fast-forward `dev` up to `main` (don't merge the release branch into `dev` separately). A scheduled
+   `branch-sync` workflow fails if `main` ever has commits not in `dev`. See `reference/git-workflow.md`.
    **Do not tag by hand.** `release.yml` derives `v<VERSION>` and creates the tag itself, gated on that
    tag not already existing — a hand-pushed tag makes the gated run find the tag present and **skip
    itself (a silent no-op release)**. The merge to `main` *is* the release act; CI applies the tag. A
