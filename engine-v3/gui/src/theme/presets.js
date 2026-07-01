@@ -44,7 +44,12 @@ export const DEFAULT_ACCENT = "mint";
 /** All valid built-in accent ids, in picker order. */
 export const ACCENT_IDS = ACCENTS.map((a) => a.id);
 
-/** Normalize any stored/incoming accent id to a valid built-in one. */
-export function normalizeAccent(id) {
-  return ACCENT_IDS.includes(id) ? id : DEFAULT_ACCENT;
+/**
+ * Normalize an accent id to a valid one. Valid = a built-in id, or any id in
+ * `extraIds` (the user-theme ids). Unknown ids fall back to the default.
+ * @param {string} id
+ * @param {string[]} [extraIds] Extra valid ids (e.g. user-theme ids).
+ */
+export function normalizeAccent(id, extraIds = []) {
+  return ACCENT_IDS.includes(id) || extraIds.includes(id) ? id : DEFAULT_ACCENT;
 }

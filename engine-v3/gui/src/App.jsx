@@ -20,6 +20,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
 import { ThemeProvider } from "./theme/ThemeProvider.jsx";
+import { useUserThemes } from "./theme/userThemeStore.js";
 import { hydrate, isHydrated, rehydrate, msSinceLastWrite } from "../storage/cache.js";
 import { useSettings, loadSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
@@ -151,6 +152,7 @@ export default function App() {
  */
 function HydratedApp() {
   const [settings, setSettings] = useSettings();
+  const [userThemes, addUserTheme, removeUserTheme] = useUserThemes();
   return (
     <I18nProvider locale={settings.locale}>
       <ThemeProvider
@@ -158,6 +160,9 @@ function HydratedApp() {
         setMode={(m) => setSettings((s) => ({ ...s, themeMode: m }))}
         accent={settings.accent}
         setAccent={(a) => setSettings((s) => ({ ...s, accent: a }))}
+        userThemes={userThemes}
+        addUserTheme={addUserTheme}
+        removeUserTheme={removeUserTheme}
       >
         <AppShell settings={settings} setSettings={setSettings} />
         <DialogHost />

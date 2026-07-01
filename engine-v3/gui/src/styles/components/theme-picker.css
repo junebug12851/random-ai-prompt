@@ -100,15 +100,22 @@
   color: var(--accent);
 }
 
-/* Accent swatch grid. Each swatch fills with its preset colour via --sw. */
+/* Accent swatch grid. Each swatch fills with its theme colour via --sw. */
 .theme-swatches {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
 
-.theme-swatch {
+.theme-swatch-wrap {
+  position: relative;
+  display: block;
   aspect-ratio: 1;
+}
+
+.theme-swatch {
+  width: 100%;
+  height: 100%;
   padding: 0;
   border-radius: var(--radius-pill);
   background: var(--sw);
@@ -124,4 +131,64 @@
 .theme-swatch.on {
   border-color: var(--fg);
   box-shadow: 0 0 0 2px var(--panel) inset;
+}
+
+/* Delete affordance for a user (imported) theme — a small × on hover/focus. */
+.theme-swatch-del {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.theme-swatch-wrap:hover .theme-swatch-del,
+.theme-swatch-del:focus-visible {
+  opacity: 1;
+}
+
+.theme-swatch-del:hover {
+  color: var(--danger-fg);
+  border-color: var(--danger-border);
+}
+
+/* Import / export theme-file actions. */
+.theme-file-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.theme-file-btn {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.theme-file-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.theme-file-error {
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--danger-fg);
 }
