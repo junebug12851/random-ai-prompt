@@ -7,6 +7,16 @@
  * fallback for users who force `prefers-color-scheme: light`.
  */
 
+/*
+ * Cascade-layer order for the CSS overhaul (see notes/plans/css-overhaul.md).
+ * Declared here up front so precedence is fixed once and is independent of file
+ * or source order. This is currently an inert scaffold — the rules below are
+ * still unlayered (and therefore win over any layer) until Phase 2 moves them
+ * into these layers during the split into styles/. Declaring the names now has
+ * no effect on the cascade, so rendering is unchanged.
+ */
+@layer reset, tokens, base, layout, components, utilities, theme, overrides;
+
 :root {
   color-scheme: dark;
 
