@@ -4,19 +4,20 @@
 [![Node ≥ 24](https://img.shields.io/badge/node-%E2%89%A5%2024-43853d?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**A creative engine for AI prompts — write a tiny dynamic-prompt language and get an endless
-stream of rich, varied, ready-to-render image and text prompts.**
+**An open-source generator for AI image and text prompts that automatically builds richer, more
+detailed prompts than most people write by hand.**
 
-random-ai-prompt turns prompt-writing into a small, expressive language called **DPL** (the
-Dynamic Prompt Language). Instead of typing one prompt, you describe a *space* of prompts —
-scenes, subjects, styles, moods, randomness, intensity, and focus — and the engine samples from
-it. Pair it with the image or text model of your choice (you bring your own API key) and explore
-thousands of distinct ideas with almost no typing.
+You compose from a large library of scenes, subjects, and styles, and random-ai-prompt fills in the
+depth — turning a short idea into a fully fleshed-out prompt with almost no typing — then runs the
+result through **40+ models** including Midjourney, DALL·E, Gemini, FLUX, and Stable Diffusion, right
+in your browser. Bring your own API key, or just generate the prompt text with no key at all.
 
-It runs entirely in your browser, stores nothing on a server, and works with **~40 providers** —
-OpenAI, Anthropic Claude, Google Gemini, Midjourney, Ideogram, Leonardo, Black Forest Labs (FLUX),
-Replicate, fal, Stability, and many more. (Stable Diffusion is still supported — it's where the
-project started — but it's now just one option among many, not the focus.)
+It runs entirely in your browser and stores nothing on a server. Under the hood, prompts are built
+with a small composition language (scenes, subjects, styles, randomness, intensity, and focus), so a
+one-line idea can unfold into a detailed, never-the-same result. Providers span OpenAI, Anthropic
+Claude, Google Gemini, Midjourney, Ideogram, Leonardo, Black Forest Labs (FLUX), Replicate, fal,
+Stability, and many more. (Stable Diffusion is still supported — it's where the project started — but
+it's now just one option among many, not the focus.)
 
 ## ▶ Try it now
 
