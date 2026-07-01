@@ -22,30 +22,20 @@ jobs:
     name: SonarQube Cloud scan
     if: ${{ vars.SONAR_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 8 # TEMP diagnostic: fail fast so we can read the verbose log of the taint hang
+    timeout-minutes: 4 # TEMP diagnostic (bisection): fail fast; coverage steps stripped for speed
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Sonar wants full history for accurate blame / new-code detection
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Install deps + Node coverage
-        working-directory: engine-v3
-        run: |
-          npm install --no-audit --no-fund
-          npm run test:coverage
-
-      - name: Install gui deps + SPA coverage
-        working-directory: engine-v3
-        run: |
-          npm --prefix gui install --no-audit --no-fund
-          npm --prefix gui run test:coverage
-
+      # TEMP: coverage steps removed for the taint-hang bisection (the scanner brings its own analyzer
+      # and doesn't need the project's node_modules or coverage to reproduce the sensor hang).
       - name: SonarQube Cloud scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
