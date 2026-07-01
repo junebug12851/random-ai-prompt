@@ -32,7 +32,6 @@ const fullRegular = [];
 const fullRegularExcluded = [];
 const partialRegular = [];
 const userFiles = [];
-const allDynPrompts = [];
 
 const listFiles = [];
 
@@ -77,7 +76,6 @@ function loadDynPromptList() {
   fullRegularExcluded.length = 0;
   partialRegular.length = 0;
   userFiles.length = 0;
-  allDynPrompts.length = 0;
   fullDynPrompt.length = 0;
   partialNoArtistFx.length = 0;
 
@@ -115,7 +113,6 @@ function loadDynPromptList() {
     partialNoArtistFx.push(name);
   }
 
-  allDynPrompts.splice(0, 0, ...fullRegular, ...partialRegular, ...userFiles);
   fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {
@@ -186,7 +183,7 @@ function loadAll() {
  */
 function adultAllowed() {
   const ctx = settings ? settings() : {};
-  return !!(ctx.settings && ctx.settings.includeAdult === true);
+  return ctx.settings?.includeAdult === true;
 }
 
 /**
@@ -229,8 +226,8 @@ function promptSuggestion(full) {
   // Keep gated (adult) dynamic prompts out unless explicitly enabled
   const fullPool = gatePool(fullDynPrompt, isGatedDynPrompt);
 
-  let maxOptions = full == true ? 3 : 0;
-  let maxCount = full == true ? 3 : 1;
+  let maxOptions = full ? 3 : 0;
+  let maxCount = full ? 3 : 1;
 
   switch (randomInt(0, maxOptions)) {
     // Option 0: Pick 1 full dynamic prompt
