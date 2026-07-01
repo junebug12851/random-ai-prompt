@@ -26,6 +26,12 @@ export default defineConfig({
         "src/contentSafety.js",
         "src/gatedLists.js",
         "src/listManifest.js",
+        // The barrel above was split into these three focused, browser-safe modules; the list
+        // tests exercise them through it, so they must be measured here or their coverage is lost
+        // (SonarCloud then counts every line as uncovered).
+        "src/listTags.js",
+        "src/nameOrder.js",
+        "src/listResolve.js",
         "src/dynPromptManifest.js",
         "src/promptFilesAndSuggestions.js",
         "src/helpers/*.js",
