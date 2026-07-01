@@ -20,54 +20,131 @@
 :root {
   color-scheme: dark;
 
-  /* Brand */
-  --accent: #34e2a0;
-  --accent-strong: #21c98a;
-  --accent-ink: #06231a; /* text on a green button */
-  --accent-soft: rgb(52 226 160 / 14%);
+  /* ================================================================
+     PRIMITIVE TOKENS
+     The raw palette + scales — base-independent constants the semantic
+     roles below map onto. Components never reference `--p-*` directly.
+     (Phase 4 retunes the accent ramp in oklch to generate the neon /
+     pastel accent presets; the neutral + DPL palettes stay as-is.)
+     ================================================================ */
 
-  /* DPL syntax highlighting (CodeMirror) */
-  --dpl-gen: #7cc4ff; /* {#generator} */
-  --dpl-list: #34e2a0; /* {list} */
-  --dpl-ref: #7cc4ff; /* +ref */
-  --dpl-weight: #e6b673; /* ( ) [ ] | :weight */
-  --dpl-gate: #d8a0f0; /* NN% / maybe / otherwise */
-  --dpl-keyword: #d8a0f0; /* one of / repeat / insert / go to */
-  --dpl-dial: #f2899e; /* i25% / f80% dials, [i<..]/[f<..], $intensity / $focus */
-  --dpl-fmdelim: #6b7280; /* --- front-matter fences */
-  --dpl-fmkey: #9aa7ff; /* front-matter key */
-  --dpl-fmval: #9aa6b2; /* front-matter value */
-  --dpl-section: #56b6c2; /* a section heading name */
-  --dpl-section-special: #e5c07b; /* Start / Auto Begin / Auto End */
+  /* Accent ramp — mint. Same hue in every base; only the ink flips. */
+  --p-mint: #34e2a0;
+  --p-mint-strong: #21c98a;
+  --p-mint-ink-dark: #06231a; /* readable ink on mint, dark base */
+  --p-mint-ink-light: #04150f; /* readable ink on mint, light base */
 
-  /* Surfaces (charcoal, neutral) */
-  --bg: #1c1c1f;
-  --bg-2: #2a2a2f; /* inputs */
-  --panel: #232328;
-  --panel-2: #26262c;
-  --elevated: #2c2c33;
-  --chip: #2a2a31;
-  --chip-hover: #34343d;
+  /* Neutral palette — dark base */
+  --p-dark-canvas: #1c1c1f;
+  --p-dark-input: #2a2a2f;
+  --p-dark-panel: #232328;
+  --p-dark-panel-2: #26262c;
+  --p-dark-elevated: #2c2c33;
+  --p-dark-chip: #2a2a31;
+  --p-dark-chip-hover: #34343d;
+  --p-dark-fg: #fafafa;
+  --p-dark-fg-soft: #d6d6dc;
+  --p-dark-muted: #aaaab2; /* lightened to clear WCAG AA 4.5:1 on the darkest panels */
+  --p-dark-faint: #97979f;
+  --p-dark-border: #34343c;
+  --p-dark-border-soft: #2b2b32;
 
-  /* Text */
-  --fg: #fafafa;
-  --fg-soft: #d6d6dc;
+  /* Neutral palette — light base */
+  --p-light-canvas: #f5f5f7;
+  --p-light-input: #fff;
+  --p-light-panel: #fff;
+  --p-light-panel-2: #fafafb;
+  --p-light-elevated: #fff;
+  --p-light-chip: #eeeef1;
+  --p-light-chip-hover: #e3e3e8;
+  --p-light-fg: #18181b;
+  --p-light-fg-soft: #2c2c31;
+  --p-light-muted: #6a6a73;
+  --p-light-faint: #9a9aa2;
+  --p-light-border: #e2e2e7;
+  --p-light-border-soft: #ededf1;
 
-  /* `--muted` / `--faint` lightened to clear WCAG AA 4.5:1 on the darkest panels and the
-     accent-soft (green) active-tab background — see the Lighthouse accessibility pass. */
-  --muted: #aaaab2;
-  --faint: #97979f;
+  /* DPL syntax palette — dark base (CodeMirror token colours) */
+  --p-dpl-gen-dark: #7cc4ff;
+  --p-dpl-weight-dark: #e6b673;
+  --p-dpl-gate-dark: #d8a0f0;
+  --p-dpl-dial-dark: #f2899e;
+  --p-dpl-fmdelim-dark: #6b7280;
+  --p-dpl-fmkey-dark: #9aa7ff;
+  --p-dpl-fmval-dark: #9aa6b2;
+  --p-dpl-section-dark: #56b6c2;
+  --p-dpl-section-special-dark: #e5c07b;
 
-  /* Lines */
-  --border: #34343c;
-  --border-soft: #2b2b32;
+  /* DPL syntax palette — light base (darker tints for contrast) */
+  --p-dpl-gen-light: #1f6feb;
+  --p-dpl-list-light: #128a5e;
+  --p-dpl-weight-light: #b5722a;
+  --p-dpl-gate-light: #9333c4;
+  --p-dpl-dial-light: #c2185b;
+  --p-dpl-fmdelim-light: #9aa1ab;
+  --p-dpl-fmkey-light: #5a4fcf;
+  --p-dpl-fmval-light: #5b6470;
+  --p-dpl-section-light: #0c7b8c;
+  --p-dpl-section-special-light: #b07400;
+
+  /* Scales — radius / elevation / type */
   --radius: 14px;
   --radius-sm: 10px;
   --radius-pill: 999px;
-  --shadow: 0 18px 50px rgb(0 0 0 / 45%);
-  --ring: 0 0 0 3px var(--accent-soft);
+  --p-shadow-dark: 0 18px 50px rgb(0 0 0 / 45%);
+  --p-shadow-light: 0 18px 50px rgb(20 20 30 / 16%);
   --font-body: "Maven Pro", system-ui, -apple-system, "Segoe UI", roboto, sans-serif;
   --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ================================================================
+     SEMANTIC TOKENS — dark base
+     The roles components actually consume. The light media query below
+     remaps these same roles onto the light palette.
+     ================================================================ */
+
+  /* Brand accent — same hue in both bases; only --accent-ink flips.
+     --accent-soft is the accent at 14% alpha, derived so the literal
+     colour is never repeated (was rgb(52 226 160 / 14%)). */
+  --accent: var(--p-mint);
+  --accent-strong: var(--p-mint-strong);
+  --accent-ink: var(--p-mint-ink-dark); /* text on a green button */
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+
+  /* DPL syntax roles ({#generator} / {list} / +ref / weights / gates / …).
+     --dpl-list reuses the accent; --dpl-ref reuses --dpl-gen. */
+  --dpl-gen: var(--p-dpl-gen-dark);
+  --dpl-list: var(--accent);
+  --dpl-ref: var(--p-dpl-gen-dark);
+  --dpl-weight: var(--p-dpl-weight-dark);
+  --dpl-gate: var(--p-dpl-gate-dark);
+  --dpl-keyword: var(--p-dpl-gate-dark);
+  --dpl-dial: var(--p-dpl-dial-dark);
+  --dpl-fmdelim: var(--p-dpl-fmdelim-dark);
+  --dpl-fmkey: var(--p-dpl-fmkey-dark);
+  --dpl-fmval: var(--p-dpl-fmval-dark);
+  --dpl-section: var(--p-dpl-section-dark);
+  --dpl-section-special: var(--p-dpl-section-special-dark);
+
+  /* Surfaces */
+  --bg: var(--p-dark-canvas);
+  --bg-2: var(--p-dark-input); /* inputs */
+  --panel: var(--p-dark-panel);
+  --panel-2: var(--p-dark-panel-2);
+  --elevated: var(--p-dark-elevated);
+  --chip: var(--p-dark-chip);
+  --chip-hover: var(--p-dark-chip-hover);
+
+  /* Text */
+  --fg: var(--p-dark-fg);
+  --fg-soft: var(--p-dark-fg-soft);
+  --muted: var(--p-dark-muted);
+  --faint: var(--p-dark-faint);
+
+  /* Lines + elevation */
+  --border: var(--p-dark-border);
+  --border-soft: var(--p-dark-border-soft);
+  --shadow: var(--p-shadow-dark);
+  --ring: 0 0 0 3px var(--accent-soft);
 
   font-family: var(--font-body);
 }
@@ -76,35 +153,38 @@
   :root {
     color-scheme: light;
 
-    --bg: #f5f5f7;
-    --bg-2: #fff;
-    --panel: #fff;
-    --panel-2: #fafafb;
-    --elevated: #fff;
-    --chip: #eeeef1;
-    --chip-hover: #e3e3e8;
-    --fg: #18181b;
-    --fg-soft: #2c2c31;
-    --muted: #6a6a73;
-    --faint: #9a9aa2;
-    --border: #e2e2e7;
-    --border-soft: #ededf1;
-    --accent-ink: #04150f;
-    --shadow: 0 18px 50px rgb(20 20 30 / 16%);
+    /* Surfaces / text / lines → light palette */
+    --bg: var(--p-light-canvas);
+    --bg-2: var(--p-light-input);
+    --panel: var(--p-light-panel);
+    --panel-2: var(--p-light-panel-2);
+    --elevated: var(--p-light-elevated);
+    --chip: var(--p-light-chip);
+    --chip-hover: var(--p-light-chip-hover);
+    --fg: var(--p-light-fg);
+    --fg-soft: var(--p-light-fg-soft);
+    --muted: var(--p-light-muted);
+    --faint: var(--p-light-faint);
+    --border: var(--p-light-border);
+    --border-soft: var(--p-light-border-soft);
 
-    /* DPL syntax — darker tints for the light theme */
-    --dpl-gen: #1f6feb;
-    --dpl-list: #128a5e;
-    --dpl-ref: #1f6feb;
-    --dpl-weight: #b5722a;
-    --dpl-gate: #9333c4;
-    --dpl-keyword: #9333c4;
-    --dpl-dial: #c2185b;
-    --dpl-fmdelim: #9aa1ab;
-    --dpl-fmkey: #5a4fcf;
-    --dpl-fmval: #5b6470;
-    --dpl-section: #0c7b8c;
-    --dpl-section-special: #b07400;
+    /* Accent ink + elevation for the light base (accent hue itself is shared) */
+    --accent-ink: var(--p-mint-ink-light);
+    --shadow: var(--p-shadow-light);
+
+    /* DPL syntax → light tints */
+    --dpl-gen: var(--p-dpl-gen-light);
+    --dpl-list: var(--p-dpl-list-light);
+    --dpl-ref: var(--p-dpl-gen-light);
+    --dpl-weight: var(--p-dpl-weight-light);
+    --dpl-gate: var(--p-dpl-gate-light);
+    --dpl-keyword: var(--p-dpl-gate-light);
+    --dpl-dial: var(--p-dpl-dial-light);
+    --dpl-fmdelim: var(--p-dpl-fmdelim-light);
+    --dpl-fmkey: var(--p-dpl-fmkey-light);
+    --dpl-fmval: var(--p-dpl-fmval-light);
+    --dpl-section: var(--p-dpl-section-light);
+    --dpl-section-special: var(--p-dpl-section-special-light);
   }
 }
 
