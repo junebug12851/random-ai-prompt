@@ -5,9 +5,15 @@
 > are the **pre-revival** system, preserved frozen in **`engine-v1-2/`** (on its way out). engine-v3 is
 > v3-only with no expansions. See [`../plans/engine-split.md`](../plans/engine-split.md).
 
-**random-ai-prompt** is a Node.js tool that **generates random/dynamic text prompts for AI image
-generation** and (optionally) drives the **Stable Diffusion WebUI** API to turn those prompts into
-images, animations, variations, re-rolls, and upscales.
+**random-ai-prompt** is an open-source generator for AI image and text prompts that **automatically
+builds richer, more detailed prompts than most people write by hand** — you compose from a large
+library of scenes, subjects, and styles and it fills in the depth — then runs the results through
+**40+ models** (Midjourney, DALL·E, Gemini, FLUX, Stable Diffusion, and more), right in the browser.
+
+The rest of this page describes the **pre-revival** system (the CLI + Stable-Diffusion-WebUI
+orchestration; see the banner above); the *active* app is the browser web app in `engine-v3/`. The
+original tool generated random/dynamic prompts and (optionally) drove the **Stable Diffusion WebUI**
+API to turn them into images, animations, variations, re-rolls, and upscales.
 
 It has two faces over one shared core:
 

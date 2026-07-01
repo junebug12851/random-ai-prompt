@@ -1,0 +1,46 @@
+name: SonarCloud
+
+# Deep static analysis via SonarQube Cloud (formerly SonarCloud): bugs, code smells, duplication,
+# security hotspots, maintainability / tech-debt, and coverage import. Free for public repos.
+#
+# DORMANT until you enable it: the job only runs when the repo VARIABLE `SONAR_ENABLED` is "true".
+# One-time setup:
+#   1. Sign in at https://sonarcloud.io with GitHub and import junebug12851/random-ai-prompt.
+#   2. Add a repo SECRET `SONAR_TOKEN` (from Sonar → My Account → Security).
+#   3. Add a repo VARIABLE `SONAR_ENABLED` = true (Settings → Secrets and variables → Actions → Variables).
+# Until then this workflow is a no-op, so it never shows a spurious red X.
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch: # allow manual runs from the Actions tab / `gh workflow run sonar.yml`
+
+jobs:
+  sonar:
+    name: SonarQube Cloud scan
+    if: ${{ vars.SONAR_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # safety net — a hung sensor fails fast instead of burning ~6h of runner time
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Sonar wants full history for accurate blame / new-code detection
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install deps + Node coverage
+        working-directory: engine-v3
+        run: |
+          npm install --no-audit --no-fund
+          npm run test:coverage
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -4,13 +4,13 @@
  *        Invoked via `script: vibrant-art.js`. See notes/reference/dpl-design.md (the JS bridge).
  */
 
-import _ from "lodash";
+import { randomFloat } from "../../../src/helpers/random.js";
 
-// "colorful" plus optional space-joined "multi-color" / "glow".
+// "colorful" plus optional space-joined "multi-color" / "glow" (each a 50% coin flip).
 function colorful() {
   let out = "colorful";
-  if (_.random(0.0, 1.0, false) < 0.5) out += " multi-color";
-  if (_.random(0.0, 1.0, false) < 0.5) out += " glow";
+  if (randomFloat() < 0.5) out += " multi-color";
+  if (randomFloat() < 0.5) out += " glow";
   return out;
 }
 

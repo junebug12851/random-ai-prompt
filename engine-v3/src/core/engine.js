@@ -20,6 +20,8 @@
 // and reused directly — only the file/plugin access is reimplemented behind the
 // loader, so there is no duplicated prompt logic.
 import baseSettings from "../settings.js";
+import { createRng } from "./rng.js";
+import { withAmbientRng } from "../helpers/random.js";
 import promptSalt from "../prompt-modules/prompt-salt.js";
 import cleanup from "../prompt-modules/cleanup.js";
 import { makeDynamicPromptStage } from "./stages/dynamicPrompt.js";
@@ -69,31 +71,77 @@ export function createEngine(loader) {
     return prompt.replaceAll("\r", "");
   }
 
-  // Generate a single prompt. Defaults from settings.js are merged under the
-  // caller's settings so every field the stages read is present, and a shallow
-  // copy is used so per-generation mutations (auto-fx toggles, etc.) don't leak.
-  /**
-   * Generate a single prompt from default settings merged under the caller's overrides.
-   * @param {object} [userSettings] Settings overrides (e.g. `{ prompt, mode }`).
-   * @returns {string} One generated prompt.
-   */
-  function generate(userSettings = {}) {
-    store.reset();
-    const settings = { ...baseSettings, ...userSettings };
-    const imageSettings = {};
-    const upscaleSettings = {};
-    return expand(settings.prompt ?? "{#random-words}", settings, imageSettings, upscaleSettings);
+  // Whether `userSettings` carries an explicit seed (a non-empty value). A seed makes the whole run
+  // reproducible; without one we use the default ambient source (`Math.random`), unchanged.
+  const hasSeed = (u) => u.seed != null && u.seed !== "";
+
+  // Run one generation, optionally under a seeded ambient rng. Defaults from settings.js are merged
+  // under the caller's overrides so every field the stages read is present, and a shallow copy is
+  // used so per-generation mutations (auto-fx toggles, salt counter, etc.) don't leak.
+  function generateOnce(userSettings, rng) {
+    const run = () => {
+      store.reset();
+      const settings = { ...baseSettings, ...userSettings };
+      return expand(settings.prompt ?? "{#random-words}", settings, {}, {});
+    };
+    return rng ? withAmbientRng(rng, run) : run();
   }
 
   /**
-   * Generate `userSettings.promptCount` prompts (minimum 1).
+   * Generate a single prompt from default settings merged under the caller's overrides. When
+   * `userSettings.seed` is set the result is deterministic (same seed + catalog → same prompt);
+   * otherwise it draws from `Math.random` as before.
+   * @param {object} [userSettings] Settings overrides (e.g. `{ prompt, mode, seed }`).
+   * @returns {string} One generated prompt.
+   */
+  function generate(userSettings = {}) {
+    return generateOnce(userSettings, hasSeed(userSettings) ? createRng(userSettings.seed) : null);
+  }
+
+  /**
+   * Like {@link generate}, but always deterministic and always reports the seed used — auto-generating
+   * a fresh one when `userSettings.seed` is absent. Pass the returned `seed` back as `settings.seed`
+   * to reproduce the exact prompt.
+   * @param {object} [userSettings] Settings overrides.
+   * @returns {{prompt: string, seed: string}} The prompt and the seed that produced it.
+   */
+  function generateWithSeed(userSettings = {}) {
+    const rng = createRng(userSettings.seed);
+    return { prompt: generateOnce(userSettings, rng), seed: rng.seed };
+  }
+
+  /**
+   * Generate `userSettings.promptCount` prompts (minimum 1). With a seed, each prompt gets its own
+   * deterministic sub-stream (`rng.fork(i)`), so the whole batch is reproducible.
    * @param {object} [userSettings] Settings overrides.
    * @returns {string[]} The generated prompts.
    */
   function generateMany(userSettings = {}) {
     const count = Math.max(1, Number(userSettings.promptCount) || 1);
-    return Array.from({ length: count }, () => generate(userSettings));
+    const parent = hasSeed(userSettings) ? createRng(userSettings.seed) : null;
+    return Array.from({ length: count }, (_v, i) =>
+      generateOnce(userSettings, parent ? parent.fork(i) : null),
+    );
   }
 
-  return { expand, generate, generateMany };
+  /**
+   * Async counterpart of {@link generateMany}: same output and seeding, but it yields to the event
+   * loop between prompts so a large batch never blocks the thread. The per-prompt render itself is
+   * pure CPU and stays synchronous by design (it also drives the instant live preview); this is the
+   * async-capable boundary for batch work.
+   * @param {object} [userSettings] Settings overrides.
+   * @returns {Promise<string[]>} The generated prompts.
+   */
+  async function generateManyAsync(userSettings = {}) {
+    const count = Math.max(1, Number(userSettings.promptCount) || 1);
+    const parent = hasSeed(userSettings) ? createRng(userSettings.seed) : null;
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      out.push(generateOnce(userSettings, parent ? parent.fork(i) : null));
+      if (i + 1 < count) await Promise.resolve(); // yield between prompts
+    }
+    return out;
+  }
+
+  return { expand, generate, generateWithSeed, generateMany, generateManyAsync };
 }

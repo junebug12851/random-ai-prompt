@@ -9,6 +9,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { Num, Toggle, Select, Group } from "./Field.jsx";
 import { getListNames } from "../lib/promptEngine.js";
 import { defaultSettings } from "../lib/settings.js";
+import { dialog } from "../lib/dialog.js";
 
 const msgs = defineMessages({
   resetBtn: { id: "settings.reset", defaultMessage: "Reset to defaults" },
@@ -83,8 +84,9 @@ export default function Settings({ settings, setSettings }) {
       <div className="settings-actions">
         <button
           className="ghost"
-          onClick={() => {
-            if (confirm(intl.formatMessage(msgs.resetConfirm))) setSettings({ ...defaultSettings });
+          onClick={async () => {
+            if (await dialog.confirm({ message: intl.formatMessage(msgs.resetConfirm) }))
+              setSettings({ ...defaultSettings });
           }}
         >
           {intl.formatMessage(msgs.resetBtn)}

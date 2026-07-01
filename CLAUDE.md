@@ -1,6 +1,8 @@
 # random-ai-prompt — AI Context
 
-Random AI prompt + image generator. Node.js (ES modules). Open source, by junebug12851.
+An open-source generator for AI image and text prompts that automatically builds richer, more
+detailed prompts than most people write by hand, then runs them through 40+ models (Midjourney,
+DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
 
 **The repo holds two separate engines (zero shared code):**
 

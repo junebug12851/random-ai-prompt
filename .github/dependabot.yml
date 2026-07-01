@@ -1,0 +1,40 @@
+# Dependabot — automated dependency-update PRs + security-vulnerability alerts.
+# Scoped to the ACTIVE project (engine-v3 root + its gui SPA) and the GitHub Actions we use.
+# The frozen engine-v1-2/ is intentionally excluded (unmaintained, on its way out).
+# Updates are weekly and GROUPED (one PR per ecosystem for minor/patch) to keep the noise low.
+version: 2
+updates:
+  # The engine-v3 engine package (root package.json + package-lock.json).
+  - package-ecosystem: npm
+    directory: /engine-v3
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      engine-minor-and-patch:
+        update-types: [minor, patch]
+
+  # The React/Vite SPA.
+  - package-ecosystem: npm
+    directory: /engine-v3/gui
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "gui"]
+    groups:
+      gui-minor-and-patch:
+        update-types: [minor, patch]
+
+  # The GitHub Actions used across the workflows (all grouped into one PR).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ["ci"]
+    groups:
+      github-actions:
+        patterns: ["*"]

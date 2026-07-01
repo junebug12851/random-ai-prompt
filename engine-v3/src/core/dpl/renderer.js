@@ -102,7 +102,7 @@ function renderNode(node, ctx) {
     const lo = Math.min(scaleCount(node.choice.min, ctx.intensity), hi);
     const count = ctx.rng.int(lo, hi);
     if (count <= 0) return "";
-    const picked = weightedSampleN(opts, count);
+    const picked = weightedSampleN(opts, count, ctx.rng);
     return picked
       .map((o) => renderNode(o, ctx))
       .filter(Boolean)
@@ -208,13 +208,20 @@ function weightOf(node) {
   return node.weight ?? null;
 }
 
-/** Pick `n` distinct options weighted by each option's leading gate %, else uniform. */
-function weightedSampleN(opts, n) {
+/**
+ * Pick `n` distinct options weighted by each option's leading gate %, else uniform. Draws from the
+ * render context's rng (`ctx.rng`) so the pick is part of the seeded stream — not `Math.random`.
+ * @param {Array} opts The option nodes.
+ * @param {number} n How many to pick.
+ * @param {{float: Function}} rng The seam's random source.
+ * @returns {Array} The picked option nodes.
+ */
+function weightedSampleN(opts, n, rng) {
   const pool = opts.map((o) => ({ o, w: o.gate != null ? o.gate : 1 }));
   const picked = [];
   for (let k = 0; k < n && pool.length; k++) {
     const total = pool.reduce((s, e) => s + e.w, 0);
-    let r = Math.random() * total;
+    let r = rng.float() * total;
     let idx = 0;
     for (; idx < pool.length; idx++) {
       r -= pool[idx].w;

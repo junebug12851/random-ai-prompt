@@ -55,6 +55,46 @@ describe("engine.generateMany — count clamping", () => {
   });
 });
 
+describe("engine seeding (settings.seed)", () => {
+  const make = () =>
+    createEngine(
+      makeFakeLoader({ lists: { color: ["crimson", "scarlet", "ruby", "cherry", "rose"] } }),
+    );
+  const opts = { ...pm("list", "cleanup"), prompt: "{color} {color} {color}" };
+
+  it("generate is reproducible for the same seed and differs across seeds", () => {
+    const a = make().generate({ ...opts, seed: "s1" });
+    const b = make().generate({ ...opts, seed: "s1" });
+    expect(a).toBe(b);
+    // A different seed generally reorders the picks; try a few to avoid a coincidental match.
+    const differs = ["s2", "s3", "s4"].some((seed) => make().generate({ ...opts, seed }) !== a);
+    expect(differs).toBe(true);
+  });
+
+  it("generateWithSeed reports a seed that reproduces the prompt", () => {
+    const { prompt, seed } = make().generateWithSeed(opts);
+    expect(typeof seed).toBe("string");
+    expect(make().generate({ ...opts, seed })).toBe(prompt);
+  });
+
+  it("generateMany is a reproducible batch under a seed", () => {
+    const a = make().generateMany({ ...opts, seed: "batch", promptCount: 5 });
+    const b = make().generateMany({ ...opts, seed: "batch", promptCount: 5 });
+    expect(a).toEqual(b);
+    expect(a).toHaveLength(5);
+  });
+
+  it("generateManyAsync matches generateMany for the same seed", async () => {
+    const sync = make().generateMany({ ...opts, seed: "z", promptCount: 4 });
+    const asyncOut = await make().generateManyAsync({ ...opts, seed: "z", promptCount: 4 });
+    expect(asyncOut).toEqual(sync);
+  });
+
+  it("an unseeded generate still works (draws from Math.random)", () => {
+    expect(make().generate(opts)).toMatch(/crimson|scarlet|ruby|cherry|rose/);
+  });
+});
+
 describe("engine.expand — pipeline robustness", () => {
   const engine = createEngine(makeFakeLoader({}));
   it("skips an unknown stage name without throwing", () => {

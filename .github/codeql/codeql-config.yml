@@ -1,0 +1,13 @@
+name: CodeQL config
+
+# Scope CodeQL to the code we maintain. The frozen engine-v1-2/, generated/build output, the
+# JSDoc site, the read-only reference clones, and vendored deps are excluded to keep the scan
+# focused and the Security tab signal high.
+paths-ignore:
+  - engine-v1-2
+  - "**/dist"
+  - "**/coverage"
+  - "**/node_modules"
+  - docs
+  - assets/references
+  - "**/*.min.js"

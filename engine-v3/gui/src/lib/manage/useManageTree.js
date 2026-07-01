@@ -9,6 +9,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { getTree, getRemoteManifest, restoreDefault, fsOp } from "../manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../promptEngine.js";
 import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../manageTree.js";
+import { dialog } from "../dialog.js";
 
 // Data-root keys are fixed; their display titles are localized via `msgs` below.
 const ROOTS = ["dynamic-prompts", "lists"];
@@ -147,7 +148,9 @@ export function useManageTree({ settings, available, active }) {
   async function newFile(root, folder) {
     setAddMenu(null);
     const name = cleanName(
-      window.prompt(intl.formatMessage(root === "lists" ? msgs.newFilePromptList : msgs.newFilePromptBlock)),
+      await dialog.prompt({
+        message: intl.formatMessage(root === "lists" ? msgs.newFilePromptList : msgs.newFilePromptBlock),
+      }),
     );
     if (!name) return;
     const ext = root === "lists" ? "txt" : "dpl";
@@ -172,7 +175,7 @@ export function useManageTree({ settings, available, active }) {
   // Create a new subfolder.
   async function newFolder(root, folder) {
     setAddMenu(null);
-    const name = cleanName(window.prompt(intl.formatMessage(msgs.newFolderPrompt)));
+    const name = cleanName(await dialog.prompt({ message: intl.formatMessage(msgs.newFolderPrompt) }));
     if (!name) return;
     const path = folder ? `${folder}/${name}` : name;
     try {
@@ -207,9 +210,14 @@ export function useManageTree({ settings, available, active }) {
   // Delete an entry's files (content + sidecars) after confirming.
   async function deleteEntry(e) {
     if (
-      !window.confirm(
-        intl.formatMessage(msgs.deleteEntryConfirm, { label: e.label, root: e.root, path: e.path }),
-      )
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.deleteEntryConfirm, {
+          label: e.label,
+          root: e.root,
+          path: e.path,
+        }),
+        destructive: true,
+      }))
     )
       return;
     try {

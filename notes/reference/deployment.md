@@ -48,6 +48,51 @@ bundled chromium); `playwright.config.js` picks the browser by `process.platform
 with the **Update visual baselines (Linux)** workflow (see below) — never hand-edit the PNGs. Green here
 means the same thing as green locally — it's the CI mirror of `npm test` + the build + the browser specs.
 
+**Coverage → Codecov.** The **check** and **gui** jobs run the `*:coverage` scripts (Vitest v8, now with
+an `lcov` reporter alongside text/html) and then upload to **Codecov** via `codecov/codecov-action@v4`
+(non-blocking — `fail_ci_if_error: false`), under the `node` and `gui` flags respectively. Paths are
+repo-root-relative (`engine-v3/coverage/node/lcov.info`, `engine-v3/gui/coverage/lcov.info`) because a
+`uses:` step ignores the job's `working-directory`. Setup the repo owner does once: enable the **Codecov
+GitHub app** on the repo and add a **`CODECOV_TOKEN`** repo secret (public repos also upload tokenless,
+but the token is more reliable). The README's coverage badge (`img.shields.io/codecov/...`) reads the
+default-branch (`main`) coverage, so it populates after the first CI run on `main` post-merge. Codecov is
+a CI/build integration only — it receives coverage reports from CI, not any user data from the app — so
+the legal/privacy pages are unaffected.
+
+## Security & code-health integrations
+
+Free-for-OSS services layered on top of CI. None touch the shipped app or user data (CI/build only),
+so the legal pages are unaffected.
+
+- **Dependabot** (`.github/dependabot.yml`) — GitHub-native. Weekly, grouped dependency-update PRs for
+  `engine-v3` npm, `engine-v3/gui` npm, and the GitHub Actions; plus security alerts. Zero setup.
+- **CodeQL** (`.github/workflows/codeql.yml` + `.github/codeql/codeql-config.yml`) — GitHub-native SAST
+  on push/PR to dev & main + weekly; `javascript-typescript`, `security-and-quality` queries; frozen
+  `engine-v1-2/`, build output, and vendored deps are `paths-ignore`d. Findings → Security → Code scanning.
+- **OpenSSF Scorecard** (`.github/workflows/scorecard.yml`) — GitHub-native. Weekly supply-chain posture
+  score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`).
+- **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
+  — static analysis + coverage import + tech-debt / quality-gate badges. Enabled 2026-06-30: secret
+  `SONAR_TOKEN` + repo variable `SONAR_ENABLED=true` are set (the workflow's `if:` guard), `workflow_dispatch`
+  allows manual re-runs, and the job has a `timeout-minutes` safety net. **Scope = `engine-v3/src` only**
+  (the core engine). This is the outcome of a real investigation into why the scan hung ~25 min, NOT a
+  hand-wave (the full log/methodology is in `sonar-project.properties` + the session log for 2026-06-30):
+    - The hang is in SonarCloud's JS **security/taint** sensor (`JsSecuritySensorV2 [jasmin]`) — a
+      documented, recurring SonarSource-side performance bug (community threads + the "Speed up JS security
+      analysis" productboard item). No supported property disables or time-boxes it
+      (`sonar.jasmin.internal.enabled=false` is ignored — confirmed in the verbose log).
+    - It is **not one bad file**: `gui/src/components/**`, `gui/src/lib/**`, and the root files each scan
+      cleanly in isolation, but the **full `gui/src` set** stalls at ~72/80 files → an **inter-file taint
+      blow-up** (the sensor is inter-procedural). Excluding the network source→sink files did not fix it.
+    - It is **redundant** with GitHub **CodeQL** (which does our security scanning).
+  Scoped to the engine core, the taint sensor finishes in ~3s (32 files) and the scan is reliable. The SPA's
+  quality stays covered by CodeFactor (grade), Codecov (coverage), CodeQL (security), and its Vitest/Playwright
+  suites. **Revisit if SonarSource fixes the sensor.** Note: Sonar badges read the project's **main branch**;
+  the first analysis ran on `dev`, so full badge population follows a `main` release.
+- **CodeRabbit** (`.coderabbit.yaml`) — AI PR reviews. Activates on installing the GitHub app
+  (https://github.com/apps/coderabbitai); no secret. Auto-reviews PRs to dev/main; frozen/generated paths filtered.
+- **CodeFactor** — zero-config code-quality grade + badge; enable its GitHub app (https://www.codefactor.io).
+
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
 Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — the run steps use

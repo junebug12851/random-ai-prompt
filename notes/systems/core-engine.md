@@ -48,6 +48,15 @@ Identical to the CLI's `settings.promptModules` order (see [overview.md](overvie
 prompt-module pipeline"). The dynamic prompts are the same ESM default-export modules in
 `dynamic-prompts/` the CLI uses; `browserLoader` bundles them via glob, `nodeLoader` `require()`s them.
 
+## Randomness & seeding
+
+Since 2.35.0 the engine is **seedable and deterministic**. `generate({seed})` /
+`generateWithSeed()` / `generateMany({seed})` install a seeded `Rng` (`src/core/rng.js`) as the
+**ambient** random source (`src/helpers/random.js`) for the run, so the whole pipeline draws from one
+reproducible stream; unseeded runs fall back to `Math.random` unchanged. `generateManyAsync` is the
+async-capable batch boundary (yields between prompts); the per-prompt render stays synchronous by
+design (it also drives the instant live preview). Full detail: [rng-design.md](../reference/rng-design.md).
+
 ## Status
 
 The browser path powers the React SPA ([web-app.md](web-app.md)). The Node path is used today for

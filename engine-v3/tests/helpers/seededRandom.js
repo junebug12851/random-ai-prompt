@@ -1,9 +1,10 @@
 /**
  * @file
- * Deterministic randomness for tests. The engine, the DPL renderer, and the lodash
- * helpers (`_.random`, `_.sample`, `_.shuffle`) all ultimately draw from `Math.random`,
- * so swapping in a seeded PRNG makes prompt generation fully reproducible — which is what
- * lets the snapshot suite assert exact output.
+ * Deterministic randomness for tests. The engine draws through an *ambient* random source
+ * (`src/helpers/random.js`) that falls back to `Math.random` when unseeded, so swapping
+ * `Math.random` here still pins the whole pipeline — which is what lets the snapshot suite
+ * assert exact output. (Seeded generation proper is exercised via `settings.seed` +
+ * `src/core/rng.js`; this helper covers the legacy Math.random-swap path the snapshots use.)
  */
 
 /**

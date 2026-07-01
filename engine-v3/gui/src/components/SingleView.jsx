@@ -28,6 +28,7 @@ import { canDerive, hasSource, RESIZE_SCALES } from "../lib/derive.js";
 import { msgs, layerMsg } from "./single/messages.js";
 import { toMarkdown } from "../lib/single/markdown.js";
 import { syntaxHighlightJson } from "../lib/single/json.js";
+import { dialog } from "../lib/dialog.js";
 import PromptCard from "./single/PromptCard.jsx";
 import DetailTable from "./single/DetailTable.jsx";
 import CopyButton from "./single/CopyButton.jsx";
@@ -139,12 +140,12 @@ export default function SingleView({
   const lockHint = intl.formatMessage(msgs.deriveLocked, {
     provider: m.providerLabel || prov?.label || m.provider || "This provider",
   });
-  const runDerive = (kind, source) => {
+  const runDerive = async (kind, source) => {
     const confirmMsg =
       kind === "reroll"
         ? intl.formatMessage(msgs.confirmReroll)
         : intl.formatMessage(msgs.confirmVary, { layer: intl.formatMessage(layerMsg[source]) });
-    if (confirm(confirmMsg)) onDerive(item, kind, source);
+    if (await dialog.confirm({ message: confirmMsg })) onDerive(item, kind, source);
   };
   const varExtra = (source) => ({
     key: `vary-${source}`,

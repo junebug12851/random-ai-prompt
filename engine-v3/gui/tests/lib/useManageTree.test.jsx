@@ -20,6 +20,7 @@ vi.mock("../../src/lib/promptEngine.js", () => ({
 
 import { useManageTree } from "../../src/lib/manage/useManageTree.js";
 import { getTree, getRemoteManifest, restoreDefault, fsOp } from "../../src/lib/manageApi.js";
+import { dialog } from "../../src/lib/dialog.js";
 
 const wrapper = ({ children }) => (
   <IntlProvider locale="en" messages={{}} onError={() => {}}>
@@ -65,8 +66,8 @@ beforeEach(() => {
   global.EventSource = class {
     close() {}
   };
-  window.prompt = vi.fn();
-  window.confirm = vi.fn();
+  dialog.prompt = vi.fn();
+  dialog.confirm = vi.fn();
 });
 
 describe("useManageTree", () => {
@@ -77,7 +78,7 @@ describe("useManageTree", () => {
   });
 
   it("newFile writes via fsOp(mkfile) and selects the new entry", async () => {
-    window.prompt.mockReturnValue("forest");
+    dialog.prompt.mockResolvedValue("forest");
     const { result } = await mountLoaded();
     await act(async () => {
       await result.current.newFile("lists", "look");
@@ -98,7 +99,7 @@ describe("useManageTree", () => {
   });
 
   it("newFile on a block root uses the .dpl extension + boilerplate", async () => {
-    window.prompt.mockReturnValue("hero");
+    dialog.prompt.mockResolvedValue("hero");
     const { result } = await mountLoaded();
     await act(async () => {
       await result.current.newFile("dynamic-prompts", "scene");
@@ -111,7 +112,7 @@ describe("useManageTree", () => {
   });
 
   it("newFile is a no-op when the prompt is cancelled", async () => {
-    window.prompt.mockReturnValue(null);
+    dialog.prompt.mockResolvedValue(null);
     const { result } = await mountLoaded();
     fsOp.mockClear();
     await act(async () => {
@@ -121,7 +122,7 @@ describe("useManageTree", () => {
   });
 
   it("deleteEntry deletes the file when confirmed", async () => {
-    window.confirm.mockReturnValue(true);
+    dialog.confirm.mockResolvedValue(true);
     const { result } = await mountLoaded();
     await act(async () => {
       await result.current.deleteEntry({ root: "lists", path: "look/color", ext: "txt", label: "color" });
@@ -130,7 +131,7 @@ describe("useManageTree", () => {
   });
 
   it("deleteEntry is a no-op when not confirmed", async () => {
-    window.confirm.mockReturnValue(false);
+    dialog.confirm.mockResolvedValue(false);
     const { result } = await mountLoaded();
     fsOp.mockClear();
     await act(async () => {

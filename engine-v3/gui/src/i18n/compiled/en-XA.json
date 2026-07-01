@@ -157,6 +157,20 @@
       "value": "]"
     }
   ],
+  "app.deleteAction": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.deleteConfirm": [
     {
       "type": 0,
@@ -677,6 +691,34 @@
     {
       "type": 0,
       "value": "ĴŞ şīḓḗḗƈȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dialog.cancel": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈȧȧƞƈḗḗŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "dialog.ok": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "ǾĶ"
     },
     {
       "type": 0,
