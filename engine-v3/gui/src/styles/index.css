@@ -2,9 +2,11 @@
  * Random AI Prompt — SPA theme.
  *
  * Dark-first, matching the pre-revival "Generate" page: charcoal canvas, a vivid
- * mint-green brand accent (the pencil logo), Rokkitt display + Maven Pro body,
- * pill inputs and rounded buttons. A light scheme is provided as a graceful
- * fallback for users who force `prefers-color-scheme: light`.
+ * mint-green brand accent (the pencil logo), Space Grotesk display + Maven Pro
+ * body, pill inputs and rounded buttons. Dark and light bases are both
+ * first-class: the chosen base is applied as `data-theme` on <html> by the theme
+ * system (`gui/src/theme/`) — System follows the OS, or the user forces Dark /
+ * Light. Dark is the default (the bare `:root`); light is `:root[data-theme="light"]`.
  */
 
 /*

@@ -19,6 +19,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
+import { ThemeProvider } from "./theme/ThemeProvider.jsx";
 import { hydrate, isHydrated, rehydrate, msSinceLastWrite } from "../storage/cache.js";
 import { useSettings, loadSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
@@ -151,8 +152,13 @@ function HydratedApp() {
   const [settings, setSettings] = useSettings();
   return (
     <I18nProvider locale={settings.locale}>
-      <AppShell settings={settings} setSettings={setSettings} />
-      <DialogHost />
+      <ThemeProvider
+        mode={settings.themeMode}
+        setMode={(m) => setSettings((s) => ({ ...s, themeMode: m }))}
+      >
+        <AppShell settings={settings} setSettings={setSettings} />
+        <DialogHost />
+      </ThemeProvider>
     </I18nProvider>
   );
 }

@@ -140,42 +140,45 @@
   font-family: var(--font-body);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color-scheme: light;
+/* Light base — applied when the theme resolves to light (System → OS light, or
+   an explicit Light choice). `data-theme` is set on <html> pre-paint by the
+   boot script in index.html and kept in sync by the ThemeProvider; dark is the
+   default (the bare :root above), so no data-theme still renders dark. Lives in
+   @layer tokens with the rest of the token definitions. */
+:root[data-theme="light"] {
+  color-scheme: light;
 
-    /* Surfaces / text / lines → light palette */
-    --bg: var(--p-light-canvas);
-    --bg-2: var(--p-light-input);
-    --panel: var(--p-light-panel);
-    --panel-2: var(--p-light-panel-2);
-    --elevated: var(--p-light-elevated);
-    --chip: var(--p-light-chip);
-    --chip-hover: var(--p-light-chip-hover);
-    --fg: var(--p-light-fg);
-    --fg-soft: var(--p-light-fg-soft);
-    --muted: var(--p-light-muted);
-    --faint: var(--p-light-faint);
-    --border: var(--p-light-border);
-    --border-soft: var(--p-light-border-soft);
+  /* Surfaces / text / lines → light palette */
+  --bg: var(--p-light-canvas);
+  --bg-2: var(--p-light-input);
+  --panel: var(--p-light-panel);
+  --panel-2: var(--p-light-panel-2);
+  --elevated: var(--p-light-elevated);
+  --chip: var(--p-light-chip);
+  --chip-hover: var(--p-light-chip-hover);
+  --fg: var(--p-light-fg);
+  --fg-soft: var(--p-light-fg-soft);
+  --muted: var(--p-light-muted);
+  --faint: var(--p-light-faint);
+  --border: var(--p-light-border);
+  --border-soft: var(--p-light-border-soft);
 
-    /* Accent ink + elevation for the light base (accent hue itself is shared) */
-    --accent-ink: var(--p-mint-ink-light);
-    --shadow: var(--p-shadow-light);
+  /* Accent ink + elevation for the light base (accent hue itself is shared) */
+  --accent-ink: var(--p-mint-ink-light);
+  --shadow: var(--p-shadow-light);
 
-    /* DPL syntax → light tints */
-    --dpl-gen: var(--p-dpl-gen-light);
-    --dpl-list: var(--p-dpl-list-light);
-    --dpl-ref: var(--p-dpl-gen-light);
-    --dpl-weight: var(--p-dpl-weight-light);
-    --dpl-gate: var(--p-dpl-gate-light);
-    --dpl-keyword: var(--p-dpl-gate-light);
-    --dpl-dial: var(--p-dpl-dial-light);
-    --dpl-fmdelim: var(--p-dpl-fmdelim-light);
-    --dpl-fmkey: var(--p-dpl-fmkey-light);
-    --dpl-fmval: var(--p-dpl-fmval-light);
-    --dpl-section: var(--p-dpl-section-light);
-    --dpl-section-special: var(--p-dpl-section-special-light);
-  }
+  /* DPL syntax → light tints */
+  --dpl-gen: var(--p-dpl-gen-light);
+  --dpl-list: var(--p-dpl-list-light);
+  --dpl-ref: var(--p-dpl-gen-light);
+  --dpl-weight: var(--p-dpl-weight-light);
+  --dpl-gate: var(--p-dpl-gate-light);
+  --dpl-keyword: var(--p-dpl-gate-light);
+  --dpl-dial: var(--p-dpl-dial-light);
+  --dpl-fmdelim: var(--p-dpl-fmdelim-light);
+  --dpl-fmkey: var(--p-dpl-fmkey-light);
+  --dpl-fmval: var(--p-dpl-fmval-light);
+  --dpl-section: var(--p-dpl-section-light);
+  --dpl-section-special: var(--p-dpl-section-special-light);
 }
 
