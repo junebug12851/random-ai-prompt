@@ -53,6 +53,18 @@ jobs:
       - name: Unit / integration / snapshot / regression tests + coverage gate (Vitest, Node)
         run: npm run test:coverage
 
+      # Non-blocking: publish Node coverage to Codecov (the badge + PR annotations). `uses:` steps
+      # ignore defaults.run.working-directory, so the path is repo-root-relative. Needs the Codecov
+      # GitHub app enabled on the repo; CODECOV_TOKEN is recommended (public repos also work tokenless).
+      - name: Upload coverage to Codecov (Node)
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: junebug12851/random-ai-prompt
+          files: engine-v3/coverage/node/lcov.info
+          flags: node
+          fail_ci_if_error: false
+
   gui:
     name: Build & unit-test the SPA
     runs-on: ubuntu-latest
@@ -76,6 +88,16 @@ jobs:
 
       - name: Unit / component / contract tests + coverage gate (Vitest, jsdom)
         run: npm --prefix gui run test:coverage
+
+      # Non-blocking: publish SPA coverage to Codecov under the `gui` flag (repo-root-relative path).
+      - name: Upload coverage to Codecov (SPA)
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: junebug12851/random-ai-prompt
+          files: engine-v3/gui/coverage/lcov.info
+          flags: gui
+          fail_ci_if_error: false
 
   e2e:
     name: E2E & accessibility (Playwright)

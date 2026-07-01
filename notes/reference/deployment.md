@@ -48,6 +48,17 @@ bundled chromium); `playwright.config.js` picks the browser by `process.platform
 with the **Update visual baselines (Linux)** workflow (see below) — never hand-edit the PNGs. Green here
 means the same thing as green locally — it's the CI mirror of `npm test` + the build + the browser specs.
 
+**Coverage → Codecov.** The **check** and **gui** jobs run the `*:coverage` scripts (Vitest v8, now with
+an `lcov` reporter alongside text/html) and then upload to **Codecov** via `codecov/codecov-action@v4`
+(non-blocking — `fail_ci_if_error: false`), under the `node` and `gui` flags respectively. Paths are
+repo-root-relative (`engine-v3/coverage/node/lcov.info`, `engine-v3/gui/coverage/lcov.info`) because a
+`uses:` step ignores the job's `working-directory`. Setup the repo owner does once: enable the **Codecov
+GitHub app** on the repo and add a **`CODECOV_TOKEN`** repo secret (public repos also upload tokenless,
+but the token is more reliable). The README's coverage badge (`img.shields.io/codecov/...`) reads the
+default-branch (`main`) coverage, so it populates after the first CI run on `main` post-merge. Codecov is
+a CI/build integration only — it receives coverage reports from CI, not any user data from the app — so
+the legal/privacy pages are unaffected.
+
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
 Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — the run steps use

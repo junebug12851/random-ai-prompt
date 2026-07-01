@@ -35,7 +35,8 @@ export default defineConfig({
       // The browser loader is exercised by the SPA (jsdom) suite via import.meta.glob,
       // so it isn't measurable from the Node environment — exclude it from the Node gate.
       exclude: ["src/core/browserLoader.js"],
-      reporter: ["text", "html"],
+      // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
+      reporter: ["text", "html", "lcov"],
       // CI gate (owner-approved). Set with headroom below the measured numbers
       // (lines ~93 / statements ~90 / functions ~93 / branches ~80) so a real
       // regression fails CI without flaking on minor churn. Tighten as coverage grows.

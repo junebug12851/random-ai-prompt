@@ -27,7 +27,8 @@ export default mergeConfig(viteConfig, {
         "src/lib/providers/index.js",
         "**/*.test.{js,jsx}",
       ],
-      reporter: ["text", "html"],
+      // `lcov` is added for Codecov (CI uploads gui/coverage/lcov.info); text+html are for humans.
+      reporter: ["text", "html", "lcov"],
       // CI gate (owner-approved). The well-covered logic lives in src/lib (~73% lines);
       // it gets a real floor. The components/editors are exercised by the Playwright e2e
       // flows rather than unit-mounted, so the GLOBAL floor is intentionally modest — it
