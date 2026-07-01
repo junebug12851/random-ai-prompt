@@ -165,3 +165,35 @@ The trigger to revisit: **if the SPA grows a real component library** with props
 catalog, add **Storybook** (interactive component docs) and/or **better-docs** `@component` support
 *alongside* JSDoc — not as a replacement for the unified site. Recorded so the judgment isn't re-litigated
 from scratch.
+
+## Online build prerenders via `renderToString` (SSG); local stays client-only (2026-07-01)
+
+The online build's mobile Lighthouse LCP was ~5.6 s and, when profiled, was **92% render-delay** — the
+intrinsic cost of client-rendering the palette with React + react-intl on throttled mobile (the local
+app loads in ~220 ms; Lighthouse scales that ~26×). No bundling change moved it. The fix is to ship real
+HTML, so the online build **prerenders its first paint to static HTML at build time and hydrates it**.
+Decisions and why:
+
+- **Prerender with `renderToString` (Node SSR), not a headless-browser snapshot.** Effects don't run in
+  `renderToString`, so the CodeMirror composer renders as its empty host `<div>` — identical to the
+  client's first render — giving clean hydration. A headless snapshot would capture CodeMirror's
+  imperative DOM and mismatch on hydrate. (Confirmed CodeMirror + react-intl import cleanly in Node and
+  the theme code already guards browser globals, so `renderToString` needed no SSR shims.)
+- **Online-only.** The local build runs on localhost (instant) and isn't indexed — it gains nothing from
+  prerendering and carries the risk, so it stays byte-for-byte client-only (`#root` ships empty →
+  `createRoot`). Gated in `App.jsx` (the boot renders defaults only when `ONLINE`) and `main.jsx`
+  (hydrate only when `#root` is populated).
+- **Default-settings shell + two-pass hydration**, rather than trying to prerender per-visitor state
+  (impossible — the build has no localStorage) or synchronously hydrating on the client (would mismatch
+  the defaults-only prerender for returning visitors). The server and the client's first render both
+  produce defaults → clean hydration; stored settings settle in after via `cache.onHydrated` + guarded
+  stores. **Rejected: persisting on mount** — the pre-existing `useSettings` save-on-mount would wipe a
+  returning visitor's settings once the boot no longer waited for hydration; the save is now gated on a
+  "stored values applied" flag.
+- **SSR-safety is an enforced invariant, not a hope.** `tests/prerender.test.js` renders the app in a
+  `node` environment (no DOM), so any browser API used during the initial render fails in CI. This is
+  what keeps the approach non-fragile over time (the owner's explicit requirement).
+
+Rejected alternatives: **Next.js / re-platforming** (overkill for a static, server-less BYOK app; the
+existing Vite stack does build-time SSG fine) and **`createRoot` over prerendered HTML** (React would
+clear + re-render, risking an LCP-resetting flash — `hydrateRoot` reuses the DOM instead).

@@ -4,8 +4,8 @@
  * live here too and never leave the browser except per-request.
  * @module gui/lib/settings
  */
-import { useEffect, useState } from "react";
-import { getCached, setCached, cachedKeys } from "../../storage/cache.js";
+import { useEffect, useRef, useState } from "react";
+import { getCached, setCached, cachedKeys, isHydrated, onHydrated } from "../../storage/cache.js";
 
 // Settings persist through the storage layer (see gui/storage/): a real file in the one
 // user-settings folder when running locally, and localStorage ONLY in the online build. No
@@ -174,6 +174,27 @@ export function saveSettings(settings) {
 // React hook: settings state that auto-persists to localStorage on change.
 export function useSettings() {
   const [settings, setSettings] = useState(loadSettings);
-  useEffect(() => saveSettings(settings), [settings]);
+  // Two-pass hydration for the online prerender. The online build renders the DEFAULT-settings shell
+  // on the first paint (matching the prerendered HTML for a clean hydration), so `loadSettings`
+  // returns defaults until the storage cache finishes hydrating. `applied` tracks whether state
+  // reflects the STORED settings yet:
+  //   • Local waits for hydration before its first render (App's boot gate), so it's already the
+  //     stored settings — `applied` starts true and behaviour is unchanged.
+  //   • Online starts on defaults (`applied` false); when the cache hydrates we re-read the stored
+  //     settings (a returning visitor's values settle in — an input-value update, not a layout shift).
+  // The save effect is gated on `applied`, so it can NEVER persist the transient defaults over a
+  // returning visitor's saved settings (which would otherwise wipe them).
+  const applied = useRef(isHydrated());
+  useEffect(() => {
+    if (applied.current) return undefined;
+    return onHydrated(() => {
+      applied.current = true;
+      setSettings(loadSettings());
+    });
+  }, []);
+  useEffect(() => {
+    if (!applied.current) return;
+    saveSettings(settings);
+  }, [settings]);
   return [settings, setSettings];
 }

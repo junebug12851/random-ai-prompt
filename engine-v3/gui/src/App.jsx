@@ -42,11 +42,14 @@ import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
 import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
+// Home (the Generate view) is imported statically, not lazily: it holds the building-block palette,
+// which is the Largest Contentful Paint. The online build PRERENDERS the shell + palette to static
+// HTML (see prerender/), so its markup must be in the server-rendered tree AND match the client's
+// first render — a lazy Home would render nothing server-side and mismatch on hydrate. Keeping it
+// static costs the local build nothing meaningful (it runs on localhost); the online build's FCP now
+// comes from the prerendered HTML rather than from deferring this chunk.
+import Home from "./components/Home.jsx";
 
-// Home is lazy-loaded too: its subtree (the block palette, the DPL editor, live preview, the
-// per-prompt result cards) is a big slice of the app UI, so splitting it out of the entry chunk lets
-// the top bar / shell paint first (better FCP) while the Generate view streams in right behind it.
-const Home = lazy(() => import("./components/Home.jsx"));
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
 // is split into separate chunks the browser fetches only when the view is first opened —
 // keeping the initial Generate-screen payload small. Once opened, a pane stays mounted (so
@@ -132,10 +135,17 @@ const msgs = defineMessages({
  * @returns {JSX.Element}
  */
 export default function App() {
-  // Gate the first render on the storage cache hydrating (loads settings/presets/wrappers/provider
-  // overrides from the backend, migrating any legacy localStorage). The stores read synchronously
-  // from the cache afterward, so nothing below here has to be storage-aware. Hydration is fast
-  // (localStorage online; one fetch locally) — a blank frame, like the lazy panes' Suspense fallback.
+  // The storage cache hydrates asynchronously (settings/presets/wrappers/provider overrides — from
+  // localStorage online, one fetch locally, migrating any legacy keys). The stores read synchronously
+  // from the cache afterward. When the cache isn't ready yet the stores return their DEFAULTS.
+  //
+  // LOCAL waits for hydration before the first render (a brief blank frame) so it never flashes
+  // defaults over saved settings. ONLINE renders immediately with defaults instead — this is what
+  // makes the build-time prerender work: the server render (empty cache → defaults) exactly matches
+  // the client's first render (empty cache → defaults), so `hydrateRoot` reuses the prerendered DOM
+  // with no mismatch. A returning visitor's saved settings then apply when hydration completes (an
+  // input-value settle, not a layout change); a first-time visitor sees no settle at all. During the
+  // Node prerender there's no async hydration to await anyway, so rendering with defaults is correct.
   const [ready, setReady] = useState(isHydrated());
   useEffect(() => {
     if (ready) return undefined;
@@ -145,7 +155,7 @@ export default function App() {
       alive = false;
     };
   }, [ready]);
-  if (!ready) return null;
+  if (!ready && !ONLINE) return null;
   return <HydratedApp />;
 }
 
@@ -502,13 +512,11 @@ function AppShell({ settings, setSettings }) {
 
       <main>
         <div className={`view-pane${view === "generate" ? " on" : ""}`}>
-          <Suspense fallback={null}>
-            <Home
-              settings={settings}
-              setSettings={setSettings}
-              onOpenImage={ONLINE ? undefined : openGeneratedImage}
-            />
-          </Suspense>
+          <Home
+            settings={settings}
+            setSettings={setSettings}
+            onOpenImage={ONLINE ? undefined : openGeneratedImage}
+          />
         </div>
         {/* Gallery + Single are local-only: the online build has no image feed and omits them.
             Each mounts (and fetches its chunk) only once first opened, then stays mounted. */}

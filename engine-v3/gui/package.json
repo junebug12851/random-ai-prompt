@@ -6,7 +6,7 @@
   "description": "React + Vite SPA front-end for random-ai-prompt (online BYOK or local).",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
