@@ -1,0 +1,24 @@
+/* ---------- Info tooltip ("i") ---------- */
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-style: normal;
+  cursor: help;
+  vertical-align: middle;
+  flex: none;
+}
+
+.info-tip:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+

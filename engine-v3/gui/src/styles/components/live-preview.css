@@ -1,0 +1,72 @@
+/* ---------- Live preview (eye button → re-rolling tooltip) ---------- */
+.live-preview {
+  position: relative;
+  display: inline-flex;
+}
+
+.live-preview-pop {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 340px;
+  max-width: 80vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.6rem 0.7rem;
+  pointer-events: none;
+}
+
+/* The corner preview (upper-right of the prompt box) has no room above — open downward so the
+   popup isn't clipped against the top of the composer. */
+.live-preview:has(.preview-corner) .live-preview-pop {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.live-preview-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.live-preview-text {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.field-roll.preview-roll {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.45rem;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.result-img {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.result-img.loaded {
+  opacity: 1;
+}
+

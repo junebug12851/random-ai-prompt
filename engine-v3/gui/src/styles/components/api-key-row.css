@@ -1,0 +1,18 @@
+/* ---------- API key row ---------- */
+.key-row {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-end;
+}
+
+.key-row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.key-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex: none;
+}
+

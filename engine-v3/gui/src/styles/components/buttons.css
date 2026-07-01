@@ -1,0 +1,76 @@
+/* ---------- Buttons ---------- */
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.04s ease,
+    opacity 0.15s ease;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-color: var(--accent);
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+button.primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+button.ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--fg-soft);
+}
+
+button.ghost:hover {
+  background: var(--chip);
+  color: var(--fg);
+}
+
+button.ghost.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+button.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--border-soft);
+  transform: none;
+}
+
+button.primary:disabled {
+  background: var(--elevated);
+  color: var(--muted);
+}
+

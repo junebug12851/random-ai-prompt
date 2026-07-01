@@ -1,0 +1,58 @@
+/* ---------- Compose toolbar (insert bar + Prompt/Negative switch) ---------- */
+.compose-toolbar {
+  display: flex;
+
+  /* Center-align: the Prompt | Negative control and the insert row share a vertical center, so
+     their text lines up even if the control is a touch taller. (The insert bar's own bottom margin
+     is zeroed below so it doesn't skew that center.) */
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Breathing room between the toolbar row and the prompt window below it (otherwise the insert
+     bar sits flush against the composer field). */
+  margin-bottom: 0.6rem;
+}
+
+.compose-toolbar .dpl-insert-bar {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/* Match the segmented control's text size to the insert pills. */
+.compose-toolbar .cm-tab {
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+/* Segmented Prompt | Negative switch, pushed to the right of the insert bar. */
+.compose-mode {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+}
+
+.cm-tab {
+  padding: 0.22rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cm-tab:hover {
+  color: var(--fg);
+}
+
+.cm-tab.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+

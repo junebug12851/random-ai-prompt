@@ -1,0 +1,14 @@
+/* ---------- Provider tag (label badge, shown in the gear popover header) ---------- */
+.provider-tag {
+  flex: none;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-pill);
+  padding: 0.12rem 0.6rem;
+}
+

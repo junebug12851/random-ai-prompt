@@ -1,0 +1,40 @@
+/* ---------- Gallery ---------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.gallery figure {
+  margin: 0;
+  min-width: 0; /* let grid tracks shrink — images no longer blow out the columns */
+  position: relative;
+}
+
+.gallery figure > a {
+  display: block;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg-2);
+}
+
+.gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery .dl {
+  font-size: 0.78rem;
+  text-align: center;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.gallery .dl:hover {
+  text-decoration: underline;
+}
+

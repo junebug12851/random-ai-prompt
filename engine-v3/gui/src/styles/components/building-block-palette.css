@@ -1,0 +1,237 @@
+/* ---------- Building-block palette (left panel) ---------- */
+.panel-head {
+  flex: none;
+  padding: 0.85rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.picker-filter {
+  width: 100%;
+}
+
+/* Category tabs — a vertical nav, not an accordion */
+.cat-tabs {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0.45rem;
+  gap: 1px;
+  border-bottom: 1px solid var(--border-soft);
+  max-height: 50%;
+  overflow: auto;
+}
+
+.cat-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.42rem 0.6rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--fg-soft);
+}
+
+.cat-tab:hover {
+  background: var(--chip);
+  border-color: transparent;
+}
+
+.cat-tab.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cat-tab .cat-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count-pill {
+  flex: none;
+  background: var(--chip);
+  color: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 0.05rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.cat-tab.on .count-pill {
+  background: rgb(52 226 160 / 18%);
+  color: var(--accent);
+}
+
+/* A folder sub-category row, indented beneath its group (Blocks / Lists). Lighter than a group
+   tab; the active one still gets the accent treatment from `.cat-tab.on`. */
+.cat-tab.sub {
+  padding-left: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cat-tab.sub .cat-name {
+  font-weight: 500;
+}
+
+.cat-tab.sub.on .cat-name {
+  font-weight: 600;
+}
+
+/* "Prompts" section heading carrying the v1/v2 superset switch (a full-width row, not a tab) */
+.cat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.42rem 0.6rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fg-soft);
+}
+
+/* Sub-tabs (full / partial) sit full-width like the other tabs, just indented. */
+.cat-tab.sub {
+  padding-left: 1.5rem;
+}
+
+.ver-links {
+  flex: none;
+  display: inline-flex;
+  gap: 2px;
+}
+
+.ver-link {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.7rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+}
+
+.ver-link.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Chips for the active category */
+.chip-area {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.7rem 0.8rem 1rem;
+}
+
+/* Description callout at the top of the chip area — a left-aligned info card with an accent
+   edge (replaces the old centered text + underline). */
+.cat-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+  text-align: left;
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+
+.cat-hint-icon {
+  flex: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.cat-hint-text {
+  min-width: 0;
+}
+
+.picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip {
+  background: var(--chip);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.8rem;
+  color: var(--fg-soft);
+  font-weight: 500;
+}
+
+.chip:hover {
+  background: var(--chip-hover);
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+/* Category marker in the Lists block — an inline pill (flows with the chips, no line
+   break) before each folder's entries. A plain folder is a static label; a group
+   folder is a clickable pill (marked ⊕) that inserts the whole-folder group. */
+.cat-pill {
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px dashed var(--faint);
+}
+
+button.cat-pill-group {
+  cursor: pointer;
+  color: var(--fg-soft);
+  border-style: solid;
+  border-color: var(--accent);
+}
+
+button.cat-pill-group:hover {
+  color: var(--accent);
+}
+
+.picker-more {
+  font-size: 0.76rem;
+  color: var(--faint);
+  align-self: center;
+  padding: 0 0.4rem;
+}
+
+.empty {
+  color: var(--faint);
+  font-size: 0.85rem;
+  padding: 0.9rem;
+}
+

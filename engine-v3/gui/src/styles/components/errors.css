@@ -1,0 +1,11 @@
+/* ---------- Errors ---------- */
+.error {
+  margin: 0.9rem 0 0;
+  color: #ff8b7d;
+  font-size: 0.85rem;
+  background: rgb(255 100 80 / 8%);
+  border: 1px solid rgb(255 100 80 / 25%);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+}
+

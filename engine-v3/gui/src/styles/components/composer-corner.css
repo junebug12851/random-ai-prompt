@@ -1,0 +1,104 @@
+/* ---------- Composer corner (preview + clear, upper-right of the prompt box) ---------- */
+.composer-corner {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 2;
+}
+
+/* The clear-x sits inline in the corner cluster (no longer absolutely positioned). */
+.composer-corner .clear-x {
+  position: static;
+}
+
+/* The validity icon lives alone in the upper-LEFT corner of the prompt box (flipped from the
+   right). The editor's first line is indented (below) so typed text clears it. */
+.composer-corner-left {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+/* The live-preview trigger as a bare icon (no button chrome) in the corner. */
+.preview-corner {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.preview-corner:hover {
+  color: var(--accent);
+}
+
+/* The prompt-settings gear as a bare corner icon, sharing the corner cluster with the preview. */
+.composer-corner .prompt-settings-gear {
+  display: inline-flex;
+}
+
+.gear-corner {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.gear-corner:hover,
+.gear-corner.on {
+  color: var(--accent);
+}
+
+/* Live DPL validity icon — ✓ clean / ✕ on errors; shares the corner cluster with preview + gear. */
+.dpl-status {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+}
+
+.dpl-status.ok {
+  color: var(--ok, #16a34a);
+}
+
+.dpl-status.warn {
+  color: var(--warn, #d97706);
+}
+
+.dpl-status.bad {
+  color: var(--error, #dc2626);
+}
+
+/* In the Manage editor head, sit it just left of Save with a little breathing room. */
+.mg-status {
+  margin-right: 4px;
+}
+

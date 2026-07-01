@@ -1,0 +1,201 @@
+/* Editors (block / folder) fill the right pane — a big, expandable editing surface. */
+.mg-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.mg-editor-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mg-name-input {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--fg);
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.mg-path {
+  margin: -2px 0 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.mg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.mg-field > input,
+.mg-field > select {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--fg);
+  font: inherit;
+}
+
+.mg-field.mg-check,
+.mg-nsfw-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.mg-field.is-disabled {
+  opacity: 0.55;
+}
+
+.mg-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.mg-tab {
+  border: none;
+  background: none;
+  color: var(--muted);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-weight: 600;
+}
+
+.mg-tab.on {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+}
+
+.mg-editor-body {
+  flex: 1 1 auto;
+  min-height: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+}
+
+.mg-editor-body .dpl-editor,
+.mg-editor-body .code-editor {
+  height: 100%;
+  width: 100%;
+}
+
+.mg-editor-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.mg-note {
+  color: var(--dpl-gen);
+  font-size: 0.82rem;
+}
+
+.mg-ok {
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+}
+
+/* List entry editor: tools row + a virtualized (windowed) scroll area. */
+.mg-list-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mg-list-tools .picker-filter {
+  flex: 1;
+}
+
+.mg-count-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.mg-rows {
+  flex: 1 1 auto;
+  min-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+.mg-rows-inner {
+  position: relative;
+  width: 100%;
+}
+
+.mg-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.mg-row-text {
+  flex: 1;
+  cursor: text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
+.mg-row-empty {
+  color: var(--faint);
+}
+
+.mg-row-input {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 3px 6px;
+  color: var(--fg);
+  font: inherit;
+}
+
+.mg-row-del {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 6px;
+  opacity: 0;
+}
+
+.mg-row:hover .mg-row-del {
+  opacity: 1;
+}
+
+.mg-row-del:hover {
+  color: #ff8585;
+  background: var(--chip-hover);
+}

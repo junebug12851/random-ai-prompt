@@ -1,0 +1,37 @@
+/* ---------- Labeled fields (stacked label + control) ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  min-width: 0;
+}
+
+.field > span {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.field input,
+.field select {
+  width: 100%;
+}
+
+.field-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-toggle input {
+  width: auto;
+  flex: none;
+}
+
+.field-toggle span {
+  font-size: 0.85rem;
+  color: var(--fg-soft);
+  font-weight: 500;
+}
+

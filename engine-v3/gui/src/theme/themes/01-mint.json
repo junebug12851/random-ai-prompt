@@ -1,0 +1,13 @@
+{
+  "id": "mint",
+  "label": "Mint",
+  "swatch": "#34e2a0",
+  "dark": {
+    "accent": "#34e2a0",
+    "ink": "#06231a"
+  },
+  "light": {
+    "accent": "#34e2a0",
+    "ink": "#04150f"
+  }
+}

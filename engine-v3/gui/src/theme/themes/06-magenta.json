@@ -1,0 +1,13 @@
+{
+  "id": "magenta",
+  "label": "Magenta",
+  "swatch": "#f27bff",
+  "dark": {
+    "accent": "#f27bff",
+    "ink": "#2a082b"
+  },
+  "light": {
+    "accent": "#f4a8ff",
+    "ink": "#2a082b"
+  }
+}

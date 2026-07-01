@@ -1,0 +1,154 @@
+/* ---------- Prompt-settings gear popover (next to the prompt count) ---------- */
+.field-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.gear-pop-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+
+.gear-pop {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 10px); /* open downward — the prompt box sits high on the page */
+  z-index: 42;
+  width: 340px;
+  max-width: 86vw;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.gear-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Provider name + tier tag: keep them on one line — the name ellipsizes, the tag stays intact. */
+.gear-pop-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.gear-pop-title .gph-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gear-pop-head .link-btn {
+  flex: none;
+}
+
+.gear-pop-body {
+  overflow: auto;
+  padding: 0.7rem 0.8rem 0.9rem;
+}
+
+/* Condensed, single-column settings inside the popover. */
+.gear-pop .settings {
+  gap: 0.6rem;
+}
+
+.gear-pop .group {
+  padding: 0.55rem 0.65rem 0.7rem;
+}
+
+.gear-pop .group h2 {
+  margin: 0 0 0.5rem;
+}
+
+.gear-pop .group-body {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+/* Reset button spans the popover width instead of being shoved to the right. */
+.gear-pop .settings-actions {
+  justify-content: stretch;
+}
+
+.gear-pop .settings-actions button {
+  width: 100%;
+}
+
+/* Provider-settings accordion (image / text / upscale) inside the provider gear popover. */
+.gear-acc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gear-acc-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--panel-2);
+}
+
+.gear-acc-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.gear-acc-head:hover {
+  background: var(--accent-soft);
+}
+
+.gear-acc-caret {
+  flex: none;
+  color: var(--muted);
+  transition: transform 0.12s ease;
+}
+
+.gear-acc-item.on .gear-acc-caret {
+  transform: rotate(90deg);
+}
+
+.gear-acc-role {
+  flex: none;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.gear-acc-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gear-acc-body {
+  padding: 0.4rem 0.6rem 0.6rem;
+  border-top: 1px solid var(--border);
+}
+

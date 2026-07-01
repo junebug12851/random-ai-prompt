@@ -1590,6 +1590,33 @@
   "single.viewTable": {
     "defaultMessage": "View Table"
   },
+  "theme.accent": {
+    "defaultMessage": "Accent"
+  },
+  "theme.appearance": {
+    "defaultMessage": "Appearance"
+  },
+  "theme.dark": {
+    "defaultMessage": "Dark"
+  },
+  "theme.export": {
+    "defaultMessage": "Export"
+  },
+  "theme.import": {
+    "defaultMessage": "Import theme…"
+  },
+  "theme.light": {
+    "defaultMessage": "Light"
+  },
+  "theme.mode": {
+    "defaultMessage": "Mode"
+  },
+  "theme.remove": {
+    "defaultMessage": "Remove {name}"
+  },
+  "theme.system": {
+    "defaultMessage": "System"
+  },
   "tokenPicker.filter": {
     "defaultMessage": "Filter {count}…",
     "description": "Placeholder for the token search box (count = number of tokens)"

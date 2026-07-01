@@ -1,0 +1,210 @@
+/* ---------- DPL insert toolbar (above the prompt box) ---------- */
+.dpl-insert-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.dpl-insert-lead {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding-right: 0.1rem;
+}
+
+.dpl-ins-wrap {
+  position: relative;
+}
+
+.dpl-ins-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1.1;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-ins-btn:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.dpl-ins-btn.on {
+  background: var(--accent-soft);
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.dpl-ins-caret {
+  font-size: 0.62em;
+  opacity: 0.7;
+}
+
+/* Click-away layer behind the open popover. */
+.dpl-ins-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.dpl-ins-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  width: 300px;
+  max-width: 88vw;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.35rem;
+}
+
+/* The rightmost menus open from their right edge so they don't run off-screen. */
+.dpl-ins-pop-right {
+  left: auto;
+  right: 0;
+}
+
+.dpl-ins-pop-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  padding: 0.2rem 0.4rem 0.35rem;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 0.25rem;
+}
+
+.dpl-ins-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0.45rem;
+  border-radius: var(--radius-sm);
+  color: var(--fg-soft);
+}
+
+.dpl-ins-item:hover,
+.dpl-ins-item:focus-visible {
+  background: var(--accent-soft);
+  color: var(--fg);
+  outline: none;
+}
+
+.dpl-ins-item-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.dpl-ins-item-desc {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.dpl-ins-item-syntax {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  color: var(--accent);
+  background: var(--bg-2);
+  border-radius: var(--radius-sm);
+  padding: 0.18rem 0.34rem;
+  margin-top: 0.1rem;
+}
+
+.dpl-ins-item-ex {
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  margin-top: 0.15rem;
+}
+
+.dpl-ins-item-ex-label {
+  flex: none;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.dpl-ins-item-ex-text {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--fg-soft);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Context: the main prompt box (the .dpl-editor wears the .prompt-input class) */
+.composer-field .prompt-input.dpl-editor {
+  padding: 0.95rem 1.05rem 0.5rem;
+  resize: none;
+}
+
+.composer-field .prompt-input.dpl-editor .cm-content {
+  font-size: 1.05rem;
+}
+
+/* Indent only the first visual row so the upper-left validity icon never sits on the text. */
+.composer-field .prompt-input.dpl-editor .cm-line:first-child {
+  text-indent: 1.8rem;
+}
+
+/* Context: the negative-prompt box (matches the base textarea look) */
+.negative-textarea.dpl-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  padding: 0.55rem 0.7rem;
+  min-height: 5.5rem;
+  font: 0.9rem/1.5 var(--font-body);
+}
+
+.negative-textarea.dpl-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+/* Context: the wrapper Start/End boxes */
+.wrap-box .dpl-editor {
+  min-height: 160px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  font: 0.9rem/1.5 var(--font-body);
+}
+
+.wrap-box .dpl-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+

@@ -1,0 +1,35 @@
+/* ---------- Provider-settings gear (header) + its popover ---------- */
+.ps-gear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
+  cursor: pointer;
+}
+
+.ps-gear:hover,
+.ps-gear.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ps-gear svg {
+  display: block;
+}
+
+/* The provider-settings popover hangs off the header gear — right-aligned so it stays on screen. */
+.provider-gear .gear-pop.provider-gear-pop {
+  left: auto;
+  right: 0;
+}
+
+.provider-controls-empty {
+  margin: 0;
+}
+

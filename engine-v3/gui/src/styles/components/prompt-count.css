@@ -1,0 +1,145 @@
+/* ---------- Prompt count (left of the field bar) ---------- */
+.field-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  flex: none;
+}
+
+.prompt-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex: none;
+}
+
+.field-count-label {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field-count input {
+  width: 3.1rem;
+  padding: 0.3rem 0.35rem;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.field-count input:hover {
+  border-color: var(--border);
+}
+
+.field-count input:focus {
+  border-color: var(--accent);
+  background: var(--bg-2);
+  box-shadow: none;
+}
+
+/* Inline provider image controls: a Size / Ratio select, or a Width × Height number pair. */
+.field-size select.field-size-select {
+  padding: 0.3rem 0.35rem;
+  max-width: 7.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.field-size select.field-size-select:hover {
+  border-color: var(--border);
+}
+
+.field-size select.field-size-select:focus {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
+
+.field-size-text {
+  width: 3.4rem;
+  padding: 0.3rem 0.35rem;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.field-size-text:hover {
+  border-color: var(--border);
+}
+
+.field-size-text:focus {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
+
+.field-size-wh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.field-size-wh input {
+  width: 2.7rem;
+  padding: 0.3rem 0.2rem;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Drop the native number spinners so the centered digits sit flush against the × (otherwise the
+   spinner reserves space on the right and pushes the × away). */
+.field-size-wh input::-webkit-outer-spin-button,
+.field-size-wh input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field-size-wh input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.field-size-wh input:hover {
+  border-color: var(--border);
+}
+
+.field-size-wh input:focus {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
+
+.field-size-x {
+  color: var(--muted);
+  font-weight: 700;
+  padding: 0 0.05rem;
+}
+
+/* A disabled field action (e.g. auto-fix / keyword with no Text provider chosen). */
+.field-act:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.field-act:disabled:hover {
+  color: var(--fg-soft);
+}
+
+/* The prompt-settings gear now hangs off the top-right of the prompt box — right-align its pop. */
+.prompt-settings-gear .gear-pop {
+  left: auto;
+  right: 0;
+}
+

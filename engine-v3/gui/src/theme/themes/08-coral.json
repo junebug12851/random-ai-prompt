@@ -1,0 +1,13 @@
+{
+  "id": "coral",
+  "label": "Coral",
+  "swatch": "#ff8a6b",
+  "dark": {
+    "accent": "#ff8a6b",
+    "ink": "#2e1108"
+  },
+  "light": {
+    "accent": "#ffb199",
+    "ink": "#2e1108"
+  }
+}
