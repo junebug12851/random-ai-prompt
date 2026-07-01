@@ -28,7 +28,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -54,7 +54,7 @@ jobs:
             echo "Tag $tag is new -- will release."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: steps.ver.outputs.should_release == 'true'
         with:
           node-version: 24
@@ -118,7 +118,7 @@ jobs:
 
       - name: Upload artifacts (always, for inspection / dry run)
         if: steps.ver.outputs.should_release == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-artifacts
           path: |
@@ -127,7 +127,7 @@ jobs:
 
       - name: Publish GitHub Release
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: ${{ steps.ver.outputs.tag }}

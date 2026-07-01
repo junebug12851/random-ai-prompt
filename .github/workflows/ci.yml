@@ -30,9 +30,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -57,7 +57,7 @@ jobs:
       # ignore defaults.run.working-directory, so the path is repo-root-relative. Needs the Codecov
       # GitHub app enabled on the repo; CODECOV_TOKEN is recommended (public repos also work tokenless).
       - name: Upload coverage to Codecov (Node)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: junebug12851/random-ai-prompt
@@ -72,9 +72,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -91,7 +91,7 @@ jobs:
 
       # Non-blocking: publish SPA coverage to Codecov under the `gui` flag (repo-root-relative path).
       - name: Upload coverage to Codecov (SPA)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: junebug12851/random-ai-prompt
@@ -106,9 +106,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -132,9 +132,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -163,9 +163,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm

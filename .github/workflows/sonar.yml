@@ -25,12 +25,12 @@ jobs:
     timeout-minutes: 15 # safety net — a hung sensor fails fast instead of burning ~6h of runner time
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Sonar wants full history for accurate blame / new-code detection
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -41,6 +41,6 @@ jobs:
           npm run test:coverage
 
       - name: SonarQube Cloud scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

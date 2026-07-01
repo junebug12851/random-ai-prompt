@@ -23,9 +23,9 @@ jobs:
       run:
         working-directory: engine-v3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -43,7 +43,7 @@ jobs:
         run: npx playwright test visual.spec.js --update-snapshots
 
       - name: Upload refreshed baselines
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-visual-baselines
           path: engine-v3/tests/e2e/visual.spec.js-snapshots/
