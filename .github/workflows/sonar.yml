@@ -22,7 +22,7 @@ jobs:
     name: SonarQube Cloud scan
     if: ${{ vars.SONAR_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # safety net — a hung sensor fails fast instead of burning ~6h of runner time
+    timeout-minutes: 8 # TEMP diagnostic: fail fast so we can read the verbose log of the taint hang
     steps:
       - name: Checkout
         uses: actions/checkout@v4
