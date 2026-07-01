@@ -41,7 +41,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.9",
-    "babel-plugin-formatjs": "^10.5.39",
+    "babel-plugin-formatjs": "^11.3.14",
     "eslint": "^9.39.0",
     "eslint-plugin-formatjs": "^5.4.0",
     "jsdom": "^29.1.1",
