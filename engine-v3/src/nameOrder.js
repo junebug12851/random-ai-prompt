@@ -205,7 +205,7 @@ export function computeButtonNames(names, forcedDirs = []) {
     const s = n.split("/");
     return s.slice(s.length - shown.get(n)).join("/");
   };
-  for (let changed = true; changed; ) {
+  for (let changed = true; changed;) {
     changed = false;
     const groups = {};
     for (const n of auto) (groups[tok(n)] ||= []).push(n);
