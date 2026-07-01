@@ -1,8 +1,24 @@
 # random-ai-prompt
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/927e1b3b-338c-48e0-8959-03dcd055cb87/deploy-status)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
-[![Node ≥ 24](https://img.shields.io/badge/node-%E2%89%A5%2024-43853d?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+![GitHub Stars](https://www.shieldcn.dev/github/stars/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![GitHub Forks](https://www.shieldcn.dev/github/forks/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Watchers](https://www.shieldcn.dev/github/watchers/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Contributors](https://www.shieldcn.dev/github/contributors/junebug12851/random-ai-prompt.svg?theme=emerald&variant=branded&size=sm&font=space-grotesk)
+
+![Release](https://www.shieldcn.dev/github/release/junebug12851/random-ai-prompt.svg?variant=branded&size=sm&theme=stone&font=space-grotesk)
+![Last commit](https://www.shieldcn.dev/github/last-commit/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Commits](https://www.shieldcn.dev/github/commits/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Branches](https://www.shieldcn.dev/github/branches/junebug12851/random-ai-prompt.svg?variant=ghost&size=sm&theme=stone&font=space-grotesk)
+
+![Open issues](https://www.shieldcn.dev/github/open-issues/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Closed issues](https://www.shieldcn.dev/github/closed-issues/junebug12851/random-ai-prompt.svg?variant=ghost&size=sm&theme=stone&font=space-grotesk)
+![Open PRs](https://www.shieldcn.dev/github/open-prs/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![Merged PRs](https://www.shieldcn.dev/github/merged-prs/junebug12851/random-ai-prompt.svg?variant=ghost&size=sm&theme=stone&font=space-grotesk)
+![Closed PRs](https://www.shieldcn.dev/github/closed-prs/junebug12851/random-ai-prompt.svg?variant=ghost&size=sm&theme=stone&font=space-grotesk)
+
+![CI](https://www.shieldcn.dev/github/ci/junebug12851/random-ai-prompt.svg?variant=secondary&size=sm&theme=stone&font=space-grotesk)
+![License](https://www.shieldcn.dev/github/license/junebug12851/random-ai-prompt.svg?variant=ghost&size=sm&theme=stone&font=space-grotesk)
+![Hosting · Netlify](https://www.shieldcn.dev/badge/Hosting-Netlify-00AD9F.svg?logo=netlify&variant=branded&size=sm&theme=stone&font=space-grotesk)
 
 **An open-source generator for AI image and text prompts that automatically builds richer, more
 detailed prompts than most people write by hand.**
@@ -26,11 +42,11 @@ right in your browser. No install, no account, nothing stored on a server: open 
 API key (or just generate prompt text with no key at all), and start exploring. It's the fastest way
 to see what the project is about.
 
-| | |
-|---|---|
-| ▶ **Use it online** | **[prompt.fairyfox.io](https://prompt.fairyfox.io)** — instant, always the newest build |
+|                      |                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| ▶ **Use it online**  | **[prompt.fairyfox.io](https://prompt.fairyfox.io)** — instant, always the newest build                                |
 | 📖 **Documentation** | **[fairyfox.io/random-ai-prompt](https://fairyfox.io/random-ai-prompt/)** — API reference + the living developer notes |
-| 🦊 **More projects** | **[fairyfox.io](https://fairyfox.io)** — the parent site and the rest of the fairyfox project family |
+| 🦊 **More projects** | **[fairyfox.io](https://fairyfox.io)** — the parent site and the rest of the fairyfox project family                   |
 
 > The online edition is a focused, browser-only build. The **gallery**, **single-image view**, the
 > in-app **content Manager**, the **local** Stable-Diffusion providers, and **NSFW mode** live in the
@@ -98,8 +114,8 @@ To produce just the static production build:
 npm run web:build    # outputs the built site to gui/dist/
 ```
 
-> Generating *images* requires access to a provider — either a bring-your-own-key cloud provider, or a
-> local Stable Diffusion WebUI running with `--api`. Generating *prompt text* needs no key at all.
+> Generating _images_ requires access to a provider — either a bring-your-own-key cloud provider, or a
+> local Stable Diffusion WebUI running with `--api`. Generating _prompt text_ needs no key at all.
 
 ## Project layout
 
