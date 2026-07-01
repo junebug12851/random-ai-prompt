@@ -38,7 +38,7 @@ function getRndSalt() {
  * @param {object} [upscaleSettings] Unused.
  * @returns {string} The prompt with salt resolved/appended.
  */
-export default function (prompt, settings, imageSettings, _upscaleSettings) {
+export default function promptSalt(prompt, settings, imageSettings, _upscaleSettings) {
   let foundSalt = false;
   let val = settings.promptSaltStart;
 

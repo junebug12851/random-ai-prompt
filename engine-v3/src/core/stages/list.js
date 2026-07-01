@@ -24,7 +24,7 @@ export function makeListStage(store) {
   let promptFuncsTmp = [];
 
   function sampleFile(name, settings, emphasis) {
-    emphasis = emphasis === undefined ? true : emphasis == true;
+    emphasis = emphasis === undefined ? true : Boolean(emphasis);
 
     if (!emphasis || randomFloat() > settings.emphasisChance) return store.pull(settings, name);
 
@@ -39,7 +39,7 @@ export function makeListStage(store) {
     name = promptFuncsTmp[0](settings, name).keyword;
     promptFuncsTmp.splice(0, 1);
 
-    name = name.replaceAll(/\{(.*?)\}/gm, (match, p1) => store.pull(settings, p1));
+    name = name.replaceAll(/\{([^{}\n]*)\}/gm, (match, p1) => store.pull(settings, p1));
 
     if (settings.mode == "NovelAI") {
       name = name.replaceAll("(", "{").replaceAll(")", "}");
@@ -49,7 +49,7 @@ export function makeListStage(store) {
   }
 
   return function list(prompt, settings) {
-    return prompt.replaceAll(/\{(.*?)\}/gm, (match, p1) => {
+    return prompt.replaceAll(/\{([^{}\n]*)\}/gm, (match, p1) => {
       // `{#name}` is a dynamic-prompt token (handled by the dynamic-prompt stage), not a
       // list — leave any stray one intact rather than mis-pulling a list named "#name".
       if (p1.startsWith("#")) return match;

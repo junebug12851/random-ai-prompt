@@ -40,7 +40,7 @@ function processRepeat(count, keyword, alias) {
   let str = [];
 
   for (let i = 0; i < count; i++) {
-    if (alias == true) str.push(`{${ALIASES[keyword]}}`);
+    if (alias) str.push(`{${ALIASES[keyword]}}`);
     else str.push(`{${keyword}}`);
   }
 

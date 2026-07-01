@@ -57,22 +57,9 @@ function processSd(settings, lessEmphasis, keyword) {
  * @returns {string} The wrapped keyword.
  */
 function processNAI(settings, lessEmphasis, keyword) {
-  // Prepare for emphasis/de-emphasis leveling
-  let prefix = "";
-  let suffix = "";
-  let count = 0;
-
-  // Randomly add emphasis/de-emphasis levels based on chance for each level up to set max
-  do {
-    prefix += lessEmphasis ? "[" : "(";
-    suffix += lessEmphasis ? "]" : ")";
-    count++;
-  } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
-
-  // Update modified keyword with emphais/de-emphasis
-  keyword = `${prefix}${keyword}${suffix}`;
-
-  return keyword;
+  // NAI uses the same nested-bracket leveling as SD; the list stage rewrites `()` to `{}` for
+  // NovelAI afterwards, so the emphasis pass itself is identical — delegate rather than duplicate.
+  return processSd(settings, lessEmphasis, keyword);
 }
 
 /**
@@ -93,12 +80,12 @@ function processMdj(settings, lessEmphasis, keyword) {
   } while (randomFloat() < settings.emphasisLevelChance && count < settings.emphasisMaxLevels);
 
   // Base factor
-  let factor = 1.0;
+  let factor = 1;
 
   if (lessEmphasis && count > 0) factor /= 1.05 * count;
   else if (!lessEmphasis && count > 0) factor *= 1.05 * count;
 
-  factor = parseFloat(factor.toFixed(2));
+  factor = Number.parseFloat(factor.toFixed(2));
 
   // Update modified keyword with emphais/de-emphasis
   if (count > 0) keyword = `${keyword}::${factor}`;

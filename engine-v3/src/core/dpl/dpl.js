@@ -58,7 +58,7 @@ export function compileDpl(source, bridge = null) {
       focus: clampFocus(focus),
       rng: RNG,
       bridge,
-      hasSection: (name) => Object.prototype.hasOwnProperty.call(sections, name),
+      hasSection: (name) => Object.hasOwn(sections, name),
       section: (name) => (sections[name] ? renderNodes(sections[name], ctx) : ""),
       // JS->DPL bridge calls (return rendered strings).
       prompt: (name) => bridge?.runPrompt?.(name, ctx) ?? `{#${String(name).replace(/^#/, "")}}`,
@@ -68,8 +68,14 @@ export function compileDpl(source, bridge = null) {
     return ctx;
   }
 
-  function defaultFn(settings = {}, imageSettings = {}, upscaleSettings = {}, intensity, focus) {
-    const ctx = makeCtx(settings, imageSettings, upscaleSettings, intensity, focus);
+  function defaultFn(settings, imageSettings, upscaleSettings, intensity, focus) {
+    const ctx = makeCtx(
+      settings ?? {},
+      imageSettings ?? {},
+      upscaleSettings ?? {},
+      intensity,
+      focus,
+    );
     if (meta.script) return bridge?.resolveJs?.(meta.script, ctx) ?? "";
     return ctx.section("Start");
   }
@@ -78,13 +84,17 @@ export function compileDpl(source, bridge = null) {
   // app folds into the START / END of the whole prompt (alongside the user wrapper). They render
   // exactly like any section (probability, refs, JS), but are NOT part of the block's own `Start`
   // body. See notes/plans/v3-layers.md.
-  const has = (name) => Object.prototype.hasOwnProperty.call(sections, name);
-  const renderSection =
-    (name) =>
-    (settings = {}, imageSettings = {}, upscaleSettings = {}, intensity, focus) => {
-      if (!has(name)) return "";
-      return makeCtx(settings, imageSettings, upscaleSettings, intensity, focus).section(name);
-    };
+  const has = (name) => Object.hasOwn(sections, name);
+  const renderSection = (name) => (settings, imageSettings, upscaleSettings, intensity, focus) => {
+    if (!has(name)) return "";
+    return makeCtx(
+      settings ?? {},
+      imageSettings ?? {},
+      upscaleSettings ?? {},
+      intensity,
+      focus,
+    ).section(name);
+  };
 
   return {
     default: defaultFn,

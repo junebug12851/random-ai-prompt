@@ -33,7 +33,7 @@
  * @param {object} [upscaleSettings] Unused.
  * @returns {string} The tidied prompt.
  */
-export default function (prompt, _settings, _imageSettings, _upscaleSettings) {
+export default function cleanup(prompt, _settings, _imageSettings, _upscaleSettings) {
   // Get rid of extra spaces
   prompt = prompt.replaceAll(/ +/gm, " ");
 
@@ -47,8 +47,8 @@ export default function (prompt, _settings, _imageSettings, _upscaleSettings) {
   prompt = prompt.split(",");
   const newPromt = [];
 
-  for (let i = 0; i < prompt.length; i++) {
-    const el = prompt[i].trim();
+  for (const part of prompt) {
+    const el = part.trim();
     if (el != "") newPromt.push(el);
   }
 

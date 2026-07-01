@@ -23,7 +23,7 @@ function parseBracketSpec(inner) {
   // A condition: a MANDATORY dial prefix (i/f), an operator, a percent. Pull each out until none remain.
   const condRe = /([if])\s*(<=|>=|==|!=|<|>|=)\s*(\d+(?:\.\d+)?)\s*%/i;
   let cm;
-  while ((cm = rest.match(condRe))) {
+  while ((cm = condRe.exec(rest))) {
     const dial = cm[1].toLowerCase();
     const cond = { op: cm[2], value: Number(cm[3]) };
     if (dial === "f") {
@@ -33,7 +33,7 @@ function parseBracketSpec(inner) {
     }
     rest = rest.slice(0, cm.index) + rest.slice(cm.index + cm[0].length);
   }
-  rest = rest.replace(/\|/g, " ").trim();
+  rest = rest.replaceAll("|", " ").trim();
   if (rest !== "") {
     if (/^\d+$/.test(rest)) weight = Number(rest);
     else return null; // leftover junk → not a valid spec; leave the bracket as payload
@@ -65,7 +65,7 @@ function consumeBracket(t, out) {
  */
 export function parseFrontMatter(source) {
   const meta = {};
-  const lines = source.replace(/\r/g, "").split("\n");
+  const lines = source.replaceAll("\r", "").split("\n");
   if (lines[0]?.trim() !== "---") return { meta, body: lines.join("\n") };
   let i = 1;
   for (; i < lines.length; i++) {
@@ -73,7 +73,7 @@ export function parseFrontMatter(source) {
       i++;
       break;
     }
-    const m = lines[i].match(/^\s*([\w-]+)\s*:\s*(.*)$/);
+    const m = /^\s*([\w-]+)\s*:(.*)$/.exec(lines[i]);
     if (m) meta[m[1].trim()] = m[2].trim();
   }
   return { meta, body: lines.slice(i).join("\n") };
@@ -98,7 +98,7 @@ export function lexLines(body) {
     const semi = raw.indexOf(";");
     if (semi >= 0) raw = raw.slice(0, semi);
     if (raw.trim() === "") continue;
-    const indentMatch = raw.match(/^[ \t]*/)[0];
+    const indentMatch = /^[ \t]*/.exec(raw)[0];
     if (indentMatch.length > 0 && unit === null) unit = indentMatch; // first indent sets the unit
     let depth = 0;
     if (indentMatch.length > 0 && unit) depth = Math.round(indentMatch.length / unit.length);
@@ -127,8 +127,10 @@ export function parseSections(lines) {
   for (let i = 0; i < lines.length; i++) {
     const ln = lines[i];
     const next = lines[i + 1];
-    if (next && next.depth === 0 && /^={3,}$/.test(next.text) && ln.depth === 0) {
-      current = ln.text.replace(/\s*\[.*$/, "").trim() || ln.text.trim(); // name (drop a trailing weight)
+    if (next?.depth === 0 && /^={3,}$/.test(next.text) && ln.depth === 0) {
+      // name (drop a trailing weight bracket); slice at the first `[` — linear, no regex backtracking
+      const bracketAt = ln.text.indexOf("[");
+      current = (bracketAt >= 0 ? ln.text.slice(0, bracketAt) : ln.text).trim() || ln.text.trim();
       ensure(current, ln.text);
       i++; // consume the underline
       continue;
@@ -163,7 +165,7 @@ function buildTree(lines, depth, start = 0) {
     if (ln.depth > depth) {
       // Children belong to the previous node.
       const sub = buildTree(lines, ln.depth, i);
-      if (nodes.length) nodes[nodes.length - 1].children = sub.nodes;
+      if (nodes.length) nodes.at(-1).children = sub.nodes;
       i = sub.next;
       continue;
     }
@@ -176,6 +178,85 @@ function buildTree(lines, depth, start = 0) {
 // ---------------------------------------------------------------------------
 // Per-line parsing: weight, gate, repeat, choice, refs, flow, payload
 // ---------------------------------------------------------------------------
+
+/** Flow directive at the head of a line (`go back` / `go to X`), or null. */
+function parseFlow(t) {
+  if (/^go\s+back\b/i.test(t)) return { kind: "back" };
+  const gotoM = t.match(/^go\s+to\s+(\S.*)$/i);
+  if (gotoM) return { kind: "goto", target: gotoM[1].trim() };
+  return null;
+}
+
+/**
+ * Parse a leading gate (`otherwise`, `NN%`, `maybe`, `NN% chance`) onto `out`, returning the
+ * remaining text. `scaleGate` marks a *probability* gate (intensity auto-scales it); a bare
+ * `otherwise` keeps an unscaled gate of 1 (it runs whenever the paired gate failed).
+ */
+function parseGate(t, out) {
+  const otherwiseM = t.match(/^otherwise\b\s*/i);
+  if (otherwiseM) {
+    out.otherwise = true;
+    t = t.slice(otherwiseM[0].length);
+  }
+  const maybeM = t.match(/^maybe\s*:?\s*/i);
+  const pctChanceM = t.match(/^(\d+(?:\.\d+)?)%\s*chance\s*:?\s*/i);
+  const pctM = t.match(/^(\d+(?:\.\d+)?)%\s+/);
+  if (pctChanceM) {
+    out.gate = Number(pctChanceM[1]) / 100;
+    out.scaleGate = true;
+    t = t.slice(pctChanceM[0].length);
+  } else if (maybeM) {
+    out.gate = 0.5;
+    out.scaleGate = true;
+    t = t.slice(maybeM[0].length);
+  } else if (pctM) {
+    out.gate = Number(pctM[1]) / 100;
+    out.scaleGate = true;
+    t = t.slice(pctM[0].length);
+  } else if (out.otherwise) {
+    out.gate = 1;
+  }
+  return t;
+}
+
+/**
+ * Parse a `one of` / `N of` / `A to B of` choice (optional `(NN% nothing)` miss) onto `out`.
+ * Returns true when a choice was recorded (the node is then complete).
+ */
+function parseChoice(t, out) {
+  const missRe = "(?:\\((\\d+(?:\\.\\d+)?)%\\s*nothing\\))?\\s*:?\\s*$";
+  const oneOfM = t.match(new RegExp(`^one\\s+of\\s*${missRe}`, "i"));
+  const nOfM = oneOfM
+    ? null
+    : t.match(new RegExp(`^(\\d+)(?:\\s+to\\s+(\\d+))?\\s+of\\s*${missRe}`, "i"));
+  if (!(oneOfM || nOfM) || !out.children.length) return false;
+  const min = oneOfM ? 1 : Number(nOfM[1]);
+  const max = oneOfM ? 1 : nOfM[2] ? Number(nOfM[2]) : min;
+  const missCap = oneOfM ? oneOfM[1] : nOfM[3];
+  out.choice = { min, max, miss: missCap ? Number(missCap) / 100 : 0 };
+  return true;
+}
+
+/** Parse a `repeat N times` / `repeat A to B times` prefix onto `out`, returning the remaining text. */
+function parseRepeat(t, out) {
+  const repeatM = t.match(/^repeat\s+(\d+)(?:\s+to\s+(\d+))?\s+times\s*:?\s*/i);
+  if (!repeatM) return t;
+  out.repeat = {
+    min: Number(repeatM[1]),
+    max: repeatM[2] ? Number(repeatM[2]) : Number(repeatM[1]),
+  };
+  return t.slice(repeatM[0].length);
+}
+
+/** Parse a reference form (`insert js: path` / `insert name` / `+name`) onto `out`. */
+function parseRef(t, out) {
+  const insertJsM = t.match(/^insert\s+js:\s*(\S+)\s*$/i);
+  const insertM = t.match(/^insert\s+(\S+)\s*$/i);
+  const callM = t.match(/^\+(\S+)\s*$/);
+  if (insertJsM) out.ref = { kind: "js-block", path: insertJsM[1] };
+  else if (insertM) out.ref = { kind: "insert", name: insertM[1] };
+  else if (callM) out.ref = { kind: "call", name: callM[1] };
+}
 
 /**
  * Parse one tree node's text into a typed descriptor (weight/gate/repeat/choice/ref/payload).
@@ -197,77 +278,18 @@ function parseNode(node) {
   // works; the bracket carries a local weight and/or an intensity condition (see parseBracketSpec).
   t = consumeBracket(t, out);
 
-  // Flow: go to / go back
-  if (/^go\s+back\b/i.test(t)) {
-    out.flow = { kind: "back" };
-    return out;
-  }
-  const gotoM = t.match(/^go\s+to\s+(.+)$/i);
-  if (gotoM) {
-    out.flow = { kind: "goto", target: gotoM[1].trim() };
+  // Flow (`go back` / `go to X`) — terminal.
+  const flow = parseFlow(t);
+  if (flow) {
+    out.flow = flow;
     return out;
   }
 
-  // Gate: NN% / maybe / NN% chance / otherwise [gate]
-  const otherwiseM = t.match(/^otherwise\b\s*/i);
-  if (otherwiseM) {
-    out.otherwise = true;
-    t = t.slice(otherwiseM[0].length);
-  }
-  const maybeM = t.match(/^maybe\s*:?\s*/i);
-  const pctChanceM = t.match(/^(\d+(?:\.\d+)?)%\s*chance\s*:?\s*/i);
-  const pctM = t.match(/^(\d+(?:\.\d+)?)%\s+/);
-  // `scaleGate` marks a *probability* gate (so intensity auto-scales it). A bare `otherwise` keeps an
-  // unscaled gate of 1 (it runs whenever the paired gate failed); `otherwise NN% chance` is a real
-  // probability and is scaled.
-  if (pctChanceM) {
-    out.gate = Number(pctChanceM[1]) / 100;
-    out.scaleGate = true;
-    t = t.slice(pctChanceM[0].length);
-  } else if (maybeM) {
-    out.gate = 0.5;
-    out.scaleGate = true;
-    t = t.slice(maybeM[0].length);
-  } else if (pctM) {
-    out.gate = Number(pctM[1]) / 100;
-    out.scaleGate = true;
-    t = t.slice(pctM[0].length);
-  } else if (out.otherwise) {
-    out.gate = 1; // bare "otherwise" always runs when the prior gate failed (not scaled)
-  }
-
-  // Choice: "one of" (singular keyword) or "N of" / "A to B of" with digit counts.
-  // Optional "(NN% nothing)" miss chance.
-  const missRe = "(?:\\((\\d+(?:\\.\\d+)?)%\\s*nothing\\))?\\s*:?\\s*$";
-  const oneOfM = t.match(new RegExp(`^one\\s+of\\s*${missRe}`, "i"));
-  const nOfM = oneOfM
-    ? null
-    : t.match(new RegExp(`^(\\d+)(?:\\s+to\\s+(\\d+))?\\s+of\\s*${missRe}`, "i"));
-  if ((oneOfM || nOfM) && out.children.length) {
-    const min = oneOfM ? 1 : Number(nOfM[1]);
-    const max = oneOfM ? 1 : nOfM[2] ? Number(nOfM[2]) : min;
-    const missCap = oneOfM ? oneOfM[1] : nOfM[3];
-    out.choice = { min, max, miss: missCap ? Number(missCap) / 100 : 0 };
-    return out;
-  }
-
-  // Repeat: repeat N times / repeat A to B times  (then ": payload" or a child block)
-  const repeatM = t.match(/^repeat\s+(\d+)(?:\s+to\s+(\d+))?\s+times\s*:?\s*/i);
-  if (repeatM) {
-    out.repeat = {
-      min: Number(repeatM[1]),
-      max: repeatM[2] ? Number(repeatM[2]) : Number(repeatM[1]),
-    };
-    t = t.slice(repeatM[0].length);
-  }
-
-  // Reference: insert js: path | insert name | +name
-  const insertJsM = t.match(/^insert\s+js:\s*(\S+)\s*$/i);
-  const insertM = t.match(/^insert\s+(\S+)\s*$/i);
-  const callM = t.match(/^\+(\S+)\s*$/);
-  if (insertJsM) out.ref = { kind: "js-block", path: insertJsM[1] };
-  else if (insertM) out.ref = { kind: "insert", name: insertM[1] };
-  else if (callM) out.ref = { kind: "call", name: callM[1] };
+  // Gate (NN% / maybe / NN% chance / otherwise), then choice (terminal), then repeat, then ref.
+  t = parseGate(t, out);
+  if (parseChoice(t, out)) return out;
+  t = parseRepeat(t, out);
+  parseRef(t, out);
 
   // A trailing ":" with children but no choice/repeat → a plain gated block.
   if (/:$/.test(t) && out.children.length && !out.ref) {

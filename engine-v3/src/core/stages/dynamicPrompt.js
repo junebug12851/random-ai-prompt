@@ -35,7 +35,7 @@ function clampDial(raw, dflt) {
   const n = Math.round(Number(raw));
   if (!Number.isFinite(n)) return dflt;
   if (n <= 0) return 1;
-  return n > 100 ? 100 : n;
+  return Math.min(n, 100);
 }
 
 /**
@@ -59,18 +59,45 @@ function parseArgs(blob) {
   return { intensity, focus };
 }
 
-export function makeDynamicPromptStage(loader) {
-  function danbooruReplacer(prompt, settings) {
-    if (
-      settings.keywordsFilename == false ||
-      (!String(settings.keywordsFilename).startsWith("d/") &&
-        settings.keywordsFilename != "danbooru")
-    ) {
-      return prompt;
-    }
-    return prompt.replaceAll(/, ?Person/gim, "{d/person}");
+// When `keywordsFilename` is the boolean `false` (disabled), the string checks below are already
+// true, so an explicit `== false` clause here was redundant and has been dropped.
+/** Substitute `, Person` with the danbooru person token when a danbooru keyword file is active. */
+function danbooruReplacer(prompt, settings) {
+  if (
+    !String(settings.keywordsFilename).startsWith("d/") &&
+    settings.keywordsFilename != "danbooru"
+  ) {
+    return prompt;
   }
+  return prompt.replaceAll(/, ?Person/gim, "{d/person}");
+}
 
+// Global single-layer auto-merge: a SINGULAR generator renders ONCE per prompt. A later import of one
+// already seen (and not on the first pass) renders empty; a `stacking` generator is exempt. Returns
+// true when this occurrence should be skipped.
+function dedupSkip(mod, key, dedup) {
+  if (!dedup || mod.stacking === true) return false;
+  if (!dedup.firstPass && dedup.seen.has(key)) return true;
+  dedup.seen.add(key);
+  return false;
+}
+
+// Hoist a block's optional `Auto Begin` / `Auto End` framing to the prompt's start/end, when the
+// caller opted in by passing an `autoSink` collector (the SPA's "use block auto-sections" toggle).
+function pushAutoSections(mod, settings, args) {
+  const sink = settings.autoSink;
+  if (!sink) return;
+  if (mod.hasAutoBegin && typeof mod.autoBegin === "function") {
+    const b = mod.autoBegin(...args);
+    if (b?.trim()) sink.begin.push(b.trim());
+  }
+  if (mod.hasAutoEnd && typeof mod.autoEnd === "function") {
+    const e = mod.autoEnd(...args);
+    if (e?.trim()) sink.end.push(e.trim());
+  }
+}
+
+export function makeDynamicPromptStage(loader) {
   function run(
     key,
     settings,
@@ -82,35 +109,10 @@ export function makeDynamicPromptStage(loader) {
   ) {
     const mod = loader.loadDynamicPrompt(key);
     if (!mod || typeof mod.default !== "function") return "";
-    // Global single-layer auto-merge: a generator renders ONCE per prompt and behaves as a shared
-    // global layer. The first occurrence (including any the user typed) renders and is recorded; a
-    // later IMPORT of the same SINGULAR generator renders empty (it was "already imported"). A
-    // generator flagged `stacking` is exempt and may render every time (decorative fragments). See
-    // notes/reference/layering-design.md.
-    if (dedup) {
-      if (mod.stacking !== true) {
-        if (!dedup.firstPass && dedup.seen.has(key)) return "";
-        dedup.seen.add(key);
-      }
-    }
-    const out = danbooruReplacer(
-      mod.default(settings, imageSettings, upscaleSettings, intensity, focus),
-      settings,
-    );
-    // Hoist this block's optional `Auto Begin` / `Auto End` framing to the prompt's start/end, when
-    // the caller opted in by passing an `autoSink` collector (the SPA's "use block auto-sections"
-    // toggle).
-    const sink = settings.autoSink;
-    if (sink) {
-      if (mod.hasAutoBegin && typeof mod.autoBegin === "function") {
-        const b = mod.autoBegin(settings, imageSettings, upscaleSettings, intensity, focus);
-        if (b && b.trim()) sink.begin.push(b.trim());
-      }
-      if (mod.hasAutoEnd && typeof mod.autoEnd === "function") {
-        const e = mod.autoEnd(settings, imageSettings, upscaleSettings, intensity, focus);
-        if (e && e.trim()) sink.end.push(e.trim());
-      }
-    }
+    if (dedupSkip(mod, key, dedup)) return "";
+    const args = [settings, imageSettings, upscaleSettings, intensity, focus];
+    const out = danbooruReplacer(mod.default(...args), settings);
+    pushAutoSections(mod, settings, args);
     return out;
   }
 
@@ -119,11 +121,9 @@ export function makeDynamicPromptStage(loader) {
     // (suffix-resolved, the same rule lists use) or a `{#category/name}` path. The `{#any}`
     // wildcard and the implied folder groups span the whole catalog.
     const names = loader.dynamicPromptNames();
-    const groups = loader.dynPromptGroupDirsAll
-      ? loader.dynPromptGroupDirsAll()
-      : loader.dynPromptGroupDirs
-        ? loader.dynPromptGroupDirs()
-        : [];
+    let groups = [];
+    if (loader.dynPromptGroupDirsAll) groups = loader.dynPromptGroupDirsAll();
+    else if (loader.dynPromptGroupDirs) groups = loader.dynPromptGroupDirs();
     const includeAdult = settings.includeAdult === true;
     // Gating: a generator is adult when its `.json` sidecar carries `nsfw: true` OR its name
     // carries an `nsfw` token (the automatic rule lists use). Either way it is hidden (empty)

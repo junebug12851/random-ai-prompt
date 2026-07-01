@@ -16,13 +16,13 @@ import { isGatedList } from "../gatedLists.js";
  * @param {object} loader Data loader (`readListLines`, `listNames`).
  * @returns {{pull: Function, reset: Function}} The store API.
  */
+function isArtistName(settings, name) {
+  return name == settings.artistFilename || name.includes("artist");
+}
+
 export function createListStore(loader) {
   const lists = {};
   const artists = {};
-
-  function isArtistName(settings, name) {
-    return name == settings.artistFilename || name.includes("artist");
-  }
 
   function bucket(settings, name) {
     return isArtistName(settings, name) ? artists : lists;

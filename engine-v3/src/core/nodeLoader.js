@@ -245,7 +245,8 @@ export const nodeLoader = {
   // Dynamic-prompt catalog keys (`.dpl`, sidecar `.js` excluded; `.js`-only generators included),
   // skipping `_`-prefixed internals, in the guaranteed natural order.
   dynamicPromptNames() {
-    return (_dynNamesSorted ??= [...dynGeneratorNames()].sort(compareNames));
+    _dynNamesSorted ??= [...dynGeneratorNames()].sort(compareNames);
+    return _dynNamesSorted;
   },
   // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
   // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.

@@ -39,6 +39,18 @@ function charRank(ch) {
   return 0;
 }
 
+/** @param {string} ch A single character. @returns {boolean} Whether it is an ASCII digit. */
+function isDigit(ch) {
+  return ch >= "0" && ch <= "9";
+}
+
+/** @returns {number} The index just past the run of digits in `s` starting at `start`. */
+function scanDigits(s, start) {
+  let k = start;
+  while (k < s.length && isDigit(s[k])) k++;
+  return k;
+}
+
 /**
  * Natural-order comparator giving a GUARANTEED load/precedence order: symbols
  * first, then numbers in true numeric order (so `2` before `10`), then letters
@@ -56,13 +68,11 @@ export function compareNames(a, b) {
   while (i < a.length && j < b.length) {
     const ca = a[i];
     const cb = b[j];
-    if (ca >= "0" && ca <= "9" && cb >= "0" && cb <= "9") {
-      let ni = i;
-      let nj = j;
-      while (ni < a.length && a[ni] >= "0" && a[ni] <= "9") ni++;
-      while (nj < b.length && b[nj] >= "0" && b[nj] <= "9") nj++;
-      const na = parseInt(a.slice(i, ni), 10);
-      const nb = parseInt(b.slice(j, nj), 10);
+    if (isDigit(ca) && isDigit(cb)) {
+      const ni = scanDigits(a, i);
+      const nj = scanDigits(b, j);
+      const na = Number.parseInt(a.slice(i, ni), 10);
+      const nb = Number.parseInt(b.slice(j, nj), 10);
       if (na !== nb) return na - nb;
       i = ni;
       j = nj;
@@ -157,9 +167,51 @@ export function resolveName(ref, names) {
   matches.sort((a, b) => {
     const da = a.split("/").length;
     const db = b.split("/").length;
-    return da !== db ? da - db : compareNames(a, b);
+    return da === db ? compareNames(a, b) : da - db;
   });
   return matches[0];
+}
+
+/**
+ * The display token from the highest (closest-to-root) forced ancestor folder of `segs` down, or
+ * null when no ancestor folder is forced.
+ * @param {string[]} segs The name's `/`-split segments.
+ * @param {Set<string>} forced Folders marked with a `.force-prefix` file.
+ * @returns {string|null}
+ */
+function forcedToken(segs, forced) {
+  for (let k = 0; k < segs.length - 1; k++) {
+    if (forced.has(segs.slice(0, k + 1).join("/"))) return segs.slice(k).join("/");
+  }
+  return null;
+}
+
+/**
+ * Grow each auto name's shown-folder depth (in `shown`) by one per round until no two names share a
+ * token — the collision-resolution fixpoint.
+ * @param {string[]} auto The names being auto-tokenized.
+ * @param {Map<string, number>} shown name → folders currently shown (mutated).
+ * @param {(n: string) => string} tok Current token for a name given `shown`.
+ */
+function growUntilDistinct(auto, shown, tok) {
+  for (let changed = true; changed;) {
+    changed = false;
+    const groups = {};
+    for (const n of auto) {
+      const key = tok(n);
+      groups[key] ??= [];
+      groups[key].push(n);
+    }
+    for (const members of Object.values(groups)) {
+      if (members.length < 2) continue;
+      for (const n of members) {
+        if (shown.get(n) < n.split("/").length) {
+          shown.set(n, shown.get(n) + 1);
+          changed = true;
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -187,15 +239,8 @@ export function computeButtonNames(names, forcedDirs = []) {
   const auto = [];
 
   for (const name of names) {
-    const segs = name.split("/");
-    let start = -1; // index of highest (closest-to-root) forced ancestor folder
-    for (let k = 0; k < segs.length - 1; k++) {
-      if (forced.has(segs.slice(0, k + 1).join("/"))) {
-        start = k;
-        break;
-      }
-    }
-    if (start >= 0) result[name] = segs.slice(start).join("/");
+    const token = forcedToken(name.split("/"), forced);
+    if (token !== null) result[name] = token;
     else auto.push(name);
   }
 
@@ -205,20 +250,7 @@ export function computeButtonNames(names, forcedDirs = []) {
     const s = n.split("/");
     return s.slice(s.length - shown.get(n)).join("/");
   };
-  for (let changed = true; changed;) {
-    changed = false;
-    const groups = {};
-    for (const n of auto) (groups[tok(n)] ||= []).push(n);
-    for (const members of Object.values(groups)) {
-      if (members.length < 2) continue;
-      for (const n of members) {
-        if (shown.get(n) < n.split("/").length) {
-          shown.set(n, shown.get(n) + 1);
-          changed = true;
-        }
-      }
-    }
-  }
+  growUntilDistinct(auto, shown, tok);
   for (const n of auto) result[n] = tok(n);
 
   // Guarantee each token resolves back to its own name (vs forced/other shadows).
