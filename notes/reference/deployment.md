@@ -72,10 +72,14 @@ so the legal pages are unaffected.
 - **OpenSSF Scorecard** (`.github/workflows/scorecard.yml`) — GitHub-native. Weekly supply-chain posture
   score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`).
 - **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
-  — deep static analysis + coverage import + tech-debt / quality-gate badges. **Dormant** until the owner
-  enables it: sign in at https://sonarcloud.io with GitHub, add secret `SONAR_TOKEN`, and set repo
-  variable `SONAR_ENABLED=true` (the workflow's `if:` guard, so no spurious red X before setup). Confirm
-  the `projectKey`/`organization` in `sonar-project.properties` match what Sonar generates on import.
+  — static analysis + coverage import + tech-debt / quality-gate badges. Enabled 2026-06-30: secret
+  `SONAR_TOKEN` + repo variable `SONAR_ENABLED=true` are set (the workflow's `if:` guard), `workflow_dispatch`
+  allows manual re-runs, and the job has `timeout-minutes: 20`. **Scope = `engine-v3/src` only** (the core
+  engine): SonarCloud's JS *security/taint* sensor (`JsSecuritySensorV2 [jasmin]`) reproducibly HANGS on a
+  `gui/src` file (~70/103 files, 25+ min; no supported off-switch — the internal disable flag is ignored),
+  so Sonar is scoped to the engine core where it completes in seconds. The SPA is still covered by
+  CodeFactor + Codecov + CodeQL + its own tests. Note: Sonar badges read the project's **main branch**; the
+  first analysis ran on `dev`, so full badge population follows a `main` release (CI runs Sonar on `main`).
 - **CodeRabbit** (`.coderabbit.yaml`) — AI PR reviews. Activates on installing the GitHub app
   (https://github.com/apps/coderabbitai); no secret. Auto-reviews PRs to dev/main; frozen/generated paths filtered.
 - **CodeFactor** — zero-config code-quality grade + badge; enable its GitHub app (https://www.codefactor.io).
