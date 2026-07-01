@@ -1,0 +1,13 @@
+{
+  "id": "violet",
+  "label": "Violet",
+  "swatch": "#b18bff",
+  "dark": {
+    "accent": "#b18bff",
+    "ink": "#1a0a2e"
+  },
+  "light": {
+    "accent": "#c7b0ff",
+    "ink": "#1a0a2e"
+  }
+}

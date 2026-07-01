@@ -1,0 +1,66 @@
+/* Right pane */
+.mg-main {
+  overflow-y: auto;
+}
+
+.mg-detail {
+  padding: 20px 22px;
+}
+
+.mg-detail-empty {
+  color: var(--muted);
+}
+
+.mg-detail-title {
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mg-kind {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--chip);
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+.mg-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 14px 0;
+  font-size: 0.9rem;
+}
+
+.mg-meta dt {
+  color: var(--muted);
+}
+
+.mg-meta dd {
+  margin: 0;
+  color: var(--fg-soft);
+}
+
+.mg-preview-pre {
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  max-height: 52vh;
+  overflow: auto;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.mg-soon {
+  color: var(--faint);
+  font-style: italic;
+  margin-top: 12px;
+}
+

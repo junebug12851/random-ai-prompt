@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#1c1c1f" />
+
+    <!-- Theme boot: set data-theme on <html> before first paint so there's no
+         flash of the wrong theme. Handles the default (System → follow the OS);
+         the ThemeProvider then applies any explicit Dark/Light choice the user
+         saved. Kept tiny + inline on purpose (must run pre-render). -->
+    <script>
+      (function () {
+        try {
+          var light =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: light)").matches;
+          document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
     <title>Random AI Prompt — richer AI image & text prompts, automatically</title>
     <meta
       name="description"

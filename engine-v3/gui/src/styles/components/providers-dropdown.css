@@ -1,0 +1,80 @@
+/* ---------- Providers dropdown (image + text combos, each with its key) ---------- */
+.pm-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 42;
+  width: 600px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem 0.8rem 0.65rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Two fixed columns shared by both rows: a flexible picker + a constant-width key column, so the
+   rows line up and the key box keeps one width (it never reflows around the provider name). */
+.pm-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.pm-row .provider-picker {
+  min-width: 0;
+}
+
+.pm-row .provider-picker .ps-trigger {
+  width: 100%;
+}
+
+/* Let the provider name use the column and ellipsize, instead of being clipped at a small cap. */
+.pm-row .provider-picker .ps-current {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+
+.pm-row .provider-picker .ps-pop {
+  left: 0;
+  right: auto;
+}
+
+/* The key field fills the fixed key column; its input flexes within. */
+.pm-row .hkey {
+  display: flex;
+  width: 100%;
+  gap: 0.35rem;
+}
+
+.pm-row .hkey-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.pm-row .hkey-input input {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+.pm-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* Sits in the key column (same width as the key box) so the rows stay aligned. */
+.pm-shared {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--faint);
+  text-align: center;
+}
+

@@ -1,0 +1,79 @@
+/* ---------- NSFW switch (right-aligned in the title bar) ---------- */
+.nsfw-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.switch:hover {
+  background: var(--chip-hover);
+}
+
+.switch:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.switch .switch-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.switch .switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  transition: background 0.15s ease;
+  flex: none;
+}
+
+.switch .switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform 0.15s ease;
+}
+
+.switch.is-on {
+  color: var(--fg);
+  border-color: var(--accent-strong);
+}
+
+.switch.is-on .switch-track {
+  background: var(--accent-strong);
+}
+
+.switch.is-on .switch-thumb {
+  transform: translateX(16px);
+  background: var(--accent-ink);
+}
+
+/* Online build: NSFW switch disabled — greyed, but still clickable (opens the full version). */
+.switch.is-locked {
+  opacity: 0.5;
+}
+
+.switch.is-locked:hover {
+  background: var(--bg-2);
+}
+

@@ -28,6 +28,13 @@ export const defaultSettings = {
   // (see gui/src/i18n/config.js). Persisted here like any other preference.
   locale: "auto",
 
+  // Appearance. themeMode: "system" (follow the OS, auto dark/light) | "dark" |
+  // "light". accent: an accent-preset id (see gui/src/theme/presets.js). Applied
+  // to <html> as data-theme / data-accent by the ThemeProvider; the default is
+  // System + mint, i.e. today's look that also follows the OS.
+  themeMode: "system",
+  accent: "mint",
+
   // Prompt
   prompt: "{#random-words}",
   promptCount: 1,

@@ -1,0 +1,49 @@
+/* ---------- Prompt result: click-to-copy text + DPL hover example ---------- */
+.prompt-text {
+  cursor: copy;
+}
+
+.prompt-text:hover {
+  color: var(--fg);
+}
+
+/* The source-DPL line + its hover tooltip (full DPL on top, a re-rolling example below). */
+.dpl-hover {
+  position: relative;
+  display: block;
+}
+
+.dpl-hover-tip {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  max-width: min(560px, 80vw);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.dpl-hover-full {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--fg-soft);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.dpl-hover-ex {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border-soft);
+  color: var(--fg);
+}
+
+.dpl-hover-ex-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+

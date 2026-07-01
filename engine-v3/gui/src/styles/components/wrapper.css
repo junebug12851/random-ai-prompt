@@ -1,0 +1,334 @@
+/* ---------- Wrapper (icon button in the prompt-box field bar) ---------- */
+
+/* The trigger reuses .field-act; only its "active wrapper" tint is new. */
+.field-bar {
+  position: relative;
+}
+
+.wrap-trigger.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wrap-pop-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+
+.wrap-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 42;
+  width: 280px;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.wrap-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font-weight: 700;
+}
+
+.wrap-auto-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.82rem;
+  color: var(--fg-soft);
+  cursor: pointer;
+}
+
+.wrap-auto-toggle input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.wrap-manage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wrap-manage-btn:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.wrap-pop-list {
+  overflow: auto;
+  padding: 6px;
+}
+
+.wrap-pop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-soft);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.wrap-pop-item:hover {
+  background: var(--chip);
+}
+
+.wrap-pop-item.on {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.wrap-check {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.wrap-empty {
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* Manage modal */
+.wrap-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 55%);
+  backdrop-filter: blur(2px);
+}
+
+.wrap-modal {
+  position: fixed;
+  z-index: 51;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(760px, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.wrap-modal-head {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.wrap-modal-head h2 {
+  margin: 0;
+  font: 700 1.1rem var(--font-display);
+}
+
+.wrap-modal-body {
+  padding: 16px 18px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wrap-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wrap-preset-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wrap-preset-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--chip);
+}
+
+.wrap-preset-pill.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wrap-preset-pick {
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  padding: 5px 4px 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wrap-preset-del {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 5px 10px 5px 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.wrap-preset-del:hover {
+  color: #ff6b6b;
+}
+
+.wrap-preset-new {
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--fg-soft);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wrap-preset-new:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.wrap-name {
+  max-width: 320px;
+}
+
+.wrap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.wrap-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wrap-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wrap-box-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wrap-revert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.wrap-revert:hover {
+  color: var(--fg);
+  border-color: var(--border-strong, var(--border));
+}
+
+.wrap-box textarea {
+  min-height: 160px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--fg);
+  font: 0.9rem/1.5 var(--font-body);
+}
+
+.wrap-box textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.wrap-modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.wrap-foot-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+button.ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg-soft);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.ghost:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+@media (width <= 620px) {
+  .wrap-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

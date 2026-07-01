@@ -54,6 +54,17 @@ until ready (submit→poll keeps each invocation within serverless time limits),
 migration phase 2 (currently a deliberate stub). Local generation never touches this function — the
 browser calls the user's WebUI directly.
 
+## Styling
+
+CSS lives under `gui/src/styles/` — an `index.css` entry (imported once by `main.jsx`) that declares
+the `@layer` order and `@import`s a tree of focused modules: `foundation/tokens.css` (a two-tier
+token system — `--p-*` primitive palette/scales → semantic `--accent`/`--bg`/`--fg`/`--dpl-*` roles)
++ `foundation/base.css`, then one `components/<section>.css` per UI area. This replaced the former
+single ~5,360-line `styles.css` (the CSS overhaul — see
+[`../plans/css-overhaul.md`](../plans/css-overhaul.md)); the split was verified render-identical
+against the Playwright visual baseline. Theming (dark/light bases × accent presets, driven by
+`data-theme`/`data-accent` on `<html>` via a `gui/src/theme/` provider) builds on this token layer.
+
 ## Build / deploy
 
 `netlify.toml` (repo root): `npm --prefix gui install && npm --prefix gui run build` →

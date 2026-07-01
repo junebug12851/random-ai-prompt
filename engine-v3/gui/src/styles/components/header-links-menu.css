@@ -1,0 +1,125 @@
+/* ---------- Header links menu (GitHub / docs / fairyfox) ---------- */
+.links-menu {
+  position: relative;
+  flex: none;
+}
+
+.links-trigger {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-soft);
+}
+
+.links-trigger:hover,
+.links-trigger.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.links-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+}
+
+.links-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 42;
+  width: 260px;
+  max-width: 90vw;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.links-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.links-item:hover {
+  background: var(--chip-hover);
+}
+
+.links-item-icon {
+  flex: none;
+  display: inline-flex;
+  color: var(--muted);
+}
+
+.links-item:hover .links-item-icon {
+  color: var(--accent);
+}
+
+.links-item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.links-item-label {
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+.links-item-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.links-item-ext {
+  flex: none;
+  display: inline-flex;
+  color: var(--faint);
+}
+
+.links-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Divider between the external links and the app's own legal pages. */
+.links-sep {
+  height: 1px;
+  margin: 0.35rem 0.15rem;
+  background: var(--border-soft);
+}
+
+/* The display-language picker at the top of the menu. */
+.links-lang {
+  padding: 0.15rem 0.15rem 0;
+}
+
+.links-lang .field {
+  gap: 0.25rem;
+}
+
+.links-lang select {
+  width: 100%;
+}
+

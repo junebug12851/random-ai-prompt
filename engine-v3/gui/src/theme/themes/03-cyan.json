@@ -1,0 +1,13 @@
+{
+  "id": "cyan",
+  "label": "Cyan",
+  "swatch": "#46e6ff",
+  "dark": {
+    "accent": "#46e6ff",
+    "ink": "#052430"
+  },
+  "light": {
+    "accent": "#7fe9ff",
+    "ink": "#052430"
+  }
+}

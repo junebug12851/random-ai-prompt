@@ -19,6 +19,8 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
+import { ThemeProvider } from "./theme/ThemeProvider.jsx";
+import { useUserThemes } from "./theme/userThemeStore.js";
 import { hydrate, isHydrated, rehydrate, msSinceLastWrite } from "../storage/cache.js";
 import { useSettings, loadSettings } from "./lib/settings.js";
 import { readSharedSettings } from "./lib/share.js";
@@ -39,6 +41,7 @@ import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
+import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
 
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
@@ -149,10 +152,21 @@ export default function App() {
  */
 function HydratedApp() {
   const [settings, setSettings] = useSettings();
+  const [userThemes, addUserTheme, removeUserTheme] = useUserThemes();
   return (
     <I18nProvider locale={settings.locale}>
-      <AppShell settings={settings} setSettings={setSettings} />
-      <DialogHost />
+      <ThemeProvider
+        mode={settings.themeMode}
+        setMode={(m) => setSettings((s) => ({ ...s, themeMode: m }))}
+        accent={settings.accent}
+        setAccent={(a) => setSettings((s) => ({ ...s, accent: a }))}
+        userThemes={userThemes}
+        addUserTheme={addUserTheme}
+        removeUserTheme={removeUserTheme}
+      >
+        <AppShell settings={settings} setSettings={setSettings} />
+        <DialogHost />
+      </ThemeProvider>
     </I18nProvider>
   );
 }
@@ -469,6 +483,7 @@ function AppShell({ settings, setSettings }) {
         <ProvidersMenu settings={settings} setSettings={setSettings} />
         <ProviderGear settings={settings} setSettings={setSettings} />
         <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
+        <ThemePicker />
         <LinksMenu settings={settings} setSettings={setSettings} />
       </header>
 

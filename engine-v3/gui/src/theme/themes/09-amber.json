@@ -1,0 +1,13 @@
+{
+  "id": "amber",
+  "label": "Amber",
+  "swatch": "#ffcb52",
+  "dark": {
+    "accent": "#ffcb52",
+    "ink": "#2a1e04"
+  },
+  "light": {
+    "accent": "#ffdd8a",
+    "ink": "#2a1e04"
+  }
+}

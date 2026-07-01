@@ -1,0 +1,35 @@
+/* ---------- Settings form ---------- */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.group {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem 0.95rem;
+  background: var(--panel-2);
+}
+
+.group h2 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--accent);
+  margin: 0.1rem 0 0.75rem;
+  font-weight: 700;
+}
+
+.group-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.7rem 0.9rem;
+  align-items: end;
+}
+

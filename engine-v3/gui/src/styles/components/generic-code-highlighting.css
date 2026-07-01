@@ -1,0 +1,230 @@
+/* ---- Generic code highlighting (JS sidecars in Manage) — reuses the DPL palette ---- */
+.cm-tok-keyword {
+  color: var(--dpl-keyword);
+  font-weight: 600;
+}
+
+.cm-tok-string {
+  color: var(--dpl-list);
+}
+
+.cm-tok-number {
+  color: var(--dpl-weight);
+}
+
+.cm-tok-comment {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.cm-tok-func {
+  color: var(--dpl-gen);
+  font-weight: 600;
+}
+
+.cm-tok-prop {
+  color: var(--dpl-ref);
+}
+
+.cm-tok-type {
+  color: var(--dpl-dial);
+}
+
+.cm-tok-def {
+  color: var(--dpl-gen);
+}
+
+.cm-tok-operator {
+  color: var(--dpl-gate);
+}
+
+/* Matched-bracket emphasis for the code editor. */
+.cm-matchingBracket {
+  background: var(--accent-soft);
+  color: var(--accent);
+  outline: 1px solid var(--accent);
+  border-radius: 2px;
+}
+
+/* Autocomplete dropdown */
+.cm-tooltip.cm-tooltip-autocomplete {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+
+  /* NOT overflow:hidden — the info pane is appended as a child positioned outside this box,
+     so hidden would clip it (the tooltip would never appear). Clip the scrolling list instead. */
+  overflow: visible;
+}
+
+.cm-tooltip-autocomplete > ul {
+  font-family: var(--font-body);
+  max-height: 16rem;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+}
+
+.cm-tooltip-autocomplete > ul > li {
+  color: var(--fg-soft);
+  padding: 0.22rem 0.55rem;
+}
+
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.cm-completionLabel {
+  color: inherit;
+}
+
+.cm-completionDetail {
+  color: var(--faint);
+  font-style: normal;
+  margin-left: auto;
+  padding-left: 0.6rem;
+  font-size: 0.78em;
+  letter-spacing: 0.01em;
+}
+
+/* Lay each row out as a flex line so the badge + detail align to the right edge. */
+.cm-tooltip-autocomplete > ul > li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cm-completionLabel {
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Section headers — group rows by category (Blocks · scene, Lists · color, …). */
+.cm-tooltip-autocomplete .cm-dpl-section {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.32rem 0.6rem 0.16rem;
+  border-top: 1px solid var(--border-soft);
+  position: sticky;
+  top: 0;
+  background: var(--elevated);
+  z-index: 1;
+}
+
+/* The first section header shouldn't carry a divider above it. */
+.cm-tooltip-autocomplete > ul > [role="presentation"]:first-child .cm-dpl-section {
+  border-top: none;
+}
+
+.cm-dpl-section-group {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+.cm-dpl-section-name {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Kind badge (gen / list) — on each row and in the info panel. */
+.cm-dpl-kind {
+  flex: none;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 0.15rem 0.32rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+}
+
+.cm-dpl-kind-gen {
+  color: var(--dpl-gen);
+  border-color: color-mix(in srgb, var(--dpl-gen) 35%, transparent);
+  background: color-mix(in srgb, var(--dpl-gen) 12%, transparent);
+}
+
+.cm-dpl-kind-list {
+  color: var(--dpl-list);
+  border-color: color-mix(in srgb, var(--dpl-list) 35%, transparent);
+  background: color-mix(in srgb, var(--dpl-list) 12%, transparent);
+}
+
+/* Rich info panel: title + badges, description, and a re-rolling example. */
+.cm-tooltip.cm-completionInfo {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  color: var(--fg-soft);
+  padding: 0;
+  max-width: 300px;
+}
+
+.cm-dpl-info {
+  padding: 0.5rem 0.6rem;
+}
+
+.cm-dpl-info-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cm-dpl-info-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.cm-dpl-info-cat {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+}
+
+.cm-dpl-info-desc {
+  margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+}
+
+.cm-dpl-info-ex {
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.cm-dpl-info-ex-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.cm-dpl-info-ex-text {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--fg);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+

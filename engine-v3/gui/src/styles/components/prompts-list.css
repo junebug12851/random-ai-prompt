@@ -1,0 +1,73 @@
+/* ---------- Prompts list ---------- */
+
+/* The results card flows beneath the composer; the column scrolls if it's tall. */
+.results-card {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+
+.results-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  flex: none;
+}
+
+.results-head h2,
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.results-head .count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.prompts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.prompts li {
+  background: var(--panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--fg-soft);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.prompts li .idx {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.78rem;
+  min-width: 1.4rem;
+}
+
+.copy-mini {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--faint);
+  padding: 0.1rem 0.35rem;
+  font-size: 0.78rem;
+}
+
+.copy-mini:hover {
+  color: var(--accent);
+  border: none;
+}
+

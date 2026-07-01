@@ -1,0 +1,82 @@
+/*
+ * Random AI Prompt — SPA theme.
+ *
+ * Dark-first, matching the pre-revival "Generate" page: charcoal canvas, a vivid
+ * mint-green brand accent (the pencil logo), Space Grotesk display + Maven Pro
+ * body, pill inputs and rounded buttons. Dark and light bases are both
+ * first-class: the chosen base is applied as `data-theme` on <html> by the theme
+ * system (`gui/src/theme/`) — System follows the OS, or the user forces Dark /
+ * Light. Dark is the default (the bare `:root`); light is `:root[data-theme="light"]`.
+ */
+
+/*
+ * Cascade-layer order for the CSS overhaul (see notes/plans/css-overhaul.md).
+ * Declared up front so precedence is fixed once, independent of file or source
+ * order. Each module is assigned to a layer by its `@import ... layer(...)`
+ * below: the foundation into `tokens` / `base`, every component into
+ * `components`. This preserves the previous cascade — the foundation is
+ * low-specificity and already lost to component class rules, so `components`
+ * sitting above `base`/`tokens` changes nothing — while giving a future theme
+ * layer a clean, high-precedence home for `[data-theme]` / `[data-accent]`
+ * overrides. `layout` / `utilities` / `theme` / `overrides` are reserved for
+ * later phases.
+ */
+@layer reset, tokens, base, layout, components, utilities, theme, overrides;
+
+@import url("./foundation/tokens.css") layer(tokens);
+@import url("./foundation/accents.css") layer(tokens);
+@import url("./foundation/base.css") layer(base);
+@import url("./components/app-frame.css") layer(components);
+@import url("./components/title-bar.css") layer(components);
+@import url("./components/header-links-menu.css") layer(components);
+@import url("./components/theme-picker.css") layer(components);
+@import url("./components/nsfw-switch.css") layer(components);
+@import url("./components/confirm-dialog.css") layer(components);
+@import url("./components/workspace.css") layer(components);
+@import url("./components/cards.css") layer(components);
+@import url("./components/buttons.css") layer(components);
+@import url("./components/inputs.css") layer(components);
+@import url("./components/layout-helpers.css") layer(components);
+@import url("./components/compose-toolbar.css") layer(components);
+@import url("./components/composer-field.css") layer(components);
+@import url("./components/combined-save-share-panel.css") layer(components);
+@import url("./components/errors.css") layer(components);
+@import url("./components/prompts-list.css") layer(components);
+@import url("./components/gallery.css") layer(components);
+@import url("./components/building-block-palette.css") layer(components);
+@import url("./components/building-block-hover-tooltip.css") layer(components);
+@import url("./components/settings-drawer.css") layer(components);
+@import url("./components/settings-form.css") layer(components);
+@import url("./components/footer.css") layer(components);
+@import url("./components/responsive.css") layer(components);
+@import url("./components/wrapper.css") layer(components);
+@import url("./components/labeled-fields.css") layer(components);
+@import url("./components/header-provider-picker-gear.css") layer(components);
+@import url("./components/provider-tag.css") layer(components);
+@import url("./components/prompt-count.css") layer(components);
+@import url("./components/provider-settings-gear.css") layer(components);
+@import url("./components/info-tooltip.css") layer(components);
+@import url("./components/api-key-row.css") layer(components);
+@import url("./components/wide-field.css") layer(components);
+@import url("./components/per-prompt-result.css") layer(components);
+@import url("./components/prompt-settings-gear-popover.css") layer(components);
+@import url("./components/grouped-provider-dropdown.css") layer(components);
+@import url("./components/header-api-key-field.css") layer(components);
+@import url("./components/providers-dropdown.css") layer(components);
+@import url("./components/live-preview.css") layer(components);
+@import url("./components/view-switch.css") layer(components);
+@import url("./components/photo-gallery.css") layer(components);
+@import url("./components/gallery-single-image-page.css") layer(components);
+@import url("./components/gallery-single-image-lineage.css") layer(components);
+@import url("./components/gallery-single-image-derived.css") layer(components);
+@import url("./components/dpl-editor.css") layer(components);
+@import url("./components/generic-code-highlighting.css") layer(components);
+@import url("./components/dpl-insert-toolbar.css") layer(components);
+@import url("./components/composer-corner.css") layer(components);
+@import url("./components/prompt-result-click-to.css") layer(components);
+@import url("./components/gallery-thumbnail-open-button.css") layer(components);
+@import url("./components/manage-tab.css") layer(components);
+@import url("./components/manage-add-menu.css") layer(components);
+@import url("./components/manage-entry-pills.css") layer(components);
+@import url("./components/manage-right-pane.css") layer(components);
+@import url("./components/manage-editors.css") layer(components);

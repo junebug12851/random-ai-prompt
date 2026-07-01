@@ -1,0 +1,123 @@
+/* ---------- DPL editor (CodeMirror) ---------- */
+
+/* A controlled CodeMirror instance dressed to read like the textarea it replaced. Colors come
+   from the --dpl-* variables so highlighting follows the light/dark theme. */
+.dpl-editor {
+  display: flex;
+  min-width: 0;
+}
+
+.dpl-editor .cm-editor {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  color: var(--fg);
+}
+
+.dpl-editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.dpl-editor .cm-scroller {
+  font-family: var(--font-body);
+  line-height: 1.5;
+  overflow: auto;
+}
+
+.dpl-editor .cm-content {
+  padding: 0;
+  caret-color: var(--accent);
+}
+
+.dpl-editor .cm-line {
+  padding: 0;
+}
+
+.dpl-editor .cm-placeholder {
+  color: var(--faint);
+}
+
+.dpl-editor .cm-cursor {
+  border-left-color: var(--accent);
+}
+
+.dpl-editor .cm-selectionBackground,
+.dpl-editor .cm-content ::selection {
+  background: var(--accent-soft);
+}
+
+.dpl-editor.cm-focused .cm-selectionBackground,
+.dpl-editor .cm-focused .cm-selectionBackground {
+  background: var(--accent-soft);
+}
+
+/* Token colors */
+.cm-dpl-gen {
+  color: var(--dpl-gen);
+  font-weight: 600;
+}
+
+.cm-dpl-list {
+  color: var(--dpl-list);
+}
+
+.cm-dpl-ref {
+  color: var(--dpl-ref);
+}
+
+.cm-dpl-weight {
+  color: var(--dpl-weight);
+}
+
+.cm-dpl-gate {
+  color: var(--dpl-gate);
+  font-weight: 600;
+}
+
+.cm-dpl-keyword {
+  color: var(--dpl-keyword);
+}
+
+.cm-dpl-bullet {
+  color: var(--muted);
+}
+
+.cm-dpl-heading {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.cm-dpl-comment {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.cm-dpl-dial {
+  color: var(--dpl-dial);
+  font-weight: 600;
+}
+
+.cm-dpl-fmdelim {
+  color: var(--dpl-fmdelim);
+  font-weight: 700;
+}
+
+.cm-dpl-fmkey {
+  color: var(--dpl-fmkey);
+  font-weight: 600;
+}
+
+.cm-dpl-fmval {
+  color: var(--dpl-fmval);
+}
+
+.cm-dpl-secname {
+  color: var(--dpl-section);
+  font-weight: 700;
+}
+
+.cm-dpl-secname-special {
+  color: var(--dpl-section-special);
+  font-weight: 700;
+}
+

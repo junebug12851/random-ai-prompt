@@ -1,0 +1,13 @@
+{
+  "id": "pink",
+  "label": "Pink",
+  "swatch": "#ff77a8",
+  "dark": {
+    "accent": "#ff77a8",
+    "ink": "#2e0a18"
+  },
+  "light": {
+    "accent": "#ffa6c2",
+    "ink": "#2e0a18"
+  }
+}

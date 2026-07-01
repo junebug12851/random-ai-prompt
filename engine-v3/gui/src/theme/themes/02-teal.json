@@ -1,0 +1,13 @@
+{
+  "id": "teal",
+  "label": "Teal",
+  "swatch": "#3de8c8",
+  "dark": {
+    "accent": "#3de8c8",
+    "ink": "#04231e"
+  },
+  "light": {
+    "accent": "#6fe6cf",
+    "ink": "#04231e"
+  }
+}

@@ -1,0 +1,17 @@
+/* ---------- Cards ---------- */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.15rem;
+}
+
+/* The composer sizes to its content: a comfortable, resizable prompt box with
+   the toolbar directly beneath it. */
+.composer {
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+

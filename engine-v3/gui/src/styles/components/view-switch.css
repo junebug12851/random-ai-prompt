@@ -1,0 +1,54 @@
+/* ---------- View switch (Generate / Gallery) in the top bar ---------- */
+.view-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+}
+
+.vs-tab {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.vs-tab:hover {
+  color: var(--fg);
+}
+
+.vs-tab.on {
+  background: var(--accent-strong);
+  color: var(--accent-ink);
+}
+
+.vs-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* Online build: Gallery/Single tabs disabled — greyed, with a small lock; click opens the full version. */
+.vs-tab.is-locked {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+.vs-tab.is-locked:hover {
+  color: var(--muted);
+}
+
+.vs-tab .lock-badge {
+  margin-left: 0.3rem;
+  font-size: 0.66rem;
+  opacity: 0.85;
+}
+
