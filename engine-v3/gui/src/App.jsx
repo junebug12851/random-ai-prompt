@@ -33,16 +33,22 @@ import { effectiveKey } from "./lib/sessionKeys.js";
 import { ONLINE, lockedHint, openFullVersion } from "./lib/online.js";
 import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
-import { refreshCatalog } from "./lib/promptEngine.js";
+import { refreshCatalog, ensureCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
 import { dialog } from "./lib/dialog.js";
-import Home from "./components/Home.jsx";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
 import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
+// Home (the Generate view) is imported statically, not lazily: it holds the building-block palette,
+// which is the Largest Contentful Paint. The online build PRERENDERS the shell + palette to static
+// HTML (see prerender/), so its markup must be in the server-rendered tree AND match the client's
+// first render — a lazy Home would render nothing server-side and mismatch on hydrate. Keeping it
+// static costs the local build nothing meaningful (it runs on localhost); the online build's FCP now
+// comes from the prerendered HTML rather than from deferring this chunk.
+import Home from "./components/Home.jsx";
 
 // The local-only views are lazy-loaded so their code (and, for Manage, all of CodeMirror)
 // is split into separate chunks the browser fetches only when the view is first opened —
@@ -129,10 +135,17 @@ const msgs = defineMessages({
  * @returns {JSX.Element}
  */
 export default function App() {
-  // Gate the first render on the storage cache hydrating (loads settings/presets/wrappers/provider
-  // overrides from the backend, migrating any legacy localStorage). The stores read synchronously
-  // from the cache afterward, so nothing below here has to be storage-aware. Hydration is fast
-  // (localStorage online; one fetch locally) — a blank frame, like the lazy panes' Suspense fallback.
+  // The storage cache hydrates asynchronously (settings/presets/wrappers/provider overrides — from
+  // localStorage online, one fetch locally, migrating any legacy keys). The stores read synchronously
+  // from the cache afterward. When the cache isn't ready yet the stores return their DEFAULTS.
+  //
+  // LOCAL waits for hydration before the first render (a brief blank frame) so it never flashes
+  // defaults over saved settings. ONLINE renders immediately with defaults instead — this is what
+  // makes the build-time prerender work: the server render (empty cache → defaults) exactly matches
+  // the client's first render (empty cache → defaults), so `hydrateRoot` reuses the prerendered DOM
+  // with no mismatch. A returning visitor's saved settings then apply when hydration completes (an
+  // input-value settle, not a layout change); a first-time visitor sees no settle at all. During the
+  // Node prerender there's no async hydration to await anyway, so rendering with defaults is correct.
   const [ready, setReady] = useState(isHydrated());
   useEffect(() => {
     if (ready) return undefined;
@@ -142,7 +155,7 @@ export default function App() {
       alive = false;
     };
   }, [ready]);
-  if (!ready) return null;
+  if (!ready && !ONLINE) return null;
   return <HydratedApp />;
 }
 
@@ -226,6 +239,16 @@ function AppShell({ settings, setSettings }) {
       loadFeed();
     }
     fetchMagick().then(setMagick);
+    // Load the bundled prompt corpus — code-split off the initial module graph. The palette already
+    // renders from the (free) name catalog, so defer the heavy content fetch to idle time: that keeps
+    // it from competing with the preloaded fonts + first paint for bandwidth (better LCP), and the
+    // palette/generation fill in once it resolves (via the catalog-change notification). See
+    // promptEngine.ensureCatalog.
+    const idle =
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback
+        : (fn) => setTimeout(fn, 200);
+    idle(() => ensureCatalog());
     // Switch the engine from the build-time bundle to the live disk snapshot (local mode only).
     // A no-op online / on a static host — Generate keeps using the bundled catalog.
     refreshCatalog().catch(() => {});

@@ -102,6 +102,18 @@ The full notes system is in `notes/`, organized by topic:
   `listFiles[\`${keyword}Alias\`]`). `src/helpers/keywordRepeater.js` is named exports
   (`artistRepeater`, `keywordRepeater`) because it's consumed via destructuring. Don't flip them.
 - **Never use `node-fetch`.** Node 24 has a global `fetch`; the dependency was removed in 2.0.0.
+- **The ONLINE build PRERENDERS its first paint — keep the initial render SSR-safe.** As of 2.38.0 the
+  online build (`VITE_ONLINE=true`) runs `gui/scripts/build.mjs`: client build → SSR build of
+  `src/entry-server.jsx` → `renderToString` → inject into `#root` → `main.jsx` `hydrateRoot`s it (local
+  ships `#root` empty → `createRoot`, unchanged). This means **anything rendered on first paint must not
+  touch `window`/`document`/`matchMedia`/`localStorage`/… during render** — put browser access in
+  effects (they don't run in `renderToString`). Server and client-first render must MATCH: the app boots
+  the **default-settings** shell online and stored settings settle in via the two-pass store
+  (`cache.onHydrated` + guarded `useSettings`/`useUserThemes` — the save is gated so it never persists
+  the transient defaults, or a returning visitor's settings would be wiped). `tests/prerender.test.js`
+  (a `node`-env render) is the CI guard; verify hydration is warning-free (Playwright) after any change
+  to the initial render tree, the boot, or the cache stores. See `notes/systems/gui.md` +
+  `notes/decisions/architecture.md`.
 - **Use PowerShell or the file tools (Read/Edit/Write) — not the Cowork bash sandbox.** Bash has
   reported false file truncations on this machine and risks data loss; PowerShell has real, reliable
   access to the repo and Node 24. See `reference/fix-patterns.md`.

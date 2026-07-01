@@ -5,8 +5,8 @@
  * id like the presets store. Mirrors gui/lib/customStore.js.
  * @module gui/theme/userThemeStore
  */
-import { useCallback, useState } from "react";
-import { getCached, setCached } from "../../storage/cache.js";
+import { useCallback, useEffect, useState } from "react";
+import { getCached, setCached, isHydrated, onHydrated } from "../../storage/cache.js";
 
 const THEMES_NS = "themes";
 
@@ -42,6 +42,12 @@ export function removeUserTheme(id) {
  */
 export function useUserThemes() {
   const [themes, setThemes] = useState(() => getUserThemes());
+  // Online prerender two-pass: the storage cache is empty on the first paint (see useSettings), so
+  // re-read the stored themes once it hydrates. Local is already hydrated at first render — a no-op.
+  useEffect(() => {
+    if (isHydrated()) return undefined;
+    return onHydrated(() => setThemes(getUserThemes()));
+  }, []);
   const add = useCallback((theme) => {
     saveUserTheme(theme);
     setThemes(getUserThemes());

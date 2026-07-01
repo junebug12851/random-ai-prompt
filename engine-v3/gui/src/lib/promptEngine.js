@@ -11,7 +11,6 @@
  * no engine rebuild needed.
  * @module gui/lib/promptEngine
  */
-import _ from "lodash";
 import { createEngine } from "../../../src/core/engine.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
@@ -19,6 +18,7 @@ import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
 import { isGatedDynPrompt } from "../../../src/gatedLists.js";
 import { getCustomPresets } from "./customStore.js";
 import { runtimeLoader } from "./runtimeLoader.js";
+import { initBrowserCatalog } from "../../../src/core/browserLoader.js";
 import { getSnapshot } from "./manageApi.js";
 
 // The SPA engine reads all data through the runtime loader (bundle until a disk snapshot is set).
@@ -29,6 +29,31 @@ const engine = createEngine(loader);
 
 // Populate the classifier pools (used by the {#random-prompt} suggestion builder). Re-run on refresh.
 promptFiles.loadAll();
+
+// The bundled prompt corpus (~430 KB) is code-split into its own chunk and loaded LAZILY at runtime
+// so it's kept OFF the first-paint module graph (see browserLoader.js / browserCatalogData.js). The
+// app shell renders first; the corpus is fetched only once {@link ensureCatalog} is called — the SPA
+// does that from a mount effect (after paint), and tests await it directly. When it resolves the
+// classifier is rebuilt and subscribers are notified, so the palette + generation populate. Every
+// catalog getter returns empty until then (a brief blank palette that fills in).
+let _catalogReady = null;
+
+/**
+ * Kick off the one-time load of the bundled prompt corpus (idempotent) and, on completion, rebuild
+ * the classifier and notify catalog subscribers. Returns a promise that resolves when the corpus is
+ * ready. Deliberately NOT invoked at module load, so the fetch starts after first paint rather than
+ * competing with the entry chunks.
+ * @returns {Promise<void>} Resolves once the bundled catalog is loaded.
+ */
+export function ensureCatalog() {
+  if (!_catalogReady) {
+    _catalogReady = initBrowserCatalog().then(() => {
+      promptFiles.loadAll();
+      notifyCatalog();
+    });
+  }
+  return _catalogReady;
+}
 
 // ---- Hot-apply refresh + catalog-change subscription ----
 
@@ -139,7 +164,6 @@ export function renderWrapperPart(text, settings = {}) {
 
 // ---- Building blocks (the "keyword cloud"), categorized like the original ----
 
-const label = (name) => _.startCase(name);
 const lastSeg = (f) => (f === "" ? "misc" : f.split("/").pop());
 
 // The default category priority when a folder's sidecar sets none (lower = higher in the picker).
