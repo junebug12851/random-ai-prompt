@@ -1,0 +1,49 @@
+/* ---------- Building-block hover tooltip ---------- */
+.block-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: 340px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--panel, #1b1d22);
+  border: 1px solid var(--border, #33363d);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.block-tip-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.block-tip-label {
+  font-weight: 600;
+}
+
+.block-tip-token {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+
+.block-tip-desc {
+  color: var(--text, #cfd2d8);
+  margin-bottom: 0.3rem;
+}
+
+.block-tip-ex {
+  color: var(--faint);
+  border-top: 1px solid var(--border, #33363d);
+  padding-top: 0.3rem;
+}
+
+.block-tip-ex-label {
+  font-weight: 600;
+  color: var(--text, #cfd2d8);
+}
+

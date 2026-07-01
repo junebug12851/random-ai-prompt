@@ -1,0 +1,38 @@
+/* ---------- Combined Save / Share panel ---------- */
+.action-panel {
+  margin-top: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.75rem;
+  flex: none;
+}
+
+.ap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.panel-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--muted);
+}
+
+.panel-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+  color: var(--fg-soft);
+  background: var(--bg-2);
+}
+
+.icon-only {
+  padding: 0.45rem 0.6rem;
+}
+

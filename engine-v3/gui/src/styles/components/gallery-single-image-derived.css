@@ -1,0 +1,225 @@
+/* Left column = image + its derived strips, stacked */
+.g-single-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+/* Inline prompt-layer actions (re-roll / vary), styled like the copy link */
+.g-text-acts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.g-copy.g-act {
+  color: var(--accent);
+}
+
+.g-copy.g-act.is-locked {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Derived children below the image: one colour-coded grid (re-roll / variation / resize). */
+.derived-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* Per-kind accent colours — used by both the legend swatch and the thumb border/tag. */
+.derived-grid .kind-reroll {
+  --dv: #5b9dff;
+}
+
+.derived-grid .kind-variation {
+  --dv: #b98bff;
+}
+
+.derived-grid .kind-resize {
+  --dv: #ffb454;
+}
+
+.derived-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dv-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dv-swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+  background: var(--dv);
+}
+
+.dv-legend-count {
+  opacity: 0.7;
+}
+
+.derived-grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.dv-cell {
+  position: relative;
+  border: 2px solid var(--dv);
+  background: #000;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.dv-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dv) 55%, transparent);
+}
+
+.dv-cell.is-pending {
+  cursor: default;
+  background: var(--panel-2);
+}
+
+.dv-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* A tiny kind label tab in the corner — reinforces the colour for accessibility. */
+.dv-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 0.58rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 0 4px;
+  background: var(--dv);
+  color: #06231a;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.dv-cell:hover .dv-tag {
+  opacity: 1;
+}
+
+/* Locked tool controls (convert / resize): visible but greyed with a 🔒, like the online locks */
+.g-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.g-tool.is-locked .g-convert,
+.g-tool.is-locked .g-resize {
+  opacity: 0.55;
+}
+
+.g-tool-lock {
+  margin-left: 0.3rem;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.g-resize {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.g-resize:hover {
+  background: var(--chip-hover);
+}
+
+/* Details card head: a row of small actions (View Raw / Copy MD / Copy JSON) */
+.g-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.g-card-action.on {
+  border-color: var(--accent-strong);
+  color: var(--fg);
+}
+
+/* Raw-JSON syntax highlighting (View Raw) */
+.g-json .json-key {
+  color: var(--accent);
+}
+
+.g-json .json-str {
+  color: #7ec699;
+}
+
+.g-json .json-num {
+  color: #f0a35e;
+}
+
+.g-json .json-bool {
+  color: #d19a66;
+}
+
+.g-json .json-null {
+  color: var(--muted);
+}
+
+/* Soft lock (SFW-only provider while NSFW mode is on) — a neutral icon, still selectable */
+.ps-soft {
+  margin-right: 0.32rem;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.ps-item.is-soft .ps-item-label {
+  color: var(--fg);
+}
+
+@media (width <= 720px) {
+  .g-single-body {
+    grid-template-columns: 1fr;
+  }
+
+  .g-single-img {
+    position: static;
+  }
+
+  .g-single-img img {
+    max-height: 60vh;
+  }
+}
+

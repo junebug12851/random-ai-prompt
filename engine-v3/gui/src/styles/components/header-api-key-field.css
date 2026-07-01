@@ -1,0 +1,89 @@
+/* ---------- Header API-key field (single BYOK spot; swaps per provider) ---------- */
+.hkey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hkey .info-tip {
+  flex: none;
+}
+
+/* A bordered pill that holds the input AND its in-field icons as one flex unit, so the
+   save/clear controls are vertically centred inside the field (no absolute offset). */
+.hkey-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 1.95rem;
+  padding: 0 0.25rem 0 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+}
+
+.hkey-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.hkey-input input {
+  width: 150px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.hkey-input input:focus {
+  outline: none;
+}
+
+.hkey-input input::placeholder {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* The save / clear controls sit INSIDE the pill on the right — small and quiet. */
+.hkey-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.hkey-icon svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+
+.hkey-input.saved .hkey-icon.save {
+  color: var(--accent);
+}
+
+.hkey-icon:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.hkey-icon:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.hkey .key-link {
+  margin-left: 0;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+

@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.35.5",
+  "version": "2.35.6",
   "description": "An open-source generator for AI image and text prompts that automatically builds richer, more detailed prompts than most people write by hand, then runs them through 40+ models. This is the active v3 engine + web app; the frozen pre-revival CLI/classic server is the separate engine-v1-2/.",
   "type": "module",
   "main": "src/core/engine.js",

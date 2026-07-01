@@ -1,0 +1,83 @@
+/* ---------- Settings drawer ---------- */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 55%);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+  animation: fade 0.18s ease;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(440px, 92vw);
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in 0.22s ease;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.drawer-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.drawer-head .spacer {
+  flex: 1;
+}
+
+.drawer-close {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+}
+
+.drawer-close:hover {
+  color: var(--fg);
+  border: none;
+}
+
+.drawer-body {
+  overflow: auto;
+  padding: 1rem 1.15rem 2rem;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+

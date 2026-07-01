@@ -1,0 +1,116 @@
+/* Add ("+") control + its little menu. */
+.mg-add-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.mg-add {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0 5px;
+  border-radius: 6px;
+}
+
+.mg-add:hover {
+  color: var(--accent);
+  background: var(--chip-hover);
+}
+
+.mg-add-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.mg-add-menu button {
+  border: none;
+  background: none;
+  color: var(--fg-soft);
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.mg-add-menu button:hover {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.mg-twirl,
+.mg-gear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.mg-twirl:hover,
+.mg-gear:hover {
+  color: var(--fg);
+  background: var(--chip-hover);
+}
+
+.mg-folder-name {
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--fg);
+  flex: none;
+}
+
+.mg-folder.is-category > .mg-folder-head .mg-folder-name {
+  color: var(--accent);
+}
+
+.mg-badge {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+
+.mg-badge-force-prefix {
+  background: rgb(230 182 115 / 18%);
+  color: var(--dpl-weight);
+}
+
+.mg-badge-group {
+  background: rgb(216 160 240 / 18%);
+  color: var(--dpl-gate);
+}
+
+.mg-count {
+  margin-left: auto;
+}
+
+.mg-folder-body {
+  padding-left: 14px;
+}
+
+.mg-entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 4px 4px 6px;
+}
+
