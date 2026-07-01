@@ -74,12 +74,21 @@ so the legal pages are unaffected.
 - **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
   — static analysis + coverage import + tech-debt / quality-gate badges. Enabled 2026-06-30: secret
   `SONAR_TOKEN` + repo variable `SONAR_ENABLED=true` are set (the workflow's `if:` guard), `workflow_dispatch`
-  allows manual re-runs, and the job has `timeout-minutes: 20`. **Scope = `engine-v3/src` only** (the core
-  engine): SonarCloud's JS *security/taint* sensor (`JsSecuritySensorV2 [jasmin]`) reproducibly HANGS on a
-  `gui/src` file (~70/103 files, 25+ min; no supported off-switch — the internal disable flag is ignored),
-  so Sonar is scoped to the engine core where it completes in seconds. The SPA is still covered by
-  CodeFactor + Codecov + CodeQL + its own tests. Note: Sonar badges read the project's **main branch**; the
-  first analysis ran on `dev`, so full badge population follows a `main` release (CI runs Sonar on `main`).
+  allows manual re-runs, and the job has a `timeout-minutes` safety net. **Scope = `engine-v3/src` only**
+  (the core engine). This is the outcome of a real investigation into why the scan hung ~25 min, NOT a
+  hand-wave (the full log/methodology is in `sonar-project.properties` + the session log for 2026-06-30):
+    - The hang is in SonarCloud's JS **security/taint** sensor (`JsSecuritySensorV2 [jasmin]`) — a
+      documented, recurring SonarSource-side performance bug (community threads + the "Speed up JS security
+      analysis" productboard item). No supported property disables or time-boxes it
+      (`sonar.jasmin.internal.enabled=false` is ignored — confirmed in the verbose log).
+    - It is **not one bad file**: `gui/src/components/**`, `gui/src/lib/**`, and the root files each scan
+      cleanly in isolation, but the **full `gui/src` set** stalls at ~72/80 files → an **inter-file taint
+      blow-up** (the sensor is inter-procedural). Excluding the network source→sink files did not fix it.
+    - It is **redundant** with GitHub **CodeQL** (which does our security scanning).
+  Scoped to the engine core, the taint sensor finishes in ~3s (32 files) and the scan is reliable. The SPA's
+  quality stays covered by CodeFactor (grade), Codecov (coverage), CodeQL (security), and its Vitest/Playwright
+  suites. **Revisit if SonarSource fixes the sensor.** Note: Sonar badges read the project's **main branch**;
+  the first analysis ran on `dev`, so full badge population follows a `main` release.
 - **CodeRabbit** (`.coderabbit.yaml`) — AI PR reviews. Activates on installing the GitHub app
   (https://github.com/apps/coderabbitai); no secret. Auto-reviews PRs to dev/main; frozen/generated paths filtered.
 - **CodeFactor** — zero-config code-quality grade + badge; enable its GitHub app (https://www.codefactor.io).
