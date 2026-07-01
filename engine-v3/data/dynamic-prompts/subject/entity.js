@@ -5,7 +5,7 @@
  *        subject/entity.js; reused by the animal/person/living-entity/entity-name wrappers.
  */
 
-import _ from "lodash";
+import { randomInt, randomFloat } from "../../../src/helpers/random.js";
 
 const anyEntity = [0, 1, 2, 3, 4, 5, 6];
 const humanEntity = [1, 6];
@@ -27,13 +27,11 @@ export default function (settings, imageSettings, upscaleSettings, specificEntit
 
   let emotion = false;
   let human = false;
-  let index = anyEntity[_.random(0, anyEntity.length - 1, false)];
+  let index = anyEntity[randomInt(0, anyEntity.length - 1)];
 
-  if (specificEntity == "human") index = humanEntity[_.random(0, humanEntity.length - 1, false)];
-  else if (specificEntity == "animal")
-    index = animalEntity[_.random(0, animalEntity.length - 1, false)];
-  else if (specificEntity == "living")
-    index = livingEntity[_.random(0, livingEntity.length - 1, false)];
+  if (specificEntity == "human") index = humanEntity[randomInt(0, humanEntity.length - 1)];
+  else if (specificEntity == "animal") index = animalEntity[randomInt(0, animalEntity.length - 1)];
+  else if (specificEntity == "living") index = livingEntity[randomInt(0, livingEntity.length - 1)];
 
   switch (index) {
     case 0:
@@ -63,11 +61,10 @@ export default function (settings, imageSettings, upscaleSettings, specificEntit
       break;
   }
 
-  if (_.random(0.0, 1.0, true) < 0.5 && emotion && !nameOnly) prompt += ", {emotion}";
-  if (_.random(0.0, 1.0, true) < 0.5 && human && !nameOnly) prompt += `, {#color} {hair}`;
+  if (randomFloat() < 0.5 && emotion && !nameOnly) prompt += ", {emotion}";
+  if (randomFloat() < 0.5 && human && !nameOnly) prompt += `, {#color} {hair}`;
 
-  const clothingCount =
-    _.random(0.0, 1.0, true) < 0.5 && human && !nameOnly ? _.random(0, 5, false) : 0;
+  const clothingCount = randomFloat() < 0.5 && human && !nameOnly ? randomInt(0, 5) : 0;
   for (let i = 0; i < clothingCount; i++) prompt += `, {#color} {clothes}`;
 
   return prompt;
