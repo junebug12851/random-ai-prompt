@@ -15,7 +15,7 @@
 [![Tech debt](https://img.shields.io/sonar/tech_debt/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=tech%20debt)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
 [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/junebug12851/random-ai-prompt?style=flat-square&label=scorecard)](https://securityscorecards.dev/viewer/?uri=github.com/junebug12851/random-ai-prompt)
 [![Docs](https://img.shields.io/badge/docs-fairyfox.io-4c9?style=flat-square&logo=readthedocs&logoColor=white)](https://fairyfox.io/random-ai-prompt/)
-[![Netlify](https://api.netlify.com/api/v1/badges/927e1b3b-338c-48e0-8959-03dcd055cb87/deploy-status)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
+[![Netlify](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/netlify-deploy.yml?branch=main&style=flat-square&logo=netlify&logoColor=white&label=netlify)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
 [![Open issues](https://img.shields.io/github/issues/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/issues)
 ![Closed issues](https://img.shields.io/github/issues-closed/junebug12851/random-ai-prompt?style=flat-square)
 [![Open PRs](https://img.shields.io/github/issues-pr/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/pulls)
