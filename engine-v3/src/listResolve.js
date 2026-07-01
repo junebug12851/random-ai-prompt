@@ -87,6 +87,87 @@ export function autoGroupListDirs(listNames, enableDirs = [], disableDirs = []) 
 }
 
 /**
+ * Append the `\r`-stripped, non-empty, not-yet-seen lines from `lines` onto `out`.
+ * @param {string[]} out Accumulator (mutated).
+ * @param {Set<string>} seenLine Dedup set (mutated).
+ * @param {string[]} lines Candidate lines.
+ */
+function pushUnique(out, seenLine, lines) {
+  for (const l of lines) {
+    const t = l.replace(/\r$/, "");
+    if (t.trim() === "" || seenLine.has(t)) continue;
+    seenLine.add(t);
+    out.push(t);
+  }
+}
+
+/**
+ * Resolve a reference's base name + variant ("sfw" = SFW only, "full" = SFW+NSFW). An explicit
+ * `-nsfw` reference is excluded (invisible) when adult is off or a parent forces SFW.
+ * @returns {{base: string, variant: ("sfw"|"full"), excluded: false} | {excluded: true}}
+ */
+function resolveVariant(name, forced, includeAdult) {
+  if (NSFW_SUFFIX.test(name)) {
+    if (forced === "sfw" || !includeAdult) return { excluded: true };
+    return { base: name.replace(NSFW_SUFFIX, ""), variant: "full", excluded: false };
+  }
+  if (SFW_SUFFIX.test(name)) {
+    return { base: name.replace(SFW_SUFFIX, ""), variant: "sfw", excluded: false };
+  }
+  return { base: name, variant: forced ?? (includeAdult ? "full" : "sfw"), excluded: false };
+}
+
+/**
+ * Reserved `keyword` wildcard: the union of ALL general vocabulary (mode-aware), excluding the
+ * artist/* and danbooru/* namespaces, groups (covered via their lists), and itself.
+ * @returns {string[]} De-duplicated lines.
+ */
+function resolveWildcard(readers, includeAdult, variant, depth, seen) {
+  const out = [];
+  const seenLine = new Set();
+  const bases = new Set();
+  for (const n of readers.names) {
+    if (n.includes("artist") || n.startsWith("danbooru/")) continue;
+    if (readers.readGroupFile(n) != null) continue; // members covered via their lists
+    if (readers.groupListDirs?.includes(n)) continue; // implied group dir
+    const b = n.replace(/-(sfw|nsfw)$/i, "");
+    if (b === RESERVED_WILDCARD) continue;
+    bases.add(b);
+  }
+  for (const b of bases) {
+    pushUnique(
+      out,
+      seenLine,
+      resolveListLines(b, readers, includeAdult, variant, depth + 1, seen) || [],
+    );
+  }
+  return out;
+}
+
+/**
+ * A group (real `.group` file or implied-group folder): the de-duplicated union of its members'
+ * lines, propagating the resolved variant, with the depth + cycle guard.
+ * @returns {string[]} De-duplicated lines.
+ */
+function resolveGroup(base, groupLines, readers, includeAdult, variant, depth, seen) {
+  if (seen.has(base) || depth >= MAX_GROUP_DEPTH) return [];
+  seen.add(base);
+  const out = [];
+  const seenLine = new Set();
+  for (const raw of groupLines) {
+    const line = raw.replace(/\r$/, "").trim();
+    if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
+    const member = resolveName(line, readers.names);
+    pushUnique(
+      out,
+      seenLine,
+      resolveListLines(member, readers, includeAdult, variant, depth + 1, seen) || [],
+    );
+  }
+  return out;
+}
+
+/**
  * Resolve a list/group reference to its lines, honoring the SFW/NSFW naming model
  * and the `includeAdult` mode. No runtime content filtering — NSFW is a separate
  * preprocessed `<base>-nsfw.txt` file that is simply included or not.
@@ -117,20 +198,10 @@ export function resolveListLines(
   seen = new Set(),
 ) {
   // Determine the base name and the variant ("sfw" = SFW only, "full" = SFW+NSFW).
-  let base = name;
-  let variant;
-  if (NSFW_SUFFIX.test(name)) {
-    base = name.replace(NSFW_SUFFIX, "");
-    // An explicit -nsfw reference is invisible unless adult is on, and a parent
-    // forcing SFW excludes it entirely.
-    if (forced === "sfw" || !includeAdult) return [];
-    variant = "full";
-  } else if (SFW_SUFFIX.test(name)) {
-    base = name.replace(SFW_SUFFIX, "");
-    variant = "sfw";
-  } else {
-    variant = forced ?? (includeAdult ? "full" : "sfw");
-  }
+  const v = resolveVariant(name, forced, includeAdult);
+  if (v.excluded) return [];
+  let base = v.base;
+  const variant = v.variant;
 
   // Reserved `keyword` wildcard: a random word from ALL general vocabulary, drawn
   // mode-aware. Not a file — supersedes any list literally named `keyword`. Excludes
@@ -139,27 +210,7 @@ export function resolveListLines(
   // = SFW always; `{keyword-nsfw}` = SFW+NSFW (and invisible when adult is off, handled
   // by the -nsfw suffix branch above).
   if (base === RESERVED_WILDCARD) {
-    const out = [];
-    const seenLine = new Set();
-    const bases = new Set();
-    for (const n of readers.names) {
-      if (n.includes("artist") || n.startsWith("danbooru/")) continue;
-      if (readers.readGroupFile(n) != null) continue; // members covered via their lists
-      if (readers.groupListDirs && readers.groupListDirs.includes(n)) continue; // implied group dir
-      const b = n.replace(/-(sfw|nsfw)$/i, "");
-      if (b === RESERVED_WILDCARD) continue;
-      bases.add(b);
-    }
-    for (const b of bases) {
-      const lines = resolveListLines(b, readers, includeAdult, variant, depth + 1, seen) || [];
-      for (const l of lines) {
-        const t = l.replace(/\r$/, "");
-        if (t.trim() === "" || seenLine.has(t)) continue;
-        seenLine.add(t);
-        out.push(t);
-      }
-    }
-    return out;
+    return resolveWildcard(readers, includeAdult, variant, depth, seen);
   }
 
   // Re-resolve the (suffix-stripped) base to its canonical name, so an explicit
@@ -169,28 +220,11 @@ export function resolveListLines(
   // Group? Either a real `.group` file, or an IMPLIED group: a folder marked with a
   // `.force-group-list` file resolves to the union of all lists directly/under it.
   let groupLines = readers.readGroupFile(base);
-  if (groupLines == null && readers.groupListDirs && readers.groupListDirs.includes(base)) {
+  if (groupLines == null && readers.groupListDirs?.includes(base)) {
     groupLines = impliedGroupMembers(base, readers);
   }
   if (groupLines != null) {
-    if (seen.has(base) || depth >= MAX_GROUP_DEPTH) return [];
-    seen.add(base);
-
-    const out = [];
-    const seenLine = new Set();
-    for (const raw of groupLines) {
-      const line = raw.replace(/\r$/, "").trim();
-      if (line === "" || line.startsWith("#") || line.startsWith("@")) continue;
-      const member = resolveName(line, readers.names);
-      const lines = resolveListLines(member, readers, includeAdult, variant, depth + 1, seen) || [];
-      for (const l of lines) {
-        const t = l.replace(/\r$/, "");
-        if (t.trim() === "" || seenLine.has(t)) continue;
-        seenLine.add(t);
-        out.push(t);
-      }
-    }
-    return out;
+    return resolveGroup(base, groupLines, readers, includeAdult, variant, depth, seen);
   }
 
   // Plain list. SFW base + (NSFW extra when the variant is full).

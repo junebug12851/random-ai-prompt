@@ -36,47 +36,69 @@ function joinPieces(pieces) {
  * @param {object} ctx The render context (settings, rng, bridge, sections).
  * @returns {string} The layer's rendered, weight-sorted text.
  */
+/**
+ * Hard dial conditions (`[i<10%]`, `[f<40%]`): deterministic include/exclude, evaluated BEFORE any
+ * probability roll. Both an intensity and a focus condition may apply; both must pass to keep the line.
+ * @returns {boolean} True when the node is excluded by a failing dial condition.
+ */
+function dialExcluded(node, ctx) {
+  return (
+    (node.iCond && !condPasses(node.iCond, ctx.intensity)) ||
+    (node.fCond && !condPasses(node.fCond, ctx.focus))
+  );
+}
+
+/**
+ * The node's effective gate. An explicit gate (NN%/maybe/NN% chance/otherwise) always wins; a bare
+ * *simple-clause* bullet (plain text / token / ref) defaults to 50%. Structural bullets (one of /
+ * repeat / block) and plain (non-bullet) lines are unconditional. A probability gate is auto-scaled
+ * by the current intensity (`scaleGate`); the bare-`otherwise` gate of 1 is not.
+ * @returns {{gate: number|null|undefined, scaleGate: boolean}}
+ */
+function effectiveGate(node) {
+  let gate = node.gate;
+  let scaleGate = node.scaleGate === true;
+  if (gate == null && !node.otherwise) {
+    const structural = node.choice || node.repeat || node.flow || node.block;
+    if (node.bullet && !structural) {
+      gate = 0.5;
+      scaleGate = true;
+    }
+  }
+  return { gate, scaleGate };
+}
+
+/**
+ * Decide whether a node runs, given the running `prevGateFailed`. Rolls a probability gate through
+ * the seeded rng. `gateBearing` (an authored gate, not the default) is what an `otherwise` pairs
+ * against — a non-bearing node never leaves a "failed gate" behind.
+ * @returns {{run: boolean, gateFailed: boolean}}
+ */
+function gateDecision(node, ctx, prevGateFailed) {
+  const gateBearing = node.gate != null || node.otherwise === true;
+  const { gate, scaleGate } = effectiveGate(node);
+  let run = node.otherwise ? prevGateFailed : true;
+  if (run && gate != null) {
+    run = ctx.rng.chance(scaleGate ? gate * (ctx.intensity / 100) : gate);
+  }
+  return { run, gateFailed: gateBearing ? !run : false };
+}
+
 export function renderNodes(nodes, ctx) {
   const pieces = [];
   let auto = AUTO_WEIGHT_START;
   let prevGateFailed = false;
   for (const node of nodes) {
     const weight = node.weight ?? auto;
-    auto = (node.weight ?? auto) + 1;
+    auto = weight + 1;
 
-    // Dial conditions (`[i<10%]`, `[f<40%]`): hard, deterministic include/exclude, evaluated BEFORE
-    // any probability roll. A failed condition drops the line and is not a "failed gate" for
-    // `otherwise`. Both an intensity and a focus condition may apply; both must pass to keep the line.
-    if (
-      (node.iCond && !condPasses(node.iCond, ctx.intensity)) ||
-      (node.fCond && !condPasses(node.fCond, ctx.focus))
-    ) {
+    if (dialExcluded(node, ctx)) {
       prevGateFailed = false;
       continue;
     }
 
-    // Effective gate: an explicit gate (NN%/maybe/NN% chance/otherwise) always wins. A bare
-    // *simple-clause* bullet (plain text / token / ref) defaults to 50%. Structural bullets
-    // (one of / repeat / block) and plain (non-bullet) lines are unconditional. `gateBearing`
-    // (an authored gate, not the default) is what an `otherwise` pairs against. A probability gate is
-    // auto-scaled by the current intensity (`scaleGate`); the bare-`otherwise` gate of 1 is not.
-    const gateBearing = node.gate != null || node.otherwise === true;
-    let gate = node.gate;
-    let scaleGate = node.scaleGate === true;
-    if (gate == null && !node.otherwise) {
-      const structural = node.choice || node.repeat || node.flow || node.block;
-      if (node.bullet && !structural) {
-        gate = 0.5;
-        scaleGate = true;
-      }
-    }
-    let run = true;
-    if (node.otherwise) run = prevGateFailed;
-    if (run && gate != null) {
-      const g = scaleGate ? gate * (ctx.intensity / 100) : gate;
-      run = ctx.rng.chance(g);
-    }
-    prevGateFailed = gateBearing ? !run : false;
+    const { run, gateFailed } = gateDecision(node, ctx, prevGateFailed);
+    prevGateFailed = gateFailed;
     if (!run) continue;
 
     const text = renderNode(node, ctx);
@@ -91,39 +113,46 @@ export function renderNodes(nodes, ctx) {
  * @param {object} ctx The render context.
  * @returns {string} The node's text contribution.
  */
-function renderNode(node, ctx) {
-  // Choice: pick 1..N options (weighted by each option's leading %), honoring a miss chance. The
-  // pick count is scaled by intensity, so low intensity yields fewer (possibly zero) picks.
-  if (node.choice) {
-    if (node.choice.miss && ctx.rng.chance(node.choice.miss)) return "";
-    const opts = node.children.slice();
-    if (!opts.length) return "";
-    const hi = Math.min(scaleCount(node.choice.max, ctx.intensity), opts.length);
-    const lo = Math.min(scaleCount(node.choice.min, ctx.intensity), hi);
-    const count = ctx.rng.int(lo, hi);
-    if (count <= 0) return "";
-    const picked = weightedSampleN(opts, count, ctx.rng);
-    return picked
-      .map((o) => renderNode(o, ctx))
-      .filter(Boolean)
-      .join(", ");
-  }
+/**
+ * Choice: pick 1..N options (weighted by each option's leading %), honoring a miss chance. The pick
+ * count is scaled by intensity, so low intensity yields fewer (possibly zero) picks.
+ */
+function renderChoice(node, ctx) {
+  if (node.choice.miss && ctx.rng.chance(node.choice.miss)) return "";
+  const opts = node.children.slice();
+  if (!opts.length) return "";
+  const hi = Math.min(scaleCount(node.choice.max, ctx.intensity), opts.length);
+  const lo = Math.min(scaleCount(node.choice.min, ctx.intensity), hi);
+  const count = ctx.rng.int(lo, hi);
+  if (count <= 0) return "";
+  const picked = weightedSampleN(opts, count, ctx.rng);
+  return picked
+    .map((o) => renderNode(o, ctx))
+    .filter(Boolean)
+    .join(", ");
+}
 
-  // Repeat: loop count times, rendering the body (payload or child block) each time. The count is
-  // scaled by intensity (round(n × intensity/100)), so the dial thins/thickens repetition.
-  if (node.repeat) {
-    const lo = scaleCount(node.repeat.min, ctx.intensity);
-    const hi = scaleCount(node.repeat.max, ctx.intensity);
-    const count = ctx.rng.int(Math.min(lo, hi), Math.max(lo, hi));
-    const parts = [];
-    for (let i = 0; i < count; i++) {
-      let part;
-      if (node.children.length) part = renderNodes(node.children, ctx);
-      else part = renderInlineBody(node, ctx);
-      if (part && part.trim() !== "") parts.push(part.trim());
-    }
-    return parts.join(", ");
+/**
+ * Repeat: loop count times, rendering the body (payload or child block) each time. The count is
+ * scaled by intensity (round(n × intensity/100)), so the dial thins/thickens repetition.
+ */
+function renderRepeat(node, ctx) {
+  const lo = scaleCount(node.repeat.min, ctx.intensity);
+  const hi = scaleCount(node.repeat.max, ctx.intensity);
+  const count = ctx.rng.int(Math.min(lo, hi), Math.max(lo, hi));
+  const parts = [];
+  for (let i = 0; i < count; i++) {
+    const part = node.children.length
+      ? renderNodes(node.children, ctx)
+      : renderInlineBody(node, ctx);
+    if (part && part.trim() !== "") parts.push(part.trim());
   }
+  return parts.join(", ");
+}
+
+function renderNode(node, ctx) {
+  if (node.choice) return renderChoice(node, ctx);
+  if (node.repeat) return renderRepeat(node, ctx);
 
   // References.
   if (node.ref) return renderRef(node.ref, weightOf(node), ctx);
@@ -196,7 +225,7 @@ function renderRef(ref, _weight, ctx) {
   if (ref.kind === "call" || ref.kind === "insert") {
     // A DPL-side section (local) or another generator/list/expansion token (passthrough).
     if (ctx.hasSection(ref.name)) return ctx.section(ref.name);
-    if (/^#/.test(ref.name)) return `{${ref.name}}`; // +#weather -> {#weather}
+    if (ref.name.startsWith("#")) return `{${ref.name}}`; // +#weather -> {#weather}
     return `{#${ref.name}}`; // bare name -> dynamic-prompt token, resolved downstream
   }
   if (ref.kind === "js-block") return ctx.bridge?.resolveJs?.(ref.path, ctx) ?? "";
@@ -217,7 +246,7 @@ function weightOf(node) {
  * @returns {Array} The picked option nodes.
  */
 function weightedSampleN(opts, n, rng) {
-  const pool = opts.map((o) => ({ o, w: o.gate != null ? o.gate : 1 }));
+  const pool = opts.map((o) => ({ o, w: o.gate ?? 1 }));
   const picked = [];
   for (let k = 0; k < n && pool.length; k++) {
     const total = pool.reduce((s, e) => s + e.w, 0);

@@ -67,8 +67,12 @@ function renderEmphasis(mode, phrase, depth, lessEmphasis) {
 // A balanced, symmetric run of N opening brackets, an inner with none of the bracket/`|`/`:` chars,
 // then N closing brackets. The `|`/`:` exclusions are what let `(x:1.2)` weights and `[a|b]` NovelAI
 // alternation pass through untouched (they simply don't match).
-const PAREN_RE = /(\(+)([^()|:]+?)(\)+)/g;
-const BRACK_RE = /(\[+)([^[\]|:]+?)(\]+)/g;
+// The `(?=(\(+))\1` prefix captures the opening run in a lookahead then re-consumes it via the
+// backreference — an atomic-group emulation that stops the `+` from backtracking (JS has no atomic
+// groups), so a long run of unmatched brackets can't cause super-linear runtime. Capture groups are
+// unchanged: 1 = opening run, 2 = inner, 3 = closing run.
+const PAREN_RE = /(?=(\(+))\1([^()|:]+?)(\)+)/g;
+const BRACK_RE = /(?=(\[+))\1([^[\]|:]+?)(\]+)/g;
 
 /** Replace every clean emphasis group via `re` (one capture: open run, inner, close run). */
 function convert(text, re, mode, lessEmphasis) {

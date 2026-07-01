@@ -23,7 +23,7 @@ export function clampIntensity(v) {
   if (!Number.isFinite(n)) return DEFAULT_INTENSITY;
   const r = Math.round(n);
   if (r <= 0) return 1; // "0% is assumed to be 1%"
-  return r > 100 ? 100 : r;
+  return Math.min(r, 100);
 }
 
 /** Normalize a focus argument to an integer 1..100 (undefined → default, 0 → 1, >100 → 100). */
@@ -32,7 +32,7 @@ export function clampFocus(v) {
   if (!Number.isFinite(n)) return DEFAULT_FOCUS;
   const r = Math.round(n);
   if (r <= 0) return 1;
-  return r > 100 ? 100 : r;
+  return Math.min(r, 100);
 }
 
 /** Scale an authored count by intensity: round(n × intensity/100), never below 0. */
