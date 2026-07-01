@@ -11,9 +11,8 @@ export const THEME_MODES = ["system", "dark", "light"];
 /** The resolved bases a theme can actually render as (system resolves to one). */
 export const RESOLVED_MODES = ["dark", "light"];
 
-/** Shipped default — mint accent on a System (auto dark/light) base. */
+/** Shipped default base — System (auto dark/light). (Default accent lives in presets.js.) */
 export const DEFAULT_MODE = "system";
-export const DEFAULT_ACCENT = "mint";
 
 /** Normalize any stored/incoming value to a valid mode. */
 export function normalizeMode(mode) {

@@ -155,6 +155,8 @@ function HydratedApp() {
       <ThemeProvider
         mode={settings.themeMode}
         setMode={(m) => setSettings((s) => ({ ...s, themeMode: m }))}
+        accent={settings.accent}
+        setAccent={(a) => setSettings((s) => ({ ...s, accent: a }))}
       >
         <AppShell settings={settings} setSettings={setSettings} />
         <DialogHost />

@@ -6,6 +6,7 @@
  * @module gui/theme/applyTheme
  */
 import { normalizeMode } from "./config.js";
+import { normalizeAccent } from "./presets.js";
 
 /** True when the OS currently prefers a light color scheme. */
 export function prefersLight() {
@@ -36,4 +37,16 @@ export function applyTheme(mode) {
     document.documentElement.setAttribute("data-theme", resolved);
   }
   return resolved;
+}
+
+/**
+ * Apply the accent to `<html data-accent>` (normalized to a known preset id).
+ * Returns the applied id. No-op without a document.
+ */
+export function applyAccent(accent) {
+  const id = normalizeAccent(accent);
+  if (typeof document !== "undefined") {
+    document.documentElement.setAttribute("data-accent", id);
+  }
+  return id;
 }

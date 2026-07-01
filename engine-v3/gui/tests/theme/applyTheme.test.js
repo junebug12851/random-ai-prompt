@@ -2,7 +2,12 @@
  * @file Unit tests for the theme resolution + application layer.
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { resolveMode, applyTheme, prefersLight } from "../../src/theme/applyTheme.js";
+import {
+  resolveMode,
+  applyTheme,
+  applyAccent,
+  prefersLight,
+} from "../../src/theme/applyTheme.js";
 
 function stubMatchMedia(matches) {
   window.matchMedia = vi.fn((query) => ({
@@ -16,6 +21,7 @@ function stubMatchMedia(matches) {
 afterEach(() => {
   delete window.matchMedia;
   document.documentElement.removeAttribute("data-theme");
+  document.documentElement.removeAttribute("data-accent");
 });
 
 describe("theme/applyTheme", () => {
@@ -44,5 +50,13 @@ describe("theme/applyTheme", () => {
 
     expect(applyTheme("dark")).toBe("dark");
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+  });
+
+  it("applyAccent writes a valid data-accent and normalizes unknown ids to mint", () => {
+    expect(applyAccent("violet")).toBe("violet");
+    expect(document.documentElement.getAttribute("data-accent")).toBe("violet");
+
+    expect(applyAccent("not-an-accent")).toBe("mint");
+    expect(document.documentElement.getAttribute("data-accent")).toBe("mint");
   });
 });

@@ -24,6 +24,7 @@
 @layer reset, tokens, base, layout, components, utilities, theme, overrides;
 
 @import url("./foundation/tokens.css") layer(tokens);
+@import url("./foundation/accents.css") layer(tokens);
 @import url("./foundation/base.css") layer(base);
 @import url("./components/app-frame.css") layer(components);
 @import url("./components/title-bar.css") layer(components);

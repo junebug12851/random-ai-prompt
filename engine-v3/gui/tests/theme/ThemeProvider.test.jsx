@@ -26,6 +26,7 @@ function stubMatchMedia(matches) {
 afterEach(() => {
   delete window.matchMedia;
   document.documentElement.removeAttribute("data-theme");
+  document.documentElement.removeAttribute("data-accent");
 });
 
 function Probe() {
@@ -65,6 +66,25 @@ describe("ThemeProvider", () => {
     );
     // No matchMedia stub → system resolves to dark.
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+  });
+
+  it("applies the accent to <html data-accent> and forwards a normalized setAccent", () => {
+    const setAccent = vi.fn();
+    let api;
+    function Grab() {
+      api = useTheme();
+      return null;
+    }
+    render(
+      <ThemeProvider mode="dark" accent="cyan" setAccent={setAccent}>
+        <Grab />
+      </ThemeProvider>,
+    );
+    expect(document.documentElement.getAttribute("data-accent")).toBe("cyan");
+    act(() => api.setAccent("amber"));
+    expect(setAccent).toHaveBeenCalledWith("amber");
+    act(() => api.setAccent("nope"));
+    expect(setAccent).toHaveBeenCalledWith("mint");
   });
 
   it("setMode forwards a normalized value to the persisted setter", () => {
