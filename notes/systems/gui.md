@@ -70,3 +70,32 @@ against the Playwright visual baseline. Theming (dark/light bases × accent pres
 `netlify.toml` (repo root): `npm --prefix gui install && npm --prefix gui run build` →
 `gui/dist`, with `/api/*` routed to the functions and an SPA fallback to `index.html`. Details in
 [`../reference/deployment.md`](../reference/deployment.md).
+
+`gui/package.json`'s `build` is `node scripts/build.mjs` (an orchestrator), not a bare `vite build`.
+Locally it just runs the client build. For the **online** build (`VITE_ONLINE=true`) it additionally
+prerenders — see below.
+
+## Online prerendering (static HTML + hydration)
+
+The online build prerenders its first paint to static HTML so the building-block palette (the Largest
+Contentful Paint) is painted from HTML before any JS runs — client-rendering it with React + react-intl
+on throttled mobile was the whole LCP cost (profiled: 92% render-delay). It's **online-only**; the
+local build is untouched (its `#root` ships empty and mounts fresh).
+
+- **`scripts/build.mjs`** — client build → SSR build of `src/entry-server.jsx` → call its
+  `renderToString` → inject the shell/palette markup into `#root` in `dist/index.html` → drop the
+  throwaway SSR bundle (`dist-ssr/`, git-ignored).
+- **`src/entry-server.jsx`** — `render()` = `renderToString(<App/>)`. `renderToString` (not a headless
+  snapshot) is deliberate: effects don't run, so the CodeMirror composer renders as its empty host
+  `<div>` — exactly the client's first render — so hydration is clean.
+- **`src/main.jsx`** — `hydrateRoot` when `#root` is populated (online), else `createRoot` (local/dev).
+- **Server == client-first render.** `App` boots the **default-settings** shell online (skips the
+  local blank-frame gate); the client's first render also produces defaults because the storage cache
+  hydrates asynchronously. Stored settings then settle in via a **two-pass** store: `cache.onHydrated`
+  fires when hydration completes, and `useSettings` / `useUserThemes` render defaults first, re-read
+  stored values after, and **gate their save so the transient defaults are never persisted** (this is
+  what stops a returning visitor's saved settings from being wiped — a hard requirement).
+- **Invariant + guard:** the initial render path must stay SSR-safe (no `window`/`document`/… during
+  render — put browser access in effects, which don't run in `renderToString`). `tests/prerender.test.js`
+  renders the app in a **`node` environment** (no DOM) so any violation fails in CI, not in a deploy.
+  Hydration cleanliness (0 warnings for first-time AND returning visitors) is verified with Playwright.

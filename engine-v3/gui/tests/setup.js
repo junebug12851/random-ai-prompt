@@ -14,7 +14,9 @@ import { server } from "./msw/server.js";
 beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 
 beforeEach(async () => {
-  localStorage.clear();
+  // Most SPA tests run under jsdom; the prerender/SSR-safety guard runs under the `node` environment
+  // (no DOM) on purpose, so localStorage may not exist here.
+  if (typeof localStorage !== "undefined") localStorage.clear();
   // The storage cache is a module singleton that survives between tests (localStorage.clear()
   // doesn't touch it) — reset it so each test starts from an empty, un-hydrated cache. Imported
   // dynamically (not at setup top-level) so it doesn't pre-bind gui/storage/* before a test file's

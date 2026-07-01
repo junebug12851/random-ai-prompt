@@ -52,11 +52,16 @@ const groupRaw = import.meta.glob("../../data/lists/**/*.group", {
   eager: true,
 });
 const forcePrefixFiles = import.meta.glob("../../data/lists/**/_force-prefix", { eager: true });
-const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", { eager: true });
+const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list", {
+  eager: true,
+});
 const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list", {
   eager: true,
 });
-const metaModules = import.meta.glob("../../data/lists/**/*.json", { eager: true, import: "default" });
+const metaModules = import.meta.glob("../../data/lists/**/*.json", {
+  eager: true,
+  import: "default",
+});
 const presetModules = import.meta.glob("../../data/presets/*.json", {
   eager: true,
   import: "default",

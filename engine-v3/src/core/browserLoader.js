@@ -46,7 +46,10 @@ const dpDplRawGlob = import.meta.glob("../../data/dynamic-prompts/**/*.dpl", {
 const dpForcePrefixFiles = import.meta.glob("../../data/dynamic-prompts/**/_force-prefix");
 const dpEnableGroupFiles = import.meta.glob("../../data/dynamic-prompts/**/_enable-group-list");
 const dpDisableGroupFiles = import.meta.glob("../../data/dynamic-prompts/**/_disable-group-list");
-const listRawGlob = import.meta.glob("../../data/lists/**/*.txt", { query: "?raw", import: "default" });
+const listRawGlob = import.meta.glob("../../data/lists/**/*.txt", {
+  query: "?raw",
+  import: "default",
+});
 const groupRawGlob = import.meta.glob("../../data/lists/**/*.group", {
   query: "?raw",
   import: "default",
@@ -104,7 +107,10 @@ const dpGroupDirs = autoGroupListDirs(
   markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
   markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
 );
-const _allNames = allListNames([...logicalListNames([...listKeyNames, ...groupKeyNames]), ...groupListDirs]);
+const _allNames = allListNames([
+  ...logicalListNames([...listKeyNames, ...groupKeyNames]),
+  ...groupListDirs,
+]);
 
 // ---- Content maps — empty until initBrowserCatalog() resolves ----
 let dpJsModules = {};

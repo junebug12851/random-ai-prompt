@@ -17,6 +17,10 @@ import { loadConfig, saveConfig, removeConfig } from "./config.js";
 const cache = new Map();
 let hydrated = false;
 let hydrating = null;
+// One-shot subscribers notified when the initial hydration completes. Used by the cache-backed React
+// stores (settings, user themes) for the online build's two-pass render: they render defaults on the
+// first paint (matching the prerendered HTML) and re-read the stored values once hydration finishes.
+const hydrateListeners = new Set();
 // When we last wrote to the backend. The file-watch settings reload uses this to ignore change
 // events caused by our OWN writes (so it never re-reads — and never risks clobbering — what the app
 // just saved). External edits aren't preceded by our write, so they still come through.
@@ -79,6 +83,14 @@ export function hydrate() {
     );
     hydrated = true;
     hydrating = null;
+    for (const fn of [...hydrateListeners]) {
+      hydrateListeners.delete(fn);
+      try {
+        fn();
+      } catch {
+        /* a bad subscriber shouldn't break hydration */
+      }
+    }
   })();
   return hydrating;
 }
@@ -86,6 +98,22 @@ export function hydrate() {
 /** @returns {boolean} Whether the cache has finished its initial load. */
 export function isHydrated() {
   return hydrated;
+}
+
+/**
+ * Run `fn` once the cache has hydrated: immediately if it already has, otherwise when {@link hydrate}
+ * completes. Returns an unsubscribe function (a no-op once fired). Lets a store render defaults on the
+ * first paint and re-read the stored values after hydration — the online build's two-pass render.
+ * @param {Function} fn Called once, with no arguments, when hydration is complete.
+ * @returns {Function} Unsubscribe.
+ */
+export function onHydrated(fn) {
+  if (hydrated) {
+    fn();
+    return () => {};
+  }
+  hydrateListeners.add(fn);
+  return () => hydrateListeners.delete(fn);
 }
 
 /**
