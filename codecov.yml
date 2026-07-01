@@ -1,0 +1,44 @@
+# Codecov configuration.
+#
+# Coverage is uploaded from TWO independent suites, each under its own flag:
+#   node — the isomorphic engine (engine-v3/src/core/**). Unit/integration tested
+#          to ~93%. This is what the README coverage badge tracks (flag=node).
+#   gui  — the SPA (engine-v3/gui/src/**). Vitest unit-covers the src/lib logic
+#          layer (~73%); the React components/editors are exercised by the
+#          Playwright e2e + accessibility suite, whose coverage is NOT uploaded to
+#          Codecov — so this flag reads low (~48%) by design, not from missing tests.
+#
+# Without coordination the unflagged repo total flapped between the two uploads
+# (93% vs 48%) as each landed. `after_n_builds: 2` makes Codecov wait for BOTH
+# uploads before it reports, and `carryforward` reuses a flag's last known coverage
+# on commits that didn't re-run that suite. Statuses are informational so a coverage
+# dip never blocks CI (uploads are already non-blocking in ci.yml).
+codecov:
+  notify:
+    after_n_builds: 2
+    wait_for_ci: true
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+flag_management:
+  default_rules:
+    carryforward: true
+  individual_flags:
+    - name: node
+      paths:
+        - engine-v3/src/
+    - name: gui
+      paths:
+        - engine-v3/gui/src/
+
+comment:
+  after_n_builds: 2
+  layout: "condensed_header, flags, files"
