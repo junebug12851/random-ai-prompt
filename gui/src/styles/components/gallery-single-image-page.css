@@ -380,3 +380,22 @@
   cursor: not-allowed;
 }
 
+/* --- Phone / tablet: stack the image over the metadata (Phase 4b of the
+       responsive work, notes/plans/responsive.md). The two-column grid collapses
+       to one, the image un-sticks (nothing to stick beside) and caps its height
+       so the details below stay reachable by scroll. Width-driven CSS only, so
+       first paint is unaffected; no feature changes, just re-flows. --- */
+@media (width <= 860px) {
+  .g-single-body {
+    grid-template-columns: 1fr;
+  }
+
+  .g-single-img {
+    position: static;
+  }
+
+  .g-single-img img {
+    max-height: 60vh;
+  }
+}
+

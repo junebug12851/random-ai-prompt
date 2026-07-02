@@ -1,8 +1,8 @@
 # Responsive / Adaptive UI — Plan
 
 **Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
-the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, and Phase 4a (Home sidebar → phone drawer) ✅
-landed; Phase 4b (Single view) + 4c (Manage) and Phases 5–6 queued.
+the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, Phase 4a (Home sidebar → phone drawer) ✅, and Phase 4b (Single view
+stack) ✅ landed; Phase 4c (Manage) and Phases 5–6 queued.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -139,7 +139,12 @@ switch scrolls horizontally rather than overflow the bar. a11y: `aria-haspopup`/
   641–860 stack's row-wrapped tabs / capped chip area). `prefers-reduced-motion` disables the slide.
   a11y: `aria-controls`/`-expanded` on the trigger + a labelled close. Verified by `responsive.spec.js`
   (desktop inline / phone off-canvas → open → Escape → ✕) and the visual baselines (desktop unchanged).
-- **4b — Single view.** Image + detail two-column → stacked; the action row → a sticky bottom bar. _(queued)_
+- **4b — Single view.** ✅ At `≤860px` the image+metadata two-column grid (`.g-single-body`) collapses
+  to one column; the image un-sticks (`position: static`) and caps at `60vh` so the details below stay
+  reachable. CSS-only, width-driven — first paint unaffected, no feature change. Verified by
+  `responsive.spec.js` (route-mocks `/api/feed` to populate the view: desktop 2-col vs phone 1-col +
+  un-stuck). A sticky bottom action bar was considered and deferred as optional polish (the action row
+  already wraps; not needed for mobile usability).
 - **4c — Manage.** Tree + editor → master/detail push navigation on phone. _(queued)_
 
 Every capability preserved, only re-homed.

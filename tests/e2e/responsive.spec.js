@@ -9,7 +9,7 @@
  */
 import { test, expect } from "@playwright/test";
 
-/* global document -- the page.evaluate() callbacks below execute in the browser context. */
+/* global document, getComputedStyle -- the page.evaluate() callbacks run in the browser context. */
 
 const toggle = ".topbar-overflow-toggle";
 const controls = ".topbar-controls";
@@ -135,5 +135,59 @@ test.describe("building-block palette — phone drawer", () => {
     await expect.poll(() => sidebarX(page)).toBeGreaterThanOrEqual(0);
     await page.locator(`${sidebar} .palette-close`).click();
     await expect.poll(() => sidebarX(page)).toBeLessThan(0);
+  });
+});
+
+// --- Phase 4b: the Single view stacks image over metadata on narrow screens ---
+
+const FEED = {
+  items: [
+    {
+      path: "/api/output/responsive-test.png",
+      file: "responsive-test.png",
+      name: "responsive-test",
+      mtime: Date.now(),
+      meta: {
+        provider: "test",
+        providerLabel: "Test",
+        prompt: { dpl: "a red fox", roll: "a red fox", ai: null, final: "a red fox" },
+        settings: { width: 512, height: 512 },
+        savedAt: new Date().toISOString(),
+      },
+    },
+  ],
+};
+
+/** Number of column tracks in the single-view body grid at the current width. */
+async function singleBodyColumnCount(page) {
+  // Populate the local-only gallery feed so the Single view has an image to show.
+  await page.route("**/api/feed", (route) => route.fulfill({ json: FEED }));
+  const feedLoaded = page.waitForResponse((r) => r.url().includes("/api/feed"));
+  await page.goto("/");
+  await feedLoaded;
+  await page.getByRole("tab", { name: "Single" }).click();
+  const body = page.locator(".g-single-body");
+  await body.waitFor();
+  return body.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+}
+
+test.describe("single view — desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+
+  test("image + metadata are two columns", async ({ page }) => {
+    expect(await singleBodyColumnCount(page)).toBe(2);
+  });
+});
+
+test.describe("single view — phone", () => {
+  test.use({ viewport: { width: 390, height: 800 } });
+
+  test("image stacks over metadata (one column, image un-stuck)", async ({ page }) => {
+    expect(await singleBodyColumnCount(page)).toBe(1);
+    const pos = await page
+      .locator(".g-single-img")
+      .evaluate((el) => getComputedStyle(el).position);
+    expect(pos).toBe("static");
+    expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 });
