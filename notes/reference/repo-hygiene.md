@@ -15,6 +15,13 @@ so it can't silently pile up again — plus the rules the guards enforce.
 
 Run everything at once before handing off: **`npm test && npm run check:tidy`**.
 
+> **One interaction to know.** `delete_branch_on_merge` deletes the merged PR's _head_ branch — and for a
+> `dev → main` PR the head is **`dev` itself**. So `dev` carries a **deletion-only** branch protection:
+> it blocks deletion + force-push but requires **no** PR / review / status checks, so you and CI still
+> `git push origin dev` exactly as before. GitHub skips auto-deleting protected branches, so `dev`
+> survives every `dev → main` merge while spent **feature** branches still auto-clean. (`main` keeps its
+> full protection; see [`git-workflow.md`](git-workflow.md).)
+
 ## The rules the guards back up
 
 - **Nothing useful is ever left uncommitted.** The notes are a living document — commit as you go. The
