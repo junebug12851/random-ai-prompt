@@ -68,7 +68,6 @@ Ordered, roughly by priority. Update as items are done or added.
    engine — not each block — supplies start/end framing (delivery UX still open, likely presets). DPL (item 7)
    is its authoring language and comes first. No de-duplication (non-goal).
 
-9. **Review the 6 `no-useless-assignment` spots.** ESLint 10 promoted this rule into `recommended`; it
-   flags benign init-then-overwrite patterns in `src/server.js` (×3), `src/web/backend/indexImages.js`
-   (×2), and `src/web/frontend/single.js` (×1). Currently demoted to `warn` in `eslint.config.js`.
-   Either tidy the dead stores or leave as-is (changing them is behavior-neutral here, but low value).
+9. ~~**Review the 6 `no-useless-assignment` spots.**~~ **Resolved** — all six were in the pre-revival
+   classic files (`src/server.js`, `src/web/backend/indexImages.js`, `src/web/frontend/single.js`),
+   which were removed from the tree along with the rest of that system.

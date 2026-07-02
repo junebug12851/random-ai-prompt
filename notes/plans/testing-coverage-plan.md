@@ -92,7 +92,7 @@ Only `local-webui` + `midjourney` covered. **Untested adapters:** comfyui, opena
 grok, replicate, fal, bfl, ideogram, leonardo, stability `code/generate.js`; the rewrite
 adapters (openai/gemini/grok `code/rewrite.js`); `_shared/transport/*` (hostedProxy,
 localDirect, submitPoll); `_shared/dialects.js` (`engineModeFor`), `_shared/rewriteSystem.js`,
-`_shared/fieldInfo.js`; the Netlify functions (`gui/netlify/functions/{generate,rewrite}.js`).
+`_shared/fieldInfo.js`. (The former Netlify functions were removed; server-side dispatch now lives in `gui/server/dispatch.js`.)
 
 ## Tooling changes
 

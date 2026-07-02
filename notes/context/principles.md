@@ -13,10 +13,11 @@ default.)
 - **Fail loudly, not silently.** Surface errors (the WebUI being down, a bad file) clearly; don't
   swallow them in a way that hides a problem or loses work.
 - **Match the existing module shapes.** Dynamic prompts are `export default function (settings,
-  imageSettings, upscaleSettings)`; settings are `export default {…}`; the loader contracts in `src/`
-  and `prompt-modules/` expect those. Keep new files consistent so the scanners/loaders keep working.
-- **Keep the two entry points in sync conceptually.** The web UI generates by shelling out to the CLI,
-  so a CLI flag and the server feature that uses it must agree.
+  imageSettings, upscaleSettings)`; settings are `export default {…}`; the loader contracts in
+  `src/core/` expect those. Keep new files consistent so the scanners/loaders keep working.
+- **One engine, no duplicated logic.** The isomorphic `src/core/` engine is the single source of prompt
+  behavior — the SPA runs it in the browser and the Node side runs the same code for tests and the local
+  `/api`. Keep new behavior in the engine so both surfaces (and a future CLI) stay in sync.
 
 ## Avoid
 

@@ -30,9 +30,9 @@ idempotent); v1 generators have no internal `#` refs, so they were untouched.
 
 The engine is loader-injected: the active code is the core stage
 [`src/core/stages/dynamicPrompt.js`](../../src/core/stages/dynamicPrompt.js), which calls
-`loader.loadDynamicPrompt(key)` / `loader.dynamicPromptNames()`. The classic pipeline
-`src/prompt-modules/dynamic-prompt.js` (and `src/server.js`) are **read-only legacy reference**
-being replaced — nothing active imports the legacy stage, and it is not kept in sync.
+`loader.loadDynamicPrompt(key)` / `loader.dynamicPromptNames()`. (The classic
+`src/prompt-modules/dynamic-prompt.js` and `src/server.js` were removed from the tree with the rest of
+the pre-revival system.)
 
 ## The v2/ reorg (ported from lists/expansions)
 
