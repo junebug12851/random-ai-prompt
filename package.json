@@ -27,6 +27,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "smoke": "node scripts/smoke-test.mjs",
+    "check:docs": "node scripts/check-links.mjs",
+    "check:tidy": "node scripts/check-tidy.mjs",
     "manifest": "node scripts/build-data-manifest.mjs",
     "docs": "node scripts/build-docs.mjs",
     "test:unit": "vitest run",
@@ -39,7 +41,7 @@
     "test:e2e:all": "node scripts/run-e2e-all.mjs",
     "test:perf": "npm run web:build && node scripts/check-bundle-size.mjs",
     "test:lhci": "lhci autorun",
-    "test": "npm run lint && npm run smoke && npm run test:unit && npm run test:web",
+    "test": "npm run check:docs && npm run lint && npm run smoke && npm run test:unit && npm run test:web",
     "test:all": "npm run test && npm run test:e2e && npm run test:perf"
   },
   "dependencies": {

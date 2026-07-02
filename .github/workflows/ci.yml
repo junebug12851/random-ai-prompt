@@ -48,6 +48,9 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: Doc link check (no broken references in the Markdown docs)
+        run: npm run check:docs
+
       - name: Import smoke test (full ES-module graph + all dynamic prompts)
         run: npm run smoke
 
