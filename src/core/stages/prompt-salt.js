@@ -19,7 +19,7 @@
  * @brief Pipeline stage: inject the {salt} / [n] seed-salt (random or incrementing). Notes: notes/reference/prompt-dsl.md.
  */
 
-import { randomInt } from "../helpers/random.js";
+import { randomInt } from "../../helpers/random.js";
 
 /**
  * @returns {string} A fresh random salt token like `[1234567890]`.

@@ -6,7 +6,7 @@
  *
  * Scope rule (matches CLAUDE.md): tests target the ACTIVE engine (`src/core/**`) and the
  * shared pure modules only — never the legacy classic server (`src/server.js`,
- * `src/web/frontend/**`, `src/prompt-modules/**` except the pure stages the core engine
+ * `src/web/frontend/**`, `src/core/stages/**` except the pure stages the core engine
  * still imports, i.e. cleanup.js / prompt-salt.js).
  */
 import { defineConfig } from "vitest/config";
@@ -35,8 +35,8 @@ export default defineConfig({
         "src/dynPromptManifest.js",
         "src/promptFilesAndSuggestions.js",
         "src/helpers/*.js",
-        "src/prompt-modules/cleanup.js",
-        "src/prompt-modules/prompt-salt.js",
+        "src/core/stages/cleanup.js",
+        "src/core/stages/prompt-salt.js",
       ],
       // The browser loader + its code-split prompt-corpus module are exercised by the SPA (jsdom)
       // suite via import.meta.glob, so they aren't measurable from the Node environment — exclude them

@@ -1,10 +1,10 @@
 /**
- * @file Unit tests for the cleanup pipeline stage (src/prompt-modules/cleanup.js).
+ * @file Unit tests for the cleanup pipeline stage (src/core/stages/cleanup.js).
  * This pure stage is still imported by the ACTIVE core engine (src/core/engine.js),
- * so it is in scope despite living under prompt-modules/.
+ * so it is in scope despite living under core/stages/.
  */
 import { describe, it, expect } from "vitest";
-import cleanup from "../../src/prompt-modules/cleanup.js";
+import cleanup from "../../src/core/stages/cleanup.js";
 
 describe("cleanup stage", () => {
   it("collapses runs of spaces to a single space", () => {

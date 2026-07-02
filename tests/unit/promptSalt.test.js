@@ -1,9 +1,9 @@
 /**
  * @file Unit tests for the prompt-salt pipeline stage
- * (src/prompt-modules/prompt-salt.js) — still imported by the active core engine.
+ * (src/core/stages/prompt-salt.js) — still imported by the active core engine.
  */
 import { describe, it, expect } from "vitest";
-import promptSalt from "../../src/prompt-modules/prompt-salt.js";
+import promptSalt from "../../src/core/stages/prompt-salt.js";
 
 describe("prompt-salt stage", () => {
   it("does nothing when salt is off and no token is present", () => {

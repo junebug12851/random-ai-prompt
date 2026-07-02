@@ -175,12 +175,6 @@ export default {
   /*--dynamic-prompt-files <path>*/
   dynamicPromptFiles: "dynamic-prompts",
 
-  // The folder that contain prompt modules that operate on the prompt and give it new features
-  // Dynamic prompts is an example of a prompt module. They are executed in
-  // a specific order
-  /*--prompt-module-files <path>*/
-  promptModuleFiles: "prompt-modules",
-
   // v3-only pipeline, executed in order on each prompt change:
   // 1. Expand dynamic prompts (the stage re-expands up to 10 passes internally)
   // 2. Auto-add salt if requested

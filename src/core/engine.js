@@ -22,8 +22,8 @@
 import baseSettings from "../settings.js";
 import { createRng } from "./rng.js";
 import { withAmbientRng } from "../helpers/random.js";
-import promptSalt from "../prompt-modules/prompt-salt.js";
-import cleanup from "../prompt-modules/cleanup.js";
+import promptSalt from "./stages/prompt-salt.js";
+import cleanup from "./stages/cleanup.js";
 import { makeDynamicPromptStage } from "./stages/dynamicPrompt.js";
 import { makeListStage } from "./stages/list.js";
 import emphasis from "./stages/emphasis.js";

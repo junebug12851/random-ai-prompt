@@ -95,7 +95,7 @@ describe("regression: NSFW generators are gated off unless adult mode is on", ()
 describe("regression: cleanup strips the comma after AND", () => {
   // Symptom: "AND," leaked into prompts and broke SD's AND compositing.
   it("rewrites 'AND,' to 'AND'", async () => {
-    const { default: cleanup } = await import("../../src/prompt-modules/cleanup.js");
+    const { default: cleanup } = await import("../../src/core/stages/cleanup.js");
     expect(cleanup("a AND, b")).toBe("a AND b");
   });
 });

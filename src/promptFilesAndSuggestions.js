@@ -5,7 +5,7 @@
 
 import { randomFloat, randomInt, sample } from "./helpers/random.js";
 
-import cleanup from "./prompt-modules/cleanup.js";
+import cleanup from "./core/stages/cleanup.js";
 import { isGatedList, hasNsfwToken, isGatedDynPrompt } from "./gatedLists.js";
 import { hasVariantSuffix, computeButtonNames } from "./listManifest.js";
 
