@@ -33,7 +33,7 @@ jobs:
       id-token: write # OIDC token for keyless Sigstore signing of build provenance
       attestations: write # write the build-provenance attestation
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -59,7 +59,7 @@ jobs:
             echo "Tag $tag is new -- will release."
           fi
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         if: steps.ver.outputs.should_release == 'true'
         with:
           node-version: 24
@@ -120,7 +120,7 @@ jobs:
 
       - name: Upload artifacts (always, for inspection / dry run)
         if: steps.ver.outputs.should_release == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-artifacts
           path: |
@@ -133,7 +133,7 @@ jobs:
       # Only on a real (non-dry-run) release. See notes/reference/deployment.md.
       - name: Attest build provenance for release artifacts
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
         with:
           subject-path: |
             random-ai-prompt-*.tar.gz
@@ -148,7 +148,7 @@ jobs:
       #     --certificate-oidc-issuer https://token.actions.githubusercontent.com <a>
       - name: Install cosign
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
-        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
       - name: Sign release artifacts (keyless cosign)
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
         run: |
@@ -164,7 +164,7 @@ jobs:
 
       - name: Publish GitHub Release
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: ${{ steps.ver.outputs.tag }}
