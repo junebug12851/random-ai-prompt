@@ -1,7 +1,7 @@
 # Responsive / Adaptive UI — Plan
 
-**Status:** in progress. Phase 1 (fluid token foundation) landing on `feature/responsive-foundation`;
-Phases 2–6 queued.
+**Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid token foundation) ✅ and
+Phase 2 (adopt the `layout` layer) ✅ landed; Phases 3–6 queued.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -65,6 +65,14 @@ often wants a pane to adapt to *its own* width, not the window's. `@container` l
 results, single-image detail, manage tree) respond to the space it actually has. It's pure CSS, so it's
 SSR-safe. Media queries remain for true window-level mode switches (top bar, global nav).
 
+**Where container contexts may live (safety constraint, found in Phase 2).** `container-type` implies
+`contain: layout`, which makes the element the **containing block for `position: fixed` descendants**.
+Several fixed-positioned popovers render *inside* Home's pane (`.hover-tip`, the DPL insert toolbar, the
+prompt-settings gear popover — all positioned viewport-relative by JS). So we **must not** put
+`container-type` on `.view-pane` / `.main-col` / any wrapper that contains those popovers — it would
+break their positioning. Container contexts therefore go on **leaf wrappers** (a card, a results list, a
+detail table) that don't enclose a fixed popover, established per-component in Phases 3–4.
+
 ---
 
 ## 4. The hard constraint: prerender + hydration
@@ -102,9 +110,12 @@ Add a fluid **type scale** and **spacing + gutter** tokens to `foundation/tokens
 fluid gutter into the top bar and `.main-col` padding (desktop-neutral clamp; tightens on narrow).
 Nothing else keys off them yet — pure, safe foundation.
 
-**Phase 2 — Adopt the `layout` layer.** Move `.app`, `main`/`.view-pane`, and Home's `.workspace` grid
-into the `layout` cascade layer, rewritten fluid. Establish `container-type` contexts on the panes so
-Phases 3–4 can use `@container`.
+**Phase 2 — Adopt the `layout` layer.** ✅ Moved the app frame + top-level view/grid skeleton (`.app`,
+`main`, `.view-pane`, `.workspace`, `.sidebar`, `.main-col`) into `styles/layout/` at `layer(layout)`;
+rewired `index.css`. The responsive overrides stay in `components` (they target component-internal
+selectors and must win). Container contexts were **not** placed on the panes — see the safety constraint
+above; they'll be established on leaf wrappers in Phases 3–4. Desktop rendering unchanged (no selector
+collisions; precedence preserved).
 
 **Phase 3 — Top bar → responsive nav.** Desktop unchanged. Tablet: condense wordmark, group controls.
 Phone: brand + condensed view switch, with the secondary control pile behind the single top overflow

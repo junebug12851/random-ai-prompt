@@ -1,4 +1,11 @@
-/* ---------- Responsive ---------- */
+/* ---------- Responsive: Home two-pane → single column ----------
+   Stays in the `components` layer ON PURPOSE: these overrides target
+   component-internal selectors (.cat-tabs, .chip-area, .composer,
+   .results-card, .prompts) whose base rules live in `components`, so the
+   overrides must share that layer to win. The pure frame skeleton it leans
+   on (.workspace, .sidebar, .main-col) lives in the `layout` layer below.
+   860px is Home-specific (the point the sidebar + main stop both fitting),
+   distinct from the global phone/tablet breakpoints in tokens.css. */
 @media (width <= 860px) {
   main {
     overflow: auto;
