@@ -130,10 +130,18 @@ test.describe("building-block palette — phone drawer", () => {
     await page.keyboard.press("Escape");
     await expect.poll(() => sidebarX(page)).toBeLessThan(0);
 
-    // Reopen, then the in-drawer ✕ (same handler as the scrim tap-away) dismisses it.
+    // Reopen, then the in-drawer ✕ dismisses it.
     await page.locator(fab).click();
     await expect.poll(() => sidebarX(page)).toBeGreaterThanOrEqual(0);
     await page.locator(`${sidebar} .palette-close`).click();
+    await expect.poll(() => sidebarX(page)).toBeLessThan(0);
+
+    // Reopen, then a tap on the scrim (outside the drawer) closes it — the scrim must actually
+    // render and receive the click (regression: it was display:none and swallowed nothing).
+    await page.locator(fab).click();
+    await expect.poll(() => sidebarX(page)).toBeGreaterThanOrEqual(0);
+    await expect(page.locator(".palette-scrim")).toBeVisible();
+    await page.mouse.click(378, 500); // right of the ~335px drawer → on the scrim
     await expect.poll(() => sidebarX(page)).toBeLessThan(0);
   });
 });

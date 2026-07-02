@@ -52,6 +52,19 @@
   flex: 1;
 }
 
+/* Compact: let the tools + action buttons wrap to a second row instead of overflowing the
+   composer's width (e.g. once a provider adds its Images/Size controls). */
+@media (width <= 768px) {
+  .field-bar {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .field-bar .grow {
+    flex-basis: 100%; /* break the row so the action buttons drop below the tools */
+  }
+}
+
 /* Round icon actions: Save / Share / Random (subtle) + Generate (primary green) */
 .field-act {
   width: 38px;

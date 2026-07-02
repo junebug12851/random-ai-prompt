@@ -10,3 +10,11 @@ footer {
   text-align: center;
 }
 
+/* Compact: hide the privacy status line so the bottom-left palette FAB has clean space
+   (the same info is on the legal pages reachable from the links menu). */
+@media (width <= 768px) {
+  footer {
+    display: none;
+  }
+}
+
