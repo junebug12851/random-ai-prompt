@@ -14,9 +14,9 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 | File | Role |
 |------|------|
 | `src/main.jsx` / `src/App.jsx` | Entry + shell (brand top-bar, hero, footer; opens the settings drawer). |
-| `src/components/` | `Home` (the unified compose-and-generate page), `SettingsDrawer` (slide-over wrapping `Settings`), `Settings`, `Field`, `Gallery` — the UI. (The old separate `Builder` / `Generate` were folded into `Home` in 2.0.2.) |
+| `src/components/` | The UI across four top-level views — `Home` (compose + generate), `Gallery`, `SingleView`, and the `Manage` content editor — plus `ProvidersMenu`, `DplEditor`, `SettingsDrawer`/`Settings`, and `Field`. (Sub-areas are grouped under `components/{home,manage,single}/`.) |
 | `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
-| `src/lib/catalog.js` | The token catalog (lists / expansions / dynamic prompts) the builder offers. |
+| `src/lib/catalog.js` | The token catalog (lists + dynamic prompts) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
 | `src/lib/providers/` | The generation providers (see below). |
 | `src/lib/dialog.js` / `src/components/DialogHost.jsx` | In-app dialog system (see below). |
@@ -36,23 +36,19 @@ every caller `await`s — keep that in mind when adding a dialog to a previously
 
 ## The provider model
 
-Generation backends are modular — the same plugin pattern the dynamic prompts use. Each provider
-implements `{ id, label, local, needsKey, generate({prompt, settings, key, signal}) -> {images} }`:
+Generation backends are modular — the same plugin pattern the dynamic prompts use. There are ~40
+**provider adapters** under `gui/providers/<id>/` (a shared transport in `providers/_shared/` plus one
+folder per provider), registered through `gui/src/lib/providers/index.js`. Each exposes a small contract
+(`id`, `label`, whether it's `local`, whether it `needsKey`, and a `generate(...)`), and
+`availableProviders()` **filters out providers that can't run in the current build** — the local-only SD
+backends and any provider a browser can't call directly are hidden in the **online** build
+(`ONLINE` ← `VITE_ONLINE`). Add a backend by dropping a folder in `gui/providers/` and registering it.
 
-- **`localWebui`** — calls the user's own SD WebUI directly from the browser (`local: true`).
-- **`hostedProxy`** — BYOK: posts to the Netlify function, which forwards to a hosted image API.
-
-`providers/index.js` registers them and exposes `availableProviders()`, which **filters out local-only
-providers when deployed online** (`ONLINE` ← `VITE_ONLINE` env var) — one codebase serves both the local
-and the hosted build. Add a backend by dropping a module in `providers/` and registering it.
-
-## The Netlify function — `gui/netlify/functions/generate.js`
-
-A **stateless BYOK proxy**: receives `{prompt, key, params}`, forwards to the chosen hosted API, polls
-until ready (submit→poll keeps each invocation within serverless time limits), returns image URLs.
-**Stores nothing; must never log the key.** The hosted-provider dispatch is the wiring point for
-migration phase 2 (currently a deliberate stub). Local generation never touches this function — the
-browser calls the user's WebUI directly.
+Calls are **BYOK and go straight from the browser** to the chosen provider with the user's key — there is
+**no server relay**. (The former serverless generate/rewrite proxy was retired; a provider a browser can't
+reach is simply disabled online rather than forwarded.) The **local** edition additionally has a
+server-side dispatch path — `gui/server/dispatch.js` (`dispatch` / `dispatchRewrite`) behind its `/api` —
+for backends better driven from Node. Stable Diffusion is still supported but is now one option among many.
 
 ## Styling
 
@@ -68,7 +64,9 @@ against the Playwright visual baseline. Theming (dark/light bases × accent pres
 ## Build / deploy
 
 `netlify.toml` (repo root): `npm --prefix gui install && npm --prefix gui run build` →
-`gui/dist`, with `/api/*` routed to the functions and an SPA fallback to `index.html`. Details in
+`gui/dist`, with an SPA fallback to `index.html`. The online build is **fully static** — no `/api`, no
+serverless functions (BYOK calls go straight from the browser). The `/api/*` surface exists only in the
+**local** edition, served by `gui/server/serve.js`. Details in
 [`../reference/deployment.md`](../reference/deployment.md).
 
 `gui/package.json`'s `build` is `node scripts/build.mjs` (an orchestrator), not a bare `vite build`.

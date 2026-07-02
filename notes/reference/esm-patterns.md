@@ -16,6 +16,11 @@ this before changing how modules import/export or how dynamic prompts/prompt mod
 
 ## Landmine 1 — import ordering vs `process.chdir`
 
+> **Historical:** the specific `chdir.js` / `common.js` example below was part of the pre-revival classic
+> system, now removed from the tree. The active engine has **no** `chdir` shim (its loaders resolve
+> content module-relative via `import.meta.url`, cwd-independent). The general rule at the end still holds
+> and is the reason this entry stays.
+
 **Symptom:** code that depended on `process.chdir(__dirname)` running before settings load broke,
 because in ESM all `import`s are evaluated (depth-first, in source order) **before** any top-level
 statement in the importing file.
