@@ -274,6 +274,50 @@ export default function SingleView({
                 <a href={item.path} target="_blank" rel="noreferrer" title={intl.formatMessage(msgs.openFull)}>
                   <img src={item.path} alt={promptText(item) || item.file} />
                 </a>
+                {/* Overlay actions, top-right — mirrors the gallery thumbnails. Download is the
+                    extra (thumbnails don't have it); open / reveal / delete need the local file. */}
+                <div className="img-actions g-img-actions">
+                  {onDisk && (
+                    <button
+                      type="button"
+                      title={intl.formatMessage(msgs.openDefault)}
+                      aria-label={intl.formatMessage(msgs.open)}
+                      onClick={() => openImageFile(item.path)}
+                    >
+                      ↗
+                    </button>
+                  )}
+                  {onDisk && (
+                    <button
+                      type="button"
+                      title={intl.formatMessage(msgs.revealTitle)}
+                      aria-label={intl.formatMessage(msgs.reveal)}
+                      onClick={() => revealImageFile(item.path)}
+                    >
+                      ⌖
+                    </button>
+                  )}
+                  <a
+                    className="ia-dl"
+                    href={item.path}
+                    download={item.file}
+                    title={intl.formatMessage(msgs.downloadPng)}
+                    aria-label={intl.formatMessage(msgs.downloadPng)}
+                  >
+                    ⤓
+                  </a>
+                  {onDisk && (
+                    <button
+                      type="button"
+                      className="ia-del"
+                      title={intl.formatMessage(msgs.deleteTitle)}
+                      aria-label={intl.formatMessage(msgs.delete)}
+                      onClick={() => onDelete(item)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
               {/* Re-Rolls / Variations / Resizes strips, with live placeholders while generating. */}
               <DerivedStrips item={item} items={items} derivations={derivations} onNavigate={onNavigate} />
@@ -282,15 +326,8 @@ export default function SingleView({
             <div className="g-single-meta">
               {onDisk && (
                 <div className="g-actions">
-                  <button onClick={() => openImageFile(item.path)} title={intl.formatMessage(msgs.openDefault)}>
-                    {intl.formatMessage(msgs.open)}
-                  </button>
-                  <button onClick={() => revealImageFile(item.path)} title={intl.formatMessage(msgs.revealTitle)}>
-                    {intl.formatMessage(msgs.reveal)}
-                  </button>
-                  <a className="g-action-link" href={item.path} download={item.file}>
-                    {intl.formatMessage(msgs.downloadPng)}
-                  </a>
+                  {/* Open / reveal / download / delete now live as overlay buttons on the image
+                      (top-right, like the thumbnails) — only Convert & Resize remain here. */}
 
                   {/* Convert — always shown; greyed + locked with a tooltip when ImageMagick is absent. */}
                   <span className={`g-tool${magickOk ? "" : " is-locked"}`}>
@@ -358,10 +395,6 @@ export default function SingleView({
                       {!magickOk && !hasUpscalers && <span className="g-tool-lock" aria-hidden="true">🔒</span>}
                     </span>
                   )}
-
-                  <button className="g-danger" onClick={() => onDelete(item)} title={intl.formatMessage(msgs.deleteTitle)}>
-                    {intl.formatMessage(msgs.delete)}
-                  </button>
                 </div>
               )}
 
