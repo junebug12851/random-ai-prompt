@@ -82,6 +82,13 @@ export const BlocksIcon = () => (
   </svg>
 );
 
+// Chevron-left — a clean "back" affordance (Manage master/detail back button).
+export const ChevronLeftIcon = () => (
+  <svg {...ico} width={16} height={16} aria-hidden="true">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
 // Trash / delete — used for "clear" actions (per-prompt clear, Clear all).
 export const TrashIcon = () => (
   <svg {...ico} aria-hidden="true">

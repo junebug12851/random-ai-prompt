@@ -31,24 +31,31 @@
     min-height: 60vh;
   }
 
+  /* A clean app-style back button: accent-tinted pill + chevron. */
   .mg-back {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.2rem;
     align-self: flex-start;
-    margin-bottom: 0.6rem;
-    padding: 0.4rem 0.8rem;
-    border: 1px solid var(--border);
+    width: auto; /* beat the `.main-col > *` full-width rule so it hugs its label */
+    margin-bottom: 0.7rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.55rem;
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
-    background: var(--bg-2);
-    color: var(--fg);
+    background: var(--accent-soft);
+    color: var(--accent);
     font: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
   }
 
+  .mg-back svg {
+    flex: none;
+  }
+
   .mg-back:hover {
+    border-color: var(--accent);
     background: var(--chip-hover);
   }
 }

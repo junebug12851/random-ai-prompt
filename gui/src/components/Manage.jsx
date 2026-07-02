@@ -18,6 +18,7 @@ import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
 import ManageDetail from "./manage/ManageDetail.jsx";
 import { Caret, GearIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
+import { ChevronLeftIcon } from "./icons.jsx";
 
 const msgs = defineMessages({
   ghostTitle: {
@@ -359,7 +360,8 @@ export default function Manage({ settings, available, active }) {
       <div className="main-col mg-main">
         {/* Phone-only: return to the tree (master/detail). Hidden on wider screens via CSS. */}
         <button type="button" className="mg-back" onClick={() => setSelected(null)}>
-          ‹ {intl.formatMessage(msgs.backToList)}
+          <ChevronLeftIcon />
+          {intl.formatMessage(msgs.backToList)}
         </button>
         {selected?.type === "folder" ? (
           <ManageFolderEditor node={selected} onChanged={handleChanged} />
