@@ -5,19 +5,24 @@ remove, or bump a dependency.
 
 ## Runtime dependencies
 
+The root package's runtime dependencies are now minimal — the engine has no framework deps, and the
+classic CLI/server (and their deps) were removed. (The SPA's own runtime deps — React, react-intl,
+CodeMirror, @fontsource — live in `gui/package.json` and are covered in the sections below.)
+
 | Package | Major | Used by | Notes |
 |---------|-------|---------|-------|
-| `express` | **5** | `server.js`, progress server in `index.js` | v5 uses a newer path-to-regexp. The routes here are all simple (`:param`, static mounts, `res.jsonp/render/download/json`) and v5-safe. If adding routes, avoid bare `*` and regex strings. |
-| `yargs` | **18** | `common.js` | ESM-first. `import yargs from "yargs"` + `import { hideBin } from "yargs/helpers"`. `.argv` still works. |
-| `open` | **11** | `server.js` | ESM-only; `import open from "open"`. Opens the browser to the UI on server start. |
-| `lodash` | 4 | many | CJS; default import works (`import _ from "lodash"`). |
-| `compromise` | 14 | `web/backend/indexImages.js` | NLP tokenization for the keyword index. Default import. |
-| `crc` | 4 | `helpers/makeApng.js` | `import crc from "crc"; crc.crc32(...)`. |
-| `cli-progress` | 3 | `src/genImg.js`, `indexImages.js` | Default import; `new cliProgress.SingleBar/MultiBar(...)`. |
-| `pug` | 3 | `server.js` (view engine) | Templates in `web/views/`. |
+| `lodash` | 4 | the engine + data scripts | CJS default import (`import _ from "lodash"`). **Landmine:** it captures `Math.random` at import, so `_.random/_.sample/_.shuffle` can't be RNG-stubbed (see [`../plans/testing.md`](../plans/testing.md)). |
+| `compromise` | 14 | the list-cleanup data scripts (`scripts/list-cleanup/*`) | NLP part-of-speech tokenization. Default import. |
 
 ### Removed
 
+The pre-revival CLI + classic Express/Pug server were removed from the tree, and with them their
+runtime dependencies:
+
+- **`express`** / **`open`** / **`pug`** — the classic web server, browser-open, and Pug view engine.
+- **`yargs`** — the classic CLI's argument parser.
+- **`cli-progress`** — the CLI's terminal progress bars.
+- **`crc`** — the APNG CRC helper.
 - **`node-fetch`** — replaced by Node's global `fetch` (Node 18+). Removed in 2.0.0. Do not re-add.
 
 ## Dev dependencies
@@ -117,7 +122,7 @@ fonts, `npm i` then re-copy `node_modules/@fontsource/<f>/files/<f>-latin-<wt>-n
 
 - Update `package.json`, run `npm install`, then **re-run the verification** in
   [`../plans/testing.md`](../plans/testing.md) (`node --check`, `npm run lint`, the import smoke test).
-- For a dep with a breaking major, read its migration notes and grep for its usage first
-  (`server.js`, `genImg.js`, `imageUpscaler.js`, `indexImages.js`, `common.js`, `makeApng.js` are the
-  files that touch third-party APIs).
+- For a dep with a breaking major, read its migration notes and grep for its usage first. The code that
+  touches third-party APIs is the provider adapters (`gui/providers/**`) and the SPA libs; the engine
+  itself only uses `lodash`.
 - Record the change here and in the changelog.

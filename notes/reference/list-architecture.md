@@ -45,10 +45,9 @@ fully-adult list is just a single `-nsfw` file (`artist/nudity-nsfw`, `word/adul
 
 ### The loader seam
 
-Three consumers resolve lists, all via `resolveListLines(name, readers)` from `listManifest.js`: the two
-engine loaders [`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) (fs) and
-[`src/core/browserLoader.js`](../../src/core/browserLoader.js) (Vite glob), and the classic runtime store
-[`src/helpers/listFiles.js`](../../src/helpers/listFiles.js). `readers` (`{ names, readListFile,
+The two engine loaders resolve lists via `resolveListLines(name, readers)` from `listManifest.js`:
+[`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) (fs) and
+[`src/core/browserLoader.js`](../../src/core/browserLoader.js) (Vite glob). `readers` (`{ names, readListFile,
 readGroupFile }`) is injected per environment, so `listManifest.js` stays browser-safe (no Node imports),
 like `gatedLists.js`. `listNames()` returns list + group names, so groups are suggestible and gateable like
 any list.
@@ -63,7 +62,7 @@ and these are excluded from the auto stage so they never push prefixes onto othe
 **auto** — every other list starts at its bare filename and only grows a folder
 segment when two collide, both stepping out until distinct. A final pass guarantees
 each token `resolveName()`s back to its own canonical name. The loaders expose
-`forcedPrefixDirs()` (nodeLoader/listFiles walk for the `_force-prefix` marker via fs; browserLoader
+`forcedPrefixDirs()` (nodeLoader walk for the `_force-prefix` marker via fs; browserLoader
 `import.meta.glob`s `**/_force-prefix`). **Markers are `_`-prefixed regular files, NOT dotfiles** — Vite's
 `import.meta.glob` silently skips dotfiles, so `.force-prefix` was invisible in the SPA; the `_` convention
 (any `_`-prefixed file is internal/config, never a list) makes them ordinary, glob-visible empty files. The

@@ -62,15 +62,11 @@ mod.full;                 // read named exports too
 mod.suggestion_exclude;
 ```
 
-Used in `prompt-modules/dynamic-prompt.js`, `common.js` (prompt modules), and
-`src/promptFilesAndSuggestions.js` (the classification scan). **Do not** "modernize" these into
-`await import()`.
+Used in `src/core/nodeLoader.js` (the dynamic-prompt loader) and `src/promptFilesAndSuggestions.js`
+(the classification scan). **Do not** "modernize" these into `await import()`.
 
 ## Landmine 3 — default vs named exports must match the consumer
 
-- `helpers/listFiles.js` → **`export default { … }`** (an object), because consumers index it
-  dynamically: `listFiles[\`${keyword}Alias\`]`. A namespace of named exports can't be flipped to that
-  shape cleanly.
 - `helpers/keywordRepeater.js` → **named exports** (`export { keywordRepeater, artistRepeater }`),
   because consumers destructure: `import { artistRepeater } from "../helpers/keywordRepeater.js"`.
 - Dynamic prompts → `export default function (...)` plus `export const full = true;` /
@@ -86,8 +82,8 @@ When you convert or add a module, check **how it's consumed** before choosing de
 
 - **Data that changes at runtime** (image sidecars, presets read on demand):
   `JSON.parse(fs.readFileSync(path, "utf8"))`. Watch the **base path** — `require` resolved relative to the *file*;
-  `fs.readFileSync` resolves relative to **cwd** (which is the project root thanks to `chdir.js`). The
-  old `../${saveTo}/${name}.json` (relative to `src/`) became `${saveTo}/${name}.json` (from root).
+  `fs.readFileSync` resolves relative to **cwd** (the repo root — npm scripts always run there). Prefer
+  the module-relative form below when cwd shouldn't matter.
 - **Static JSON shipped with a module:** `import data from "./file.json" with { type: "json" };`
   (Node 24 import attributes). Used in `data/process-nai-tag-expirement.js`. This resolves relative to
   the *module*, so it's the right choice when cwd shouldn't matter.

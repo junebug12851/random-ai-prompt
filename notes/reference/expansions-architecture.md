@@ -1,6 +1,11 @@
 # Expansions — architecture
 
-How `data/expansions/` is structured after the 2026-06-21 modernization that brought it to
+> **Removed (historical).** The `<name>` **expansion** mechanism and the entire `data/expansions/` tree
+> were **removed** from the project (superseded by the `{#name}` dynamic prompts). The `expansion` stage,
+> `data/expansions/`, and the files this page links to no longer exist in the tree — they survive only in
+> git history. This page is kept as a record of how expansions worked.
+
+How `data/expansions/` was structured after the 2026-06-21 modernization that brought it to
 parity with the keyword-list system (see [`list-architecture.md`](list-architecture.md)).
 Only the parts that *make sense* for expansions were ported. SFW/NSFW file splitting was left out
 (snippets are hand-authored). Folder **pick-one groups** were initially skipped but **added in 2.5.0**
@@ -9,7 +14,7 @@ Only the parts that *make sense* for expansions were ported. SFW/NSFW file split
 ## What an expansion is
 
 An **expansion** is a `data/expansions/<name>.txt` file referenced in a prompt as `<name>`.
-The expansion stage ([`src/core/stages/expansion.js`](../../src/core/stages/expansion.js))
+The expansion stage (`src/core/stages/expansion.js`, removed)
 splices the file's text in verbatim, recursively (up to 10 passes) and LoRA-safe (it masks
 `<lora:…>` so it is never read as an expansion). The spliced text may itself contain `#dynamic`
 prompts and `{lists}`, which then expand — so an expansion can still introduce randomness, but
@@ -63,7 +68,7 @@ consistently with `/api/files/lists`). The rich categorization is an SPA feature
 A category folder with 2+ expansions is now an IMPLIED group: `<lighting>` splices **one random
 expansion** from that folder (and `.group` files + `_enable/_disable-group-list` markers work too). This
 is the "pick one" rule — it selects a single snippet and splices it, NOT a union of all members. The
-expansion stage ([`src/core/stages/expansion.js`](../../src/core/stages/expansion.js)) resolves the
+expansion stage (`src/core/stages/expansion.js`, removed) resolves the
 folder, samples a member (gate-aware via `hasNsfwToken`), and splices it; the loaders expose
 `expansionGroupDirs()` / `readExpansionGroup()`. The SPA's category pills are clickable group buttons for
 these folders (inserting `<folder>`), mirroring Lists.
@@ -79,5 +84,4 @@ these folders (inserting `<folder>`), mirroring Lists.
 (`_force-prefix` was initially skipped — basenames are unique so `computeButtonNames()` yields bare tokens —
 but was later ported on demand for `detail/`; see above.)
 
-See [`../../data/expansions/README.md`](../../data/expansions/README.md) for the user-facing
-reference.
+(The former user-facing reference `data/expansions/README.md` was removed with the feature.)

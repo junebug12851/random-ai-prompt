@@ -2,11 +2,7 @@
 
 Not committed work — directions worth considering.
 
-- **In-process generation.** Today the web UI spawns the CLI (`node . --flags`) for every generation
-  and polls a separate progress server. Now that everything is ESM with a shared `common.js`, the
-  server could call `run()`/`upscale()` in-process (with a job queue + streamed progress), removing the
-  child-process round-trip and the second HTTP server. Bigger change; weigh the isolation benefit of the
-  current design.
+
 - **Real test suite + CI.** A committed `npm test`, a small fixture `output/`, mocked `fetch` for the
   WebUI contract, and a GitHub Actions workflow running lint + tests on Node 24. See
   [`testing.md`](testing.md).

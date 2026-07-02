@@ -35,10 +35,9 @@ thoroughly, with valid/invalid/edge inputs" (plan: `notes/plans/testing-coverage
 
 The project now has a **full automated test suite** built on **Vitest** (Node + jsdom)
 and **Playwright** (browser). It covers the active engine and the SPA across every
-standard test type; the legacy classic server (`src/server.js`, `src/web/frontend/**`,
-`src/prompt-modules/**`) is intentionally **out of scope** — it is being phased out, so
-only the pure stages the active core engine still imports (`cleanup.js`, `prompt-salt.js`)
-are tested from that folder.
+standard test type. The pre-revival CLI + classic server were **removed** from the tree, so they're out
+of scope; the two live pipeline stages they once shared (`cleanup.js`, `prompt-salt.js`) now live in
+`src/core/stages/` and are tested with the rest of the engine.
 
 ## Layout
 

@@ -7,9 +7,11 @@ each owning one sigil. This page documents the language and its randomization ma
 build history that produced it see [`../context/history.md`](../context/history.md).
 
 The **active** implementation is the loader-injected `src/core/` engine (used by the SPA and the shared
-pipeline); `src/prompt-modules/*` is the original Node CLI/server pipeline, now **frozen legacy reference**
-(being replaced — don't maintain it). Same syntax, same math; see
-[`../systems/core-engine.md`](../systems/core-engine.md).
+pipeline); see [`../systems/core-engine.md`](../systems/core-engine.md). **Note (historical):** the
+classic Node CLI/server pipeline (`src/prompt-modules/*`, `src/common.js`, `src/helpers/listFiles.js`)
+and the **`<expansion>` stage** (`data/expansions/`) were **removed** from the tree — where this page
+names them below, read them as history. The current pipeline is
+`dynamic-prompt → prompt-salt → list → emphasis → cleanup` (all stages under `src/core/stages/`).
 
 ## The pipeline order
 
