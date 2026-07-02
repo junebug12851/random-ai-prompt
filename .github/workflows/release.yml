@@ -142,6 +142,29 @@ jobs:
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
 
+      # Emit DETACHED SIGNATURES as release ASSETS (keyless cosign). The attestation above lives in the
+      # attestations API; OpenSSF Scorecard's Signed-Releases check instead looks for signature files
+      # attached to the release (.sig/.pem), so we ship both. Keyless = Sigstore Fulcio/Rekor via the
+      # job's OIDC token (no keys to manage). Verify a downloaded asset with:
+      #   cosign verify-blob --signature <a>.sig --certificate <a>.pem \
+      #     --certificate-identity-regexp 'https://github.com/junebug12851/random-ai-prompt/.*' \
+      #     --certificate-oidc-issuer https://token.actions.githubusercontent.com <a>
+      - name: Install cosign
+        if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+      - name: Sign release artifacts (keyless cosign)
+        if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in random-ai-prompt-*.tar.gz random-ai-prompt-*-docs.zip; do
+            cosign sign-blob --yes \
+              --output-signature "$f.sig" \
+              --output-certificate "$f.pem" \
+              "$f"
+          done
+          ls -la random-ai-prompt-*.sig random-ai-prompt-*.pem
+
       - name: Publish GitHub Release
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -154,3 +177,5 @@ jobs:
           files: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
+            random-ai-prompt-*.sig
+            random-ai-prompt-*.pem

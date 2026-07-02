@@ -35,6 +35,13 @@ jobs:
           results_file: results.sarif
           results_format: sarif
           publish_results: true
+          # The default GITHUB_TOKEN cannot read branch-protection settings, so the Branch-Protection
+          # check scores 0 even though protection IS enabled on main (a local run with an admin token
+          # scores it 4). Provide a repo-admin-read PAT as the secret SCORECARD_TOKEN to unlock it.
+          # Falls back to the default token when the secret is absent, so the scan never breaks.
+          # PAT: fine-grained, this repo, permissions Administration:read + Contents:read + Metadata:read
+          # (or a classic PAT with `repo`), saved as: gh secret set SCORECARD_TOKEN
+          repo_token: ${{ secrets.SCORECARD_TOKEN || github.token }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

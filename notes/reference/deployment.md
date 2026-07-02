@@ -84,12 +84,20 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
   `release.yml` was `write` at the top level.
 - **Pinned-Dependencies** — all GitHub Actions across every workflow are pinned to a **full commit SHA**
   (with a `# vX` comment). Dependabot's `github-actions` ecosystem keeps the SHAs current.
-- **Signed-Releases** — `release.yml` attests **SLSA build provenance** for each release asset via
-  `actions/attest-build-provenance` (keyless Sigstore; no secrets). Verify with `gh attestation verify
-  <file> --repo junebug12851/random-ai-prompt`. Only past releases (pre-2.39.0) are unsigned; the check
-  goes green after the next release runs.
+- **Signed-Releases** — `release.yml` does **two** things: (1) `actions/attest-build-provenance` writes a
+  verifiable SLSA provenance attestation to the attestations API (`gh attestation verify <file> --repo
+  junebug12851/random-ai-prompt`), and (2) **keyless cosign** `sign-blob` emits detached `.sig` + `.pem`
+  files that are **attached to the release as assets**. The second part is what the Scorecard check
+  actually reads — it scans release *assets* for signature files and does **not** detect the attestations
+  API (the v2.39.0 release, signed only via attestation, still scored 0). Verify a `.sig` with
+  `cosign verify-blob`. Goes green from the next release that carries the `.sig` assets.
 - **Branch-Protection** — `main` is protected (PR-required, 0 approvals, strict status checks,
-  enforce-admins, no force-push/deletion). See [`git-workflow.md`](git-workflow.md).
+  enforce-admins, no force-push/deletion). A local scan with an admin token scores this **4/10** (the
+  remaining points need review approvals — the solo self-approval wall, so 4 is the ceiling). **But the
+  CI badge reads 0**, because Scorecard's default `GITHUB_TOKEN` can't read branch-protection settings.
+  `scorecard.yml` now passes `repo_token: ${{ secrets.SCORECARD_TOKEN || github.token }}` — set a
+  repo-admin-read PAT as secret `SCORECARD_TOKEN` to unlock the 4 on the badge (falls back to the default
+  token, so the scan never breaks if the secret is absent). See [`git-workflow.md`](git-workflow.md).
 - **Security-Policy** — root [`SECURITY.md`](../../SECURITY.md) (private reporting → `fairy@fairyfox.io`).
 - **Vulnerabilities** — the 18 OSV hits were all dev-only (`@lhci/cli`'s `tmp`/`inquirer`/`uuid` chain);
   `engine-v3/package.json` `overrides` force `tmp@^0.2.7` + `uuid@^11.1.1`, clearing `npm audit` to 0.
