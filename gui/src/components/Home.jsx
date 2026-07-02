@@ -38,6 +38,7 @@ import {
   TagIcon,
   GearIcon,
   BlocksIcon,
+  TrashIcon,
 } from "./icons.jsx";
 import { useImageBatches } from "../lib/home/useImageBatches.js";
 
@@ -641,8 +642,13 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                     provider: provider?.label,
                   })}
                 </span>
-                <button className="link-btn" onClick={clearAll} title={intl.formatMessage(msgs.clearAllTitle)}>
-                  {intl.formatMessage(msgs.clearAll)}
+                <button
+                  className="clear-all-btn"
+                  onClick={clearAll}
+                  title={intl.formatMessage(msgs.clearAllTitle)}
+                  aria-label={intl.formatMessage(msgs.clearAll)}
+                >
+                  <TrashIcon />
                 </button>
               </div>
             </div>
