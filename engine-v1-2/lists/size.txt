@@ -1,5 +1,0 @@
-tiny
-medium
-large
-huge
-small

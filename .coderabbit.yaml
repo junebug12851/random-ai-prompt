@@ -16,9 +16,8 @@ reviews:
     base_branches:
       - dev
       - main
-  # Don't review frozen code, build output, generated artifacts, the giant word lists, or vendored deps.
+  # Don't review build output, generated artifacts, the giant word lists, or vendored deps.
   path_filters:
-    - "!engine-v1-2/**"
     - "!**/dist/**"
     - "!**/coverage/**"
     - "!**/node_modules/**"
