@@ -69,7 +69,14 @@
     width: max-content;
     min-width: 208px;
     max-width: 84vw;
+
+    /* Now that the links fold in, the menu can be taller than the screen — cap it to the space
+       below the header and let it scroll instead of clipping off the bottom. */
+    max-height: calc(100dvh - 72px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 0.55rem;
+    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
