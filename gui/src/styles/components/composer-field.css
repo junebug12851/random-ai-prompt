@@ -64,6 +64,14 @@
 
   .field-bar .prompt-tools {
     flex-basis: 100%; /* the tools row */
+
+    /* Let the Prompts / Images / Size groups wrap within the row: on a very narrow phone (e.g. 375px,
+       iPhone SE) the Size (W×H) group would otherwise push the cluster past the box's right edge and
+       clip. Each group is narrower than the field, so wrapping keeps everything inside. */
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .field-bar .grow {
