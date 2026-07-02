@@ -56,3 +56,15 @@
   color: var(--accent);
 }
 
+/* Compact: the single "Insert" button is a 36px tap target (.dpl-ins-main), so match the
+   Prompt | Negative switch to the same height — otherwise the shorter switch looked mismatched
+   beside it. cm-tab 30px + the control's 2px padding ×2 + 1px border ×2 ≈ 36px. */
+@media (width <= 768px) {
+  .compose-toolbar .cm-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+  }
+}
+
