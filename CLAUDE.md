@@ -44,6 +44,7 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/reference/documentation.md` | **The doc-site** — generating the JSDoc site (`npm run docs` → code API + the notes wired in as tutorials), and the JSDoc comment house-style. Read before adding a note page |
 | `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify gui deploy |
 | `notes/reference/git-workflow.md` | Branch model + commit style + hard safety rules. Read before any git op |
+| `notes/reference/repo-hygiene.md` | **Keeping the repo from rotting** — the guards against uncommitted files, doc drift, and branch litter (`check:docs`, `check:tidy`, auto-delete-on-merge) and the rules they enforce |
 | `notes/reference/versioning.md` | Version-number scheme — SemVer, the `VERSION` file, keeping `package.json` in sync |
 | `notes/decisions/architecture.md` | Key structural choices and why |
 | `notes/decisions/rejected.md` | Things tried/considered that were rejected — don't repeat |
@@ -134,12 +135,14 @@ npm run serve          # serve an already-built local release (node gui/server/s
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
+npm run check:docs     # fail on broken relative links in the Markdown docs (drift guard; in `npm test` + CI)
+npm run check:tidy     # fail on untracked non-ignored files (run before finishing — nothing left uncommitted)
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
 npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under gui/tests/
 npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
 npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
-npm test               # lint + smoke + test:unit + test:web (the headless verification gate)
+npm test               # check:docs + lint + smoke + test:unit + test:web (the headless verification gate)
 npm run test:all       # npm test + test:e2e
 npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
@@ -180,6 +183,15 @@ After making changes, run this loop without being asked:
    `npm run format`.
 2. **Verify the module graph.** `node --check` changed files; run `npm run smoke` (or `npm test`) for
    anything touching module wiring, settings, or the prompt pipeline. Only proceed on green.
+   - **If you renamed, moved, or removed a file/feature, sweep the docs in the _same_ change.**
+     `npm run check:docs` fails on any broken Markdown link (so a link to a removed file turns CI red);
+     also `git grep -n "<old-name>" -- "*.md"` and fix current-state prose. Leave dated history
+     (`sessions/`, `version/`, `fairyfox-reports/`, `decisions/`, and pages banner-marked *historical*)
+     intact. See [`reference/repo-hygiene.md`](notes/reference/repo-hygiene.md).
+   - **Before finishing, leave nothing uncommitted.** Run `npm run check:tidy` — it fails on any
+     untracked non-ignored file (stray notes/reports/docs). Commit them (fairyfox reports get their own
+     commit) or gitignore genuinely machine-local files. Only `/_*.bat|.log|.sh`, `*-private*`, and
+     build/runtime artifacts are meant to be untracked.
 3. **Commit on `dev` (or a `feature/*` branch).** This project follows the system's **git-flow**
    standard: real features get a `feature/<name>` branch off `dev`, merged back with `--no-ff`; only a
    genuinely trivial change goes straight on `dev`. Stage specific files (never `git add -A`/`.`),
@@ -289,8 +301,10 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
 | Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `gui/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
+| **Renamed, moved, or removed a file/feature** | **Sweep the docs for stale references in the _same_ change.** `npm run check:docs` fails on broken links; `git grep -n "<old-name>" -- "*.md"` for prose. Fix current-state docs; leave dated history intact. See [`reference/repo-hygiene.md`](notes/reference/repo-hygiene.md) |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
-| Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run. See `notes/reference/process-reports.md` |
+| Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run — **and commit it** (its own commit is fine; never leave it untracked). See `notes/reference/process-reports.md` |
+| **Finishing a work session** | Leave nothing behind: `npm run check:tidy` (no untracked non-ignored files) and confirm the remote has only `dev`/`main` + active branches. See [`reference/repo-hygiene.md`](notes/reference/repo-hygiene.md) |
 
 If something doesn't fit an existing file, make a new one in the right folder. The goal: any AI (or
 human) opening this repo cold can read the notes and be fully oriented — nothing trapped in one
