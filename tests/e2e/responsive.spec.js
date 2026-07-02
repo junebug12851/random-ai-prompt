@@ -198,10 +198,18 @@ test.describe("single view — phone", () => {
 
   test("image stacks over metadata (one column, image un-stuck)", async ({ page }) => {
     expect(await singleBodyColumnCount(page)).toBe(1);
+    // `relative` (not `sticky`) on phone — it drops the desktop sticky while still being a
+    // containing block so the top-right overlay actions anchor to the image (not the page header).
     const pos = await page
       .locator(".g-single-img")
       .evaluate((el) => getComputedStyle(el).position);
-    expect(pos).toBe("static");
+    expect(pos).toBe("relative");
+    // The overlay actions must anchor to the image box (offsetParent), not escape to the viewport
+    // (which put them over the page header).
+    const anchored = await page
+      .locator(".g-single-img .img-actions")
+      .evaluate((el) => el.offsetParent?.classList.contains("g-single-img") ?? false);
+    expect(anchored).toBe(true);
     expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 });
