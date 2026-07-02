@@ -88,3 +88,4 @@
 @import url("./components/manage-entry-pills.css") layer(components);
 @import url("./components/manage-right-pane.css") layer(components);
 @import url("./components/manage-editors.css") layer(components);
+@import url("./components/manage-responsive.css") layer(components);

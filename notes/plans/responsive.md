@@ -1,8 +1,8 @@
 # Responsive / Adaptive UI — Plan
 
 **Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
-the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, Phase 4a (Home sidebar → phone drawer) ✅, and Phase 4b (Single view
-stack) ✅ landed; Phase 4c (Manage) and Phases 5–6 queued.
+the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, Phase 4a (Home drawer) ✅, Phase 4b (Single view stack) ✅, and
+Phase 4c (Manage master/detail) ✅ landed — **all views are responsive**; Phases 5–6 queued.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -145,7 +145,13 @@ switch scrolls horizontally rather than overflow the bar. a11y: `aria-haspopup`/
   `responsive.spec.js` (route-mocks `/api/feed` to populate the view: desktop 2-col vs phone 1-col +
   un-stuck). A sticky bottom action bar was considered and deferred as optional polish (the action row
   already wraps; not needed for mobile usability).
-- **4c — Manage.** Tree + editor → master/detail push navigation on phone. _(queued)_
+- **4c — Manage.** ✅ At `≤640px` the tree + editor become a master/detail: with no selection the tree
+  fills the screen; selecting an entry/folder (React `selected` → `.workspace.manage.detail-open`) shows
+  the editor with a phone-only "‹ Back to list" control. Desktop/tablet unchanged (both panes show; Back
+  hidden). This phase also **scoped the Phase-4a Home drawer to `.workspace.home`** — the drawer's base
+  `.sidebar` rule was matching Manage's `.mg-sidebar` too, which would have parked the Manage tree
+  off-canvas with no opener; now Home-only. Verified by `responsive.spec.js` (mocks the `/api/manage/*`
+  backend: phone master→detail→back, tree not a stray drawer; desktop both-panes).
 
 Every capability preserved, only re-homed.
 

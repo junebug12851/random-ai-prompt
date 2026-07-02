@@ -191,3 +191,66 @@ test.describe("single view — phone", () => {
     expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 });
+
+// --- Phase 4c: Manage becomes a master/detail on phone (and its tree isn't a stray drawer) ---
+
+// Minimal local-mode content backend so the Manage tab unlocks and renders one entry per root.
+const MANAGE_TREE = {
+  "dynamic-prompts": { name: "dynamic-prompts", dirs: [], files: ["fox.dpl"] },
+  lists: { name: "lists", dirs: [], files: ["colors.txt"] },
+};
+
+async function mockManageBackend(page) {
+  await page.route("**/api/manage/ping", (r) => r.fulfill({ status: 200, json: { ok: true } }));
+  await page.route("**/api/manage/tree", (r) => r.fulfill({ json: MANAGE_TREE }));
+  await page.route("**/api/manage/remote-manifest", (r) => r.fulfill({ json: {} }));
+}
+
+async function openManage(page) {
+  await mockManageBackend(page);
+  await page.goto("/");
+  const tab = page.getByRole("tab", { name: "Manage" });
+  // The tab unlocks once the ping resolves.
+  await expect(tab).not.toHaveAttribute("aria-disabled", "true");
+  await tab.click();
+  await page.locator(".workspace.manage .mg-sidebar").waitFor();
+}
+
+test.describe("manage — phone master/detail", () => {
+  test.use({ viewport: { width: 390, height: 800 } });
+
+  test("tree fills the screen, then an entry pushes to the editor and back", async ({ page }) => {
+    await openManage(page);
+    const treePane = page.locator(".workspace.manage .mg-sidebar");
+    const editorPane = page.locator(".workspace.manage .mg-main");
+
+    // The tree is NOT a stray off-canvas drawer (the Home drawer must be scoped to `.workspace.home`).
+    const treeBox = await treePane.boundingBox();
+    expect(treeBox.x).toBeGreaterThanOrEqual(0);
+
+    // Master: tree shown, editor hidden.
+    await expect(editorPane).toBeHidden();
+
+    // Tap an entry → detail: editor shown, tree hidden, Back control present.
+    await page.locator(".mg-pill.is-clickable").first().click();
+    await expect(editorPane).toBeVisible();
+    await expect(treePane).toBeHidden();
+    await expect(page.locator(".mg-back")).toBeVisible();
+
+    // Back → master again.
+    await page.locator(".mg-back").click();
+    await expect(treePane).toBeVisible();
+    await expect(editorPane).toBeHidden();
+  });
+});
+
+test.describe("manage — desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+
+  test("tree and editor show together (no Back control)", async ({ page }) => {
+    await openManage(page);
+    await expect(page.locator(".workspace.manage .mg-sidebar")).toBeVisible();
+    await expect(page.locator(".workspace.manage .mg-main")).toBeVisible();
+    await expect(page.locator(".mg-back")).toBeHidden();
+  });
+});

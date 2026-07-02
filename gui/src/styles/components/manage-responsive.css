@@ -1,0 +1,50 @@
+/* ---------- Manage → phone master/detail (Phase 4c of the responsive work) ----------
+   The Manage tab reuses the two-pane `.workspace`/`.sidebar`/`.main-col` skeleton (tree left,
+   editor right). On phones, showing both at once is cramped, so it becomes a master/detail:
+   the tree fills the screen; selecting an entry/folder pushes to the editor with a Back control
+   (`.detail-open` reflects React's `selected`). Wider screens are unchanged — both panes show
+   together and the Back button is absent. Width-driven CSS, so first paint is unaffected; every
+   Manage capability is preserved, just shown one pane at a time. */
+
+/* Wider screens: no phone Back control. */
+.mg-back {
+  display: none;
+}
+
+@media (width <= 640px) {
+  /* Master (no selection): the tree fills the screen, the editor is hidden. */
+  .workspace.manage .mg-main {
+    display: none;
+  }
+
+  /* Detail (a selection is active): swap — show the editor, hide the tree. */
+  .workspace.manage.detail-open .mg-sidebar {
+    display: none;
+  }
+
+  .workspace.manage.detail-open .mg-main {
+    display: flex;
+    min-height: 60vh; /* give the editor room even when its content is short */
+  }
+
+  .mg-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    align-self: flex-start;
+    margin-bottom: 0.6rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-2);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mg-back:hover {
+    background: var(--chip-hover);
+  }
+}

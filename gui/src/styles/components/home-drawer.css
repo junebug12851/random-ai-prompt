@@ -24,9 +24,11 @@
   gap: 0.5rem;
 }
 
-/* --- Phone: off-canvas drawer --- */
+/* --- Phone: off-canvas drawer. Scoped to `.workspace.home` so the shared
+       `.sidebar` class on OTHER two-pane views (e.g. Manage's `.mg-sidebar`)
+       is NOT turned into a drawer — those get their own phone treatment. --- */
 @media (width <= 640px) {
-  .sidebar {
+  .workspace.home .sidebar {
     position: fixed;
     inset: 0 auto 0 0; /* top:0 right:auto bottom:0 left:0 — full-height left drawer */
     z-index: 60;
@@ -39,19 +41,19 @@
     will-change: transform;
   }
 
-  .workspace.palette-open .sidebar {
+  .workspace.home.palette-open .sidebar {
     transform: none;
   }
 
   /* Restore the vertical palette layout inside the full-height drawer (undo the
      stack tweaks that row-wrap the tabs and cap the chip area's height). */
-  .sidebar .cat-tabs {
+  .workspace.home .cat-tabs {
     flex-flow: column nowrap;
     max-height: 45%;
     overflow: auto;
   }
 
-  .sidebar .chip-area {
+  .workspace.home .chip-area {
     max-height: none;
     overflow: auto;
   }
@@ -118,7 +120,7 @@
 
 /* Respect reduced-motion: no slide/fade. */
 @media (prefers-reduced-motion: reduce) {
-  .sidebar,
+  .workspace.home .sidebar,
   .palette-scrim {
     transition: none;
   }

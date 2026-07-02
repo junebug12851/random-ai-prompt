@@ -380,7 +380,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   }
 
   return (
-    <div className={`workspace${paletteOpen ? " palette-open" : ""}`}>
+    <div className={`workspace home${paletteOpen ? " palette-open" : ""}`}>
       {/* ---- Left panel: building-block palette ----
           On phone this pane is an off-canvas drawer (CSS): the scrim + the "Building blocks" trigger
           below are phone-only; on wider screens the pane is always visible and they're hidden. */}
