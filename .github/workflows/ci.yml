@@ -6,9 +6,8 @@ name: CI
 # baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
 # playwright.config.js. See notes/plans/testing.md.
 #
-# The project lives in engine-v3/ (the pre-revival classic system is the frozen, separate
-# engine-v1-2/ and is intentionally NOT built or tested here). Each job runs in engine-v3/ via
-# defaults.run.working-directory.
+# The project lives at the repo root; the SPA is the gui/ subpackage (built/tested via
+# `npm --prefix gui`).
 #
 # Install uses `npm install` (not `npm ci`): the dev machine is Windows-only, and npm's
 # optional-dependency lockfile bug around @emnapi (pulled by the Linux-only native bindings of
@@ -31,9 +30,6 @@ jobs:
   check:
     name: Lint, format, smoke & unit tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: engine-v3
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -41,7 +37,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -66,16 +62,13 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: junebug12851/random-ai-prompt
-          files: engine-v3/coverage/node/lcov.info
+          files: coverage/node/lcov.info
           flags: node
           fail_ci_if_error: false
 
   gui:
     name: Build & unit-test the SPA
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: engine-v3
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -83,7 +76,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/gui/package-lock.json
+          cache-dependency-path: gui/package-lock.json
 
       - name: Install gui dependencies
         run: npm --prefix gui install --no-audit --no-fund
@@ -100,16 +93,13 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: junebug12851/random-ai-prompt
-          files: engine-v3/gui/coverage/lcov.info
+          files: gui/coverage/lcov.info
           flags: gui
           fail_ci_if_error: false
 
   e2e:
     name: E2E & accessibility (Playwright)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: engine-v3
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -117,7 +107,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies (root + gui)
         run: |
@@ -133,9 +123,6 @@ jobs:
   cross-browser:
     name: Cross-browser E2E (Firefox + WebKit + mobile)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: engine-v3
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -143,7 +130,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies (root + gui)
         run: |
@@ -164,9 +151,6 @@ jobs:
   perf:
     name: Performance budgets (bundle size + Lighthouse)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: engine-v3
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -174,7 +158,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies (root + gui)
         run: |

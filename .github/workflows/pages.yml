@@ -7,9 +7,8 @@ name: Docs (GitHub Pages)
 #
 # One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
 
-# Auto-deploy on push to main (re-enabled 2026-06-29): the engine-v3-split reconciliation is done —
-# build-docs.mjs now resolves notes/ + assets/ + README + jsdoc.config.json at the repo root while
-# reading code (src/ + gui/) from engine-v3/, and `npm run docs` is green.
+# Auto-deploy on push to main: build-docs.mjs resolves notes/ + assets/ + README +
+# jsdoc.config.json and the code (src/ + gui/) all at the repo root, and `npm run docs` is green.
 on:
   push:
     branches: [main]
@@ -36,14 +35,12 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: engine-v3/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: engine-v3
         run: npm install --no-audit --no-fund
 
       - name: Generate docs (JSDoc + notes)
-        working-directory: engine-v3
         run: npm run docs
 
       - name: Upload Pages artifact

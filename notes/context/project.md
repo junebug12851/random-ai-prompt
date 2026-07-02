@@ -1,9 +1,9 @@
 # What This Project Is
 
-> **Update (2026-06-25):** the active project is now **`engine-v3/`** — the prompt engine + React SPA. The
-> CLI, classic Express/Pug server, animations, variations/re-rolls/upscales, and expansions described below
-> are the **pre-revival** system, preserved frozen in **`engine-v1-2/`** (on its way out). engine-v3 is
-> v3-only with no expansions. See [`../plans/engine-split.md`](../plans/engine-split.md).
+> **Update (flattened 2026-07-02):** the project — the prompt engine + React SPA — lives at the **repo
+> root**. The CLI, classic Express/Pug server, animations, variations/re-rolls/upscales, and expansions
+> described below were the **pre-revival** system, now removed from the tree (kept in git history and as a
+> reference clone under `assets/references/`). The current app is v3-only with no expansions.
 
 **random-ai-prompt** is an open-source generator for AI image and text prompts that **automatically
 builds richer, more detailed prompts than most people write by hand** — you compose from a large
@@ -11,7 +11,7 @@ library of scenes, subjects, and styles and it fills in the depth — then runs 
 **40+ models** (Midjourney, DALL·E, Gemini, FLUX, Stable Diffusion, and more), right in the browser.
 
 The rest of this page describes the **pre-revival** system (the CLI + Stable-Diffusion-WebUI
-orchestration; see the banner above); the *active* app is the browser web app in `engine-v3/`. The
+orchestration; see the banner above); the *active* app is the browser web app in `gui/`. The
 original tool generated random/dynamic prompts and (optionally) drove the **Stable Diffusion WebUI**
 API to turn them into images, animations, variations, re-rolls, and upscales.
 

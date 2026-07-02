@@ -200,7 +200,7 @@ myself.
 Frameworks, libraries & tools
 ==================================================================================================
 
-The web GUI (engine-v3/gui) is internationalized with react-intl, with message IDs and catalogs
+The web GUI (gui/) is internationalized with react-intl, with message IDs and catalogs
 produced by the FormatJS toolchain:
 
   react-intl              https://formatjs.io/docs/react-intl/          BSD-3-Clause

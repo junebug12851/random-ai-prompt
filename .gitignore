@@ -31,26 +31,17 @@ gui/coverage/
 /playwright-report/
 /test-results/
 /.vitest/
-engine-v3/coverage/
-engine-v3/gui/coverage/
-engine-v3/playwright-report/
-engine-v3/test-results/
 
 # Local-file storage backend (dev only) — the legacy flat file + its post-migration rename,
 # and the new per-namespace user-settings folder (all user data; never tracked).
-engine-v3/gui/.gui-storage.json
-engine-v3/gui/.gui-storage.json.migrated
-engine-v3/gui/user-settings/
-
-# Generated images (runtime output)
-engine-v3/output/
+gui/.gui-storage.json
+gui/.gui-storage.json.migrated
+gui/user-settings/
 
 # Local Netlify folder
 .netlify
 
 # Test / build artifacts (never tracked)
-engine-v3/playwright-report/
-engine-v3/test-results/
-engine-v3/scripts/list-cleanup/out/
-engine-v3/tmp/
-engine-v3/.lighthouseci/
+scripts/list-cleanup/out/
+/tmp/
+/.lighthouseci/

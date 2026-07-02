@@ -1,6 +1,6 @@
 # Codebase Refactor Plan (2026-06)
 
-A phased, verification-gated refactor of `engine-v3/` to slim the build output, break up
+A phased, verification-gated refactor of the project to slim the build output, break up
 the few genuinely oversized files, and modernize toward small, cohesive, easy-to-navigate
 modules — **without** a big-bang rewrite. Every phase ships on its own `feature/*` branch and
 must pass the full headless gate (`npm test`) before merge. The app stays green at every step.
@@ -48,7 +48,7 @@ focused branch, stopping only for blockers.
 ## Phases (ordered by leverage / risk)
 
 ### Phase 0 — Housekeeping (no logic) — branch `chore/refactor-prep`
-- Remove/gitignore `engine-v3/tmp/` (stale `webapp-docs` duplicate polluting grep/lint).
+- Remove/gitignore `tmp/` (stale `webapp-docs` duplicate polluting grep/lint).
 - Confirm `scripts/list-cleanup/out/` stays ignored; sweep other obvious dead scratch files.
 - No source behavior touched. Gate: lint + smoke + build.
 

@@ -1,7 +1,7 @@
 # CSS Overhaul, Modularization & Theming Framework — Plan
 
 **Status:** proposal / awaiting go-ahead. No code changed yet — this is the blueprint.
-**Scope:** `engine-v3/gui/src/styles.css` (the 4,515-line monolith) → a modern, modular,
+**Scope:** `gui/src/styles.css` (the 4,515-line monolith) → a modern, modular,
 layered, fully token-driven CSS system + a runtime theming framework (dark/light bases ×
 neon accent presets).
 
@@ -72,7 +72,7 @@ neon accent presets).
 - **i18n is the architectural template.** `gui/src/i18n/` (`config.js`, `I18nProvider.jsx`,
   `loadMessages.js`) + a language picker in `LinksMenu.jsx` is a working example of exactly the
   provider/registry/persisted-preference/menu-picker pattern the theme system needs.
-- **Safety net exists:** `engine-v3/tests/e2e/visual.spec.js` (Playwright visual regression). This
+- **Safety net exists:** `tests/e2e/visual.spec.js` (Playwright visual regression). This
   is the linchpin that lets us refactor 4,500 lines of CSS without fear.
 
 **Implication:** the codebase is unusually well-positioned for this. The main work is (a) a

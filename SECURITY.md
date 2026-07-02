@@ -43,6 +43,6 @@ are therefore: cross-site scripting or prompt-injection paths in the SPA, leakag
 mishandling of locally stored API keys, dependency/supply-chain issues, and CI/release
 pipeline weaknesses.
 
-The frozen, unmaintained `engine-v1-2/` (the pre-revival CLI + classic Express/Pug server)
-is **out of scope** — it is kept only as a historical reference and is not built, released,
-or deployed.
+The pre-revival CLI + classic Express/Pug server (the 2022–2023 system) has been removed from
+the tree and is **out of scope** — it survives only in git history and as a reference clone
+under `assets/references/`, and is not built, released, or deployed.

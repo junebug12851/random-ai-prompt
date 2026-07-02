@@ -1,11 +1,9 @@
 # Architecture
 
-> **Structure note (split 2026-06-25):** the repo is now two separate projects. This page describes the
-> active **`engine-v3/`** project; its `src/…` / `data/…` paths now live under `engine-v3/` (`cd engine-v3`
-> to run). The old single-entry CLI + classic Express/Pug server described in places below are the **frozen
-> `engine-v1-2/`** snapshot (pre-revival CommonJS), unmaintained and on its way out. See
-> [`../plans/engine-split.md`](../plans/engine-split.md). The detailed layout below is mid-reconciliation to
-> the new tree.
+> **Structure note (flattened 2026-07-02):** the project lives at the **repo root** (`src/`, `data/`,
+> `gui/`, `scripts/`, `tests/`); run everything from there. The old single-entry CLI + classic Express/Pug
+> server described in places below were the **pre-revival** system, now removed from the tree (it survives
+> in git history and as a reference clone under `assets/references/`).
 
 ES modules (`"type": "module"`), Node 24. **All code lives under `src/`; all prompt content (data)
 lives under `data/`.** The one deliberate exception is `data/dynamic-prompts/` — the `#name`
