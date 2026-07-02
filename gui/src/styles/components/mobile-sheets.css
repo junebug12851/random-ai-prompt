@@ -31,8 +31,9 @@
     overflow-y: auto;
   }
 
-  /* Each submenu's click-away layer becomes a full dimming backdrop. */
-  .ps-scrim,
+  /* Each submenu's click-away layer becomes a full dimming backdrop. (`.providers-menu > .ps-scrim`
+     is the Providers sheet's own scrim; the nested provider-picker's `.ps-scrim` is handled below.) */
+  .providers-menu > .ps-scrim,
   .gear-pop-scrim,
   .theme-scrim,
   .links-scrim {
@@ -51,5 +52,30 @@
 
   .pm-shared {
     text-align: left;
+  }
+
+  /* The provider list inside the sheet was a floating dropdown that ran off the bottom of the
+     screen (double-shadowed, clipped). Expand it INLINE instead: it flows within the sheet (which
+     scrolls), so it can't clip, and drop its now-redundant scrim. */
+  .pm-pop .provider-picker .ps-scrim {
+    display: none;
+  }
+
+  /* Stack the list BELOW the trigger (the picker is an inline-flex row by default), full-width. */
+  .pm-pop .provider-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .pm-pop .provider-picker .ps-pop {
+    position: static;
+    width: 100%;
+    max-width: none;
+    max-height: 46vh;
+    margin-top: 0.4rem;
+    overflow-y: auto;
+    box-shadow: none;
   }
 }
