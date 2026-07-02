@@ -16,9 +16,18 @@
 .field-count-label {
   color: var(--muted);
   font-weight: 700;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* The count/size VALUES (the numbers) — kept a touch smaller so the tools cluster reads as compact
+   labels, not big figures. */
+.field-count input,
+.field-size-text,
+.field-size-select.field-size-select,
+.field-size-wh input {
+  font-size: 0.82rem;
 }
 
 .field-count input {

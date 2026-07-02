@@ -20,7 +20,6 @@
 /* 2 — Coarse (touch) pointers: enlarge the primary tap targets. (The view-switch tabs are a
       tightly-grouped segmented control — deliberately NOT bumped to 44px, which made them clunky.) */
 @media (pointer: coarse) {
-  .field-act,
   .g-single-nav button,
   .g-back,
   .g-actions button,
@@ -35,8 +34,8 @@
     min-height: 44px;
   }
 
-  /* Icon-only controls need the horizontal target too. */
-  .field-act,
+  /* Icon-only controls need the horizontal target too. (The composer's `.field-act` buttons are
+     deliberately kept compact — the same small size on desktop and touch — per design.) */
   .links-trigger,
   .topbar-overflow-toggle,
   .mg-refresh,

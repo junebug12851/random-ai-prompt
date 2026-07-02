@@ -77,8 +77,8 @@
 
 /* Round icon actions: Save / Share / Random (subtle) + Generate (primary green) */
 .field-act {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   display: inline-flex;
   align-items: center;
