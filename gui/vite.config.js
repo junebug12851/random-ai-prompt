@@ -9,10 +9,18 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { apiPlugin } from "./vite-plugin-api.js";
 
 const require = createRequire(import.meta.url);
+
+// Surface the canonical app version (repo-root package.json, kept in sync with VERSION) to the SPA
+// as a compile-time constant, so the footer / links menu can show it with no runtime fetch. Applied
+// to BOTH the client and the SSR build (build.mjs reuses this config), so the prerender stays safe.
+const appVersion = JSON.parse(
+  readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8"),
+).version;
 
 // The SPA imports the shared prompt engine from repo-root core/ (which bundles
 // the dynamic-prompts/ lists/ expansions/ data via import.meta.glob). Allow the
@@ -47,6 +55,9 @@ export default defineConfig({
   // react() for the SPA; apiPlugin() serves /api/* during local dev (hosted-generation
   // proxy + local-file storage) — the local equivalent of the Netlify function.
   plugins: [react({ babel: { plugins: [formatjsBabelPlugin] } }), apiPlugin()],
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   resolve: {
     alias: { lodash: lodashDir },
     dedupe: ["lodash"],

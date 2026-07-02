@@ -36,6 +36,7 @@ import { providerMode } from "./lib/useProvider.js";
 import { refreshCatalog, ensureCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
 import { dialog } from "./lib/dialog.js";
+import { APP_VERSION } from "./lib/version.js";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
@@ -621,7 +622,12 @@ function AppShell({ settings, setSettings }) {
         )}
       </main>
 
-      <footer>{intl.formatMessage(msgs.footer)}</footer>
+      <footer>
+        <span className="footer-privacy">{intl.formatMessage(msgs.footer)}</span>
+        <span className="footer-version" title={`Version ${APP_VERSION}`}>
+          v{APP_VERSION}
+        </span>
+      </footer>
     </div>
   );
 }

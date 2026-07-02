@@ -54,11 +54,13 @@ test.describe("top bar — phone (narrow)", () => {
     // No horizontal overflow at phone width.
     expect(await hasHorizontalOverflow(page)).toBe(false);
 
-    // Open: the panel and its controls (e.g. the links trigger) become reachable.
+    // Open: the panel and its controls become reachable.
     await page.locator(toggle).click();
     await expect(page.locator(toggle)).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator(controls)).toBeVisible();
-    await expect(page.locator(`${controls} .links-trigger`)).toBeVisible();
+    // Links fold inline into the menu here (no nested trigger/sheet) — a link item is reachable.
+    await expect(page.locator(`${controls} .links-inline`)).toBeVisible();
+    await expect(page.locator(`${controls} .links-inline .links-item`).first()).toBeVisible();
     // The menu presents labeled rows (the icon-only triggers get their text label here).
     await expect(page.locator(`${controls} .ctl-label`).first()).toBeVisible();
 

@@ -84,7 +84,7 @@ describe("PromptResult", () => {
         prompt={prompt({ batches: [{ id: "b1", busy: false, images: ["/api/output/a.png"] }] })}
       />,
     );
-    await user.click(screen.getByRole("button", { name: /^clear$/i }));
+    await user.click(screen.getByRole("button", { name: /clear this prompt's images/i }));
     expect(onClearImages).toHaveBeenCalledWith("p1");
   });
 });

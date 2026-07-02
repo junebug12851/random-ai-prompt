@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { getDplInserts } from "../lib/dpl/dplInserts.js";
 import { expandPrompt } from "../lib/promptEngine.js";
+import { useCompact } from "../lib/useCompact.js";
 
 const msgs = defineMessages({
   toolbar: { id: "dplInsertBar.toolbar", defaultMessage: "Insert DPL syntax" },
@@ -31,24 +32,6 @@ const rollExample = (dpl, settings) => {
     return "—";
   }
 };
-
-/**
- * True at <=768px. SSR-safe: starts `false` (so the server + the client's first render both draw the
- * desktop row — no hydration mismatch), then settles to the real value in an effect (post-hydration).
- * @returns {boolean}
- */
-function useCompact() {
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return undefined;
-    const mq = window.matchMedia("(max-width: 768px)");
-    const sync = () => setCompact(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-  return compact;
-}
 
 /** Live-rolling examples for the currently-open category (keyed by item id). */
 function useExamples(openCat, settings) {
