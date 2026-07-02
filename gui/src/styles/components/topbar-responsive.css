@@ -115,3 +115,81 @@
     gap: 0.45rem;
   }
 }
+
+/* ---- The overflow menu as a proper labeled list ----
+   Each secondary control becomes a full-width row: a leading icon (for the icon-only ones), a
+   text label, and its value / switch / caret. The injected `.ctl-label` is hidden on desktop, so
+   the inline desktop triggers stay icon-only (unchanged). */
+.ctl-label {
+  display: none;
+}
+
+@media (width <= 768px) {
+  .topbar-controls > * {
+    width: 100%;
+  }
+
+  .topbar-controls .ps-trigger,
+  .topbar-controls .ps-gear,
+  .topbar-controls .switch,
+  .topbar-controls .theme-trigger,
+  .topbar-controls .links-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* left-align icon+label (triggers default to center) */
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 44px;
+    height: auto;
+    padding: 0.5rem 0.55rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .topbar-controls .ps-trigger:hover,
+  .topbar-controls .ps-gear:hover,
+  .topbar-controls .switch:hover,
+  .topbar-controls .theme-trigger:hover,
+  .topbar-controls .links-trigger:hover {
+    background: var(--chip-hover);
+    color: var(--fg);
+  }
+
+  /* Reveal the icon-only triggers' labels; keep their glyph a consistent muted lead icon. */
+  .topbar-controls .ctl-label {
+    display: inline;
+    font-weight: 600;
+  }
+
+  .topbar-controls .ps-gear svg,
+  .topbar-controls .theme-trigger svg,
+  .topbar-controls .links-trigger svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  /* Providers + NSFW have no leading glyph — indent their label into the same column as the
+     icon rows' labels (icon 18px + 0.6rem gap), then push the value/switch to the right. */
+  .topbar-controls .ps-trigger .provider-select-label,
+  .topbar-controls .switch .switch-label {
+    margin-left: 1.72rem;
+    margin-right: auto;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+  }
+
+  .topbar-controls .ps-trigger .ps-current {
+    color: var(--muted);
+    font-weight: 500;
+  }
+}

@@ -29,6 +29,8 @@ test.describe("top bar — desktop (wide)", () => {
     await expect(page.locator(".brand .wordmark")).toBeVisible();
     await expect(page.locator(controls)).toBeVisible();
     await expect(page.locator(toggle)).toBeHidden();
+    // Desktop triggers stay icon-only — the menu-row labels are hidden.
+    await expect(page.locator(".ctl-label").first()).toBeHidden();
     expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 });
@@ -57,6 +59,8 @@ test.describe("top bar — phone (narrow)", () => {
     await expect(page.locator(toggle)).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator(controls)).toBeVisible();
     await expect(page.locator(`${controls} .links-trigger`)).toBeVisible();
+    // The menu presents labeled rows (the icon-only triggers get their text label here).
+    await expect(page.locator(`${controls} .ctl-label`).first()).toBeVisible();
 
     // Escape dismisses.
     await page.keyboard.press("Escape");

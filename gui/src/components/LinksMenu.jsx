@@ -108,6 +108,7 @@ export default function LinksMenu({ settings, setSettings }) {
         aria-expanded={open}
       >
         <MenuIcon />
+        <span className="ctl-label">{intl.formatMessage(msgs.links)}</span>
       </button>
       {open && (
         <>

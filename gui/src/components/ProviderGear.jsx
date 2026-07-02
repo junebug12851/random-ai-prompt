@@ -152,6 +152,7 @@ export default function ProviderGear({ settings, setSettings }) {
         aria-expanded={open}
       >
         <GearIcon />
+        <span className="ctl-label">{intl.formatMessage(msgs.settings)}</span>
       </button>
       {open && (
         <>
