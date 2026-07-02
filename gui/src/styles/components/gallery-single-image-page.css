@@ -104,7 +104,8 @@
 
 .g-actions button,
 .g-action-link,
-.g-convert {
+.g-convert,
+.g-resize {
   border: 1px solid var(--border);
   background: var(--bg-2);
   color: var(--fg);
@@ -119,8 +120,18 @@
 
 .g-actions button:hover,
 .g-action-link:hover,
-.g-convert:hover {
+.g-convert:hover,
+.g-resize:hover {
   background: var(--chip-hover);
+}
+
+/* The Resize select sizes its closed box to the WIDEST option by default, so its long
+   "AI Upscale — <provider>" entries ballooned it far wider than the neighbouring buttons. Cap the
+   closed box so it reads as a compact "Resize…" control; the open option list is unaffected (it can
+   still be wider than the box). Convert isn't capped — its own placeholder is its widest text, so it
+   already sizes snugly. */
+.g-resize {
+  max-width: 8rem;
 }
 
 /* The Download link is an <a>, so its text sat baseline-high inside the padding box (a bug — it
@@ -312,6 +323,54 @@
 .g-card-action:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* ---- Details card: copy actions behind a 3-dots menu ----
+   Keeps the header row from overflowing (Copy-as-JSON used to wrap to a second line). The kebab sits
+   right-aligned next to View Raw; its popover holds the Markdown / JSON copy buttons as a small list. */
+.g-copy-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.g-copy-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.22rem 0.45rem;
+}
+
+.g-copy-menu-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.g-copy-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.g-copy-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 10rem;
+  padding: 0.35rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+
+.g-copy-pop .g-card-action {
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-sm);
 }
 
 .g-card-err {

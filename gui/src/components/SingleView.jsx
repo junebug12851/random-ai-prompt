@@ -29,6 +29,7 @@ import { msgs, layerMsg } from "./single/messages.js";
 import { toMarkdown } from "../lib/single/markdown.js";
 import { syntaxHighlightJson } from "../lib/single/json.js";
 import { dialog } from "../lib/dialog.js";
+import { MoreIcon } from "./icons.jsx";
 import PromptCard from "./single/PromptCard.jsx";
 import DetailTable from "./single/DetailTable.jsx";
 import CopyButton from "./single/CopyButton.jsx";
@@ -95,6 +96,7 @@ export default function SingleView({
 }) {
   const intl = useIntl();
   const [rawView, setRawView] = useState(false);
+  const [copyOpen, setCopyOpen] = useState(false);
   const index = current ? items.findIndex((it) => it.path === current.path) : -1;
   const total = items.length;
   const hasPrev = index > 0;
@@ -392,18 +394,46 @@ export default function SingleView({
                           {intl.formatMessage(rawView ? msgs.viewTable : msgs.viewRaw)}
                         </button>
                       )}
-                      <CopyButton
-                        label={intl.formatMessage(msgs.copyMd)}
-                        title={intl.formatMessage(msgs.copyMdTitle)}
-                        text={markdown}
-                      />
-                      {item.meta && (
-                        <CopyButton
-                          label={intl.formatMessage(msgs.copyJson)}
-                          title={intl.formatMessage(msgs.copyJsonTitle)}
-                          text={rawJson}
-                        />
-                      )}
+                      {/* Copy actions tuck behind a 3-dots menu so the header can't overflow. */}
+                      <div className="g-copy-menu">
+                        <button
+                          className={`g-card-action g-copy-menu-btn${copyOpen ? " on" : ""}`}
+                          onClick={() => setCopyOpen((o) => !o)}
+                          aria-haspopup="menu"
+                          aria-expanded={copyOpen}
+                          aria-label={intl.formatMessage(msgs.copyMenu)}
+                          title={intl.formatMessage(msgs.copyMenu)}
+                        >
+                          <MoreIcon />
+                        </button>
+                        {copyOpen && (
+                          <>
+                            <div
+                              className="g-copy-scrim"
+                              onClick={() => setCopyOpen(false)}
+                              aria-hidden="true"
+                            />
+                            <div
+                              className="g-copy-pop"
+                              role="menu"
+                              aria-label={intl.formatMessage(msgs.copyMenu)}
+                            >
+                              <CopyButton
+                                label={intl.formatMessage(msgs.copyMd)}
+                                title={intl.formatMessage(msgs.copyMdTitle)}
+                                text={markdown}
+                              />
+                              {item.meta && (
+                                <CopyButton
+                                  label={intl.formatMessage(msgs.copyJson)}
+                                  title={intl.formatMessage(msgs.copyJsonTitle)}
+                                  text={rawJson}
+                                />
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {rawView && item.meta ? (
