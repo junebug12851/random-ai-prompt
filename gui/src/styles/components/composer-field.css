@@ -52,16 +52,22 @@
   flex: 1;
 }
 
-/* Compact: let the tools + action buttons wrap to a second row instead of overflowing the
-   composer's width (e.g. once a provider adds its Images/Size controls). */
+/* Compact: let the tools + action buttons wrap instead of overflowing the composer's width (e.g.
+   once a provider adds its Images/Size controls). The tools stay left, the actions stay RIGHT-aligned
+   so the primary Generate button lands in the bottom-right corner, exactly like desktop. */
 @media (width <= 768px) {
   .field-bar {
     flex-wrap: wrap;
     row-gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .field-bar .prompt-tools {
+    margin-right: auto; /* keep the count/size tools on the left */
   }
 
   .field-bar .grow {
-    flex-basis: 100%; /* break the row so the action buttons drop below the tools */
+    display: none; /* the auto margin replaces the flex spacer when wrapping */
   }
 }
 
