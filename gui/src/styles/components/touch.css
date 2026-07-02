@@ -34,12 +34,18 @@
     min-height: 44px;
   }
 
-  /* Icon-only controls need the horizontal target too. (The composer's `.field-act` buttons are
-     deliberately kept compact — the same small size on desktop and touch — per design.) */
+  /* Icon-only controls need the horizontal target too. */
   .links-trigger,
   .topbar-overflow-toggle,
   .mg-refresh,
   .palette-close {
     min-width: 44px;
+  }
+
+  /* The composer action buttons stay compact (34px) on desktop, but get a comfortable 40px tap
+     target on touch — bigger than 34 without the clunky feel of a full 44. */
+  .field-act {
+    min-width: 40px;
+    min-height: 40px;
   }
 }
