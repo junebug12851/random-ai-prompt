@@ -71,3 +71,10 @@ Ordered, roughly by priority. Update as items are done or added.
 9. ~~**Review the 6 `no-useless-assignment` spots.**~~ **Resolved** — all six were in the pre-revival
    classic files (`src/server.js`, `src/web/backend/indexImages.js`, `src/web/frontend/single.js`),
    which were removed from the tree along with the rest of that system.
+
+10. **Responsive / adaptive UI — mobile + tablet.** Full blueprint in [`responsive.md`](responsive.md):
+    a fluid `clamp()` foundation + container queries, adopting the empty `layout` cascade layer, with a
+    few deliberate tablet/phone layout modes (top bar → single top overflow menu, sidebar → drawer,
+    two-pane views → stacked). **No feature removed at any width** — features relocate. CSS-first to keep
+    the online prerender/hydrate SSR-safe. Phase 1 (fluid token foundation) landed on
+    `feature/responsive-foundation`; Phases 2–6 queued.

@@ -1,6 +1,7 @@
 /* ---------- App frame (window) ---------- */
 .app {
-  height: 100vh;
+  height: 100vh; /* fallback for engines without dynamic-viewport units */
+  height: 100dvh; /* mobile: excludes the browser URL bar so content isn't hidden under it */
   display: flex;
   flex-direction: column;
   max-width: none;
