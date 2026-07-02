@@ -8,6 +8,16 @@
   position: relative;
 }
 
+/* Desktop row: the "Insert" lead label before the category buttons. */
+.dpl-insert-lead {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding-right: 0.1rem;
+}
+
 .dpl-ins-wrap {
   position: relative;
 }
@@ -47,6 +57,13 @@
   opacity: 0.7;
 }
 
+/* The compact single "Insert" button (only rendered <=768px) — a comfortable tap target. */
+.dpl-ins-main {
+  min-height: 36px;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.85rem;
+}
+
 /* Click-away layer behind the open popover. */
 .dpl-ins-scrim {
   position: fixed;
@@ -68,6 +85,12 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
   padding: 0.35rem;
+}
+
+/* The rightmost desktop-row menus open from their right edge so they don't run off-screen. */
+.dpl-ins-pop-right {
+  left: auto;
+  right: 0;
 }
 
 .dpl-ins-pop-hint {
@@ -227,6 +250,19 @@
 
 .composer-field .prompt-input.dpl-editor .cm-content {
   font-size: 1.05rem;
+}
+
+/* Compact: the prompt font at 1.05rem is oversized on a phone and runs under the top-right
+   eye/gear icons — trim it and reserve a little right gutter so long lines wrap clear of them. */
+@media (width <= 768px) {
+  .composer-field .prompt-input.dpl-editor {
+    padding: 0.85rem 0.9rem 0.5rem;
+  }
+
+  .composer-field .prompt-input.dpl-editor .cm-content {
+    font-size: 0.92rem;
+    padding-right: 3.25rem;
+  }
 }
 
 /* Indent only the first visual row so the upper-left validity icon never sits on the text. */

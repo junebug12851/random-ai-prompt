@@ -1,14 +1,14 @@
 /**
- * The DPL insert control that sits above the prompt box: a single **Insert ▾** button that opens a
- * menu. The menu first lists the categories (Chance, Choose, Repeat, Structure, Flow, Emphasis,
- * Code); picking one drills into its constructs — name, one-line description, the literal syntax,
- * and a live re-rolling example where the output is meaningful — with a Back row to return. Picking
- * an item drops its snippet at the editor's cursor (via the editor's imperative `insertSnippet`).
+ * The DPL insert control above the prompt box. It teaches + inserts the lax line grammar (conditions,
+ * choices, calls, weights, …) that's hard to discover by typing: each construct shows its name, a
+ * one-line description, the literal syntax, and a live re-rolling example; picking one drops its
+ * snippet at the editor's cursor (via the editor's imperative `insertSnippet`).
  *
- * It's a teaching surface as much as an insert tool: the lax line grammar (conditions, choices,
- * calls, …) is hard to discover by typing, so this lays it out, organized and navigable. (It used
- * to be a full row of per-category buttons; collapsed to one button so it never wraps on narrow
- * screens and reads as a single clear action.)
+ * Two presentations, chosen by width (a hydration-safe media-query hook — the DESKTOP row renders
+ * from first paint, unchanged):
+ *   • Desktop (>768px): the original slim ROW of per-category buttons, each opening its own popover.
+ *   • Compact (<=768px): a single **Insert ▾** button opening a menu — category list → drill into a
+ *     category's constructs with a Back row — so it never wraps on a narrow screen.
  * @module gui/components/DplInsertBar
  */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,28 +33,28 @@ const rollExample = (dpl, settings) => {
 };
 
 /**
- * @param {object} props
- * @param {import("react").RefObject} props.editorRef Ref to the prompt {@link DplEditor} (for insertSnippet).
- * @param {object} props.settings Generation settings (for SFW/NSFW-correct live examples).
- * @returns {JSX.Element}
+ * True at <=768px. SSR-safe: starts `false` (so the server + the client's first render both draw the
+ * desktop row — no hydration mismatch), then settles to the real value in an effect (post-hydration).
+ * @returns {boolean}
  */
-export default function DplInsertBar({ editorRef, settings }) {
-  const intl = useIntl();
-  const DPL_INSERTS = useMemo(() => getDplInserts(intl), [intl]);
-  const [open, setOpen] = useState(false); // whole Insert menu open?
-  const [activeCat, setActiveCat] = useState(null); // drilled-into category key, or null (list)
-  const [examples, setExamples] = useState({}); // item id -> rolled example (for the open category)
+function useCompact() {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => setCompact(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  return compact;
+}
+
+/** Live-rolling examples for the currently-open category (keyed by item id). */
+function useExamples(openCat, settings) {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
-
-  const openCat = DPL_INSERTS.find((c) => c.key === activeCat) || null;
-
-  const close = () => {
-    setOpen(false);
-    setActiveCat(null);
-  };
-
-  // While a category is open, re-roll its items' live examples every second.
+  const [examples, setExamples] = useState({});
   useEffect(() => {
     if (!openCat) {
       setExamples({});
@@ -71,8 +71,95 @@ export default function DplInsertBar({ editorRef, settings }) {
     const id = setInterval(roll, 1000);
     return () => clearInterval(id);
   }, [openCat]);
+  return examples;
+}
 
-  // Escape backs out of a category first, then closes the menu.
+/** One construct row (name + description + syntax + live example). Shared by both presentations. */
+function ItemButton({ item, example, intl, onPick }) {
+  return (
+    <button type="button" className="dpl-ins-item" role="menuitem" onClick={() => onPick(item)}>
+      <span className="dpl-ins-item-head">
+        <span className="dpl-ins-item-name">{item.label}</span>
+      </span>
+      <span className="dpl-ins-item-desc">{item.desc}</span>
+      <code className="dpl-ins-item-syntax">{item.syntax}</code>
+      {item.example && (
+        <span className="dpl-ins-item-ex">
+          <span className="dpl-ins-item-ex-label">{intl.formatMessage(msgs.example)}</span>
+          <span className="dpl-ins-item-ex-text">{example ?? "…"}</span>
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** Desktop (>768px): the original row of per-category buttons, each with its own popover. */
+function InsertRow({ inserts, intl, settings, onPick }) {
+  const [open, setOpen] = useState(null); // open category key, or null
+  const openCat = inserts.find((c) => c.key === open) || null;
+  const examples = useExamples(openCat, settings);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => e.key === "Escape" && setOpen(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const pick = (item) => {
+    onPick(item);
+    setOpen(null);
+  };
+
+  return (
+    <div className="dpl-insert-bar" role="toolbar" aria-label={intl.formatMessage(msgs.toolbar)}>
+      <span className="dpl-insert-lead">{intl.formatMessage(msgs.insert)}</span>
+      {inserts.map((cat, idx) => (
+        <div className="dpl-ins-wrap" key={cat.key}>
+          <button
+            type="button"
+            className={`dpl-ins-btn${open === cat.key ? " on" : ""}`}
+            onClick={() => setOpen((o) => (o === cat.key ? null : cat.key))}
+            aria-haspopup="menu"
+            aria-expanded={open === cat.key}
+            title={cat.hint}
+          >
+            {cat.label}
+            <span className="dpl-ins-caret" aria-hidden="true">
+              ▾
+            </span>
+          </button>
+          {open === cat.key && (
+            <div
+              className={`dpl-ins-pop${idx >= inserts.length - 2 ? " dpl-ins-pop-right" : ""}`}
+              role="menu"
+              aria-label={cat.label}
+            >
+              <div className="dpl-ins-pop-hint">{cat.hint}</div>
+              {cat.items.map((it) => (
+                <ItemButton key={it.id} item={it} example={examples[it.id]} intl={intl} onPick={pick} />
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      {open && <div className="dpl-ins-scrim" onClick={() => setOpen(null)} aria-hidden="true" />}
+    </div>
+  );
+}
+
+/** Compact (<=768px): a single Insert button opening a category list → drill-into-items menu. */
+function InsertMenu({ inserts, intl, settings, onPick }) {
+  const [open, setOpen] = useState(false);
+  const [activeCat, setActiveCat] = useState(null);
+  const openCat = inserts.find((c) => c.key === activeCat) || null;
+  const examples = useExamples(openCat, settings);
+
+  const close = () => {
+    setOpen(false);
+    setActiveCat(null);
+  };
+
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => {
@@ -85,7 +172,7 @@ export default function DplInsertBar({ editorRef, settings }) {
   }, [open, activeCat]);
 
   const pick = (item) => {
-    editorRef?.current?.insertSnippet?.(item.template, { line: item.line, wrap: item.wrap });
+    onPick(item);
     close();
   };
 
@@ -107,8 +194,7 @@ export default function DplInsertBar({ editorRef, settings }) {
         {open && (
           <div className="dpl-ins-pop" role="menu" aria-label={intl.formatMessage(msgs.insert)}>
             {!openCat ? (
-              // Level 1: the category list.
-              DPL_INSERTS.map((cat) => (
+              inserts.map((cat) => (
                 <button
                   type="button"
                   className="dpl-ins-cat"
@@ -127,33 +213,12 @@ export default function DplInsertBar({ editorRef, settings }) {
                 </button>
               ))
             ) : (
-              // Level 2: the chosen category's constructs, with a Back row.
               <>
                 <button type="button" className="dpl-ins-back" onClick={() => setActiveCat(null)}>
                   <span aria-hidden="true">‹</span> {openCat.label}
                 </button>
                 {openCat.items.map((it) => (
-                  <button
-                    type="button"
-                    className="dpl-ins-item"
-                    role="menuitem"
-                    key={it.id}
-                    onClick={() => pick(it)}
-                  >
-                    <span className="dpl-ins-item-head">
-                      <span className="dpl-ins-item-name">{it.label}</span>
-                    </span>
-                    <span className="dpl-ins-item-desc">{it.desc}</span>
-                    <code className="dpl-ins-item-syntax">{it.syntax}</code>
-                    {it.example && (
-                      <span className="dpl-ins-item-ex">
-                        <span className="dpl-ins-item-ex-label">
-                          {intl.formatMessage(msgs.example)}
-                        </span>
-                        <span className="dpl-ins-item-ex-text">{examples[it.id] ?? "…"}</span>
-                      </span>
-                    )}
-                  </button>
+                  <ItemButton key={it.id} item={it} example={examples[it.id]} intl={intl} onPick={pick} />
                 ))}
               </>
             )}
@@ -163,4 +228,22 @@ export default function DplInsertBar({ editorRef, settings }) {
       </div>
     </div>
   );
+}
+
+/**
+ * @param {object} props
+ * @param {import("react").RefObject} props.editorRef Ref to the prompt {@link DplEditor} (for insertSnippet).
+ * @param {object} props.settings Generation settings (for SFW/NSFW-correct live examples).
+ * @returns {JSX.Element}
+ */
+export default function DplInsertBar({ editorRef, settings }) {
+  const intl = useIntl();
+  const inserts = useMemo(() => getDplInserts(intl), [intl]);
+  const compact = useCompact();
+
+  const pick = (item) =>
+    editorRef?.current?.insertSnippet?.(item.template, { line: item.line, wrap: item.wrap });
+
+  const shared = { inserts, intl, settings, onPick: pick };
+  return compact ? <InsertMenu {...shared} /> : <InsertRow {...shared} />;
 }
