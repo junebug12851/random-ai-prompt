@@ -1,81 +1,122 @@
 # Architecture
 
-> **Structure note (flattened 2026-07-02):** the project lives at the **repo root** (`src/`, `data/`,
-> `gui/`, `scripts/`, `tests/`); run everything from there. The old single-entry CLI + classic Express/Pug
-> server described in places below were the **pre-revival** system, now removed from the tree (it survives
-> in git history and as a reference clone under `assets/references/`).
+ES modules (`"type": "module"`), Node 24. **One project at the repo root.** All engine code lives under
+`src/`; all prompt _content_ lives under `data/`; the React/Vite web app is `gui/` (its own npm package).
+The one deliberate exception to "code lives in `src/`" is `data/dynamic-prompts/` — the `{#name}`
+generators are executable `.js` but are authored as prompt content (like lists), so they live under
+`data/`.
 
-ES modules (`"type": "module"`), Node 24. **All code lives under `src/`; all prompt content (data)
-lives under `data/`.** The one deliberate exception is `data/dynamic-prompts/` — the `#name`
-generators are executable `.js` but are treated as prompt *content* (authored like lists/expansions),
-so they live with the rest of the content under `data/`. Everything runs with the current working
-directory pinned to the project root by
-`src/chdir.js` (which `chdir`s to its parent), so the many `./output`, `./data/lists`, `./results.json`
-style paths resolve from the root regardless of where `node` was launched.
+> The pre-revival 2022–2023 system (a yargs CLI + an Express/Pug web UI, with a `common.js` / `chdir.js`
+> core) was removed from the tree; it survives in git history and as a reference clone under
+> `assets/references/`. A sibling **CLI** is planned but not built yet — today the only front end is the
+> `gui/` SPA.
 
 ## Top-level layout
 
 ```
-src/                ALL code
-  index.js          CLI entry — parses args, runs generation, also hosts the progress server
-  server.js         Web UI entry — Express + Pug app, shells out to the CLI to generate
-  common.js         Shared core — argv, settings accessors, run()/processBatch()/upscale()
-  chdir.js          Side-effect module: process.chdir(parent of src) = repo root. Imported first.
-  settings.js / image-settings.js / upscale-settings.js / server-settings.js   Default settings objects
-  loadSettings.js          merge defaults + user-settings.json (+ legacy migration)
-  createMissingUserSettings.js / diffSettings.js / convertMetaToJSON.js
-  applyArgs.js             apply presets + command-line overrides
-  genImg.js                call SD WebUI txt2img + progress bars (uses global fetch)
-  loadVariationData.js / loadRerollData.js / upscaleExisting.js / extendAnimation.js / toAnimation.js
+src/                the isomorphic prompt engine (no framework deps)
+  core/
+    engine.js         engine entry: createEngine(), generate/generateMany(+Async), seeding
+    dpl/              the DPL language — parser.js, renderer.js, dpl.js, intensity.js, words.js, rng.js
+    stages/           pipeline stages — dynamicPrompt.js, prompt-salt.js, list.js, emphasis.js, cleanup.js
+    nodeLoader.js     Node content loader (fs + createRequire), resolved module-relative to the repo root
+    browserLoader.js  browser content loader (Vite import.meta.glob) + browserCatalogData.js
+    listStore.js      list-corpus access + SFW/NSFW gating;  rng.js  the seedable RNG
   promptFilesAndSuggestions.js   scan/classify dynamic prompts, build suggestions
-  prompt-modules/   The prompt pipeline stages
-    dynamic-prompt.js  expand #name tokens (loads data/dynamic-prompts/* via createRequire)
-    expansion.js       expand <name> tokens   list.js  expand {name} tokens
-    prompt-salt.js     {salt} handling        cleanup.js  whitespace/comma cleanup
-  helpers/          saveImage, saveApng, makeApng, saveResults, listFiles, keywordRepeater,
-                    imageUpscaler, randomEmphasis/Editing/Alternating
-  core/             the isomorphic engine (engine.js, stages/, node/browserLoader) — see systems/core-engine.md
-  web/              backend/indexImages.js (image index) + frontend/ (browser JS/CSS) + views/ (Pug)
+  settings.js                     default settings (pipeline order, content paths, dialect, gating, …)
+  listResolve.js / listTags.js / nameOrder.js / listManifest.js   list resolution + metadata + virtual lists
+  dynPromptManifest.js            dynamic-prompt tag metadata
+  contentSafety.js / safetyLexicons.js / gatedLists.js   content-safety filter + NSFW gating
+  helpers/          random.js, keywordRepeater.js, aliases.js, randomEmphasis/Editing/Alternating.js
 
-data/               ALL prompt content
-  lists/  presets/   data files for {name} and presets
-  dynamic-prompts/  flat <category>/ {#name} generators (.dpl + optional .js): export default fn (+ export const full / suggestion_exclude)
-  sources/   raw build inputs (artists.csv, danbooru.csv, nai-tag-expirement.json)
-  process-*.js      one-off scripts that build the lists/ files from the data/sources/ CSV/JSON
+data/               all prompt content
+  lists/            {name} word lists (by category)
+  presets/          saved settings presets
+  dynamic-prompts/  flat <category>/ {#name} generators (.dpl / .js + optional .json description sidecar)
+  sources/          raw build inputs (artists.csv, danbooru.csv, nai-tag-expirement.json)
+  manifest.json     published content manifest (backs the Manager's ghost-pill diff)
+  process-*.js      manual build scripts: turn data/sources/ CSV/JSON into lists/ files
 
-default-user-settings.json   Seed for the user's user-settings.json (root)
-output/             generated images + their .json metadata (root, gitignored)
-user-settings.json / results.json   runtime user data (root, gitignored)
+gui/                the React 19 + Vite SPA (its own package.json)
+  src/              components/, lib/ (promptEngine, runtimeLoader, dpl, providers, …), i18n/, styles/, theme/
+  providers/        ~40 image/text provider adapters (_shared/ transport + one folder per provider)
+  server/           the local /api backend (apiHandler.js, manageFs.js, serve.js) — LOCAL edition only
+  storage/          local-file storage backend (dev/desktop)
+  public/           self-hosted fonts/ + the legal/ pages
+  tests/            the jsdom (Vitest) SPA suite
+
+scripts/            build/meta tooling (build-docs, build-data-manifest, smoke-test, dpl-*, list-cleanup, …)
+tests/              the Node (Vitest) suite — unit/integration/snapshot/regression + e2e/ (Playwright)
+notes/  assets/     the developer guide + icons / references / docs-theme
+output/  user-settings.json  results.json   runtime/user data (repo root, gitignored)
 ```
 
-The directory names code consumes are centralized in `src/settings.js` (`listFiles: "./data/lists"`,
-`expansionFiles: "./data/expansions"`, `presetFiles: "./data/presets"`; `dynamicPromptFiles:
-"dynamic-prompts"` now resolves under `data/` — the loaders prefix it with `../../data/` (legacy
-`prompt-modules/dynamic-prompt.js`) or `data/` (`core/nodeLoader.js`); `promptModuleFiles` stays
-relative to `src/`). The web UI's served folder is `serverSettings.webFolder` = `"./src/web"`.
+## One engine, two loaders (isomorphic)
 
-## Data flow — CLI generate
+The engine in `src/core/` has no filesystem or framework dependency. Content — the lists and the
+dynamic-prompt generators — is supplied by an **injected loader**:
 
-`node . ...` → `common.js` loads settings → `index.js` listens on the progress port, applies
-variation/reroll/animation loaders and `applyArgs` → `run()` → for each prompt, `processBatch()` runs
-`settings.promptModules` over the prompt string (expanding `#`/`{}`/`<>`, salt, cleanup) → if images are
-enabled and mode is StableDiffusion, `src/genImg.js` POSTs to the WebUI `txt2img` API, saves PNG + JSON
-via `src/helpers/saveImage.js`, optionally upscales (`src/helpers/imageUpscaler.js`) → results written to
-`results.json` and (for animations) an APNG.
+- **Node** (`nodeLoader.js`) — reads from disk with `fs` and loads `.js` generators synchronously via
+  `createRequire(import.meta.url)`. It resolves the content root **module-relative**
+  (`fileURLToPath(new URL("../../", import.meta.url))` → the repo root), so it does not depend on the cwd.
+- **Browser** (`browserLoader.js`) — a Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`
+  build-time macro bundles every generator; the lists ship as a code-split data module
+  (`browserCatalogData.js`).
 
-## Data flow — Web UI
+So there is one engine and no duplicated prompt logic: the same pipeline runs under Node (the test suite,
+the local `/api`) and in the browser (the SPA).
 
-`node src/server.js` builds the image index (`src/web/backend/indexImages.js` scans `output/*.json`), starts
-Express on `server-settings.port` (7861), opens the browser, and serves the Pug pages + a JSON API.
-Generation requests (`/api/generate`, `/api/file-variation/:id`, `/api/upscale-file/:id`, …) set args
-and **spawn the CLI** (`node . --flags`) via `child_process`; progress is read by polling the CLI's
-progress server. The index supports keyword search, a feed, stats, and per-image detail.
+## The prompt pipeline
 
-## The settings accessor pattern
+`settings.promptModules` = `["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"]`, run in
+order on each prompt string (the stages live in `src/core/stages/`):
 
-Modules don't import the mutable settings object directly; they call `settings()` (from
-`loadSettings.js`, re-exported by `common.js`) which returns the current merged object. This lets the
-server reload/replace settings at runtime (`/api/reload-settings`, `/api/replace-settings`).
+1. **dynamic-prompt** — expand `{#name}` generators (re-expanding nested tokens up to ~10 passes),
+   honoring the per-token intensity / focus dials.
+2. **prompt-salt** — the optional `{salt}` randomizer.
+3. **list** — expand `{name}` list tokens.
+4. **emphasis** — render typed `()` / `[]` emphasis into the active provider dialect (SD/MJ weights, NAI
+   braces, or plain words).
+5. **cleanup** — tidy stray spaces / commas.
 
-See [`../systems/overview.md`](../systems/overview.md) for the deeper walk-through and
-[`../reference/esm-patterns.md`](../reference/esm-patterns.md) for the module-wiring rules.
+The DPL parser + renderer (`src/core/dpl/`) is what the stages call to compile and roll a template. The
+engine is **deterministic and seedable** (`src/core/rng.js`), so the same seed reproduces a result.
+
+## One code pool, two editions
+
+The same code builds two editions, gated at build time by `VITE_ONLINE`:
+
+- **Local / desktop** (full) — Gallery, Single view, the in-app content **Manager**, the local
+  Stable-Diffusion providers, and NSFW. It ships a small Node server (`gui/server/serve.js`) that serves
+  the built SPA **plus** the `/api/*` backend (`gui/server/apiHandler.js`: image save + feed, the
+  Manager's on-disk file ops via `manageFs.js`, ImageMagick convert, …).
+- **Online** (`prompt.fairyfox.io`) — a browser-only static build. **No server:** BYOK provider calls go
+  straight from the browser to the chosen provider; providers that can't be called from a browser are
+  disabled, and the local-only features (Gallery / Single / Manage, NSFW) are gated off. The online build
+  also **prerenders** its first paint (SSR of `entry-server.jsx` → `renderToString` → hydrate), so the
+  initial render must be SSR-safe (no `window` / `document` access during render).
+
+Each edition has the usual **dev** stage (`npm run web` — the Vite dev server, which mounts the same
+`/api` handler through `gui/vite-plugin-api.js`) and **release** stage.
+
+## Data flow — generate
+
+The SPA composes a **DPL prompt** in the editor → `gui/src/lib/promptEngine.js` drives the engine
+(`createEngine` + the browser loader) to expand it into the final prompt(s), deterministically and
+seedably → for **text** generation the prompt is returned as-is or rewritten by a text AI; for **images**
+the chosen provider adapter (`gui/providers/<id>/`) is called **directly from the browser** with the
+user's BYOK key (there is no server relay). In the **local** edition, each generated image plus a `.json`
+metadata sidecar (the prompt layers, the deterministic engine roll, the provider, and a key-stripped
+settings snapshot) is written to `output/` via `POST /api/image` and browsed through `GET /api/feed`.
+
+## Settings & content paths
+
+`src/settings.js` is the default settings object — the pipeline order (`promptModules`), the content
+locations, the active dialect, gating, and so on. Content paths resolve two ways: the dynamic-prompt
+loaders are **module-relative** (cwd-independent), while the list/preset settings
+(`listFiles: "./data/lists"`, `presetFiles: "./data/presets"`) are **cwd-relative** — so everything is
+run from the repo root (npm scripts always are; there is no `chdir` shim). User overrides live in
+`user-settings.json` (local) or `localStorage` (browser), merged over the defaults.
+
+See [`../systems/overview.md`](../systems/overview.md) for the deeper walk-through, and the per-layer
+deep-dives under [`../systems/`](../systems/README.md).

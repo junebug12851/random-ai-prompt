@@ -4,48 +4,53 @@
 > — the v1/v2 generations and the legacy `<expansion>` stage were removed, so the pipeline is now
 > `dynamic-prompt → prompt-salt → list → emphasis → cleanup` (all stages under `src/core/stages/`).
 
-`core/` is the **isomorphic** prompt engine: the same prompt-module pipeline as the Node CLI, factored
-so it runs **both** server-side (Node `fs` + `createRequire`) and **in the browser** (Vite
-`import.meta.glob`). It exists for the web migration — see [`../plans/web-migration.md`](../plans/web-migration.md)
-— so there is one engine, not two copies of the prompt logic.
+`core/` is the **isomorphic** prompt engine, factored so the same pipeline runs **both** under Node
+(`fs` + `createRequire`) and **in the browser** (Vite `import.meta.glob`). It powers the SPA and runs
+headless under Node for the test suite and the local `/api` — so there is one engine, not two copies of
+the prompt logic.
 
 ## Files
 
 | File | Role |
 |------|------|
 | `core/engine.js` | `createEngine(loader)` → an engine that runs the pipeline over a prompt string. |
-| `core/stages/dynamicPrompt.js` | `#name` expansion stage (factory takes the loader). |
-| `core/stages/expansion.js` | `<name>` expansion stage. |
-| `core/stages/list.js` | `{name}` list stage. |
+| `core/dpl/` | the DPL language — `parser.js`, `renderer.js`, `dpl.js`, `intensity.js`, `words.js`, `rng.js`. |
+| `core/stages/dynamicPrompt.js` | `{#name}` generator-expansion stage (factory takes the loader). |
+| `core/stages/prompt-salt.js` | `{salt}` randomizer stage. |
+| `core/stages/list.js` | `{name}` list stage (factory takes the loader). |
+| `core/stages/emphasis.js` | render typed `()`/`[]` emphasis into the active provider dialect. |
+| `core/stages/cleanup.js` | collapse stray spaces / commas. |
 | `core/listStore.js` | `createListStore(loader)` — per-run list state (once-only depletion, etc.). |
+| `core/rng.js` | the seedable `Rng` used for deterministic runs. |
 | `core/nodeLoader.js` | Loader impl: filesystem reads + `createRequire` dynamic-prompt loading. |
-| `core/browserLoader.js` | Loader impl: Vite `import.meta.glob` bundles prompts/lists/expansions/presets at build time. |
+| `core/browserLoader.js` | Loader impl: Vite `import.meta.glob` bundles the generators; lists ship code-split via `browserCatalogData.js`. |
 
 ## The loader seam
 
 The engine never touches files or `require` directly. It calls an injected **loader**:
 
 ```
-readExpansion(name)     -> string | null
-readListLines(name)     -> string[] | null
-listNames()             -> string[]
-loadDynamicPrompt(key)  -> { default, full?, suggestion_exclude? } | null
+readListLines(name, includeAdult)  -> string[] | null
+listNames()                        -> string[]
+loadDynamicPrompt(key)             -> { default, full?, suggestion_exclude? } | null
+dynamicPromptNames()               -> string[]
 ```
 
-Two loaders implement that seam — `nodeLoader` (server) and `browserLoader` (SPA) — so only the
-file/plugin *access* is reimplemented per environment. The **pure** stages (`prompt-salt`, `cleanup`)
-and the `random*` helpers are imported and reused directly from `prompt-modules/` and `helpers/`, so
-there is **no duplicated prompt logic** between this engine and the CLI's `processBatch()`.
+Two loaders implement that seam — `nodeLoader` (Node) and `browserLoader` (browser) — so only the
+file/plugin _access_ is reimplemented per environment. The stages all live together in `core/stages/` and
+the `random*` helpers in `src/helpers/`, so there is **no duplicated prompt logic** — the SPA and the
+Node runtime share the exact same engine.
 
 ## Default pipeline order
 
 ```
-expansion → dynamic-prompt → expansion → dynamic-prompt → prompt-salt → list → cleanup
+dynamic-prompt → prompt-salt → list → emphasis → cleanup
 ```
 
-Identical to the CLI's `settings.promptModules` order (see [overview.md](overview.md) → "The
-prompt-module pipeline"). The dynamic prompts are the same ESM default-export modules in
-`dynamic-prompts/` the CLI uses; `browserLoader` bundles them via glob, `nodeLoader` `require()`s them.
+This is `engine.js`'s `DEFAULT_ORDER`, matching `settings.promptModules` (see [overview.md](overview.md) →
+"The prompt pipeline"). `emphasis` runs after `list` so it sees the fully expanded text. The dynamic
+prompts are ESM default-export modules in `data/dynamic-prompts/`; `browserLoader` bundles them via glob,
+`nodeLoader` `require()`s them.
 
 ## Randomness & seeding
 
@@ -58,7 +63,8 @@ design (it also drives the instant live preview). Full detail: [rng-design.md](.
 
 ## Status
 
-The browser path powers the React SPA ([gui.md](gui.md)). The Node path is used today for
-**engine verification** (proving the browser and server produce the same output) and is the route by
-which the CLI will share this engine when Express is retired (migration phase 5). See
+The browser path powers the React SPA ([gui.md](gui.md)). The Node path runs the test suite and the
+local `/api` runtime, and doubles as **engine verification** (proving the browser and Node produce the
+same output). It's also the seam a future CLI would plug into to share this one engine (the classic
+Express server it once targeted has since been removed). See
 [`../plans/web-migration.md`](../plans/web-migration.md).
