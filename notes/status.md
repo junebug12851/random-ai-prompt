@@ -11,10 +11,15 @@ way out. Much of the narrative below predates the split (it describes the old si
 the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
 lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
 
-**Version:** `2.15.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
-see [`reference/versioning.md`](reference/versioning.md)). Latest stable release on `main` is `2.11.2`;
-`2.12.0`–`2.14.0` are on `dev` and `2.15.0` (SPA internationalization) is on `feature/i18n-react-intl`,
-all pending the owner's go-ahead to release.
+**Version:** `2.39.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+see [`reference/versioning.md`](reference/versioning.md)). `2.39.0` (supply-chain / Scorecard hardening)
+is on `dev` pending the owner's go-ahead to release.
+
+**`main` is branch-protected (2026-07-02):** releases now run **through a pull request** (`gh pr merge
+--merge`), not a local `git push origin main`. PR-required with 0 approvals (solo self-merge), strict
+status checks, enforce-admins, force-push/deletion blocked, linear history off. The OpenSSF Scorecard
+was hardened from 4.2 the same day. See [`reference/git-workflow.md`](reference/git-workflow.md) and
+[`reference/deployment.md`](reference/deployment.md).
 
 **SPA internationalization (2.15.0 — branch `feature/i18n-react-intl`):** the whole React SPA is
 internationalized with **react-intl** + the full **FormatJS** pipeline. Every user-facing string across

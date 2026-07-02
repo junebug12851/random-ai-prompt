@@ -17,6 +17,9 @@ on:
     branches: [dev, main]
   workflow_dispatch: # allow manual runs from the Actions tab / `gh workflow run sonar.yml`
 
+permissions:
+  contents: read
+
 jobs:
   sonar:
     name: SonarQube Cloud scan
@@ -25,12 +28,12 @@ jobs:
     timeout-minutes: 15 # safety net — a hung sensor fails fast instead of burning ~6h of runner time
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0 # Sonar wants full history for accurate blame / new-code detection
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
 
@@ -41,6 +44,6 @@ jobs:
           npm run test:coverage
 
       - name: SonarQube Cloud scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@689fb39b34b9aa95ebc5f8f119343ddd51542402 # v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

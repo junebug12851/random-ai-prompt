@@ -21,14 +21,19 @@ on:
         type: boolean
         default: true
 
+# Top-level least privilege; the release job below elevates only what it needs, at job scope.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the GitHub Release + upload assets
+      id-token: write # OIDC token for keyless Sigstore signing of build provenance
+      attestations: write # write the build-provenance attestation
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -54,7 +59,7 @@ jobs:
             echo "Tag $tag is new -- will release."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         if: steps.ver.outputs.should_release == 'true'
         with:
           node-version: 24
@@ -118,16 +123,28 @@ jobs:
 
       - name: Upload artifacts (always, for inspection / dry run)
         if: steps.ver.outputs.should_release == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-artifacts
           path: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
 
+      # Cryptographically sign the release assets with SLSA build provenance (keyless, via Sigstore).
+      # Produces a verifiable attestation per asset; verify with:
+      #   gh attestation verify <file> --repo junebug12851/random-ai-prompt
+      # Only on a real (non-dry-run) release. See notes/reference/deployment.md.
+      - name: Attest build provenance for release artifacts
+        if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: |
+            random-ai-prompt-*.tar.gz
+            random-ai-prompt-*-docs.zip
+
       - name: Publish GitHub Release
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: ${{ steps.ver.outputs.tag }}

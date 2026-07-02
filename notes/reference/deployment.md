@@ -70,7 +70,31 @@ so the legal pages are unaffected.
   on push/PR to dev & main + weekly; `javascript-typescript`, `security-and-quality` queries; frozen
   `engine-v1-2/`, build output, and vendored deps are `paths-ignore`d. Findings → Security → Code scanning.
 - **OpenSSF Scorecard** (`.github/workflows/scorecard.yml`) — GitHub-native. Weekly supply-chain posture
-  score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`).
+  score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`). **Hardened
+  2026-07-02** (score was 4.2) — see "Supply-chain hardening" below. Note: the badge only refreshes when
+  the scorecard workflow re-runs (weekly Monday cron or a push to `main`), so changes lag until then.
+
+### Supply-chain hardening (2026-07-02)
+
+A pass to raise the Scorecard from 4.2, addressing the high-weight failing checks:
+
+- **Token-Permissions** — every workflow now declares a top-level least-privilege `permissions: contents:
+  read`; `release.yml` moved its `contents: write` (plus `id-token`/`attestations: write` for signing)
+  down to the `release` **job** scope. Previously several workflows had no top-level permissions and
+  `release.yml` was `write` at the top level.
+- **Pinned-Dependencies** — all GitHub Actions across every workflow are pinned to a **full commit SHA**
+  (with a `# vX` comment). Dependabot's `github-actions` ecosystem keeps the SHAs current.
+- **Signed-Releases** — `release.yml` attests **SLSA build provenance** for each release asset via
+  `actions/attest-build-provenance` (keyless Sigstore; no secrets). Verify with `gh attestation verify
+  <file> --repo junebug12851/random-ai-prompt`. Only past releases (pre-2.39.0) are unsigned; the check
+  goes green after the next release runs.
+- **Branch-Protection** — `main` is protected (PR-required, 0 approvals, strict status checks,
+  enforce-admins, no force-push/deletion). See [`git-workflow.md`](git-workflow.md).
+- **Security-Policy** — root [`SECURITY.md`](../../SECURITY.md) (private reporting → `fairy@fairyfox.io`).
+- **Vulnerabilities** — the 18 OSV hits were all dev-only (`@lhci/cli`'s `tmp`/`inquirer`/`uuid` chain);
+  `engine-v3/package.json` `overrides` force `tmp@^0.2.7` + `uuid@^11.1.1`, clearing `npm audit` to 0.
+- **Code-Review stays ~0 by design** — it needs an approved PR review, and GitHub forbids self-approval,
+  so a solo maintainer can't satisfy it. That's the score ceiling (~8) for a one-person repo.
 - **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
   — static analysis + coverage import + tech-debt / quality-gate badges. Enabled 2026-06-30: secret
   `SONAR_TOKEN` + repo variable `SONAR_ENABLED=true` are set (the workflow's `if:` guard), `workflow_dispatch`
@@ -136,9 +160,10 @@ silent — cosmetic, deferred.
 
 ### The version gate
 
-Trigger: **push to `main`** (every commit on `main` is a tagged release reached by `--no-ff` merge from
-green `dev` or a `release/`/`hotfix/` branch, so always all-green). Gate: the tag **`v<VERSION>` must not
-already exist** — i.e. `VERSION` was bumped since the last release. So:
+Trigger: **push to `main`** (every commit on `main` is a tagged release reached by a **PR merge commit**
+from green `dev` or a `release/`/`hotfix/` branch — `main` is branch-protected, so it lands via
+`gh pr merge --merge`, always all-green). Gate: the tag **`v<VERSION>` must not already exist** — i.e.
+`VERSION` was bumped since the last release. So:
 
 - Bump `VERSION` (+ `package.json`, same commit; see [`versioning.md`](versioning.md)) → the next time
   `main` advances, that commit cuts the release and creates tag `vX.Y.Z`.
@@ -153,6 +178,10 @@ already exist** — i.e. `VERSION` was bumped since the last release. So:
   `npm run server`.
 - **`random-ai-prompt-<v>-docs.zip`** — the generated JSDoc doc-site (archival snapshot; the live site
   is on Pages).
+- **SLSA build provenance** — both assets are attested via `actions/attest-build-provenance` (keyless
+  Sigstore signing; `id-token`/`attestations: write` at job scope). Verify a downloaded asset with
+  `gh attestation verify <file> --repo junebug12851/random-ai-prompt`. This satisfies the Scorecard
+  **Signed-Releases** check (from the next release onward).
 
 The release body is composed automatically: a plain-English "what it is", a prerelease note, **"What's
 new in this release"** pulled from the lines added to `notes/version/` since the previous tag

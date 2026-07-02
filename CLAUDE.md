@@ -189,18 +189,27 @@ After making changes, run this loop without being asked:
    **PATCH** for a fix/small change, **MINOR** for a feature; never **MAJOR** automatically. Docs / notes
    / test / CI-only commits don't move the number. The release path follows the SemVer level (step 5).
    See `reference/versioning.md`.
-5. **Release when green (on go-ahead) — path set by SemVer level.** `main` is the stable branch; every
-   commit on it is a **tagged release** reached by `--no-ff` merge — never commit on `main` directly.
-   A **PATCH** goes **directly** `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch
-   (see `reference/git-workflow.md`). With the owner's go-ahead, confirm CI is green on the `dev` HEAD
-   (`gh run list --branch dev -L 1`), then for a PATCH:
-   `git checkout main && git merge --no-ff dev && git push origin main && git checkout dev && git merge --ff-only main && git push origin dev`.
-   **After every release `dev` must CONTAIN `main`** — the closing `git merge --ff-only main` on `dev`
-   (and `git push origin dev`) catches `dev` up to `main`'s release merge commit so it never drifts
-   behind. Skipping this back-merge is what once left `dev` 32 commits behind `main` (with `main`-only
-   README/docs). A MINOR/MAJOR ends the same way: after the `release/X.Y.0` branch merges into `main`,
-   fast-forward `dev` up to `main` (don't merge the release branch into `dev` separately). A scheduled
-   `branch-sync` workflow fails if `main` ever has commits not in `dev`. See `reference/git-workflow.md`.
+5. **Release when green (on go-ahead) — via a PR into `main`, path set by SemVer level.** `main` is the
+   stable branch and is **branch-protected**: it accepts changes **only through a pull request** with
+   the required CI checks green. Approvals are set to **0**, so you self-merge (there's no second
+   reviewer) — but admins are **not** exempt (`enforce_admins`), and force-push + branch-deletion are
+   blocked. **Never commit on `main` directly** (the protection now enforces this). Every commit on
+   `main` is a **tagged release** reached by a **merge-commit** PR merge (the `--no-ff` equivalent;
+   linear history is intentionally off so these merge commits are allowed). A **PATCH** goes
+   `dev → main`; a **MINOR/MAJOR** goes through a `release/X.Y.0` branch → `main`
+   (see `reference/git-workflow.md`). With the owner's go-ahead, confirm `dev` (or the release branch)
+   is green (`gh run list --branch dev -L 1`), then:
+   `gh pr create --base main --head dev --title "Release v<VERSION>" --fill` →
+   `gh pr checks <#> --watch` (wait for the required checks) →
+   `gh pr merge <#> --merge` (a **merge** commit — never `--squash`/`--rebase`; that preserves the
+   changelog history and the merge commit `release.yml` keys on).
+   **After every release `dev` must CONTAIN `main`** — once the PR is merged, catch `dev` up to the
+   merge commit: `git fetch origin && git switch dev && git merge --ff-only origin/main && git push origin dev`
+   (`dev` is unprotected, so this push is fine). Skipping this back-merge is what once left `dev` 32
+   commits behind `main` (with `main`-only README/docs). A MINOR/MAJOR ends the same way: fast-forward
+   `dev` up to `main` after the `release/X.Y.0` PR merges (don't merge the release branch into `dev`
+   separately). A scheduled `branch-sync` workflow fails if `main` ever has commits not in `dev`. See
+   `reference/git-workflow.md`.
    **Do not tag by hand.** `release.yml` derives `v<VERSION>` and creates the tag itself, gated on that
    tag not already existing — a hand-pushed tag makes the gated run find the tag present and **skip
    itself (a silent no-op release)**. The merge to `main` *is* the release act; CI applies the tag. A

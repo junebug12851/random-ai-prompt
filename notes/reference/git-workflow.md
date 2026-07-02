@@ -8,11 +8,14 @@ automation. Canonical source: `hub/standards/git-workflow.md` in the system clon
 
 git-flow runs **two long-lived branches** and **three kinds of short-lived support branch**.
 
-- **`main`** — production. Every commit on `main` is a **tagged release**, reached only by `--no-ff`
-  merge. **Never commit directly.** It advances at a release: a **PATCH** goes directly from `dev`; a
-  **MINOR/MAJOR** goes through a `release/*` branch; an urgent fix goes through a `hotfix/*` branch.
-  `main` is the repo's stable branch and default branch. (`master` was renamed to `main` on
-  2026-06-25 to adopt the system standard — `master` is no longer used.)
+- **`main`** — production. Every commit on `main` is a **tagged release**, reached only by a **merge
+  commit** (the `--no-ff` equivalent). **Never commit directly** — as of 2026-07-02 `main` is
+  **branch-protected** and only accepts changes through a **pull request** (see "`main` is
+  branch-protected" below), so the release path runs through a PR rather than a local push. It advances
+  at a release: a **PATCH** goes from `dev`; a **MINOR/MAJOR** goes through a `release/*` branch; an
+  urgent fix goes through a `hotfix/*` branch. `main` is the repo's stable branch and default branch.
+  (`master` was renamed to `main` on 2026-06-25 to adopt the system standard — `master` is no longer
+  used.)
 - **`dev`** — the integration branch (git-flow's `develop` role, kept under the shorter name). All
   finished work lands here first. **This is the branch the hub tracks for sync** (the registry
   `branch:` field).
@@ -46,51 +49,75 @@ committed directly on `dev` rather than via a `feature/*` branch. Anything that 
 or is large/risky, still gets its own branch. The release path below is **not** latitude — it is fixed
 by the SemVer level.
 
+## `main` is branch-protected (as of 2026-07-02)
+
+`main` carries a GitHub branch-protection rule, so releases run **through a pull request**, not a local
+`git push origin main`. The rule:
+
+- **Require a pull request before merging**, with **0 required approvals** — this is a solo project, so
+  there's no second reviewer; you open the PR and merge it yourself once checks pass. (GitHub won't let
+  you approve your own PR, so requiring ≥1 approval would deadlock — hence 0.)
+- **Require status checks to pass**, **strict** (branch up to date): `Lint, format, smoke & unit tests`
+  and `Build & unit-test the SPA` (the two core CI jobs; the heavier E2E/perf jobs are intentionally
+  not gating, so a flake there never blocks a release).
+- **Enforce for administrators** — the owner is **not** exempt (a rule you can bypass isn't protection).
+- **Block force-pushes and branch deletion**; **require conversation resolution**.
+- **Linear history is OFF** on purpose, so the `--no-ff`-style **merge commits** each release creates
+  are allowed.
+
+Managed via `gh api PUT /repos/junebug12851/random-ai-prompt/branches/main/protection`; fully
+reversible from **Settings → Branches**. `dev` is **unprotected** (day-to-day work + the release
+back-merge push land there directly). This is a local divergence from the hub git-workflow standard,
+proposed back in `notes/fairyfox-reports/2026-07-02-propose-scorecard-hardening.md`.
+
 ## Cutting a release
 
-The release path is set by the SemVer level (see [`versioning.md`](versioning.md)):
+The release path is set by the SemVer level (see [`versioning.md`](versioning.md)). Because `main` is
+branch-protected, each path lands on `main` via a **PR merge** (`gh pr merge … --merge`, which creates
+the release merge commit) instead of a direct push.
 
-> **⚠ Local correction (pending hub adoption).** The upstream (hub) form of both flows below merged
-> into `main` but never brought `main` back to `dev`, so **every release left a merge commit on `main`
-> that `dev` never received** — `dev` drifts behind `main`, one commit per release, and any commit made
-> directly on `main` (which must never happen anyway) is stranded there. Observed live: `dev` was 32
-> commits behind `main`. **Invariant to hold: after every release, `dev` must CONTAIN `main`** — so the
-> release ends by fast-forwarding `dev` up to `main`. The corrected commands below do this. This fix is
-> proposed back to the hub standard in `notes/fairyfox-reports/2026-07-01-propose-git-workflow-backmerge.md`;
-> a scheduled `branch-sync` workflow guards the invariant.
+> **⚠ Local correction (pending hub adoption).** The upstream (hub) form of these flows merged into
+> `main` but never brought `main` back to `dev`, so **every release left a merge commit on `main` that
+> `dev` never received** — `dev` drifts behind `main`, one commit per release. Observed live: `dev` was
+> 32 commits behind `main`. **Invariant to hold: after every release, `dev` must CONTAIN `main`** — so
+> the release ends by fast-forwarding `dev` up to `main`. The corrected commands below do this. Proposed
+> back to the hub in `notes/fairyfox-reports/2026-07-01-propose-git-workflow-backmerge.md`; a scheduled
+> `branch-sync` workflow guards the invariant.
 
-- **PATCH** (the default — fixes, docs, ordinary changes): release **directly** `dev → main`.
+- **PATCH** (the default — fixes, docs, ordinary changes): release `dev → main` via a PR.
 
   ```sh
-  git checkout main
-  git merge --no-ff dev
-  git push origin main                 # CI (release.yml) derives + creates the vX.Y.Z tag — do NOT tag by hand
-  git checkout dev
-  git merge --ff-only main             # REQUIRED: catch dev up to main (fast-forward) so dev ⊇ main
-  git push origin dev
+  gh pr create --base main --head dev --title "Release vX.Y.Z" --fill
+  gh pr checks <#> --watch             # the required CI checks must go green
+  gh pr merge  <#> --merge             # merge commit == the release act; CI (release.yml) tags vX.Y.Z — do NOT tag by hand
+  git fetch origin
+  git switch dev
+  git merge --ff-only origin/main      # REQUIRED: catch dev up to main so dev ⊇ main
+  git push origin dev                  # dev is unprotected — this push is fine
   ```
 
 - **MINOR / MAJOR** (a milestone): go through a **`release/X.Y.0`** branch. (MAJOR → `1.0.0` etc. is the
   owner's call only.)
 
   ```sh
-  git checkout dev
-  git checkout -b release/X.Y.0
+  git switch dev
+  git switch -c release/X.Y.0
   # … finalize: bump VERSION, finish the changelog entry, last polish …
-  git checkout main
-  git merge --no-ff release/X.Y.0
-  git branch -d release/X.Y.0
-  git checkout dev
-  git merge --ff-only main              # REQUIRED: fast-forward dev up to main (== the release merge)
-  git push origin main dev              # CI creates the vX.Y.0 tag — do NOT tag by hand
+  git push origin release/X.Y.0
+  gh pr create --base main --head release/X.Y.0 --title "Release vX.Y.0" --fill
+  gh pr checks <#> --watch
+  gh pr merge  <#> --merge --delete-branch   # merge commit tags vX.Y.0; deletes the release branch
+  git fetch origin
+  git switch dev
+  git merge --ff-only origin/main            # REQUIRED: fast-forward dev up to main (== the release merge)
+  git push origin dev
   ```
 
-  (The old form merged the release branch into `dev` separately, creating a *different* merge commit
-  on `dev` than on `main` — leaving `main` one commit ahead of `dev`. Fast-forwarding `dev` to `main`
-  instead gives one shared merge commit and `dev == main` after the release.)
+  (Fast-forwarding `dev` to `main` gives one shared merge commit and `dev == main` after the release —
+  never merge the release branch into `dev` separately.)
 
-A push to `main` that bumped `VERSION` cuts a GitHub Release (`release.yml`, tag-gated) and refreshes
-the Pages docs (`pages.yml`). See [`deployment.md`](deployment.md).
+Merging the release PR into `main` after a `VERSION` bump cuts a GitHub Release (`release.yml`,
+tag-gated) and refreshes the Pages docs (`pages.yml`). See [`deployment.md`](deployment.md).
 
 ## Who creates the tag — CI, not by hand (this repo)
 
@@ -110,15 +137,17 @@ project whose `release.yml` does *not* tag. The hub documents exactly this CI-vs
 ## Hotfixes
 
 ```sh
-git checkout main
-git checkout -b hotfix/X.Y.Z
+git fetch origin
+git switch -c hotfix/X.Y.Z origin/main   # branch from main's tip
 # … fix, bump VERSION (patch), changelog …
-git checkout main
-git merge --no-ff hotfix/X.Y.Z
-git checkout dev
-git merge --no-ff hotfix/X.Y.Z
-git branch -d hotfix/X.Y.Z
-git push origin main dev              # CI creates the vX.Y.Z tag — do NOT tag by hand
+git push origin hotfix/X.Y.Z
+gh pr create --base main --head hotfix/X.Y.Z --title "Hotfix vX.Y.Z" --fill
+gh pr checks <#> --watch
+gh pr merge  <#> --merge --delete-branch  # merge commit tags vX.Y.Z — do NOT tag by hand
+git fetch origin
+git switch dev
+git merge --ff-only origin/main           # catch dev up to main (carries the hotfix) so dev ⊇ main
+git push origin dev
 ```
 
 ## Commit style
@@ -134,9 +163,11 @@ git push origin main dev              # CI creates the vX.Y.Z tag — do NOT tag
 
 ## Merging — `--no-ff`, never rewrite
 
-git-flow merges with `--no-ff` (features into `dev`; `release/`/`hotfix/` into both `main` and `dev`;
-a PATCH release `dev → main`), each creating a merge commit so the grouping stays legible and revertible.
-**Every merge into `main` is a tagged release.** This is all **additive** — it never rewrites history.
+git-flow merges create a **merge commit** (the `--no-ff` effect): features merge `--no-ff` into `dev`
+locally; every landing on `main` (a PATCH `dev → main`, or a `release/`/`hotfix/` branch) goes through a
+**PR merged with `gh pr merge --merge`**, then `dev` fast-forwards up to `main`. Each keeps the grouping
+legible and revertible. **Every merge into `main` is a tagged release.** This is all **additive** — it
+never rewrites history (and force-pushes to `main` are now blocked by branch protection).
 
 ## Hard safety rules (absolute)
 
