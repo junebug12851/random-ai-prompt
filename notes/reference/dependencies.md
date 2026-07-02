@@ -43,7 +43,7 @@ Root `package.json`:
 | `@playwright/test` | 1 | E2E / visual-regression / a11y runner (`playwright.config.js`, `tests/e2e/`). Browser installed once with `npx playwright install chromium`. |
 | `@axe-core/playwright` | 4 | axe accessibility scans inside the Playwright specs. |
 
-`web-app/package.json` (the SPA's own jsdom suite, `web-app/vitest.config.js`):
+`gui/package.json` (the SPA's own jsdom suite, `gui/vitest.config.js`):
 
 | Package | Major | Purpose |
 |---------|-------|---------|

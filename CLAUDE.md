@@ -56,12 +56,14 @@ The full notes system is in `notes/`, organized by topic:
 - **This is ES modules (`"type": "module"`).** Every relative import needs its **file extension**
   (`./foo.js`, not `./foo`). There is no `require`/`module.exports`/`__dirname`/`__filename` — use
   `import`/`export`, `import.meta.url`, `import.meta.dirname`. See `reference/esm-patterns.md`.
-- **`src/chdir.js` must stay imported first in `src/common.js`.** The whole app uses cwd-relative paths
-  (`./output`, `./data/lists`, `./results.json`, `./user-settings.json`). Because `chdir.js` now lives
-  in `src/`, it does `process.chdir(path.join(import.meta.dirname, ".."))` to pin the cwd to the **repo
-  root** (its parent), and is imported before settings load. Because ES-module imports are evaluated in
-  order, importing it first guarantees the chdir happens before any module reads a cwd-relative file.
-  Don't reorder it below the settings imports, and don't drop the `".."`. See `decisions/architecture.md`.
+- **Content paths resolve two ways — keep both working.** The dynamic-prompt loaders resolve
+  **module-relative** via `import.meta.url` (`src/core/nodeLoader.js` does
+  `fileURLToPath(new URL("../../", import.meta.url))` → the repo root, since `src/core` is two below it;
+  `browserLoader.js` uses a Vite glob), so they don't depend on the cwd. The list/preset settings, by
+  contrast, are **cwd-relative** (`src/settings.js`: `listFiles: "./data/lists"`,
+  `presetFiles: "./data/presets"`), so they only resolve when the process runs from the **repo root** —
+  which npm scripts always do (the package root is the repo root). There is no `chdir` shim: just run
+  everything from the repo root. See `decisions/architecture.md`.
 - **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
   modules are loaded by a runtime path, synchronously, inside string-replace callbacks. Node 24 can
   `require()` ES modules synchronously, so `createRequire(import.meta.url)` is the correct tool — do
@@ -159,9 +161,9 @@ npm run docs           # build the JSDoc doc-site (code API + notes as tutorials
   regression + `@axe-core` accessibility specs (`tests/e2e/`). It targets the **active** engine + SPA only;
   the legacy classic server is out of scope (only the pure stages the core engine still imports —
   `cleanup.js`, `prompt-salt.js` — are covered). The **import smoke test** (`npm run smoke` →
-  `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `src/common.js` +
-  `src/promptFilesAndSuggestions.js` the way the server boots, forces every dynamic prompt to load via
-  `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
+  `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `src/promptFilesAndSuggestions.js` +
+  `src/core/nodeLoader.js` + `src/settings.js` the way the SPA's Node-side loader boots, forces every
+  dynamic prompt to load via `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
   suite is separate (`npm run test:e2e`, browser via `npx playwright install chromium`). The headless
   checks run in CI (`.github/workflows/ci.yml`).
 - **Testing landmine:** lodash captures `Math.random` at import, so `_.random/_.sample/_.shuffle` can't be

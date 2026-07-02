@@ -58,7 +58,7 @@ design (it also drives the instant live preview). Full detail: [rng-design.md](.
 
 ## Status
 
-The browser path powers the React SPA ([web-app.md](web-app.md)). The Node path is used today for
+The browser path powers the React SPA ([gui.md](gui.md)). The Node path is used today for
 **engine verification** (proving the browser and server produce the same output) and is the route by
 which the CLI will share this engine when Express is retired (migration phase 5). See
 [`../plans/web-migration.md`](../plans/web-migration.md).

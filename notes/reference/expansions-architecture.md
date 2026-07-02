@@ -34,7 +34,7 @@ the browser), and `_`-prefixed files are skipped (the same internal/config conve
 
 Each expansion may carry an optional `<name>.json` sidecar (`{ "description": "…" }`) and each
 category folder a `<folder>.json`, read via `loader.readExpansionMeta(name)`. The SPA token cloud
-([`web-app/src/lib/promptEngine.js`](../../web-app/src/lib/promptEngine.js) `expansionItems()`)
+([`gui/src/lib/promptEngine.js`](../../gui/src/lib/promptEngine.js) `expansionItems()`)
 renders expansions as folder categories, mirroring the Lists block: an alphabetical run per folder
 preceded by a category pill (folder name + description tooltip), with each entry's button showing
 the shortest unambiguous token via `computeButtonNames()` and its description as the tooltip. The
