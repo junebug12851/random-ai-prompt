@@ -100,7 +100,7 @@ the weighted-layer render model come before the start/end UX. (Start/end blocks 
 1. **Start/end UX** — *resolved (SPA):* a **"wrapper"** = a START + END pair of DPL snippets, edited as two
    side-by-side boxes in a **Manage wrappers** modal, reached from a **bottom-right floating button** whose
    popover lists saved wrapper presets (apply one, or None). The selected wrapper lives in `settings.wrapper`
-   and frames each generation (`start, prompt, end`). See `web-app/src/components/WrapperFab.jsx`.
+   and frames each generation (`start, prompt, end`). See `gui/src/components/WrapperFab.jsx`.
 2. **Read-only variables** — what variables exist and how they're surfaced to DPL/JS.
 3. **Auto-weight collisions** — if an explicit `[n]` lands on an auto number, tie-break is document order;
    confirm nothing else is needed.

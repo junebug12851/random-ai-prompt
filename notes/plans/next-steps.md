@@ -31,8 +31,8 @@ Ordered, roughly by priority. Update as items are done or added.
    **unit tests** (e.g. for `cleanup` / `list` / `prompt-salt`) and a small browser-engine assertion for
    the SPA's `core/` path. See [`testing.md`](testing.md).
 4. **README refresh.** The root `README.md` predates 2.0.0; update the run instructions to the `npm`
-   scripts, note the Node 24 requirement, and mention the `web-app/` SPA and the `npm run docs` doc-site.
-5. **Finish the SPA UI rework, then re-enable the Generate + Settings tabs.** The React + Vite `web-app/`
+   scripts, note the Node 24 requirement, and mention the `gui/` SPA and the `npm run docs` doc-site.
+5. **Finish the SPA UI rework, then re-enable the Generate + Settings tabs.** The React + Vite `gui/`
    exists and only the **Build** tab is currently shown while the UI is reworked. Complete that rework
    and unhide the other tabs. (The older `web/frontend/` jQuery client modernization is now largely
    superseded by this SPA — do it only if the classic server is kept long-term.) The 2026-06-19

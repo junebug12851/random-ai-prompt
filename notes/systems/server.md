@@ -24,7 +24,7 @@ actual generation — it does not generate in-process.
 
 Classic jQuery-era scripts + CSS (one pair per page: `generate`, `feed`, `results`, `single`,
 `settings`, `progress`, `re-index`), plus vendored `lib/` (jQuery, lodash). This talks to the JSON API.
-It is the **legacy** client; the modern front end is the React SPA ([web-app.md](web-app.md)), and the
+It is the **legacy** client; the modern front end is the React SPA ([gui.md](gui.md)), and the
 web migration plan ([`../plans/web-migration.md`](../plans/web-migration.md)) tracks retiring Express +
 this client in favor of the isomorphic engine + SPA.
 

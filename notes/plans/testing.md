@@ -47,7 +47,7 @@ tests/                         # Node-side suite (Vitest, environment: node)
   helpers/                     # seededRandom.js (mulberry32 + withSeed), fakeLoader.js
   unit/                        # pure-module unit tests
   integration/                 # engine pipeline over a fake loader
-  contract/                    # (provider/API contracts live in web-app — see below)
+  contract/                    # (provider/API contracts live in gui — see below)
   snapshot/                    # seeded, reproducible output snapshots
   regression/                  # bug-regression guards (one per fixed defect)
   e2e/                         # Playwright specs: home.spec, visual.spec, accessibility.spec
@@ -55,7 +55,7 @@ tests/                         # Node-side suite (Vitest, environment: node)
 vitest.config.js               # root (node) config
 playwright.config.js           # builds the SPA + serves dist via `vite preview`
 
-web-app/
+gui/
   tests/                       # SPA suite (Vitest, environment: jsdom)
     *.test.js                  # unit (share, settings, customStore) + contract (providers)
     *.test.jsx                 # component/UI (Field, TokenPicker) via Testing Library
@@ -68,14 +68,14 @@ web-app/
 
 | Type | Where | Notes |
 |------|-------|-------|
-| **Unit** | `tests/unit/**`, `web-app/tests/*.test.js` | contentSafety, diffSettings, keywordRepeater, gatedLists, listManifest, DPL compiler, cleanup, prompt-salt; SPA share/settings/customStore |
-| **Component / UI** | `web-app/tests/*.test.jsx` | Field controls, TokenPicker — React Testing Library + jsdom |
-| **Integration** | `tests/integration/**`, `web-app/tests/promptEngine.integration.test.js` | full stage pipeline via a fake loader (Node) and via the real bundled-data browser loader (SPA) |
+| **Unit** | `tests/unit/**`, `gui/tests/*.test.js` | contentSafety, diffSettings, keywordRepeater, gatedLists, listManifest, DPL compiler, cleanup, prompt-salt; SPA share/settings/customStore |
+| **Component / UI** | `gui/tests/*.test.jsx` | Field controls, TokenPicker — React Testing Library + jsdom |
+| **Integration** | `tests/integration/**`, `gui/tests/promptEngine.integration.test.js` | full stage pipeline via a fake loader (Node) and via the real bundled-data browser loader (SPA) |
 | **E2E** | `tests/e2e/home.spec.js` | Playwright drives the built SPA: type → generate → results; block search |
 | **Visual regression** | `tests/e2e/visual.spec.js` | `toHaveScreenshot` of stable chrome (topbar, sidebar, full page with the random suggestion masked) |
 | **Accessibility** | `tests/e2e/accessibility.spec.js` | `@axe-core/playwright`, WCAG 2 A/AA, fails on serious/critical (color-contrast excluded — tracked) |
 | **Snapshot** | `tests/snapshot/**` | seeded (Math.random) DPL + pipeline output |
-| **Contract / API** | `web-app/tests/providers.test.js` | SD WebUI `txt2img` request/response contract, `fetch` mocked |
+| **Contract / API** | `gui/tests/providers.test.js` | SD WebUI `txt2img` request/response contract, `fetch` mocked |
 | **Smoke** | `scripts/smoke-test.mjs` (`npm run smoke`) | the original import-graph smoke, still the fast gate |
 | **Bug regression** | `tests/regression/bugRegressions.test.js` | one guard per fixed defect / documented landmine |
 

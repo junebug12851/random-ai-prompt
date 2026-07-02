@@ -18,7 +18,7 @@ This file describes the **system** — where everything lives and how it's kept 
 | [`version.md`](version.md) | **The changelog** — plain-English, one entry per commit, newest first (index; months under `version/`). |
 | [`fairyfox-reports/`](fairyfox-reports/README.md) | **Process reports** — one per run of a fairyfox system procedure (check/adopt updates, setup, onboarding). The feedback this node sends the hub. |
 | `context/` | Background that changes rarely: [`project.md`](context/project.md) (what it is + goals), [`architecture.md`](context/architecture.md) (layout + entry points + pipeline), [`principles.md`](context/principles.md) (philosophy), [`history.md`](context/history.md) (origins + the 2026 ESM modernization). |
-| `systems/` | **System map** — [`README.md`](systems/README.md) (hub) + [`overview.md`](systems/overview.md) (the machine end-to-end) and the per-layer deep-dives: [`core-engine.md`](systems/core-engine.md), [`cli.md`](systems/cli.md), [`server.md`](systems/server.md), [`web-app.md`](systems/web-app.md). |
+| `systems/` | **System map** — [`README.md`](systems/README.md) (hub) + [`overview.md`](systems/overview.md) (the machine end-to-end) and the per-layer deep-dives: [`core-engine.md`](systems/core-engine.md), [`cli.md`](systems/cli.md), [`server.md`](systems/server.md), [`gui.md`](systems/gui.md). |
 | `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (JSDoc doc-site + comment style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`versioning.md`](reference/versioning.md) (the version-number scheme), [`cross-project-sync.md`](reference/cross-project-sync.md) / [`process-reports.md`](reference/process-reports.md) / [`compliance.md`](reference/compliance.md) (the fairyfox-mesh standards). |
 | `decisions/` | Rationale: [`architecture.md`](decisions/architecture.md) (choices + why), [`rejected.md`](decisions/rejected.md) (things tried/considered that were rejected). |
 | `plans/` | What's next: [`next-steps.md`](plans/next-steps.md) (ordered tasks), [`testing.md`](plans/testing.md) (the testing reality), [`future.md`](plans/future.md) (longer-term vision). |
@@ -80,7 +80,7 @@ notes/
   context/               ← background that changes rarely
     project.md  architecture.md  principles.md  history.md
   systems/               ← the system map (macro + per-layer)
-    README.md  overview.md  core-engine.md  cli.md  server.md  web-app.md
+    README.md  overview.md  core-engine.md  cli.md  server.md  gui.md
   reference/             ← quick lookup, no story
     esm-patterns.md  dependencies.md  fix-patterns.md
     documentation.md  deployment.md  git-workflow.md  versioning.md
