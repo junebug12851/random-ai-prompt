@@ -99,7 +99,7 @@ The full desktop edition (gallery, Manager, local providers, NSFW) is built from
 Requires **Node ≥ 24**.
 
 ```sh
-npm install          # installs the engine and the gui/ web-app dependencies
+npm install          # installs the engine and the gui/ SPA dependencies
 npm run web          # dev server with hot reload
 ```
 
