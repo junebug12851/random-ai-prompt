@@ -4,25 +4,23 @@ An open-source generator for AI image and text prompts that automatically builds
 detailed prompts than most people write by hand, then runs them through 40+ models (Midjourney,
 DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
 
-**The repo holds two separate engines (zero shared code):**
+**This is a single project at the repo root.** An isomorphic prompt **engine** (`src/core/`) authored
+in the **DPL** dynamic-prompt language, driven by a React/Vite **web GUI** (`gui/`), with SFW/NSFW
+gating. The `gui/` name anticipates a sibling **CLI** (planned next — the core engine is already
+headless/isomorphic); there is **no CLI yet**. The old pre-revival system (the 2022–2023 CommonJS
+yargs CLI + Express/Pug web UI) has been removed from the tree; it lives in git history and as a
+read-only reference clone at `assets/references/og-pre-revival-2023-04-07-241a148/`. (The repo used to
+nest the active project under `engine-v3/` next to a frozen `engine-v1-2/`; that split was flattened on
+2026-07-02 — see the changelog.)
 
-- **`engine-v3/` — the active project, and what this document describes.** An isomorphic prompt **engine**
-  (`src/core/`) authored in the **DPL** dynamic-prompt language, driven by a React/Vite **web GUI**
-  (`gui/`), with SFW/NSFW gating. The folder is named `gui/` to anticipate a sibling **CLI** (planned
-  next — the core engine is already headless/isomorphic); there is **no CLI yet**, and no classic
-  server here — those were the old system and now live only in `engine-v1-2/`.
-- **`engine-v1-2/` — the frozen pre-revival snapshot** (the literal 2022–2023 CommonJS system: yargs CLI +
-  Express/Pug web UI, restored from commit `241a148`). Complete, self-contained (its own
-  `package.json`/lockfile/`webui.bat`), runnable, **unmaintained, and on its way out**. Don't develop it.
-
-**Unless noted, every path below (`src/…`, `data/…`, `gui/…`, `scripts/…`, `tests/…`) is relative to
-`engine-v3/`.** Inside engine-v3: all engine code lives under `src/`; all prompt content (lists, presets,
-the raw `data/sources/` CSV/JSON, and the `{#name}` dynamic-prompt generators) lives under `data/`; runtime/user data
-(`output/`, `user-settings.json`, `results.json`) stays at the engine-v3 root. The **one deliberate
+**Every path below (`src/…`, `data/…`, `gui/…`, `scripts/…`, `tests/…`) is relative to the repo root.**
+All engine code lives under `src/`; all prompt content (lists, presets, the raw `data/sources/`
+CSV/JSON, and the `{#name}` dynamic-prompt generators) lives under `data/`; the React/Vite app is `gui/`
+(its own package); build/meta scripts are in `scripts/`; the Node test suite is in `tests/`. Runtime/user
+data (`output/`, `user-settings.json`, `results.json`) stays at the repo root. The **one deliberate
 exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators are executable `.js`
 authored as prompt *content* (like lists), so they live under `data/`. (Expansions are deprecated,
-superseded by dynamic prompts.) The split is recorded in `notes/plans/engine-split.md`; the notes and the
-deeper path references in this file are still being reconciled to the new `engine-v3/` layout.
+superseded by dynamic prompts.)
 
 ## Start Here
 
@@ -84,8 +82,7 @@ The full notes system is in `notes/`, organized by topic:
   automatic by name token (`isGatedDynPrompt`). The resolver is the core engine
   `src/core/stages/dynamicPrompt.js` (one flat pool) over the two isomorphic loaders —
   `src/core/nodeLoader.js` (fs + `createRequire`) and `src/core/browserLoader.js`
-  (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`). The classic pipeline
-  `src/prompt-modules/dynamic-prompt.js` is **read-only legacy reference** — do not maintain it.
+  (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
 - **Generator imports are depth-sensitive — verify with both gates after any move.** A `<category>/`
   generator reaches `src/` via `../../../src/helpers/…` (and `../../../src/promptFilesAndSuggestions.js`)
   and imports siblings across categories by relative path (`../fragment/nature.js`). `npm run smoke`
@@ -121,13 +118,12 @@ The full notes system is in `notes/`, organized by topic:
 ## Build / Run / Verify
 
 Node **24 LTS** (`.nvmrc` pins `24`; `package.json` `engines` requires `>=24`). The repo runs on the
-local Windows machine; use **PowerShell** to run anything, and **run everything from `engine-v3/`**
-(that's where the project's `package.json` lives). The frozen `engine-v1-2/` is a separate project with
-its own deps + start scripts (`cd engine-v1-2 && npm install && node index.js` / `node server.js`).
+local Windows machine; use **PowerShell** to run anything, and **run everything from the repo root**
+(that's where the project's `package.json` lives). The `gui/` SPA is its own npm package; a root
+`npm install` installs it too (via `postinstall`).
 
 ```
-cd engine-v3           # the project lives here — run all the below from engine-v3/
-npm install            # install deps
+npm install            # install deps (root + gui, via postinstall)
 npm run web            # DEV stage: the Vite dev server (HMR) — for development, not end users
 npm start              # RELEASE stage (local edition): build, then serve the built app + /api backend
 npm run serve          # serve an already-built local release (node gui/server/serve.js)
@@ -247,7 +243,7 @@ section. (It's the analog of an in-app credits screen; treat it as a living docu
 ## Keep the Legal Docs Accurate — Your Responsibility (a standing instruction)
 
 The app's three legal documents live as self-hosted static pages at
-`engine-v3/gui/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
+`gui/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
 `.links-sep` separator; contact address `fairy@fairyfox.io`). They were rewritten to describe **what the
 app actually does** — no accounts, no analytics/cookies/tracking, settings + bring-your-own API keys
 stored only on the user's device (`rap.store.` localStorage / local files), prompts + keys sent directly
@@ -287,7 +283,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Made / rejected a structural decision | `notes/decisions/architecture.md` / `notes/decisions/rejected.md` |
 | Finished or unblocked a task | Update `notes/plans/next-steps.md` |
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
-| Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `engine-v3/gui/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
+| Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `gui/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |
 | Ran a fairyfox system procedure (check/adopt updates, setup, onboarding) | Write a process report in `notes/fairyfox-reports/YYYY-MM-DD-<procedure>.md` — even a check-only run. See `notes/reference/process-reports.md` |

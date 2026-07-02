@@ -65,7 +65,7 @@ On top of the backend:
 ## On-disk layout (local mode)
 
 ```
-engine-v3/gui/                   ← the dev server's root, so the folder lives here (not engine-v3/ root,
+gui/                   ← the dev server's root, so the folder lives here (not the repo root,
   user-settings/                   and not to be confused with the Node engine's user-settings.json)
     settings.json                ← { __v, ...appSettings } (prompt knobs, image params, BYOK keys)
     wrapper-default.json         ← the editable built-in Default wrapper
@@ -76,14 +76,14 @@ engine-v3/gui/                   ← the dev server's root, so the folder lives 
       comfyui.json               ← …only the keys the user changed
       …
 ```
-(The whole folder is gitignored — `engine-v3/gui/user-settings/` — so BYOK keys in `settings.json`
+(The whole folder is gitignored — `gui/user-settings/` — so BYOK keys in `settings.json`
 are never committed.)
 
 Provider **defaults** stay in the provider folder (`gui/providers/<id>/settings.js` `defaults`,
 optionally a sibling `<id>.json` if a literal sidecar is preferred). Same logical name on both sides
 (`<id>`), defaults-then-override, exactly as specified.
 
-The dev-server `/api/storage` endpoint maps a namespace to a file under `engine-v3/gui/user-settings/`:
+The dev-server `/api/storage` endpoint maps a namespace to a file under `gui/user-settings/`:
 `providers/x` → `…/user-settings/providers/x.json`, everything else → `…/user-settings/<ns>.json`. The
 folder + each file are created lazily on first write, so it won't exist until the dev server is running
 and the app has saved something. It migrates the old flat `.gui-storage.json` on first server start

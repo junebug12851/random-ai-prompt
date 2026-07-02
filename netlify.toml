@@ -1,16 +1,14 @@
-# Netlify build for the React + Vite SPA in engine-v3/gui/.
-# The active project lives under engine-v3/, so every path is repo-root-relative and
-# spelled out as engine-v3/… (no `base`: with the netlify.toml at the repo root, the
-# CLI/@netlify/build resolves publish from the root, not from base, so an explicit prefix
-# is the unambiguous choice). `npm --prefix` runs the gui scripts in their own package dir.
+# Netlify build for the React + Vite SPA in gui/.
+# The netlify.toml sits at the repo root and paths are repo-root-relative. `npm --prefix gui`
+# runs the SPA's scripts in its own package dir.
 # The deployed site is fully static — there is NO server code: BYOK requests go directly
 # from the browser to the provider the user picked. (The former serverless generate/rewrite
 # proxy was retired; providers that can't be called directly from a browser are disabled in
 # the online build rather than relayed.)
 
 [build]
-  command = "npm --prefix engine-v3/gui install && npm --prefix engine-v3/gui run build"
-  publish = "engine-v3/gui/dist"
+  command = "npm --prefix gui install && npm --prefix gui run build"
+  publish = "gui/dist"
 
 # Build the ONLINE variant: Generate works for browser-direct providers (BYOK, called straight
 # from the browser), while the local-only features (Gallery / Single view, local SD providers,

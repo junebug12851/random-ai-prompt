@@ -2,7 +2,7 @@
   "plugins": ["plugins/markdown"],
   "recurseDepth": 10,
   "source": {
-    "include": ["engine-v3/src", "engine-v3/data", "README.md", "engine-v3/tmp/webapp-docs"],
+    "include": ["src", "data", "README.md", "tmp/webapp-docs"],
     "includePattern": ".+\\.js$",
     "excludePattern": "(node_modules|frontend[\\\\/]lib[\\\\/]|\\.min\\.js$)"
   },
@@ -11,8 +11,8 @@
     "recurse": true,
     "readme": "./README.md",
     "encoding": "utf8",
-    "template": "engine-v3/node_modules/docdash",
-    "tutorials": "./engine-v3/tmp/jsdoc-tutorials"
+    "template": "node_modules/docdash",
+    "tutorials": "./tmp/jsdoc-tutorials"
   },
   "templates": {
     "cleverLinks": false,

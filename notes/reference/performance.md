@@ -1,6 +1,6 @@
 # Performance — profiling & optimization
 
-_Living reference for engine-v3 performance: where the time goes, the optimizations applied, and how to
+_Living reference for engine performance: where the time goes, the optimizations applied, and how to
 re-measure. First full profiling pass: 2026-06-29 (2.28.18)._
 
 ## TL;DR
@@ -15,7 +15,7 @@ web tests + smoke + build all green). The GUI build itself was already well-opti
 
 ## How to measure
 
-There is no committed micro-benchmark (it would bit-rot); profile ad hoc from `engine-v3/`:
+There is no committed micro-benchmark (it would bit-rot); profile ad hoc from the repo root:
 
 - **Per-prompt engine cost** — create a throwaway script that imports `createEngine` from
   `src/core/engine.js` + `nodeLoader` from `src/core/nodeLoader.js`, then time `engine.generate({ prompt })`

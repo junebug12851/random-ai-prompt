@@ -3,17 +3,17 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Repository structure (split 2026-06-25):** the repo is now two separate projects that share no code.
-**`engine-v3/`** is the active project (the new core engine + SPA) — everything below describes it, and all
-commands run from `engine-v3/` (`cd engine-v3`). **`engine-v1-2/`** is the frozen pre-revival CommonJS
-snapshot (the old CLI + classic Express/Pug server), self-contained and runnable but unmaintained, on its
-way out. Much of the narrative below predates the split (it describes the old single-tree `src/` layout at
-the repo root); those `src/…` / `data/…` paths now live under `engine-v3/`, and the classic CLI/server code
-lives only in `engine-v1-2/`. See [`plans/engine-split.md`](plans/engine-split.md).
+**Repository structure (flattened 2026-07-02):** the project lives at the **repo root** — one project, no
+more `engine-vN` split. Engine code is under `src/` (`core/` = the DPL engine + pipeline stages + loaders),
+prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package), build/meta tooling in
+`scripts/`, the Node test suite in `tests/`; **all commands run from the repo root**. The pre-revival
+2022–2023 CommonJS system (the old CLI + classic Express/Pug server) was **removed** from the tree — it
+lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
+below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
-**Version:** `2.39.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
-see [`reference/versioning.md`](reference/versioning.md)). `2.39.0` (supply-chain / Scorecard hardening)
-is on `dev` pending the owner's go-ahead to release.
+**Version:** `2.40.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
+stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
 
 **`main` is branch-protected (2026-07-02):** releases now run **through a pull request** (`gh pr merge
 --merge`), not a local `git push origin main`. PR-required with 0 approvals (solo self-merge), strict
@@ -286,5 +286,3 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `gui` SPA `vite build` | ✅ green |
-| `engine-v1-2/` CLI (`node index.js`) | ✅ runs standalone — own deps, generated a prompt (2026-06-25). Frozen snapshot. |
-| `engine-v1-2/` classic server (`node server.js`) | ✅ boots the same way (also `webui.bat`); frozen. Image gen still needs an SD WebUI. |

@@ -6,7 +6,7 @@
 ![Watchers](https://img.shields.io/github/watchers/junebug12851/random-ai-prompt?style=flat-square&logo=github)
 [![Last commit](https://img.shields.io/github/last-commit/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/commits)
 ![Commits](https://img.shields.io/github/commit-activity/t/junebug12851/random-ai-prompt?style=flat-square&label=commits)
-[![Version](https://img.shields.io/github/package-json/v/junebug12851/random-ai-prompt?filename=engine-v3%2Fpackage.json&style=flat-square&label=version)](https://github.com/junebug12851/random-ai-prompt/releases)
+[![Version](https://img.shields.io/github/package-json/v/junebug12851/random-ai-prompt?filename=package.json&style=flat-square&label=version)](https://github.com/junebug12851/random-ai-prompt/releases)
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2024-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
 [![CI](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/junebug12851/random-ai-prompt/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/junebug12851/random-ai-prompt?flag=node&style=flat-square&logo=codecov&logoColor=white&label=engine%20coverage)](https://app.codecov.io/gh/junebug12851/random-ai-prompt?flags%5B0%5D=node)
@@ -99,7 +99,6 @@ The full desktop edition (gallery, Manager, local providers, NSFW) is built from
 Requires **Node ≥ 24**.
 
 ```sh
-cd engine-v3
 npm install          # installs the engine and the gui/ web-app dependencies
 npm run web          # dev server with hot reload
 ```
@@ -121,33 +120,27 @@ npm run web:build    # outputs the built site to gui/dist/
 
 ## Project layout
 
-This repository holds **two separate engines that share no code**:
+The project lives at the repo root — one isomorphic prompt **engine** (`src/core/`) authored in DPL,
+driven by a React/Vite **web app** (`gui/`), with SFW/NSFW gating, the ~40-provider framework, and the
+in-app content Manager. The same code builds two editions from one source — the full **local/desktop**
+build and the browser-only **online** build hosted at [prompt.fairyfox.io](https://prompt.fairyfox.io).
 
-### 🟢 `engine-v3/` — the active project
+| Path | What's there |
+|------|--------------|
+| `src/` | the isomorphic engine — `core/` (DPL parser/renderer + pipeline stages + loaders), `helpers/`, plus list/safety/manifest modules |
+| `data/` | prompt content — `lists/`, `presets/`, raw `sources/` CSV/JSON, and the `dynamic-prompts/` generators |
+| `gui/` | the React/Vite web app (its own npm package) |
+| `scripts/` | build, data, and doc tooling |
+| `tests/` | the Node-side Vitest suite (the SPA suite lives in `gui/tests/`) |
+| `notes/` | the developer guide (start at [`notes/status.md`](notes/status.md)) |
 
-The current, maintained system: an isomorphic prompt **engine** (`src/core/`) authored in DPL, driven
-by a React/Vite **web app** (`gui/`), with SFW/NSFW gating, the ~40-provider framework, and the
-in-app content Manager. **All new work happens here.** The same code builds two editions from one
-source — the full **local/desktop** build and the browser-only **online** build hosted at
-[prompt.fairyfox.io](https://prompt.fairyfox.io).
-
-### 🟠 `engine-v1-2/` — the original, frozen
-
-The complete **pre-revival** system as it was in 2022–2023 (CommonJS): the yargs CLI and the
-Express/Pug classic web UI. It is finished, frozen, and on its way out — kept as a self-contained,
-runnable reference. It is **not** maintained, built, or released.
-
-```sh
-cd engine-v1-2
-npm install
-node index.js       # CLI generator
-node server.js      # classic web UI (or: webui.bat)
-```
+> The pre-revival 2022–2023 system (the yargs CLI + Express/Pug web UI) was removed from the tree; it
+> remains in git history and as a reference clone under `assets/references/`.
 
 ## Development
 
 Contributing? The headless verification gate is `npm test` (lint + smoke + Vitest, Node + jsdom);
-end-to-end and visual-regression specs run with `npm run test:e2e`. Everything runs from `engine-v3/`.
+end-to-end and visual-regression specs run with `npm run test:e2e`. Everything runs from the repo root.
 
 The full developer guide lives in **[`notes/`](notes/)** (start at
 [`notes/status.md`](notes/status.md)). The generated API reference and the living notes are published
