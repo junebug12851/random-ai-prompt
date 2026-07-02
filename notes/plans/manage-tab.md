@@ -213,8 +213,8 @@ copy — per file, per folder/category, or all. This is the safety net for "I to
 back."
 
 - Fetch via the GitHub raw content for the project from the **stable branch `main`**
-  (`raw.githubusercontent.com/<owner>/<repo>/main/engine-v3/data/<path>`). The owner first said
-  "master", but `master` is a stale old-layout branch with no `engine-v3/` tree (restore would 404);
+  (`raw.githubusercontent.com/<owner>/<repo>/main/data/<path>`). The owner first said
+  "master", but `master` is a stale old-layout branch with no flat-layout tree (restore would 404);
   confirmed 2026-06-28 to use `main`, which carries the current layout.
   A file deleted upstream ⇒ the restore deletes the local copy; a file the user added that doesn't
   exist upstream ⇒ left alone (with a note).
@@ -273,7 +273,7 @@ before moving on, and merge `--no-ff` to `dev` at the end per the git-flow stand
 - **`.js`-module hot-apply boundary** (§2/§4c) — *resolved:* no JS hot-reload; JS is editable, a JS
   sidecar can be scaffolded from boilerplate, with easy DPL ⇄ JS switching; JS saves but reloads to run.
 - **Stable-branch name** — *resolved:* restore fetches from **`main`**. `master` turned out to be a
-  stale old-layout branch with no `engine-v3/` tree (would 404); owner confirmed `main` 2026-06-28.
+  stale old-layout branch with no flat-layout tree (would 404); owner confirmed `main` 2026-06-28.
 - **Drag-and-drop scope** — *resolved:* don't build custom sorting; ride on the app's existing
   sort/display. Dragging a block/category around just **adjusts its `priority`** (abstractly), and the
   edit menu still exposes the **raw priority number** for direct editing. Folders/files move via DnD;

@@ -1,8 +1,8 @@
 # The React SPA — `gui/`
 
-> **Location (2026-06-25):** the SPA now lives at **`engine-v3/gui/`** (engine-v3 is the single active
-> project). engine-v3 is **v3-only**, and the legacy expansion features (the "Expansions" building-block
-> tab + the "Save as Expansion" feature) were removed. See [`../plans/engine-split.md`](../plans/engine-split.md).
+> **Location (flattened 2026-07-02):** the SPA lives at **`gui/`** (repo root). The app is **v3-only**, and
+> the legacy expansion features (the "Expansions" building-block tab + the "Save as Expansion" feature)
+> were removed.
 
 A standalone **React 19 + Vite 6** single-page app (`gui/`, its own `package.json`). It runs the
 **real prompt engine in the browser** ([core-engine.md](core-engine.md)) and generates images through a

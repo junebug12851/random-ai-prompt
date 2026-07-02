@@ -1,9 +1,8 @@
 # The `core/` engine — the framework-agnostic prompt pipeline
 
-> **Location (2026-06-25):** this engine now lives at **`engine-v3/src/core/`** (engine-v3 is the active
-> project). It is **v3-only** — the v1/v2 generations and the legacy `<expansion>` stage were removed, so
-> the pipeline is now `dynamic-prompt → prompt-salt → list → cleanup`. See
-> [`../plans/engine-split.md`](../plans/engine-split.md).
+> **Location (flattened 2026-07-02):** this engine lives at **`src/core/`** (repo root). It is **v3-only**
+> — the v1/v2 generations and the legacy `<expansion>` stage were removed, so the pipeline is now
+> `dynamic-prompt → prompt-salt → list → emphasis → cleanup` (all stages under `src/core/stages/`).
 
 `core/` is the **isomorphic** prompt engine: the same prompt-module pipeline as the Node CLI, factored
 so it runs **both** server-side (Node `fs` + `createRequire`) and **in the browser** (Vite

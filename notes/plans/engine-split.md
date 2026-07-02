@@ -1,5 +1,11 @@
 # Plan — Split into engine-v1-2 (frozen) + engine-v3 (the project)
 
+> **Superseded / reversed (2026-07-02).** This split has since been **undone**: `engine-v1-2/` was
+> removed from the tree (it lives in git history + the reference clone under `assets/references/`), and
+> `engine-v3/`'s contents were flattened back up to the **repo root**, so there is one project again.
+> This page is kept as the historical record of why/how the split was done; the `engine-v3/…` paths it
+> describes are now at the repo root. See the changelog entry for 2026-07-02.
+
 **Status: core split DONE & verified on `feature/legacy-isolation` (Stages 1–5). Follow-ups below.**
 Untangle the repo into two clearly
 labeled, fully disconnected trees that share **zero files**:

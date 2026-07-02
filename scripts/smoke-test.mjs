@@ -9,8 +9,7 @@
 // forces every dynamic prompt to load via require(ESM) — see
 // notes/reference/esm-patterns.md), load the catalog, then expand one full prompt
 // suggestion. If the module graph or any dynamic prompt is broken, this fails fast
-// with a non-zero exit. (The pre-revival classic server lives in engine-v1-2/ and is
-// not part of this gate.)
+// with a non-zero exit.
 //
 // Run:  npm run smoke   (or: node scripts/smoke-test.mjs)
 

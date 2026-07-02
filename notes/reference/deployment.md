@@ -51,8 +51,7 @@ means the same thing as green locally — it's the CI mirror of `npm test` + the
 **Coverage → Codecov.** The **check** and **gui** jobs run the `*:coverage` scripts (Vitest v8, now with
 an `lcov` reporter alongside text/html) and then upload to **Codecov** via `codecov/codecov-action@v4`
 (non-blocking — `fail_ci_if_error: false`), under the `node` and `gui` flags respectively. Paths are
-repo-root-relative (`engine-v3/coverage/node/lcov.info`, `engine-v3/gui/coverage/lcov.info`) because a
-`uses:` step ignores the job's `working-directory`. Setup the repo owner does once: enable the **Codecov
+repo-root-relative (`coverage/node/lcov.info`, `gui/coverage/lcov.info`). Setup the repo owner does once: enable the **Codecov
 GitHub app** on the repo and add a **`CODECOV_TOKEN`** repo secret (public repos also upload tokenless,
 but the token is more reliable). The README's coverage badge (`img.shields.io/codecov/...`) reads the
 default-branch (`main`) coverage, so it populates after the first CI run on `main` post-merge. Codecov is
@@ -65,10 +64,10 @@ Free-for-OSS services layered on top of CI. None touch the shipped app or user d
 so the legal pages are unaffected.
 
 - **Dependabot** (`.github/dependabot.yml`) — GitHub-native. Weekly, grouped dependency-update PRs for
-  `engine-v3` npm, `engine-v3/gui` npm, and the GitHub Actions; plus security alerts. Zero setup.
+  the root (`/`) npm package, the `/gui` npm package, and the GitHub Actions; plus security alerts. Zero setup.
 - **CodeQL** (`.github/workflows/codeql.yml` + `.github/codeql/codeql-config.yml`) — GitHub-native SAST
-  on push/PR to dev & main + weekly; `javascript-typescript`, `security-and-quality` queries; frozen
-  `engine-v1-2/`, build output, and vendored deps are `paths-ignore`d. Findings → Security → Code scanning.
+  on push/PR to dev & main + weekly; `javascript-typescript`, `security-and-quality` queries; build output
+  and vendored deps are `paths-ignore`d. Findings → Security → Code scanning.
 - **OpenSSF Scorecard** (`.github/workflows/scorecard.yml`) — GitHub-native. Weekly supply-chain posture
   score; `publish_results: true` feeds the README badge (`img.shields.io/ossf-scorecard/...`). **Hardened
   2026-07-02** (score was 4.2) — see "Supply-chain hardening" below. Note: the badge only refreshes when
@@ -100,13 +99,13 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
   token, so the scan never breaks if the secret is absent). See [`git-workflow.md`](git-workflow.md).
 - **Security-Policy** — root [`SECURITY.md`](../../SECURITY.md) (private reporting → `fairy@fairyfox.io`).
 - **Vulnerabilities** — the 18 OSV hits were all dev-only (`@lhci/cli`'s `tmp`/`inquirer`/`uuid` chain);
-  `engine-v3/package.json` `overrides` force `tmp@^0.2.7` + `uuid@^11.1.1`, clearing `npm audit` to 0.
+  `package.json` `overrides` force `tmp@^0.2.7` + `uuid@^11.1.1`, clearing `npm audit` to 0.
 - **Code-Review stays ~0 by design** — it needs an approved PR review, and GitHub forbids self-approval,
   so a solo maintainer can't satisfy it. That's the score ceiling (~8) for a one-person repo.
 - **SonarQube Cloud** (formerly SonarCloud — `sonar-project.properties` + `.github/workflows/sonar.yml`)
   — static analysis + coverage import + tech-debt / quality-gate badges. Enabled 2026-06-30: secret
   `SONAR_TOKEN` + repo variable `SONAR_ENABLED=true` are set (the workflow's `if:` guard), `workflow_dispatch`
-  allows manual re-runs, and the job has a `timeout-minutes` safety net. **Scope = `engine-v3/src` only**
+  allows manual re-runs, and the job has a `timeout-minutes` safety net. **Scope = `src` only**
   (the core engine). This is the outcome of a real investigation into why the scan hung ~25 min, NOT a
   hand-wave (the full log/methodology is in `sonar-project.properties` + the session log for 2026-06-30):
     - The hang is in SonarCloud's JS **security/taint** sensor (`JsSecuritySensorV2 [jasmin]`) — a
@@ -127,13 +126,11 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
 
 ## Visual baselines — `.github/workflows/visual-baselines.yml`
 
-Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — the run steps use
-`defaults.run.working-directory: engine-v3` and `npm install` + gui `npm install` (NOT `npm ci`, same
-Windows-lock/@emnapi reason as `ci.yml`; this was fixed for the engine-v3 split — the old root-level `npm ci`
-broke once there was no root `package.json`), `npx playwright install --with-deps chromium`, then `playwright
-test visual.spec.js --update-snapshots`. It uploads the snapshots as the `linux-visual-baselines` artifact —
-the `upload-artifact` path is **repo-root-relative** (`engine-v3/tests/e2e/visual.spec.js-snapshots/`), since
-`actions/*` steps ignore `working-directory`. Because it renders in the exact environment the e2e job checks
+Manual `workflow_dispatch`. Runs on **ubuntu-latest with the same setup as the e2e job** — from the repo
+root, `npm install` + gui `npm install` (NOT `npm ci`, same Windows-lock/@emnapi reason as `ci.yml`),
+`npx playwright install --with-deps chromium`, then `playwright test visual.spec.js --update-snapshots`. It
+uploads the snapshots as the `linux-visual-baselines` artifact — the `upload-artifact` path is
+`tests/e2e/visual.spec.js-snapshots/`. Because it renders in the exact environment the e2e job checks
 against, the baselines match CI.
 Workflow: trigger it (`gh workflow run visual-baselines.yml`), download the artifact, copy the
 `*-chromium-linux.png` files into `tests/e2e/visual.spec.js-snapshots/`, and commit. Do this whenever the
@@ -148,13 +145,12 @@ GitHub Pages. `README.md` is the home (jsdoc `opts.readme`), so the site is the 
 API** (per-function JSDoc) + the **full living notes** wired in as tutorial pages (hierarchy mirrors
 the `notes/` tree). See [`documentation.md`](documentation.md).
 
-**The engine-v3 split straddle (fixed 2026-06-29):** `build-docs.mjs` keeps two roots — `root`
-(engine-v3: code `src/`+`data/`, the transpiled-JSX `tmp/`, the docdash binary) and `repoRoot`
-(engine-v3's parent: `notes/`, `assets/`, `README.md`, `list-credits.md`, **and `jsdoc.config.json`**).
-JSDoc runs from `repoRoot` via the engine-v3-pinned binary (`node engine-v3/node_modules/jsdoc/jsdoc.js`,
-**not** `npx jsdoc`, which would fetch a different version); `jsdoc.config.json` `source.include`
-reaches into `engine-v3/src` etc., and the site is written to the repo-root `docs/jsdoc` (so
-`pages.yml` uploads `docs/jsdoc`, not `engine-v3/docs/jsdoc`). JSDoc exits non-zero on **recoverable**
+**Doc build paths (flat layout):** everything lives at the repo root, so `build-docs.mjs` uses one root
+for both code (`src/`+`data/`, the transpiled-JSX `tmp/`, the docdash binary) and docs (`notes/`,
+`assets/`, `README.md`, `list-credits.md`, `jsdoc.config.json`). JSDoc runs from the repo root via the
+pinned binary (`node node_modules/jsdoc/jsdoc.js`, **not** `npx jsdoc`, which could fetch a different
+version); `jsdoc.config.json` `source.include` reaches into `src` etc., and the site is written to
+`docs/jsdoc` (which `pages.yml` uploads). JSDoc exits non-zero on **recoverable**
 TS-style type-expression warnings (`import("react").Ref`, `() => string`, `Error & {…}`, deep
 generics) yet still writes the full site; the build **tolerates** that when `index.html` landed
 (only a missing index is fatal). The remaining cleanup is tightening those JSDoc types so JSDoc is
@@ -246,11 +242,9 @@ uses for the non-CORS providers.
 
 The app is hosted off the main `fairyfox.io` domain (which is mostly docs) on the `prompt` subdomain.
 
-**`netlify.toml` paths are repo-root-relative with an explicit `engine-v3/` prefix** (no `base`). The
-active project moved under `engine-v3/` in the split, but the toml still pointed at a root-level `gui/`;
-since the toml lives at the repo root the CLI/@netlify/build resolves `publish`/`functions` from the
-root (not from `base`), so spelling the paths out as `engine-v3/gui/...` and using
-`npm --prefix engine-v3/gui ...` is the unambiguous fix (corrected 2026-06-27, first real deploy).
+**`netlify.toml` paths are repo-root-relative** (no `base`). The toml lives at the repo root and the
+CLI/@netlify/build resolves `publish` from the root, so the build command is `npm --prefix gui install &&
+npm --prefix gui run build` and `publish = "gui/dist"`.
 
 **Set up (done 2026-06-27):** the site **`prompt-fairyfox`** (→ `prompt-fairyfox.netlify.app`,
 team `junebug12851`) was created and deployed via the Netlify CLI:
@@ -293,8 +287,8 @@ Alternatively the repo can be git-connected in the Netlify UI instead of using t
   `prompt.fairyfox.io`. **Continuous deploy on push to `main` is now wired** (`netlify-deploy.yml`),
   pending the owner adding the `NETLIFY_AUTH_TOKEN` secret (see *Continuous deploy* above). The `prompt`
   CNAME at the `fairyfox.io` DNS host is already resolving (cert approved).
-- **Docs + release pipelines are LIVE.** `main` advancing triggers the Pages docs deploy (`pages.yml`,
-  re-enabled 2026-06-29 after the engine-v3 doc-build straddle fix) and the version-gated software
+- **Docs + release pipelines are LIVE.** `main` advancing triggers the Pages docs deploy (`pages.yml`)
+  and the version-gated software
   Release (`release.yml`). GitHub Pages source is **GitHub Actions** (already configured); the docs
   serve under `fairyfox.io/random-ai-prompt/`.
 - The serverless hosted-proxy path was **retired** (its `gui/netlify/functions/` files removed, 2.30.1);
