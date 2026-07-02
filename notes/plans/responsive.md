@@ -2,7 +2,8 @@
 
 **Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
 the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, Phase 4a (Home drawer) ✅, Phase 4b (Single view stack) ✅, and
-Phase 4c (Manage master/detail) ✅ landed — **all views are responsive**; Phases 5–6 queued.
+Phase 4c (Manage master/detail) ✅, and Phase 5 (touch ergonomics) ✅ landed — **all views are
+responsive and touch-ready**; Phase 6 (final verification / release) in progress.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -155,8 +156,12 @@ switch scrolls horizontally rather than overflow the bar. a11y: `aria-haspopup`/
 
 Every capability preserved, only re-homed.
 
-**Phase 5 — Touch & input ergonomics.** 44px minimum targets, `@media (hover:hover)` guards so hover
-affordances gain touch equivalents, momentum scroll containers, `env(safe-area-inset-*)` for notches.
+**Phase 5 — Touch & input ergonomics.** ✅ New `touch.css`, guarded by input-capability queries (not
+width) so it never touches the mouse/desktop rendering. `@media (hover: none)` keeps the hover-revealed
+action buttons visible (Manage entry delete/restore, per-image actions, list-row delete, theme delete) —
+otherwise they're untappable on a touchscreen. `@media (pointer: coarse)` gives the primary controls a
+≥44px tap target (WCAG 2.5.5). The palette FAB already uses `env(safe-area-inset-bottom)`. Verified by a
+touch-emulated (`isMobile`) `responsive.spec.js` case (hover-only action `opacity:1`; `.vs-tab` ≥44px).
 
 **Phase 6 — Verification.** A functional **viewport-matrix** spec (390 / 768 / 1280) already landed with
 Phase 3 (`tests/e2e/responsive.spec.js`) and grows each phase; remaining: extend it to the Phase-4 view

@@ -254,3 +254,26 @@ test.describe("manage — desktop", () => {
     await expect(page.locator(".mg-back")).toBeHidden();
   });
 });
+
+// --- Phase 5: touch ergonomics (emulated touch device → coarse pointer, no hover) ---
+
+test.describe("touch ergonomics", () => {
+  test.use({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true });
+
+  test("hover-only actions stay visible and key targets are >= 44px", async ({ page }) => {
+    await openManage(page);
+
+    // A touch device can't hover: the Manage entry action button must not be opacity:0.
+    const act = page.locator(".mg-pill-act").first();
+    await act.waitFor();
+    const opacity = await act.evaluate((el) => getComputedStyle(el).opacity);
+    expect(Number(opacity)).toBe(1);
+
+    // The view-switch tabs meet the 44px minimum tap target.
+    const h = await page
+      .locator(".vs-tab")
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().height);
+    expect(h).toBeGreaterThanOrEqual(44);
+  });
+});
