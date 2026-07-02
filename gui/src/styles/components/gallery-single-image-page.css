@@ -123,6 +123,14 @@
   background: var(--chip-hover);
 }
 
+/* The Download link is an <a>, so its text sat baseline-high inside the padding box (a bug — it
+   looked shifted up vs the neighbouring buttons). Center it like the buttons. */
+.g-action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Delete / destructive action. Scoped under `.g-actions` (and qualified with
    `button`) so it outranks the shared `.g-actions button` base + its :hover
    without needing !important; the rule sits after those, so it wins the tie. */
@@ -396,6 +404,26 @@
 
   .g-single-img img {
     max-height: 60vh;
+  }
+
+  /* Smaller action row (open / reveal / download / convert / resize / delete). */
+  .g-actions button,
+  .g-action-link,
+  .g-convert,
+  .g-resize {
+    padding: 0.32rem 0.6rem;
+    font-size: 0.76rem;
+  }
+
+  /* Smaller Back + prev/next nav (they were oversized on touch). */
+  .g-back {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .g-single-nav button {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.78rem;
   }
 }
 

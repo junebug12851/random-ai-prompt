@@ -162,6 +162,7 @@ export default function SingleView({
   const extrasFor = (key) => {
     if (!onDisk || !onDerive || !item.meta) return [];
     if (key === "dpl") {
+      // Re-roll only on the DPL source — "make variation" is offered on the Sent / AI layers instead.
       return [
         {
           key: "reroll-dpl",
@@ -174,7 +175,6 @@ export default function SingleView({
           disabled: deriveLocked || !hasSource(m, "dpl"),
           onClick: () => runDerive("reroll", "dpl"),
         },
-        varExtra("dpl"),
       ];
     }
     if (key === "final") return [varExtra("final")];
