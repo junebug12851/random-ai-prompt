@@ -21,8 +21,12 @@
   gap: 0.7rem;
 }
 
-/* --- Compact (phone + small tablet): collapse the control pile --- */
-@media (width <= 768px) {
+/* --- Compact chrome (phone + tablet, <=1024px): collapse the control pile behind the ⋯ menu ---
+   Tablets (iPad Air 820, Surface 912, iPad Pro 1024, …) don't have desktop's room for the full
+   inline header, so the secondary controls fold into the overflow menu here too. The two-pane
+   Generate/Manage layouts still stay put on tablets — only the CHROME collapses (see the <=768px
+   phone block below for the wordmark/tab tightening that tablets DON'T get). */
+@media (width <= 1024px) {
   .topbar-overflow {
     display: block;
     position: relative;
@@ -86,9 +90,11 @@
   .topbar-overflow-toggle[aria-expanded="true"] + .topbar-controls {
     display: flex;
   }
+}
 
-  /* Reclaim width for the view switch: drop the wordmark, tighten the tabs so all four
-     fit without the strip clipping a label. */
+/* --- Phone-only (<=768px): reclaim width by dropping the wordmark + tightening the tabs. Tablets
+   (769–1024px) have room to keep the wordmark and full-size tabs, so these stay phone-only. --- */
+@media (width <= 768px) {
   .brand .wordmark {
     display: none;
   }
@@ -133,7 +139,7 @@
   display: none;
 }
 
-@media (width <= 768px) {
+@media (width <= 1024px) {
   .topbar-controls > * {
     width: 100%;
   }

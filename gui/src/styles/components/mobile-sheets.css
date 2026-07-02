@@ -6,7 +6,7 @@
    Selectors are scoped to each control's wrapper so they out-specify the base positioning rules
    (e.g. `.provider-gear .gear-pop.provider-gear-pop { right: 0 }`). Desktop is untouched. */
 
-@media (width <= 768px) {
+@media (width <= 1024px) {
   .providers-menu .pm-pop,
   .provider-gear .gear-pop.provider-gear-pop,
   .theme-menu .theme-pop {

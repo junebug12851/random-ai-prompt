@@ -277,6 +277,37 @@ test.describe("manage — desktop", () => {
   });
 });
 
+// --- Tablet tier (769–1024px): compact CHROME, but the two-pane split layouts stay put ---
+
+test.describe("tablet (iPad Pro portrait, 1024)", () => {
+  test.use({ viewport: { width: 1024, height: 900 } });
+
+  test("header chrome collapses behind the ⋯ menu (wordmark kept)", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".topbar").waitFor();
+    await expect(page.locator(toggle)).toBeVisible();
+    await expect(page.locator(controls)).toBeHidden();
+    // Tablets keep the wordmark + full tabs (only phones <=768 drop them).
+    await expect(page.locator(".brand .wordmark")).toBeVisible();
+    expect(await hasHorizontalOverflow(page)).toBe(false);
+  });
+
+  test("Generate keeps the building-block palette as a split pane, not a drawer", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(sidebar).waitFor();
+    await expect(page.locator(sidebar)).toBeVisible();
+    await expect(page.locator(fab)).toBeHidden();
+    expect(await sidebarX(page)).toBeGreaterThanOrEqual(0);
+  });
+
+  test("Manage keeps the two-pane split (no Back control)", async ({ page }) => {
+    await openManage(page);
+    await expect(page.locator(".workspace.manage .mg-sidebar")).toBeVisible();
+    await expect(page.locator(".workspace.manage .mg-main")).toBeVisible();
+    await expect(page.locator(".mg-back")).toBeHidden();
+  });
+});
+
 // --- Phase 5: touch ergonomics (emulated touch device → coarse pointer, no hover) ---
 
 test.describe("touch ergonomics", () => {
