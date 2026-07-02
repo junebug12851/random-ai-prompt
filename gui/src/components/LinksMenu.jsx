@@ -152,15 +152,16 @@ export default function LinksMenu({ settings, setSettings }) {
   if (compact) {
     return (
       <div className="links-menu links-inline" role="group" aria-label={intl.formatMessage(msgs.links)}>
-        <div className="links-sep" role="separator" />
-        {linkGroups}
+        {/* Language sits directly under the Appearance control (both are settings), above the links. */}
         {langGroup && (
           <>
-            <div className="links-sep" role="separator" />
             {langGroup}
+            <div className="links-sep" role="separator" />
           </>
         )}
+        {linkGroups}
         {/* The footer (which carries the version on desktop) is hidden on phones — surface it here. */}
+        <div className="links-sep" role="separator" />
         <div className="links-version" title={`Version ${APP_VERSION}`}>
           v{APP_VERSION}
         </div>
