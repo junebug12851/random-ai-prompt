@@ -144,9 +144,11 @@
 
 /* Delete / destructive action. Scoped under `.g-actions` (and qualified with
    `button`) so it outranks the shared `.g-actions button` base + its :hover
-   without needing !important; the rule sits after those, so it wins the tie. */
+   without needing !important; the rule sits after those, so it wins the tie.
+   It flows inline with the other actions (its red styling sets it apart) — a former
+   `margin-left:auto` pushed it to the far edge, which left it orphaned with a big gap
+   once the row wrapped in the narrow metadata column. */
 .g-actions button.g-danger {
-  margin-left: auto;
   border-color: var(--danger-border);
   background: var(--danger-bg);
   color: var(--danger-fg);
