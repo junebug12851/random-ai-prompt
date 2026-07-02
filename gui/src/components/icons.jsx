@@ -72,6 +72,16 @@ export const MenuIcon = () => (
   </svg>
 );
 
+// Blocks (2x2 grid) — the phone trigger that opens the building-block palette drawer.
+export const BlocksIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+  </svg>
+);
+
 // More / overflow (horizontal three-dots) — the top-bar control-pile collapse trigger on
 // narrow screens. Distinct from MenuIcon (the links hamburger) so the two read differently.
 export const MoreIcon = () => (

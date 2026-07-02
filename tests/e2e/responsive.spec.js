@@ -82,3 +82,58 @@ test.describe("top bar — tablet (portrait)", () => {
     expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 });
+
+// --- Phase 4a: the building-block palette becomes a phone drawer ---
+
+const fab = ".palette-fab";
+const sidebar = "#block-palette";
+
+/** Wait for the drawer's slide transition to settle, then return its left edge (x). */
+async function sidebarX(page) {
+  const box = await page.locator(sidebar).boundingBox();
+  return box ? box.x : null;
+}
+
+test.describe("building-block palette — desktop", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("palette is inline; no drawer trigger", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(sidebar).waitFor();
+    await expect(page.locator(sidebar)).toBeVisible();
+    await expect(page.locator(fab)).toBeHidden();
+    // In-flow (left edge at/after the viewport's left origin).
+    expect(await sidebarX(page)).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe("building-block palette — phone drawer", () => {
+  test.use({ viewport: { width: 390, height: 780 } });
+
+  test("palette is an off-canvas drawer opened by the trigger", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".workspace").waitFor();
+
+    // Trigger present, drawer parked off-canvas to the left, composer full width.
+    await expect(page.locator(fab)).toBeVisible();
+    await expect(page.locator(fab)).toHaveAttribute("aria-expanded", "false");
+    await expect.poll(() => sidebarX(page)).toBeLessThan(0);
+    expect(await hasHorizontalOverflow(page)).toBe(false);
+
+    // Open: the drawer slides fully into view and its blocks are reachable.
+    await page.locator(fab).click();
+    await expect(page.locator(fab)).toHaveAttribute("aria-expanded", "true");
+    await expect.poll(() => sidebarX(page)).toBeGreaterThanOrEqual(0);
+    await expect(page.locator(`${sidebar} .picker-filter`)).toBeVisible();
+
+    // Escape dismisses it back off-canvas.
+    await page.keyboard.press("Escape");
+    await expect.poll(() => sidebarX(page)).toBeLessThan(0);
+
+    // Reopen, then the in-drawer ✕ (same handler as the scrim tap-away) dismisses it.
+    await page.locator(fab).click();
+    await expect.poll(() => sidebarX(page)).toBeGreaterThanOrEqual(0);
+    await page.locator(`${sidebar} .palette-close`).click();
+    await expect.poll(() => sidebarX(page)).toBeLessThan(0);
+  });
+});

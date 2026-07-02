@@ -1,7 +1,8 @@
 # Responsive / Adaptive UI — Plan
 
 **Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
-the `layout` layer) ✅, and Phase 3 (responsive top bar) ✅ landed; Phases 4–6 queued.
+the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, and Phase 4a (Home sidebar → phone drawer) ✅
+landed; Phase 4b (Single view) + 4c (Manage) and Phases 5–6 queued.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -128,8 +129,19 @@ switch scrolls horizontally rather than overflow the bar. a11y: `aria-haspopup`/
 + label; axe finds no serious/critical violations. Verified by the new `tests/e2e/responsive.spec.js`
 (desktop / phone / tablet).
 
-**Phase 4 — The heavy views.** Home sidebar → drawer/bottom-sheet on phone; Single view's image+detail
-two-column → stacked, action row → sticky bottom bar; Manage's tree+editor → master/detail push nav.
+**Phase 4 — The heavy views.** Split into three independently-shipped sub-phases:
+
+- **4a — Home sidebar → phone drawer.** ✅ At `≤640px` the building-block palette becomes an off-canvas
+  left drawer (`.workspace.palette-open`); the composer takes the full width, and a floating
+  "Building blocks" trigger (`BlocksIcon`) opens it. Dismiss via the in-drawer ✕, the scrim, or Escape.
+  Panel state is React (flipped on tap post-hydration); the drawer's existence is width-driven CSS, so
+  first paint is SSR-safe. The full-height drawer restores the vertical palette layout (undoing the
+  641–860 stack's row-wrapped tabs / capped chip area). `prefers-reduced-motion` disables the slide.
+  a11y: `aria-controls`/`-expanded` on the trigger + a labelled close. Verified by `responsive.spec.js`
+  (desktop inline / phone off-canvas → open → Escape → ✕) and the visual baselines (desktop unchanged).
+- **4b — Single view.** Image + detail two-column → stacked; the action row → a sticky bottom bar. _(queued)_
+- **4c — Manage.** Tree + editor → master/detail push navigation on phone. _(queued)_
+
 Every capability preserved, only re-homed.
 
 **Phase 5 — Touch & input ergonomics.** 44px minimum targets, `@media (hover:hover)` guards so hover
