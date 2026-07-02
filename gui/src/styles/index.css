@@ -71,6 +71,7 @@
 @import url("./components/providers-dropdown.css") layer(components);
 @import url("./components/live-preview.css") layer(components);
 @import url("./components/view-switch.css") layer(components);
+@import url("./components/topbar-responsive.css") layer(components);
 @import url("./components/photo-gallery.css") layer(components);
 @import url("./components/gallery-single-image-page.css") layer(components);
 @import url("./components/gallery-single-image-lineage.css") layer(components);

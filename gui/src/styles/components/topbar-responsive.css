@@ -1,0 +1,99 @@
+/* ---------- Responsive top bar (control-pile overflow) ----------
+   Wide screens: the secondary controls sit inline in the header exactly as
+   before — `.topbar-overflow` is `display:contents`, so its children (the
+   hidden toggle + the controls group) lay out as direct header flex items, and
+   the spacing is byte-identical to the pre-Phase-3 markup. Narrow screens
+   (<= 820px): the controls collapse into a dropdown panel revealed by the "⋯"
+   toggle. The open state is the toggle's [aria-expanded] (flipped on click,
+   post-hydration); panel visibility is otherwise width-driven, so the first
+   (server-prerendered) paint is SSR-safe. In the `components` layer because it
+   overrides component-internal header pieces. See notes/plans/responsive.md. */
+
+/* --- Wide (default): controls inline, toggle absent --- */
+.topbar-overflow {
+  display: contents;
+}
+
+.topbar-overflow-toggle {
+  display: none;
+}
+
+.topbar-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* --- Narrow: collapse the control pile behind the "⋯" button --- */
+@media (width <= 820px) {
+  .topbar-overflow {
+    display: block;
+    position: relative;
+    flex: none;
+  }
+
+  .topbar-overflow-toggle {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--fg-soft);
+    cursor: pointer;
+  }
+
+  .topbar-overflow-toggle:hover,
+  .topbar-overflow-toggle[aria-expanded="true"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .topbar-overflow-toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+
+  .topbar-controls {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 42;
+    display: none;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.6rem;
+    width: max-content;
+    max-width: 92vw;
+    padding: 0.6rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* Open: the toggle's aria-expanded flips to true on click (post-hydration). */
+  .topbar-overflow-toggle[aria-expanded="true"] + .topbar-controls {
+    display: flex;
+  }
+}
+
+/* --- Phone: reclaim width — drop the wordmark (keep the logo), let the view
+       switch scroll horizontally rather than overflow the bar. --- */
+@media (width <= 640px) {
+  .brand .wordmark {
+    display: none;
+  }
+
+  .view-switch {
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox: hide the strip's scrollbar */
+  }
+
+  .view-switch::-webkit-scrollbar {
+    display: none; /* WebKit/Blink: same */
+  }
+}

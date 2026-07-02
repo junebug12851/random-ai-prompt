@@ -1,7 +1,7 @@
 # Responsive / Adaptive UI — Plan
 
-**Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid token foundation) ✅ and
-Phase 2 (adopt the `layout` layer) ✅ landed; Phases 3–6 queued.
+**Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
+the `layout` layer) ✅, and Phase 3 (responsive top bar) ✅ landed; Phases 4–6 queued.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -117,9 +117,16 @@ selectors and must win). Container contexts were **not** placed on the panes —
 above; they'll be established on leaf wrappers in Phases 3–4. Desktop rendering unchanged (no selector
 collisions; precedence preserved).
 
-**Phase 3 — Top bar → responsive nav.** Desktop unchanged. Tablet: condense wordmark, group controls.
-Phone: brand + condensed view switch, with the secondary control pile behind the single top overflow
-menu (§5). New component CSS in `layout` + a small post-hydration open/close state.
+**Phase 3 — Top bar → responsive nav.** ✅ The secondary control pile (Providers, gear, NSFW, theme,
+links) is wrapped in `.topbar-overflow`: `display:contents` on wide screens (inline, byte-identical to
+before — verified by the visual-regression baselines), and at `≤820px` it collapses behind a `⋯` toggle
+(`MoreIcon`) into an anchored dropdown panel. Panel visibility is width-driven CSS; the open state is the
+toggle's `[aria-expanded]`, flipped on click **post-hydration**, so first paint stays SSR-safe (the
+`prerender.test.js` guard passes). Controls render **once** (no duplicated state / fixed popovers).
+Dismisses on Escape + outside `pointerdown`. At `≤640px` the wordmark drops (logo stays) and the view
+switch scrolls horizontally rather than overflow the bar. a11y: `aria-haspopup`/`-expanded`/`-controls`
++ label; axe finds no serious/critical violations. Verified by the new `tests/e2e/responsive.spec.js`
+(desktop / phone / tablet).
 
 **Phase 4 — The heavy views.** Home sidebar → drawer/bottom-sheet on phone; Single view's image+detail
 two-column → stacked, action row → sticky bottom bar; Manage's tree+editor → master/detail push nav.
@@ -128,9 +135,9 @@ Every capability preserved, only re-homed.
 **Phase 5 — Touch & input ergonomics.** 44px minimum targets, `@media (hover:hover)` guards so hover
 affordances gain touch equivalents, momentum scroll containers, `env(safe-area-inset-*)` for notches.
 
-**Phase 6 — Verification.** Extend the Playwright visual + `@axe-core` specs with a **viewport matrix**
-(e.g. 390 / 768 / 1280) so responsiveness is regression-locked; re-confirm warning-free hydration at
-mobile widths.
+**Phase 6 — Verification.** A functional **viewport-matrix** spec (390 / 768 / 1280) already landed with
+Phase 3 (`tests/e2e/responsive.spec.js`) and grows each phase; remaining: extend it to the Phase-4 view
+layouts, consider a phone-width visual baseline, and re-confirm warning-free hydration at mobile widths.
 
 ---
 

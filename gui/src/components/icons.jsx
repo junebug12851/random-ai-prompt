@@ -72,6 +72,16 @@ export const MenuIcon = () => (
   </svg>
 );
 
+// More / overflow (horizontal three-dots) — the top-bar control-pile collapse trigger on
+// narrow screens. Distinct from MenuIcon (the links hamburger) so the two read differently.
+export const MoreIcon = () => (
+  <svg {...ico} fill="currentColor" stroke="none" aria-hidden="true">
+    <circle cx="5" cy="12" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="19" cy="12" r="2" />
+  </svg>
+);
+
 // GitHub mark (filled).
 export const GitHubIcon = () => (
   <svg {...ico} fill="currentColor" stroke="none" aria-hidden="true">
