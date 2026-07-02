@@ -54,12 +54,14 @@
     box-shadow: var(--ring);
   }
 
-  /* A vertical dropdown menu — one control per row, left-aligned. */
+  /* A vertical dropdown menu — one control per row, left-aligned. z-index kept above the Home FAB
+     (50) + drawer (60) so the submenu bottom-sheets rendered inside this stacking context can paint
+     over them (a fixed child can't escape its ancestor's stacking context). */
   .topbar-controls {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    z-index: 42;
+    z-index: 90;
     display: none;
     flex-direction: column;
     align-items: stretch;

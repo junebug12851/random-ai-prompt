@@ -1,0 +1,55 @@
+/* ---------- Mobile: header submenus → bottom sheets ----------
+   On desktop the Providers / Provider-settings / Appearance / Links popovers are small dropdowns
+   anchored to their header trigger. Opened from the mobile overflow menu they looked like stray,
+   differently-shaped desktop panels floating over the page. At <=768px they become one consistent
+   thing: a full-width bottom sheet over a full backdrop — so each reads as part of the mobile menu.
+   Selectors are scoped to each control's wrapper so they out-specify the base positioning rules
+   (e.g. `.provider-gear .gear-pop.provider-gear-pop { right: 0 }`). Desktop is untouched. */
+
+@media (width <= 768px) {
+  .providers-menu .pm-pop,
+  .provider-gear .gear-pop.provider-gear-pop,
+  .theme-menu .theme-pop,
+  .links-menu .links-pop {
+    position: fixed;
+    inset: auto 0 0; /* top:auto, right/bottom/left:0 → full-width, pinned to the bottom */
+    z-index: 91; /* above the FAB (50), overflow menu (42), and drawer (60) */
+    width: auto;
+    max-width: none;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: var(--shadow);
+    padding-top: 0.9rem;
+    padding-bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* The gear pop clips its body with overflow:hidden on desktop — let the sheet scroll instead. */
+  .provider-gear .gear-pop.provider-gear-pop {
+    overflow-y: auto;
+  }
+
+  /* Each submenu's click-away layer becomes a full dimming backdrop. */
+  .ps-scrim,
+  .gear-pop-scrim,
+  .theme-scrim,
+  .links-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 90; /* dim everything, including the FAB */
+    background: rgb(0 0 0 / 45%);
+  }
+
+  /* Providers: the desktop 2-column grid (picker + a fixed 250px key column) left a big empty gap
+     on a phone. Stack the picker over its key field, each full-width. */
+  .pm-row {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .pm-shared {
+    text-align: left;
+  }
+}
