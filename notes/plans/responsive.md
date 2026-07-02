@@ -1,9 +1,13 @@
 # Responsive / Adaptive UI — Plan
 
-**Status:** in progress on `feature/responsive-foundation`. Phase 1 (fluid tokens) ✅, Phase 2 (adopt
-the `layout` layer) ✅, Phase 3 (responsive top bar) ✅, Phase 4a (Home drawer) ✅, Phase 4b (Single view stack) ✅, and
-Phase 4c (Manage master/detail) ✅, and Phase 5 (touch ergonomics) ✅ landed — **all views are
-responsive and touch-ready**; Phase 6 (final verification / release) in progress.
+**Status:** ✅ **complete** on `feature/responsive-foundation` (2.40.1 → 2.40.7), pending release to
+`main`. Phase 1 (fluid tokens) ✅, Phase 2 (`layout` layer) ✅, Phase 3 (responsive top bar) ✅,
+Phase 4a (Home drawer) ✅, Phase 4b (Single view stack) ✅, Phase 4c (Manage master/detail) ✅,
+Phase 5 (touch ergonomics) ✅, Phase 6 (verification) ✅ — **every view is responsive and touch-ready**,
+verified by the full gate (`npm test`) + the whole Playwright suite (18 specs: E2E, visual regression,
+a11y, and the responsive viewport matrix), all green. Desktop rendering is byte-identical throughout
+(visual baselines unchanged). Optional future polish: a committed phone-width visual baseline, and the
+Single view's sticky bottom action bar.
 **Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
@@ -163,9 +167,12 @@ otherwise they're untappable on a touchscreen. `@media (pointer: coarse)` gives 
 ≥44px tap target (WCAG 2.5.5). The palette FAB already uses `env(safe-area-inset-bottom)`. Verified by a
 touch-emulated (`isMobile`) `responsive.spec.js` case (hover-only action `opacity:1`; `.vs-tab` ≥44px).
 
-**Phase 6 — Verification.** A functional **viewport-matrix** spec (390 / 768 / 1280) already landed with
-Phase 3 (`tests/e2e/responsive.spec.js`) and grows each phase; remaining: extend it to the Phase-4 view
-layouts, consider a phone-width visual baseline, and re-confirm warning-free hydration at mobile widths.
+**Phase 6 — Verification.** ✅ `tests/e2e/responsive.spec.js` grew into a full functional viewport matrix
+(390 / 768 / 1280) across **all** views: top bar overflow, Home palette drawer, Single view stack, Manage
+master/detail, and touch ergonomics (touch-emulated). The whole gate is green — `npm test` (check:docs +
+lint + smoke + 260 unit + 313 web, incl. the `prerender.test.js` hydration guard) and the full Playwright
+suite (18 specs: E2E + visual regression + `@axe-core` a11y). Desktop stays pixel-identical. Deferred as
+optional: a committed phone-width visual baseline (functional coverage already locks the behavior).
 
 ---
 
