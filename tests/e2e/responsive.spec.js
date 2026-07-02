@@ -85,7 +85,7 @@ test.describe("top bar — tablet (portrait)", () => {
 
 // --- Phase 4a: the building-block palette becomes a phone drawer ---
 
-const fab = ".palette-fab";
+const fab = ".palette-trigger";
 const sidebar = "#block-palette";
 
 /** Wait for the drawer's slide transition to settle, then return its left edge (x). */
@@ -269,9 +269,9 @@ test.describe("touch ergonomics", () => {
     const opacity = await act.evaluate((el) => getComputedStyle(el).opacity);
     expect(Number(opacity)).toBe(1);
 
-    // The view-switch tabs meet the 44px minimum tap target.
+    // A primary control on this screen (the Manage refresh button) meets the 44px tap target.
     const h = await page
-      .locator(".vs-tab")
+      .locator(".mg-refresh")
       .first()
       .evaluate((el) => el.getBoundingClientRect().height);
     expect(h).toBeGreaterThanOrEqual(44);

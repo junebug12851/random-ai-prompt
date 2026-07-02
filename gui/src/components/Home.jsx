@@ -397,20 +397,22 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         onClick={() => setPaletteOpen(false)}
         aria-hidden="true"
       />
-      <button
-        type="button"
-        className="palette-fab"
-        onClick={() => setPaletteOpen(true)}
-        aria-controls="block-palette"
-        aria-expanded={paletteOpen}
-        aria-label={intl.formatMessage(msgs.openBlocksAria)}
-      >
-        <BlocksIcon />
-        <span>{intl.formatMessage(msgs.openBlocks)}</span>
-      </button>
 
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
+        {/* Compact-screens only (CSS): opens the building-block drawer. Inline, so it never
+            floats over the footer/content. */}
+        <button
+          type="button"
+          className="palette-trigger"
+          onClick={() => setPaletteOpen(true)}
+          aria-controls="block-palette"
+          aria-expanded={paletteOpen}
+          aria-label={intl.formatMessage(msgs.openBlocksAria)}
+        >
+          <BlocksIcon />
+          <span>{intl.formatMessage(msgs.openBlocks)}</span>
+        </button>
         <section className="card composer">
           {/* The prompt box is a chat-style field: a textarea with the actions
               docked along its bottom edge. */}

@@ -17,9 +17,9 @@
   }
 }
 
-/* 2 — Coarse (touch) pointers: enlarge the primary tap targets. */
+/* 2 — Coarse (touch) pointers: enlarge the primary tap targets. (The view-switch tabs are a
+      tightly-grouped segmented control — deliberately NOT bumped to 44px, which made them clunky.) */
 @media (pointer: coarse) {
-  .vs-tab,
   .field-act,
   .g-single-nav button,
   .g-back,

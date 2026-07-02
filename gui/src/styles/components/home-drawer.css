@@ -1,22 +1,20 @@
-/* ---------- Home building-block palette → phone drawer ----------
-   Phase 4 (notes/plans/responsive.md). On wide + tablet screens the palette is
-   the visible left pane (two-pane, or the 641–860 stack). On phones (<= 640px)
-   it becomes an off-canvas left drawer so the composer owns the full width; the
-   palette is one tap away via the floating "Building blocks" trigger, and every
-   block stays reachable — no feature is lost, just re-homed. Panel-open state is
-   React (`.workspace.palette-open`, flipped on tap post-hydration); the drawer's
-   existence is width-driven CSS, so first paint is SSR-safe. Components layer,
-   imported after responsive.css so the phone rules win over the tablet stack. */
+/* ---------- Home building-block palette → compact drawer (Phase 4a, reworked) ----------
+   Wide screens (>768px): the palette is the visible left pane (two-pane). Compact (<=768px, phones
+   + small tablets): the composer takes the FULL width and the palette becomes an off-canvas left
+   drawer, opened by an inline "Building blocks" trigger at the top of the composer (not a floating
+   button — so nothing overlaps the footer/content). Every block stays reachable. Panel state is
+   React (`.workspace.home.palette-open`, flipped on tap); the drawer's existence is width-driven
+   CSS, so first paint is SSR-safe. Scoped to `.workspace.home` so other two-pane views (Manage)
+   are unaffected. Components layer. See notes/plans/responsive.md. */
 
-/* --- Wide + tablet: the phone-only affordances are absent --- */
+/* Wide: the compact-only affordances are absent. */
 .palette-scrim,
-.palette-fab,
+.palette-trigger,
 .palette-close {
   display: none;
 }
 
-/* Title + (phone-only) close share a row at the top of the palette head. With the
-   close hidden on wide screens, the title sits alone at the start — unchanged. */
+/* Palette-head title row (title + phone-only close). Title sits alone at start on wide screens. */
 .panel-head-row {
   display: flex;
   align-items: center;
@@ -24,17 +22,18 @@
   gap: 0.5rem;
 }
 
-/* --- Phone: off-canvas drawer. Scoped to `.workspace.home` so the shared
-       `.sidebar` class on OTHER two-pane views (e.g. Manage's `.mg-sidebar`)
-       is NOT turned into a drawer — those get their own phone treatment. --- */
-@media (width <= 640px) {
+@media (width <= 768px) {
+  /* One column: the composer fills the width; the drawer is taken out of flow (fixed). */
+  .workspace.home {
+    grid-template-columns: 1fr;
+  }
+
   .workspace.home .sidebar {
     position: fixed;
-    inset: 0 auto 0 0; /* top:0 right:auto bottom:0 left:0 — full-height left drawer */
+    inset: 0 auto 0 0; /* full-height left drawer */
     z-index: 60;
     width: min(86vw, 340px);
     border-right: 1px solid var(--border);
-    border-bottom: none; /* undo the 641–860 stack's bottom border */
     box-shadow: var(--shadow);
     transform: translateX(-100%);
     transition: transform 0.24s ease;
@@ -45,17 +44,29 @@
     transform: none;
   }
 
-  /* Restore the vertical palette layout inside the full-height drawer (undo the
-     stack tweaks that row-wrap the tabs and cap the chip area's height). */
-  .workspace.home .cat-tabs {
-    flex-flow: column nowrap;
-    max-height: 45%;
-    overflow: auto;
+  /* Inline trigger — a normal button at the top of the composer column. `width:auto`
+     overrides the `.main-col > *` full-width rule so it hugs its label. */
+  .palette-trigger {
+    display: inline-flex;
+    width: auto;
+    align-items: center;
+    gap: 0.45rem;
+    align-self: flex-start;
+    margin-bottom: 0.15rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-2);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
   }
 
-  .workspace.home .chip-area {
-    max-height: none;
-    overflow: auto;
+  .palette-trigger:hover {
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .palette-close {
@@ -83,42 +94,13 @@
     transition: opacity 0.24s ease;
   }
 
-  .workspace.palette-open .palette-scrim {
+  .workspace.home.palette-open .palette-scrim {
     opacity: 1;
     pointer-events: auto;
   }
-
-  .palette-fab {
-    position: fixed;
-    left: 12px;
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    z-index: 50;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.6rem 0.95rem;
-    border: none;
-    border-radius: var(--radius-pill);
-    background: var(--accent-strong);
-    color: var(--accent-ink);
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-  }
-
-  .palette-fab:focus-visible {
-    outline: none;
-    box-shadow: var(--ring);
-  }
-
-  /* The trigger steps aside while the drawer is open (scrim / ✕ / Esc dismiss it). */
-  .workspace.palette-open .palette-fab {
-    display: none;
-  }
 }
 
-/* Respect reduced-motion: no slide/fade. */
+/* Respect reduced-motion. */
 @media (prefers-reduced-motion: reduce) {
   .workspace.home .sidebar,
   .palette-scrim {

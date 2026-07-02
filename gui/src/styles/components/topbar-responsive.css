@@ -1,13 +1,10 @@
 /* ---------- Responsive top bar (control-pile overflow) ----------
-   Wide screens: the secondary controls sit inline in the header exactly as
-   before — `.topbar-overflow` is `display:contents`, so its children (the
-   hidden toggle + the controls group) lay out as direct header flex items, and
-   the spacing is byte-identical to the pre-Phase-3 markup. Narrow screens
-   (<= 820px): the controls collapse into a dropdown panel revealed by the "⋯"
-   toggle. The open state is the toggle's [aria-expanded] (flipped on click,
-   post-hydration); panel visibility is otherwise width-driven, so the first
-   (server-prerendered) paint is SSR-safe. In the `components` layer because it
-   overrides component-internal header pieces. See notes/plans/responsive.md. */
+   Wide screens: the secondary controls sit inline in the header (byte-identical to before —
+   `.topbar-overflow` is `display:contents`). At <=768px they collapse into a tidy VERTICAL menu
+   opened by the "⋯" button (one control per row — never a wrapped toolbar), and the view switch
+   tightens so all tabs fit without clipping. Open state is the toggle's [aria-expanded] (flipped
+   on click, post-hydration); panel visibility is otherwise width-driven, so first paint is
+   SSR-safe. Components layer. See notes/plans/responsive.md. */
 
 /* --- Wide (default): controls inline, toggle absent --- */
 .topbar-overflow {
@@ -24,8 +21,8 @@
   gap: 0.7rem;
 }
 
-/* --- Narrow: collapse the control pile behind the "⋯" button --- */
-@media (width <= 820px) {
+/* --- Compact (phone + small tablet): collapse the control pile --- */
+@media (width <= 768px) {
   .topbar-overflow {
     display: block;
     position: relative;
@@ -34,8 +31,8 @@
 
   .topbar-overflow-toggle {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     padding: 0;
     align-items: center;
     justify-content: center;
@@ -57,43 +54,59 @@
     box-shadow: var(--ring);
   }
 
+  /* A vertical dropdown menu — one control per row, left-aligned. */
   .topbar-controls {
     position: absolute;
-    top: calc(100% + 6px);
+    top: calc(100% + 8px);
     right: 0;
     z-index: 42;
     display: none;
-    flex-flow: row wrap;
-    align-items: center;
-    gap: 0.6rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
     width: max-content;
-    max-width: 92vw;
-    padding: 0.6rem;
+    min-width: 208px;
+    max-width: 84vw;
+    padding: 0.55rem;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
   }
 
-  /* Open: the toggle's aria-expanded flips to true on click (post-hydration). */
   .topbar-overflow-toggle[aria-expanded="true"] + .topbar-controls {
     display: flex;
   }
-}
 
-/* --- Phone: reclaim width — drop the wordmark (keep the logo), let the view
-       switch scroll horizontally rather than overflow the bar. --- */
-@media (width <= 640px) {
+  /* Reclaim width for the view switch: drop the wordmark, tighten the tabs so all four
+     fit without the strip clipping a label. */
   .brand .wordmark {
     display: none;
   }
 
   .view-switch {
-    overflow-x: auto;
-    scrollbar-width: none; /* Firefox: hide the strip's scrollbar */
+    min-width: 0;
+    padding: 2px;
   }
 
-  .view-switch::-webkit-scrollbar {
-    display: none; /* WebKit/Blink: same */
+  .vs-tab {
+    padding: 0.34rem 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .vs-tab .lock-badge {
+    display: none; /* the greyed/disabled state already signals a locked tab */
+  }
+}
+
+/* Narrowest phones — squeeze the tabs a touch more so four still fit. */
+@media (width <= 380px) {
+  .vs-tab {
+    padding: 0.32rem 0.4rem;
+    font-size: 0.72rem;
+  }
+
+  .topbar {
+    gap: 0.45rem;
   }
 }

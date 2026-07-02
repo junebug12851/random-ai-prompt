@@ -1,7 +1,12 @@
 # Responsive / Adaptive UI — Plan
 
-**Status:** ✅ **complete** on `feature/responsive-foundation` (2.40.1 → 2.40.7), pending release to
-`main`. Phase 1 (fluid tokens) ✅, Phase 2 (`layout` layer) ✅, Phase 3 (responsive top bar) ✅,
+**Status:** ✅ **complete** on `feature/responsive-foundation` (2.40.1 → 2.40.8), pending release to
+`main`. **Note:** a real-device visual review after 2.40.7 found the mobile layout cluttered/cut-off
+(functional tests had passed but never checked *appearance*). Reworked in 2.40.8 — retired the generic
+≤860 stack, Home is two-pane→drawer at 768 with an inline trigger (no floating FAB), the header collapses
+to a vertical `⋯` menu only ≤768, tabs tightened to fit, breakpoints unified at 768. Now verified by
+headless screenshots at 360/390/768/1280 as well as the full test suite. Lesson recorded: for UI work,
+**look at screenshots** before declaring done. Phase 1 (fluid tokens) ✅, Phase 2 (`layout` layer) ✅, Phase 3 (responsive top bar) ✅,
 Phase 4a (Home drawer) ✅, Phase 4b (Single view stack) ✅, Phase 4c (Manage master/detail) ✅,
 Phase 5 (touch ergonomics) ✅, Phase 6 (verification) ✅ — **every view is responsive and touch-ready**,
 verified by the full gate (`npm test`) + the whole Playwright suite (18 specs: E2E, visual regression,

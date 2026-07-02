@@ -1,30 +1,34 @@
-/* ---------- Manage → phone master/detail (Phase 4c of the responsive work) ----------
-   The Manage tab reuses the two-pane `.workspace`/`.sidebar`/`.main-col` skeleton (tree left,
-   editor right). On phones, showing both at once is cramped, so it becomes a master/detail:
-   the tree fills the screen; selecting an entry/folder pushes to the editor with a Back control
-   (`.detail-open` reflects React's `selected`). Wider screens are unchanged — both panes show
-   together and the Back button is absent. Width-driven CSS, so first paint is unaffected; every
-   Manage capability is preserved, just shown one pane at a time. */
+/* ---------- Manage → compact master/detail (Phase 4c, reworked) ----------
+   Wide screens (>768px): the tree + editor show side by side (two-pane). Compact (<=768px):
+   master/detail — the tree fills the screen; selecting an entry/folder (React `selected` →
+   `.detail-open`) pushes to the editor with a "‹ Back to list" control. The base grid's first
+   track is narrow, so the single visible pane is forced full-width with `grid-template-columns:
+   1fr`. Width-driven; first paint unaffected; every Manage capability preserved. */
 
-/* Wider screens: no phone Back control. */
+/* Wide: no phone Back control. */
 .mg-back {
   display: none;
 }
 
-@media (width <= 640px) {
-  /* Master (no selection): the tree fills the screen, the editor is hidden. */
+@media (width <= 768px) {
+  /* One full-width column for whichever pane is visible. */
+  .workspace.manage {
+    grid-template-columns: 1fr;
+  }
+
+  /* Master (no selection): tree fills the screen, editor hidden. */
   .workspace.manage .mg-main {
     display: none;
   }
 
-  /* Detail (a selection is active): swap — show the editor, hide the tree. */
+  /* Detail (a selection is active): swap — editor shown, tree hidden. */
   .workspace.manage.detail-open .mg-sidebar {
     display: none;
   }
 
   .workspace.manage.detail-open .mg-main {
     display: flex;
-    min-height: 60vh; /* give the editor room even when its content is short */
+    min-height: 60vh;
   }
 
   .mg-back {
