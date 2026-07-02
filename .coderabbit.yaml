@@ -23,7 +23,7 @@ reviews:
     - "!**/node_modules/**"
     - "!docs/**"
     - "!assets/references/**"
-    - "!engine-v3/data/lists/**"
-    - "!engine-v3/gui/src/i18n/compiled/**"
+    - "!data/lists/**"
+    - "!gui/src/i18n/compiled/**"
 chat:
   auto_reply: true

@@ -1,4 +1,4 @@
-// Stylelint configuration for the engine-v3 web app CSS.
+// Stylelint configuration for the web app CSS.
 //
 // Base is stylelint-config-standard (the same ruleset CodeFactor's CSS engine
 // applies). A handful of rules are relaxed below — each is a deliberate,

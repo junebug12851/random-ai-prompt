@@ -16,12 +16,12 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "@babel/core";
 
-// The project split (engine-v3/) puts CODE under engine-v3/ (src, data, gui, tmp, docs output)
-// while the living docs — notes/, assets/, README.md, the repo docs, and jsdoc.config.json — stay
-// at the REPO ROOT (engine-v3/..). So the doc build straddles both: `root` is engine-v3 (code +
-// temp + output), `repoRoot` is its parent (notes + assets + README + jsdoc config).
+// Everything — code (src, data, gui, tmp, docs output) and the living docs (notes/, assets/,
+// README.md, the repo docs, jsdoc.config.json) — lives at the repo root, so `root` and `repoRoot`
+// are the same directory. (`repoRoot` is kept as a separate name for the doc-tree path helpers
+// below that read it explicitly.)
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const repoRoot = path.resolve(root, "..");
+const repoRoot = root;
 const notesDir = path.join(repoRoot, "notes");
 const outDir = path.join(root, "tmp", "jsdoc-tutorials");
 
@@ -183,9 +183,8 @@ const waCount =
 console.log(`Transpiled ${waCount} gui files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);
-// jsdoc.config.json + README + assets live at the repo root, so run JSDoc from there (its
-// source.include / tutorials paths reach back into engine-v3/). Invoke engine-v3's PINNED jsdoc
-// binary directly (not `npx jsdoc`, which from the repo root would fetch a different version).
+// jsdoc.config.json + README + assets + code all live at the repo root, so run JSDoc from there.
+// Invoke the PINNED jsdoc binary directly (not `npx jsdoc`, which could fetch a different version).
 const jsdocBin = path.join(root, "node_modules", "jsdoc", "jsdoc.js");
 const docsIndex = path.join(repoRoot, "docs", "jsdoc", "index.html");
 try {

@@ -14,7 +14,7 @@
  *
  * Kept as an explicit script (rather than a Vite plugin doing a nested build inside `closeBundle`) so
  * the steps are transparent and debuggable. Invoked by `npm run build`; the Netlify command
- * (`npm --prefix engine-v3/gui run build`) is unchanged.
+ * (`npm --prefix gui run build`) is unchanged.
  */
 import { build } from "vite";
 import fs from "node:fs";

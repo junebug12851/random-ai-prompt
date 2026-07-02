@@ -20,7 +20,7 @@ const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
 // This is the local-mode equivalent of the browser's `localStorage` — all user storage in one place.
 export const USER_DIR = path.join(guiRoot, "user-settings");
 // The central output folder — every provider's generated images land here on disk
-// (engine-v3/output, the project's runtime output dir), served back via /api/output/<file>.
+// (output, the project's runtime output dir), served back via /api/output/<file>.
 export const OUTPUT_DIR = path.join(guiRoot, "..", "output");
 
 export const IMAGE_TYPES = {

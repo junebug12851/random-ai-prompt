@@ -4,7 +4,7 @@
  * Extracted from the Vite middleware so the same code backs a production local/desktop build and so
  * it's unit-testable in plain Node (the runtime loader that consumes the snapshot needs Vite, but
  * these pure fs functions don't). Everything is scoped to the two prompt-content roots under
- * `engine-v3/data/` and traversal-guarded.
+ * `data/` and traversal-guarded.
  * @module gui/server/manageFs
  */
 import fs from "node:fs";
@@ -13,7 +13,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
-// engine-v3/data/{lists,dynamic-prompts} — this file lives at engine-v3/gui/server/.
+// data/{lists,dynamic-prompts} — this file lives at gui/server/, so ../../data/ is the repo-root data dir.
 const DATA_ROOT = fileURLToPath(new URL("../../data/", import.meta.url));
 
 /** The two editable content roots, by name. */
@@ -256,11 +256,10 @@ export function setMarker(root, dir, marker, on) {
 }
 
 // The stable branch the "restore default" action pulls original files from. `main` is the current
-// stable release that carries the engine-v3/ layout; `master` is a stale old-layout branch and can't
-// serve these paths (confirmed 2026-06-28 with the owner).
+// stable release, which carries the flat repo-root layout (`data/` at the top level).
 const STABLE_BRANCH = "main";
 const REPO = "junebug12851/random-ai-prompt";
-const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${STABLE_BRANCH}/engine-v3/data`;
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${STABLE_BRANCH}/data`;
 
 let manifestCache = null;
 let manifestAt = 0;

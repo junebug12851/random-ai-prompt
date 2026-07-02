@@ -192,7 +192,7 @@ export function createApiHandler() {
 
     // --- ingest a generated image into the central output folder ---
     // Accepts { src } as a data: URL (decode) or a localhost URL (fetch server-side — also
-    // sidesteps Comfy Desktop's 403 on the browser). Saves to engine-v3/output/ and returns
+    // sidesteps Comfy Desktop's 403 on the browser). Saves to output/ and returns
     // the served path. Any provider funnels its results through this for one shared folder.
     if (u.pathname === "/api/image" && req.method === "POST") {
       const body = await readJson(req);

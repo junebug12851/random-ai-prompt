@@ -1,4 +1,4 @@
-# Browser support target for the engine-v3 SPA.
+# Browser support target for the SPA.
 #
 # Chosen so the modern CSS the theming framework relies on is available in the
 # target set: cascade layers (@layer), oklch() colour, color-mix(), typed
