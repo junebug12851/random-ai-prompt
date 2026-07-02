@@ -86,11 +86,14 @@
 
 /* Overlay actions on the single image, top-right — reuses the gallery thumbnail `.img-actions`
    look (dark glyph pills). `.g-single-img` is a positioned box (sticky on desktop, relative on
-   compact below), so the absolute overlay anchors to it. Revealed on hover; touch.css forces it
-   visible on coarse pointers. */
+   compact below), so the absolute overlay anchors to it. Unlike the thumbnails (revealed on hover
+   because there are many), this is the one focal image, so the actions stay ALWAYS visible — they
+   read as missing otherwise. A subtle lift on hover for feedback. */
 .g-single-img .img-actions {
   top: 8px;
   right: 8px;
+  z-index: 2;
+  opacity: 0.85;
 }
 
 .g-single-img:hover .img-actions,
