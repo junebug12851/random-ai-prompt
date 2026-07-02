@@ -8,15 +8,6 @@
   position: relative;
 }
 
-.dpl-insert-lead {
-  font-size: 0.66rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--faint);
-  padding-right: 0.1rem;
-}
-
 .dpl-ins-wrap {
   position: relative;
 }
@@ -79,18 +70,83 @@
   padding: 0.35rem;
 }
 
-/* The rightmost menus open from their right edge so they don't run off-screen. */
-.dpl-ins-pop-right {
-  left: auto;
-  right: 0;
-}
-
 .dpl-ins-pop-hint {
   font-size: 0.7rem;
   color: var(--muted);
   padding: 0.2rem 0.4rem 0.35rem;
   border-bottom: 1px solid var(--border-soft);
   margin-bottom: 0.25rem;
+}
+
+/* Level 1: a category row in the Insert menu (name + hint + drill-in arrow). */
+.dpl-ins-cat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.45rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--fg-soft);
+}
+
+.dpl-ins-cat:hover,
+.dpl-ins-cat:focus-visible {
+  background: var(--accent-soft);
+  color: var(--fg);
+  outline: none;
+}
+
+.dpl-ins-cat-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.dpl-ins-cat-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.dpl-ins-cat-hint {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.dpl-ins-cat-arrow {
+  flex: none;
+  color: var(--faint);
+  font-size: 1rem;
+}
+
+/* Level 2: the Back row that returns to the category list. */
+.dpl-ins-back {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+  padding: 0.3rem 0.4rem 0.4rem;
+  margin-bottom: 0.3rem;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.dpl-ins-back:hover {
+  color: var(--accent);
 }
 
 .dpl-ins-item {
