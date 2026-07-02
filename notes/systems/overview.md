@@ -1,91 +1,91 @@
 # System Map — Overview
 
-> **Structure note (flattened 2026-07-02):** one project at the **repo root** — the core engine + React
-> SPA. The CLI/server sections below describe the **pre-revival** system, now removed from the tree (kept
-> in git history + a reference clone under `assets/references/`). The current app is **v3-only** and the
-> legacy `<expansion>` mechanism was removed.
-
 A deeper walk-through of how the machine fits together. For the quick orientation see
 [`../context/architecture.md`](../context/architecture.md); for module-wiring rules see
 [`../reference/esm-patterns.md`](../reference/esm-patterns.md).
 
 This is the **macro** picture. Per-layer deep-dives live alongside it (see [README.md](README.md)):
-[core-engine.md](core-engine.md), [cli.md](cli.md), [server.md](server.md), [gui.md](gui.md).
+[core-engine.md](core-engine.md) and [gui.md](gui.md) describe the current app; [cli.md](cli.md) and
+[server.md](server.md) document the removed pre-revival CLI + classic server for historical reference.
 
-## The three runtimes
+> The pre-revival 2022–2023 system (a yargs CLI + an Express/Pug server) was removed from the tree. A
+> sibling CLI is planned but not built yet; today the only front end is the `gui/` SPA.
 
-There are really three processes:
+## The surfaces
 
-1. **CLI generate** (`src/index.js`) — the workhorse. Parses argv, optionally loads variation/reroll/
-   animation data, applies presets + arg overrides, then `run()`s the prompt+image loop. It also hosts
-   a tiny **progress server** on `serverSettings.portProgress` (7862) exposing `/api/images/progress`.
-2. **Web UI** (`src/server.js`) — Express on `serverSettings.port` (7861). Serves Pug pages + a JSON API
-   + the `output/` images, and **spawns the CLI** for any actual generation. It reads generation
-   progress by HTTP-polling the CLI's progress server, and merges that with its own `execAppOngoing` flag.
-3. **The browser** — `src/web/frontend/*` (jQuery-era classic scripts) talking to that JSON API.
+There is **one isomorphic engine** (`src/core/`) driven by **one front end** — the React/Vite SPA
+(`gui/`), which builds into two editions:
 
-`src/common.js` is imported by both `src/index.js` and `src/server.js` and is where the shared `run()`,
-`processBatch()`, `upscale()`, and the settings accessors live.
+1. **The SPA (browser)** — composes a DPL prompt, runs the engine in the browser (via the Vite loader),
+   and calls provider adapters directly with the user's BYOK key.
+2. **The local `/api` backend** (`gui/server/`) — present only in the local/desktop edition. Serves the
+   built SPA plus an `/api/*` surface (image save + feed, the Manager's on-disk file ops, ImageMagick
+   convert). The online edition ships **no** server.
+3. **The engine under Node** — the same `src/core/` engine runs headless under Node for the test suite and
+   the `/api` runtime, which also proves the browser and Node produce the same output.
 
-## Boot order (and why `chdir.js` is first)
+## One engine, two loaders
 
-Both entry points ultimately import `src/common.js`, whose **first** import is `./chdir.js`
-(`src/chdir.js`, which does `process.chdir(path.join(import.meta.dirname, ".."))` — pinning cwd to the
-**repo root**, since the code now lives under `src/`). This matters because ES-module imports are
-evaluated in source order *before* any top-level statement runs: `loadSettings.js` reads
-`./user-settings.json` at import time, so the chdir has to happen via an earlier-imported module, not via
-an inline statement in `common.js`. After chdir, `loadSettings.js` builds the merged settings (defaults
-⊕ user-settings ⊕ legacy migration), and `common.js` exposes `settings()` returning the live object.
+`src/core/` has no fs / framework dependency; content is supplied by an injected loader:
 
-## The prompt-module pipeline
+- **Node** — `nodeLoader.js`: `fs` + `createRequire(import.meta.url)` for synchronous `.js` generator
+  loads (Node 24 can `require()` an ES module), resolving the content root **module-relative**
+  (`new URL("../../", import.meta.url)` = the repo root, cwd-independent).
+- **Browser** — `browserLoader.js`: a Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`
+  build-time macro; the lists ship code-split (`browserCatalogData.js`).
 
-`processBatch()` takes `settings.prompt` and runs it through `settings.promptModules` in order. Each
-named module is a file in `src/prompt-modules/`, loaded by config-driven path:
+Both call each generator's `default(...)` and read its `full` / `suggestion_exclude` flags. See
+[`../reference/esm-patterns.md`](../reference/esm-patterns.md).
+
+## The prompt pipeline
+
+The engine runs `settings.promptModules` in order over each prompt string — the stages are in
+`src/core/stages/`:
 
 ```
-prompt → expansion → dynamic-prompt → expansion → dynamic-prompt → prompt-salt → list → cleanup
+prompt → dynamic-prompt → prompt-salt → list → emphasis → cleanup
 ```
 
-- **expansion** (`<name>`): splice in `data/expansions/name.txt`.
-- **dynamic-prompt** (`#name`): expand by calling `data/dynamic-prompts/name.js`'s default export.
-  Supports nesting (re-runs up to 10x), `-v1` variants (`data/dynamic-prompts/v1/`), `user-` prefixed
-  user-submitted prompts, and auto-appended `#fx` / `#artists`. Danbooru keyword substitution is applied.
-- **prompt-salt** (`{salt}`): inject a random or incrementing number (a subseed alternative).
-- **list** (`{name}`): pull a random line from `data/lists/name.txt`, with emphasis/editing/alternating
+- **dynamic-prompt** (`{#name}`) — call the generator from `data/dynamic-prompts/<category>/`; nesting
+  re-expands up to ~10 passes; honors the per-token intensity / focus dials; NSFW-gated by name token.
+  (The one flat catalog replaced the old `v1`/`v2` generations, and the legacy `<expansion>` stage was
+  removed.)
+- **prompt-salt** (`{salt}`) — inject a random / incrementing number (a subseed alternative).
+- **list** (`{name}`) — pull a random line from `data/lists/<name>`, with emphasis / editing / alternating
   randomization (`src/helpers/randomEmphasis|Editing|Alternating.js`) and once-only depletion.
-- **cleanup**: collapse stray spaces/commas.
+- **emphasis** — render typed `()` / `[]` emphasis into the active provider dialect (SD/MJ weights, NAI
+  braces, or plain words).
+- **cleanup** — collapse stray spaces / commas.
 
-The data directories code consumes are set in `src/settings.js` (`listFiles: "./data/lists"`,
-`expansionFiles: "./data/expansions"`, `presetFiles: "./data/presets"`); `dynamicPromptFiles` /
-`promptModuleFiles` stay relative to `src/`.
-
-Two loaders make this work synchronously: `src/prompt-modules/dynamic-prompt.js` and `src/common.js` both use
-`createRequire(import.meta.url)` to `require()` the ES-module plugins (Node 24 allows this) and call
-`.default(...)`. See [`../reference/esm-patterns.md`](../reference/esm-patterns.md).
+The DPL parser + renderer (`src/core/dpl/`) compile and roll each template; a seeded `Rng`
+(`src/core/rng.js`) makes runs reproducible.
 
 ## Dynamic-prompt classification
 
-`src/promptFilesAndSuggestions.js` scans `data/dynamic-prompts/` (+ `v1/`, `user-submitted/`) and splits the
-files into **full** vs **partial** prompts by reading each module's `full` export, excluding ones with
-`suggestion_exclude`. It uses these to build random `promptSuggestion()`s and to populate the web UI's
-file pickers. The scan loads each module via the same `createRequire` mechanism.
+`src/promptFilesAndSuggestions.js` scans `data/dynamic-prompts/` and splits generators into **full** vs
+**partial** by reading each module's `full` export, excluding `suggestion_exclude` ones. These drive the
+random `promptSuggestion()`s and the SPA's block pickers. Tag metadata comes from
+`src/dynPromptManifest.js`; NSFW gating from `src/gatedLists.js` (`isGatedDynPrompt`).
 
-## Image generation + the index
+## Image generation
 
-`src/genImg.js` POSTs to the WebUI `txt2img` endpoint (global `fetch`), streams progress into
-`cli-progress` bars and into `imageSettings.progress*`, then saves each PNG + a `.json` metadata sidecar
-(`src/helpers/saveImage.js`) and optionally upscales (`src/helpers/imageUpscaler.js`). Animations are
-stitched into an APNG (`src/helpers/makeApng.js`, using `crc`).
+Images are generated by the **provider adapters** in `gui/providers/<id>/` — roughly 40 of them behind one
+interface, over a shared transport in `providers/_shared/`. Calls go **straight from the browser** to the
+chosen provider with the user's key (no server relay), so a provider that can't be called from a browser is
+disabled in the online build. Stable Diffusion is still supported — it's where the project started — but it
+is now one option among many.
 
-`src/web/backend/indexImages.js` builds an in-memory index from every `output/*.json`: a keyword→files map
-(via `compromise`/lodash tokenization), per-image data, deep links (upscales/variations/rerolls/
-animation frames), and stats. The web API queries this index. It self-heals: invalid deep links and
-orphaned upscales are pruned and the affected `.json` files minimally rewritten, re-indexing up to 5x.
+In the **local** edition, `POST /api/image` (`gui/server/apiHandler.js`) writes each PNG plus a `.json`
+metadata sidecar (the prompt layers, the deterministic engine roll, the AI rewrite, the provider, and a
+key-stripped settings snapshot) into `output/`; `GET /api/feed` reads them back for the Gallery. The in-app
+**Manager** edits the real `data/lists` + `data/dynamic-prompts` files through `/api/manage/*`
+(`gui/server/manageFs.js`) and hot-applies them via the runtime loader (`gui/src/lib/runtimeLoader.js`).
 
 ## Settings as the spine
 
-Everything reads from the merged settings via `settings()`. The web UI can mutate it at runtime
-(`/api/setting`, `/api/merge-settings`, `/api/replace-settings`, `/api/reload-settings`) and persist the
-diff to `user-settings.json`. The CLI applies presets (`data/presets/*.json`) and per-flag overrides through
-`src/applyArgs.js`. Internal-only fields (progress, lastCmd, animation bookkeeping) are stripped before
-writing user settings (`userSettings()` in `loadSettings.js`).
+Everything reads from the merged settings — `src/settings.js` defaults ⊕ the user's overrides
+(`user-settings.json` on disk / `localStorage` in the browser). It carries the pipeline order, the content
+paths, the active provider + dialect, gating (`includeAdult`), the intensity default, and the per-provider
+BYOK keys (kept only on the device and stripped from any saved image sidecar). The online build boots the
+default-settings shell and settles stored settings in via a guarded two-pass store, so the SSR prerender
+and the client-first render match.
