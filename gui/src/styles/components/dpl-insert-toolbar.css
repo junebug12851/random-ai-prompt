@@ -242,9 +242,11 @@
   overflow-wrap: break-word;
 }
 
-/* Context: the main prompt box (the .dpl-editor wears the .prompt-input class) */
+/* Context: the main prompt box (the .dpl-editor wears the .prompt-input class).
+   The top padding leaves room for the validity icon in the top-left corner, so the typed text
+   starts BELOW it (and left-aligned with it), rather than being indented to its right. */
 .composer-field .prompt-input.dpl-editor {
-  padding: 0.95rem 1.05rem 0.5rem;
+  padding: 2.2rem 1.05rem 0.5rem;
   resize: none;
 }
 
@@ -256,7 +258,7 @@
    eye/gear icons — trim it and reserve a little right gutter so long lines wrap clear of them. */
 @media (width <= 768px) {
   .composer-field .prompt-input.dpl-editor {
-    padding: 0.85rem 0.9rem 0.5rem;
+    padding: 2.1rem 0.9rem 0.5rem;
   }
 
   .composer-field .prompt-input.dpl-editor .cm-content {
@@ -265,9 +267,10 @@
   }
 }
 
-/* Indent only the first visual row so the upper-left validity icon never sits on the text. */
+/* The first line is no longer indented — text left-aligns with the validity icon, one row below it
+   (the editor's top padding clears the icon). */
 .composer-field .prompt-input.dpl-editor .cm-line:first-child {
-  text-indent: 1.8rem;
+  text-indent: 0;
 }
 
 /* Context: the negative-prompt box (matches the base textarea look) */
