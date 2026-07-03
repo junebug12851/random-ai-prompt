@@ -35,8 +35,10 @@ export default function KeywordsCard({ text, saved, item, settings, onSearch, on
   }, [saved, text]);
 
   const rewriteId = settings?.rewriteProvider;
-  const canRebuild =
-    isOutputFile(item?.path) && rewriteId && rewriteId !== "none" && Boolean(text && text.trim());
+  const hasRewrite = rewriteId && rewriteId !== "none";
+  // The image supports an AI keyword rebuild (it's a saved local file with prompt text). Whether a
+  // Text provider is actually chosen is a *separate* gate — so the button can stay visible but locked.
+  const rebuildable = isOutputFile(item?.path) && Boolean(text && text.trim());
 
   async function rebuild() {
     setError("");
@@ -67,7 +69,7 @@ export default function KeywordsCard({ text, saved, item, settings, onSearch, on
     }
   }
 
-  if (tags.length < 2 && !canRebuild) return null;
+  if (tags.length < 2 && !rebuildable) return null;
 
   return (
     <section className="g-card">
@@ -77,12 +79,12 @@ export default function KeywordsCard({ text, saved, item, settings, onSearch, on
             Array.isArray(saved) && saved.length ? msgs.keywordsEdited : msgs.keywords,
           )}
         </h3>
-        {canRebuild && (
+        {rebuildable && (
           <button
             className="g-card-action"
             onClick={rebuild}
-            disabled={busy}
-            title={intl.formatMessage(msgs.rebuildTitle)}
+            disabled={busy || !hasRewrite}
+            title={intl.formatMessage(hasRewrite ? msgs.rebuildTitle : msgs.rebuildLocked)}
           >
             {intl.formatMessage(busy ? msgs.rebuilding : msgs.rebuild)}
           </button>

@@ -1,0 +1,61 @@
+/* ---------- Manage → compact master/detail (Phase 4c, reworked) ----------
+   Wide screens (>768px): the tree + editor show side by side (two-pane). Compact (<=768px):
+   master/detail — the tree fills the screen; selecting an entry/folder (React `selected` →
+   `.detail-open`) pushes to the editor with a "‹ Back to list" control. The base grid's first
+   track is narrow, so the single visible pane is forced full-width with `grid-template-columns:
+   1fr`. Width-driven; first paint unaffected; every Manage capability preserved. */
+
+/* Wide: no phone Back control. */
+.mg-back {
+  display: none;
+}
+
+@media (width <= 768px) {
+  /* One full-width column for whichever pane is visible. */
+  .workspace.manage {
+    grid-template-columns: 1fr;
+  }
+
+  /* Master (no selection): tree fills the screen, editor hidden. */
+  .workspace.manage .mg-main {
+    display: none;
+  }
+
+  /* Detail (a selection is active): swap — editor shown, tree hidden. */
+  .workspace.manage.detail-open .mg-sidebar {
+    display: none;
+  }
+
+  .workspace.manage.detail-open .mg-main {
+    display: flex;
+    min-height: 60vh;
+  }
+
+  /* A clean app-style back button: accent-tinted pill + chevron. */
+  .mg-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    align-self: flex-start;
+    width: auto; /* beat the `.main-col > *` full-width rule so it hugs its label */
+    margin-bottom: 0.7rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.55rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mg-back svg {
+    flex: none;
+  }
+
+  .mg-back:hover {
+    border-color: var(--accent);
+    background: var(--chip-hover);
+  }
+}

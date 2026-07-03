@@ -18,21 +18,27 @@
  * low-specificity and already lost to component class rules, so `components`
  * sitting above `base`/`tokens` changes nothing — while giving a future theme
  * layer a clean, high-precedence home for `[data-theme]` / `[data-accent]`
- * overrides. `layout` / `utilities` / `theme` / `overrides` are reserved for
- * later phases.
+ * overrides. `layout` now hosts the app frame + top-level view/grid skeleton
+ * (see the layout imports below); `utilities` / `theme` / `overrides` are
+ * reserved for later phases.
  */
 @layer reset, tokens, base, layout, components, utilities, theme, overrides;
 
 @import url("./foundation/tokens.css") layer(tokens);
 @import url("./foundation/accents.css") layer(tokens);
 @import url("./foundation/base.css") layer(base);
-@import url("./components/app-frame.css") layer(components);
+
+/* Layout layer — the app frame + the top-level view/grid skeleton (.app, main,
+   .view-pane, .workspace, .sidebar, .main-col). Sits BELOW `components` on
+   purpose, so component rules and the responsive overrides (which target
+   component-internal selectors) still win. See notes/plans/responsive.md. */
+@import url("./layout/app-frame.css") layer(layout);
+@import url("./layout/workspace.css") layer(layout);
 @import url("./components/title-bar.css") layer(components);
 @import url("./components/header-links-menu.css") layer(components);
 @import url("./components/theme-picker.css") layer(components);
 @import url("./components/nsfw-switch.css") layer(components);
 @import url("./components/confirm-dialog.css") layer(components);
-@import url("./components/workspace.css") layer(components);
 @import url("./components/cards.css") layer(components);
 @import url("./components/buttons.css") layer(components);
 @import url("./components/inputs.css") layer(components);
@@ -48,7 +54,7 @@
 @import url("./components/settings-drawer.css") layer(components);
 @import url("./components/settings-form.css") layer(components);
 @import url("./components/footer.css") layer(components);
-@import url("./components/responsive.css") layer(components);
+@import url("./components/home-drawer.css") layer(components);
 @import url("./components/wrapper.css") layer(components);
 @import url("./components/labeled-fields.css") layer(components);
 @import url("./components/header-provider-picker-gear.css") layer(components);
@@ -65,6 +71,7 @@
 @import url("./components/providers-dropdown.css") layer(components);
 @import url("./components/live-preview.css") layer(components);
 @import url("./components/view-switch.css") layer(components);
+@import url("./components/topbar-responsive.css") layer(components);
 @import url("./components/photo-gallery.css") layer(components);
 @import url("./components/gallery-single-image-page.css") layer(components);
 @import url("./components/gallery-single-image-lineage.css") layer(components);
@@ -80,3 +87,6 @@
 @import url("./components/manage-entry-pills.css") layer(components);
 @import url("./components/manage-right-pane.css") layer(components);
 @import url("./components/manage-editors.css") layer(components);
+@import url("./components/manage-responsive.css") layer(components);
+@import url("./components/touch.css") layer(components);
+@import url("./components/mobile-sheets.css") layer(components);

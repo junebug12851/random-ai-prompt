@@ -1,0 +1,115 @@
+/* ---------- Home building-block palette → compact drawer ----------
+   Wide screens (>768px): the palette is the visible left pane (two-pane). Compact (<=768px): the
+   composer takes the FULL width and the palette becomes an off-canvas left drawer, opened by a small
+   icon FAB in the bottom-left corner. A tap-away scrim OR the in-drawer ✕ closes it. Every block
+   stays reachable. Panel state is React (`.workspace.home.palette-open`, flipped on tap); the
+   drawer's existence is width-driven CSS, so first paint is SSR-safe. Scoped to `.workspace.home`.
+   Components layer. See notes/plans/responsive.md. */
+
+/* Wide: the compact-only affordances are absent. */
+.palette-scrim,
+.palette-trigger,
+.palette-close {
+  display: none;
+}
+
+/* Palette-head title row (title + phone-only close). */
+.panel-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+@media (width <= 768px) {
+  /* One column: the composer fills the width; the drawer is taken out of flow (fixed). */
+  .workspace.home {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace.home .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0; /* full-height left drawer */
+    z-index: 60;
+    width: min(86vw, 340px);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    transition: transform 0.24s ease;
+    will-change: transform;
+  }
+
+  .workspace.home.palette-open .sidebar {
+    transform: none;
+  }
+
+  /* Tap-away scrim (MUST set display — the wide default is display:none). */
+  .palette-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgb(0 0 0 / 45%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease;
+  }
+
+  .workspace.home.palette-open .palette-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Small icon FAB, bottom-left, clear of everything (the footer is hidden at this width). */
+  .palette-trigger {
+    display: inline-flex;
+    position: fixed;
+    left: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--accent-strong);
+    color: var(--accent-ink);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+
+  .palette-trigger:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+
+  /* Hide the FAB while the drawer is open (the ✕ / scrim close it). */
+  .workspace.home.palette-open .palette-trigger {
+    display: none;
+  }
+
+  .palette-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-2);
+    color: var(--fg-soft);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+}
+
+/* Respect reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+  .workspace.home .sidebar,
+  .palette-scrim {
+    transition: none;
+  }
+}

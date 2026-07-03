@@ -1,0 +1,210 @@
+/* ---------- Responsive top bar (control-pile overflow) ----------
+   Wide screens: the secondary controls sit inline in the header (byte-identical to before —
+   `.topbar-overflow` is `display:contents`). At <=768px they collapse into a tidy VERTICAL menu
+   opened by the "⋯" button (one control per row — never a wrapped toolbar), and the view switch
+   tightens so all tabs fit without clipping. Open state is the toggle's [aria-expanded] (flipped
+   on click, post-hydration); panel visibility is otherwise width-driven, so first paint is
+   SSR-safe. Components layer. See notes/plans/responsive.md. */
+
+/* --- Wide (default): controls inline, toggle absent --- */
+.topbar-overflow {
+  display: contents;
+}
+
+.topbar-overflow-toggle {
+  display: none;
+}
+
+.topbar-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* --- Compact chrome (phone + tablet, <=1024px): collapse the control pile behind the ⋯ menu ---
+   Tablets (iPad Air 820, Surface 912, iPad Pro 1024, …) don't have desktop's room for the full
+   inline header, so the secondary controls fold into the overflow menu here too. The two-pane
+   Generate/Manage layouts still stay put on tablets — only the CHROME collapses (see the <=768px
+   phone block below for the wordmark/tab tightening that tablets DON'T get). */
+@media (width <= 1024px) {
+  .topbar-overflow {
+    display: block;
+    position: relative;
+    flex: none;
+  }
+
+  .topbar-overflow-toggle {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--fg-soft);
+    cursor: pointer;
+  }
+
+  .topbar-overflow-toggle:hover,
+  .topbar-overflow-toggle[aria-expanded="true"] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .topbar-overflow-toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+
+  /* A vertical dropdown menu — one control per row, left-aligned. z-index kept above the Home FAB
+     (50) + drawer (60) so the submenu bottom-sheets rendered inside this stacking context can paint
+     over them (a fixed child can't escape its ancestor's stacking context). */
+  .topbar-controls {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 90;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    width: max-content;
+    min-width: 208px;
+    max-width: 84vw;
+
+    /* Now that the links fold in, the menu can be taller than the screen — cap it to the space
+       below the header and let it scroll instead of clipping off the bottom. */
+    max-height: calc(100dvh - 72px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.55rem;
+    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar-overflow-toggle[aria-expanded="true"] + .topbar-controls {
+    display: flex;
+  }
+}
+
+/* --- Phone-only (<=768px): reclaim width by dropping the wordmark + tightening the tabs. Tablets
+   (769–1024px) have room to keep the wordmark and full-size tabs, so these stay phone-only. --- */
+@media (width <= 768px) {
+  .brand .wordmark {
+    display: none;
+  }
+
+  .view-switch {
+    min-width: 0;
+    padding: 3px;
+  }
+
+  /* Comfortable-but-not-clunky tap targets (~34px; a full 44px felt oversized here). */
+  .vs-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .vs-tab .lock-badge {
+    display: none; /* the greyed/disabled state already signals a locked tab */
+  }
+}
+
+/* Narrowest phones — squeeze the tabs a touch more so four still fit. */
+@media (width <= 380px) {
+  .vs-tab {
+    padding: 0.32rem 0.4rem;
+    font-size: 0.72rem;
+  }
+
+  .topbar {
+    gap: 0.45rem;
+  }
+}
+
+/* ---- The overflow menu as a proper labeled list ----
+   Each secondary control becomes a full-width row: a leading icon (for the icon-only ones), a
+   text label, and its value / switch / caret. The injected `.ctl-label` is hidden on desktop, so
+   the inline desktop triggers stay icon-only (unchanged). */
+.ctl-label {
+  display: none;
+}
+
+@media (width <= 1024px) {
+  .topbar-controls > * {
+    width: 100%;
+  }
+
+  .topbar-controls .ps-trigger,
+  .topbar-controls .ps-gear,
+  .topbar-controls .switch,
+  .topbar-controls .theme-trigger,
+  .topbar-controls .links-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* left-align icon+label (triggers default to center) */
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 44px;
+    height: auto;
+    padding: 0.5rem 0.55rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .topbar-controls .ps-trigger:hover,
+  .topbar-controls .ps-gear:hover,
+  .topbar-controls .switch:hover,
+  .topbar-controls .theme-trigger:hover,
+  .topbar-controls .links-trigger:hover {
+    background: var(--chip-hover);
+    color: var(--fg);
+  }
+
+  /* Reveal the icon-only triggers' labels; keep their glyph a consistent muted lead icon. */
+  .topbar-controls .ctl-label {
+    display: inline;
+    font-weight: 600;
+  }
+
+  .topbar-controls .ps-gear svg,
+  .topbar-controls .theme-trigger svg,
+  .topbar-controls .links-trigger svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  /* Providers + NSFW have no leading glyph — indent their label into the same column as the
+     icon rows' labels (icon 18px + 0.6rem gap), then push the value/switch to the right. */
+  .topbar-controls .ps-trigger .provider-select-label,
+  .topbar-controls .switch .switch-label {
+    margin-left: 1.72rem;
+    margin-right: auto;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+  }
+
+  .topbar-controls .ps-trigger .ps-current {
+    color: var(--muted);
+    font-weight: 500;
+  }
+}

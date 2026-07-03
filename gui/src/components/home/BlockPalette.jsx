@@ -19,6 +19,11 @@ const msgs = defineMessages({
     id: "home.moreFilter",
     defaultMessage: "+{count} more — keep typing to filter",
   },
+  closePalette: {
+    id: "home.closePalette",
+    defaultMessage: "Close building blocks",
+    description: "aria-label for the phone-only ✕ that closes the building-block drawer",
+  },
 });
 
 /**
@@ -31,7 +36,14 @@ const msgs = defineMessages({
  * @param {() => void} props.onHideTip Hide the hover tooltip.
  * @returns {JSX.Element}
  */
-export default function BlockPalette({ includeAdult, onInsert, onShowTip, onMoveTip, onHideTip }) {
+export default function BlockPalette({
+  includeAdult,
+  onInsert,
+  onShowTip,
+  onMoveTip,
+  onHideTip,
+  onClose,
+}) {
   const intl = useIntl();
   const [version, setVersion] = useState(0); // bump to refresh custom blocks
   const [query, setQuery] = useState("");
@@ -104,9 +116,24 @@ export default function BlockPalette({ includeAdult, onInsert, onShowTip, onMove
   }
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" id="block-palette">
       <div className="panel-head">
-        <h3 className="panel-title">{intl.formatMessage(msgs.buildingBlocks)}</h3>
+        <div className="panel-head-row">
+          <h3 className="panel-title">{intl.formatMessage(msgs.buildingBlocks)}</h3>
+          {/* Phone-only: this pane is an off-canvas drawer; give it a close affordance. Hidden on
+              wider screens (where the pane is always visible) via CSS. */}
+          {onClose && (
+            <button
+              type="button"
+              className="palette-close"
+              onClick={onClose}
+              aria-label={intl.formatMessage(msgs.closePalette)}
+              title={intl.formatMessage(msgs.closePalette)}
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <input
           className="picker-filter"
           placeholder={intl.formatMessage(msgs.searchBlocks)}

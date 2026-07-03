@@ -47,7 +47,10 @@ main {
   min-height: 0;
   height: 100%;
   overflow: auto; /* cards size to content; the column scrolls if needed */
-  padding: 1.25rem 1.5rem 1.5rem;
+
+  /* Fixed top; sides + bottom use the fluid content gutter (1.5rem at
+     desktop, tightening on narrow screens). See foundation/tokens.css. */
+  padding: var(--space-5) var(--gutter) var(--gutter);
 }
 
 .main-col > * {

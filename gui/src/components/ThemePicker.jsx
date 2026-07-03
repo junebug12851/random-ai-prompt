@@ -88,6 +88,7 @@ export default function ThemePicker() {
         aria-expanded={open}
       >
         <PaletteIcon />
+        <span className="ctl-label">{intl.formatMessage(msgs.appearance)}</span>
       </button>
       {open && (
         <>

@@ -110,7 +110,7 @@
   background: var(--border-soft);
 }
 
-/* The display-language picker at the top of the menu. */
+/* The display-language picker in the menu. */
 .links-lang {
   padding: 0.15rem 0.15rem 0;
 }
@@ -121,5 +121,35 @@
 
 .links-lang select {
   width: 100%;
+}
+
+/* ---- Compact (<=768px): the links fold straight into the header overflow menu ----
+   No trigger, no bottom sheet — the project links, legal pages, and language picker render as
+   inline rows inside `.topbar-controls` (see LinksMenu's compact branch). `.links-inline` is a
+   direct child of the overflow menu, so it already spans full width; here we just make its rows
+   comfortable tap targets and keep the language field padding-free so it lines up. */
+@media (width <= 768px) {
+  .links-menu.links-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .links-inline .links-item {
+    min-height: 42px;
+  }
+
+  .links-inline .links-lang {
+    padding: 0.2rem 0.15rem 0.1rem;
+  }
+
+  /* App version at the foot of the inline menu (the desktop footer is hidden on phones). */
+  .links-inline .links-version {
+    padding: 0.5rem 0.6rem 0.15rem;
+    color: var(--faint);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
 }
 

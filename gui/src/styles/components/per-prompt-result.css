@@ -126,6 +126,62 @@
   border-color: var(--accent);
 }
 
+/* "Clear" actions as flat trash-icon buttons (both desktop + mobile): the per-prompt clear and the
+   results-header "Clear all". Muted by default, red on hover. */
+.clear-all-btn,
+.copy-mini.clear-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem;
+  border: none;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.clear-all-btn svg,
+.copy-mini.clear-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.clear-all-btn:hover,
+.copy-mini.clear-icon-btn:hover {
+  color: var(--danger, #e5484d);
+  background: var(--chip-hover);
+}
+
+/* --- Compact (<=768px): "More images" → icon only; prompt text full-width below the number. --- */
+@media (width <= 768px) {
+  .gen-btn-label {
+    display: none;
+  }
+
+  .gen-btn {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .prompt-line {
+    flex-wrap: wrap;
+  }
+
+  .prompt-line .idx {
+    order: 1;
+  }
+
+  .prompt-line .prompt-actions {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .prompt-line .prompt-main {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
 .batch {
   border-top: 1px solid var(--border-soft);
   padding-top: 0.55rem;
