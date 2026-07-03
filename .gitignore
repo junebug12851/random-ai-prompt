@@ -45,3 +45,6 @@ gui/user-settings/
 scripts/list-cleanup/out/
 /tmp/
 /.lighthouseci/
+
+# Owner's personal, machine-local scratch todo (informal brain-dump; never project notes)
+notes/todo.txt

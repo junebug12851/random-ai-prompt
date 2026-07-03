@@ -83,6 +83,52 @@
   --font-display: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* ================================================================
+     RESPONSIVE SCALES  (Phase 1 of notes/plans/responsive.md)
+     Fluid type + fixed spacing steps + fluid layout gutters. These are
+     the foundation the responsive work keys off; each clamp's MAX equals
+     today's fixed desktop value, so wide viewports render unchanged and
+     only narrow screens tighten. Purely additive — nothing is forced to
+     consume these; components adopt them phase by phase.
+     ================================================================ */
+
+  /* Breakpoint conventions (documented — CSS custom props can't appear in
+     an @media/@container condition, so these are the numbers the media
+     queries use, kept in one place):
+       phone   : width <= 640px
+       tablet  : 641px .. 1024px
+       desktop : width >= 1025px
+     The legacy Home workspace stack at <= 860px (responsive.css) is
+     reconciled into these in Phase 2. */
+
+  /* Fluid type scale — clamp(min, preferred, max). MAX = current desktop
+     sizes (e.g. --fs-md 1.15rem = the wordmark; --fs-sm 0.9rem region). */
+  --fs-xs: clamp(0.72rem, 0.68rem + 0.2vw, 0.8rem);
+  --fs-sm: clamp(0.82rem, 0.78rem + 0.2vw, 0.9rem);
+  --fs-base: clamp(0.9rem, 0.86rem + 0.25vw, 1rem);
+  --fs-md: clamp(1rem, 0.95rem + 0.3vw, 1.15rem);
+  --fs-lg: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  --fs-xl: clamp(1.4rem, 1.2rem + 1vw, 1.9rem);
+  --fs-2xl: clamp(1.8rem, 1.4rem + 2vw, 2.6rem);
+
+  /* Fixed spacing step scale — predictable rhythm (4px base grid). */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Fluid layout gutters — desktop-neutral (clamp to today's values at
+     wide widths), tighten on narrow screens. --gutter is the main content
+     inset (1.5rem desktop); --gutter-tight is the top-bar inset (1.1rem). */
+  --gutter: clamp(1rem, 0.6rem + 2vw, 1.5rem);
+  --gutter-tight: clamp(0.6rem, 0.4rem + 1vw, 1.1rem);
+
+  /* ================================================================
      SEMANTIC TOKENS — dark base
      The roles components actually consume. The light media query below
      remaps these same roles onto the light palette.

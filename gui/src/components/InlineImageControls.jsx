@@ -6,11 +6,19 @@
  * and renders only the controls that exist, so providers without image knobs (plain text, the
  * copy-prompt syntax providers like Midjourney) render nothing. Values are written to the same
  * `providerParams[id]` namespace the provider gear (`ProviderBox`) uses, so the two stay in sync.
+ *
+ * Compact width (<=768px): **Images stays inline, but Size tucks behind a small cog popover** — on a
+ * narrow phone the Prompts + Images + Size(W×H) cluster would otherwise overflow the box's right edge.
+ * Prompts-only and Prompts+Images stay fully inline; only the wider Size control moves behind the cog.
+ * Desktop renders everything inline (unchanged) — the split is driven by the hydration-safe {@link useCompact}.
  * @module gui/components/InlineImageControls
  */
+import { useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { getProvider } from "../lib/providers/index.js";
 import { useProviderSettings } from "../lib/useProvider.js";
+import { useCompact } from "../lib/useCompact.js";
+import { GearIcon } from "./icons.jsx";
 
 const msgs = defineMessages({
   imagesTitle: { id: "inlineImg.imagesTitle", defaultMessage: "Images generated per prompt" },
@@ -18,6 +26,7 @@ const msgs = defineMessages({
   ratio: { id: "inlineImg.ratio", defaultMessage: "Ratio" },
   size: { id: "inlineImg.size", defaultMessage: "Size" },
   sizeTitle: { id: "inlineImg.sizeTitle", defaultMessage: "Output size — width × height" },
+  sizeMenu: { id: "inlineImg.sizeMenu", defaultMessage: "Size settings" },
   width: { id: "inlineImg.width", defaultMessage: "Width" },
   height: { id: "inlineImg.height", defaultMessage: "Height" },
 });
@@ -39,6 +48,16 @@ export default function InlineImageControls({ settings, setSettings }) {
   const provider = getProvider(settings.provider);
   const pid = provider?.id;
   const { schema, options } = useProviderSettings(pid);
+  const compact = useCompact();
+  const [sizeOpen, setSizeOpen] = useState(false);
+
+  // Close the compact Size popover on Escape.
+  useEffect(() => {
+    if (!sizeOpen) return undefined;
+    const onKey = (e) => e.key === "Escape" && setSizeOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sizeOpen]);
 
   // Surface for any provider that exposes the relevant fields — the in-app generators (api tier)
   // plus copy-prompt providers like Midjourney (its aspect ratio). Providers without these fields
@@ -66,82 +85,108 @@ export default function InlineImageControls({ settings, setSettings }) {
   );
   const sizeOptions = sizeField ? sizeField.options || options[sizeField.optionsFrom] || [] : [];
 
+  // The Images batch-count control (always inline when present).
+  const imagesEl = batch && (
+    <label className="field-count" title={intl.formatMessage(msgs.imagesTitle)}>
+      <span className="field-count-label">{intl.formatMessage(msgs.images)}</span>
+      <input
+        type="number"
+        min={batch.min ?? 1}
+        max={batch.max}
+        value={params.batchSize ?? defaults.batchSize ?? 1}
+        onChange={(e) => setParam("batchSize", Math.max(1, Number(e.target.value) || 1))}
+        aria-label={intl.formatMessage(msgs.imagesTitle)}
+      />
+    </label>
+  );
+
+  // The Size control — a Size/Ratio select, a text field, or the Width × Height pair.
+  const sizeEl = sizeField ? (
+    <label className="field-count field-size" title={sizeField.label}>
+      <span className="field-count-label">{sizeLabel}</span>
+      {sizeField.type === "select" ? (
+        <select
+          className="field-size-select"
+          value={params[sizeField.key] ?? defaults[sizeField.key] ?? ""}
+          onChange={(e) => setParam(sizeField.key, e.target.value)}
+          aria-label={sizeField.label}
+        >
+          {sizeOptions.map((o) => {
+            const opt = typeof o === "string" ? { value: o, label: o } : o;
+            return (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            );
+          })}
+        </select>
+      ) : (
+        <input
+          type={sizeField.type === "number" ? "number" : "text"}
+          className="field-size-text"
+          value={params[sizeField.key] ?? defaults[sizeField.key] ?? ""}
+          onChange={(e) => setParam(sizeField.key, e.target.value)}
+          aria-label={sizeField.label}
+          placeholder="1:1"
+        />
+      )}
+    </label>
+  ) : width && height ? (
+    <label className="field-count field-size" title={intl.formatMessage(msgs.sizeTitle)}>
+      <span className="field-count-label">{intl.formatMessage(msgs.size)}</span>
+      <span className="field-size-wh">
+        <input
+          type="number"
+          min={width.min}
+          max={width.max}
+          step={width.step}
+          value={params.imageWidth ?? defaults.imageWidth ?? 512}
+          onChange={(e) => setParam("imageWidth", Number(e.target.value) || 0)}
+          aria-label={intl.formatMessage(msgs.width)}
+        />
+        <span className="field-size-x" aria-hidden="true">
+          ×
+        </span>
+        <input
+          type="number"
+          min={height.min}
+          max={height.max}
+          step={height.step}
+          value={params.imageHeight ?? defaults.imageHeight ?? 512}
+          onChange={(e) => setParam("imageHeight", Number(e.target.value) || 0)}
+          aria-label={intl.formatMessage(msgs.height)}
+        />
+      </span>
+    </label>
+  ) : null;
+
   return (
     <>
-      {batch && (
-        <label className="field-count" title={intl.formatMessage(msgs.imagesTitle)}>
-          <span className="field-count-label">{intl.formatMessage(msgs.images)}</span>
-          <input
-            type="number"
-            min={batch.min ?? 1}
-            max={batch.max}
-            value={params.batchSize ?? defaults.batchSize ?? 1}
-            onChange={(e) => setParam("batchSize", Math.max(1, Number(e.target.value) || 1))}
-            aria-label={intl.formatMessage(msgs.imagesTitle)}
-          />
-        </label>
-      )}
-
-      {sizeField ? (
-        <label className="field-count field-size" title={sizeField.label}>
-          <span className="field-count-label">{sizeLabel}</span>
-          {sizeField.type === "select" ? (
-            <select
-              className="field-size-select"
-              value={params[sizeField.key] ?? defaults[sizeField.key] ?? ""}
-              onChange={(e) => setParam(sizeField.key, e.target.value)}
-              aria-label={sizeField.label}
-            >
-              {sizeOptions.map((o) => {
-                const opt = typeof o === "string" ? { value: o, label: o } : o;
-                return (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                );
-              })}
-            </select>
-          ) : (
-            <input
-              type={sizeField.type === "number" ? "number" : "text"}
-              className="field-size-text"
-              value={params[sizeField.key] ?? defaults[sizeField.key] ?? ""}
-              onChange={(e) => setParam(sizeField.key, e.target.value)}
-              aria-label={sizeField.label}
-              placeholder="1:1"
-            />
+      {imagesEl}
+      {/* Desktop: Size inline. Compact: Size behind a cog so the narrow row can't overflow. */}
+      {sizeEl && !compact && sizeEl}
+      {sizeEl && compact && (
+        <div className="size-cog">
+          <button
+            type="button"
+            className={`size-cog-btn${sizeOpen ? " on" : ""}`}
+            aria-haspopup="dialog"
+            aria-expanded={sizeOpen}
+            aria-label={intl.formatMessage(msgs.sizeMenu)}
+            title={intl.formatMessage(msgs.sizeMenu)}
+            onClick={() => setSizeOpen((o) => !o)}
+          >
+            <GearIcon />
+          </button>
+          {sizeOpen && (
+            <>
+              <div className="size-cog-scrim" onClick={() => setSizeOpen(false)} aria-hidden="true" />
+              <div className="size-cog-pop" role="dialog" aria-label={intl.formatMessage(msgs.sizeMenu)}>
+                {sizeEl}
+              </div>
+            </>
           )}
-        </label>
-      ) : (
-        width &&
-        height && (
-          <label className="field-count field-size" title={intl.formatMessage(msgs.sizeTitle)}>
-            <span className="field-count-label">{intl.formatMessage(msgs.size)}</span>
-            <span className="field-size-wh">
-              <input
-                type="number"
-                min={width.min}
-                max={width.max}
-                step={width.step}
-                value={params.imageWidth ?? defaults.imageWidth ?? 512}
-                onChange={(e) => setParam("imageWidth", Number(e.target.value) || 0)}
-                aria-label={intl.formatMessage(msgs.width)}
-              />
-              <span className="field-size-x" aria-hidden="true">
-                ×
-              </span>
-              <input
-                type="number"
-                min={height.min}
-                max={height.max}
-                step={height.step}
-                value={params.imageHeight ?? defaults.imageHeight ?? 512}
-                onChange={(e) => setParam("imageHeight", Number(e.target.value) || 0)}
-                aria-label={intl.formatMessage(msgs.height)}
-              />
-            </span>
-          </label>
-        )
+        </div>
       )}
     </>
   );

@@ -1,5 +1,6 @@
 /* ---------- Footer (status bar) ---------- */
 footer {
+  position: relative; /* anchor the version to the right edge while the privacy line stays centered */
   flex: none;
   margin: 0;
   padding: 0.5rem 1.1rem;
@@ -8,5 +9,24 @@ footer {
   font-size: 0.72rem;
   color: var(--muted);
   text-align: center;
+}
+
+/* App version, pinned to the far right (muted so it never competes with the privacy line). */
+.footer-version {
+  position: absolute;
+  top: 50%;
+  right: 1.1rem;
+  transform: translateY(-50%);
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Compact: hide the privacy status line so the bottom-left palette FAB has clean space
+   (the same info is on the legal pages reachable from the links menu). */
+@media (width <= 768px) {
+  footer {
+    display: none;
+  }
 }
 

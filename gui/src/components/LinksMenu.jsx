@@ -1,15 +1,22 @@
 /**
- * The header overflow menu: a single icon button that opens a small popover of links —
- * the project's GitHub repo, the live web app's home (the fairyfox hub), and the project docs,
- * followed (below a separator) by the app's own legal pages (Privacy, Terms, Cookies).
- * Lives in the top bar on every tab. Every item opens in a new tab with `rel="noopener noreferrer"`;
- * the legal pages are same-origin static pages under `/legal/`, opened in a new tab too so the
- * app keeps its in-memory state.
+ * The header links menu: the project's GitHub repo, the live web app's home (the fairyfox hub),
+ * and the project docs, followed (below a separator) by the app's own legal pages (Privacy, Terms,
+ * Cookies), plus the display-language picker. Every item opens in a new tab with
+ * `rel="noopener noreferrer"`; the legal pages are same-origin static pages under `/legal/`, opened
+ * in a new tab too so the app keeps its in-memory state.
+ *
+ * Two presentations, chosen by width (the hydration-safe {@link useCompact}; desktop renders from
+ * first paint, unchanged):
+ *   • Desktop (>768px): a single icon button that opens a small dropdown popover.
+ *   • Compact (<=768px): the links fold DIRECTLY into the header overflow menu as inline rows — no
+ *     nested trigger, no separate bottom sheet (which read as a stray, differently-shaped panel).
  * @module gui/components/LinksMenu
  */
 import { useEffect, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { Select } from "./Field.jsx";
+import { useCompact } from "../lib/useCompact.js";
+import { APP_VERSION } from "../lib/version.js";
 import { AUTO_LOCALE, SUPPORTED_LOCALES, LOCALES } from "../i18n/index.js";
 import {
   MenuIcon,
@@ -64,6 +71,7 @@ const msgs = defineMessages({
  */
 export default function LinksMenu({ settings, setSettings }) {
   const intl = useIntl();
+  const compact = useCompact();
   const [open, setOpen] = useState(false);
 
   // App-wide display-language picker lives in this menu (alongside the project links + legal pages).
@@ -72,7 +80,7 @@ export default function LinksMenu({ settings, setSettings }) {
     ...SUPPORTED_LOCALES.map((code) => ({ value: code, label: LOCALES[code].label })),
   ];
 
-  // Close on Escape.
+  // Close on Escape (desktop dropdown only).
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => {
@@ -97,6 +105,71 @@ export default function LinksMenu({ settings, setSettings }) {
     ],
   ];
 
+  const langGroup = setSettings && (
+    <div className="links-group links-lang" role="group">
+      <Select
+        label={intl.formatMessage(msgs.language)}
+        value={settings?.locale ?? AUTO_LOCALE}
+        onChange={(v) => setSettings((s) => ({ ...s, locale: v }))}
+        options={localeOptions}
+      />
+    </div>
+  );
+
+  const linkGroups = groups.map((items, gi) => (
+    <div key={gi} className="links-group" role="group">
+      {gi > 0 && <div className="links-sep" role="separator" />}
+      {items.map(({ href, Icon, label, desc, external }) => (
+        <a
+          key={href}
+          className="links-item"
+          role="menuitem"
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setOpen(false)}
+        >
+          <span className="links-item-icon" aria-hidden="true">
+            <Icon />
+          </span>
+          <span className="links-item-text">
+            <span className="links-item-label">{intl.formatMessage(label)}</span>
+            <span className="links-item-desc">{intl.formatMessage(desc)}</span>
+          </span>
+          {external && (
+            <span className="links-item-ext" aria-hidden="true">
+              <ExternalLinkIcon />
+            </span>
+          )}
+        </a>
+      ))}
+    </div>
+  ));
+
+  // Compact (<=768px): fold the links straight into the header overflow menu — the project links,
+  // then legal pages, then the language picker — instead of a nested trigger that opened a separate
+  // bottom sheet. No trigger button, no popover, no scrim.
+  if (compact) {
+    return (
+      <div className="links-menu links-inline" role="group" aria-label={intl.formatMessage(msgs.links)}>
+        {/* Language sits directly under the Appearance control (both are settings), above the links. */}
+        {langGroup && (
+          <>
+            {langGroup}
+            <div className="links-sep" role="separator" />
+          </>
+        )}
+        {linkGroups}
+        {/* The footer (which carries the version on desktop) is hidden on phones — surface it here. */}
+        <div className="links-sep" role="separator" />
+        <div className="links-version" title={`Version ${APP_VERSION}`}>
+          v{APP_VERSION}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop (>768px): the icon-button dropdown (unchanged).
   return (
     <div className="links-menu">
       <button
@@ -108,51 +181,19 @@ export default function LinksMenu({ settings, setSettings }) {
         aria-expanded={open}
       >
         <MenuIcon />
+        <span className="ctl-label">{intl.formatMessage(msgs.links)}</span>
       </button>
       {open && (
         <>
           <div className="links-scrim" onClick={() => setOpen(false)} aria-hidden="true" />
           <div className="links-pop" role="menu" aria-label={intl.formatMessage(msgs.links)}>
-            {setSettings && (
-              <div className="links-group links-lang" role="group">
-                <Select
-                  label={intl.formatMessage(msgs.language)}
-                  value={settings?.locale ?? AUTO_LOCALE}
-                  onChange={(v) => setSettings((s) => ({ ...s, locale: v }))}
-                  options={localeOptions}
-                />
+            {langGroup && (
+              <>
+                {langGroup}
                 <div className="links-sep" role="separator" />
-              </div>
+              </>
             )}
-            {groups.map((items, gi) => (
-              <div key={gi} className="links-group" role="group">
-                {gi > 0 && <div className="links-sep" role="separator" />}
-                {items.map(({ href, Icon, label, desc, external }) => (
-                  <a
-                    key={href}
-                    className="links-item"
-                    role="menuitem"
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setOpen(false)}
-                  >
-                    <span className="links-item-icon" aria-hidden="true">
-                      <Icon />
-                    </span>
-                    <span className="links-item-text">
-                      <span className="links-item-label">{intl.formatMessage(label)}</span>
-                      <span className="links-item-desc">{intl.formatMessage(desc)}</span>
-                    </span>
-                    {external && (
-                      <span className="links-item-ext" aria-hidden="true">
-                        <ExternalLinkIcon />
-                      </span>
-                    )}
-                  </a>
-                ))}
-              </div>
-            ))}
+            {linkGroups}
           </div>
         </>
       )}

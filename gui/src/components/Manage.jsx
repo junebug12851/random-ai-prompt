@@ -18,6 +18,7 @@ import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
 import ManageDetail from "./manage/ManageDetail.jsx";
 import { Caret, GearIcon, RefreshIcon, RestoreIcon, TrashIcon } from "./manage/icons.jsx";
+import { ChevronLeftIcon } from "./icons.jsx";
 
 const msgs = defineMessages({
   ghostTitle: {
@@ -64,6 +65,11 @@ const msgs = defineMessages({
   refreshAria: { id: "manage.refreshAria", defaultMessage: "Refresh catalog" },
   loadingCatalog: { id: "manage.loadingCatalog", defaultMessage: "Loading the catalog…" },
   nothingMatches: { id: "manage.nothingMatches", defaultMessage: "Nothing matches." },
+  backToList: {
+    id: "manage.backToList",
+    defaultMessage: "Back to list",
+    description: "Phone-only button that returns from the editor to the tree (master/detail)",
+  },
 });
 
 /**
@@ -264,7 +270,10 @@ export default function Manage({ settings, available, active }) {
   };
 
   return (
-    <div className="workspace manage">
+    // `detail-open` (a selection is active) drives the phone master/detail swap: with no selection
+    // the tree fills the screen; selecting an entry/folder shows the editor with a Back control.
+    // On wider screens the class is inert — both panes show side by side as always.
+    <div className={`workspace manage${selected ? " detail-open" : ""}`}>
       <aside className="sidebar mg-sidebar">
         <div className="panel-head">
           <h3 className="panel-title">{intl.formatMessage(msgs.panelTitle)}</h3>
@@ -349,6 +358,11 @@ export default function Manage({ settings, available, active }) {
       </aside>
 
       <div className="main-col mg-main">
+        {/* Phone-only: return to the tree (master/detail). Hidden on wider screens via CSS. */}
+        <button type="button" className="mg-back" onClick={() => setSelected(null)}>
+          <ChevronLeftIcon />
+          {intl.formatMessage(msgs.backToList)}
+        </button>
         {selected?.type === "folder" ? (
           <ManageFolderEditor node={selected} onChanged={handleChanged} />
         ) : selected?.type === "entry" && selected.kind === "generator" ? (

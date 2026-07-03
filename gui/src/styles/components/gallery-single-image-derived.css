@@ -214,8 +214,11 @@
     grid-template-columns: 1fr;
   }
 
+  /* relative (not static) drops the desktop sticky while still being a containing block, so the
+     top-right overlay actions anchor to the image instead of escaping to the page's top-right
+     (they were landing over the header). This is the rule that wins at <=720px. */
   .g-single-img {
-    position: static;
+    position: relative;
   }
 
   .g-single-img img {

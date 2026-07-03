@@ -18,11 +18,17 @@
    right). The editor's first line is indented (below) so typed text clears it. */
 .composer-corner-left {
   position: absolute;
-  top: 0.45rem;
-  left: 0.5rem;
+  top: 0.55rem;
+  left: 0.95rem; /* align the icon's column with the editor's text (which now starts below it) */
   display: flex;
   align-items: center;
   z-index: 2;
+}
+
+/* Left-align the glyph within its box so it sits in the same column as the text below it. */
+.composer-corner-left .dpl-status {
+  width: auto;
+  justify-content: flex-start;
 }
 
 /* The live-preview trigger as a bare icon (no button chrome) in the corner. */

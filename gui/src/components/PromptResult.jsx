@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { isOutputFile, openImageFile, revealImageFile, openImageInNewTab } from "../lib/output.js";
 import { expandPrompt } from "../lib/promptEngine.js";
+import { TrashIcon } from "./icons.jsx";
 
 const msgs = defineMessages({
   resultAlt: { id: "promptResult.resultAlt", defaultMessage: "result" },
@@ -202,16 +203,19 @@ export default function PromptResult({
               title={intl.formatMessage(msgs.genTitle)}
             >
               <ImageIcon />
-              {intl.formatMessage(prompt.batches.length ? msgs.moreImages : msgs.genImages)}
+              <span className="gen-btn-label">
+                {intl.formatMessage(prompt.batches.length ? msgs.moreImages : msgs.genImages)}
+              </span>
             </button>
           )}
           {hasImages && (
             <button
-              className="copy-mini"
+              className="copy-mini clear-icon-btn"
               title={intl.formatMessage(msgs.clearTitle)}
+              aria-label={intl.formatMessage(msgs.clearTitle)}
               onClick={() => onClearImages(prompt.id)}
             >
-              {intl.formatMessage(msgs.clear)}
+              <TrashIcon />
             </button>
           )}
         </div>

@@ -52,10 +52,42 @@
   flex: 1;
 }
 
+/* Compact chrome (phone + tablet, <=1024px): the field-bar wraps instead of overflowing (e.g. once a
+   provider adds Images/Size). At tablet widths the two-pane layout leaves the composer only ~500px, so
+   the desktop single row would clip the Generate button off the right edge. Like desktop, the secondary
+   action buttons stay LEFT-aligned and only the primary Generate button is pushed to the far right — so
+   it sits alone in the bottom-right corner. The count/size tools take their own row above. */
+@media (width <= 1024px) {
+  .field-bar {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .field-bar .prompt-tools {
+    flex-basis: 100%; /* the tools row */
+
+    /* Let the Prompts / Images / Size groups wrap within the row: on a very narrow phone (e.g. 375px,
+       iPhone SE) the Size (W×H) group would otherwise push the cluster past the box's right edge and
+       clip. Each group is narrower than the field, so wrapping keeps everything inside. */
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .field-bar .grow {
+    display: none;
+  }
+
+  .field-bar .field-act.primary {
+    margin-left: auto; /* only Generate goes right; the other action buttons stay left */
+  }
+}
+
 /* Round icon actions: Save / Share / Random (subtle) + Generate (primary green) */
 .field-act {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   display: inline-flex;
   align-items: center;

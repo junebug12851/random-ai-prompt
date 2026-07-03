@@ -30,7 +30,16 @@ import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
 import DplStatus from "./DplStatus.jsx";
 import BlockPalette from "./home/BlockPalette.jsx";
-import { ShareIcon, ShuffleIcon, SparkleIcon, WandIcon, TagIcon, GearIcon } from "./icons.jsx";
+import {
+  ShareIcon,
+  ShuffleIcon,
+  SparkleIcon,
+  WandIcon,
+  TagIcon,
+  GearIcon,
+  BlocksIcon,
+  TrashIcon,
+} from "./icons.jsx";
 import { useImageBatches } from "../lib/home/useImageBatches.js";
 
 const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes
@@ -111,6 +120,8 @@ const msgs = defineMessages({
     id: "home.nsfwProceed",
     defaultMessage: "NSFW mode is on. Generate with {provider} anyway?",
   },
+  openBlocks: { id: "home.openBlocks", defaultMessage: "Building blocks" },
+  openBlocksAria: { id: "home.openBlocksAria", defaultMessage: "Open building blocks" },
 });
 
 /**
@@ -129,6 +140,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // prompt-settings gear popover
+  const [paletteOpen, setPaletteOpen] = useState(false); // phone: building-block drawer open?
   const [composeMode, setComposeMode] = useState("prompt"); // composer target: "prompt" | "negative"
   // Hover tooltip for a building block: its label, description (piped from the v3 file /
   // sidecar), and a LIVE example output that re-rolls while the pointer rests on the chip.
@@ -220,6 +232,17 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     const id = setInterval(roll, SUGGESTION_MS);
     return () => clearInterval(id);
   }, []);
+
+  // Phone: dismiss the building-block drawer on Escape (the scrim handles tap-away). Client-only,
+  // so it never runs during the prerender.
+  useEffect(() => {
+    if (!paletteOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setPaletteOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [paletteOpen]);
 
   function insert(token) {
     const sep = activeValue && !/\s$/.test(activeValue) ? ", " : "";
@@ -358,15 +381,36 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   }
 
   return (
-    <div className="workspace">
-      {/* ---- Left panel: building-block palette ---- */}
+    <div className={`workspace home${paletteOpen ? " palette-open" : ""}`}>
+      {/* ---- Left panel: building-block palette ----
+          On phone this pane is an off-canvas drawer (CSS): the scrim + the "Building blocks" trigger
+          below are phone-only; on wider screens the pane is always visible and they're hidden. */}
       <BlockPalette
         includeAdult={settings.includeAdult}
         onInsert={insert}
         onShowTip={showTip}
         onMoveTip={moveTip}
         onHideTip={hideTip}
+        onClose={() => setPaletteOpen(false)}
       />
+      <div
+        className="palette-scrim"
+        onClick={() => setPaletteOpen(false)}
+        aria-hidden="true"
+      />
+      {/* Compact-only (CSS): a small icon FAB in the bottom-left corner that opens the
+          building-block drawer. */}
+      <button
+        type="button"
+        className="palette-trigger"
+        onClick={() => setPaletteOpen(true)}
+        aria-controls="block-palette"
+        aria-expanded={paletteOpen}
+        aria-label={intl.formatMessage(msgs.openBlocksAria)}
+        title={intl.formatMessage(msgs.openBlocks)}
+      >
+        <BlocksIcon />
+      </button>
 
       {/* ---- Right pane: composer ---- */}
       <div className="main-col">
@@ -598,8 +642,13 @@ export default function Home({ settings, setSettings, onOpenImage }) {
                     provider: provider?.label,
                   })}
                 </span>
-                <button className="link-btn" onClick={clearAll} title={intl.formatMessage(msgs.clearAllTitle)}>
-                  {intl.formatMessage(msgs.clearAll)}
+                <button
+                  className="clear-all-btn"
+                  onClick={clearAll}
+                  title={intl.formatMessage(msgs.clearAllTitle)}
+                  aria-label={intl.formatMessage(msgs.clearAll)}
+                >
+                  <TrashIcon />
                 </button>
               </div>
             </div>

@@ -3,7 +3,10 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.6rem 1.1rem;
+
+  /* Vertical fixed; horizontal inset is the fluid top-bar gutter (1.1rem at
+     desktop, tightening on narrow screens). See foundation/tokens.css. */
+  padding: 0.6rem var(--gutter-tight);
   background: var(--panel);
   border-bottom: 1px solid var(--border);
   flex: none;

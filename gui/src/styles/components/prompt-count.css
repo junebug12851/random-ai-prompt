@@ -16,9 +16,18 @@
 .field-count-label {
   color: var(--muted);
   font-weight: 700;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* The count/size VALUES (the numbers) — kept a touch smaller so the tools cluster reads as compact
+   labels, not big figures. */
+.field-count input,
+.field-size-text,
+.field-size-select.field-size-select,
+.field-size-wh input {
+  font-size: 0.82rem;
 }
 
 .field-count input {
@@ -141,5 +150,58 @@
 .prompt-settings-gear .gear-pop {
   left: auto;
   right: 0;
+}
+
+/* ---- Compact-only Size cog ----
+   On a narrow phone the Size control is tucked behind this cog (rendered only there — see
+   InlineImageControls) so the Prompts/Images row can't overflow. The popover opens upward, right-
+   aligned to the cog, and holds the same Size control the desktop shows inline. */
+.size-cog {
+  position: relative;
+  display: inline-flex;
+}
+
+.size-cog-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.size-cog-btn:hover,
+.size-cog-btn.on {
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.size-cog-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.size-cog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.size-cog-pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 21;
+  padding: 0.5rem 0.6rem;
+  white-space: nowrap;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
 }
 

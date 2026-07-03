@@ -16,7 +16,7 @@
  * forced off. See `lib/online.js`.
  * @module gui/App
  */
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { I18nProvider } from "./i18n/index.js";
 import { ThemeProvider } from "./theme/ThemeProvider.jsx";
@@ -36,12 +36,14 @@ import { providerMode } from "./lib/useProvider.js";
 import { refreshCatalog, ensureCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
 import { dialog } from "./lib/dialog.js";
+import { APP_VERSION } from "./lib/version.js";
 import NsfwToggle from "./components/NsfwToggle.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
 import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
+import { MoreIcon } from "./components/icons.jsx";
 // Home (the Generate view) is imported statically, not lazily: it holds the building-block palette,
 // which is the Largest Contentful Paint. The online build PRERENDERS the shell + palette to static
 // HTML (see prerender/), so its markup must be in the server-rendered tree AND match the client's
@@ -73,6 +75,12 @@ const msgs = defineMessages({
     id: "app.switchView",
     defaultMessage: "Switch view",
     description: "aria-label for the top-bar view switcher",
+  },
+  moreControls: {
+    id: "app.moreControls",
+    defaultMessage: "More controls",
+    description:
+      "aria-label/title for the top-bar overflow button that reveals the secondary controls (providers, theme, links…) on narrow screens",
   },
   tabGenerate: { id: "app.tab.generate", defaultMessage: "Generate" },
   tabGallery: { id: "app.tab.gallery", defaultMessage: "Gallery" },
@@ -194,6 +202,13 @@ function HydratedApp() {
 function AppShell({ settings, setSettings }) {
   const intl = useIntl();
   const [view, setView] = useState("generate"); // "generate" | "gallery" | "single"
+  // Narrow screens collapse the secondary header controls (providers / gear / NSFW / theme / links)
+  // behind a single "⋯" overflow button. `menuOpen` toggles the panel; it starts CLOSED so the
+  // server-prerendered markup matches the client's first render (no hydration mismatch — the panel's
+  // visibility is otherwise CSS-driven by width, never by JS at first paint). On desktop the controls
+  // are always shown inline and this state is inert.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const overflowRef = useRef(null); // wraps the toggle + controls, for outside-click dismissal
   // Views the user has opened at least once. A lazy pane is only rendered after its first
   // open, then kept mounted — so we never fetch the Gallery/Single/Manage chunks (CodeMirror
   // included) until they're actually needed, without losing per-view state on tab switches.
@@ -261,6 +276,24 @@ function AppShell({ settings, setSettings }) {
   useEffect(() => {
     setOpened((o) => (o.has(view) ? o : new Set(o).add(view)));
   }, [view]);
+
+  // While the narrow-screen overflow menu is open, dismiss it on an outside click or Escape.
+  // Client-only (effect never runs during the Node prerender), so it doesn't affect first paint.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onPointer = (e) => {
+      if (overflowRef.current && !overflowRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   // Local mode: one SSE stream makes the app aware of changes to its own files and hot-reloads.
   //   • data     → re-read the live catalog (lists / dynamic-prompts) so Generate + Manage reflect
@@ -502,12 +535,31 @@ function AppShell({ settings, setSettings }) {
           })}
         </div>
         <div className="topbar-spacer" />
-        {/* Header controls live on every tab now (not just Generate). */}
-        <ProvidersMenu settings={settings} setSettings={setSettings} />
-        <ProviderGear settings={settings} setSettings={setSettings} />
-        <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
-        <ThemePicker />
-        <LinksMenu settings={settings} setSettings={setSettings} />
+        {/* Header controls live on every tab. On wide screens they sit inline; on narrow screens
+            they collapse into the "⋯" overflow panel (the wrapper is display:contents on desktop, so
+            the inline layout is byte-identical to before). Rendered ONCE either way — no duplicated
+            component state or duplicated fixed popovers. */}
+        <div className="topbar-overflow" ref={overflowRef}>
+          <button
+            type="button"
+            className="topbar-overflow-toggle"
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
+            aria-controls="topbar-controls"
+            aria-label={intl.formatMessage(msgs.moreControls)}
+            title={intl.formatMessage(msgs.moreControls)}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <MoreIcon />
+          </button>
+          <div className="topbar-controls" id="topbar-controls">
+            <ProvidersMenu settings={settings} setSettings={setSettings} />
+            <ProviderGear settings={settings} setSettings={setSettings} />
+            <NsfwToggle settings={settings} setSettings={setSettings} locked={ONLINE} />
+            <ThemePicker />
+            <LinksMenu settings={settings} setSettings={setSettings} />
+          </div>
+        </div>
       </header>
 
       <main>
@@ -570,7 +622,12 @@ function AppShell({ settings, setSettings }) {
         )}
       </main>
 
-      <footer>{intl.formatMessage(msgs.footer)}</footer>
+      <footer>
+        <span className="footer-privacy">{intl.formatMessage(msgs.footer)}</span>
+        <span className="footer-version" title={`Version ${APP_VERSION}`}>
+          v{APP_VERSION}
+        </span>
+      </footer>
     </div>
   );
 }

@@ -33,6 +33,10 @@ export const msgs = defineMessages({
   },
   rebuilding: { id: "single.rebuilding", defaultMessage: "Rebuilding…" },
   rebuild: { id: "single.rebuild", defaultMessage: "Rebuild with AI" },
+  rebuildLocked: {
+    id: "single.rebuildLocked",
+    defaultMessage: "Pick a Text provider (header → Providers) to rebuild keywords with AI",
+  },
   find: { id: "single.find", defaultMessage: "Find “{term}”" },
   noImage: { id: "single.noImage", defaultMessage: "No image loaded." },
   noImageSub: {
@@ -66,6 +70,7 @@ export const msgs = defineMessages({
   viewTable: { id: "single.viewTable", defaultMessage: "View Table" },
   copyMd: { id: "single.copyMd", defaultMessage: "Copy as Markdown" },
   copyJson: { id: "single.copyJson", defaultMessage: "Copy as JSON" },
+  copyMenu: { id: "single.copyMenu", defaultMessage: "Copy options" },
   copied: { id: "single.copiedGeneric", defaultMessage: "✓ Copied" },
   copyMdTitle: {
     id: "single.copyMdTitle",

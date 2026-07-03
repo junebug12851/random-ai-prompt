@@ -29,6 +29,7 @@ import { msgs, layerMsg } from "./single/messages.js";
 import { toMarkdown } from "../lib/single/markdown.js";
 import { syntaxHighlightJson } from "../lib/single/json.js";
 import { dialog } from "../lib/dialog.js";
+import { MoreIcon } from "./icons.jsx";
 import PromptCard from "./single/PromptCard.jsx";
 import DetailTable from "./single/DetailTable.jsx";
 import CopyButton from "./single/CopyButton.jsx";
@@ -95,6 +96,7 @@ export default function SingleView({
 }) {
   const intl = useIntl();
   const [rawView, setRawView] = useState(false);
+  const [copyOpen, setCopyOpen] = useState(false);
   const index = current ? items.findIndex((it) => it.path === current.path) : -1;
   const total = items.length;
   const hasPrev = index > 0;
@@ -162,6 +164,7 @@ export default function SingleView({
   const extrasFor = (key) => {
     if (!onDisk || !onDerive || !item.meta) return [];
     if (key === "dpl") {
+      // Re-roll only on the DPL source — "make variation" is offered on the Sent / AI layers instead.
       return [
         {
           key: "reroll-dpl",
@@ -174,7 +177,6 @@ export default function SingleView({
           disabled: deriveLocked || !hasSource(m, "dpl"),
           onClick: () => runDerive("reroll", "dpl"),
         },
-        varExtra("dpl"),
       ];
     }
     if (key === "final") return [varExtra("final")];
@@ -272,6 +274,50 @@ export default function SingleView({
                 <a href={item.path} target="_blank" rel="noreferrer" title={intl.formatMessage(msgs.openFull)}>
                   <img src={item.path} alt={promptText(item) || item.file} />
                 </a>
+                {/* Overlay actions, top-right — mirrors the gallery thumbnails. Download is the
+                    extra (thumbnails don't have it); open / reveal / delete need the local file. */}
+                <div className="img-actions g-img-actions">
+                  {onDisk && (
+                    <button
+                      type="button"
+                      title={intl.formatMessage(msgs.openDefault)}
+                      aria-label={intl.formatMessage(msgs.open)}
+                      onClick={() => openImageFile(item.path)}
+                    >
+                      ↗
+                    </button>
+                  )}
+                  {onDisk && (
+                    <button
+                      type="button"
+                      title={intl.formatMessage(msgs.revealTitle)}
+                      aria-label={intl.formatMessage(msgs.reveal)}
+                      onClick={() => revealImageFile(item.path)}
+                    >
+                      ⌖
+                    </button>
+                  )}
+                  <a
+                    className="ia-dl"
+                    href={item.path}
+                    download={item.file}
+                    title={intl.formatMessage(msgs.downloadPng)}
+                    aria-label={intl.formatMessage(msgs.downloadPng)}
+                  >
+                    ⤓
+                  </a>
+                  {onDisk && (
+                    <button
+                      type="button"
+                      className="ia-del"
+                      title={intl.formatMessage(msgs.deleteTitle)}
+                      aria-label={intl.formatMessage(msgs.delete)}
+                      onClick={() => onDelete(item)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
               {/* Re-Rolls / Variations / Resizes strips, with live placeholders while generating. */}
               <DerivedStrips item={item} items={items} derivations={derivations} onNavigate={onNavigate} />
@@ -280,15 +326,8 @@ export default function SingleView({
             <div className="g-single-meta">
               {onDisk && (
                 <div className="g-actions">
-                  <button onClick={() => openImageFile(item.path)} title={intl.formatMessage(msgs.openDefault)}>
-                    {intl.formatMessage(msgs.open)}
-                  </button>
-                  <button onClick={() => revealImageFile(item.path)} title={intl.formatMessage(msgs.revealTitle)}>
-                    {intl.formatMessage(msgs.reveal)}
-                  </button>
-                  <a className="g-action-link" href={item.path} download={item.file}>
-                    {intl.formatMessage(msgs.downloadPng)}
-                  </a>
+                  {/* Open / reveal / download / delete now live as overlay buttons on the image
+                      (top-right, like the thumbnails) — only Convert & Resize remain here. */}
 
                   {/* Convert — always shown; greyed + locked with a tooltip when ImageMagick is absent. */}
                   <span className={`g-tool${magickOk ? "" : " is-locked"}`}>
@@ -356,10 +395,6 @@ export default function SingleView({
                       {!magickOk && !hasUpscalers && <span className="g-tool-lock" aria-hidden="true">🔒</span>}
                     </span>
                   )}
-
-                  <button className="g-danger" onClick={() => onDelete(item)} title={intl.formatMessage(msgs.deleteTitle)}>
-                    {intl.formatMessage(msgs.delete)}
-                  </button>
                 </div>
               )}
 
@@ -392,18 +427,46 @@ export default function SingleView({
                           {intl.formatMessage(rawView ? msgs.viewTable : msgs.viewRaw)}
                         </button>
                       )}
-                      <CopyButton
-                        label={intl.formatMessage(msgs.copyMd)}
-                        title={intl.formatMessage(msgs.copyMdTitle)}
-                        text={markdown}
-                      />
-                      {item.meta && (
-                        <CopyButton
-                          label={intl.formatMessage(msgs.copyJson)}
-                          title={intl.formatMessage(msgs.copyJsonTitle)}
-                          text={rawJson}
-                        />
-                      )}
+                      {/* Copy actions tuck behind a 3-dots menu so the header can't overflow. */}
+                      <div className="g-copy-menu">
+                        <button
+                          className={`g-card-action g-copy-menu-btn${copyOpen ? " on" : ""}`}
+                          onClick={() => setCopyOpen((o) => !o)}
+                          aria-haspopup="menu"
+                          aria-expanded={copyOpen}
+                          aria-label={intl.formatMessage(msgs.copyMenu)}
+                          title={intl.formatMessage(msgs.copyMenu)}
+                        >
+                          <MoreIcon />
+                        </button>
+                        {copyOpen && (
+                          <>
+                            <div
+                              className="g-copy-scrim"
+                              onClick={() => setCopyOpen(false)}
+                              aria-hidden="true"
+                            />
+                            <div
+                              className="g-copy-pop"
+                              role="menu"
+                              aria-label={intl.formatMessage(msgs.copyMenu)}
+                            >
+                              <CopyButton
+                                label={intl.formatMessage(msgs.copyMd)}
+                                title={intl.formatMessage(msgs.copyMdTitle)}
+                                text={markdown}
+                              />
+                              {item.meta && (
+                                <CopyButton
+                                  label={intl.formatMessage(msgs.copyJson)}
+                                  title={intl.formatMessage(msgs.copyJsonTitle)}
+                                  text={rawJson}
+                                />
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {rawView && item.meta ? (

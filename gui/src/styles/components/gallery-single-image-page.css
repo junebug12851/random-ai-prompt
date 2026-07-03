@@ -84,6 +84,48 @@
   display: block;
 }
 
+/* Overlay actions on the single image, top-right — reuses the gallery thumbnail `.img-actions`
+   look (dark glyph pills). `.g-single-img` is a positioned box (sticky on desktop, relative on
+   compact below), so the absolute overlay anchors to it. Unlike the thumbnails (revealed on hover
+   because there are many), this is the one focal image, so the actions stay ALWAYS visible — they
+   read as missing otherwise. A subtle lift on hover for feedback. */
+.g-single-img .img-actions {
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  opacity: 0.85;
+}
+
+.g-single-img:hover .img-actions,
+.g-single-img .img-actions:focus-within {
+  opacity: 1;
+}
+
+/* The download link matches the overlay's `button` styling (`.img-actions button`). */
+.g-single-img .img-actions .ia-dl {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  line-height: 1;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 60%);
+  border: 1px solid rgb(255 255 255 / 18%);
+  color: #fff;
+  text-decoration: none;
+}
+
+.g-single-img .img-actions .ia-dl:hover {
+  background: rgb(0 0 0 / 85%);
+  border-color: var(--accent);
+}
+
+.g-single-img .img-actions .ia-del:hover {
+  border-color: var(--danger-border, #e5484d);
+}
+
 .g-single-meta {
   min-width: 0;
 }
@@ -104,7 +146,8 @@
 
 .g-actions button,
 .g-action-link,
-.g-convert {
+.g-convert,
+.g-resize {
   border: 1px solid var(--border);
   background: var(--bg-2);
   color: var(--fg);
@@ -119,15 +162,35 @@
 
 .g-actions button:hover,
 .g-action-link:hover,
-.g-convert:hover {
+.g-convert:hover,
+.g-resize:hover {
   background: var(--chip-hover);
+}
+
+/* The Resize select sizes its closed box to the WIDEST option by default, so its long
+   "AI Upscale — <provider>" entries ballooned it far wider than the neighbouring buttons. Cap the
+   closed box so it reads as a compact "Resize…" control; the open option list is unaffected (it can
+   still be wider than the box). Convert isn't capped — its own placeholder is its widest text, so it
+   already sizes snugly. */
+.g-resize {
+  max-width: 8rem;
+}
+
+/* The Download link is an <a>, so its text sat baseline-high inside the padding box (a bug — it
+   looked shifted up vs the neighbouring buttons). Center it like the buttons. */
+.g-action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Delete / destructive action. Scoped under `.g-actions` (and qualified with
    `button`) so it outranks the shared `.g-actions button` base + its :hover
-   without needing !important; the rule sits after those, so it wins the tie. */
+   without needing !important; the rule sits after those, so it wins the tie.
+   It flows inline with the other actions (its red styling sets it apart) — a former
+   `margin-left:auto` pushed it to the far edge, which left it orphaned with a big gap
+   once the row wrapped in the narrow metadata column. */
 .g-actions button.g-danger {
-  margin-left: auto;
   border-color: var(--danger-border);
   background: var(--danger-bg);
   color: var(--danger-fg);
@@ -306,6 +369,54 @@
   cursor: default;
 }
 
+/* ---- Details card: copy actions behind a 3-dots menu ----
+   Keeps the header row from overflowing (Copy-as-JSON used to wrap to a second line). The kebab sits
+   right-aligned next to View Raw; its popover holds the Markdown / JSON copy buttons as a small list. */
+.g-copy-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.g-copy-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.22rem 0.45rem;
+}
+
+.g-copy-menu-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.g-copy-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.g-copy-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 10rem;
+  padding: 0.35rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+
+.g-copy-pop .g-card-action {
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-sm);
+}
+
 .g-card-err {
   margin: 0 0 0.6rem;
   font-size: 0.78rem;
@@ -378,5 +489,46 @@
 .g-derive-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* --- Compact (<=768px): stack the image over the metadata (Phase 4b of the
+       responsive work, notes/plans/responsive.md). The two-column grid collapses
+       to one, the image un-sticks (nothing to stick beside) and caps its height
+       so the details below stay reachable by scroll. Width-driven CSS only, so
+       first paint is unaffected; no feature changes, just re-flows. --- */
+@media (width <= 768px) {
+  .g-single-body {
+    grid-template-columns: 1fr;
+  }
+
+  .g-single-img {
+    /* relative (not static) so the top-right overlay actions still anchor to the image box, while
+       dropping the desktop sticky behaviour. */
+    position: relative;
+  }
+
+  .g-single-img img {
+    max-height: 60vh;
+  }
+
+  /* Smaller action row (open / reveal / download / convert / resize / delete). */
+  .g-actions button,
+  .g-action-link,
+  .g-convert,
+  .g-resize {
+    padding: 0.32rem 0.6rem;
+    font-size: 0.76rem;
+  }
+
+  /* Smaller Back + prev/next nav (they were oversized on touch). */
+  .g-back {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .g-single-nav button {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.78rem;
+  }
 }
 

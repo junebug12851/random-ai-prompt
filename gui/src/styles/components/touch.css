@@ -1,0 +1,45 @@
+/* ---------- Touch & input ergonomics (Phase 5 of notes/plans/responsive.md) ----------
+   Guarded by input-capability media queries (`hover`/`pointer`), NOT width — so they target
+   touch devices specifically and never alter the mouse/desktop rendering (the visual-regression
+   baselines, taken on a fine pointer, are unaffected). Two concerns:
+     1. Reveal hover-only affordances (buttons that fade in on `:hover`) — otherwise they're
+        invisible AND untappable on a touchscreen.
+     2. Give primary controls a >=44px tap target (WCAG 2.5.5 Target Size) on coarse pointers. */
+
+/* 1 — Touch devices can't hover: keep the hover-revealed action buttons visible so they're
+       reachable (Manage entry delete/restore, per-image actions, list-row delete, theme delete). */
+@media (hover: none) {
+  .mg-pill-act,
+  .img-actions,
+  .mg-row-del,
+  .theme-swatch-del {
+    opacity: 1;
+  }
+}
+
+/* 2 — Coarse (touch) pointers: enlarge the primary tap targets. (The view-switch tabs are a
+      tightly-grouped segmented control — deliberately NOT bumped to 44px, which made them clunky.) */
+@media (pointer: coarse) {
+  .links-trigger,
+  .topbar-overflow-toggle,
+  .mg-refresh,
+  .palette-close,
+  .mg-back {
+    min-height: 44px;
+  }
+
+  /* Icon-only controls need the horizontal target too. */
+  .links-trigger,
+  .topbar-overflow-toggle,
+  .mg-refresh,
+  .palette-close {
+    min-width: 44px;
+  }
+
+  /* The composer action buttons stay compact (34px) on desktop, but get a comfortable 40px tap
+     target on touch — bigger than 34 without the clunky feel of a full 44. */
+  .field-act {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}

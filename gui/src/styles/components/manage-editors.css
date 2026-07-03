@@ -10,20 +10,26 @@
 .mg-editor-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .mg-name-input {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
+  padding: 0.35rem 0.6rem;
   color: var(--fg);
   min-width: 0;
-  flex: 0 1 auto;
+  flex: 0 1 14rem;
+}
+
+/* Compact Save button in the editor head, sized to line up with the name field. */
+.mg-editor-head .primary {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
 }
 
 .mg-path {
