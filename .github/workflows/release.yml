@@ -155,7 +155,12 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
           for f in random-ai-prompt-*.tar.gz random-ai-prompt-*-docs.zip; do
+            # Newer cosign defaults to the new bundle format, under which --output-signature /
+            # --output-certificate are ignored (it errors trying to write an unset --bundle path).
+            # Pin the classic format so we keep emitting the detached <f>.sig / <f>.pem assets the
+            # verify instructions below (and any consumers) expect.
             cosign sign-blob --yes \
+              --new-bundle-format=false \
               --output-signature "$f.sig" \
               --output-certificate "$f.pem" \
               "$f"
