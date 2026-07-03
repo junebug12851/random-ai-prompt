@@ -200,9 +200,7 @@ test.describe("single view — phone", () => {
     expect(await singleBodyColumnCount(page)).toBe(1);
     // `relative` (not `sticky`) on phone — it drops the desktop sticky while still being a
     // containing block so the top-right overlay actions anchor to the image (not the page header).
-    const pos = await page
-      .locator(".g-single-img")
-      .evaluate((el) => getComputedStyle(el).position);
+    const pos = await page.locator(".g-single-img").evaluate((el) => getComputedStyle(el).position);
     expect(pos).toBe("relative");
     // The overlay actions must anchor to the image box (offsetParent), not escape to the viewport
     // (which put them over the page header).
@@ -292,7 +290,9 @@ test.describe("tablet (iPad Pro portrait, 1024)", () => {
     expect(await hasHorizontalOverflow(page)).toBe(false);
   });
 
-  test("Generate keeps the building-block palette as a split pane, not a drawer", async ({ page }) => {
+  test("Generate keeps the building-block palette as a split pane, not a drawer", async ({
+    page,
+  }) => {
     await page.goto("/");
     await page.locator(sidebar).waitFor();
     await expect(page.locator(sidebar)).toBeVisible();
