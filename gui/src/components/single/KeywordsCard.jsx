@@ -39,7 +39,6 @@ export default function KeywordsCard({ text, saved, item, settings, onSearch, on
   // The image supports an AI keyword rebuild (it's a saved local file with prompt text). Whether a
   // Text provider is actually chosen is a *separate* gate — so the button can stay visible but locked.
   const rebuildable = isOutputFile(item?.path) && Boolean(text && text.trim());
-  const canRebuild = rebuildable && hasRewrite;
 
   async function rebuild() {
     setError("");

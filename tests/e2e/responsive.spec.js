@@ -78,7 +78,9 @@ test.describe("top bar — phone (narrow)", () => {
 });
 
 test.describe("top bar — tablet (portrait)", () => {
-  test.use({ viewport: { width: 768, height: 1024 } });
+  // A genuine tablet-portrait width (iPad Air 820) — on the tablet side of the 768/1024 split, so it
+  // exercises the tablet tier's collapsed chrome rather than the phone boundary.
+  test.use({ viewport: { width: 820, height: 1180 } });
 
   test("controls are collapsed at <= 820px", async ({ page }) => {
     await page.goto("/");
