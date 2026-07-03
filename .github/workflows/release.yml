@@ -139,34 +139,31 @@ jobs:
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
 
-      # Emit DETACHED SIGNATURES as release ASSETS (keyless cosign). The attestation above lives in the
-      # attestations API; OpenSSF Scorecard's Signed-Releases check instead looks for signature files
-      # attached to the release (.sig/.pem), so we ship both. Keyless = Sigstore Fulcio/Rekor via the
-      # job's OIDC token (no keys to manage). Verify a downloaded asset with:
-      #   cosign verify-blob --signature <a>.sig --certificate <a>.pem \
+      # Emit a Sigstore SIGNATURE BUNDLE per asset as a release ASSET (keyless cosign 3.x). The
+      # attestation above lives in the attestations API; OpenSSF Scorecard's Signed-Releases check
+      # instead looks for signature files attached to the release, and it recognizes `.sigstore.json`
+      # bundles (as well as `.sig` / `.sigstore` / `.intoto.jsonl`), so we name the bundle accordingly.
+      # Keyless = Sigstore Fulcio/Rekor via the job's OIDC token (no keys to manage). The bundle is
+      # self-contained (signature + cert + Rekor entry). Verify a downloaded asset with:
+      #   cosign verify-blob --bundle <a>.sigstore.json \
       #     --certificate-identity-regexp 'https://github.com/junebug12851/random-ai-prompt/.*' \
       #     --certificate-oidc-issuer https://token.actions.githubusercontent.com <a>
       - name: Install cosign
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
-          # Pin cosign to the 2.x line. cosign 3.x makes the new bundle format the default and drops
-          # the classic detached `--output-signature` / `--output-certificate` outputs (it errors:
-          # "must provide --new-bundle-format or --bundle …"), which would break the .sig/.pem release
-          # assets + the verify instructions below. (TODO: migrate to `--bundle` to move to 3.x.)
-          cosign-release: "v2.4.1"
+          # Pin the cosign binary (reproducible; a floating "latest" is what silently jumped 2.x→3.x
+          # and broke signing). 3.x's default new bundle format is what we now emit via `--bundle`.
+          cosign-release: "v3.1.1"
       - name: Sign release artifacts (keyless cosign)
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
           shopt -s nullglob
           for f in random-ai-prompt-*.tar.gz random-ai-prompt-*-docs.zip; do
-            cosign sign-blob --yes \
-              --output-signature "$f.sig" \
-              --output-certificate "$f.pem" \
-              "$f"
+            cosign sign-blob --yes --bundle "$f.sigstore.json" "$f"
           done
-          ls -la random-ai-prompt-*.sig random-ai-prompt-*.pem
+          ls -la random-ai-prompt-*.sigstore.json
 
       - name: Publish GitHub Release
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
@@ -180,5 +177,4 @@ jobs:
           files: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
-            random-ai-prompt-*.sig
-            random-ai-prompt-*.pem
+            random-ai-prompt-*.sigstore.json

@@ -85,11 +85,16 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
   (with a `# vX` comment). Dependabot's `github-actions` ecosystem keeps the SHAs current.
 - **Signed-Releases** — `release.yml` does **two** things: (1) `actions/attest-build-provenance` writes a
   verifiable SLSA provenance attestation to the attestations API (`gh attestation verify <file> --repo
-  junebug12851/random-ai-prompt`), and (2) **keyless cosign** `sign-blob` emits detached `.sig` + `.pem`
-  files that are **attached to the release as assets**. The second part is what the Scorecard check
-  actually reads — it scans release *assets* for signature files and does **not** detect the attestations
-  API (the v2.39.0 release, signed only via attestation, still scored 0). Verify a `.sig` with
-  `cosign verify-blob`. Goes green from the next release that carries the `.sig` assets.
+  junebug12851/random-ai-prompt`), and (2) **keyless cosign** `sign-blob --bundle` emits a Sigstore
+  bundle per asset, named **`<asset>.sigstore.json`** and **attached to the release as an asset**. The
+  second part is what the Scorecard check actually reads — it scans release *assets* for signature files
+  (it recognizes `.sig` / `.sigstore` / `.sigstore.json` / `.intoto.jsonl`) and does **not** detect the
+  attestations API (the v2.39.0 release, signed only via attestation, still scored 0). Verify a bundle
+  with `cosign verify-blob --bundle <asset>.sigstore.json …`. Goes green from a release that carries the
+  bundle assets. **cosign is pinned** (`cosign-release: v3.1.1`): a floating "latest" silently jumped
+  2.x→3.x in July 2026 and broke signing (3.x dropped the classic detached `--output-signature` /
+  `--output-certificate` outputs in favour of `--bundle`), which is why v2.41.0 first published without a
+  signature — the fix migrated to the 3.x bundle format and pinned the binary.
 - **Branch-Protection** — `main` is protected (PR-required, 0 approvals, strict status checks,
   enforce-admins, no force-push/deletion). A local scan with an admin token scores this **4/10** (the
   remaining points need review approvals — the solo self-approval wall, so 4 is the ceiling). **But the
