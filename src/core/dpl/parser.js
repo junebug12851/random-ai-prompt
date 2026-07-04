@@ -224,14 +224,17 @@ function parseGate(t, out) {
  * Returns true when a choice was recorded (the node is then complete).
  */
 function parseChoice(t, out) {
-  const missRe = "(?:\\((\\d+(?:\\.\\d+)?)%\\s*nothing\\))?\\s*:?\\s*$";
-  const oneOfM = t.match(new RegExp(`^one\\s+of\\s*${missRe}`, "i"));
+  const missRe = String.raw`(?:\((\d+(?:\.\d+)?)%\s*nothing\))?\s*:?\s*$`;
+  const oneOfM = t.match(new RegExp(String.raw`^one\s+of\s*${missRe}`, "i"));
   const nOfM = oneOfM
     ? null
-    : t.match(new RegExp(`^(\\d+)(?:\\s+to\\s+(\\d+))?\\s+of\\s*${missRe}`, "i"));
+    : t.match(new RegExp(String.raw`^(\d+)(?:\s+to\s+(\d+))?\s+of\s*${missRe}`, "i"));
   if (!(oneOfM || nOfM) || !out.children.length) return false;
   const min = oneOfM ? 1 : Number(nOfM[1]);
-  const max = oneOfM ? 1 : nOfM[2] ? Number(nOfM[2]) : min;
+  let max;
+  if (oneOfM) max = 1;
+  else if (nOfM[2]) max = Number(nOfM[2]);
+  else max = min;
   const missCap = oneOfM ? oneOfM[1] : nOfM[3];
   out.choice = { min, max, miss: missCap ? Number(missCap) / 100 : 0 };
   return true;
@@ -292,7 +295,7 @@ function parseNode(node) {
   parseRef(t, out);
 
   // A trailing ":" with children but no choice/repeat → a plain gated block.
-  if (/:$/.test(t) && out.children.length && !out.ref) {
+  if (t.endsWith(":") && out.children.length && !out.ref) {
     out.block = true;
     t = t.replace(/:\s*$/, "");
   }

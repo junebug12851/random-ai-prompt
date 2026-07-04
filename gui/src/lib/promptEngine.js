@@ -12,7 +12,6 @@
  * @module gui/lib/promptEngine
  */
 import { createEngine } from "../../../src/core/engine.js";
-import { randomSeed } from "../../../src/core/rng.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
@@ -158,15 +157,6 @@ function forEngine(settings, explicitSeed) {
 }
 
 /**
- * Mint a fresh random seed string — the base seed for one "roll" when Random is on, so the exact
- * batch can be reproduced later by pinning this seed.
- * @returns {string} A new random seed.
- */
-export function newRollSeed() {
-  return randomSeed();
-}
-
-/**
  * @param {object} settings The generation settings.
  * @param {string|number} [explicitSeed] Force this exact seed (used by the batch roll to fork).
  * @returns {string} One generated prompt.
@@ -182,12 +172,31 @@ export function generatePrompts(settings) {
   return engine.generateMany(forEngine(settings));
 }
 /**
- * Expand a specific prompt (the live preview).
- * @param {string} prompt The prompt to expand.
- * @param {object} settings The generation settings.
- * @returns {string} The expanded prompt.
+ * Expand a prompt for an on-screen PREVIEW / illustrative example — the live-preview eye, the
+ * building-block hover examples, the editor/insert-bar examples, and the cycling suggestion. These
+ * must always re-roll a fresh example and stay completely independent of the user's seed: they never
+ * read the pinned `promptSeed` (so a pinned prompt doesn't freeze every preview) nor write/advance it.
+ * We force the random path (a throwaway preview seed that re-rolls each call) by overriding
+ * `randomSeed` on the way into the engine only; the caller's settings object is never mutated. This
+ * is also the historical behaviour of `expandPrompt` (it predates seeding), so preview callers need
+ * no change. For a seed-honouring expansion (the real negative-prompt roll) use
+ * {@link expandPromptSeeded}.
+ * @param {string} prompt The DPL/prompt to expand.
+ * @param {object} settings The generation settings (seed fields are ignored).
+ * @returns {string} A fresh, randomly-rolled expansion.
  */
 export function expandPrompt(prompt, settings) {
+  return engine.generate({ ...forEngine({ ...settings, randomSeed: true }), prompt });
+}
+
+/**
+ * Expand a prompt HONOURING the current seed settings — so a pinned roll reproduces it. Used for the
+ * real negative-prompt roll (part of the generated image), not for previews.
+ * @param {string} prompt The prompt to expand.
+ * @param {object} settings The generation settings.
+ * @returns {string} The expanded prompt (deterministic when a seed is pinned).
+ */
+export function expandPromptSeeded(prompt, settings) {
   return engine.generate({ ...forEngine(settings), prompt });
 }
 
