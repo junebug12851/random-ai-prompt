@@ -15,7 +15,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
-import { pickRollSeed, forkRollSeed, shouldReflectSeed } from "../lib/home/seed.js";
+import { shouldReflectSeed } from "../lib/home/seed.js";
+import { buildRoll } from "../lib/home/buildRoll.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
@@ -307,45 +308,17 @@ export default function Home({ settings, setSettings, onOpenImage }) {
         !settings.wrapperName || settings.wrapperName === "Default"
           ? getDefaultWrapper()
           : (settings.wrapper ?? getDefaultWrapper());
-      const count = Math.max(1, Number(settings.promptCount) || 1);
-      // Establish ONE base seed for this whole roll (pinned when Random is off + a seed is set,
-      // otherwise a fresh one). Each prompt forks it (`base#i`) so the batch differs but reproduces;
-      // the used seed is reflected back into the (greyed) box afterwards so it's visible/copyable.
-      // The decision logic is a pure, unit-tested helper (lib/home/seed.js).
-      const rollSeed = pickRollSeed(settings);
-      // Whether blocks may contribute their own `Auto Begin` / `Auto End` framing (default on). When
-      // off, only the user wrapper (or None) frames the prompt — no input from any block.
-      const useAuto = settings.useAutoSections !== false;
-      const out = [];
-      for (let i = 0; i < count; i++) {
-        const wrapped = [
-          renderWrapperPart(w.start, settings),
-          text,
-          renderWrapperPart(w.end, settings),
-        ]
-          .map((s) => (s || "").trim())
-          .filter(Boolean)
-          .join(", ");
-        const sink = { begin: [], end: [] };
-        // mode comes from the active provider's dialect (provider owns the dialect).
-        const result = generatePrompt(
-          {
-            ...settings,
-            mode: flat.mode,
-            prompt: wrapped,
-            autoSink: useAuto ? sink : null,
-          },
-          forkRollSeed(rollSeed, i),
-        );
-        // Fold each fired block's Auto Begin / Auto End into the prompt's start / end.
-        const framed = useAuto
-          ? [sink.begin.join(", "), result, sink.end.join(", ")]
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .join(", ")
-          : result;
-        out.push({ id: nextId(), text: framed, dpl: text, batches: [] });
-      }
+      // Assemble the roll (framing, per-prompt seed forking, Auto Begin/End folding) in a pure,
+      // unit-tested helper; the component only does the React state updates around it. The base seed
+      // is pinned when Random is off + a seed is set, otherwise freshly minted, and each prompt forks
+      // it (`base#i`) so the batch differs but reproduces.
+      const { prompts: out, rollSeed } = buildRoll({
+        settings,
+        text,
+        wrapper: w,
+        mode: flat.mode,
+        deps: { renderWrapperPart, generatePrompt, nextId },
+      });
       // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
       setPrompts((prev) => [...out, ...prev]);
       // Reflect the seed this roll used into the (greyed, when Random is on) seed box so it's visible
