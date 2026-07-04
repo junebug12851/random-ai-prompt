@@ -2,6 +2,46 @@
 
 Key structural choices and why. (Things tried and rejected live in [`rejected.md`](rejected.md).)
 
+## Scaling to the max supported load: virtualize, contain, chunk (2026-07-04)
+
+The app promises to stay seamless at a **100k-image gallery + 1000 prompts / ~10k images + a 100k-line
+Manage file, all at once**. Three different techniques, chosen per surface:
+
+- **Gallery → windowing (bounded DOM).** 100k feed items can't all be DOM nodes, so `Gallery.jsx`
+  renders only the viewport window (+ overscan) using the pure `gui/src/lib/virtual/windowRange.js`
+  (a full-height spacer keeps the scrollbar honest). This required trading the old wide/tall **masonry**
+  for **uniform square cells** — exact row-windowing needs a fixed row height; dense masonry packing
+  can't be windowed without measuring every prior item. Uniform cells are the standard large-gallery
+  choice and keep captions/hover/search intact. The Manage list editor already used the same idea inline.
+- **Results list → render-containment (all rows present, offscreen skipped).** The 1000-prompt list must
+  "roll out all at once", so windowing (which removes rows) is the wrong fit; instead `content-visibility:
+  auto` on `.prompt-result` lets the browser skip layout/paint/**image decode** for offscreen rows while
+  every row stays in the DOM. Paired with a **memoized `PromptResult`** and stable row identity across
+  `setPrompts` (unchanged rows keep their object reference), so one image landing re-renders one row.
+- **Generation → placeholder-first + concurrency-limited queue.** `useImageBatches.makeBatch` sets the
+  busy placeholder **synchronously** for every prompt, then runs the real generate behind a limiter — so
+  10k images never fire 10k requests. Why a limiter and not "just await sequentially": we want a bounded
+  *few* in flight for throughput without a stampede. Rewrites use a *separate* limiter (below).
+
+## Per-provider concurrency as the first shared provider setting (2026-07-04)
+
+The right request concurrency differs per provider (a local ComfyUI can run wide; a hosted API is
+rate-limited and the browser caps ~6 requests/host — which is also the online build's only constraint,
+since online providers are all browser-direct). So the "Batch chunk size" is **per-provider**, and lives
+in each provider's settings — not a global gear knob (an earlier global attempt was reverted).
+
+Rather than copy the field into ~40 provider folders, it's the first entry in a new **shared-settings
+system** (`gui/providers/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
+like providers/dynamic-prompts) exporting `{ key, applies, defaultFor, field }`, and
+`applySharedSettings` folds each applicable one into a provider's schema **at the registry**
+(`gui/providers/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
+generation settings (`flattenForProvider`). Defaults are metadata-derived (local 6 / hosted 3 / poll 4),
+overridable per provider (`config.concurrencyDefault`), and a provider that declares its own field keeps
+it (escape hatch). It applies to image, text (rewrite), and upscale providers independently — the Home
+image queue reads the image provider's value; rewrites go through a separate limiter sized to the text
+provider's. This was a deliberate "build a proper system, no shortcut" choice (owner-directed), and the
+structure was picked via AskUserQuestion when the owner was deliberating it.
+
 ## SPA i18n: react-intl + FormatJS, English-only shipped, pipeline-ready (2026-06-28)
 
 The SPA was internationalized with **react-intl** driven by the **FormatJS** toolchain. Choices and why:
