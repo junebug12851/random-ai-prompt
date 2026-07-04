@@ -14,7 +14,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { getDplInserts } from "../lib/dpl/dplInserts.js";
-import { previewPrompt } from "../lib/promptEngine.js";
+import { expandPrompt } from "../lib/promptEngine.js";
 import { useCompact } from "../lib/useCompact.js";
 
 const msgs = defineMessages({
@@ -26,7 +26,7 @@ const msgs = defineMessages({
 /** Roll one item's `example` DPL into a concrete string (no auto-FX/artist noise). */
 const rollExample = (dpl, settings) => {
   try {
-    const out = previewPrompt(dpl, { ...settings, autoAddFx: false, autoAddArtists: false });
+    const out = expandPrompt(dpl, { ...settings, autoAddFx: false, autoAddArtists: false });
     return out && out.trim() ? out : "—";
   } catch {
     return "—";

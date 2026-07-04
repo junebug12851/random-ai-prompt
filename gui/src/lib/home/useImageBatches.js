@@ -9,7 +9,7 @@
 import { useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { rewritePrompt } from "../rewrite.js";
-import { expandPrompt } from "../promptEngine.js";
+import { expandPromptSeeded } from "../promptEngine.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../output.js";
 import { effectiveKey } from "../sessionKeys.js";
 import { dialog } from "../dialog.js";
@@ -134,7 +134,7 @@ export function useImageBatches({ settings, provider, flat }) {
 
       // --- Negative prompt: roll its DPL, then AI-translate it too (when auto-fix is on). ---
       const negDpl = flat.negativePrompt || "";
-      let negRoll = negDpl ? expandPrompt(negDpl, { ...settings, mode: flat.mode }) : "";
+      let negRoll = negDpl ? expandPromptSeeded(negDpl, { ...settings, mode: flat.mode }) : "";
       let negAi = null;
       if (entry0?.negRoll !== undefined) {
         // Already processed on a prior batch — reuse so we don't re-call the rewrite API.

@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import { previewPrompt } from "../lib/promptEngine.js";
+import { expandPrompt } from "../lib/promptEngine.js";
 
 const msgs = defineMessages({
   preview: { id: "livePreview.preview", defaultMessage: "Preview" },
@@ -61,7 +61,7 @@ export default function LivePreview({ getDpl, settings, label, triggerClassName 
       try {
         const dpl = getRef.current() || "{#random-words}";
         setEx(
-          previewPrompt(dpl, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }),
+          expandPrompt(dpl, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }),
         );
       } catch {
         setEx("");

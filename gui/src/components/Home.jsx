@@ -14,7 +14,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import { generatePrompt, renderWrapperPart, previewPrompt } from "../lib/promptEngine.js";
+import { generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
 import { pickRollSeed, forkRollSeed, shouldReflectSeed } from "../lib/home/seed.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
@@ -224,7 +224,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   useEffect(() => {
     const roll = () => {
       try {
-        setSuggestion(previewPrompt("{#random-words}", settingsRef.current));
+        setSuggestion(expandPrompt("{#random-words}", settingsRef.current));
       } catch {
         /* engine not ready — skip this tick */
       }
@@ -273,7 +273,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     const roll = () => {
       try {
         setTipEx(
-          previewPrompt(tipToken, {
+          expandPrompt(tipToken, {
             ...settingsRef.current,
             autoAddFx: false,
             autoAddArtists: false,
