@@ -240,8 +240,8 @@ export function computeButtonNames(names, forcedDirs = []) {
 
   for (const name of names) {
     const token = forcedToken(name.split("/"), forced);
-    if (token !== null) result[name] = token;
-    else auto.push(name);
+    if (token === null) auto.push(name);
+    else result[name] = token;
   }
 
   // Auto: bare filename, lengthened by one folder per round while any collide.

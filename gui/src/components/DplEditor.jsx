@@ -17,7 +17,7 @@ import { history, defaultKeymap, historyKeymap, insertNewlineAndIndent } from "@
 import { autocompletion, completionKeymap, snippet, startCompletion } from "@codemirror/autocomplete";
 import { linter } from "@codemirror/lint";
 import { dplLanguage, dplCompletionSource, dplKindBadge, inFrontMatter } from "../lib/dpl/dplLanguage.js";
-import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
+import { getDplCompletions, previewPrompt } from "../lib/promptEngine.js";
 import { validateDpl } from "../lib/dpl/validateDpl.js";
 
 // CodeMirror linter fed by the shared DPL validator — underlines bad spots and shows the message on
@@ -38,7 +38,7 @@ const makeDplLinter = (intlRef) =>
 // Render a token into a concrete example for the autocomplete info panel (no auto-FX/auto-artist
 // noise, mirroring the eye-icon live preview).
 const expandExample = (token, settings) =>
-  expandPrompt(token, { ...settings, autoAddFx: false, autoAddArtists: false });
+  previewPrompt(token, { ...settings, autoAddFx: false, autoAddArtists: false });
 
 /**
  * @param {object} props
