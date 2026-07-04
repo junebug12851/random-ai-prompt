@@ -53,6 +53,15 @@ describe("buildRoll", () => {
     }
   });
 
+  it("coerces a fractional count to an integer and caps it at the 50-item ceiling", () => {
+    const len = (promptCount) =>
+      buildRoll({ ...base, settings: { ...base.settings, promptCount }, deps: makeDeps() }).prompts
+        .length;
+    expect(len(3.9)).toBe(3); // floored, not rounded up
+    expect(len(999)).toBe(50); // capped
+    expect(len("7")).toBe(7); // numeric string coerced
+  });
+
   it("frames the text with the wrapper start/end, dropping empty parts", () => {
     const { prompts } = buildRoll({
       ...base,

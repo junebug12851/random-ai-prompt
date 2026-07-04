@@ -5,6 +5,10 @@
  */
 import { pickRollSeed, forkRollSeed } from "./seed.js";
 
+// The per-roll prompt ceiling — mirrors the `max` on the Home prompt-count input. Enforced here too so
+// the helper is the single source of truth and can't be driven past it by stale/shared settings.
+const MAX_PROMPTS = 50;
+
 /**
  * Assemble one roll: frame `text` with the active wrapper, generate `settings.promptCount` prompts
  * (each forking the roll's base seed so the batch differs yet stays reproducible), and fold each
@@ -24,7 +28,9 @@ import { pickRollSeed, forkRollSeed } from "./seed.js";
  */
 export function buildRoll({ settings, text, wrapper, mode, deps }) {
   const { renderWrapperPart, generatePrompt, nextId, mintSeed } = deps;
-  const count = Math.max(1, Number(settings.promptCount) || 1);
+  // Clamp to an integer in [1, MAX_PROMPTS] — the same ceiling the UI input enforces — so a stale or
+  // shared-link `promptCount` that is fractional or oversized can't spin an excessive synchronous loop.
+  const count = Math.min(MAX_PROMPTS, Math.max(1, Math.floor(Number(settings.promptCount)) || 1));
   const rollSeed = pickRollSeed(settings, mintSeed);
   // Whether blocks may contribute their own Auto Begin / Auto End framing (default on).
   const useAuto = settings.useAutoSections !== false;

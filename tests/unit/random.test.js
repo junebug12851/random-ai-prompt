@@ -76,7 +76,9 @@ describe("draw helpers read the ambient source", () => {
         expect(v).toBeGreaterThanOrEqual(3);
         expect(v).toBeLessThanOrEqual(7);
       }
-      expect(randomInt(7, 3)).toBeGreaterThanOrEqual(3); // swapped bounds tolerated
+      const swapped = randomInt(7, 3); // swapped bounds tolerated (order-independent)
+      expect(swapped).toBeGreaterThanOrEqual(3);
+      expect(swapped).toBeLessThanOrEqual(7);
     });
   });
 
