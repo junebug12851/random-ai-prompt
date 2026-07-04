@@ -100,6 +100,8 @@ async function captureStatics(browser, manifest) {
     await seedContext(context);
     const page = await context.newPage();
     for (const shot of SHOTS) {
+      // A shot may restrict itself to certain viewports (e.g. the palette drawer is phone-only).
+      if (shot.viewports && !shot.viewports.includes(vp)) continue;
       const file = `${shot.name}-${vp}.png`;
       process.stdout.write(`  · ${file} … `);
       try {

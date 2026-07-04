@@ -63,11 +63,14 @@ export const SHOTS = [
   {
     name: "block-menu",
     title: "Building-block palette",
+    // Phone only: at desktop/tablet widths the palette is an inline split-pane, so a full-page shot
+    // there is identical to the Generate screen (redundant). It's a distinct view only as the phone
+    // off-canvas drawer.
+    viewports: ["phone"],
     async shoot(page) {
       await gotoHome(page);
       await page.locator(".workspace").waitFor();
-      // Narrow screens park the palette off-canvas — open it via its trigger so the full-page shot
-      // shows it in view. On desktop it's already inline.
+      // Open the off-canvas drawer via its trigger so the full-page shot shows it in view.
       const trigger = page.locator(".palette-trigger");
       if (await trigger.isVisible()) {
         await trigger.click();

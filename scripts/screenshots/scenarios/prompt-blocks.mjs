@@ -8,8 +8,11 @@
 
 /* global document -- the page.evaluate() callback in run() executes in the browser context. */
 
-/** The block references typed into the composer. */
-const TEXT = "{#prompt/simple-random}, {#futuristic}, {#glow}, {#neon}, {#city}";
+/**
+ * The block references typed into the composer. Ends after `{#futuristic}` — with the 5s duration
+ * fixed, the shorter string types one character at a time at a slower, steadier, more readable pace.
+ */
+const TEXT = "{#prompt/simple-random}, {#futuristic}";
 
 /** @type {import("../gifs.mjs").GifScenario} */
 export default {
