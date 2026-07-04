@@ -9,7 +9,7 @@
  * second (so you can see the range of what that DPL produces).
  * @module gui/components/PromptResult
  */
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { isOutputFile, openImageFile, revealImageFile, openImageInNewTab } from "../lib/output.js";
 import { expandPrompt } from "../lib/promptEngine.js";
@@ -157,7 +157,7 @@ const ImageIcon = () => (
  * @param {Function} [props.onImageClick] `(img)` — open the image in the single view.
  * @returns {JSX.Element}
  */
-export default function PromptResult({
+function PromptResult({
   prompt,
   index,
   number,
@@ -292,3 +292,27 @@ export default function PromptResult({
     </li>
   );
 }
+
+/**
+ * Re-render a row only when its own data changes. Crucially, an image batch resolving elsewhere
+ * updates just that prompt's object (the `setPrompts` maps keep the SAME reference for every other
+ * row), so at 1000 rows a single image landing re-renders one `<li>`, not the whole list. The
+ * handler props are intentionally excluded from the compare: they act via `promptId` + functional
+ * `setPrompts` + a live prompts ref, so a retained closure stays correct even if its identity is
+ * stale.
+ * @param {object} prev Previous props.
+ * @param {object} next Next props.
+ * @returns {boolean} True when the row can skip re-rendering.
+ */
+function sameRow(prev, next) {
+  return (
+    prev.prompt === next.prompt &&
+    prev.index === next.index &&
+    prev.number === next.number &&
+    prev.canGenerate === next.canGenerate &&
+    prev.settings === next.settings &&
+    prev.onImageClick === next.onImageClick
+  );
+}
+
+export default memo(PromptResult, sameRow);

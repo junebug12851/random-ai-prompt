@@ -75,12 +75,20 @@
   margin: 0.4rem auto 0;
 }
 
-/* Masonry-ish grid: square base cells; wide/tall images span an extra column/row. */
+/* Virtualization window: a full-height spacer that reserves scroll room for ALL cells (so the
+   scrollbar is honest at 100k+ items) while only the on-screen rows live inside it. The inner
+   `.g-grid` is translated down to the first visible row (`transform: translateY(...)` from JS). */
+.g-grid-window {
+  position: relative;
+  width: 100%;
+}
+
+/* Uniform square cells in a responsive grid. The column count + row translate come from JS
+   (inline styles) so the windowing math is exact; these are the shared, static bits. */
 .g-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   grid-auto-rows: 180px;
-  grid-auto-flow: dense;
   gap: 8px;
 }
 

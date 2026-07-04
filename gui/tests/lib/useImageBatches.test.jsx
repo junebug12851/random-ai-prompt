@@ -16,7 +16,7 @@ vi.mock("../../src/lib/rewrite.js", () => ({ rewritePrompt: vi.fn() }));
 vi.mock("../../src/lib/promptEngine.js", () => ({ expandPrompt: vi.fn(() => "") }));
 vi.mock("../../src/lib/sessionKeys.js", () => ({ effectiveKey: vi.fn(() => "key") }));
 
-import { useImageBatches } from "../../src/lib/home/useImageBatches.js";
+import { useImageBatches, createLimiter } from "../../src/lib/home/useImageBatches.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../../src/lib/output.js";
 import { dialog } from "../../src/lib/dialog.js";
 
@@ -57,6 +57,66 @@ describe("useImageBatches.makeBatch", () => {
     expect(result.current.prompts[0].batches[0].images).toEqual([
       { path: "/api/output/x.png", file: "x.png" },
     ]);
+  });
+});
+
+describe("createLimiter (image-generation concurrency)", () => {
+  it("caps concurrency at the limit and honours setMax live", async () => {
+    const limiter = createLimiter(2);
+    let started = 0;
+    const block = () => {
+      started++;
+      return new Promise(() => {}); // never resolves — jobs stay in-flight
+    };
+    for (let i = 0; i < 10; i++) limiter.run(block);
+    await new Promise((r) => setTimeout(r));
+    expect(started).toBe(2); // only 2 run at once
+    expect(limiter.active).toBe(2);
+    expect(limiter.pending).toBe(8); // the rest wait (with their placeholders already shown)
+
+    limiter.setMax(5); // user raises the chunk size
+    await new Promise((r) => setTimeout(r));
+    expect(started).toBe(5);
+    expect(limiter.pending).toBe(5);
+  });
+
+  it("drains the whole queue as jobs resolve", async () => {
+    const limiter = createLimiter(2);
+    const done = [];
+    const jobs = Array.from({ length: 6 }, (_, i) => limiter.run(async () => done.push(i)));
+    await Promise.all(jobs);
+    expect(done.sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(limiter.active).toBe(0);
+    expect(limiter.pending).toBe(0);
+  });
+});
+
+describe("useImageBatches — placeholder-first, chunked auto-generation", () => {
+  it("shows a placeholder for every prompt immediately, generating a bounded few at a time", async () => {
+    const generate = vi.fn(() => new Promise(() => {})); // never resolves: batches stay busy
+    const provider = { id: "sd", label: "SD", loadGenerate: vi.fn(async () => generate) };
+    const { result } = renderHook(
+      // Concurrency comes from the (image) provider's own "Batch chunk size" — here 3, via the
+      // flattened provider params the hook reads.
+      () => useImageBatches({ settings, provider, flat: { ...flat, concurrency: 3 } }),
+      { wrapper },
+    );
+    act(() =>
+      result.current.setPrompts(
+        Array.from({ length: 10 }, (_, i) => ({ id: i + 1, text: `p${i}`, dpl: "d", batches: [] })),
+      ),
+    );
+    // Fire an auto-render batch for all 10 prompts (as a big run does).
+    act(() => {
+      for (let i = 0; i < 10; i++) result.current.makeBatch(i + 1, `p${i}`, "d");
+    });
+    // Every prompt shows its busy placeholder batch right away — no waiting on the queue.
+    expect(result.current.prompts).toHaveLength(10);
+    expect(result.current.prompts.every((p) => p.batches[0]?.busy)).toBe(true);
+    // …but only the chunk size (3) actually reach the provider; the rest are queued.
+    await new Promise((r) => setTimeout(r));
+    expect(generate.mock.calls.length).toBeLessThanOrEqual(3);
+    expect(generate.mock.calls.length).toBeGreaterThan(0);
   });
 });
 

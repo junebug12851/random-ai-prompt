@@ -46,5 +46,11 @@ scripts/list-cleanup/out/
 /tmp/
 /.lighthouseci/
 
+# Large-scale perf-suite fixture files (created on disk during a run, removed on teardown; a stray
+# one after an interrupted run must never be committed). See tests/perf/.
+data/**/perf-harness-*
+# Perf profiling output (scripts/profile-scenarios.mjs — CDP traces + the summary JSON)
+/perf-profile/
+
 # Owner's personal, machine-local scratch todo (informal brain-dump; never project notes)
 notes/todo.txt

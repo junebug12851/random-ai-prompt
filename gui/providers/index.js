@@ -11,15 +11,37 @@
  * @module gui/providers
  */
 import { DIALECTS, engineModeFor } from "./_shared/dialects.js";
+import { applySharedSettings, SHARED_SETTINGS } from "./_shared/settings/index.js";
 
 // Eagerly import each provider's config so listing/metadata is synchronous; the heavy
 // code (generate/format) and settings stay lazy behind the manifest's loaders.
 const configs = import.meta.glob("./*/config.js", { eager: true });
 
+/**
+ * Normalize a provider manifest so it carries the shared provider settings (see
+ * `_shared/settings/`) — currently the per-provider **batch chunk size** — folded into its
+ * `settings.js` schema. Declared once (DRY) rather than copied into 40 provider folders, with
+ * per-provider defaults. Transparent for a provider that declares its own version of a shared field,
+ * and a no-op for a provider no shared setting applies to (e.g. copy-only Plain text / syntax tiers).
+ * @param {object} p The provider manifest.
+ * @returns {object} The manifest (with a shared-settings-augmented `loadSettings` when applicable).
+ */
+function normalizeProvider(p) {
+  // Does any shared setting apply to this provider? If not, leave the manifest untouched.
+  if (!SHARED_SETTINGS.some((s) => s.applies(p))) return p;
+  const orig = p.loadSettings;
+  return {
+    ...p,
+    loadSettings: async () =>
+      applySharedSettings(orig ? await orig() : { defaults: {}, fields: [] }, p),
+  };
+}
+
 /** @type {object[]} All registered provider manifests, sorted by label. */
 export const providers = Object.values(configs)
   .map((m) => m.default)
   .filter(Boolean)
+  .map(normalizeProvider)
   .sort((a, b) => a.label.localeCompare(b.label));
 
 // `online` is true when deployed (no local machine). Local-only providers are hidden.
