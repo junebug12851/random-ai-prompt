@@ -42,6 +42,7 @@
     "test:perf": "npm run web:build && node scripts/check-bundle-size.mjs",
     "test:perf:scenarios": "playwright test --config playwright.perf.config.js",
     "profile": "node scripts/profile-scenarios.mjs",
+    "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
     "test": "npm run check:docs && npm run lint && npm run smoke && npm run test:unit && npm run test:web",
     "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios"
@@ -61,8 +62,10 @@
     "docdash": "^2.0.2",
     "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",
+    "gifenc": "^1.0.3",
     "globals": "^17.7.0",
     "jsdoc": "^4.0.5",
+    "pngjs": "^7.0.0",
     "prettier": "^3.9.4",
     "stylelint": "^17.14.0",
     "stylelint-config-standard": "^40.0.0",
