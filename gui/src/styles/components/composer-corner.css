@@ -56,6 +56,18 @@
   display: inline-flex;
 }
 
+/* Mobile/tablet: the prompt-settings gear popover becomes a full-width bottom sheet over a dimming
+   backdrop (see mobile-sheets.css). Both are `position:fixed` children of this corner, so the
+   corner's `z-index:2` would trap them in its stacking context — pinning the sheet BELOW the Home
+   FAB (z-50) and, worse, below its own dark scrim. Drop the corner's stacking context here so the
+   fixed scrim + sheet escape to the root context (z 90/91) and paint over the whole page. The corner
+   icons still sit above the editor text on their own (they're absolutely positioned, later in DOM). */
+@media (width <= 1024px) {
+  .composer-corner {
+    z-index: auto;
+  }
+}
+
 .gear-corner {
   width: 26px;
   height: 26px;

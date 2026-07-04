@@ -15,8 +15,21 @@
  * @see src/core/rng.js
  */
 
-/** The current ambient generator, or null to fall back to `Math.random`. @type {import("../core/rng.js").Rng|null} */
-let ambient = null;
+// The ambient generator is stored on a PROCESS-GLOBAL slot (keyed by a well-known Symbol), NOT a
+// module-level `let`. This is defensive: a bundler can end up with more than one copy of this module
+// in the graph (the SPA code-splits the prompt corpus into its own chunk, and a duplicated
+// `random.js` there would keep its own `ambient`). With module-level state, one copy could be seeded
+// while another kept drawing from `Math.random`, silently un-seeding part of a "pinned" run. A single
+// global slot is shared by every copy, so the whole pipeline always draws from the one seeded stream.
+// (The reroll-reproducibility bug that surfaced this was actually leftover per-generation state in the
+// list stage, fixed there; this hardening removes the adjacent duplicate-instance failure mode.)
+// See notes/reference/rng-design.md.
+const AMBIENT_KEY = Symbol.for("rap.ambientRng");
+
+/** @returns {import("../core/rng.js").Rng|null} The current ambient generator (null → `Math.random`). */
+function readAmbient() {
+  return globalThis[AMBIENT_KEY] ?? null;
+}
 
 /**
  * Install `rng` as the ambient source for the duration of `fn`, restoring the previous source
@@ -28,27 +41,28 @@ let ambient = null;
  * @template T
  */
 export function withAmbientRng(rng, fn) {
-  const prev = ambient;
-  ambient = rng;
+  const prev = readAmbient();
+  globalThis[AMBIENT_KEY] = rng;
   try {
     return fn();
   } finally {
-    ambient = prev;
+    globalThis[AMBIENT_KEY] = prev;
   }
 }
 
 /** @param {import("../core/rng.js").Rng|null} rng Set the ambient generator (null → `Math.random`). */
 export function setAmbientRng(rng) {
-  ambient = rng;
+  globalThis[AMBIENT_KEY] = rng;
 }
 
 /** @returns {import("../core/rng.js").Rng|null} The current ambient generator (null → `Math.random`). */
 export function getAmbientRng() {
-  return ambient;
+  return readAmbient();
 }
 
 /** A uniform float in [0, 1) from the ambient source — the probability-roll primitive. */
 export function randomFloat() {
+  const ambient = readAmbient();
   return ambient ? ambient.float() : Math.random();
 }
 

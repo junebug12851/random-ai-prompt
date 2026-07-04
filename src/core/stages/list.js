@@ -49,6 +49,13 @@ export function makeListStage(store) {
   }
 
   return function list(prompt, settings) {
+    // Reset the func-rotation bag at the START of every generation. It's closure state that would
+    // otherwise carry leftover residue from the previous generate() call — and since the SPA engine is
+    // a module singleton (built once), that residue made two runs of the SAME seed diverge as soon as
+    // emphasis fired (the bag's starting contents differed). Resetting per generation makes a seeded
+    // run fully reproducible while still rotating the funcs within a single prompt. (Node tests missed
+    // this because they built a fresh engine per call, so the bag was always already empty.)
+    promptFuncsTmp = [];
     return prompt.replaceAll(/\{([^{}\n]*)\}/gm, (match, p1) => {
       // `{#name}` is a dynamic-prompt token (handled by the dynamic-prompt stage), not a
       // list — leave any stray one intact rather than mis-pulling a list named "#name".

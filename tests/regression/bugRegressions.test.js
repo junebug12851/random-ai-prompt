@@ -99,3 +99,78 @@ describe("regression: cleanup strips the comma after AND", () => {
     expect(cleanup("a AND, b")).toBe("a AND b");
   });
 });
+
+describe("regression: prompt seeding is explicit — no seed rerolls, any integer seed pins", () => {
+  // Symptom: after the deterministic-engine overhaul, the GUI's default image seed of -1 leaked in as
+  // an explicit prompt seed, so the engine pinned EVERY reroll (and the live preview) to one prompt.
+  // The fix separates the two seeds at the GUI boundary and drives random-vs-pinned from an explicit
+  // toggle — so the engine itself uses NO magic seed values. This locks in that contract: when a seed
+  // is given it is honoured verbatim (including 0 and negatives), and when none is given each call
+  // rerolls fresh. The image seed must never reach the engine (verified in the GUI facade suite).
+  const make = () =>
+    createEngine(
+      makeFakeLoader({ lists: { color: ["crimson", "scarlet", "ruby", "cherry", "rose"] } }),
+    );
+  const opts = {
+    ...baseSettings,
+    promptModules: ["list", "cleanup"],
+    prompt: "{color} {color} {color}",
+  };
+  const distinct = (seed) =>
+    new Set(Array.from({ length: 40 }, () => make().generate({ ...opts, seed }))).size;
+
+  it("rerolls fresh results when NO seed is given", () => {
+    expect(distinct(undefined)).toBeGreaterThan(1);
+    expect(distinct("")).toBeGreaterThan(1);
+  });
+
+  it("honours any integer seed verbatim — 0, -1 and other negatives all pin (no magic values)", () => {
+    for (const seed of [0, -1, -42, 12345]) {
+      const a = make().generate({ ...opts, seed });
+      const b = make().generate({ ...opts, seed });
+      expect(a).toBe(b); // deterministic for a fixed seed
+    }
+    // Different seeds generally differ (guards against a value being silently ignored/aliased).
+    const outs = [-1, -42, 7, 12345, 99999].map((seed) => make().generate({ ...opts, seed }));
+    expect(new Set(outs).size).toBeGreaterThan(1);
+  });
+});
+
+describe("regression: a REUSED engine reproduces a seeded prompt (no leftover list-stage state)", () => {
+  // Symptom: the SPA engine is a module singleton, so it is reused across every roll. The list stage
+  // held a func-rotation bag (promptFuncsTmp) as closure state that was NOT reset per generation, so
+  // residue from a prior roll changed the next roll's shuffle/pick order — and a "pinned" seed failed
+  // to reproduce as soon as emphasis fired. (Earlier tests missed it by building a fresh engine per
+  // call, which always started with an empty bag.) This test reuses ONE engine, like the app does.
+  const engine = createEngine(
+    makeFakeLoader({
+      lists: { color: ["crimson", "scarlet", "ruby", "cherry", "rose", "amber", "teal", "indigo"] },
+    }),
+  );
+  // Emphasis ALWAYS fires (emphasisChance 1) so the rotation bag is exercised every keyword.
+  const opts = {
+    ...baseSettings,
+    promptModules: ["list", "emphasis", "cleanup"],
+    prompt: "{color} {color} {color} {color}",
+    keywordEmphasis: true,
+    emphasisChance: 1,
+    emphasisLevelChance: 0.5,
+    emphasisMaxLevels: 3,
+    deEmphasisChance: 0.25,
+    keywordEditing: true,
+    keywordEditingMin: 2,
+    keywordEditingMax: 4,
+    keywordAlternating: true,
+    keywordAlternatingMaxLevels: 2,
+  };
+
+  it("reproduces the same seed even after prior rolls left residue in the reused engine", () => {
+    // Warm the engine with unseeded rolls so the leaky bag is mid-rotation.
+    for (let i = 0; i < 5; i++) engine.generate({ ...opts });
+    const a = engine.generate({ ...opts, seed: "fixed-seed" });
+    // Interleave more unseeded rolls between the two pinned generations.
+    for (let i = 0; i < 3; i++) engine.generate({ ...opts });
+    const b = engine.generate({ ...opts, seed: "fixed-seed" });
+    expect(a).toBe(b);
+  });
+});

@@ -6,7 +6,7 @@
  * @module gui/components/Settings
  */
 import { useIntl, defineMessages } from "react-intl";
-import { Num, Toggle, Select, Group } from "./Field.jsx";
+import { Num, Text, Toggle, Select, Group } from "./Field.jsx";
 import { getListNames } from "../lib/promptEngine.js";
 import { defaultSettings } from "../lib/settings.js";
 import { dialog } from "../lib/dialog.js";
@@ -16,6 +16,17 @@ const msgs = defineMessages({
   resetConfirm: {
     id: "settings.resetConfirm",
     defaultMessage: "Reset all settings to defaults?",
+  },
+  groupSeed: { id: "settings.group.seed", defaultMessage: "Seed" },
+  seedRandom: { id: "settings.seedRandom", defaultMessage: "Random seed" },
+  seedField: { id: "settings.seedField", defaultMessage: "Seed" },
+  seedHintRandom: {
+    id: "settings.seedHintRandom",
+    defaultMessage: "A fresh random seed each roll — shown below so you can copy it.",
+  },
+  seedHintPinned: {
+    id: "settings.seedHintPinned",
+    defaultMessage: "Pinned: every roll reuses this seed and reproduces the same prompt. Any text works — numbers, words, or a phrase.",
   },
   groupVocabulary: { id: "settings.group.vocabulary", defaultMessage: "Vocabulary" },
   fullyRandom: {
@@ -92,6 +103,27 @@ export default function Settings({ settings, setSettings }) {
           {intl.formatMessage(msgs.resetBtn)}
         </button>
       </div>
+
+      <Group title={intl.formatMessage(msgs.groupSeed)}>
+        <Toggle
+          label={intl.formatMessage(msgs.seedRandom)}
+          value={settings.randomSeed !== false}
+          onChange={(v) => set({ randomSeed: v })}
+        />
+        <Text
+          label={intl.formatMessage(msgs.seedField)}
+          value={settings.promptSeed ?? ""}
+          onChange={(v) => set({ promptSeed: v })}
+          readOnly={settings.randomSeed !== false}
+          aria-readonly={settings.randomSeed !== false}
+          className={settings.randomSeed !== false ? "is-locked" : undefined}
+        />
+        <p className="settings-hint">
+          {intl.formatMessage(
+            settings.randomSeed !== false ? msgs.seedHintRandom : msgs.seedHintPinned,
+          )}
+        </p>
+      </Group>
 
       <Group title={intl.formatMessage(msgs.groupVocabulary)}>
         <Select

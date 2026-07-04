@@ -310,6 +310,68 @@ test.describe("tablet (iPad Pro portrait, 1024)", () => {
   });
 });
 
+// --- Regression: the composer prompt-settings gear popover on mobile ---
+// Bug (fixed 2026-07-04): on <=1024px the shared `.gear-pop-scrim` gets the dark full-screen
+// backdrop, but the mobile bottom-sheet rule only lifted the PROVIDER gear's pop
+// (`.provider-gear .gear-pop.provider-gear-pop`) above it. The composer gear's plain `.gear-pop`
+// stayed at its desktop z-index (42), so the z-90 scrim painted ON TOP of the menu — you saw a dark
+// overlay over the settings and couldn't scroll/tap it. `.composer-corner` (z-index:2) also trapped
+// the fixed scrim+sheet in its stacking context. The guard is a hit-test: the point over the menu
+// body must resolve to the menu (not the scrim), and only the area outside the sheet is the scrim.
+
+/** The topmost element at a viewport point, described by whether it's the menu, the scrim, or other. */
+async function hitAt(page, x, y) {
+  return page.evaluate(
+    ([px, py]) => {
+      const el = document.elementFromPoint(px, py);
+      if (!el) return "none";
+      if (el.closest(".prompt-settings-gear .gear-pop")) return "menu";
+      if (el.classList.contains("gear-pop-scrim")) return "scrim";
+      return el.className || el.tagName;
+    },
+    [x, y],
+  );
+}
+
+test.describe("composer prompt-settings gear — phone bottom sheet", () => {
+  test.use({ viewport: { width: 390, height: 780 } });
+
+  test("the dark backdrop sits BEHIND the menu, which stays interactive", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".composer-field").waitFor();
+
+    const gear = page.locator(".prompt-settings-gear .gear-corner");
+    const pop = page.locator(".prompt-settings-gear .gear-pop");
+    const scrim = page.locator(".prompt-settings-gear .gear-pop-scrim");
+
+    await gear.click();
+    await expect(pop).toBeVisible();
+    await expect(scrim).toBeVisible();
+
+    // The sheet must out-stack its own scrim (91 > 90), and the corner must not trap them.
+    const z = await pop.evaluate((el) => Number(getComputedStyle(el).zIndex));
+    const zScrim = await scrim.evaluate((el) => Number(getComputedStyle(el).zIndex));
+    expect(z).toBeGreaterThan(zScrim);
+    const cornerZ = await page
+      .locator(".composer-corner")
+      .evaluate((el) => getComputedStyle(el).zIndex);
+    expect(cornerZ).toBe("auto");
+
+    // Core regression: over the menu body the top element is the MENU, not the dark scrim.
+    const box = await pop.boundingBox();
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    expect(await hitAt(page, cx, cy)).toBe("menu");
+
+    // Above the sheet, the scrim is the top element (it dims the page and catches tap-away).
+    expect(await hitAt(page, box.x + box.width / 2, Math.max(2, box.y - 20))).toBe("scrim");
+
+    // Tapping that scrim area closes the sheet.
+    await page.mouse.click(box.x + box.width / 2, Math.max(2, box.y - 20));
+    await expect(pop).toBeHidden();
+  });
+});
+
 // --- Phase 5: touch ergonomics (emulated touch device → coarse pointer, no hover) ---
 
 test.describe("touch ergonomics", () => {

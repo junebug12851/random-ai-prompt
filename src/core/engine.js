@@ -71,8 +71,14 @@ export function createEngine(loader) {
     return prompt.replaceAll("\r", "");
   }
 
-  // Whether `userSettings` carries an explicit seed (a non-empty value). A seed makes the whole run
-  // reproducible; without one we use the default ambient source (`Math.random`), unchanged.
+  // Whether `userSettings` carries an explicit seed that should pin the run. A present seed (any value
+  // except null/undefined/empty-string) makes the whole run reproducible; without one we use the
+  // default ambient source (`Math.random`), so every call rerolls fresh.
+  //
+  // There is NO magic seed value here: any integer — including negatives and -1 — is a valid, honoured
+  // seed. Whether a generation is random or pinned is decided by the CALLER (the GUI's explicit
+  // "Random" toggle passes no seed for a random roll and the exact seed to pin), not by a reserved
+  // sentinel. Empty/null simply means "no seed given", which is the natural random default.
   const hasSeed = (u) => u.seed != null && u.seed !== "";
 
   // Run one generation, optionally under a seeded ambient rng. Defaults from settings.js are merged
@@ -106,7 +112,8 @@ export function createEngine(loader) {
    * @returns {{prompt: string, seed: string}} The prompt and the seed that produced it.
    */
   function generateWithSeed(userSettings = {}) {
-    const rng = createRng(userSettings.seed);
+    // No seed given → createRng mints a fresh random one and records it on rng.seed for the caller.
+    const rng = createRng(hasSeed(userSettings) ? userSettings.seed : undefined);
     return { prompt: generateOnce(userSettings, rng), seed: rng.seed };
   }
 

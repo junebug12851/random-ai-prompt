@@ -6,6 +6,7 @@
  */
 import { describe, it, expect, beforeAll } from "vitest";
 import {
+  generatePrompt,
   generatePrompts,
   expandPrompt,
   renderWrapperPart,
@@ -57,6 +58,72 @@ describe("promptEngine — generation", () => {
     const out = expandPrompt("{color}", settings);
     expect(out.trim().length).toBeGreaterThan(0);
     expect(out).not.toContain("{color}");
+  });
+});
+
+describe("promptEngine — seed / reroll (regression)", () => {
+  // Faithful to the reported bug + the follow-up design. The GUI's default settings carry the
+  // image-provider `seed: -1`; that must NEVER reach prompt generation. Random-vs-pinned is driven by
+  // the explicit `randomSeed` toggle, not by any magic seed value. Both cases are exercised WITH the
+  // image seed present, and WITH emphasis on (the pass that exposed the duplicate-RNG-instance bug —
+  // a pinned seed has to reproduce the emphasis decoration too, not just the word picks).
+  const rollBase = { ...settings, seed: -1, prompt: "{color} {color} {color}" };
+  const emphOn = {
+    ...rollBase,
+    keywordEmphasis: true,
+    emphasisChance: 0.5,
+    emphasisLevelChance: 0.5,
+    emphasisMaxLevels: 3,
+    deEmphasisChance: 0.25,
+  };
+  const distinct = (s) => new Set(Array.from({ length: 40 }, () => generatePrompt(s))).size;
+
+  it("Random ON (default): rerolls fresh prompts, even with the image seed at -1", () => {
+    expect(distinct({ ...rollBase, randomSeed: true })).toBeGreaterThan(1);
+  });
+
+  it("Random ON with emphasis: still rerolls fresh (nothing pins it)", () => {
+    expect(distinct({ ...emphOn, randomSeed: true })).toBeGreaterThan(1);
+  });
+
+  it("Random OFF: a pinned promptSeed reproduces the exact prompt", () => {
+    const s = { ...rollBase, randomSeed: false, promptSeed: "pin-42" };
+    expect(generatePrompt(s)).toBe(generatePrompt(s));
+  });
+
+  it("Random OFF with emphasis: pinned seed reproduces the EMPHASIS too (RNG-instance fix)", () => {
+    const s = { ...emphOn, randomSeed: false, promptSeed: "pin-42" };
+    const a = generatePrompt(s);
+    const b = generatePrompt(s);
+    expect(a).toBe(b);
+  });
+
+  it("an explicit forced seed reproduces regardless of the toggle (batch fork path)", () => {
+    // The Home roll forks one base seed as `base#i` per prompt; the same forced seed must reproduce.
+    expect(generatePrompt(emphOn, "roll#0")).toBe(generatePrompt(emphOn, "roll#0"));
+    expect(generatePrompt(emphOn, "roll#0")).not.toBe(generatePrompt(emphOn, "roll#1"));
+  });
+
+  it("negative and zero seeds are valid pins (no reserved magic values)", () => {
+    for (const promptSeed of ["-1", "0", "-9999"]) {
+      const s = { ...rollBase, randomSeed: false, promptSeed };
+      expect(generatePrompt(s)).toBe(generatePrompt(s));
+    }
+  });
+
+  it("free-text seeds (letters, spaces, symbols, emoji) are valid pins", () => {
+    for (const promptSeed of ["hello world", "My Seed 42!", "  spaced  ", "🦊 fairy fox", "a"]) {
+      const s = { ...emphOn, randomSeed: false, promptSeed };
+      expect(generatePrompt(s)).toBe(generatePrompt(s)); // reproducible
+    }
+  });
+
+  it("different free-text seeds generally produce different prompts", () => {
+    const seeds = ["alpha", "beta", "gamma", "the quick brown fox", "seed-123"];
+    const outs = seeds.map((promptSeed) =>
+      generatePrompt({ ...emphOn, randomSeed: false, promptSeed }),
+    );
+    expect(new Set(outs).size).toBeGreaterThan(1);
   });
 });
 
