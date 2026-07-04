@@ -38,6 +38,14 @@ export const defaultSettings = {
   // Prompt
   prompt: "{#random-words}",
   promptCount: 1,
+  // Prompt-generation seed — DISTINCT from the image-provider `seed` below. `randomSeed` is the
+  // explicit switch (no reserved sentinel values): when true (the default) every reroll draws a fresh
+  // random seed, and `promptSeed` just records the last one used so it's visible/copyable. When false
+  // the run is PINNED to `promptSeed` — any integer is valid, including 0 and negatives — so the same
+  // seed + catalog reproduces the same prompt. (The image `seed` at the bottom is the provider's own
+  // seed; the two are never conflated — see lib/promptEngine.)
+  randomSeed: true,
+  promptSeed: "",
   mode: "StableDiffusion", // StableDiffusion | NovelAI | Midjourney
 
   // Content rating. The whole app defaults to SFW; NSFW (adult) content is gated

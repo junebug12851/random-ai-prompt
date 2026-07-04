@@ -12,6 +12,7 @@
  * @module gui/lib/promptEngine
  */
 import { createEngine } from "../../../src/core/engine.js";
+import { randomSeed } from "../../../src/core/rng.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
@@ -122,18 +123,63 @@ function withChaos(settings) {
 }
 
 /**
+ * Which seed (if any) the engine should use for this call. The rule is explicit — there are NO magic
+ * seed values:
+ *   1. `explicitSeed` (when given) always wins. The batch roll uses this to fork one base seed into a
+ *      distinct-but-reproducible sub-seed per prompt.
+ *   2. Otherwise, when `randomSeed` is OFF, the run is pinned to `promptSeed` verbatim (any integer,
+ *      including 0 and negatives, is honoured).
+ *   3. Otherwise (random on, the default) → `undefined`: the engine stays unseeded and rerolls fresh.
+ * The image-provider `seed` is NEVER used here — that's a different field (see the module header).
+ * @param {object} settings GUI settings.
+ * @param {string|number} [explicitSeed] A caller-forced seed.
+ * @returns {string|undefined} The engine seed, or undefined for a random roll.
+ */
+function seedFor(settings, explicitSeed) {
+  if (explicitSeed != null && explicitSeed !== "") return String(explicitSeed);
+  if (settings.randomSeed === false) {
+    const ps = settings.promptSeed;
+    if (ps != null && String(ps).trim() !== "") return String(ps).trim();
+  }
+  return undefined;
+}
+
+/**
+ * Translate GUI settings into the shape the core engine wants: chaos-scaled, the image `seed` dropped,
+ * and the engine `seed` resolved via {@link seedFor}.
+ * @param {object} settings The GUI generation settings.
+ * @param {string|number} [explicitSeed] A caller-forced seed (see {@link seedFor}).
+ * @returns {object} Engine settings.
+ */
+function forEngine(settings, explicitSeed) {
+  const { seed: _imageSeed, ...base } = withChaos(settings);
+  const s = seedFor(settings, explicitSeed);
+  return s === undefined ? base : { ...base, seed: s };
+}
+
+/**
+ * Mint a fresh random seed string — the base seed for one "roll" when Random is on, so the exact
+ * batch can be reproduced later by pinning this seed.
+ * @returns {string} A new random seed.
+ */
+export function newRollSeed() {
+  return randomSeed();
+}
+
+/**
  * @param {object} settings The generation settings.
+ * @param {string|number} [explicitSeed] Force this exact seed (used by the batch roll to fork).
  * @returns {string} One generated prompt.
  */
-export function generatePrompt(settings) {
-  return engine.generate(withChaos(settings));
+export function generatePrompt(settings, explicitSeed) {
+  return engine.generate(forEngine(settings, explicitSeed));
 }
 /**
  * @param {object} settings The generation settings (`promptCount`).
  * @returns {string[]} That many generated prompts.
  */
 export function generatePrompts(settings) {
-  return engine.generateMany(withChaos(settings));
+  return engine.generateMany(forEngine(settings));
 }
 /**
  * Expand a specific prompt (the live preview).
@@ -142,7 +188,7 @@ export function generatePrompts(settings) {
  * @returns {string} The expanded prompt.
  */
 export function expandPrompt(prompt, settings) {
-  return engine.generate({ ...withChaos(settings), prompt });
+  return engine.generate({ ...forEngine(settings), prompt });
 }
 
 /**

@@ -33,3 +33,19 @@
   align-items: end;
 }
 
+/* Seed group: a locked (Random-on) seed box is shown greyed/read-only — visible & copyable, not
+   editable. Clearing Random un-locks it for manual entry. */
+.settings .field input.is-locked {
+  opacity: 0.6;
+  cursor: default;
+  background: var(--panel-2);
+}
+
+.settings-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+

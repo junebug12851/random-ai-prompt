@@ -14,7 +14,12 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import { generatePrompt, renderWrapperPart, expandPrompt } from "../lib/promptEngine.js";
+import {
+  generatePrompt,
+  renderWrapperPart,
+  expandPrompt,
+  newRollSeed,
+} from "../lib/promptEngine.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
@@ -307,6 +312,14 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           ? getDefaultWrapper()
           : (settings.wrapper ?? getDefaultWrapper());
       const count = Math.max(1, Number(settings.promptCount) || 1);
+      // Establish ONE base seed for this whole roll. When Random is off we honour the pinned
+      // `promptSeed` (so the roll reproduces); when Random is on we mint a fresh seed and reflect it
+      // back into the (greyed) seed box afterwards, so the user can see/copy the exact seed that
+      // produced this roll. Each prompt in the batch forks the base seed (`base#i`) so they differ but
+      // the whole batch stays reproducible from the base.
+      const pinned =
+        settings.randomSeed === false && String(settings.promptSeed ?? "").trim() !== "";
+      const rollSeed = pinned ? String(settings.promptSeed).trim() : newRollSeed();
       // Whether blocks may contribute their own `Auto Begin` / `Auto End` framing (default on). When
       // off, only the user wrapper (or None) frames the prompt — no input from any block.
       const useAuto = settings.useAutoSections !== false;
@@ -322,12 +335,15 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           .join(", ");
         const sink = { begin: [], end: [] };
         // mode comes from the active provider's dialect (provider owns the dialect).
-        const result = generatePrompt({
-          ...settings,
-          mode: flat.mode,
-          prompt: wrapped,
-          autoSink: useAuto ? sink : null,
-        });
+        const result = generatePrompt(
+          {
+            ...settings,
+            mode: flat.mode,
+            prompt: wrapped,
+            autoSink: useAuto ? sink : null,
+          },
+          `${rollSeed}#${i}`,
+        );
         // Fold each fired block's Auto Begin / Auto End into the prompt's start / end.
         const framed = useAuto
           ? [sink.begin.join(", "), result, sink.end.join(", ")]
@@ -339,6 +355,9 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       }
       // A new roll ADDS to the list, newest on top (Clear all / per-prompt clear to remove).
       setPrompts((prev) => [...out, ...prev]);
+      // Reflect the seed this roll used into the (greyed, when Random is on) seed box so it's visible
+      // and copyable. In pinned mode this is a no-op (it already equals promptSeed).
+      if (rollSeed !== settings.promptSeed) setSettings({ ...settings, promptSeed: rollSeed });
       // Auto-render: kick off an image batch for each new prompt (api providers only). If the chosen
       // provider is safe-for-work-only and NSFW mode is on, ask once before sending — never block the
       // prompt build, and never tell the user it's disallowed.
