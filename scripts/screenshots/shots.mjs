@@ -46,13 +46,6 @@ function shootFull(page) {
   return page.screenshot({ fullPage: true, scale: "device" });
 }
 
-/** An element screenshot of one locator. */
-async function shootEl(page, selector) {
-  const el = page.locator(selector);
-  await el.waitFor();
-  return el.screenshot({ scale: "device" });
-}
-
 /**
  * The shots, in publish order. `phone`/`tablet`/`desktop` viewport handling is per-shot.
  * @type {Array<{name: string, title: string, shoot: (page: import("@playwright/test").Page, ctx: {viewport: string, width: number}) => Promise<Buffer>}>}
@@ -73,13 +66,15 @@ export const SHOTS = [
     async shoot(page) {
       await gotoHome(page);
       await page.locator(".workspace").waitFor();
-      // Narrow screens park the palette off-canvas — open it via its trigger first.
+      // Narrow screens park the palette off-canvas — open it via its trigger so the full-page shot
+      // shows it in view. On desktop it's already inline.
       const trigger = page.locator(".palette-trigger");
       if (await trigger.isVisible()) {
         await trigger.click();
         await page.waitForTimeout(450); // slide-in settle
       }
-      return shootEl(page, "#block-palette");
+      await page.locator("#block-palette").waitFor();
+      return shootFull(page);
     },
   },
   {

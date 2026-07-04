@@ -26,6 +26,7 @@ import {
   VIEWPORT_ORDER,
   STATIC_SCALE,
   GIF_SCALE,
+  COLOR_SCHEME,
   PAGES_BASE,
   PREVIEW_PORT,
 } from "./config.mjs";
@@ -93,6 +94,7 @@ async function captureStatics(browser, manifest) {
     const context = await browser.newContext({
       viewport: { width, height },
       deviceScaleFactor: STATIC_SCALE,
+      colorScheme: COLOR_SCHEME,
       baseURL: BASE_URL,
     });
     await seedContext(context);
@@ -123,6 +125,7 @@ async function captureGifs(browser, manifest) {
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       deviceScaleFactor: GIF_SCALE,
+      colorScheme: COLOR_SCHEME,
       baseURL: BASE_URL,
     });
     await seedContext(context);

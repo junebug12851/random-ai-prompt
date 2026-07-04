@@ -20,7 +20,7 @@ import { PNG } from "pngjs";
 import gifenc from "gifenc";
 
 // gifenc ships as CJS; its functions hang off the default export under Node's ESM interop.
-const { GIFEncoder, quantize, applyPalette } = gifenc;
+const { GIFEncoder, quantize, applyPalette, nearestColorIndex } = gifenc;
 
 /**
  * Captures uniform frames for a GIF. With a `clipSelector`, the target element's box is resolved and
@@ -92,18 +92,33 @@ function buildPalette(decoded) {
   return quantize(sample, 255);
 }
 
-/** Mark pixels identical to the previous frame as transparent, so only changes are stored. */
-function diffToTransparent(cur, prev, indices, transparentIndex) {
-  for (let p = 0, px = 0; p < cur.length; p += 4, px++) {
+/**
+ * Build this frame's palette indices. The first frame is mapped in full; every later frame reuses the
+ * previous frame's index buffer and only recomputes the pixels that CHANGED (the rest become the
+ * transparent index). Since typing/cursor motion changes a small region, this is far cheaper than
+ * re-mapping the whole frame each time — the dominant cost of a full-viewport GIF.
+ */
+function frameIndices(cur, prev, colorPalette, transparentIndex) {
+  const px = cur.length >> 2;
+  const indices = new Uint8Array(px);
+  if (!prev) {
+    const full = applyPalette(cur, colorPalette);
+    indices.set(full.subarray ? full.subarray(0, px) : full.slice(0, px));
+    return indices;
+  }
+  for (let p = 0, i = 0; i < px; p += 4, i++) {
     if (
       cur[p] === prev[p] &&
       cur[p + 1] === prev[p + 1] &&
       cur[p + 2] === prev[p + 2] &&
       cur[p + 3] === prev[p + 3]
     ) {
-      indices[px] = transparentIndex;
+      indices[i] = transparentIndex; // unchanged → reveal the retained previous frame
+    } else {
+      indices[i] = nearestColorIndex(colorPalette, [cur[p], cur[p + 1], cur[p + 2]]);
     }
   }
+  return indices;
 }
 
 /**
@@ -129,8 +144,7 @@ export function encodeGif(frames, { durationMs }) {
   let prev = null;
   for (let i = 0; i < decoded.length; i++) {
     const { data } = decoded[i];
-    const indices = applyPalette(data, colorPalette); // maps into 0..254 only
-    if (prev) diffToTransparent(data, prev, indices, transparentIndex);
+    const indices = frameIndices(data, prev, colorPalette, transparentIndex);
     gif.writeFrame(indices, width, height, {
       palette,
       delay,

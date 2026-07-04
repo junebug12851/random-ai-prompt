@@ -42,9 +42,12 @@ export default {
     await page.keyboard.press("Delete");
     await rec.frame(); // empty box
 
-    // One character per frame → the typing reads smoothly (each glyph appears in its own frame).
+    // One character per frame → the typing reads smoothly (each glyph appears in its own frame). The
+    // short pause after each keystroke lets CodeMirror's autocomplete popup render before the frame is
+    // captured (it opens ~100ms after typing), so the token suggestions show up in the animation.
     for (const ch of TEXT) {
       await page.keyboard.type(ch, { delay: 0 });
+      await page.waitForTimeout(140);
       await rec.frame();
     }
 

@@ -34,6 +34,12 @@ export const STATIC_SCALE = 2;
 export const GIF_SCALE = 1;
 
 /**
+ * Colour scheme the captures render in. The app's default `themeMode` is `system`, which follows the
+ * OS via `prefers-color-scheme`; forcing the browser context to dark renders the app in dark mode.
+ */
+export const COLOR_SCHEME = "dark";
+
+/**
  * The public base URL the published screenshots live under (the project's GitHub Pages site).
  * The README references images as `${PAGES_BASE}/screenshots/<file>`.
  */
