@@ -86,6 +86,32 @@ describe("DPL: choice (one of / N of)", () => {
     const src = "Start\n===\none of (100% nothing):\n  - a\n  - b";
     expect(render(src)).toBe("");
   });
+
+  it("'N of' picks exactly N options", () => {
+    const src = "Start\n===\n2 of:\n  - a\n  - b\n  - c";
+    expect(withRandom(0, () => render(src)).split(", ")).toHaveLength(2);
+  });
+
+  it("'A to B of' picks a count in range — low roll → min, high roll → max", () => {
+    const src = "Start\n===\n1 to 3 of:\n  - a\n  - b\n  - c";
+    expect(withRandom(0, () => render(src)).split(", ")).toHaveLength(1); // min
+    expect(withRandom(0.99, () => render(src)).split(", ")).toHaveLength(3); // max
+  });
+
+  it("'N of (P% nothing)' honors the miss, otherwise picks N", () => {
+    const src = "Start\n===\n2 of (50% nothing):\n  - a\n  - b";
+    expect(withRandom(0, () => render(src))).toBe(""); // 0 < 0.5 → miss
+    expect(withRandom(0.99, () => render(src)).split(", ")).toHaveLength(2); // miss fails → picks 2
+  });
+
+  it("renders a plain trailing-colon group as a gated block of its children", () => {
+    // A bullet ending in ':' with children (no choice/repeat/ref) is a gated block — exercises the
+    // block branch. The bullet gate is forced on with withRandom(0).
+    const src = "Start\n===\n- group:\n  - a\n  - b";
+    const out = withRandom(0, () => render(src));
+    expect(out).toContain("a");
+    expect(out).toContain("b");
+  });
 });
 
 describe("DPL: references", () => {
