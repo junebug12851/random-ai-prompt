@@ -67,14 +67,21 @@ test.describe("Max load — everything at once", () => {
 
     // Round-trip quality: after switching away and back, SCROLLING is still as smooth as on first
     // load (no degradation from the tab churn). Check the results list (we're on Generate now)…
-    const genFrames = await scrollAndSampleFrames(page, { scroller: ".home .main-col", steps: 120 });
-    expect(genFrames.median, "results scroll after round-trip (ms)").toBeLessThan(BUDGETS.scrollMedianMs);
+    const genFrames = await scrollAndSampleFrames(page, {
+      scroller: ".home .main-col",
+      steps: 120,
+    });
+    expect(genFrames.median, "results scroll after round-trip (ms)").toBeLessThan(
+      BUDGETS.scrollMedianMs,
+    );
 
     // …and the 100k gallery after returning to it — still smooth AND still bounded.
     await page.getByRole("tab", { name: "Gallery" }).click();
     await page.locator(".gallery-view .g-cell").first().waitFor({ state: "visible" });
     const galFrames = await scrollAndSampleFrames(page, { scroller: ".gallery-view", steps: 120 });
-    expect(galFrames.median, "gallery scroll after round-trip (ms)").toBeLessThan(BUDGETS.scrollMedianMs);
+    expect(galFrames.median, "gallery scroll after round-trip (ms)").toBeLessThan(
+      BUDGETS.scrollMedianMs,
+    );
     expect(galFrames.p95, "gallery p95 after round-trip (ms)").toBeLessThan(BUDGETS.scrollP95Ms);
     expect(await domCount(page, ".g-cell"), "gallery cells after round-trip").toBeLessThan(
       BUDGETS.maxGalleryCells,
