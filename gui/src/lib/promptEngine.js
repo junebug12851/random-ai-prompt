@@ -12,7 +12,6 @@
  * @module gui/lib/promptEngine
  */
 import { createEngine } from "../../../src/core/engine.js";
-import { randomSeed } from "../../../src/core/rng.js";
 import compileDpl from "../../../src/core/dpl/dpl.js";
 import promptFiles from "../../../src/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../src/listManifest.js";
@@ -158,15 +157,6 @@ function forEngine(settings, explicitSeed) {
 }
 
 /**
- * Mint a fresh random seed string — the base seed for one "roll" when Random is on, so the exact
- * batch can be reproduced later by pinning this seed.
- * @returns {string} A new random seed.
- */
-export function newRollSeed() {
-  return randomSeed();
-}
-
-/**
  * @param {object} settings The generation settings.
  * @param {string|number} [explicitSeed] Force this exact seed (used by the batch roll to fork).
  * @returns {string} One generated prompt.
@@ -182,13 +172,29 @@ export function generatePrompts(settings) {
   return engine.generateMany(forEngine(settings));
 }
 /**
- * Expand a specific prompt (the live preview).
+ * Expand a specific prompt honouring the current seed settings (used by real generation paths such as
+ * the negative-prompt roll). For on-screen PREVIEWS use {@link previewPrompt} instead.
  * @param {string} prompt The prompt to expand.
  * @param {object} settings The generation settings.
  * @returns {string} The expanded prompt.
  */
 export function expandPrompt(prompt, settings) {
   return engine.generate({ ...forEngine(settings), prompt });
+}
+
+/**
+ * Expand a prompt for an on-screen PREVIEW — the live-preview eye, the building-block hover examples,
+ * the insert-bar/editor examples, and the cycling suggestion. Previews must always re-roll a fresh
+ * example and stay completely independent of the user's seed: they neither read the pinned
+ * `promptSeed` (so a pinned prompt doesn't freeze every preview) nor write/advance it. We force the
+ * random path — a throwaway "preview seed" that re-rolls every call — by overriding `randomSeed` on
+ * the way into the engine only; the caller's settings object is never mutated.
+ * @param {string} prompt The DPL/prompt to expand.
+ * @param {object} settings The generation settings (seed fields are ignored).
+ * @returns {string} A fresh, randomly-rolled expansion.
+ */
+export function previewPrompt(prompt, settings) {
+  return engine.generate({ ...forEngine({ ...settings, randomSeed: true }), prompt });
 }
 
 /**

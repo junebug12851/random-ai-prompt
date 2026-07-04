@@ -9,6 +9,7 @@ import {
   generatePrompt,
   generatePrompts,
   expandPrompt,
+  previewPrompt,
   renderWrapperPart,
   getBlocks,
   getListNames,
@@ -124,6 +125,39 @@ describe("promptEngine — seed / reroll (regression)", () => {
       generatePrompt({ ...emphOn, randomSeed: false, promptSeed }),
     );
     expect(new Set(outs).size).toBeGreaterThan(1);
+  });
+});
+
+describe("promptEngine — previewPrompt is seed-independent", () => {
+  // Previews (live-preview eye, hover examples, cycling suggestion) must always re-roll fresh and must
+  // never read or write the user's seed — even when the prompt is pinned.
+  const pinned = {
+    ...settings,
+    seed: -1,
+    randomSeed: false,
+    promptSeed: "pinned-seed",
+    prompt: "{color} {color} {color}",
+  };
+
+  it("re-rolls a fresh example every call even when the prompt seed is pinned", () => {
+    const seen = new Set(
+      Array.from({ length: 40 }, () => previewPrompt("{color} {color} {color}", pinned)),
+    );
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it("does not mutate the caller's settings (seed fields untouched)", () => {
+    const s = { ...pinned };
+    previewPrompt("{color}", s);
+    expect(s.randomSeed).toBe(false);
+    expect(s.promptSeed).toBe("pinned-seed");
+  });
+
+  it("expandPrompt (real path) still honours a pinned seed — the two differ by design", () => {
+    // Sanity: the non-preview expand DOES pin, so previews and real expansion behave differently.
+    expect(expandPrompt("{color} {color} {color}", pinned)).toBe(
+      expandPrompt("{color} {color} {color}", pinned),
+    );
   });
 });
 

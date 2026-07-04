@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { isOutputFile, openImageFile, revealImageFile, openImageInNewTab } from "../lib/output.js";
-import { expandPrompt } from "../lib/promptEngine.js";
+import { previewPrompt } from "../lib/promptEngine.js";
 import { TrashIcon } from "./icons.jsx";
 
 const msgs = defineMessages({
@@ -88,7 +88,7 @@ function DplHoverCode({ dpl, settings }) {
     }
     const roll = () => {
       try {
-        setEx(expandPrompt(dpl, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }));
+        setEx(previewPrompt(dpl, { ...settingsRef.current, autoAddFx: false, autoAddArtists: false }));
       } catch {
         setEx("");
       }

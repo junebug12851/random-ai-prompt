@@ -14,12 +14,8 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
-import {
-  generatePrompt,
-  renderWrapperPart,
-  expandPrompt,
-  newRollSeed,
-} from "../lib/promptEngine.js";
+import { generatePrompt, renderWrapperPart, previewPrompt } from "../lib/promptEngine.js";
+import { pickRollSeed, forkRollSeed, shouldReflectSeed } from "../lib/home/seed.js";
 import { getDefaultWrapper } from "../lib/wrapperStore.js";
 import { shareUrl } from "../lib/share.js";
 import { getProvider } from "../lib/providers/index.js";
@@ -228,7 +224,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
   useEffect(() => {
     const roll = () => {
       try {
-        setSuggestion(generatePrompt({ ...settingsRef.current, prompt: "{#random-words}" }));
+        setSuggestion(previewPrompt("{#random-words}", settingsRef.current));
       } catch {
         /* engine not ready — skip this tick */
       }
@@ -277,7 +273,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
     const roll = () => {
       try {
         setTipEx(
-          expandPrompt(tipToken, {
+          previewPrompt(tipToken, {
             ...settingsRef.current,
             autoAddFx: false,
             autoAddArtists: false,
@@ -312,14 +308,11 @@ export default function Home({ settings, setSettings, onOpenImage }) {
           ? getDefaultWrapper()
           : (settings.wrapper ?? getDefaultWrapper());
       const count = Math.max(1, Number(settings.promptCount) || 1);
-      // Establish ONE base seed for this whole roll. When Random is off we honour the pinned
-      // `promptSeed` (so the roll reproduces); when Random is on we mint a fresh seed and reflect it
-      // back into the (greyed) seed box afterwards, so the user can see/copy the exact seed that
-      // produced this roll. Each prompt in the batch forks the base seed (`base#i`) so they differ but
-      // the whole batch stays reproducible from the base.
-      const pinned =
-        settings.randomSeed === false && String(settings.promptSeed ?? "").trim() !== "";
-      const rollSeed = pinned ? String(settings.promptSeed).trim() : newRollSeed();
+      // Establish ONE base seed for this whole roll (pinned when Random is off + a seed is set,
+      // otherwise a fresh one). Each prompt forks it (`base#i`) so the batch differs but reproduces;
+      // the used seed is reflected back into the (greyed) box afterwards so it's visible/copyable.
+      // The decision logic is a pure, unit-tested helper (lib/home/seed.js).
+      const rollSeed = pickRollSeed(settings);
       // Whether blocks may contribute their own `Auto Begin` / `Auto End` framing (default on). When
       // off, only the user wrapper (or None) frames the prompt — no input from any block.
       const useAuto = settings.useAutoSections !== false;
@@ -342,7 +335,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
             prompt: wrapped,
             autoSink: useAuto ? sink : null,
           },
-          `${rollSeed}#${i}`,
+          forkRollSeed(rollSeed, i),
         );
         // Fold each fired block's Auto Begin / Auto End into the prompt's start / end.
         const framed = useAuto
@@ -357,7 +350,7 @@ export default function Home({ settings, setSettings, onOpenImage }) {
       setPrompts((prev) => [...out, ...prev]);
       // Reflect the seed this roll used into the (greyed, when Random is on) seed box so it's visible
       // and copyable. In pinned mode this is a no-op (it already equals promptSeed).
-      if (rollSeed !== settings.promptSeed) setSettings({ ...settings, promptSeed: rollSeed });
+      if (shouldReflectSeed(settings, rollSeed)) setSettings({ ...settings, promptSeed: rollSeed });
       // Auto-render: kick off an image batch for each new prompt (api providers only). If the chosen
       // provider is safe-for-work-only and NSFW mode is on, ask once before sending — never block the
       // prompt build, and never tell the user it's disallowed.
