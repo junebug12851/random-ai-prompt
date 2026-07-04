@@ -1,5 +1,31 @@
 # Testing
 
+## 2026-07-04 — large-scale performance suite (`tests/perf/`)
+
+A dedicated Playwright suite guards the **officially supported maximum simultaneous load** (100k-image
+gallery + 1000 prompts / ~10k images + a 100k-line Manage file, all at once). It runs against the **real
+release server** (`gui/server/serve.js`) via `playwright.perf.config.js` — so the Manage file-read and
+`fs.watch` hot-reload paths are exercised for real; the 100k gallery feed + image bytes are route-mocked
+in-spec. Serial (`workers: 1`) so scenarios don't skew each other's timing; Chromium launched with
+`--enable-precise-memory-info` for the heap-ceiling checks.
+
+- **Specs:** `gallery.perf` (100k images, bounded DOM + smooth scroll), `generate.perf` (1000 prompts
+  roll out + smooth scroll + fast Single↔Generate switch), `manage.perf` (100k-line list: windowed rows,
+  responsive 100k-entry filter, entry↔raw switch), `hotreload.perf` (add/modify a 100k-line file on disk
+  → no freeze, auto-refresh), and `tabs.perf` (the combined max load: all three loaded, tab switching +
+  **round-trip scroll quality** + heap ceiling).
+- **Robust, not flaky (by design):** the primary assertions are structural — rendered DOM-node counts
+  (the virtualization proof) and a JS-heap ceiling — plus generous response/frame budgets
+  (`tests/perf/helpers.js#BUDGETS`) set to flag pathology (an un-virtualized surface janks + blows the
+  heap by orders of magnitude), not micro-noise. Fixtures/helpers in `tests/perf/fixtures.js` +
+  `helpers.js`; on-disk fixtures are `perf-harness-*` (git-ignored, removed on teardown). Supporting unit
+  tests: `gui/tests/lib/windowRange`, `gui/tests/providers/sharedSettings`, and extended
+  `useImageBatches` (instant placeholders + concurrency cap).
+- **Run it:** `npm run test:perf:scenarios` (in `test:all` and the `perf-scenarios` CI job). Profiler:
+  `npm run profile` (`scripts/profile-scenarios.mjs`) → DevTools traces + `Performance` metrics + frame
+  stats in `perf-profile/` (git-ignored). Note: the older `npm run test:perf` is the separate
+  bundle-size budget — unrelated.
+
 ## 2026-06-29 — comprehensive coverage expansion
 
 A full pass took the suite from "every test type represented" to "every module covered,

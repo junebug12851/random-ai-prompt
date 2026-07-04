@@ -11,7 +11,22 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
-**Version:** `2.40.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Large-scale performance (2.42.0 — on `dev`):** the app is built to stay seamless at its **officially
+supported maximum simultaneous load** — a **100k-image gallery + 1000 prompts / ~10k images + a
+100k-line Manage file, all at once**. The gallery is **virtualized** (windowed uniform grid over the pure
+`gui/src/lib/virtual/windowRange.js` — bounded DOM at any count; replaced the old wide/tall masonry with
+uniform cells so row-windowing is exact); the 1000-prompt results list uses `content-visibility` +
+a memoized `PromptResult` (all rows present, offscreen ones skip layout/paint/decode); and auto-image
+generation is **placeholder-first + chunked** — `useImageBatches` shows every prompt's busy placeholder
+instantly and runs the real generate behind a **per-provider concurrency limiter** (rewrites through a
+separate text-provider limiter), so a huge run never stampedes an API. The concurrency lives in a new
+**shared-settings system** (`gui/providers/_shared/settings/`, auto-discovered + injected into every
+provider's schema): a per-provider **"Batch chunk size"** with metadata defaults (local 6 / hosted 3).
+Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `playwright.perf.config.js`
+— `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
+[`version/2026-07.md`](version/2026-07.md).
+
+**Version:** `2.42.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
 
@@ -284,5 +299,6 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 60 passed (IntlProvider render wrapper added for i18n) |
 | `npm run lint:i18n` (gui — `eslint-plugin-formatjs`) | ✅ 0 problems |
 | `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
+| `npm run test:perf:scenarios` (Playwright — gallery 100k · 1000 prompts · Manage 100k · hot-reload · max-load) | ✅ 5 passed (real release server; bounded DOM + heap ceilings + scroll/tab-switch budgets) |
 | `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
 | `gui` SPA `vite build` | ✅ green |

@@ -6,6 +6,14 @@
   flex-direction: column;
   gap: 0.6rem;
   align-items: stretch;
+
+  /* Render-containment: rows outside the viewport skip layout, paint, AND image decode, so a list
+     of 1000 prompts (each with up to ~10 image thumbnails) stays smooth to scroll and cheap to keep
+     mounted across tab switches — the browser only does the work for the rows actually on screen.
+     `contain-intrinsic-size` is the placeholder size used before a row has been rendered once (a
+     prompt-only row ≈ one text line); it self-corrects to the real height once scrolled into view. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3rem;
 }
 
 .prompt-line {
