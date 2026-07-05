@@ -79,7 +79,7 @@ npm run web
 Generating images requires access to a provider — either a bring-your-own-key cloud provider or a
 local Stable Diffusion WebUI running with `--api`. Generating prompt text requires no key.
 
-![The Generate screen, composing a prompt from building blocks](https://fairyfox.io/random-ai-prompt/screenshots/generate-desktop.png?v=3)
+![Composing a prompt from building blocks — typing block references into the prompt box](https://fairyfox.io/random-ai-prompt/screenshots/prompt-blocks.gif?v=3)
 
 ## How to build
 
