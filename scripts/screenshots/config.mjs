@@ -14,13 +14,13 @@
  * The viewports each screen is captured at. Widths are chosen to land squarely inside a
  * responsive tier so the captured chrome is unambiguous:
  *   - `desktop` — 1025px, one pixel past the 1024px tablet cap, so the full desktop UI renders.
- *   - `tablet`  — 769px, the narrowest tablet (one past the 768px phone cap).
+ *   - `tablet`  — 770px, a narrow tablet width (above the 768px phone cap).
  *   - `phone`   — 345px, the narrowest width the layout is designed to support.
  * @type {Record<string, {width: number, height: number, label: string}>}
  */
 export const VIEWPORTS = {
   desktop: { width: 1025, height: 768, label: "Desktop (1025×768)" },
-  tablet: { width: 769, height: 1024, label: "Min tablet (769px)" },
+  tablet: { width: 770, height: 1024, label: "Min tablet (770px)" },
   phone: { width: 345, height: 740, label: "Min phone (345px)" },
 };
 

@@ -63,10 +63,11 @@ export const SHOTS = [
   {
     name: "block-menu",
     title: "Building-block palette",
-    // Phone + tablet only — the desktop Generate tab already shows the palette inline, so a desktop
-    // block-menu shot would just duplicate it. Here the palette is expanded to its FULL natural height
-    // (composer hidden, internal scroll caps removed) so the whole block list is captured, uncropped.
-    viewports: ["phone", "tablet"],
+    // Phone only — on tablet + desktop the palette is an inline split-pane on the Generate tab, so a
+    // separate block-menu shot there just duplicates Generate. It's a distinct view only as the phone
+    // off-canvas drawer. Captured with the palette expanded to full height (composer hidden, internal
+    // scroll caps removed) so the whole block list is shown, uncropped.
+    viewports: ["phone"],
     async shoot(page) {
       await gotoHome(page);
       await page.locator("#block-palette").waitFor();
@@ -124,13 +125,31 @@ export const SHOTS = [
       await openTab(page, "Manage");
       await page.locator(".workspace.manage .mg-sidebar").waitFor();
       // On the two-pane widths, open a block so the editor pane shows real content.
-      if (ctx.width >= 769) {
+      if (ctx.width >= 770) {
         const pill = page.locator(".mg-pill.is-clickable").first();
         if (await pill.count()) {
           await pill.click();
           await page.waitForTimeout(500);
         }
       }
+      return shootFull(page);
+    },
+  },
+  {
+    name: "manage-editor",
+    title: "Manage — DPL block editor",
+    // Phone only: Manage is master/detail on phone, so the `manage` shot shows the tree and the DPL
+    // editor is hidden behind it. This one opens a block so the editor detail view is captured.
+    viewports: ["phone"],
+    async shoot(page) {
+      await gotoHome(page);
+      await openTab(page, "Manage");
+      await page.locator(".workspace.manage .mg-sidebar").waitFor();
+      const pill = page.locator(".mg-pill.is-clickable").first();
+      await pill.waitFor();
+      await pill.click();
+      await page.locator(".workspace.manage .mg-main").waitFor(); // editor detail pushed into view
+      await page.waitForTimeout(600); // let the CodeMirror editor + fetched content settle
       return shootFull(page);
     },
   },
