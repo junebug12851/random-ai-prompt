@@ -9,7 +9,8 @@ them by their stable Pages URL.
 `capture.mjs` builds the **local** edition of the SPA (`npm run web:build`), serves the static
 `gui/dist/` on a throwaway server, drives it with Playwright, and writes:
 
-- **PNG shots** — one per screen, per viewport: `‹screen›-‹viewport›.png`
+- **PNG shots** — one per screen, per viewport: `‹screen›-‹viewport›.png`, all a uniform height
+  (see below)
 - **GIF walkthroughs** — one per registered scenario: `‹name›.gif`
 - **`index.json`** — a manifest (version, files, viewports)
 - **`index.html`** — a browsable gallery of everything
@@ -31,7 +32,14 @@ into `assets/gallery/`, and rebuild `manifest.json` from the sidecars (keeping o
 | `tablet` | **770px** | a narrow tablet width (above the 768 phone cap) |
 | `phone` | **345px** | narrowest supported width |
 
-Static PNGs are captured at 2× (retina) for crispness; GIF frames at 1× to stay small.
+Every static shot is a **viewport capture at a fixed height** — the viewport keeps the width above
+but is forced to `STATIC_HEIGHT` (768px, in `config.mjs`) tall, and the shot is the viewport (not
+`fullPage`). So each PNG's native resolution is that device's width by a uniform 768px height —
+varying widths, one height, nothing cropped afterward. This lets the README embed the shots by their
+Pages URL and have every image render at the same height. `STATIC_SCALE` is `1`, so the native pixel
+height is exactly 768; GIF frames use their own `GIF_SCALE`. To change the height, edit
+`STATIC_HEIGHT`. (Because the capture is the viewport, the tall phone shots — `block-menu` and
+`manage-editor` — show what fits in 768px rather than their whole list.)
 
 ## Run it locally
 
