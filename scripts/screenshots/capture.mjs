@@ -25,6 +25,7 @@ import {
   VIEWPORTS,
   VIEWPORT_ORDER,
   STATIC_SCALE,
+  STATIC_HEIGHT,
   GIF_SCALE,
   COLOR_SCHEME,
   PAGES_BASE,
@@ -111,9 +112,11 @@ function launch() {
 
 async function captureStatics(browser, manifest) {
   for (const vp of VIEWPORT_ORDER) {
-    const { width, height } = VIEWPORTS[vp];
+    // Each viewport keeps its own native width, but the height is fixed at STATIC_HEIGHT so every
+    // captured shot is exactly that tall (varying widths, one uniform height) — no post-crop.
+    const { width } = VIEWPORTS[vp];
     const context = await browser.newContext({
-      viewport: { width, height },
+      viewport: { width, height: STATIC_HEIGHT },
       deviceScaleFactor: STATIC_SCALE,
       colorScheme: COLOR_SCHEME,
       baseURL: BASE_URL,
@@ -231,7 +234,12 @@ async function main() {
     version,
     generatedAt: new Date().toISOString(),
     base: `${PAGES_BASE}/screenshots`,
-    viewports: VIEWPORT_ORDER.map((vp) => ({ key: vp, ...VIEWPORTS[vp] })),
+    viewports: VIEWPORT_ORDER.map((vp) => ({
+      key: vp,
+      width: VIEWPORTS[vp].width,
+      height: STATIC_HEIGHT,
+      label: VIEWPORTS[vp].label,
+    })),
     shots: SHOTS.map((s) => ({ name: s.name, title: s.title, files: {} })),
     gifs: [],
     errors: [],

@@ -27,8 +27,19 @@ export const VIEWPORTS = {
 /** Order the viewports appear in the generated index. @type {string[]} */
 export const VIEWPORT_ORDER = ["desktop", "tablet", "phone"];
 
-/** Retina scale for the static PNG shots — crisper images for READMEs and Pages. */
-export const STATIC_SCALE = 2;
+/**
+ * Device-scale factor for the static PNG shots. Kept at 1 so each shot's native pixel resolution is
+ * exactly its viewport — a varying width (per device) by a fixed {@link STATIC_HEIGHT} tall — rather
+ * than a 2× multiple. This is what the README relies on to embed every shot at a uniform height.
+ */
+export const STATIC_SCALE = 1;
+
+/**
+ * The fixed capture height, in pixels, for every static shot. Each viewport keeps its own native
+ * width but is captured at this height, so all published shots are the same height (768) with widths
+ * that vary by device. The shot is a viewport capture at this size — nothing is cropped afterward.
+ */
+export const STATIC_HEIGHT = 768;
 
 /** Scale for GIF frames — kept at 1 so the animation files stay small. */
 export const GIF_SCALE = 1;

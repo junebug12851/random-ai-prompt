@@ -42,9 +42,12 @@ async function openTab(page, name) {
   await page.waitForTimeout(600);
 }
 
-/** A full-page screenshot at the retina static scale. */
-function shootFull(page) {
-  return page.screenshot({ fullPage: true, scale: "device" });
+/**
+ * A viewport screenshot at the static scale. Deliberately NOT `fullPage`, so the capture is exactly
+ * the viewport — a varying width by the fixed `STATIC_HEIGHT` (768px) tall — and never needs cropping.
+ */
+function shootViewport(page) {
+  return page.screenshot({ fullPage: false, scale: "device" });
 }
 
 /**
@@ -58,7 +61,7 @@ export const SHOTS = [
     async shoot(page) {
       await gotoHome(page);
       await page.locator(".composer-field").waitFor();
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
   {
@@ -66,15 +69,16 @@ export const SHOTS = [
     title: "Building-block palette",
     // Phone only — on tablet + desktop the palette is an inline split-pane on the Generate tab, so a
     // separate block-menu shot there just duplicates Generate. It's a distinct view only as the phone
-    // off-canvas drawer. Captured with the palette expanded to full height (composer hidden, internal
-    // scroll caps removed) so the whole block list is shown, uncropped.
+    // off-canvas drawer. The palette is laid out as the page (composer hidden, internal scroll caps
+    // removed) so it fills the frame; the shot is the 768-tall viewport like every other.
     viewports: ["phone"],
     async shoot(page) {
       await gotoHome(page);
       await page.locator("#block-palette").waitFor();
-      // Lay the palette out as the whole page at full height: drop the composer, take the drawer out
-      // of its fixed/off-canvas positioning, and remove the internal max-height/scroll on the category
-      // list and chip cloud — so a full-page shot shows every block instead of the clipped view.
+      // Lay the palette out as the page: drop the composer, take the drawer out of its
+      // fixed/off-canvas positioning, and remove the internal max-height/scroll on the category list
+      // and chip cloud — so the 768-tall viewport shows as many blocks as fit instead of the drawer's
+      // clipped, internally-scrolled view.
       await page.addStyleTag({
         content: `
           .workspace.home { height: auto !important; min-height: 0 !important; grid-template-columns: 1fr !important; }
@@ -92,7 +96,7 @@ export const SHOTS = [
         `,
       });
       await page.waitForTimeout(250);
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
   {
@@ -103,7 +107,7 @@ export const SHOTS = [
       await openTab(page, "Gallery");
       await page.locator(".view-pane.on img").first().waitFor();
       await page.waitForTimeout(300);
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
   {
@@ -120,7 +124,7 @@ export const SHOTS = [
       await page.locator(".g-single-body").waitFor();
       await page.locator(".view-pane.on img").first().waitFor();
       await page.waitForTimeout(500);
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
   {
@@ -138,7 +142,7 @@ export const SHOTS = [
           await page.waitForTimeout(500);
         }
       }
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
   {
@@ -156,7 +160,7 @@ export const SHOTS = [
       await pill.click();
       await page.locator(".workspace.manage .mg-main").waitFor(); // editor detail pushed into view
       await page.waitForTimeout(600); // let the CodeMirror editor + fetched content settle
-      return shootFull(page);
+      return shootViewport(page);
     },
   },
 ];
