@@ -153,7 +153,11 @@ export function initReader() {
     }
   });
 
+  // Place the button just left of the primary nav (i.e. left of "Home"), still a
+  // direct child of the header wrap so it stays visible when the nav collapses.
   const wrap = document.querySelector(".ff-header .wrap");
-  (wrap || document.body).appendChild(btn);
+  const nav = wrap && wrap.querySelector(".nav");
+  if (wrap && nav) wrap.insertBefore(btn, nav);
+  else (wrap || document.body).appendChild(btn);
   document.body.appendChild(panel);
 }

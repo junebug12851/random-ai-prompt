@@ -55,7 +55,6 @@
   letter-spacing: -0.01em;
 }
 .site-header .nav {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.12rem;
