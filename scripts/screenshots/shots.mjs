@@ -63,20 +63,33 @@ export const SHOTS = [
   {
     name: "block-menu",
     title: "Building-block palette",
-    // Phone only: at desktop/tablet widths the palette is an inline split-pane, so a full-page shot
-    // there is identical to the Generate screen (redundant). It's a distinct view only as the phone
-    // off-canvas drawer.
-    viewports: ["phone"],
+    // Phone + tablet only — the desktop Generate tab already shows the palette inline, so a desktop
+    // block-menu shot would just duplicate it. Here the palette is expanded to its FULL natural height
+    // (composer hidden, internal scroll caps removed) so the whole block list is captured, uncropped.
+    viewports: ["phone", "tablet"],
     async shoot(page) {
       await gotoHome(page);
-      await page.locator(".workspace").waitFor();
-      // Open the off-canvas drawer via its trigger so the full-page shot shows it in view.
-      const trigger = page.locator(".palette-trigger");
-      if (await trigger.isVisible()) {
-        await trigger.click();
-        await page.waitForTimeout(450); // slide-in settle
-      }
       await page.locator("#block-palette").waitFor();
+      // Lay the palette out as the whole page at full height: drop the composer, take the drawer out
+      // of its fixed/off-canvas positioning, and remove the internal max-height/scroll on the category
+      // list and chip cloud — so a full-page shot shows every block instead of the clipped view.
+      await page.addStyleTag({
+        content: `
+          .workspace.home { height: auto !important; min-height: 0 !important; grid-template-columns: 1fr !important; }
+          .workspace.home .main-col { display: none !important; }
+          .palette-scrim, .palette-trigger, .palette-close { display: none !important; }
+          .workspace.home .sidebar, #block-palette {
+            position: static !important; transform: none !important; inset: auto !important;
+            width: 100% !important; min-width: 0 !important; max-width: none !important;
+            height: auto !important; max-height: none !important;
+            box-shadow: none !important; border-right: none !important;
+          }
+          .cat-tabs, .picker-list {
+            max-height: none !important; overflow: visible !important; flex: none !important;
+          }
+        `,
+      });
+      await page.waitForTimeout(250);
       return shootFull(page);
     },
   },
