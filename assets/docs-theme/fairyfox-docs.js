@@ -40,6 +40,14 @@
     return p || "index.html";
   }
 
+  // The code-reference (API) pages are the docdash module/global/source pages —
+  // everything that ISN'T the Overview home or a notes tutorial. Only these show
+  // the module sidebar; every other page renders full-width (see .ff-no-sidebar).
+  function isApiPage() {
+    var p = here();
+    return p !== "index.html" && p.indexOf("tutorial-") !== 0;
+  }
+
   function injectHead() {
     var head = document.head;
     // theme-color metas (match the main site exactly)
@@ -83,17 +91,21 @@
       "</div>";
 
     // In-docs section bar. Links are stable docdash tutorial ids derived from the
-    // notes folder tree (see scripts/build-docs.mjs). "Overview" is the docs home.
+    // notes folder tree (see scripts/build-docs.mjs). "Overview" is the docs home;
+    // "API" is the code reference (the only area that shows docdash's module
+    // sidebar — see isApiPage / the .ff-no-sidebar class below).
     var sub = [
       ["Overview", "index.html"],
       ["Project Notes", "tutorial-notes__index.html"],
       ["Systems", "tutorial-notes__systems__index.html"],
       ["Reference", "tutorial-notes__reference__index.html"],
       ["Changelog", "tutorial-notes__version.html"],
+      ["API", "global.html"],
     ]
       .map(function (n) {
-        var active = n[1] === page ? ' class="active"' : "";
-        return '<a href="' + n[1] + '"' + active + ">" + n[0] + "</a>";
+        // "API" is active across the whole code-reference area, not just its landing.
+        var on = n[0] === "API" ? isApiPage() : n[1] === page;
+        return '<a href="' + n[1] + '"' + (on ? ' class="active"' : "") + ">" + n[0] + "</a>";
       })
       .join("");
 
@@ -163,12 +175,36 @@
     (main || document.body).appendChild(foot);
   }
 
+  // Trim redundant entries from docdash's sidebar now that the header + subnav
+  // carry that navigation: the "Home" link (= Overview in the subnav), the
+  // "GitHub" menu item (= Repository in the subnav; also dropped from
+  // jsdoc.config.json), and the whole "Tutorials" section (moved to the subnav).
+  function pruneSidebar() {
+    var nav = document.querySelector("body > nav");
+    if (!nav) return;
+    var home = nav.querySelector('h2 a[href="index.html"]');
+    if (home) {
+      var h2 = home.closest("h2");
+      if (h2) h2.remove();
+    }
+    nav.querySelectorAll("h3").forEach(function (h) {
+      if (h.textContent.trim().toLowerCase() === "tutorials") {
+        var ul = h.nextElementSibling;
+        h.remove();
+        if (ul && ul.tagName === "UL") ul.remove();
+      }
+    });
+  }
+
   function run() {
     if (document.documentElement.hasAttribute("data-ff-themed")) return;
     document.documentElement.setAttribute("data-ff-themed", "");
+    // Hide docdash's module sidebar everywhere except the API pages.
+    if (!isApiPage()) document.documentElement.classList.add("ff-no-sidebar");
     injectHead();
     injectHeader();
     injectFooter();
+    pruneSidebar();
   }
 
   if (document.readyState === "loading") {

@@ -58,6 +58,13 @@ The doc-site is **themed to match fairyfox.io** (this project is a node in the f
   crossing the boundary from fairyfox.io has no visible jump. On narrow screens (≤820px) the primary hub
   nav collapses (brand still links home) and the subnav scrolls horizontally, leaving docdash's own
   hamburger as the only one.
+- **The module sidebar is confined to the API pages.** docdash's generated sidebar (Search + Modules +
+  Global) shows only on the **code-reference** pages, reached via the subnav's **`API`** item (landing
+  `global.html`). The Overview home and every notes tutorial render full-width with no sidebar —
+  `fairyfox-docs.js` tags those pages with `.ff-no-sidebar` (`isApiPage()` = not `index.html` and not a
+  `tutorial-*` page) and the CSS hides `body > nav` + the mobile hamburger and centres `#main`. On the
+  API pages the sidebar is decluttered: the `GitHub ↗` `docdash.menu` entry is gone, and the script
+  prunes docdash's `Home` link (Overview is home) and the `Tutorials` section (now the subnav).
 
 Wiring (in `build-docs.mjs`, after JSDoc runs): the from-scratch `fairyfox-docs.css` is **copied over the
 generated `docs/jsdoc/styles/jsdoc.css`**, replacing docdash's default sheet entirely; `fairyfox-docs.js`
