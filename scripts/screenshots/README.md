@@ -33,13 +33,13 @@ into `assets/gallery/`, and rebuild `manifest.json` from the sidecars (keeping o
 | `phone` | **345px** | narrowest supported width |
 
 Every static shot is a **viewport capture at a fixed height** — the viewport keeps the width above
-but is forced to `STATIC_HEIGHT` (768px, in `config.mjs`) tall, and the shot is the viewport (not
-`fullPage`). So each PNG's native resolution is that device's width by a uniform 768px height —
+but is forced to `STATIC_HEIGHT` (512px, in `config.mjs`) tall, and the shot is the viewport (not
+`fullPage`). So each PNG's native resolution is that device's width by a uniform 512px height —
 varying widths, one height, nothing cropped afterward. This lets the README embed the shots by their
 Pages URL and have every image render at the same height. `STATIC_SCALE` is `1`, so the native pixel
-height is exactly 768; GIF frames use their own `GIF_SCALE`. To change the height, edit
+height is exactly 512; GIF frames use their own `GIF_SCALE`. To change the height, edit
 `STATIC_HEIGHT`. (Because the capture is the viewport, the tall phone shots — `block-menu` and
-`manage-editor` — show what fits in 768px rather than their whole list.)
+`manage-editor` — show what fits in 512px rather than their whole list.)
 
 ## Run it locally
 

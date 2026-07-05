@@ -36,10 +36,10 @@ export const STATIC_SCALE = 1;
 
 /**
  * The fixed capture height, in pixels, for every static shot. Each viewport keeps its own native
- * width but is captured at this height, so all published shots are the same height (768) with widths
+ * width but is captured at this height, so all published shots are the same height (512) with widths
  * that vary by device. The shot is a viewport capture at this size — nothing is cropped afterward.
  */
-export const STATIC_HEIGHT = 768;
+export const STATIC_HEIGHT = 512;
 
 /** Scale for GIF frames — kept at 1 so the animation files stay small. */
 export const GIF_SCALE = 1;
