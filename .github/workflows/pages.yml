@@ -43,6 +43,15 @@ jobs:
       - name: Generate docs (JSDoc + notes)
         run: npm run docs
 
+      # Regenerate the release screenshots + GIF walkthroughs and drop them INTO the built docs site
+      # (docs/jsdoc/screenshots), so they publish with every release and are reachable at
+      # <pages-url>/screenshots/. They are never committed to the repo. See scripts/screenshots/.
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture release screenshots
+        run: node scripts/screenshots/capture.mjs --build --out docs/jsdoc/screenshots
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

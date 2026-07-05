@@ -54,3 +54,7 @@ data/**/perf-harness-*
 
 # Owner's personal, machine-local scratch todo (informal brain-dump; never project notes)
 notes/todo.txt
+
+# Local screenshot-toolkit output (scripts/screenshots/capture.mjs). The published set is emitted
+# into docs/jsdoc/screenshots by the Pages workflow, not committed. See scripts/screenshots/README.md
+/screenshots-preview/
