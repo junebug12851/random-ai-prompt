@@ -213,3 +213,13 @@ the pipeline is in place for community translations.
 
 AI assistance: the internationalization pass (react-intl integration, string extraction across the
 SPA, and the FormatJS pipeline) was implemented with Claude (Anthropic).
+
+The release-screenshot toolkit (scripts/screenshots/) drives the built app with Playwright and
+encodes the GIF walkthroughs from captured frames:
+
+  @playwright/test        https://playwright.dev/                        Apache-2.0
+  gifenc                  https://github.com/mattdesl/gifenc             MIT
+  pngjs                   https://github.com/pngjs/pngjs                  MIT
+
+AI assistance: the release-screenshot + GIF-walkthrough toolkit was designed and implemented with
+Claude (Anthropic).
