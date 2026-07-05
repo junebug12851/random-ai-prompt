@@ -1,5 +1,27 @@
 # Random AI Prompt
 
+[![Contributors](https://img.shields.io/github/contributors/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/graphs/contributors)
+[![Stars](https://img.shields.io/github/stars/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/stargazers)
+[![Forks](https://img.shields.io/github/forks/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/network/members)
+![Watchers](https://img.shields.io/github/watchers/junebug12851/random-ai-prompt?style=flat-square&logo=github)
+[![Last commit](https://img.shields.io/github/last-commit/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/commits)
+![Commits](https://img.shields.io/github/commit-activity/t/junebug12851/random-ai-prompt?style=flat-square&label=commits)
+[![Version](https://img.shields.io/github/package-json/v/junebug12851/random-ai-prompt?style=flat-square&label=version)](https://github.com/junebug12851/random-ai-prompt/releases)
+![Node](https://img.shields.io/badge/node-%E2%89%A5%2024-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
+[![CI](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/junebug12851/random-ai-prompt/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/junebug12851/random-ai-prompt?style=flat-square&logo=codecov&logoColor=white)](https://codecov.io/gh/junebug12851/random-ai-prompt)
+[![Code quality](https://img.shields.io/codefactor/grade/github/junebug12851/random-ai-prompt?style=flat-square&logo=codefactor&logoColor=white&label=code%20quality)](https://www.codefactor.io/repository/github/junebug12851/random-ai-prompt)
+[![Quality gate](https://img.shields.io/sonar/quality_gate/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=quality%20gate)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
+[![Tech debt](https://img.shields.io/sonar/tech_debt/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=tech%20debt)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/junebug12851/random-ai-prompt?style=flat-square&label=scorecard)](https://securityscorecards.dev/viewer/?uri=github.com/junebug12851/random-ai-prompt)
+[![Docs](https://img.shields.io/badge/docs-fairyfox.io-4c9?style=flat-square&logo=readthedocs&logoColor=white)](https://fairyfox.io/random-ai-prompt/)
+[![Netlify](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/netlify-deploy.yml?branch=main&style=flat-square&logo=netlify&logoColor=white&label=netlify)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
+[![Open issues](https://img.shields.io/github/issues/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/issues)
+![Closed issues](https://img.shields.io/github/issues-closed/junebug12851/random-ai-prompt?style=flat-square)
+[![Open PRs](https://img.shields.io/github/issues-pr/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/pulls)
+![Closed PRs](https://img.shields.io/github/issues-pr-closed/junebug12851/random-ai-prompt?style=flat-square)
+[![License](https://img.shields.io/github/license/junebug12851/random-ai-prompt?style=flat-square)](LICENSE)
+
 ![Random AI Prompt shown with a generated image, its prompt, and the DPL source](https://fairyfox.io/random-ai-prompt/screenshots/single-desktop.png?v=3)
 
 Random AI Prompt is an open-source generator for AI image and text prompts. Instead of making
@@ -25,8 +47,11 @@ time. Everything runs in the browser and keeps your data on your device: setting
 keys live only in local storage, and requests go straight from your browser to the provider you
 chose, with no server in between. The project ships as two editions from one codebase: a
 browser-only online edition, hosted at [prompt.fairyfox.io](https://prompt.fairyfox.io), and a full
-desktop edition you build from source that adds the image gallery, single-image view, an in-app
-content manager, local Stable Diffusion providers, and an 18+ NSFW mode.
+desktop edition — available as a **pre-built download** (or build it from source) — that adds the
+image gallery, single-image view, an in-app content manager, local Stable Diffusion providers, and an
+18+ NSFW mode. Neither edition is "the" version: the hosted site is just one deployment of the online
+edition, and you can self-host that same online build or run the desktop app locally — all from one
+codebase.
 
 ## Some of the features
 
@@ -48,33 +73,45 @@ content manager, local Stable Diffusion providers, and an 18+ NSFW mode.
 
 ![The Gallery screen, browsing generated images](https://fairyfox.io/random-ai-prompt/screenshots/gallery-desktop.png?v=3)
 
-## How to run
+## How to get it
 
-The quickest way to run the project is to install nothing at all: the online edition at
-[prompt.fairyfox.io](https://prompt.fairyfox.io) is always the latest build. Open it, paste your own
-API key (or skip the key and generate prompt text only), and start composing. Nothing is stored on a
-server.
+There are a few ways to run Random AI Prompt, and **none of them require you to build anything** unless
+you want to.
 
-To run the full desktop edition locally, first [build it from source](#how-to-build), then start the
-local server, which builds the app and serves it together with the `/api` backend:
+**Online edition — nothing to install.** The hosted online edition at
+[prompt.fairyfox.io](https://prompt.fairyfox.io) is always the latest build: open it, optionally paste
+your own API key (or skip the key and generate prompt text only), and start composing. Nothing is
+stored on a server. Want to run the online edition yourself? Every release attaches a ready-to-host
+**online bundle** (`random-ai-prompt-<version>-online.zip`) on the
+[Releases page](https://github.com/junebug12851/random-ai-prompt/releases) — static files you can drop
+on any web host (Netlify, Cloudflare Pages, GitHub Pages, nginx, or `npx serve`). The hosted site is
+just one deployment of that same bundle.
+
+**Desktop edition — download pre-built.** The full desktop edition (image gallery, single-image view,
+in-app content manager, local Stable Diffusion providers, and 18+ mode) is a pre-built download for
+Windows, macOS, and Linux on the
+[Releases page](https://github.com/junebug12851/random-ai-prompt/releases):
+
+- **Windows** — an installer (`.msi` / `.exe`), or a **portable** `.zip` (unzip and run, no install).
+- **macOS** — a `.dmg` you drag to Applications, or the `.app` run in place.
+- **Linux** — a portable `.AppImage`, or a `.deb`.
+
+The desktop app is self-contained — it bundles its own Node runtime and needs nothing installed
+beforehand (on Windows it uses the built-in WebView2). A portable build keeps its data beside itself;
+an installed build uses your per-user app-data folder, so upgrades never touch your settings or
+generated images.
+
+**Desktop edition — run from source.** Prefer to run from a checkout, for development or just by
+preference? [Build it from source](#how-to-build), then start the local server, which builds the app
+and serves it together with the `/api` backend:
 
 ```sh
 npm start
 ```
 
-The command prints a local URL (for example `http://localhost:3000`); open it in your browser. To
-stop the server, press `Ctrl+C` in the terminal. If the app is already built and you only want to
-serve it again without rebuilding:
-
-```sh
-npm run serve
-```
-
-For day-to-day development, run the development server with hot reload instead:
-
-```sh
-npm run web
-```
+It prints a local URL (for example `http://localhost:4173`); open it in your browser and press
+`Ctrl+C` to stop. To serve an already-built app without rebuilding, use `npm run serve`; for
+day-to-day development with hot reload, use `npm run web`.
 
 Generating images requires access to a provider — either a bring-your-own-key cloud provider or a
 local Stable Diffusion WebUI running with `--api`. Generating prompt text requires no key.

@@ -28,6 +28,11 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.ver.outputs.should_release }}
+      version: ${{ steps.ver.outputs.version }}
+      tag: ${{ steps.ver.outputs.tag }}
+      prerelease: ${{ steps.ver.outputs.prerelease }}
     permissions:
       contents: write # create the GitHub Release + upload assets
       id-token: write # OIDC token for keyless Sigstore signing of build provenance
@@ -92,6 +97,17 @@ jobs:
           npm run docs
           (cd docs/jsdoc && zip -qr "../../random-ai-prompt-${{ steps.ver.outputs.version }}-docs.zip" .)
 
+      - name: Build the online edition bundle (self-hostable static site)
+        if: steps.ver.outputs.should_release == 'true'
+        env:
+          VITE_ONLINE: "true"
+        run: |
+          set -euo pipefail
+          v="${{ steps.ver.outputs.version }}"
+          npm --prefix gui run build
+          (cd gui/dist && zip -qr "../../random-ai-prompt-$v-online.zip" .)
+          ls -la random-ai-prompt-*-online.zip
+
       - name: Compose release notes
         if: steps.ver.outputs.should_release == 'true'
         run: |
@@ -113,7 +129,11 @@ jobs:
             echo
             echo "## How to get it"
             echo
-            echo "- \`random-ai-prompt-$v.tar.gz\` -- source tarball (run with Node 24: \`npm install\` then \`npm start\` / \`npm run server\`)."
+            echo "Prefer not to build? Download a pre-built edition:"
+            echo
+            echo "- **Desktop app** -- Windows \`.msi\` / \`.exe\` (or a portable \`.zip\`), macOS \`.dmg\`, Linux \`.AppImage\` / \`.deb\` (attached below). Self-contained; nothing to install first."
+            echo "- \`random-ai-prompt-$v-online.zip\` -- the online edition as static files; host it anywhere, or just use https://prompt.fairyfox.io."
+            echo "- \`random-ai-prompt-$v.tar.gz\` -- source tarball (run with Node 24: \`npm install\` then \`npm start\`)."
             echo "- \`random-ai-prompt-$v-docs.zip\` -- the generated documentation site."
           } > RELEASE_NOTES.md
           cat RELEASE_NOTES.md
@@ -126,6 +146,7 @@ jobs:
           path: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
+            random-ai-prompt-*-online.zip
 
       # Cryptographically sign the release assets with SLSA build provenance (keyless, via Sigstore).
       # Produces a verifiable attestation per asset; verify with:
@@ -138,6 +159,7 @@ jobs:
           subject-path: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
+            random-ai-prompt-*-online.zip
 
       # Emit a Sigstore SIGNATURE BUNDLE per asset as a release ASSET (keyless cosign 3.x). The
       # attestation above lives in the attestations API; OpenSSF Scorecard's Signed-Releases check
@@ -160,7 +182,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          for f in random-ai-prompt-*.tar.gz random-ai-prompt-*-docs.zip; do
+          for f in random-ai-prompt-*.tar.gz random-ai-prompt-*-docs.zip random-ai-prompt-*-online.zip; do
             cosign sign-blob --yes --bundle "$f.sigstore.json" "$f"
           done
           ls -la random-ai-prompt-*.sigstore.json
@@ -177,4 +199,110 @@ jobs:
           files: |
             random-ai-prompt-*.tar.gz
             random-ai-prompt-*-docs.zip
+            random-ai-prompt-*-online.zip
             random-ai-prompt-*.sigstore.json
+
+  # Build the pre-built DESKTOP editions on each OS runner (Tauri can only produce a
+  # platform's installer ON that platform) and attach them to the Release the job
+  # above created. Runs only for a real release, after `release` succeeds. Uses the
+  # runners' preinstalled Rust (no extra action to pin) and the same Sigstore signing +
+  # provenance as the other assets. See notes/reference/deployment.md.
+  desktop:
+    name: Desktop app (${{ matrix.os }})
+    needs: release
+    if: needs.release.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write # upload the installers to the release
+      id-token: write # OIDC token for keyless Sigstore signing + provenance
+      attestations: write # write the build-provenance attestation
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # Linux WebView (WebKitGTK) + AppImage tooling. Windows uses WebView2 (present on
+      # the runner) and macOS uses WKWebView — neither needs extra system packages.
+      - name: Install Linux system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Builds the local SPA, stages the payload (stage.mjs), then `tauri build`.
+      - name: Build the desktop app
+        run: npm --prefix gui run desktop:build
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          v="${{ needs.release.outputs.version }}"
+          out="dist-desktop"; mkdir -p "$out"
+          b="gui/src-tauri/target/release/bundle"
+          case "${{ matrix.os }}" in
+            windows-latest)
+              cp "$b"/msi/*.msi "$out/random-ai-prompt-$v-windows-x64.msi" || true
+              cp "$b"/nsis/*-setup.exe "$out/random-ai-prompt-$v-windows-x64-setup.exe" || true
+              # Portable: raw exe + the staged payload + a .portable marker, zipped.
+              p="portable/random-ai-prompt"; mkdir -p "$p"
+              cp gui/src-tauri/target/release/random-ai-prompt.exe "$p/"
+              cp -r gui/src-tauri/app "$p/app"
+              : > "$p/.portable"
+              powershell -NoProfile -Command "Compress-Archive -Path portable/random-ai-prompt -DestinationPath '$out/random-ai-prompt-$v-windows-x64-portable.zip' -Force"
+              ;;
+            macos-latest)
+              cp "$b"/dmg/*.dmg "$out/random-ai-prompt-$v-macos.dmg" || true
+              ;;
+            ubuntu-latest)
+              cp "$b"/appimage/*.AppImage "$out/random-ai-prompt-$v-linux-x86_64.AppImage" || true
+              cp "$b"/deb/*.deb "$out/random-ai-prompt-$v-linux-amd64.deb" || true
+              ;;
+          esac
+          ls -la "$out"
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: "v3.1.1"
+
+      - name: Sign desktop artifacts (keyless cosign)
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in dist-desktop/*; do
+            [ -f "$f" ] || continue
+            case "$f" in *.sigstore.json) continue ;; esac
+            cosign sign-blob --yes --bundle "$f.sigstore.json" "$f"
+          done
+
+      - name: Attest build provenance for the installers
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: |
+            dist-desktop/*.msi
+            dist-desktop/*.exe
+            dist-desktop/*.zip
+            dist-desktop/*.dmg
+            dist-desktop/*.AppImage
+            dist-desktop/*.deb
+
+      - name: Upload the installers to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ needs.release.outputs.tag }}" dist-desktop/* --clobber
