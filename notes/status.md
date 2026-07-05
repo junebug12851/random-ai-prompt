@@ -11,6 +11,19 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
+**Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
+edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as
+just one deployment of the online edition. New **desktop edition** (`gui/src-tauri/`): a thin **Tauri**
+(Rust) shell that runs the unmodified local SPA + Node `/api` backend as a bundled **sidecar** (bundles
+the platform `node`, stages to a writable working copy that preserves user data across upgrades, launches
+`serve.js` on a free port, points the WebView at it). `release.yml` now attaches a self-hostable
+`…-online.zip` and a per-OS **matrix** builds Windows `.msi`/NSIS/portable-`.zip`, macOS `.dmg`, and Linux
+`.AppImage`/`.deb` (signed, on their own runners). README leads with download-or-build (21 badges
+restored); the in-app links menu gained "Get the desktop app" / "Run it yourself". Updates/auto-upgrade
+are deferred to a pre-3.0 design ([`plans/updates-upgrades.md`](plans/updates-upgrades.md)). Verified
+locally on Windows (installers build; portable runs end-to-end with the bundled node sidecar serving);
+cross-OS installers are CI-only. See [`systems/desktop.md`](systems/desktop.md).
+
 **Large-scale performance (2.42.0 — on `dev`):** the app is built to stay seamless at its **officially
 supported maximum simultaneous load** — a **100k-image gallery + 1000 prompts / ~10k images + a
 100k-line Manage file, all at once**. The gallery is **virtualized** (windowed uniform grid over the pure
@@ -26,7 +39,8 @@ Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
 [`version/2026-07.md`](version/2026-07.md).
 
-**Version:** `2.42.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`;
+**Version:** `2.43.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
+and the desktop `gui/src-tauri/tauri.conf.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
 

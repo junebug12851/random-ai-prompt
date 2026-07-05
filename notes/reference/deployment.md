@@ -6,7 +6,7 @@ How the project ships. There are three independent pipelines, each with one home
 |----------|-------|--------------|
 | **CI** (test on every push) | `.github/workflows/ci.yml` | Lint + format check + smoke + Node/jsdom Vitest suites; builds the React SPA; Playwright E2E + a11y + visual-regression. |
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `main`. |
-| **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: source tarball + docs zip. |
+| **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: desktop installers (per-OS matrix) + online bundle + source tarball + docs zip. |
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
 | **Web app deploy** | `.github/workflows/netlify-deploy.yml` + `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (`prompt.fairyfox.io`); auto-deploys on push to `main` (gated on the `NETLIFY_AUTH_TOKEN` secret). |
 
@@ -187,8 +187,16 @@ from green `dev` or a `release/`/`hotfix/` branch — `main` is branch-protected
   `npm run server`.
 - **`random-ai-prompt-<v>-docs.zip`** — the generated JSDoc doc-site (archival snapshot; the live site
   is on Pages).
-- **SLSA build provenance** — both assets are attested via `actions/attest-build-provenance` (keyless
-  Sigstore signing; `id-token`/`attestations: write` at job scope). Verify a downloaded asset with
+- **`random-ai-prompt-<v>-online.zip`** — the **online edition** as a static, self-hostable site
+  (`VITE_ONLINE=true` build of `gui/dist`). Drop it on any static host, or use `prompt.fairyfox.io`.
+- **Desktop installers** — built by the `desktop` matrix job (`needs: release`), one runner per OS
+  (Tauri can only produce a platform's installer on that platform): Windows `.msi` + NSIS `.exe` + a
+  portable `.zip`, macOS `.dmg`, Linux `.AppImage` + `.deb`. The matrix uses the runners' preinstalled
+  Rust (no extra pinned action), signs each artifact, and `gh release upload`s them to the same Release.
+  See [`../systems/desktop.md`](../systems/desktop.md).
+- **SLSA build provenance** — every asset (source, docs, online bundle, and installers) is attested via
+  `actions/attest-build-provenance` (keyless Sigstore signing; `id-token`/`attestations: write` at job
+  scope) and also carries a `<asset>.sigstore.json` cosign bundle. Verify a downloaded asset with
   `gh attestation verify <file> --repo junebug12851/random-ai-prompt`. This satisfies the Scorecard
   **Signed-Releases** check (from the next release onward).
 

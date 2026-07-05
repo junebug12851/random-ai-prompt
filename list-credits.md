@@ -223,3 +223,14 @@ encodes the GIF walkthroughs from captured frames:
 
 AI assistance: the release-screenshot + GIF-walkthrough toolkit was designed and implemented with
 Claude (Anthropic).
+
+The desktop edition (gui/src-tauri/) is packaged with Tauri, which wraps the web app in a native
+window and produces the per-OS installers:
+
+  Tauri                   https://tauri.app/                            MIT / Apache-2.0
+  Rust                    https://www.rust-lang.org/                    MIT / Apache-2.0
+  WiX Toolset             https://wixtoolset.org/                       MS-RL       (Windows .msi)
+  NSIS                    https://nsis.sourceforge.io/                  zlib/libpng (Windows installer)
+
+AI assistance: the Tauri desktop shell, the Node-sidecar packaging, and the per-OS release matrix were
+designed and implemented with Claude (Anthropic).

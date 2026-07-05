@@ -25,6 +25,22 @@ runtime dependencies:
 - **`crc`** — the APNG CRC helper.
 - **`node-fetch`** — replaced by Node's global `fetch` (Node 18+). Removed in 2.0.0. Do not re-add.
 
+## Desktop build (Tauri, added 2.43.0)
+
+The pre-built desktop edition wraps the app in a [Tauri](https://tauri.app) shell. This adds a **Rust
+toolchain** requirement — but only for building the desktop *installers*, never for running the app from
+source or using the online edition. The shell bundles the platform's own `node` binary (the sidecar
+runtime) and a production copy of the engine's runtime deps (`lodash` + `compromise`); it adds **no** new
+JS runtime dependency to the app itself. See [`../systems/desktop.md`](../systems/desktop.md).
+
+| Package | Where | Purpose |
+|---------|-------|---------|
+| `@tauri-apps/cli` | `gui` devDep (v2) | The `tauri` build/dev CLI (`npm run desktop:build`). |
+| `tauri` | `gui/src-tauri` Cargo dep (v2) | The desktop shell runtime (native window + WebView). |
+| `tauri-build` | `gui/src-tauri` Cargo build-dep (v2) | Tauri's build script. |
+| `tauri-plugin-log` | `gui/src-tauri` Cargo dep (v2) | Debug logging in dev builds. |
+| Rust (stable; MSVC on Windows) | build host / CI runners | Compiles the shell. Preinstalled on GitHub runners; via rustup locally. |
+
 ## Dev dependencies
 
 | Package | Major | Purpose |

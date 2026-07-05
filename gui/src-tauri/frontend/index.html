@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random AI Prompt</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #12141a;
+        color: #e7ebef;
+        font-family:
+          "Maven Pro", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        overflow: hidden;
+      }
+      .wrap {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        user-select: none;
+      }
+      .title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .title span {
+        color: #4fd1b1;
+      }
+      .sub {
+        font-size: 0.85rem;
+        opacity: 0.6;
+      }
+      .spinner {
+        width: 34px;
+        height: 34px;
+        border: 3px solid rgba(79, 209, 177, 0.25);
+        border-top-color: #4fd1b1;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="spinner"></div>
+      <div class="title">Random <span>AI</span> Prompt</div>
+      <div class="sub">Starting the local engine…</div>
+    </div>
+  </body>
+</html>

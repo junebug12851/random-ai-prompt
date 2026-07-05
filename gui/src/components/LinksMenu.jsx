@@ -27,11 +27,15 @@ import {
   ShieldIcon,
   FileTextIcon,
   CookieIcon,
+  DownloadIcon,
+  ServerIcon,
 } from "./icons.jsx";
 
 // External destinations. Kept here (not in `online.js`) so the menu owns its own link set.
 const LINKS = {
   github: "https://github.com/junebug12851/random-ai-prompt",
+  releases: "https://github.com/junebug12851/random-ai-prompt/releases",
+  selfhost: "https://github.com/junebug12851/random-ai-prompt#how-to-get-it",
   docs: "https://fairyfox.io/random-ai-prompt/",
   home: "https://fairyfox.io",
 };
@@ -52,6 +56,16 @@ const msgs = defineMessages({
   docsDesc: { id: "linksMenu.docsDesc", defaultMessage: "API reference and developer guide" },
   home: { id: "linksMenu.home", defaultMessage: "fairyfox.io" },
   homeDesc: { id: "linksMenu.homeDesc", defaultMessage: "The fairyfox project home" },
+  download: { id: "linksMenu.download", defaultMessage: "Get the desktop app" },
+  downloadDesc: {
+    id: "linksMenu.downloadDesc",
+    defaultMessage: "Pre-built downloads for Windows, macOS, and Linux",
+  },
+  selfhost: { id: "linksMenu.selfhost", defaultMessage: "Run it yourself" },
+  selfhostDesc: {
+    id: "linksMenu.selfhostDesc",
+    defaultMessage: "Self-host the online edition or build from source",
+  },
   privacy: { id: "linksMenu.privacy", defaultMessage: "Privacy Policy" },
   privacyDesc: { id: "linksMenu.privacyDesc", defaultMessage: "What we collect (almost nothing)" },
   terms: { id: "linksMenu.terms", defaultMessage: "Terms & Conditions" },
@@ -97,6 +111,22 @@ export default function LinksMenu({ settings, setSettings }) {
       { href: LINKS.github, Icon: GitHubIcon, label: msgs.github, desc: msgs.githubDesc, external: true },
       { href: LINKS.docs, Icon: BookIcon, label: msgs.docs, desc: msgs.docsDesc, external: true },
       { href: LINKS.home, Icon: HomeIcon, label: msgs.home, desc: msgs.homeDesc, external: true },
+    ],
+    [
+      {
+        href: LINKS.releases,
+        Icon: DownloadIcon,
+        label: msgs.download,
+        desc: msgs.downloadDesc,
+        external: true,
+      },
+      {
+        href: LINKS.selfhost,
+        Icon: ServerIcon,
+        label: msgs.selfhost,
+        desc: msgs.selfhostDesc,
+        external: true,
+      },
     ],
     [
       { href: LEGAL.privacy, Icon: ShieldIcon, label: msgs.privacy, desc: msgs.privacyDesc },
