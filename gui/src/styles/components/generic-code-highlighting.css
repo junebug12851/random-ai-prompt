@@ -46,12 +46,17 @@
   border-radius: 2px;
 }
 
-/* Autocomplete dropdown */
+/* Autocomplete dropdown.
+   CodeMirror injects its DEFAULT (light) tooltip theme as an UNLAYERED <style>; our app CSS is in
+   `@layer components`, and unlayered rules beat layered ones regardless of specificity — so without
+   `!important` the popup + info panel render with CM's light background (light-on-light, unreadable
+   in dark mode). `!important` on the surface colours reverses that and lets our theme win. */
 .cm-tooltip.cm-tooltip-autocomplete {
-  background: var(--elevated);
-  border: 1px solid var(--border);
+  background: var(--elevated) !important;
+  border: 1px solid var(--border) !important;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
+  color: var(--fg-soft) !important;
 
   /* NOT overflow:hidden — the info pane is appended as a child positioned outside this box,
      so hidden would clip it (the tooltip would never appear). Clip the scrolling list instead. */
@@ -66,13 +71,13 @@
 }
 
 .cm-tooltip-autocomplete > ul > li {
-  color: var(--fg-soft);
+  color: var(--fg-soft) !important;
   padding: 0.22rem 0.55rem;
 }
 
 .cm-tooltip-autocomplete > ul > li[aria-selected] {
-  background: var(--accent-soft);
-  color: var(--fg);
+  background: var(--accent-soft) !important;
+  color: var(--fg) !important;
 }
 
 .cm-completionLabel {
@@ -111,7 +116,7 @@
   border-top: 1px solid var(--border-soft);
   position: sticky;
   top: 0;
-  background: var(--elevated);
+  background: var(--elevated) !important;
   z-index: 1;
 }
 
@@ -161,11 +166,11 @@
 
 /* Rich info panel: title + badges, description, and a re-rolling example. */
 .cm-tooltip.cm-completionInfo {
-  background: var(--elevated);
-  border: 1px solid var(--border);
+  background: var(--elevated) !important;
+  border: 1px solid var(--border) !important;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
-  color: var(--fg-soft);
+  color: var(--fg-soft) !important;
   padding: 0;
   max-width: 300px;
 }
