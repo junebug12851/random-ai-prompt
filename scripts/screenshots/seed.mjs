@@ -10,8 +10,8 @@
  * file paths. Manage still uses a small synthetic tree.
  * @module scripts/screenshots/seed
  */
-import { readFileSync, existsSync, statSync } from "node:fs";
-import { join, dirname, extname } from "node:path";
+import { readFileSync } from "node:fs";
+import { join, dirname, extname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const GALLERY_DIR = join(dirname(fileURLToPath(import.meta.url)), "assets", "gallery");
@@ -79,13 +79,18 @@ export async function seedContext(context) {
   await context.route("**/api/feed", (route) => route.fulfill({ json: feed }));
 
   // Image bytes for every feed thumbnail / full image — served from the committed sample set.
+  // `basename` + a strict whitelist confine the lookup to a bare image filename (no path traversal),
+  // and the read is wrapped so a miss just 404s (no check-then-use race).
   await context.route("**/api/output/**", (route) => {
-    const name = decodeURIComponent(route.request().url().split("?")[0].split("/").pop() || "");
-    const file = join(GALLERY_DIR, name);
-    if (!name || !existsSync(file) || !statSync(file).isFile()) {
+    const name = basename(decodeURIComponent(new URL(route.request().url()).pathname));
+    if (!/^[\w.-]+\.(jpe?g|png)$/i.test(name)) {
       return route.fulfill({ status: 404, body: "not found" });
     }
-    route.fulfill({ contentType: imageMime(name), body: readFileSync(file) });
+    try {
+      route.fulfill({ contentType: imageMime(name), body: readFileSync(join(GALLERY_DIR, name)) });
+    } catch {
+      route.fulfill({ status: 404, body: "not found" });
+    }
   });
 
   // ImageMagick capability probe — report absent (hides the convert menu).

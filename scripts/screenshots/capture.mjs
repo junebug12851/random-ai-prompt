@@ -18,8 +18,8 @@
 import { chromium } from "@playwright/test";
 import http from "node:http";
 import { spawnSync } from "node:child_process";
-import { readFileSync, existsSync, rmSync, mkdirSync, writeFileSync, statSync } from "node:fs";
-import { join, extname, dirname, resolve } from "node:path";
+import { readFileSync, existsSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import { join, extname, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   VIEWPORTS,
@@ -66,17 +66,24 @@ const MIME = {
 
 /** Serve gui/dist with SPA fallback. `/api/*` never reaches here (Playwright route-mocks it). */
 function startServer() {
+  const distRoot = resolve(DIST);
   const server = http.createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-    let file = join(DIST, urlPath);
-    if (urlPath === "/" || (!extname(urlPath) && !existsSync(file)))
-      file = join(DIST, "index.html");
-    if (!existsSync(file) || !statSync(file).isFile()) {
+    // Resolve within dist and confine to it (reject any `..` traversal); the root and extensionless
+    // (SPA) routes fall back to index.html.
+    let file = resolve(distRoot, "." + urlPath);
+    if (file !== distRoot && !file.startsWith(distRoot + sep)) file = join(distRoot, "index.html");
+    if (urlPath === "/" || !extname(urlPath)) file = join(distRoot, "index.html");
+    // Read-then-catch (no check-then-use race): a miss just 404s.
+    let body;
+    try {
+      body = readFileSync(file);
+    } catch {
       res.writeHead(404);
       return res.end("not found");
     }
     res.writeHead(200, { "content-type": MIME[extname(file)] || "application/octet-stream" });
-    res.end(readFileSync(file));
+    res.end(body);
   });
   return new Promise((res) => server.listen(PREVIEW_PORT, () => res(server)));
 }
