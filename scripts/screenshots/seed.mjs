@@ -82,7 +82,12 @@ export async function seedContext(context) {
   // `basename` + a strict whitelist confine the lookup to a bare image filename (no path traversal),
   // and the read is wrapped so a miss just 404s (no check-then-use race).
   await context.route("**/api/output/**", (route) => {
-    const name = basename(decodeURIComponent(new URL(route.request().url()).pathname));
+    let name;
+    try {
+      name = basename(decodeURIComponent(new URL(route.request().url()).pathname));
+    } catch {
+      return route.fulfill({ status: 400, body: "bad request" }); // malformed percent-encoding
+    }
     if (!/^[\w.-]+\.(jpe?g|png)$/i.test(name)) {
       return route.fulfill({ status: 404, body: "not found" });
     }

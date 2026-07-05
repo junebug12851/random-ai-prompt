@@ -69,7 +69,13 @@ function startServer() {
   const distRoot = resolve(DIST);
   const indexHtml = join(distRoot, "index.html");
   const server = http.createServer((req, res) => {
-    const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
+    let urlPath;
+    try {
+      urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
+    } catch {
+      res.writeHead(400); // malformed percent-encoding
+      return res.end("bad request");
+    }
     // Root + extensionless (SPA) routes → the constant index.html (no request data in the path).
     let file = indexHtml;
     if (urlPath !== "/" && extname(urlPath)) {
