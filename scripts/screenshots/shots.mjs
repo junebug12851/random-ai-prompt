@@ -44,7 +44,7 @@ async function openTab(page, name) {
 
 /**
  * A viewport screenshot at the static scale. Deliberately NOT `fullPage`, so the capture is exactly
- * the viewport — a varying width by the fixed `STATIC_HEIGHT` (768px) tall — and never needs cropping.
+ * the viewport — a varying width by the fixed `STATIC_HEIGHT` (512px) tall — and never needs cropping.
  */
 function shootViewport(page) {
   return page.screenshot({ fullPage: false, scale: "device" });
@@ -70,14 +70,14 @@ export const SHOTS = [
     // Phone only — on tablet + desktop the palette is an inline split-pane on the Generate tab, so a
     // separate block-menu shot there just duplicates Generate. It's a distinct view only as the phone
     // off-canvas drawer. The palette is laid out as the page (composer hidden, internal scroll caps
-    // removed) so it fills the frame; the shot is the 768-tall viewport like every other.
+    // removed) so it fills the frame; the shot is the 512-tall viewport like every other.
     viewports: ["phone"],
     async shoot(page) {
       await gotoHome(page);
       await page.locator("#block-palette").waitFor();
       // Lay the palette out as the page: drop the composer, take the drawer out of its
       // fixed/off-canvas positioning, and remove the internal max-height/scroll on the category list
-      // and chip cloud — so the 768-tall viewport shows as many blocks as fit instead of the drawer's
+      // and chip cloud — so the 512-tall viewport shows as many blocks as fit instead of the drawer's
       // clipped, internally-scrolled view.
       await page.addStyleTag({
         content: `
