@@ -19,7 +19,7 @@ import { chromium } from "@playwright/test";
 import http from "node:http";
 import { spawnSync } from "node:child_process";
 import { readFileSync, existsSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, extname, dirname, resolve, sep } from "node:path";
+import { join, extname, dirname, resolve, relative, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   VIEWPORTS,
@@ -67,13 +67,21 @@ const MIME = {
 /** Serve gui/dist with SPA fallback. `/api/*` never reaches here (Playwright route-mocks it). */
 function startServer() {
   const distRoot = resolve(DIST);
+  const indexHtml = join(distRoot, "index.html");
   const server = http.createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-    // Resolve within dist and confine to it (reject any `..` traversal); the root and extensionless
-    // (SPA) routes fall back to index.html.
-    let file = resolve(distRoot, "." + urlPath);
-    if (file !== distRoot && !file.startsWith(distRoot + sep)) file = join(distRoot, "index.html");
-    if (urlPath === "/" || !extname(urlPath)) file = join(distRoot, "index.html");
+    // Root + extensionless (SPA) routes → the constant index.html (no request data in the path).
+    let file = indexHtml;
+    if (urlPath !== "/" && extname(urlPath)) {
+      const candidate = resolve(distRoot, "." + urlPath);
+      // Confine to dist via the path.relative barrier — reject anything that escapes it.
+      const rel = relative(distRoot, candidate);
+      if (rel.startsWith("..") || isAbsolute(rel)) {
+        res.writeHead(403);
+        return res.end("forbidden");
+      }
+      file = candidate;
+    }
     // Read-then-catch (no check-then-use race): a miss just 404s.
     let body;
     try {
