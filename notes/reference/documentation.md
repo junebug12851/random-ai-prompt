@@ -64,7 +64,17 @@ The doc-site is **themed to match fairyfox.io** (this project is a node in the f
   `fairyfox-docs.js` tags those pages with `.ff-no-sidebar` (`isApiPage()` = not `index.html` and not a
   `tutorial-*` page) and the CSS hides `body > nav` + the mobile hamburger and centres `#main`. On the
   API pages the sidebar is decluttered: the `GitHub ↗` `docdash.menu` entry is gone, and the script
-  prunes docdash's `Home` link (Overview is home) and the `Tutorials` section (now the subnav).
+  prunes docdash's `Home` link (Overview is home) and the `Tutorials` section (now the subnav). The
+  subnav's external group carries `Download ↗` (→ GitHub releases), `Repository ↗`, `Notes ↗`.
+- **Reading experience + Kindle-style reader menu.** Overview + notes render in a centred reading column
+  with gentle typography driven by tunable `--reading-*` CSS vars (font-size, line-height, letter-spacing,
+  width); README/notes images are framed + sized to the column. `build-docs.mjs` strips each tutorial's
+  duplicate leading H1 + `{#anchor}` heading syntax, and `fairyfox-docs.js` drops docdash's `Tutorial:`
+  prefix + duplicate `<h2>`. The palette adds a softer light (no stark white) and a **sepia** theme. An
+  **"Aa"** button in the header opens a reader panel (Theme Auto/Light/Sepia/Dark · Text size · Line
+  spacing · Width) that writes those vars + `data-theme`; prefs persist under the **origin-wide**
+  `localStorage` key `fairyfox:reader`, so the choice is **shared across all same-origin fairyfox.io
+  sites** (the hub + `fairyfox-games` need only read the same key).
 
 Wiring (in `build-docs.mjs`, after JSDoc runs): the from-scratch `fairyfox-docs.css` is **copied over the
 generated `docs/jsdoc/styles/jsdoc.css`**, replacing docdash's default sheet entirely; `fairyfox-docs.js`

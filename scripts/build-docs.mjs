@@ -72,6 +72,18 @@ for (const f of REPO_DOCS) {
   if (fs.existsSync(abs)) linkMap.set(abs, fileId(abs));
 }
 
+// ---- Clean up tutorial-page markdown for rendering ----
+// docdash already renders each tutorial's title as the page heading, so the body's
+// own leading H1 is a duplicate — drop it. Also strip trailing heading-anchor
+// syntax (`## Title {#some_id}`) that the markdown renderer would otherwise print
+// literally; the `\S`-before guard means a heading that *is* only a DPL `{#token}`
+// is left alone.
+function tidyTutorialMarkdown(md) {
+  md = md.replace(/^(#{1,6}[ \t]+.*\S)[ \t]*\{#[A-Za-z0-9_-]+\}[ \t]*$/gm, "$1");
+  md = md.replace(/^\s*#[ \t]+.+\r?\n(\r?\n)?/, "");
+  return md;
+}
+
 // ---- Rewrite inter-note Markdown links to tutorial-<id>.html ----
 function rewriteLinks(md, srcAbs) {
   const baseDir = fs.statSync(srcAbs).isDirectory() ? srcAbs : path.dirname(srcAbs);
@@ -100,10 +112,10 @@ function buildDir(absDir) {
   if (readme) {
     const c = fs.readFileSync(path.join(absDir, readme.name), "utf8");
     title = titleOf(c, humanize(path.basename(absDir)));
-    write(id, rewriteLinks(c, path.join(absDir, readme.name)));
+    write(id, tidyTutorialMarkdown(rewriteLinks(c, path.join(absDir, readme.name))));
   } else {
     title = absDir === notesDir ? "Project Notes" : humanize(path.basename(absDir));
-    write(id, `# ${title}\n\nSection index — see the pages nested under this entry.\n`);
+    write(id, "Section index — see the pages nested under this entry.\n");
   }
   const children = {};
   for (const e of entries
@@ -118,7 +130,7 @@ function buildDir(absDir) {
     const abs = path.join(absDir, e.name);
     const c = fs.readFileSync(abs, "utf8");
     const fid = fileId(abs);
-    write(fid, rewriteLinks(c, abs));
+    write(fid, tidyTutorialMarkdown(rewriteLinks(c, abs)));
     children[fid] = { title: titleOf(c, humanize(e.name.replace(/\.md$/, ""))), children: {} };
   }
   return { id, node: { title, children } };
@@ -225,8 +237,11 @@ const fontsDest = path.join(jsDest, "fonts");
 fs.mkdirSync(fontsDest, { recursive: true });
 for (const f of fs.readdirSync(fontsSrc))
   fs.copyFileSync(path.join(fontsSrc, f), path.join(fontsDest, f));
+// 5) the hand-authored Download page — a standalone HTML that links the themed
+//    stylesheet + fairyfox-docs.js, so it gets the same header/subnav/reader/footer.
+fs.copyFileSync(path.join(themeSrc, "download.html"), path.join(outRoot, "download.html"));
 console.log(
-  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png,fonts/}.",
+  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png,fonts/} + download.html.",
 );
 
 console.log("Done → docs/jsdoc/index.html");

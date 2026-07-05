@@ -45,7 +45,7 @@
   // the module sidebar; every other page renders full-width (see .ff-no-sidebar).
   function isApiPage() {
     var p = here();
-    return p !== "index.html" && p.indexOf("tutorial-") !== 0;
+    return p !== "index.html" && p !== "download.html" && p.indexOf("tutorial-") !== 0;
   }
 
   function injectHead() {
@@ -101,6 +101,7 @@
       ["Reference", "tutorial-notes__reference__index.html"],
       ["Changelog", "tutorial-notes__version.html"],
       ["API", "global.html"],
+      ["Download", "download.html"],
     ]
       .map(function (n) {
         // "API" is active across the whole code-reference area, not just its landing.
@@ -196,15 +197,174 @@
     });
   }
 
+  // On the notes tutorial pages docdash prints the title twice — the
+  // "Tutorial: <title>" page heading AND a duplicate <h2> in the tutorial header.
+  // Drop the "Tutorial:" prefix (these are project notes, not tutorials) and remove
+  // the duplicate <h2>, leaving one clean title (plus the child list on hub pages).
+  function tidyTutorialTitle() {
+    if (here().indexOf("tutorial-") !== 0) return;
+    var pt = document.querySelector("#main h1.page-title");
+    if (!pt) return;
+    var title = pt.textContent.replace(/^\s*Tutorial:\s*/, "").trim();
+    pt.textContent = title;
+    document.querySelectorAll("#main header h2").forEach(function (h) {
+      if (h.textContent.trim() === title) {
+        var hdr = h.parentNode;
+        h.remove();
+        if (hdr && hdr.tagName === "HEADER" && !hdr.querySelector("ul,ol,p,h1,h2,h3"))
+          hdr.remove();
+      }
+    });
+  }
+
+  // ── Kindle-style reader settings (the "Aa" menu) ─────────────────────────────
+  // Theme, text size, line spacing and reading width, tuned live and remembered.
+  // Prefs live under an ORIGIN-WIDE localStorage key ("fairyfox:reader"), so the
+  // choice is SHARED across every fairyfox.io site (the hub + project docs are all
+  // served from the same origin) — each site just has to read the same key.
+  // Theme drives data-theme on <html> (overriding prefers-color-scheme in CSS);
+  // the text vars drive --reading-fs / --reading-lh / --reading-width.
+  var READER_KEY = "fairyfox:reader";
+  var SIZES = [0.92, 0.99, 1.05, 1.14, 1.24, 1.36]; // rem, stepped by A− / A+
+  var LH = { tight: 1.6, normal: 1.8, relaxed: 2.05 };
+  var WIDTH = { narrow: "38rem", normal: "46rem", wide: "56rem" };
+  var DEFAULTS = { theme: "system", size: 2, lh: "normal", width: "normal" };
+  var prefs = DEFAULTS;
+
+  function clampSize(n) {
+    return Math.max(0, Math.min(SIZES.length - 1, n | 0));
+  }
+  function loadPrefs() {
+    try {
+      return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(READER_KEY) || "{}"));
+    } catch (e) {
+      return Object.assign({}, DEFAULTS);
+    }
+  }
+  function savePrefs() {
+    try {
+      localStorage.setItem(READER_KEY, JSON.stringify(prefs));
+    } catch (e) {}
+  }
+  function applyPrefs() {
+    var root = document.documentElement;
+    if (prefs.theme === "system") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", prefs.theme);
+    root.style.setProperty("--reading-fs", SIZES[clampSize(prefs.size)] + "rem");
+    root.style.setProperty("--reading-lh", String(LH[prefs.lh] || LH.normal));
+    root.style.setProperty("--reading-width", WIDTH[prefs.width] || WIDTH.normal);
+  }
+
+  function seg(act, opts) {
+    return (
+      '<div class="ff-seg" role="group">' +
+      opts
+        .map(function (o) {
+          return (
+            '<button type="button" data-act="' + act + '" data-val="' + o[0] + '">' + o[1] + "</button>"
+          );
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  function initReader() {
+    prefs = loadPrefs();
+    applyPrefs();
+
+    var btn = el("button", {
+      class: "ff-reader-btn",
+      type: "button",
+      "aria-label": "Reading settings",
+      "aria-expanded": "false",
+      title: "Reading settings",
+    });
+    btn.innerHTML = '<span class="aa-lg">A</span><span class="aa-sm">a</span>';
+
+    var panel = el("div", { class: "ff-reader-panel", role: "dialog", "aria-label": "Reading settings" });
+    panel.innerHTML =
+      '<div class="ff-reader-row"><h5>Theme</h5>' +
+      seg("theme", [["system", "Auto"], ["light", "Light"], ["sepia", "Sepia"], ["dark", "Dark"]]) +
+      "</div>" +
+      '<div class="ff-reader-row"><h5>Text size</h5>' +
+      '<div class="ff-seg ff-size" role="group">' +
+      '<button type="button" data-act="size-dec" class="aa-min" aria-label="Smaller text">A</button>' +
+      '<button type="button" data-act="size-inc" class="aa-max" aria-label="Larger text">A</button>' +
+      "</div></div>" +
+      '<div class="ff-reader-row"><h5>Line spacing</h5>' +
+      seg("lh", [["tight", "Tight"], ["normal", "Normal"], ["relaxed", "Relaxed"]]) +
+      "</div>" +
+      '<div class="ff-reader-row"><h5>Width</h5>' +
+      seg("width", [["narrow", "Narrow"], ["normal", "Normal"], ["wide", "Wide"]]) +
+      "</div>" +
+      '<p class="ff-hint">Text size, spacing &amp; width apply to reading pages. Your choice is remembered across Fairy&nbsp;Fox.</p>';
+
+    function markActive() {
+      panel.querySelectorAll("button[data-act]").forEach(function (b) {
+        var act = b.getAttribute("data-act");
+        var on =
+          (act === "theme" && b.getAttribute("data-val") === prefs.theme) ||
+          (act === "lh" && b.getAttribute("data-val") === prefs.lh) ||
+          (act === "width" && b.getAttribute("data-val") === prefs.width);
+        if (act === "theme" || act === "lh" || act === "width")
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    markActive();
+
+    panel.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-act]");
+      if (!b) return;
+      var act = b.getAttribute("data-act");
+      if (act === "theme") prefs.theme = b.getAttribute("data-val");
+      else if (act === "lh") prefs.lh = b.getAttribute("data-val");
+      else if (act === "width") prefs.width = b.getAttribute("data-val");
+      else if (act === "size-dec") prefs.size = clampSize(prefs.size - 1);
+      else if (act === "size-inc") prefs.size = clampSize(prefs.size + 1);
+      applyPrefs();
+      savePrefs();
+      markActive();
+    });
+
+    function setOpen(open) {
+      panel.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setOpen(!panel.classList.contains("open"));
+    });
+    document.addEventListener("click", function (e) {
+      if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== btn)
+        setOpen(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") setOpen(false);
+    });
+
+    var wrap = document.querySelector(".ff-header .wrap");
+    (wrap || document.body).appendChild(btn);
+    document.body.appendChild(panel);
+  }
+
   function run() {
     if (document.documentElement.hasAttribute("data-ff-themed")) return;
     document.documentElement.setAttribute("data-ff-themed", "");
+    // Apply saved reading prefs early (before paint of the injected chrome) so the
+    // theme doesn't flash; initReader() rebuilds the UI and re-applies.
+    prefs = loadPrefs();
+    applyPrefs();
     // Hide docdash's module sidebar everywhere except the API pages.
     if (!isApiPage()) document.documentElement.classList.add("ff-no-sidebar");
+    // The Download page is a wider, card-based layout (not the narrow reading measure).
+    if (here() === "download.html") document.documentElement.classList.add("ff-download");
     injectHead();
     injectHeader();
     injectFooter();
     pruneSidebar();
+    tidyTutorialTitle();
+    initReader();
   }
 
   if (document.readyState === "loading") {
