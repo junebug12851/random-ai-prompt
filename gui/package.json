@@ -16,7 +16,11 @@
     "i18n:pseudo": "formatjs compile src/i18n/messages/en.json --ast --pseudo-locale en-XA --out-file src/i18n/compiled/en-XA.json",
     "i18n": "npm run i18n:extract && npm run i18n:pseudo",
     "i18n:check": "npm run i18n:extract && git diff --exit-code src/i18n/messages/en.json",
-    "lint:i18n": "eslint src"
+    "lint:i18n": "eslint src",
+    "tauri": "tauri",
+    "stage": "node src-tauri/stage.mjs",
+    "desktop:build": "npm run build && tauri build",
+    "desktop:dev": "npm run build && tauri dev"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
@@ -36,6 +40,7 @@
     "@fontsource/maven-pro": "^5.2.10",
     "@fontsource/space-grotesk": "^5.2.10",
     "@formatjs/cli": "^6.16.11",
+    "@tauri-apps/cli": "^2.11.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

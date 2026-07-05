@@ -172,6 +172,25 @@ export const CookieIcon = () => (
   </svg>
 );
 
+// Download (get the pre-built desktop app).
+export const DownloadIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <path d="M12 3v12" />
+    <path d="m7 10 5 5 5-5" />
+    <path d="M5 21h14" />
+  </svg>
+);
+
+// Server / self-host (run the online edition or build it yourself).
+export const ServerIcon = () => (
+  <svg {...ico} aria-hidden="true">
+    <rect x="3" y="4" width="18" height="7" rx="1" />
+    <rect x="3" y="13" width="18" height="7" rx="1" />
+    <path d="M7 7.5h.01" />
+    <path d="M7 16.5h.01" />
+  </svg>
+);
+
 // Palette (Appearance / theme picker trigger).
 export const PaletteIcon = () => (
   <svg {...ico} aria-hidden="true">

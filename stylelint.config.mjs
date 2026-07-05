@@ -24,7 +24,7 @@
 //    own classes.
 export default {
   extends: "stylelint-config-standard",
-  ignoreFiles: ["**/node_modules/**", "gui/dist/**", "gui/coverage/**"],
+  ignoreFiles: ["**/node_modules/**", "gui/dist/**", "gui/coverage/**", "gui/src-tauri/**"],
   rules: {
     "no-descending-specificity": null,
     "no-duplicate-selectors": null,
