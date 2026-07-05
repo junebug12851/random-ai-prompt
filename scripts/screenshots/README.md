@@ -15,15 +15,20 @@ them by their stable Pages URL.
 - **`index.html`** — a browsable gallery of everything
 
 The local-only screens (Gallery / Single / Manage) have no filesystem backend when served statically,
-so `seed.mjs` intercepts the `/api/*` calls with representative sample data (gradient placeholder
-thumbnails, a sample content tree, etc.). No real user content is shipped.
+so `seed.mjs` intercepts the `/api/*` calls. Gallery + Single are backed by the **committed sample
+images** in `assets/gallery/` — real generated images optimized to JPEG (~1024px) plus a
+`manifest.json` carrying their real prompt/metadata, sanitized of any personal info / absolute file
+paths. `manifest.single` names the image the Single view opens. Manage uses a small synthetic tree.
+
+To refresh the sample set: put new images in the app's `output/` folder, regenerate the optimized JPEGs
+into `assets/gallery/`, and rebuild `manifest.json` from the sidecars (keeping only safe fields).
 
 ## Viewports (`config.mjs`)
 
 | Key | Width | Why |
 |-----|-------|-----|
 | `desktop` | **1025px** | one past the 1024 tablet cap → full desktop UI |
-| `tablet` | **769px** | narrowest tablet (one past the 768 phone cap) |
+| `tablet` | **770px** | a narrow tablet width (above the 768 phone cap) |
 | `phone` | **345px** | narrowest supported width |
 
 Static PNGs are captured at 2× (retina) for crispness; GIF frames at 1× to stay small.

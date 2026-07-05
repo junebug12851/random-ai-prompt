@@ -6,6 +6,7 @@
  * narrow screens, so it must be opened first).
  * @module scripts/screenshots/shots
  */
+import { SINGLE_FILE } from "./seed.mjs";
 
 /* global document -- the page.evaluate() callback below runs in the browser context. */
 
@@ -110,10 +111,15 @@ export const SHOTS = [
     title: "Single — one image up close",
     async shoot(page) {
       await gotoHome(page);
-      await openTab(page, "Single");
+      // Open the owner's chosen image via the gallery so the Single view lands on that exact one.
+      await openTab(page, "Gallery");
+      await page.locator(".view-pane.on img").first().waitFor();
+      const target = page.locator(`img[src*="${SINGLE_FILE}"]`).first();
+      await target.scrollIntoViewIfNeeded();
+      await target.click();
       await page.locator(".g-single-body").waitFor();
       await page.locator(".view-pane.on img").first().waitFor();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
       return shootFull(page);
     },
   },
