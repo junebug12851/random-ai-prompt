@@ -218,8 +218,15 @@ fs.mkdirSync(jsDest, { recursive: true });
 fs.copyFileSync(path.join(themeSrc, "fairyfox-docs.js"), path.join(jsDest, "fairyfox-docs.js"));
 // 3) the project logo for the sidebar brand (referenced by fairyfox-docs.js)
 fs.copyFileSync(path.join(repoRoot, "assets", "icons", "512.png"), path.join(jsDest, "logo.png"));
+// 4) the SELF-HOSTED fonts (Fraunces/Inter/JetBrains) — fairyfox-docs.js links
+//    assets/docs-theme/fonts/fonts.css, so the docs make no Google Fonts request.
+const fontsSrc = path.join(themeSrc, "fonts");
+const fontsDest = path.join(jsDest, "fonts");
+fs.mkdirSync(fontsDest, { recursive: true });
+for (const f of fs.readdirSync(fontsSrc))
+  fs.copyFileSync(path.join(fontsSrc, f), path.join(fontsDest, f));
 console.log(
-  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png}.",
+  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png,fonts/}.",
 );
 
 console.log("Done → docs/jsdoc/index.html");

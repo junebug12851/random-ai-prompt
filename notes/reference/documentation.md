@@ -41,18 +41,30 @@ The doc-site is **themed to match fairyfox.io** (this project is a node in the f
 - **`fairyfox-docs.css`** is the single authoritative stylesheet. It reproduces the hub's docs-site
   design tokens (dark-first warm palette with an OS-driven light theme, Fraunces/Inter/JetBrains type,
   the accent + focus ring) **and** drives docdash's whole DOM — the fixed sidebar `<nav>`, `#main`, the
-  `#nav-trigger` mobile drawer, the API member/signature/param blocks, tables, code.
-- **`fairyfox-docs.js`** injects, on every page, the **required two-way links back to Fairy Fox**: a
-  Fairy Fox brand at the top of the persistent sidebar (→ `fairyfox.io`), a
-  `Fairy Fox / Projects / Random AI Prompt` breadcrumb at the top of the content column, and a footer
-  linking to the main site's sections. It also injects the shared font `<link>` + the light/dark
-  `theme-color` metas so crossing the boundary from fairyfox.io has no visible jump.
+  `#nav-trigger` mobile drawer, the API member/signature/param blocks, tables, code. It also carries the
+  ported hub `.site-header` + `.subnav` styles for the injected chrome (below).
+- **`fairyfox-docs.js`** injects, on every page, a **copy of the fairyfox.io site-header** (the Fairy Fox
+  brand → `fairyfox.io` + the hub's primary nav: Home/Projects/Docs/Downloads/Updates/About) **and a
+  well-organized project subnav** (the in-docs section bar: Overview · Project Notes · Systems ·
+  Reference · Changelog + Repository/Notes links, with the active item tracked by page). This mirrors the
+  sibling **`fairyfox-games`** project, which copied the hub header and added an organized subnav to its
+  static site. The header + subnav go in one fixed `.ff-top` container whose measured height feeds a
+  `--ff-header-h` CSS var so docdash's sidebar/`#main` clear it exactly (even when the subnav wraps); the
+  docdash layout rules are scoped to `body > nav` / `.ff-top .wrap` so they don't collide with the
+  injected `<nav>`s (docdash's sidebar is itself `<nav class="wrap">`). A footer at the bottom of `#main`
+  links back to the main site. The script also injects the **self-hosted** shared fonts
+  (`assets/docs-theme/fonts/fonts.css` — Fraunces/Inter/JetBrains served from this origin, **no Google
+  Fonts request**, matching the project's privacy stance) + the light/dark `theme-color` metas, so
+  crossing the boundary from fairyfox.io has no visible jump. On narrow screens (≤820px) the primary hub
+  nav collapses (brand still links home) and the subnav scrolls horizontally, leaving docdash's own
+  hamburger as the only one.
 
 Wiring (in `build-docs.mjs`, after JSDoc runs): the from-scratch `fairyfox-docs.css` is **copied over the
 generated `docs/jsdoc/styles/jsdoc.css`**, replacing docdash's default sheet entirely; `fairyfox-docs.js`
-is copied to `docs/jsdoc/assets/docs-theme/` (the path `jsdoc.config.json` → `docdash.scripts` links).
-`jsdoc.config.json` also sets `docdash.menu` (the `↩ Fairy Fox` / `Project node` back-links) and
-`docdash.meta`. This runs both locally and in the `pages.yml` CI build. The generated API reference is a
++ the vendored `fonts/` (self-hosted Fraunces/Inter/JetBrains woff2 + `fonts.css`) are copied to
+`docs/jsdoc/assets/docs-theme/` (the path `jsdoc.config.json` → `docdash.scripts` links).
+`jsdoc.config.json` also sets `docdash.menu` and `docdash.meta`. This runs both locally and in the
+`pages.yml` CI build. The generated API reference is a
 deliberately *boundaried* zone — fully themed via our sheet rather than a bespoke Jekyll shell. Published
 at `fairyfox.io/random-ai-prompt/` (GitHub Pages inherits the user-site custom domain; base path = repo
 slug — no project `CNAME`).

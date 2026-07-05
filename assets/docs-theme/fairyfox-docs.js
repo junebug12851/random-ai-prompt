@@ -1,12 +1,21 @@
 /*
- * fairyfox-docs.js — injects the fairyfox.io shell into the generated (docdash)
- * doc-site so it reads as part of fairyfox.io and offers the REQUIRED two-way way
- * back: a Fairy Fox brand → fairyfox.io on every page, a breadcrumb locator to the
- * project's node page, and a footer linking back to the main site's sections.
+ * fairyfox-docs.js — wraps the generated (docdash) doc-site in the fairyfox.io
+ * shell so it reads as part of the mesh. It injects, on every page:
  *
- * It also injects the shared fonts (Fraunces/Inter/JetBrains) and the light+dark
- * theme-color metas so crossing the boundary between fairyfox.io and this docs site
- * has no visible "jump". Pure DOM, no dependencies. See fairyfox-docs.css.
+ *   1. A COPY of the fairyfox.io site-header (brand → fairyfox.io + the hub's
+ *      primary nav: Home / Projects / Docs / Downloads / Updates / About), and
+ *   2. A well-organized project SUBNAV — the in-docs section bar (Overview,
+ *      Project Notes, Systems, Reference, Changelog + Repository/Notes links).
+ *
+ * This mirrors the sibling `fairyfox-games` project, which copied the hub header
+ * and added an organized subnav to its own static site. The two-way way back to
+ * Fairy Fox lives in the header brand + primary nav (and the footer below).
+ *
+ * It also injects the SELF-HOSTED shared fonts (Fraunces/Inter/JetBrains, served
+ * from this site's own origin — never Google Fonts, matching the project's
+ * privacy stance) and the light+dark theme-color metas, so crossing the boundary
+ * from fairyfox.io has no visible "jump". Pure DOM, no dependencies. Styling +
+ * the docdash layout offsets live in fairyfox-docs.css.
  */
 (function () {
   "use strict";
@@ -23,6 +32,14 @@
     return n;
   }
 
+  // The current page's bare filename (docdash writes every page flat into the
+  // output dir, so relative links like "index.html" / "tutorial-*.html" resolve
+  // from anywhere). Used to mark the active subnav item.
+  function here() {
+    var p = location.pathname.split("/").pop();
+    return p || "index.html";
+  }
+
   function injectHead() {
     var head = document.head;
     // theme-color metas (match the main site exactly)
@@ -32,39 +49,87 @@
     ].forEach(function (t) {
       head.appendChild(el("meta", { name: "theme-color", content: t[0], media: t[1] }));
     });
-    // fonts: preconnect + the same family/weights the main site preloads
-    head.appendChild(el("link", { rel: "preconnect", href: "https://fonts.googleapis.com" }));
-    head.appendChild(el("link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }));
+    // Self-hosted fonts (Fraunces/Inter/JetBrains) — same families the main site
+    // uses, served from this origin. No third-party (Google Fonts) request.
     head.appendChild(
-      el("link", {
-        rel: "stylesheet",
-        href:
-          "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700" +
-          "&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      })
+      el("link", { rel: "stylesheet", href: "assets/docs-theme/fonts/fonts.css" }),
     );
+  }
+
+  // A COPY of the fairyfox.io header + the project subnav, inserted at the very
+  // top of <body> (above docdash's fixed sidebar + #main, which the CSS offsets).
+  function injectHeader() {
+    var page = here();
+    var primary = [
+      ["Home", HUB + "/", false],
+      ["Projects", HUB + "/projects/", false],
+      ["Docs", HUB + "/docs/", true],
+      ["Downloads", HUB + "/downloads/", false],
+      ["Updates", HUB + "/blog/", false],
+      ["About", HUB + "/about/", false],
+    ]
+      .map(function (n) {
+        return '<a href="' + n[1] + '"' + (n[2] ? ' class="active"' : "") + ">" + n[0] + "</a>";
+      })
+      .join("");
+
+    var header = el("header", { class: "site-header ff-header", role: "banner" });
+    header.innerHTML =
+      '<div class="wrap">' +
+      '<a class="brand" href="' + HUB + '/">' +
+      '<img class="brand-logo" src="' + HUB + '/assets/icons/fox.png" alt="" aria-hidden="true">' +
+      '<span class="brand-name">Fairy&nbsp;Fox</span></a>' +
+      '<nav class="nav" aria-label="Primary">' + primary + "</nav>" +
+      "</div>";
+
+    // In-docs section bar. Links are stable docdash tutorial ids derived from the
+    // notes folder tree (see scripts/build-docs.mjs). "Overview" is the docs home.
+    var sub = [
+      ["Overview", "index.html"],
+      ["Project Notes", "tutorial-notes__index.html"],
+      ["Systems", "tutorial-notes__systems__index.html"],
+      ["Reference", "tutorial-notes__reference__index.html"],
+      ["Changelog", "tutorial-notes__version.html"],
+    ]
+      .map(function (n) {
+        var active = n[1] === page ? ' class="active"' : "";
+        return '<a href="' + n[1] + '"' + active + ">" + n[0] + "</a>";
+      })
+      .join("");
+
+    var subnav = el("nav", { class: "subnav ff-subnav", "aria-label": NAME + " docs section" });
+    subnav.innerHTML =
+      '<div class="wrap">' +
+      '<a class="sub-brand" href="index.html">' + NAME + "</a>" +
+      sub +
+      '<span class="sep" aria-hidden="true"></span>' +
+      '<a class="ext" href="' + REPO + '">Repository ↗</a>' +
+      '<a class="ext" href="' + REPO + '/tree/main/notes">Notes ↗</a>' +
+      "</div>";
+
+    // One fixed container holds the header + subnav; its measured height feeds the
+    // --ff-header-h var so docdash's sidebar/#main clear it exactly, even if the
+    // subnav wraps. Measured after insert and on resize.
+    var top = el("div", { class: "ff-top" });
+    top.appendChild(header);
+    top.appendChild(subnav);
+    document.body.insertBefore(top, document.body.firstChild);
+
+    function measure() {
+      document.documentElement.style.setProperty("--ff-header-h", top.offsetHeight + "px");
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    // Re-measure once fonts settle (they can change the header height).
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   }
 
   function brand() {
     return (
       '<a class="ff-brand" href="' + HUB + '/">' +
       '<span class="ff-logo" aria-hidden="true">F</span>' +
-      '<span>Fairy&nbsp;Fox</span></a>'
+      "<span>Fairy&nbsp;Fox</span></a>"
     );
-  }
-
-  function injectBrand() {
-    // Brand block at the top of docdash's persistent sidebar (<nav>) — the way
-    // home, present on every page. Falls back to body if the sidebar isn't found.
-    var block = el("div", { class: "ff-brand-block", role: "banner" });
-    block.innerHTML =
-      '<a class="ff-brand ff-project" href="index.html">' +
-      '<img class="ff-logo-img" src="assets/docs-theme/logo.png" alt="" aria-hidden="true">' +
-      "<span>" + NAME + "</span></a>" +
-      '<a class="ff-back" href="' + HUB + '/">↩ Back to Fairy Fox</a>';
-    var nav = document.querySelector("nav");
-    if (nav) nav.insertBefore(block, nav.firstChild);
-    else document.body.insertBefore(block, document.body.firstChild);
   }
 
   function injectFooter() {
@@ -84,12 +149,12 @@
       '<div class="ff-foot-col"><h4>This project</h4>' +
       '<a href="' + NODE + '">Project node ↗</a>' +
       '<a href="' + REPO + '">Repository ↗</a>' +
-      '<a href="' + REPO + '/tree/master/notes">Notes ↗</a>' +
+      '<a href="' + REPO + '/tree/main/notes">Notes ↗</a>' +
       '<a href="index.html">Docs home</a></div>' +
       "</div>" +
       '<div class="ff-foot-bar"><div class="ff-foot-wrap">' +
       "<span>© " + new Date().getFullYear() + " Fairy Fox</span>" +
-      "<span>A project under <a href=\"" + HUB + "/\">Fairy&nbsp;Fox</a></span>" +
+      '<span>A project under <a href="' + HUB + '/">Fairy&nbsp;Fox</a></span>' +
       '<span class="spacer"></span>' +
       '<a href="https://github.com/junebug12851">@junebug12851</a>' +
       "</div></div>";
@@ -102,7 +167,7 @@
     if (document.documentElement.hasAttribute("data-ff-themed")) return;
     document.documentElement.setAttribute("data-ff-themed", "");
     injectHead();
-    injectBrand();
+    injectHeader();
     injectFooter();
   }
 

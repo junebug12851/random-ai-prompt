@@ -84,39 +84,80 @@ th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line);ve
 thead tr,th{background:var(--panel-2);color:var(--text);font-weight:700;font-family:var(--sans)}
 tbody tr:nth-child(even){background:color-mix(in srgb,var(--panel) 55%,transparent)}
 
-/* ── Layout: docdash sidebar (<nav>) + #main ──────────────────────────────── */
-nav{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);overflow:auto;z-index:20;
-  background:var(--panel);border-right:1px solid var(--line);
+/* ── Injected: a COPY of the fairyfox.io header + the project subnav ────────────
+   Ported from the hub stylesheet so the docs read as part of fairyfox.io (same
+   as the sibling fairyfox-games site). Built + inserted by fairyfox-docs.js in a
+   fixed .ff-top container; its measured height feeds --ff-header-h, which offsets
+   docdash's sidebar + #main below. */
+:root{--ff-header-h:108px}
+.ff-top{position:fixed;top:0;left:0;right:0;z-index:60}
+.site-header{backdrop-filter:saturate(160%) blur(14px);
+  background:color-mix(in srgb,var(--bg) 80%,transparent);border-bottom:1px solid var(--line)}
+.site-header > .wrap{display:flex;align-items:center;gap:1rem;height:64px}
+/* Scoped to .ff-top: docdash's sidebar is also <nav class="wrap">, so an
+   unscoped .wrap here would blow the sidebar out to full width. */
+.ff-top .wrap{width:100%;max-width:1180px;margin-inline:auto;padding-inline:clamp(1.1rem,3vw,2.4rem)}
+.brand{display:flex;align-items:center;gap:.6rem;color:var(--text);font-weight:700;font-family:var(--display)}
+.brand:hover{text-decoration:none;color:var(--text)}
+.brand-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;display:block;
+  box-shadow:0 4px 14px -4px var(--glow);border:1px solid var(--line-2)}
+.brand-name{font-size:1.08rem;letter-spacing:-.01em}
+.site-header .nav{margin-left:auto;display:flex;align-items:center;gap:.12rem}
+.site-header .nav > a{display:inline-flex;align-items:center;color:var(--text-soft);
+  padding:.45rem .72rem;border-radius:999px;font-size:.93rem;font-weight:600;
+  white-space:nowrap;font-family:var(--sans)}
+.site-header .nav > a:hover{color:var(--text);background:var(--panel-2);text-decoration:none}
+.site-header .nav > a.active{color:var(--text);background:color-mix(in srgb,var(--violet) 16%,transparent)}
+.subnav{border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:saturate(160%) blur(14px)}
+.subnav > .wrap{display:flex;align-items:center;gap:.1rem;flex-wrap:wrap;padding-block:.5rem}
+.subnav .sub-brand{font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--text);
+  margin-right:.35rem;padding:.2rem .3rem;white-space:nowrap;letter-spacing:-.01em}
+.subnav .sub-brand:hover{text-decoration:none;color:var(--accent-ink)}
+.subnav .sep{width:1px;height:1.1rem;background:var(--line-2);margin:0 .35rem;flex:none}
+.subnav a:not(.sub-brand){color:var(--text-soft);font-size:.86rem;font-weight:600;
+  padding:.32rem .62rem;border-radius:999px;white-space:nowrap;font-family:var(--sans)}
+.subnav a:not(.sub-brand):hover{color:var(--text);background:var(--panel-2);text-decoration:none}
+.subnav a.active{color:var(--text);background:color-mix(in srgb,var(--violet) 16%,transparent)}
+.subnav .ext{color:var(--accent-ink)}
+
+/* ── Layout: docdash sidebar (<nav>) + #main, offset below the fixed header ───
+   Scoped to `body > nav` — docdash's sidebar is a direct child of <body>, while
+   the injected header/subnav <nav>s live nested inside .ff-top, so this box does
+   NOT capture them. */
+body > nav{position:fixed;top:var(--ff-header-h);left:0;bottom:0;width:var(--sidebar);overflow:auto;
+  z-index:20;background:var(--panel);border-right:1px solid var(--line);
   padding:1.2rem 1rem 2.5rem;font-family:var(--sans);font-size:.92rem;color:var(--text-soft)}
-nav::-webkit-scrollbar{width:10px}
-nav::-webkit-scrollbar-thumb{background:var(--panel-3);border-radius:8px;border:3px solid var(--panel)}
-#main{margin-left:var(--sidebar);min-height:100vh;padding:1.4rem clamp(1.2rem,3.5vw,3rem) 0;
+body > nav::-webkit-scrollbar{width:10px}
+body > nav::-webkit-scrollbar-thumb{background:var(--panel-3);border-radius:8px;border:3px solid var(--panel)}
+#main{margin-left:var(--sidebar);min-height:100vh;
+  padding:calc(var(--ff-header-h) + 1.4rem) clamp(1.2rem,3.5vw,3rem) 0;
   display:flex;flex-direction:column}
 #main > *{max-width:min(100%,calc(var(--maxw-text) + 18rem))}
 h1.page-title{margin:.2rem 0 2.4rem;font-size:clamp(2rem,3.4vw,2.7rem)}
 
-/* sidebar internals */
-nav a{color:var(--text-soft)}
-nav a:hover{color:var(--text);text-decoration:none}
-nav #nav-search{width:100%;height:34px;padding:6px 12px;margin:0 0 1rem;font-size:13px;
+/* sidebar internals (scoped to the docdash sidebar, not the injected nav bars) */
+body > nav a{color:var(--text-soft)}
+body > nav a:hover{color:var(--text);text-decoration:none}
+body > nav #nav-search{width:100%;height:34px;padding:6px 12px;margin:0 0 1rem;font-size:13px;
   background:var(--panel-3);color:var(--text);border:1px solid var(--line);border-radius:9px}
-nav #nav-search::placeholder{color:var(--text-faint)}
-nav h2{font-family:var(--display);font-size:1rem;margin:.2rem 0 .8rem}
-nav h2 a{color:var(--text)}
-nav h3{margin:1.3rem 0 .5rem;font-family:var(--sans);font-size:.7rem;font-weight:700;
+body > nav #nav-search::placeholder{color:var(--text-faint)}
+body > nav h2{font-family:var(--display);font-size:1rem;margin:.2rem 0 .8rem}
+body > nav h2 a{color:var(--text)}
+body > nav h3{margin:1.3rem 0 .5rem;font-family:var(--sans);font-size:.7rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint)}
-nav ul{list-style:none;margin:0 0 .4rem;padding:0}
-nav ul li{margin:0}
-nav > ul > li > a,nav ul a{display:block;color:var(--text-soft);padding:.26rem .5rem;
+body > nav ul{list-style:none;margin:0 0 .4rem;padding:0}
+body > nav ul li{margin:0}
+body > nav > ul > li > a,body > nav ul a{display:block;color:var(--text-soft);padding:.26rem .5rem;
   border-radius:7px;border-left:2px solid transparent;word-wrap:break-word}
-nav ul a:hover{background:var(--panel-3);color:var(--text)}
-nav ul a.active{color:var(--text);font-weight:650;
+body > nav ul a:hover{background:var(--panel-3);color:var(--text)}
+body > nav ul a.active{color:var(--text);font-weight:650;
   background:color-mix(in srgb,var(--violet) 15%,transparent);border-left-color:var(--accent)}
-nav .nav-heading{color:var(--text);font-weight:650}
-nav .nav-item-type{display:inline-grid;place-items:center;width:1.25em;height:1.25em;border-radius:5px;
+body > nav .nav-heading{color:var(--text);font-weight:650}
+body > nav .nav-item-type{display:inline-grid;place-items:center;width:1.25em;height:1.25em;border-radius:5px;
   font-size:.7em;font-weight:700;color:var(--on-accent);background:var(--accent)}
-nav .level-hide{display:none}
-html[data-search-mode] nav .level-hide{display:block}
+body > nav .level-hide{display:none}
+html[data-search-mode] body > nav .level-hide{display:block}
 
 /* ── API content: members, signatures, params, details ────────────────────── */
 section,article,.container-overview,.class-description,.description,.details,.usertext{background:transparent}
@@ -145,13 +186,21 @@ footer{margin:0;color:var(--text-faint);font-family:var(--sans);font-size:.84rem
 .nav-trigger{position:fixed;width:1px;height:1px;opacity:0;clip:rect(0 0 0 0);overflow:hidden}
 .navicon-button{display:none}
 .overlay{display:none}
+/* On narrow screens the hub's primary nav is hidden (the brand still links home);
+   the horizontally-scrollable subnav carries in-docs navigation, and docdash's own
+   hamburger drives the API/notes sidebar — so there's only ever one hamburger. */
+@media (max-width:820px){
+  .site-header .nav{display:none}
+  .subnav > .wrap{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .subnav > .wrap::-webkit-scrollbar{display:none}
+}
 @media (max-width:900px){
-  nav{left:calc(-1 * var(--sidebar) - 4px);width:var(--sidebar);z-index:1002;
+  body > nav{left:calc(-1 * var(--sidebar) - 4px);width:var(--sidebar);z-index:1002;
     box-shadow:var(--shadow-lg);transition:left .22s var(--ease)}
   .nav-trigger:checked ~ nav{left:0}
-  #main{margin-left:0;padding-top:4.2rem}
+  #main{margin-left:0;padding-top:calc(var(--ff-header-h) + 1rem)}
   .navicon-button{display:flex;align-items:center;justify-content:center;position:fixed;
-    top:12px;right:14px;z-index:1003;width:44px;height:44px;border-radius:11px;cursor:pointer;
+    top:11px;right:14px;z-index:1003;width:42px;height:42px;border-radius:11px;cursor:pointer;
     background:var(--panel-2);border:1px solid var(--line-2);box-shadow:var(--shadow)}
   .navicon-button .navicon{display:none}
   .navicon-button::before{content:"\2630";font-size:1.35rem;color:var(--text);line-height:1}
@@ -160,23 +209,13 @@ footer{margin:0;color:var(--text-faint);font-family:var(--sans);font-size:.84rem
     background:hsla(0,0%,0%,.5)}
 }
 
-/* ── Injected: Fairy Fox brand block (top of the sidebar) ──────────────────── */
-.ff-brand-block{display:flex;flex-direction:column;gap:1rem;padding:.1rem .2rem 1.1rem;
-  margin-bottom:1rem;border-bottom:1px solid var(--line)}
+/* ── Injected: Fairy Fox brand (used in the footer) ────────────────────────── */
 .ff-brand{display:flex;align-items:center;gap:.6rem;color:var(--text);font-weight:700;
   font-family:var(--display);font-size:1.12rem;letter-spacing:-.01em}
 .ff-brand:hover{text-decoration:none;color:var(--text)}
 .ff-brand .ff-logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;
   background:linear-gradient(135deg,var(--violet),var(--amber));color:#241016;font-weight:800;
   font-family:var(--display);font-size:1rem;box-shadow:0 4px 14px -4px var(--glow);border:1px solid var(--line-2)}
-.ff-project{font-size:1.2rem;line-height:1.15}
-.ff-brand .ff-logo-img{width:38px;height:38px;border-radius:10px;object-fit:cover;flex:none;
-  border:1px solid var(--line-2);box-shadow:0 4px 14px -4px rgba(0,0,0,.5)}
-.ff-back{display:inline-flex;align-items:center;gap:.3rem;align-self:flex-start;font-family:var(--sans);
-  font-size:.82rem;font-weight:600;color:var(--accent-ink);padding:.3rem .65rem;border-radius:999px;
-  background:color-mix(in srgb,var(--violet) 14%,transparent);
-  border:1px solid color-mix(in srgb,var(--violet) 30%,transparent)}
-.ff-back:hover{text-decoration:none;color:var(--text);background:color-mix(in srgb,var(--violet) 22%,transparent)}
 
 /* Injected: footer (bottom of #main) — links back to the main site */
 .ff-foot{margin-top:auto;border-top:1px solid var(--line);background:transparent}
