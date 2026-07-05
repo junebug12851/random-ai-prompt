@@ -1,0 +1,156 @@
+/* content.css — the readable content column (Overview + notes) and the API
+   reference blocks (member names, signatures, params, details). */
+
+#main > * {
+  max-width: min(100%, calc(var(--maxw-text) + 18rem));
+}
+h1.page-title {
+  margin: 0.2rem 0 2.4rem;
+  font-size: clamp(2rem, 3.4vw, 2.7rem);
+}
+
+/* Reading pages: a centred, comfortable measure with gentle typography. The
+   narrow measure keeps prose easy on the eyes and stops README screenshots
+   from ballooning to full width. */
+html.ff-no-sidebar #main {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: calc(var(--reading-width) + 4rem);
+  padding-left: clamp(1.25rem, 5vw, 2.25rem);
+  padding-right: clamp(1.25rem, 5vw, 2.25rem);
+  font-size: var(--reading-fs);
+  line-height: var(--reading-lh);
+  letter-spacing: var(--reading-ls);
+}
+html.ff-no-sidebar #main > * {
+  max-width: 100%;
+}
+html.ff-no-sidebar #main p {
+  margin-bottom: 1.15em;
+  text-wrap: pretty;
+}
+html.ff-no-sidebar #main li {
+  margin-bottom: 0.4em;
+  text-wrap: pretty;
+}
+html.ff-no-sidebar #main ul,
+html.ff-no-sidebar #main ol {
+  margin-bottom: 1.15em;
+}
+html.ff-no-sidebar #main h1.page-title,
+html.ff-no-sidebar #main h1 {
+  margin-bottom: 1.6rem;
+}
+html.ff-no-sidebar #main h2 {
+  margin-top: 2.7rem;
+}
+html.ff-no-sidebar #main h3 {
+  margin-top: 1.9rem;
+}
+/* README/notes images: framed, centred, sized to the column. */
+html.ff-no-sidebar #main p img,
+html.ff-no-sidebar #main > img {
+  display: block;
+  margin: 1.9rem auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+
+/* API reference blocks. */
+section,
+article,
+.container-overview,
+.class-description,
+.description,
+.details,
+.usertext {
+  background: transparent;
+}
+.subsection-title,
+h4.subsection-title {
+  font-family: var(--display);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.3rem;
+  margin-top: 2rem;
+}
+h4.name {
+  display: block;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  margin: 1.6rem 0 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+h4.name .type-signature,
+.type-signature {
+  color: var(--accent-ink);
+}
+.signature {
+  color: var(--text-soft);
+}
+.signature-attributes {
+  font-size: 60%;
+  font-style: italic;
+  color: var(--text-faint);
+}
+.name,
+.params .name,
+.props .name {
+  color: var(--accent-ink);
+  font-family: var(--mono);
+}
+.important,
+.warning {
+  color: var(--accent-ink);
+}
+.details {
+  margin: 0.6rem 0 1.4rem;
+  padding: 0.6rem 0 0;
+  font-size: 0.92rem;
+  color: var(--text-soft);
+}
+.details dt {
+  color: var(--text-faint);
+  font-weight: 600;
+}
+.details .tag-source a,
+.details a {
+  color: var(--link);
+}
+dl.param-type {
+  margin: 0.3rem 0;
+}
+.param-type .param-type {
+  color: var(--accent-ink);
+}
+a.button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--violet-deep);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 10px 26px -12px var(--glow);
+}
+a.button:hover {
+  text-decoration: none;
+  color: #fff;
+  transform: translateY(-1px);
+}
+footer {
+  margin: 0;
+  color: var(--text-faint);
+  font-family: var(--sans);
+  font-size: 0.84rem;
+}

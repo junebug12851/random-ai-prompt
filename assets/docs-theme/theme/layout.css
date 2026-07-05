@@ -1,0 +1,202 @@
+/* layout.css — docdash's structural shell: the fixed sidebar (`body > nav`),
+   the `#main` content column, and the mobile drawer. All sidebar rules are
+   scoped to `body > nav` so they never capture the injected header/subnav
+   <nav>s (which live nested inside .ff-top). */
+
+body > nav {
+  position: fixed;
+  top: var(--ff-header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar);
+  overflow: auto;
+  z-index: 20;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  padding: 1.2rem 1rem 2.5rem;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--text-soft);
+}
+body > nav::-webkit-scrollbar {
+  width: 10px;
+}
+body > nav::-webkit-scrollbar-thumb {
+  background: var(--panel-3);
+  border-radius: 8px;
+  border: 3px solid var(--panel);
+}
+
+#main {
+  margin-left: var(--sidebar);
+  min-height: 100vh;
+  padding: calc(var(--ff-header-h) + 1.4rem) clamp(1.2rem, 3.5vw, 3rem) 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* sidebar internals (scoped to the docdash sidebar) */
+body > nav a {
+  color: var(--text-soft);
+}
+body > nav a:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+body > nav #nav-search {
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  margin: 0 0 1rem;
+  font-size: 13px;
+  background: var(--panel-3);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+body > nav #nav-search::placeholder {
+  color: var(--text-faint);
+}
+body > nav h2 {
+  font-family: var(--display);
+  font-size: 1rem;
+  margin: 0.2rem 0 0.8rem;
+}
+body > nav h2 a {
+  color: var(--text);
+}
+body > nav h3 {
+  margin: 1.3rem 0 0.5rem;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+body > nav ul {
+  list-style: none;
+  margin: 0 0 0.4rem;
+  padding: 0;
+}
+body > nav ul li {
+  margin: 0;
+}
+body > nav > ul > li > a,
+body > nav ul a {
+  display: block;
+  color: var(--text-soft);
+  padding: 0.26rem 0.5rem;
+  border-radius: 7px;
+  border-left: 2px solid transparent;
+  word-wrap: break-word;
+}
+body > nav ul a:hover {
+  background: var(--panel-3);
+  color: var(--text);
+}
+body > nav ul a.active {
+  color: var(--text);
+  font-weight: 650;
+  background: color-mix(in srgb, var(--violet) 15%, transparent);
+  border-left-color: var(--accent);
+}
+body > nav .nav-heading {
+  color: var(--text);
+  font-weight: 650;
+}
+body > nav .nav-item-type {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 5px;
+  font-size: 0.7em;
+  font-weight: 700;
+  color: var(--on-accent);
+  background: var(--accent);
+}
+body > nav .level-hide {
+  display: none;
+}
+html[data-search-mode] body > nav .level-hide {
+  display: block;
+}
+
+/* No-sidebar pages (Overview + notes + download): drop the module sidebar. */
+html.ff-no-sidebar body > nav {
+  display: none;
+}
+html.ff-no-sidebar .navicon-button {
+  display: none;
+}
+
+/* Mobile drawer (docdash #nav-trigger + .navicon-button + .overlay). */
+.nav-trigger {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+.navicon-button {
+  display: none;
+}
+.overlay {
+  display: none;
+}
+@media (max-width: 900px) {
+  body > nav {
+    left: calc(-1 * var(--sidebar) - 4px);
+    width: var(--sidebar);
+    z-index: 1002;
+    box-shadow: var(--shadow-lg);
+    transition: left 0.22s var(--ease);
+  }
+  .nav-trigger:checked ~ nav {
+    left: 0;
+  }
+  #main {
+    margin-left: 0;
+    padding-top: calc(var(--ff-header-h) + 1rem);
+  }
+  /* On API pages the injected "Aa" button sits at the far right of the header,
+     so nudge docdash's hamburger left of it (no overlap). */
+  .navicon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 12px;
+    right: 72px;
+    z-index: 1003;
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    cursor: pointer;
+    background: var(--panel-2);
+    border: 1px solid var(--line-2);
+    box-shadow: var(--shadow);
+  }
+  .navicon-button .navicon {
+    display: none;
+  }
+  .navicon-button::before {
+    content: "\2630";
+    font-size: 1.35rem;
+    color: var(--text);
+    line-height: 1;
+  }
+  .nav-trigger:checked ~ .navicon-button::before {
+    content: "\2715";
+    font-size: 1.2rem;
+  }
+  .nav-trigger:checked ~ .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    background: hsla(0, 0%, 0%, 0.5);
+  }
+}

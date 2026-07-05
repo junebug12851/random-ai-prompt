@@ -72,6 +72,18 @@ for (const f of REPO_DOCS) {
   if (fs.existsSync(abs)) linkMap.set(abs, fileId(abs));
 }
 
+// ---- Clean up tutorial-page markdown for rendering ----
+// docdash already renders each tutorial's title as the page heading, so the body's
+// own leading H1 is a duplicate — drop it. Also strip trailing heading-anchor
+// syntax (`## Title {#some_id}`) that the markdown renderer would otherwise print
+// literally; the `\S`-before guard means a heading that *is* only a DPL `{#token}`
+// is left alone.
+function tidyTutorialMarkdown(md) {
+  md = md.replace(/^(#{1,6}[ \t]+.*\S)[ \t]*\{#[A-Za-z0-9_-]+\}[ \t]*$/gm, "$1");
+  md = md.replace(/^\s*#[ \t]+.+\r?\n(\r?\n)?/, "");
+  return md;
+}
+
 // ---- Rewrite inter-note Markdown links to tutorial-<id>.html ----
 function rewriteLinks(md, srcAbs) {
   const baseDir = fs.statSync(srcAbs).isDirectory() ? srcAbs : path.dirname(srcAbs);
@@ -100,10 +112,10 @@ function buildDir(absDir) {
   if (readme) {
     const c = fs.readFileSync(path.join(absDir, readme.name), "utf8");
     title = titleOf(c, humanize(path.basename(absDir)));
-    write(id, rewriteLinks(c, path.join(absDir, readme.name)));
+    write(id, tidyTutorialMarkdown(rewriteLinks(c, path.join(absDir, readme.name))));
   } else {
     title = absDir === notesDir ? "Project Notes" : humanize(path.basename(absDir));
-    write(id, `# ${title}\n\nSection index — see the pages nested under this entry.\n`);
+    write(id, "Section index — see the pages nested under this entry.\n");
   }
   const children = {};
   for (const e of entries
@@ -118,7 +130,7 @@ function buildDir(absDir) {
     const abs = path.join(absDir, e.name);
     const c = fs.readFileSync(abs, "utf8");
     const fid = fileId(abs);
-    write(fid, rewriteLinks(c, abs));
+    write(fid, tidyTutorialMarkdown(rewriteLinks(c, abs)));
     children[fid] = { title: titleOf(c, humanize(e.name.replace(/\.md$/, ""))), children: {} };
   }
   return { id, node: { title, children } };
@@ -212,14 +224,155 @@ fs.copyFileSync(
   path.join(themeSrc, "fairyfox-docs.css"),
   path.join(outRoot, "styles", "jsdoc.css"),
 );
-// 2) the injected JS lands where jsdoc.config.json (docdash.scripts) links it
+// 2) the injected JS: the ES-module entry + its ./modules/ (the <script> tag is
+//    rewritten to type="module" during post-processing below).
 const jsDest = path.join(outRoot, "assets", "docs-theme");
 fs.mkdirSync(jsDest, { recursive: true });
 fs.copyFileSync(path.join(themeSrc, "fairyfox-docs.js"), path.join(jsDest, "fairyfox-docs.js"));
-// 3) the project logo for the sidebar brand (referenced by fairyfox-docs.js)
+copyDir(path.join(themeSrc, "modules"), path.join(jsDest, "modules"));
+// 3) the CSS partials that fairyfox-docs.css @imports (→ styles/theme/*.css)
+copyDir(path.join(themeSrc, "theme"), path.join(outRoot, "styles", "theme"));
+// 4) the project logo (footer brand / referenced by the theme)
 fs.copyFileSync(path.join(repoRoot, "assets", "icons", "512.png"), path.join(jsDest, "logo.png"));
+// 5) the SELF-HOSTED fonts (Fraunces/Inter/JetBrains) — no Google Fonts request.
+const fontsSrc = path.join(themeSrc, "fonts");
+const fontsDest = path.join(jsDest, "fonts");
+fs.mkdirSync(fontsDest, { recursive: true });
+for (const f of fs.readdirSync(fontsSrc))
+  fs.copyFileSync(path.join(fontsSrc, f), path.join(fontsDest, f));
+// 6) the hand-authored Download page.
+fs.copyFileSync(path.join(themeSrc, "download.html"), path.join(outRoot, "download.html"));
 console.log(
-  "Installed fairyfox theme → styles/jsdoc.css (replaced) + assets/docs-theme/{fairyfox-docs.js,logo.png}.",
+  "Installed fairyfox theme → styles/jsdoc.css + styles/theme/ + assets/docs-theme/{fairyfox-docs.js,modules/,logo.png,fonts/} + download.html.",
+);
+
+// ---- SEO / social + native-ESM: post-process every generated HTML page ----
+// docdash emits a plain <script src=…fairyfox-docs.js>; make it type="module".
+// Each page also gets crawler-visible <head> tags: description, canonical,
+// Open Graph + Twitter cards, robots, and JSON-LD. A sitemap.xml + robots.txt
+// round it out. (These are STATIC so social/search crawlers see them without JS.)
+const SITE = "https://fairyfox.io";
+const BASE = `${SITE}/random-ai-prompt/`;
+const OG_IMAGE = `${BASE}screenshots/single-desktop.png`;
+const htmlFiles = listHtml(outRoot);
+for (const abs of htmlFiles) enrichHtml(abs);
+writeSitemap(htmlFiles);
+console.log(
+  `SEO + ESM: post-processed ${htmlFiles.length} HTML pages (+ sitemap.xml, robots.txt).`,
 );
 
 console.log("Done → docs/jsdoc/index.html");
+
+// ---- helpers (hoisted) ----
+function copyDir(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, e.name);
+    const d = path.join(dest, e.name);
+    if (e.isDirectory()) copyDir(s, d);
+    else fs.copyFileSync(s, d);
+  }
+}
+function listHtml(dir) {
+  const out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) out.push(...listHtml(p));
+    else if (e.name.endsWith(".html")) out.push(p);
+  }
+  return out;
+}
+function canonicalFor(abs) {
+  const rel = path.relative(outRoot, abs).split(path.sep).join("/");
+  return rel === "index.html" ? BASE : BASE + rel;
+}
+function htmlEscape(s) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+function extractDescription(html, fallback) {
+  const inMain = html.match(/id="main"[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/i);
+  let txt = (inMain && inMain[1]) || (html.match(/<p[^>]*>([\s\S]*?)<\/p>/i) || [])[1] || fallback;
+  txt = txt
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (txt.length > 155) txt = txt.slice(0, 152).replace(/\s+\S*$/, "") + "…";
+  return txt || fallback;
+}
+function enrichHtml(abs) {
+  let html = fs.readFileSync(abs, "utf8");
+  // native ESM — only the theme entry becomes a module (not docdash's scripts).
+  html = html.replace(
+    /<script\b([^>]*)\bsrc="((?:\.\/)?assets\/docs-theme\/fairyfox-docs\.js)"([^>]*)>/i,
+    (m, pre, src, post) =>
+      `<script${/type=/.test(pre + post) ? "" : ' type="module"'}${pre} src="${src}"${post}>`,
+  );
+  // ensure <html lang="en">
+  html = html.replace(/<html(?![^>]*\blang=)([^>]*)>/i, '<html lang="en"$1>');
+  // docdash's drawer checkbox is icon-only — give it an accessible name (WCAG 4.1.2).
+  html = html.replace(
+    /<input\b((?:(?!aria-label)[^>])*?)\bid="nav-trigger"/i,
+    '<input$1id="nav-trigger" aria-label="Toggle navigation menu"',
+  );
+  if (!html.includes("data-ff-seo")) {
+    const title = (html.match(/<title>([^<]*)<\/title>/i) || [])[1]?.trim() || "Random AI Prompt";
+    const desc = extractDescription(html, title);
+    const canonical = canonicalFor(abs);
+    const isArticle = path.basename(abs).startsWith("tutorial-");
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": isArticle ? "TechArticle" : "WebPage",
+      name: title,
+      headline: title,
+      description: desc,
+      url: canonical,
+      inLanguage: "en",
+      isPartOf: { "@type": "WebSite", name: "Random AI Prompt — documentation", url: BASE },
+      publisher: { "@type": "Organization", name: "Fairy Fox", url: SITE },
+    };
+    const meta =
+      [
+        '<meta name="ff-seo" content="1" data-ff-seo>',
+        /name="description"/i.test(html)
+          ? ""
+          : `<meta name="description" content="${htmlEscape(desc)}">`,
+        '<meta name="robots" content="index,follow">',
+        `<link rel="canonical" href="${canonical}">`,
+        `<meta property="og:type" content="${isArticle ? "article" : "website"}">`,
+        '<meta property="og:site_name" content="Fairy Fox">',
+        `<meta property="og:title" content="${htmlEscape(title)}">`,
+        `<meta property="og:description" content="${htmlEscape(desc)}">`,
+        `<meta property="og:url" content="${canonical}">`,
+        `<meta property="og:image" content="${OG_IMAGE}">`,
+        '<meta name="twitter:card" content="summary_large_image">',
+        `<meta name="twitter:title" content="${htmlEscape(title)}">`,
+        `<meta name="twitter:description" content="${htmlEscape(desc)}">`,
+        `<meta name="twitter:image" content="${OG_IMAGE}">`,
+        `<script type="application/ld+json">${JSON.stringify(ld)}</script>`,
+      ]
+        .filter(Boolean)
+        .join("\n") + "\n";
+    html = html.replace(/<\/head>/i, meta + "</head>");
+  }
+  fs.writeFileSync(abs, html, "utf8");
+}
+function writeSitemap(files) {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = files
+    .map((abs) => `  <url><loc>${canonicalFor(abs)}</loc><lastmod>${today}</lastmod></url>`)
+    .join("\n");
+  fs.writeFileSync(
+    path.join(outRoot, "sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(outRoot, "robots.txt"),
+    `User-agent: *\nAllow: /\nSitemap: ${BASE}sitemap.xml\n`,
+    "utf8",
+  );
+}
