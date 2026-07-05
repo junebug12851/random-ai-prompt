@@ -1,0 +1,141 @@
+/* tokens.css — design tokens (colours, type, spacing) + theme palettes.
+   Dark is the base :root. Light applies two ways: the OS default (media query,
+   only when no manual choice — `:not([data-theme])`) and an explicit
+   `data-theme="light"`. Sepia is manual-only. The reader menu sets `data-theme`
+   on <html> (overriding the media query) and the `--reading-*` vars. */
+
+:root {
+  --violet: #ff7a5e;
+  --violet-deep: #d0402b;
+  --pink: #ff7ab0;
+  --amber: #f6b25a;
+  --green: #38d3a3;
+  --plum: #b88ce8;
+  --bg: #191116;
+  --bg-grad-top: #211622;
+  --panel: #241823;
+  --panel-2: #2a1d29;
+  --panel-3: #322433;
+  --line: #3a2a37;
+  --line-2: #4a3646;
+  --text: #f7ece6;
+  --text-soft: #cdb8c2;
+  --text-faint: #ab97a1;
+  --accent: #ff7a5e;
+  --accent-ink: #ffb59f;
+  --on-accent: #241016;
+  --link: #ffb59f;
+  --link-hover: #ffd0c2;
+  --glow: rgba(255, 122, 94, 0.34);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  --shadow-lg: 0 34px 80px -30px rgba(0, 0, 0, 0.86);
+  --code-bg: #120c12;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-xs: 9px;
+  --sidebar: 264px;
+  --maxw-text: 46rem;
+  --gutter: clamp(1.1rem, 3vw, 2.4rem);
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* height of the fixed header+subnav stack (measured live by chrome.js) */
+  --ff-header-h: 108px;
+
+  /* reading controls (tuned live by the reader menu) */
+  --reading-fs: 1.05rem;
+  --reading-lh: 1.8;
+  --reading-ls: 0.006em;
+  --reading-width: 46rem;
+}
+
+/* Softened warm light palette — a gentle cream reading surface (never stark
+   white), body text a touch below full contrast. Kept in sync with the media
+   query below. */
+:root[data-theme="light"] {
+  --violet: #e15b43;
+  --violet-deep: #b23c26;
+  --pink: #d9498a;
+  --amber: #cf8420;
+  --green: #1c9e78;
+  --plum: #8256c4;
+  --bg: #f4ebdd;
+  --bg-grad-top: #faf3e8;
+  --panel: #fbf4ea;
+  --panel-2: #f4e9da;
+  --panel-3: #ecdcc7;
+  --line: #e7d8c5;
+  --line-2: #dcc9b0;
+  --text: #332c31;
+  --text-soft: #635660;
+  --text-faint: #6f6167;
+  --accent: #d9553c;
+  --accent-ink: #9c3c24;
+  --on-accent: #fff8f4;
+  --link: #9c3c24;
+  --link-hover: #86321c;
+  --glow: rgba(217, 85, 60, 0.24);
+  --shadow: 0 1px 2px rgba(80, 40, 30, 0.05), 0 14px 34px -20px rgba(120, 60, 40, 0.26);
+  --shadow-lg: 0 30px 70px -28px rgba(120, 55, 35, 0.38);
+  --code-bg: #2b2030;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --violet: #e15b43;
+    --violet-deep: #b23c26;
+    --pink: #d9498a;
+    --amber: #cf8420;
+    --green: #1c9e78;
+    --plum: #8256c4;
+    --bg: #f4ebdd;
+    --bg-grad-top: #faf3e8;
+    --panel: #fbf4ea;
+    --panel-2: #f4e9da;
+    --panel-3: #ecdcc7;
+    --line: #e7d8c5;
+    --line-2: #dcc9b0;
+    --text: #332c31;
+    --text-soft: #635660;
+    --text-faint: #6f6167;
+    --accent: #d9553c;
+    --accent-ink: #9c3c24;
+    --on-accent: #fff8f4;
+    --link: #9c3c24;
+    --link-hover: #86321c;
+    --glow: rgba(217, 85, 60, 0.24);
+    --shadow: 0 1px 2px rgba(80, 40, 30, 0.05), 0 14px 34px -20px rgba(120, 60, 40, 0.26);
+    --shadow-lg: 0 30px 70px -28px rgba(120, 55, 35, 0.38);
+    --code-bg: #2b2030;
+  }
+}
+
+/* Sepia — warm paper for long reading. Manual-only (picked in the reader menu). */
+:root[data-theme="sepia"] {
+  --violet: #c25a3f;
+  --violet-deep: #9c3f26;
+  --pink: #c14b7f;
+  --amber: #b3792a;
+  --green: #3c7d5f;
+  --plum: #7d5aa8;
+  --bg: #ece0c8;
+  --bg-grad-top: #f3e9d4;
+  --panel: #f1e7d3;
+  --panel-2: #e7dabf;
+  --panel-3: #ddcdac;
+  --line: #dccba9;
+  --line-2: #cdb891;
+  --text: #3d3427;
+  --text-soft: #63563f;
+  --text-faint: #756445;
+  --accent: #bb5a3c;
+  --accent-ink: #8a3a1c;
+  --on-accent: #fdf6ea;
+  --link: #8a3a1c;
+  --link-hover: #782f14;
+  --glow: rgba(187, 90, 60, 0.22);
+  --shadow: 0 1px 2px rgba(90, 60, 20, 0.06), 0 14px 34px -20px rgba(120, 80, 30, 0.24);
+  --shadow-lg: 0 30px 70px -28px rgba(120, 80, 30, 0.34);
+  --code-bg: #33291b;
+}

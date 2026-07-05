@@ -1,0 +1,102 @@
+/* download.css — the Download page: a wider, card-based layout. */
+
+html.ff-download #main {
+  max-width: min(64rem, 100%);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: normal;
+}
+.dl-lead {
+  font-size: 1.08rem;
+  color: var(--text-soft);
+  max-width: 44rem;
+  margin: 0.2rem 0 2.2rem;
+}
+.dl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+  gap: 1.1rem;
+  margin: 0 0 1.6rem;
+}
+.dl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.3rem 1.35rem 1.45rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.dl-card p {
+  margin: 0;
+  flex: 1;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.dl-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.dl-card-head h2 {
+  margin: 0;
+  font-size: 1.16rem;
+}
+.dl-chip {
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.52rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--text-faint);
+  background: var(--panel-3);
+}
+.dl-chip.dl-on {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--violet) 34%, transparent);
+  background: color-mix(in srgb, var(--violet) 14%, transparent);
+}
+.dl-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  padding: 0.52rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 650;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  transition:
+    transform 0.16s var(--ease),
+    background 0.16s var(--ease);
+}
+.dl-btn:hover {
+  text-decoration: none;
+  color: var(--text);
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--violet) 14%, var(--panel-2));
+}
+.dl-btn.dl-primary {
+  color: #fff;
+  background: var(--violet-deep);
+  border-color: transparent;
+  box-shadow: 0 10px 26px -12px var(--glow);
+}
+.dl-btn.dl-primary:hover {
+  color: #fff;
+  background: var(--violet-deep);
+}
+.dl-note {
+  margin-top: 1.4rem;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+}

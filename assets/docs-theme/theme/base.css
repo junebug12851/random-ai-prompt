@@ -1,0 +1,236 @@
+/* base.css — reset + baseline element styling (typography, links, code, tables). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.62;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--display);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 0.5em;
+}
+h1 {
+  font-size: clamp(2rem, 3.6vw, 2.7rem);
+}
+h2 {
+  font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+  margin-top: 1.8rem;
+}
+h3 {
+  font-size: 1.2rem;
+  margin-top: 1.4rem;
+}
+h4 {
+  font-size: 1.02rem;
+}
+p,
+ul,
+ol {
+  margin: 0 0 1.05rem;
+}
+
+/* Links are underlined by default so they're distinguishable without relying on
+   colour (WCAG 1.4.1). UI / navigation links opt out below. */
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  color: var(--link-hover);
+  text-decoration-thickness: 2px;
+}
+.ff-skip,
+.brand,
+.sub-brand,
+.site-header .nav > a,
+.subnav a,
+body > nav a,
+.ff-foot-col a,
+.ff-brand,
+a.button,
+.dl-btn {
+  text-decoration: none;
+}
+
+/* Visible keyboard focus everywhere (AA 2.4.7). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+::selection {
+  background: color-mix(in srgb, var(--violet) 34%, transparent);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 2rem 0;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+code,
+kbd,
+samp,
+tt {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--panel-3);
+  color: var(--accent-ink);
+  padding: 0.12em 0.42em;
+  border-radius: 6px;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.1rem;
+  overflow: auto;
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #e4dce8;
+}
+/* prettyprint code blocks keep the dark code surface (don't fall back to the
+   page background, which would be light-on-light in the light theme). */
+pre.prettyprint {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  color: #e4dce8;
+}
+.prettyprint.linenums {
+  box-shadow: none;
+}
+/* Syntax highlighting (google-code-prettify classes) tuned for the dark code
+   surface used in both themes — light tokens on dark, all AA-legible. */
+.prettyprint .pln {
+  color: #e4dce8;
+}
+.prettyprint .str,
+.prettyprint .atv {
+  color: #a6d59a;
+}
+.prettyprint .kwd,
+.prettyprint .tag {
+  color: #f0a6c4;
+}
+.prettyprint .com {
+  color: #b8a6b2;
+}
+.prettyprint .lit,
+.prettyprint .num {
+  color: #edb585;
+}
+.prettyprint .typ,
+.prettyprint .atn,
+.prettyprint .dec {
+  color: #9ccbe6;
+}
+.prettyprint .pun,
+.prettyprint .opn,
+.prettyprint .clo {
+  color: #cdb8c2;
+}
+blockquote {
+  margin: 1.2rem 0;
+  padding: 0.5rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--text-soft);
+  background: var(--panel-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 1.4rem;
+  font-size: 0.95rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+thead tr,
+th {
+  background: var(--panel-2);
+  color: var(--text);
+  font-weight: 700;
+  font-family: var(--sans);
+}
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--panel) 55%, transparent);
+}
+
+/* Skip link (AA 2.4.1) — visible on focus, jumps to #main. */
+.ff-skip {
+  position: fixed;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2000;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-weight: 650;
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-160%);
+  transition: transform 0.16s var(--ease);
+}
+.ff-skip:focus {
+  transform: none;
+  text-decoration: none;
+  color: var(--on-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

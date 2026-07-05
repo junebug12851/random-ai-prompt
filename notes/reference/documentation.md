@@ -80,11 +80,38 @@ Wiring (in `build-docs.mjs`, after JSDoc runs): the from-scratch `fairyfox-docs.
 generated `docs/jsdoc/styles/jsdoc.css`**, replacing docdash's default sheet entirely; `fairyfox-docs.js`
 + the vendored `fonts/` (self-hosted Fraunces/Inter/JetBrains woff2 + `fonts.css`) are copied to
 `docs/jsdoc/assets/docs-theme/` (the path `jsdoc.config.json` → `docdash.scripts` links).
-`jsdoc.config.json` also sets `docdash.menu` and `docdash.meta`. This runs both locally and in the
+`jsdoc.config.json` also sets `docdash.meta`. This runs both locally and in the
 `pages.yml` CI build. The generated API reference is a
 deliberately *boundaried* zone — fully themed via our sheet rather than a bespoke Jekyll shell. Published
 at `fairyfox.io/random-ai-prompt/` (GitHub Pages inherits the user-site custom domain; base path = repo
 slug — no project `CNAME`).
+
+### Theme is modular (CSS `@import` partials + JS ES modules)
+
+The theme is **small, focused, browser-imported files** — no bundler:
+
+- **CSS:** `assets/docs-theme/fairyfox-docs.css` is a tiny entry of `@import`s. The real styles live in
+  `assets/docs-theme/theme/*.css` — `tokens.css` (design tokens + the light/sepia/dark palettes +
+  `--reading-*`), `base.css` (reset/type/links/code + the prettify syntax palette + skip link),
+  `layout.css` (the docdash `body > nav` sidebar + `#main` + mobile drawer), `chrome.css` (the injected
+  header/subnav/footer), `content.css` (reading column + API blocks), `reader.css` (the Aa menu), and
+  `download.css`. The build copies them into `docs/jsdoc/styles/theme/` (so the `@import`s resolve).
+- **JS:** `assets/docs-theme/fairyfox-docs.js` is an **ES-module entry** that `import`s from
+  `assets/docs-theme/modules/*.js` — `util.js` (constants + DOM helpers + page-type checks), `chrome.js`
+  (skip link + header/subnav/footer + fonts/theme-color), `sidebar.js` (prune docdash's sidebar +
+  de-dupe tutorial titles), `reader.js` (the Aa reader menu). The build copies `modules/` alongside and
+  **post-processes docdash's `<script>` tag to `type="module"`** (docdash emits a plain script).
+
+### SEO / social + accessibility
+
+`build-docs.mjs` post-processes **every** generated HTML page (crawler-visible, not JS-injected): a
+per-page `<meta name="description">` (pulled from the page's first paragraph), `<link rel="canonical">`,
+Open Graph + Twitter Card tags, `robots`, and a JSON-LD `WebPage`/`TechArticle` block; it also ensures
+`<html lang="en">`, gives docdash's icon-only drawer checkbox an accessible name, and writes a
+`sitemap.xml` + `robots.txt`. The pages meet **WCAG 2.1 AA** — verified with `@axe-core/playwright`
+(0 violations across Overview/notes/API/Download in both light and dark): visible focus, a skip link,
+underlined in-text links (1.4.1), AA colour contrast on every token, keyboard-operable reader menu
+(roles/labels, Escape, focus handling), and landmark/heading structure.
 
 ### What's covered / what's not
 
