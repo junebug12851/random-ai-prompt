@@ -1,6 +1,6 @@
 # Random AI Prompt
 
-![Random AI Prompt shown with a generated image, its prompt, and the DPL source](https://fairyfox.io/random-ai-prompt/screenshots/single-tablet.png)
+![Random AI Prompt shown with a generated image, its prompt, and the DPL source](https://fairyfox.io/random-ai-prompt/screenshots/single-tablet.png?v=2)
 
 Random AI Prompt is an open-source generator for AI image and text prompts. Instead of making
 you write long, detailed prompts by hand, it lets you compose from a library of ready-made scenes,
@@ -46,7 +46,7 @@ content manager, local Stable Diffusion providers, and an 18+ NSFW mode.
 - **Reproducible by design.** The engine is deterministic and seedable, so the same seed reproduces
   the same prompt, which helps with sharing and iterating.
 
-![The Gallery screen, browsing generated images](https://fairyfox.io/random-ai-prompt/screenshots/gallery-desktop.png)
+![The Gallery screen, browsing generated images](https://fairyfox.io/random-ai-prompt/screenshots/gallery-desktop.png?v=2)
 
 ## How to run
 
@@ -79,7 +79,7 @@ npm run web
 Generating images requires access to a provider — either a bring-your-own-key cloud provider or a
 local Stable Diffusion WebUI running with `--api`. Generating prompt text requires no key.
 
-![The Generate screen, composing a prompt from building blocks](https://fairyfox.io/random-ai-prompt/screenshots/generate-desktop.png)
+![The Generate screen, composing a prompt from building blocks](https://fairyfox.io/random-ai-prompt/screenshots/generate-desktop.png?v=2)
 
 ## How to build
 
@@ -125,7 +125,7 @@ In short: fork the repository, branch your work off `dev`, run `npm test` until 
 pull request against `dev` rather than `main`. The developer guide lives in the [notes](notes/)
 directory; begin with [notes/status.md](notes/status.md).
 
-![The content manager, editing a scene block written in DPL](https://fairyfox.io/random-ai-prompt/screenshots/manage-desktop.png)
+![The content manager, editing a scene block written in DPL](https://fairyfox.io/random-ai-prompt/screenshots/manage-desktop.png?v=2)
 
 ## Credits
 
