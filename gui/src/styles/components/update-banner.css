@@ -1,0 +1,146 @@
+/* ---------- Update banner (check-and-notify) ----------
+   A slim, dismissible strip below the header shown when a newer release exists. Accent-tinted so it
+   reads as a gentle notice, never an error. Local/desktop editions only. */
+.update-banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent-strong) 12%, var(--panel));
+  color: var(--fg);
+  font-size: 0.82rem;
+}
+
+.update-banner-icon {
+  display: inline-flex;
+  color: var(--accent-strong);
+  flex: none;
+}
+
+.update-banner-text {
+  font-weight: 600;
+}
+
+/* The git-checkout command block: a monospace command with a copy button. */
+.update-banner-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0; /* let the code shrink/ellipsis on narrow widths rather than overflow the bar */
+  color: var(--muted);
+}
+
+.update-banner-cmd-label {
+  white-space: nowrap;
+}
+
+.update-banner-cmd code {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.update-banner-copy {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.update-banner-copy:hover {
+  background: var(--chip-hover);
+  color: var(--fg);
+}
+
+.update-banner-copied {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+/* Push the CTA + close button to the right edge. */
+.update-banner-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-strong);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  flex: none;
+}
+
+.update-banner-cta:hover {
+  filter: brightness(1.06);
+}
+
+.update-banner-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.update-banner-cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+.update-banner-close {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+}
+
+.update-banner-close:hover {
+  background: var(--chip-hover);
+  color: var(--fg);
+}
+
+.update-banner-close:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* Compact: drop the git command block (the release page has the same guidance) and let the notice +
+   CTA stack cleanly. */
+@media (width <= 768px) {
+  .update-banner {
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  .update-banner-cmd {
+    display: none;
+  }
+}

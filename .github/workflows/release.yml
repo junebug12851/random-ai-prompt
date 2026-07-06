@@ -242,9 +242,37 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # Builds the local SPA, stages the payload (stage.mjs), then `tauri build`.
+      # Auto-updater (Phase 2) wiring — INERT until the signing secret exists. This step decides which
+      # of the two build steps below runs. With no `TAURI_SIGNING_PRIVATE_KEY` secret set (today),
+      # has_key=false → the plain build runs exactly as before, so the release pipeline is unchanged.
+      # Once the owner adds the keypair secret (see notes/reference/desktop-updater.md), has_key=true →
+      # the updater build runs, emitting signed `.sig` update artifacts. Never both.
+      - name: Detect updater signing key
+        id: updkey
+        shell: bash
+        env:
+          UPDATER_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -n "${UPDATER_KEY:-}" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Builds the local SPA, stages the payload (stage.mjs), then `tauri build`. Default path (no
+      # in-app updater) — runs unless the updater signing key is configured.
       - name: Build the desktop app
+        if: steps.updkey.outputs.has_key != 'true'
         run: npm --prefix gui run desktop:build
+
+      # Same build WITH the in-app updater compiled in + updater artifacts signed. Only runs once the
+      # signing keypair secret is present; otherwise skipped (the plain build above runs instead).
+      - name: Build the desktop app (with in-app updater)
+        if: steps.updkey.outputs.has_key == 'true'
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npm --prefix gui run desktop:build:updater
 
       - name: Collect artifacts
         shell: bash
@@ -272,6 +300,19 @@ jobs:
               cp "$b"/deb/*.deb "$out/random-ai-prompt-$v-linux-amd64.deb" || true
               ;;
           esac
+          ls -la "$out"
+
+      # Gather the Tauri updater signatures (`.sig`) next to the installers so they upload with the
+      # release. Only meaningful when the updater build ran. Assembling the cross-platform `latest.json`
+      # manifest the updater endpoint serves is the final owner step (it aggregates all three OS
+      # signatures + URLs) — see notes/reference/desktop-updater.md. Inert without the key.
+      - name: Collect updater signatures
+        if: steps.updkey.outputs.has_key == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="dist-desktop"; mkdir -p "$out"
+          find gui/src-tauri/target/release/bundle -name '*.sig' -exec cp {} "$out/" \; || true
           ls -la "$out"
 
       - name: Install cosign

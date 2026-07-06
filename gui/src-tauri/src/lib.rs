@@ -139,7 +139,8 @@ fn launch(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .filter(|p| p.exists())
         .unwrap_or_else(|| exe_dir.join("app"));
 
-    let work_root = if is_portable(&exe_dir) {
+    let portable = is_portable(&exe_dir);
+    let work_root = if portable {
         exe_dir.join("data")
     } else {
         app.path().app_data_dir()?
@@ -158,7 +159,10 @@ fn launch(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(&serve)
         .current_dir(&work_app)
         .env("PORT", port.to_string())
-        .env("NO_OPEN", "1");
+        .env("NO_OPEN", "1")
+        // Stamp the edition so the backend's /api/update handler reports the right update path to the
+        // check-and-notify banner (portable zip vs installed build). See notes/plans/updates-upgrades.md.
+        .env("RAP_EDITION", if portable { "portable" } else { "installer" });
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
@@ -201,6 +205,12 @@ pub fn run() {
                         .build(),
                 )?;
             }
+            // In-app auto-updater (Phase 2). Compiled in ONLY when the crate's `updater` feature is
+            // enabled AND the `plugins.updater` config (endpoints + signing pubkey) is present; a
+            // normal build omits both, so this is inert. See notes/reference/desktop-updater.md.
+            #[cfg(feature = "updater")]
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
             if let Err(e) = launch(app) {
                 log::error!("failed to start the Node backend: {e}");
             }

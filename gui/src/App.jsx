@@ -43,6 +43,7 @@ import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
 import ThemePicker from "./components/ThemePicker.jsx";
 import DialogHost from "./components/DialogHost.jsx";
+import UpdateBanner from "./components/UpdateBanner.jsx";
 import { MoreIcon } from "./components/icons.jsx";
 // Home (the Generate view) is imported statically, not lazily: it holds the building-block palette,
 // which is the Largest Contentful Paint. The online build PRERENDERS the shell + palette to static
@@ -561,6 +562,10 @@ function AppShell({ settings, setSettings }) {
           </div>
         </div>
       </header>
+
+      {/* Check-and-notify update banner: renders only when a newer release exists (local/desktop
+          editions; the online build is always the latest deploy so it never shows). SSR-safe. */}
+      <UpdateBanner />
 
       <main>
         <div className={`view-pane${view === "generate" ? " on" : ""}`}>

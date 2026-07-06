@@ -39,6 +39,7 @@ JS runtime dependency to the app itself. See [`../systems/desktop.md`](../system
 | `tauri` | `gui/src-tauri` Cargo dep (v2) | The desktop shell runtime (native window + WebView). |
 | `tauri-build` | `gui/src-tauri` Cargo build-dep (v2) | Tauri's build script. |
 | `tauri-plugin-log` | `gui/src-tauri` Cargo dep (v2) | Debug logging in dev builds. |
+| `tauri-plugin-updater` | `gui/src-tauri` Cargo dep (v2), **optional** | In-app desktop auto-updater. Behind the `updater` Cargo feature (OFF by default) — not compiled in a normal build. Dormant until the owner enables Phase 2. See [`desktop-updater.md`](desktop-updater.md). |
 | Rust (stable; MSVC on Windows) | build host / CI runners | Compiles the shell. Preinstalled on GitHub runners; via rustup locally. |
 
 ## Dev dependencies

@@ -20,6 +20,7 @@
     "tauri": "tauri",
     "stage": "node src-tauri/stage.mjs",
     "desktop:build": "npm run build && tauri build",
+    "desktop:build:updater": "npm run build && tauri build --features updater --config src-tauri/tauri.updater.conf.json",
     "desktop:dev": "npm run build && tauri dev"
   },
   "dependencies": {

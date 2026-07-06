@@ -1,8 +1,12 @@
 # Updates & Upgrades — design brainstorm (pre-3.0)
 
-_Status: **design only, not implemented.** As of 2.43.0 every edition updates the obvious manual way
-(below). Auto-update / auto-upgrade is a **mandatory-before-3.0** feature the owner is building toward;
-this doc seeds that design discussion. Nothing here ships until it is deliberately built and verified._
+_Status: **Phase 1 (check-and-notify) SHIPPED; Phase 2 (full desktop auto-install) SCAFFOLDED,
+dormant.** The lowest-fragility rung — a dismissible "update available" banner that compares the
+built-in version to the latest GitHub release, edition-aware — is live for every local/desktop
+edition (Option 1 below). The full Tauri in-app auto-installer (Option 2) is wired but gated off until
+the owner adds a signing keypair; the exact finishing steps are in
+[`../reference/desktop-updater.md`](../reference/desktop-updater.md). The manual paths below still
+apply everywhere until Phase 2 is turned on. Auto-upgrade remains **mandatory-before-3.0**._
 
 ## The problem
 

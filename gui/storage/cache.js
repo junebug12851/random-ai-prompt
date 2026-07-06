@@ -40,7 +40,7 @@ const LEGACY = [
 ];
 
 /** The namespaces always loaded into the cache (provider namespaces are discovered dynamically). */
-const CORE_NAMESPACES = ["settings", "presets", "wrappers", "wrapper-default", "themes"];
+const CORE_NAMESPACES = ["settings", "presets", "wrappers", "wrapper-default", "themes", "update"];
 
 /**
  * @param {string} key A raw localStorage key.
