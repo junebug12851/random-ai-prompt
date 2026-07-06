@@ -4,6 +4,15 @@
 #main > * {
   max-width: min(100%, calc(var(--maxw-text) + 18rem));
 }
+
+/* Home (index.html) is the README landing only. docdash also appends file-level
+   doclet <section>s (e.g. data/dynamic-prompts/prompt/*.js) and an empty
+   `.package` section after the README — hide that spillover so nothing leaks in
+   past the README's end. The `ff-home` class is set inline in <head> (build-docs),
+   so this applies from first paint with no flash. */
+html.ff-home #main > section:not(.readme) {
+  display: none;
+}
 h1.page-title {
   margin: 0.2rem 0 2.4rem;
   font-size: clamp(2rem, 3.4vw, 2.7rem);

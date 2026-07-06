@@ -305,6 +305,23 @@ function extractDescription(html, fallback) {
 }
 function enrichHtml(abs) {
   let html = fs.readFileSync(abs, "utf8");
+  // Early page-type class on <html>, inline in <head> so it runs BEFORE first
+  // paint — no deferred-module flash. Fixes (a) docdash's sidebar flashing in on
+  // non-API pages before `ff-no-sidebar` lands, and (b) enables hiding the index
+  // page's docdash spillover (file doclets after the README) with no flash. The
+  // logic mirrors modules/util.js (here/isApiPage) and is idempotent with run().
+  if (!html.includes("ff-early-chrome")) {
+    const early =
+      "<script>/*ff-early-chrome*/(function(){try{" +
+      'var p=location.pathname.split("/").pop()||"index.html";' +
+      "var c=document.documentElement.classList;" +
+      'var api=p!=="index.html"&&p!=="download.html"&&p.indexOf("tutorial-")!==0;' +
+      'if(!api)c.add("ff-no-sidebar");' +
+      'if(p==="index.html")c.add("ff-home");' +
+      'if(p==="download.html")c.add("ff-download");' +
+      "}catch(e){}})();</script>";
+    html = html.replace(/<head\b([^>]*)>/i, (m) => `${m}\n${early}`);
+  }
   // native ESM — only the theme entry becomes a module (not docdash's scripts).
   html = html.replace(
     /<script\b([^>]*)\bsrc="((?:\.\/)?assets\/docs-theme\/fairyfox-docs\.js)"([^>]*)>/i,
