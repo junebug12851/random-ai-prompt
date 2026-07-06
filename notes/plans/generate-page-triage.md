@@ -67,7 +67,7 @@ to presets anyway). These are "do X to this file" commands; they belong in the i
 generator.
 
 ### F — Paths + pipeline → **port to the SPA UI/UX as app config**
-The six folder paths (image / list / expansion / preset / dynamic-prompt / prompt-module files) and
+The six folder paths (image / list / expansion / preset / block / prompt-module files) and
 `settings.promptModules` (pipeline order). In v3 the pipeline *is* the engine; surface what's still
 user-relevant as app config, drop the rest.
 

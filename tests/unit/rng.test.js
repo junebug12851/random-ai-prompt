@@ -3,7 +3,7 @@
  * sequence), independence (different seeds diverge), the draw helpers' bounds, and `fork` sub-streams.
  */
 import { describe, it, expect } from "vitest";
-import { Rng, createRng, cyrb128, sfc32 } from "../../src/core/rng.js";
+import { Rng, createRng, cyrb128, sfc32 } from "../../engine/core/rng.js";
 
 const seq = (rng, n) => Array.from({ length: n }, () => rng.float());
 

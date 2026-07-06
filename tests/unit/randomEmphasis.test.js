@@ -11,7 +11,7 @@
  * always de-emphasis). Both are deterministic with no flake.
  */
 import { describe, it, expect } from "vitest";
-import randomEmphasis from "../../src/helpers/randomEmphasis.js";
+import randomEmphasis from "../../engine/helpers/randomEmphasis.js";
 
 /** Settings preset: emphasis on, never de-emphasize, exactly one level. */
 const oneLevelEmph = (mode) => ({

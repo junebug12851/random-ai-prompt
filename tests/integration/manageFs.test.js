@@ -1,6 +1,6 @@
 /**
- * @file Contract tests for the Manage tab's local-mode backend (`gui/server/manageFs.js`) and the
- * tree/ghost model (`gui/src/lib/manageTree.js`). Verifies the disk snapshot reproduces the engine's
+ * @file Contract tests for the Manage tab's local-mode backend (`targets/web/backend/manageFs.js`) and the
+ * tree/ghost model (`targets/web/frontend/lib/manageTree.js`). Verifies the disk snapshot reproduces the engine's
  * own catalog, the write/sidecar/marker/move/delete ops round-trip through the snapshot (in an
  * isolated throwaway folder), the traversal guard holds, and ghost detection is exact.
  */
@@ -11,23 +11,24 @@ import {
   mergeSidecar,
   setMarker,
   fsOp,
+  restoreFromRepo,
   MANAGE_ROOTS,
-} from "../../gui/server/manageFs.js";
-import { computeGhosts, buildManageModel } from "../../gui/src/lib/manageTree.js";
-import { nodeLoader } from "../../src/core/nodeLoader.js";
+} from "../../targets/web/backend/manageFs.js";
+import { computeGhosts, buildManageModel } from "../../targets/web/frontend/lib/manageTree.js";
+import { nodeLoader } from "../../engine/core/nodeLoader.js";
 import {
   logicalListNames,
   allListNames,
   autoGroupListDirs,
   compareNames,
-} from "../../src/listManifest.js";
+} from "../../engine/listManifest.js";
 
 const sortEq = (a, b) => expect([...a].sort()).toEqual([...b].sort());
 const TEST_DIR = "zz-manage-test";
 
 afterAll(() => {
   // Always clean the throwaway folder, even if a test failed mid-way.
-  fsOp("delete", { root: "dynamic-prompts", path: TEST_DIR });
+  fsOp("delete", { root: "blocks", path: TEST_DIR });
 });
 
 describe("buildManageSnapshot reproduces the engine catalog", () => {
@@ -47,14 +48,14 @@ describe("buildManageSnapshot reproduces the engine catalog", () => {
     sortEq(snap.listForcePrefixDirs, nodeLoader.forcedPrefixDirs());
   });
 
-  it("derives the same dynamic-prompt names as the Node loader", () => {
+  it("derives the same block names as the Node loader", () => {
     const dplKeys = Object.keys(snap.dpDpl);
     const set = new Set(dplKeys);
     const dpNames = [...new Set([...dplKeys, ...snap.dpJsKeys.filter((k) => !set.has(k))])].sort(
       compareNames,
     );
-    sortEq(dpNames, nodeLoader.dynamicPromptNames());
-    sortEq(snap.dpForcePrefixDirs, nodeLoader.dynPromptForcedPrefixDirs());
+    sortEq(dpNames, nodeLoader.blockNames());
+    sortEq(snap.dpForcePrefixDirs, nodeLoader.blockForcedPrefixDirs());
   });
 
   it("today's catalog is all .dpl (no .js-only generators)", () => {
@@ -65,7 +66,7 @@ describe("buildManageSnapshot reproduces the engine catalog", () => {
 describe("write / sidecar / marker / move / delete round-trip", () => {
   it("creates a file that appears in the snapshot", () => {
     fsOp("mkfile", {
-      root: "dynamic-prompts",
+      root: "blocks",
       path: `${TEST_DIR}/sample.dpl`,
       text: "T\n===\nx\n",
     });
@@ -73,23 +74,23 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
   });
 
   it("merges and removes a sidecar", () => {
-    mergeSidecar("dynamic-prompts", `${TEST_DIR}/sample`, { description: "hi", nsfw: true });
+    mergeSidecar("blocks", `${TEST_DIR}/sample`, { description: "hi", nsfw: true });
     let m = buildManageSnapshot().dpMeta[`${TEST_DIR}/sample`];
     expect(m).toMatchObject({ description: "hi", nsfw: true });
-    mergeSidecar("dynamic-prompts", `${TEST_DIR}/sample`, { nsfw: null, description: null });
+    mergeSidecar("blocks", `${TEST_DIR}/sample`, { nsfw: null, description: null });
     expect(buildManageSnapshot().dpMeta[`${TEST_DIR}/sample`]).toBeUndefined();
   });
 
   it("toggles a folder marker", () => {
-    setMarker("dynamic-prompts", TEST_DIR, "_force-prefix", true);
+    setMarker("blocks", TEST_DIR, "_force-prefix", true);
     expect(buildManageSnapshot().dpForcePrefixDirs).toContain(TEST_DIR);
-    setMarker("dynamic-prompts", TEST_DIR, "_force-prefix", false);
+    setMarker("blocks", TEST_DIR, "_force-prefix", false);
     expect(buildManageSnapshot().dpForcePrefixDirs).not.toContain(TEST_DIR);
   });
 
   it("moves a file", () => {
     fsOp("move", {
-      root: "dynamic-prompts",
+      root: "blocks",
       path: `${TEST_DIR}/sample.dpl`,
       to: `${TEST_DIR}/renamed.dpl`,
     });
@@ -103,7 +104,7 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
   });
 
   it("deletes the throwaway folder", () => {
-    fsOp("delete", { root: "dynamic-prompts", path: TEST_DIR });
+    fsOp("delete", { root: "blocks", path: TEST_DIR });
     const snap = buildManageSnapshot();
     expect(Object.keys(snap.dpDpl).some((k) => k.startsWith(`${TEST_DIR}/`))).toBe(false);
   });
@@ -112,12 +113,19 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
 describe("ghost detection (manifest minus local)", () => {
   it("flags a file present upstream but missing locally", () => {
     const tree = buildManageTree(MANAGE_ROOTS.lists);
-    // Manifest = the current local set (so nothing is a ghost yet).
-    const manifest = buildManageSnapshot();
-    const listManifestPaths = [
-      ...Object.keys(manifest.lists).map((k) => `${k}.txt`),
-      ...Object.keys(manifest.listGroups).map((k) => `${k}.group`),
-    ];
+    // Manifest = the current BUILT-IN local set (so nothing is a ghost yet). Derived from the
+    // built-in tree, not the snapshot: the snapshot now merges the user overlay too, and the real
+    // ghost feature diffs against the upstream (data/) manifest, which never contains user content.
+    const collect = (node, prefix = "") => {
+      const out = [];
+      for (const f of node.files)
+        if (f.endsWith(".txt") || f.endsWith(".group")) {
+          out.push(prefix ? `${prefix}/${f}` : f);
+        }
+      for (const d of node.dirs) out.push(...collect(d, prefix ? `${prefix}/${d.name}` : d.name));
+      return out;
+    };
+    const listManifestPaths = collect(tree);
     expect(computeGhosts(tree, listManifestPaths, "lists", { includeAdult: true })).toHaveLength(0);
 
     // Drop a known file locally → it becomes a ghost.
@@ -129,10 +137,39 @@ describe("ghost detection (manifest minus local)", () => {
   });
 
   it("builds a model with the expected top-level categories", () => {
-    const tree = buildManageTree(MANAGE_ROOTS["dynamic-prompts"]);
-    const model = buildManageModel(tree, "dynamic-prompts", { includeAdult: true });
+    const tree = buildManageTree(MANAGE_ROOTS["blocks"]);
+    const model = buildManageModel(tree, "blocks", { includeAdult: true });
     const cats = model.children.map((c) => c.name);
     expect(cats).toContain("scene");
     expect(cats).toContain("prompt");
+  });
+});
+
+// The user overlay (user/lists, user/blocks). Asserted STATICALLY against the committed community
+// block `user/blocks/user/beach-merk.dpl` (key `user/beach-merk`) — no filesystem mutation, so these
+// can't race with the deterministic snapshot/engine tests that run in parallel and read the shared
+// catalog (the `keyword` wildcard unions the whole vocabulary, so even a transient extra list would
+// perturb their output).
+describe("user overlay — user/ content merges into the pool", () => {
+  it("merges the committed user block (Merk's beach) into the default snapshot pool", () => {
+    expect("user/beach-merk" in buildManageSnapshot().dpDpl).toBe(true);
+  });
+
+  it("the built-in-only snapshot EXCLUDES user content (what the upstream ghost manifest uses)", () => {
+    const builtIn = buildManageSnapshot({ includeUser: false });
+    expect("user/beach-merk" in builtIn.dpDpl).toBe(false); // user content never in the manifest
+    expect("scene/beach" in builtIn.dpDpl).toBe(true); // the built-in scene is still there
+  });
+
+  it("the Node engine loader resolves the user block", () => {
+    expect(nodeLoader.blockNames()).toContain("user/beach-merk");
+    const mod = nodeLoader.loadBlock("user/beach-merk");
+    expect(typeof mod.default).toBe("function");
+  });
+
+  it("refuses to restore user content from the repo (no upstream default)", async () => {
+    const r = await restoreFromRepo("user-blocks", "user/beach-merk.dpl");
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/no repository default/i);
   });
 });

@@ -14,9 +14,14 @@ me (junebug12851) and are licensed public domain.
 
 Internally developed files atrtributed to Merk and me (juenbug12851)
 
+As of 2.46.0, user- and community-contributed lists and blocks live in the repo-root `user/` overlay
+(`user/lists`, `user/blocks`) — separate from the app's built-in `data/` content, which the app reads
+alongside `data/`. Contributions there (for example Merk's beach scenes) are credited to their authors;
+unless noted otherwise they are licensed public domain like the internally developed files above.
+
 All list files have been modified to work with this software by being cleaned up.
 As of 2.1.0 they were also passed through a content-safety filter
-(`src/contentSafety.js`) that removes slurs, content sexualizing minors, and
+(`engine/contentSafety.js`) that removes slurs, content sexualizing minors, and
 extreme shock/gore/non-consensual material; ordinary adult terms are kept but
 NSFW-gated. The original `keyword.txt` SCOWL dictionary was sorted by part of
 speech into the `dict-*` lists by looking each word up in WordNet (via the `wordpos`
@@ -26,7 +31,7 @@ Words WordNet does not know remain in `keyword.txt` (proper nouns) or `dict-misc
 (uncategorized); demonyms are split to `demonym.txt`. The proper nouns were then
 hand-classified into category lists (person, place, organization, mythology,
 astronomy, people-group, religion, history, work). Composite/"virtual" lists are
-defined in `src/listManifest.js`.
+defined in `engine/listManifest.js`.
 
 SCOWL Licenses
 ==================================================================================================
@@ -200,7 +205,7 @@ myself.
 Frameworks, libraries & tools
 ==================================================================================================
 
-The web GUI (gui/) is internationalized with react-intl, with message IDs and catalogs
+The web GUI (targets/web/) is internationalized with react-intl, with message IDs and catalogs
 produced by the FormatJS toolchain:
 
   react-intl              https://formatjs.io/docs/react-intl/          BSD-3-Clause
@@ -224,7 +229,7 @@ encodes the GIF walkthroughs from captured frames:
 AI assistance: the release-screenshot + GIF-walkthrough toolkit was designed and implemented with
 Claude (Anthropic).
 
-The desktop edition (gui/src-tauri/) is packaged with Tauri, which wraps the web app in a native
+The desktop edition (targets/web-shell/) is packaged with Tauri, which wraps the web app in a native
 window and produces the per-OS installers:
 
   Tauri                   https://tauri.app/                            MIT / Apache-2.0

@@ -1,10 +1,10 @@
 # Keyword lists — architecture, content safety, and group files
 
-How `data/lists/` is structured after the 2.1.0 cleanup, and the three systems that govern it.
+How `engine/data/lists/` is structured after the 2.1.0 cleanup, and the three systems that govern it.
 
 ## Lists and group files
 
-A **list** is a `data/lists/<name>.txt` file, one keyword per line, referenced in a prompt as `{name}`.
+A **list** is a `engine/data/lists/<name>.txt` file, one keyword per line, referenced in a prompt as `{name}`.
 
 A **group** is a `<name>.group` file: each non-comment line is itself a list reference (resolved like any
 `{name}`), and the group resolves to the de-duplicated union of those lists. This is how the project
@@ -46,8 +46,8 @@ fully-adult list is just a single `-nsfw` file (`artist/nudity-nsfw`, `word/adul
 ### The loader seam
 
 The two engine loaders resolve lists via `resolveListLines(name, readers)` from `listManifest.js`:
-[`src/core/nodeLoader.js`](../../src/core/nodeLoader.js) (fs) and
-[`src/core/browserLoader.js`](../../src/core/browserLoader.js) (Vite glob). `readers` (`{ names, readListFile,
+[`engine/core/nodeLoader.js`](../../engine/core/nodeLoader.js) (fs) and
+[`engine/core/browserLoader.js`](../../engine/core/browserLoader.js) (Vite glob). `readers` (`{ names, readListFile,
 readGroupFile }`) is injected per environment, so `listManifest.js` stays browser-safe (no Node imports),
 like `gatedLists.js`. `listNames()` returns list + group names, so groups are suggestible and gateable like
 any list.
@@ -72,8 +72,8 @@ SPA's `getBlocks` uses this for the "Lists" token cloud. It is display-only; res
 
 ## Folder organization & name resolution
 
-Lists live in folders under `data/lists/` (danbooru, artist, word, name, place, lore,
-nature, look, style, scene, brand, keyword) — see `data/lists/README.md`. The danbooru
+Lists live in folders under `engine/data/lists/` (danbooru, artist, word, name, place, lore,
+nature, look, style, scene, brand, keyword) — see `engine/data/lists/README.md`. The danbooru
 group keeps a `d/` short-code subfolder so old `d-general` → `danbooru/d/general`,
 referenced terse as `{d/general}`.
 
@@ -84,11 +84,11 @@ numeric-order numbers, then letters) so users can force a default by prefixing a
 All three loaders walk `data/lists` recursively and resolve through this, so bare
 filenames, partial paths, and full paths all work and folders can nest arbitrarily.
 Basenames were kept unique during the move so the ~78 existing `{name}` references in
-dynamic prompts still resolve; only the danbooru `d-*` string references were updated.
+blocks still resolve; only the danbooru `d-*` string references were updated.
 
 ## Content safety
 
-[`../../src/contentSafety.js`](../../src/contentSafety.js) (also browser-safe) is the single source of the
+[`../../engine/contentSafety.js`](../../engine/contentSafety.js) (also browser-safe) is the single source of the
 safety vocabulary:
 
 - **Removal blocklist** — `classifyRemoval(line, {listType})` returns a category (`slur`,
@@ -117,12 +117,12 @@ tokens and review anything the denylist missed — is the way to raise confidenc
 
 ## Gating
 
-[`../../src/gatedLists.js`](../../src/gatedLists.js) gates adult content **automatically by name**:
+[`../../engine/gatedLists.js`](../../engine/gatedLists.js) gates adult content **automatically by name**:
 `isGatedList(name)` is true iff the name carries an `nsfw` token (`NSFW_TOKEN` — a word delimited by `/`,
 `-`, `.`, `_`, or string ends). So `d/general-nsfw`, `artist/nudity-nsfw`, `word/adult-nsfw` are gated while
 the plain/SFW names (`d/general`, `d/general-sfw`, `danbooru`, `color`) are not — no hardcoded list to keep
 in sync. When adult is off, gated names are dropped from the suggestion pool, hidden from the picker
-(`pickerListNames`), and `pull()` returns "" if one is referenced directly. `gatedDynPrompts` is now empty
+(`pickerListNames`), and `pull()` returns "" if one is referenced directly. `gatedBlocks` is now empty
 (`#danbooru` draws the mode-aware `d/general`, SFW when adult is off, so it needs no gating).
 
 ## The dictionary reorg

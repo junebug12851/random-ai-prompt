@@ -2,7 +2,7 @@
  * @file
  * @brief Standalone checks for the DPL engine (src/core/dpl/dpl.js). Run: node scripts/dpl-test.mjs
  */
-import { compileDpl } from "../src/core/dpl/dpl.js";
+import { compileDpl } from "../engine/core/dpl/dpl.js";
 
 let pass = 0;
 let fail = 0;

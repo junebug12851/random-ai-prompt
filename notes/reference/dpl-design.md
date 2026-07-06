@@ -1,8 +1,8 @@
 # Reference — DPL design proposal (the complete language)
 
 **Status: proposal / not yet built.** A concrete design for the Dynamic Prompt Language, derived from reading
-the whole v2 generator catalog (`data/dynamic-prompts/v2/`). It builds on the two mockups in
-[`dpl-language.md`](dpl-language.md) and the JS authoring model in [`dynamic-prompts.md`](dynamic-prompts.md).
+the whole v2 generator catalog (`engine/data/blocks/v2/`). It builds on the two mockups in
+[`dpl-language.md`](dpl-language.md) and the JS authoring model in [`blocks.md`](blocks.md).
 
 The guiding line: **DPL is data, not code.** It describes *what to maybe say* — probabilities, choices,
 repetition, and flow between labeled blocks — in something that reads like a Markdown bullet list. Anything
@@ -51,7 +51,7 @@ and v2 generations keep their `export const full` flag (the classifier still spl
 and the SPA shows v3 as one "Prompts" list but v1/v2 with Full/Partial tabs).
 
 **No `auto-fx` / `auto-artists`** (v2 settings, out of scope for v3) and **no `adult` key** — NSFW gating is
-inferred from the **name token only** (the existing `isGatedDynPrompt` rule), so gating can never disagree
+inferred from the **name token only** (the existing `isGatedBlock` rule), so gating can never disagree
 with the filename.
 
 ### Sections (headings, underline of `=` ×**≥3**)
@@ -314,7 +314,7 @@ knight, warrior
 ```
 
 **Path resolution:** a path is **relative** to the `.dpl` file (`./detail-stack.js`, `../fragment/foo.js`) or
-**root-absolute** from the project root with a leading `/` (`/src/helpers/keywordRepeater.js`).
+**root-absolute** from the project root with a leading `/` (`/engine/helpers/keywordRepeater.js`).
 
 ### JS → DPL — the `ctx` bridge (call sections, hand control back)
 
@@ -547,5 +547,5 @@ sidecar.
 - [`intensity-design.md`](intensity-design.md) — the **intensity dial** that extends this language
   (`{#name NN%}`, `[<10%]` conditions, auto-scaling, the `{intensity}` keyword).
 - [`dpl-language.md`](dpl-language.md) — the two original mockups, decoded.
-- [`dynamic-prompts.md`](dynamic-prompts.md) — the JS authoring idiom this compiles to.
+- [`blocks.md`](blocks.md) — the JS authoring idiom this compiles to.
 - [`prompt-dsl.md`](prompt-dsl.md) — the runtime sigils and randomization math.

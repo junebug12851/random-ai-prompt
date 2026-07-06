@@ -8,7 +8,7 @@ contributors, how to set up a local environment, and how to submit a change for 
 - Report a bug or request a feature through the
   [issue tracker](https://github.com/junebug12851/random-ai-prompt/issues).
 - Extend the content — the scenes, subjects, styles, and word lists under `data/`.
-- Change the code — the engine under `src/` or the web application under `gui/`.
+- Change the code — the engine under `src/` or the web application under `targets/web/`.
 - Improve the documentation — the README, the `notes/` developer guide, or this document.
 
 ## Requirements
@@ -29,7 +29,7 @@ shock material. Contributions that add disallowed content cannot be accepted.
    cd random-ai-prompt
    ```
 
-2. Install dependencies (this installs both the engine and the `gui/` application):
+2. Install dependencies (this installs both the engine and the `targets/web/` application):
 
    ```sh
    npm install
@@ -63,7 +63,7 @@ git checkout -b feature/<short-description>
   `feat: add cyberpunk-city scene`, `fix: correct intensity cascade`, or `docs: clarify build steps`.
 - Stage the specific files you changed rather than using `git add .`.
 - When fixing a bug, add a test that fails before the fix and passes after it. Engine tests are in
-  `tests/`; web tests are in `gui/tests/` and `tests/e2e/`.
+  `tests/`; web tests are in `targets/web/tests/` and `tests/e2e/`.
 
 ## Verifying a change
 

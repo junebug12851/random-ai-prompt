@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import emphasis from "../../src/core/stages/emphasis.js";
+import emphasis from "../../engine/core/stages/emphasis.js";
 
 const sd = (s) => emphasis(s, { mode: "StableDiffusion" });
 const nai = (s) => emphasis(s, { mode: "NovelAI" });

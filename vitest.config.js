@@ -2,11 +2,11 @@
  * @file
  * Root Vitest config — the Node-side test suite (core engine, shared browser-safe
  * modules, integration, contract/API, snapshot, and bug-regression tests). Runs in the
- * `node` environment; the React SPA has its own jsdom config under `gui/`.
+ * `node` environment; the React SPA has its own jsdom config under `targets/web/`.
  *
- * Scope rule (matches CLAUDE.md): tests target the ACTIVE engine (`src/core/**`) and the
- * shared pure modules only — never the legacy classic server (`src/server.js`,
- * `src/web/frontend/**`, `src/core/stages/**` except the pure stages the core engine
+ * Scope rule (matches CLAUDE.md): tests target the ACTIVE engine (`engine/core/**`) and the
+ * shared pure modules only — never the legacy classic server (`engine/server.js`,
+ * `engine/web/frontend/**`, `engine/core/stages/**` except the pure stages the core engine
  * still imports, i.e. cleanup.js / prompt-salt.js).
  */
 import { defineConfig } from "vitest/config";
@@ -16,32 +16,38 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.js"],
     // The SPA suite is run separately (npm run test:web) with its own jsdom config.
-    exclude: ["node_modules/**", "gui/**", "tests/e2e/**"],
+    exclude: ["node_modules/**", "targets/web/**", "tests/e2e/**"],
     globals: false,
     coverage: {
       provider: "v8",
       reportsDirectory: "coverage/node",
       include: [
-        "src/core/**/*.js",
-        "src/contentSafety.js",
-        "src/gatedLists.js",
-        "src/listManifest.js",
-        // The barrel above was split into these three focused, browser-safe modules; the list
-        // tests exercise them through it, so they must be measured here or their coverage is lost
-        // (SonarCloud then counts every line as uncovered).
-        "src/listTags.js",
-        "src/nameOrder.js",
-        "src/listResolve.js",
-        "src/dynPromptManifest.js",
-        "src/promptFilesAndSuggestions.js",
-        "src/helpers/*.js",
-        "src/core/stages/cleanup.js",
-        "src/core/stages/prompt-salt.js",
+        "engine/core/**/*.js",
+        "engine/contentSafety.js",
+        "engine/gatedLists.js",
+        // NOTE: engine/listManifest.js is intentionally NOT measured — it is a pure re-export barrel
+        // (no logic of its own). The real code lives in the three focused, browser-safe modules below,
+        // which the list tests exercise (through the barrel), so their coverage IS counted. Measuring
+        // the barrel just reports its re-export lines as 0% and drags the aggregate down for nothing.
+        "engine/listTags.js",
+        "engine/nameOrder.js",
+        "engine/listResolve.js",
+        "engine/blockManifest.js",
+        "engine/promptFilesAndSuggestions.js",
+        "engine/helpers/*.js",
+        "engine/core/stages/cleanup.js",
+        "engine/core/stages/prompt-salt.js",
       ],
       // The browser loader + its code-split prompt-corpus module are exercised by the SPA (jsdom)
       // suite via import.meta.glob, so they aren't measurable from the Node environment — exclude them
       // from the Node gate.
-      exclude: ["src/core/browserLoader.js", "src/core/browserCatalogData.js"],
+      exclude: [
+        "engine/core/browserLoader.js",
+        "engine/core/browserCatalogData.js",
+        // The browser user-overlay catalog is likewise browser-only (import.meta.glob over user/),
+        // exercised by the SPA (jsdom) suite, not the Node gate — so don't count it here.
+        "engine/core/browserUserCatalog.js",
+      ],
       // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
       reporter: ["text", "html", "lcov"],
       // CI gate (owner-approved). Set with headroom below the measured numbers

@@ -6,16 +6,16 @@
 //
 // Boots the active core path the way the SPA's Node-side loader does: configure
 // `promptFilesAndSuggestions` with the fs `nodeLoader` (the createRequire path that
-// forces every dynamic prompt to load via require(ESM) — see
+// forces every block to load via require(ESM) — see
 // notes/reference/esm-patterns.md), load the catalog, then expand one full prompt
-// suggestion. If the module graph or any dynamic prompt is broken, this fails fast
+// suggestion. If the module graph or any block is broken, this fails fast
 // with a non-zero exit.
 //
 // Run:  npm run smoke   (or: node scripts/smoke-test.mjs)
 
-import promptFiles from "../src/promptFilesAndSuggestions.js";
-import { nodeLoader } from "../src/core/nodeLoader.js";
-import baseSettings from "../src/settings.js";
+import promptFiles from "../engine/promptFilesAndSuggestions.js";
+import { nodeLoader } from "../engine/core/nodeLoader.js";
+import baseSettings from "../engine/settings.js";
 
 // The suggestion builder reads the catalog from the filesystem on the Node side.
 promptFiles.configure(nodeLoader);
@@ -33,5 +33,5 @@ if (typeof prompt !== "string" || prompt.trim().length === 0) {
   process.exit(1);
 }
 
-console.log("smoke-test OK — ES module graph + all dynamic prompts loaded; expanded prompt:");
+console.log("smoke-test OK — ES module graph + all blocks loaded; expanded prompt:");
 console.log("  " + prompt);

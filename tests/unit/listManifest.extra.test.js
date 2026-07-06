@@ -5,7 +5,7 @@
  * Complements the base listManifest.test.js.
  */
 import { describe, it, expect } from "vitest";
-import { computeButtonNames, resolveListLines } from "../../src/listManifest.js";
+import { computeButtonNames, resolveListLines } from "../../engine/listManifest.js";
 
 describe("computeButtonNames — auto-prefix collision growth", () => {
   it("grows colliding basenames out by a folder until distinct", () => {

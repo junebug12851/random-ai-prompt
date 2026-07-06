@@ -1,6 +1,6 @@
 /**
  * @file Bundle-size budget check (performance gate). Builds nothing itself — run
- * `npm run web:build` first — it reads the produced `gui/dist/assets/*.js`, gzips each,
+ * `npm run web:build` first — it reads the produced `targets/web/dist/assets/*.js`, gzips each,
  * and fails if the total JS (gzipped) exceeds the budget. Keeps a regression in shipped
  * weight from sneaking in on an upgrade. Tune BUDGET_KB as the app legitimately grows.
  *
@@ -12,7 +12,7 @@ import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const assetsDir = path.join(root, "gui", "dist", "assets");
+const assetsDir = path.join(root, "targets", "web", "dist", "assets");
 
 // Gzipped-JS budget for the whole SPA bundle. Set with headroom above the current
 // footprint; CI fails if a change pushes the shipped JS past it.
@@ -23,7 +23,7 @@ function gzipKb(buf) {
 }
 
 if (!fs.existsSync(assetsDir)) {
-  console.error(`✗ No build found at gui/dist/assets — run "npm run web:build" first.`);
+  console.error(`✗ No build found at targets/web/dist/assets — run "npm run web:build" first.`);
   process.exit(1);
 }
 

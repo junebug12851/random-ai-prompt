@@ -218,7 +218,7 @@ test.describe("single view — phone", () => {
 
 // Minimal local-mode content backend so the Manage tab unlocks and renders one entry per root.
 const MANAGE_TREE = {
-  "dynamic-prompts": { name: "dynamic-prompts", dirs: [], files: ["fox.dpl"] },
+  blocks: { name: "blocks", dirs: [], files: ["fox.dpl"] },
   lists: { name: "lists", dirs: [], files: ["colors.txt"] },
 };
 

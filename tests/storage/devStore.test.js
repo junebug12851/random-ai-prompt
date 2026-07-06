@@ -1,5 +1,5 @@
 /**
- * @file Node-suite unit tests for the dev-server folder-storage helpers (gui/vite-api-helpers.js):
+ * @file Node-suite unit tests for the dev-server folder-storage helpers (targets/web/backend/vite-api-helpers.js):
  * the traversal-safe namespace→file mapping and the read/write/remove/list round-trip, against a
  * throwaway temp folder. Lives in the Node suite (not the jsdom SPA suite) because the helper is a
  * Node-only dev-server module (uses `fileURLToPath(import.meta.url)`, which needs a real file URL).
@@ -8,7 +8,13 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { nsToFile, readNs, writeNs, removeNs, listNs } from "../../gui/vite-api-helpers.js";
+import {
+  nsToFile,
+  readNs,
+  writeNs,
+  removeNs,
+  listNs,
+} from "../../targets/web/backend/vite-api-helpers.js";
 
 let dir;
 beforeEach(() => {

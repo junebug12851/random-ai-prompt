@@ -30,7 +30,7 @@ Core principles (locked):
 - **No server state.** No accounts, no database, no image storage. Generated images go straight to the
   user's browser; if they leave or clear it, that's fine. Settings live in **`localStorage`**.
 - **BYOK, modular providers.** Image generation is a set of provider modules behind one interface; the
-  user supplies their own API key per provider. This is the same plugin pattern the dynamic prompts
+  user supplies their own API key per provider. This is the same plugin pattern the blocks
   already use.
 - **Online = local with the local-only bits disabled.** One codebase; a build/runtime flag turns off
   the modules that need a local machine (local WebUI discovery, filesystem browsing, ImageMagick,
@@ -44,26 +44,26 @@ Core principles (locked):
 
 ## The central refactor: a browser-safe prompt core
 
-The clever part of this app — the dynamic-prompt / list / expansion pipeline — is pure text logic, but
+The clever part of this app — the block / list / expansion pipeline — is pure text logic, but
 today it hard-depends on Node: `fs.readFileSync` for `lists/*.txt` + `expansions/*.txt`, and
-`createRequire` for `dynamic-prompts/*.js`. The browser has neither.
+`createRequire` for `blocks/*.js`. The browser has neither.
 
 **Plan:** extract the engine into a `core/` that takes its data through an injected **loader interface**
 instead of calling `fs`/`require` directly:
 
 ```
 core/                         framework-agnostic prompt engine (no fs/require inside)
-  pipeline, cleanup, list, expansion, prompt-salt, dynamic-prompt expansion
+  pipeline, cleanup, list, expansion, prompt-salt, block expansion
   loader interface: { listNames(), readList(name), expansionNames(), readExpansion(name),
-                      dynamicPromptNames(), loadDynamicPrompt(name) -> { default, full, ... } }
+                      blockNames(), loadBlock(name) -> { default, full, ... } }
 
 loaders/
   node-loader.js     fs + createRequire (used by the CLI / local server)
-  browser-loader.js  Vite import.meta.glob: bundles dynamic-prompts/**.js (they're already ESM
+  browser-loader.js  Vite import.meta.glob: bundles blocks/**.js (they're already ESM
                      default-export modules!) and lists/expansions/*.txt as ?raw assets
 ```
 
-Because the dynamic prompts are already `export default function (...)` ES modules, Vite's
+Because the blocks are already `export default function (...)` ES modules, Vite's
 `import.meta.glob` can bundle every one at build time — no `fs`, no `require` in the browser. The CLI
 keeps the Node loader; the SPA uses the browser loader. Same engine, two data sources.
 
@@ -76,7 +76,7 @@ keeps the Node loader; the SPA uses the browser loader. Same engine, two data so
    provider that calls `127.0.0.1` directly. Settings UI to enter/keep keys in localStorage.
 3. **Browser-safe core.** Extract the engine + the loader interface; write `browser-loader.js`
    (`import.meta.glob`). Get prompt generation/expansion running **in the browser** with the real
-   dynamic prompts + lists + expansions.
+   blocks + lists + expansions.
 4. **Views, one at a time** (so the old UI keeps working until parity): Generate → Prompt result →
    Image result/gallery (in-memory only) → Settings editor → Dynamic-prompt / preset browser. Make it a
    **PWA** (manifest + service worker) for the native feel.
@@ -87,7 +87,7 @@ keeps the Node loader; the SPA uses the browser loader. Same engine, two data so
 
 ## What stays, what goes
 
-- **Stays:** the prompt engine (now in `core/`), the dynamic prompts / lists / expansions / presets data,
+- **Stays:** the prompt engine (now in `core/`), the blocks / lists / expansions / presets data,
   the CLI (via the Node loader).
 - **Goes (eventually):** `server.js` + `web/` (old Pug/jQuery UI), the Express dependency, the
   server-side image index and local file-management/animation/magick endpoints (online stores nothing;

@@ -7,7 +7,7 @@ them by their stable Pages URL.
 ## How it works
 
 `capture.mjs` builds the **local** edition of the SPA (`npm run web:build`), serves the static
-`gui/dist/` on a throwaway server, drives it with Playwright, and writes:
+`targets/web/dist/` on a throwaway server, drives it with Playwright, and writes:
 
 - **PNG shots** — one per screen, per viewport: `‹screen›-‹viewport›.png`, all a uniform height
   (see below)
@@ -49,7 +49,7 @@ npm run screenshots
 
 Output lands in `screenshots-preview/` (git-ignored). Open `screenshots-preview/index.html` to review.
 Add `-- --skip-gifs` while iterating on static shots; the script rebuilds the SPA each run (drop the
-`--build` in the npm script if you want to reuse an existing `gui/dist`).
+`--build` in the npm script if you want to reuse an existing `targets/web/dist`).
 
 ## Where the published images live
 

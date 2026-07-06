@@ -3,8 +3,8 @@
  * @brief End-to-end: run the core engine over the `.dpl` generators (lists + JS sidecars resolve).
  *        Run: node scripts/dpl-engine-check.mjs
  */
-import { createEngine } from "../src/core/engine.js";
-import { nodeLoader } from "../src/core/nodeLoader.js";
+import { createEngine } from "../engine/core/engine.js";
+import { nodeLoader } from "../engine/core/nodeLoader.js";
 
 const engine = createEngine(nodeLoader);
 const cases = [
@@ -29,7 +29,7 @@ for (const c of cases) {
     console.error(`ERROR ${c}: ${e.message}`);
     continue;
   }
-  const leftover = /\{#|\{js:/.test(out); // unresolved dynamic-prompt / js tokens = a real failure
+  const leftover = /\{#|\{js:/.test(out); // unresolved block / js tokens = a real failure
   if (typeof out !== "string" || out.trim() === "" || leftover) failed++;
   console.log(`${c}\n  -> ${out}\n`);
 }

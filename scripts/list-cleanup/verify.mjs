@@ -1,5 +1,5 @@
 /* Copyright 2026 junebug12851 — Apache-2.0. Ad-hoc virtual-list smoke check. */
-import { nodeLoader } from "../../src/core/nodeLoader.js";
+import { nodeLoader } from "../../engine/core/nodeLoader.js";
 
 const names = nodeLoader.listNames();
 const check = [

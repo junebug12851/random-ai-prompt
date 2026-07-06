@@ -104,8 +104,8 @@ jobs:
         run: |
           set -euo pipefail
           v="${{ steps.ver.outputs.version }}"
-          npm --prefix gui run build
-          (cd gui/dist && zip -qr "../../random-ai-prompt-$v-online.zip" .)
+          npm --prefix targets/web run build
+          (cd targets/web/dist && zip -qr "../../random-ai-prompt-$v-online.zip" .)
           ls -la random-ai-prompt-*-online.zip
 
       - name: Compose release notes
@@ -263,7 +263,7 @@ jobs:
       # in-app updater) — runs unless the updater signing key is configured.
       - name: Build the desktop app
         if: steps.updkey.outputs.has_key != 'true'
-        run: npm --prefix gui run desktop:build
+        run: npm --prefix targets/web run desktop:build
 
       # Same build WITH the in-app updater compiled in + updater artifacts signed. Only runs once the
       # signing keypair secret is present; otherwise skipped (the plain build above runs instead).
@@ -272,7 +272,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm --prefix gui run desktop:build:updater
+        run: npm --prefix targets/web run desktop:build:updater
 
       - name: Collect artifacts
         shell: bash
@@ -280,15 +280,15 @@ jobs:
           set -euo pipefail
           v="${{ needs.release.outputs.version }}"
           out="dist-desktop"; mkdir -p "$out"
-          b="gui/src-tauri/target/release/bundle"
+          b="targets/web-shell/target/release/bundle"
           case "${{ matrix.os }}" in
             windows-latest)
               cp "$b"/msi/*.msi "$out/random-ai-prompt-$v-windows-x64.msi" || true
               cp "$b"/nsis/*-setup.exe "$out/random-ai-prompt-$v-windows-x64-setup.exe" || true
               # Portable: raw exe + the staged payload + a .portable marker, zipped.
               p="portable/random-ai-prompt"; mkdir -p "$p"
-              cp gui/src-tauri/target/release/random-ai-prompt.exe "$p/"
-              cp -r gui/src-tauri/app "$p/app"
+              cp targets/web-shell/target/release/random-ai-prompt.exe "$p/"
+              cp -r targets/web-shell/app "$p/app"
               : > "$p/.portable"
               powershell -NoProfile -Command "Compress-Archive -Path portable/random-ai-prompt -DestinationPath '$out/random-ai-prompt-$v-windows-x64-portable.zip' -Force"
               ;;
@@ -314,7 +314,7 @@ jobs:
           set -euo pipefail
           v="${{ needs.release.outputs.version }}"
           out="dist-desktop"; mkdir -p "$out"
-          b="gui/src-tauri/target/release/bundle"
+          b="targets/web-shell/target/release/bundle"
           case "${{ matrix.os }}" in
             windows-latest)
               # setup.exe already collected as the installer; add its .sig under the matching name.

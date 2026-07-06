@@ -63,7 +63,7 @@ export function bigListText(n, tag = "entry") {
   return out.join("\n") + "\n";
 }
 
-const LISTS_DIR = fileURLToPath(new URL("../../data/lists/", import.meta.url));
+const LISTS_DIR = fileURLToPath(new URL("../../engine/data/lists/", import.meta.url));
 
 /**
  * Resolve a `perf-harness-*` file path inside `data/lists/` (guards the naming so teardown can't

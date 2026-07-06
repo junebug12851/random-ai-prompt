@@ -75,7 +75,7 @@ An intensity and a focus condition may sit in one bracket, with a weight, in any
 detail is allowed), centred on **50 ≈ `normal`**. It runs `anything-goes` / `loose` / `broad` at the low
 end, through `related` → `relevant` → `normal` → `on-topic` in the middle, up to `specific` → `exact` →
 `strict` → `singular` → `pure` → `topic-only` at the high end. The full list is the `FOCUS_WORDS` array in
-`src/core/dpl/dpl.js`; the clean single-word subset is also the `look/focus` list.
+`engine/core/dpl/dpl.js`; the clean single-word subset is also the `look/focus` list.
 
 A relative ` ±NN%` modifier works on any focus reference, taken *of the value* (`$focus-word +25%`,
 `{#weather f-40%}`), clamped 1–100 — same math as intensity.
@@ -112,5 +112,5 @@ line can be weighted, intensity-conditioned, focus-conditioned, *and* probabilit
 - [`intensity-design.md`](intensity-design.md) — the sibling dial (`i`-prefix, auto-scaling, `$intensity`).
 - [`layering-design.md`](layering-design.md) — why pure (high-focus) generators stack cleanly as layers.
 - [`dpl-design.md`](dpl-design.md) — the base language.
-- `src/core/dpl/dpl.js` — renderer (`[f<…]` conditions, `$focus` tokens, `ctx.focus`).
-- `src/core/stages/dynamicPrompt.js` — `{#name fNN%}` parsing + threading (focus = 5th generator arg).
+- `engine/core/dpl/dpl.js` — renderer (`[f<…]` conditions, `$focus` tokens, `ctx.focus`).
+- `engine/core/stages/block.js` — `{#name fNN%}` parsing + threading (focus = 5th generator arg).

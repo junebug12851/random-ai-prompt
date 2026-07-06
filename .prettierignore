@@ -6,10 +6,10 @@ docs/
 tmp/
 assets/
 src/web/frontend/lib/
-gui/
-data/*.csv
-data/*.json
-data/sources/
+targets/web/
+engine/data/*.csv
+engine/data/*.json
+engine/data/sources/
 package-lock.json
 user-settings.json
 results.json
@@ -18,3 +18,11 @@ results.json
 # the living notes use compact Markdown tables on purpose). Format check stays meaningful for code.
 *.md
 *.dox
+
+# Build/runtime artifacts under targets/ (gitignored; never a format input)
+targets/web/dist/
+targets/web/dist-ssr/
+targets/web/coverage/
+targets/web-shell/app/
+targets/web-shell/target/
+targets/web-shell/gen/

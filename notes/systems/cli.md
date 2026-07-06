@@ -36,7 +36,7 @@ Things" note. `common.js` exposes the shared `run()`,
 | `genImg.js` | POST to the SD WebUI `txt2img` endpoint (global `fetch`), stream progress into `cli-progress` + `imageSettings.progress*`, save PNG + `.json` sidecar, optionally upscale. |
 | `upscaleExisting.js` | Re-run upscale over already-generated images. |
 | `loadVariationData.js` / `loadRerollData.js` / `extendAnimation.js` / `toAnimation.js` | Variation, reroll, and animation run modes. |
-| `promptFilesAndSuggestions.js` | Scan/classify `dynamic-prompts/` into full vs partial; build `promptSuggestion()`s and the web UI pickers. |
+| `promptFilesAndSuggestions.js` | Scan/classify `blocks/` into full vs partial; build `promptSuggestion()`s and the web UI pickers. |
 
 ## `helpers/`
 
@@ -47,6 +47,6 @@ exports — do not flip), `imageUpscaler`, and the `random{Emphasis,Editing,Alte
 ## Verification
 
 There is no SD WebUI in CI, so the CLI is verified by **lint + `node --check` + the import smoke test**
-(load the whole ESM graph incl. all dynamic prompts via `require(ESM)`, run `promptSuggestion()`, expand
+(load the whole ESM graph incl. all blocks via `require(ESM)`, run `promptSuggestion()`, expand
 a prompt). Live image generation needs a running WebUI with `--api`. See
 [`../plans/testing.md`](../plans/testing.md).

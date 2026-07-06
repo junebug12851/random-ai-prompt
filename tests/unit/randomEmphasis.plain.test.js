@@ -6,7 +6,7 @@
  * is always the "more" branch, making the word selection deterministic.
  */
 import { describe, it, expect } from "vitest";
-import randomEmphasis from "../../src/helpers/randomEmphasis.js";
+import randomEmphasis from "../../engine/helpers/randomEmphasis.js";
 
 const base = {
   mode: "Plain",

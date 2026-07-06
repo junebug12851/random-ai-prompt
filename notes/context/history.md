@@ -3,13 +3,13 @@
 ## 2022–2023 — Origins (CommonJS)
 
 The project started in 2022 as a CommonJS Node app (`require`/`module.exports`). It paired a yargs CLI
-with an Express + Pug web UI to generate random/dynamic prompts for the Stable Diffusion WebUI and
+with an Express + Pug web UI to generate random/blocks for the Stable Diffusion WebUI and
 manage the resulting images.
 
 This was **not** a small project — the overwhelming majority of the codebase, the prompt DSL, and the
 web app were built in a concentrated burst. By commit volume: **~178 commits in December 2022, ~160 in
 January 2023**, then a long tail (~11 in March, ~2 in April 2023) before the project went quiet until
-the 2026 revival. The original layout was **flat** (everything at the repo root: `dynamic-prompts/`,
+the 2026 revival. The original layout was **flat** (everything at the repo root: `blocks/`,
 `prompt-modules/`, `helpers/`, `lists/`, `expansions/`, `presets/`, `web/`); the `src/`+`data/` split
 came only with the 2026 reorg. A `Upgrade-2-0.md` note, an `update.bat`, and a `dev` branch already
 existed, anticipating a 2.0.
@@ -17,18 +17,18 @@ existed, anticipating a 2.0.
 The arc of that original effort, read from the git log:
 
 - **Dec 2022 — the engine and the content.** The prompt mini-language took shape (expansions, the
-  `{list}` system with once-only depletion, dynamic-prompt plugins), alongside a large content push:
+  `{list}` system with once-only depletion, block plugins), alongside a large content push:
   city/time/weather/building-style/render-color lists, the discovery and crediting of CC-licensed tag
   lists (u/Carlyone and others — see `list-credits.md`), and steadily improved `person`, `landscape`,
   `house`, and `city` generators. The danbooru/anime keyword path and emphasis/editing/alternating
   randomization were part of this period.
-- **Jan 2023 — the web app matured.** Dynamic prompts gained the **full vs partial** classification the
+- **Jan 2023 — the web app matured.** Blocks gained the **full vs partial** classification the
   suggestion engine and pickers still use; the WebUI grew a full **Generate** tab (in-browser
   generation), a richer **image-details** view (upscales / re-rolls / variations / animation frames,
   newest-first), **animation** support including frame-extension and APNG, ImageMagick conversion,
-  plain-text/markdown parameter copying, and the self-healing image index. The dynamic-prompt expander
+  plain-text/markdown parameter copying, and the self-healing image index. The block expander
   was rebuilt from a 2-pass scheme into the clean **up-to-10-levels** recursive form. There's even a
-  Jan-21 commit sketching a "custom scripting language for dynamic prompts" — an ambition the project
+  Jan-21 commit sketching a "custom scripting language for blocks" — an ambition the project
   never finished but that explains the plugin-as-function design.
 - **Mar–Apr 2023 — polish and pause.** LoRA support threaded through expansions, presets for many image
   sizes (wallpapers, ultra-wide, 2:1), "legacy detail wording," and an upscale progress-screen fix —

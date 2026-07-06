@@ -7,7 +7,7 @@ remove, or bump a dependency.
 
 The root package's runtime dependencies are now minimal — the engine has no framework deps, and the
 classic CLI/server (and their deps) were removed. (The SPA's own runtime deps — React, react-intl,
-CodeMirror, @fontsource — live in `gui/package.json` and are covered in the sections below.)
+CodeMirror, @fontsource — live in `targets/web/package.json` and are covered in the sections below.)
 
 | Package | Major | Used by | Notes |
 |---------|-------|---------|-------|
@@ -36,11 +36,11 @@ JS runtime dependency to the app itself. See [`../systems/desktop.md`](../system
 | Package | Where | Purpose |
 |---------|-------|---------|
 | `@tauri-apps/cli` | `gui` devDep (v2) | The `tauri` build/dev CLI (`npm run desktop:build`). |
-| `tauri` | `gui/src-tauri` Cargo dep (v2) | The desktop shell runtime (native window + WebView). |
-| `tauri-build` | `gui/src-tauri` Cargo build-dep (v2) | Tauri's build script. |
-| `tauri-plugin-log` | `gui/src-tauri` Cargo dep (v2) | Debug logging in dev builds. |
-| `tauri-plugin-updater` | `gui/src-tauri` Cargo dep (v2), **optional** | In-app desktop auto-updater. Behind the `updater` Cargo feature (OFF by default) — not compiled in a normal build. Activates when the owner adds the CI signing secret. See [`desktop-updater.md`](desktop-updater.md). |
-| `tauri-plugin-dialog` | `gui/src-tauri` Cargo dep (v2), **optional** | Native confirm dialog for the auto-updater's "install now?" prompt. Same `updater` feature gate as above — not in the default build. |
+| `tauri` | `targets/web/src-tauri` Cargo dep (v2) | The desktop shell runtime (native window + WebView). |
+| `tauri-build` | `targets/web/src-tauri` Cargo build-dep (v2) | Tauri's build script. |
+| `tauri-plugin-log` | `targets/web/src-tauri` Cargo dep (v2) | Debug logging in dev builds. |
+| `tauri-plugin-updater` | `targets/web/src-tauri` Cargo dep (v2), **optional** | In-app desktop auto-updater. Behind the `updater` Cargo feature (OFF by default) — not compiled in a normal build. Activates when the owner adds the CI signing secret. See [`desktop-updater.md`](desktop-updater.md). |
+| `tauri-plugin-dialog` | `targets/web/src-tauri` Cargo dep (v2), **optional** | Native confirm dialog for the auto-updater's "install now?" prompt. Same `updater` feature gate as above — not in the default build. |
 | Rust (stable; MSVC on Windows) | build host / CI runners | Compiles the shell. Preinstalled on GitHub runners; via rustup locally. |
 
 ## Dev dependencies
@@ -77,7 +77,7 @@ built SPA, plus:
 | `gifenc` | 1 | Encode the GIF walkthroughs (CJS — import the default export; functions hang off it). Frames are diff-encoded against a shared palette so a full 1025×768 clip stays a few hundred KB. |
 | `pngjs` | 7 | Decode Playwright PNG frames to RGBA for the GIF encoder, and synthesize gradient placeholder thumbnails for the seeded Gallery/Single screens. |
 
-`gui/package.json` (the SPA's own jsdom suite, `gui/vitest.config.js`):
+`targets/web/package.json` (the SPA's own jsdom suite, `targets/web/vitest.config.js`):
 
 | Package | Major | Purpose |
 |---------|-------|---------|
@@ -93,8 +93,8 @@ import — `_.random/_.sample/_.shuffle` can't be RNG-stubbed (see `notes/plans/
 
 ### SPA editor — CodeMirror 6 (added 2.7.26)
 
-The DPL boxes (prompt / negative / wrapper) are CodeMirror 6 editors (`gui/src/components/DplEditor.jsx`
-over `gui/src/lib/dpl/dplLanguage.js`). `gui/package.json`:
+The DPL boxes (prompt / negative / wrapper) are CodeMirror 6 editors (`targets/web/frontend/components/DplEditor.jsx`
+over `targets/web/frontend/lib/dpl/dplLanguage.js`). `targets/web/package.json`:
 
 | Package | Major | Purpose |
 |---------|-------|---------|
@@ -107,7 +107,7 @@ over `gui/src/lib/dpl/dplLanguage.js`). `gui/package.json`:
 | `@lezer/highlight` | 1 | `Tag.define()` for the custom DPL highlight tags. |
 
 Highlight **colors live in `styles.css`** (the `--dpl-*` variables, with a light-theme override), not in a JS
-theme — so syntax coloring follows the app's light/dark theme. The tokenizer mirrors `src/core/dpl/dpl.js`
+theme — so syntax coloring follows the app's light/dark theme. The tokenizer mirrors `engine/core/dpl/dpl.js`
 and only treats DPL structural keywords as keywords at the **start of a line**, so prose in the prompt box
 isn't mis-highlighted. CodeMirror is framework-agnostic ESM and bundles cleanly under Vite/Rolldown (the
 main chunk grew ~accordingly; the >500 kB chunk warning is pre-existing).
@@ -115,17 +115,17 @@ main chunk grew ~accordingly; the >500 kB chunk warning is pre-existing).
 ### SPA internationalization — react-intl + FormatJS (added 2.15.0)
 
 The SPA is internationalized with **react-intl**; the IDs/catalogs are produced by the **FormatJS**
-tooling. All in `gui/package.json`:
+tooling. All in `targets/web/package.json`:
 
 | Package | Major | Purpose |
 |---------|-------|---------|
 | `react-intl` | 7 | The runtime i18n API: `IntlProvider`, `useIntl`, `defineMessages`, `FormattedMessage`, ICU formatting. |
 | `babel-plugin-formatjs` | 10 | Build-time plugin (wired into `@vitejs/plugin-react`'s `babel.plugins`) that auto-fills each message's `id` from its `defaultMessage`+`description`, using the **same** `idInterpolationPattern` as the extractor so bundle IDs match the catalog IDs. |
 | `@formatjs/cli` | 6 | The `formatjs extract`/`compile` CLI behind the `i18n:*` scripts. Extracts `src/i18n/messages/en.json`; compiles the `en-XA` **pseudo-locale** (requires `--ast`) to `src/i18n/compiled/`. |
-| `eslint-plugin-formatjs` | 5 | The `enforce-default-message` rule, run by `npm run lint:i18n` via the focused, gui-scoped `gui/eslint.config.js`. |
-| `eslint` | 9 | Needed locally in `gui/` to run `lint:i18n` (the repo-root ESLint config ignores `gui/**`). |
+| `eslint-plugin-formatjs` | 5 | The `enforce-default-message` rule, run by `npm run lint:i18n` via the focused, gui-scoped `targets/web/eslint.config.js`. |
+| `eslint` | 9 | Needed locally in `targets/web/` to run `lint:i18n` (the repo-root ESLint config ignores `targets/web/**`). |
 
-The i18n module lives at `gui/src/i18n/` (`config.js`, `loadMessages.js`, `I18nProvider.jsx`, `index.js`).
+The i18n module lives at `targets/web/frontend/i18n/` (`config.js`, `loadMessages.js`, `I18nProvider.jsx`, `index.js`).
 `loadMessages.js` bundles the compiled catalogs with `import.meta.glob` (same mechanism as the engine's
 browser data loader). The source locale `en` needs no catalog — react-intl renders from the inline
 `defaultMessage` kept in the bundle (`babel-plugin-formatjs` `removeDefaultMessage: false`). Regenerate
@@ -134,15 +134,15 @@ catalogs with `npm run i18n` after touching messages.
 ### SPA fonts — self-hosted via @fontsource (added 2.30.1)
 
 The SPA's fonts are **self-hosted** (no Google Fonts request — removes the IP-to-Google transfer). In
-`gui/package.json` as devDependencies, used only as the **source** of the `.woff2` files:
+`targets/web/package.json` as devDependencies, used only as the **source** of the `.woff2` files:
 
 | Package | Purpose |
 |---------|---------|
 | `@fontsource/maven-pro` | Source of the body-font `.woff2` (weights 400/500/600/700, latin). |
 | `@fontsource/space-grotesk` | Source of the display-font `.woff2` (weights 500/600/700, latin). |
 
-The actual files shipped are the seven `gui/public/fonts/*-latin-<wt>-normal.woff2` (committed static
-assets) declared via `@font-face` in `gui/public/fonts/fonts.css`, which both `index.html` and the
+The actual files shipped are the seven `targets/web/public/fonts/*-latin-<wt>-normal.woff2` (committed static
+assets) declared via `@font-face` in `targets/web/public/fonts/fonts.css`, which both `index.html` and the
 static `public/legal/*.html` pages load. The packages aren't imported at build or runtime — to refresh
 fonts, `npm i` then re-copy `node_modules/@fontsource/<f>/files/<f>-latin-<wt>-normal.woff2` into
 `public/fonts/`.
@@ -152,6 +152,6 @@ fonts, `npm i` then re-copy `node_modules/@fontsource/<f>/files/<f>-latin-<wt>-n
 - Update `package.json`, run `npm install`, then **re-run the verification** in
   [`../plans/testing.md`](../plans/testing.md) (`node --check`, `npm run lint`, the import smoke test).
 - For a dep with a breaking major, read its migration notes and grep for its usage first. The code that
-  touches third-party APIs is the provider adapters (`gui/providers/**`) and the SPA libs; the engine
+  touches third-party APIs is the provider adapters (`targets/web/shared/**`) and the SPA libs; the engine
   itself only uses `lodash`.
 - Record the change here and in the changelog.

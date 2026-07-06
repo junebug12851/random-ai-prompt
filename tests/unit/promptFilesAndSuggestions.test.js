@@ -1,17 +1,17 @@
 /**
  * @file Unit tests for src/promptFilesAndSuggestions.js — the loader-injected
- * dynamic-prompt classifier + random suggestion builder + picker list names.
+ * block classifier + random suggestion builder + picker list names.
  *
  * The module is a configured singleton; the "throws before configure" case uses a
  * fresh module instance via vi.resetModules so it doesn't disturb the configured one.
  */
 import { describe, it, expect, vi } from "vitest";
-import promptFiles from "../../src/promptFilesAndSuggestions.js";
+import promptFiles from "../../engine/promptFilesAndSuggestions.js";
 
 const loader = {
-  dynamicPromptNames: () => ["scene/beach", "fx", "user/mine", "nude-nsfw"],
-  loadDynamicPrompt: (k) => ({ default: () => "out", suggestion_exclude: k === "fx" }),
-  dynPromptForcedPrefixDirs: () => [],
+  blockNames: () => ["scene/beach", "fx", "user/mine", "nude-nsfw"],
+  loadBlock: (k) => ({ default: () => "out", suggestion_exclude: k === "fx" }),
+  blockForcedPrefixDirs: () => [],
   listNames: () => ["color", "clothes-nsfw", "artist/anime"],
 };
 
@@ -25,8 +25,8 @@ const settingsAccessor = () => ({
 describe("promptFilesAndSuggestions — configuration guard", () => {
   it("throws if loadAll runs before configure (fresh instance)", async () => {
     vi.resetModules();
-    const fresh = (await import("../../src/promptFilesAndSuggestions.js")).default;
-    expect(() => fresh.loadDynPromptList()).toThrow(/configure/);
+    const fresh = (await import("../../engine/promptFilesAndSuggestions.js")).default;
+    expect(() => fresh.loadBlockList()).toThrow(/configure/);
   });
 });
 

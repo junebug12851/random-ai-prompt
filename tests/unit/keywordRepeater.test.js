@@ -3,8 +3,8 @@
  * tokens. Named exports (consumed by destructuring) — verified here too.
  */
 import { describe, it, expect } from "vitest";
-import { keywordRepeater, artistRepeater } from "../../src/helpers/keywordRepeater.js";
-import { keywordAlias } from "../../src/helpers/aliases.js";
+import { keywordRepeater, artistRepeater } from "../../engine/helpers/keywordRepeater.js";
+import { keywordAlias } from "../../engine/helpers/aliases.js";
 
 // NOTE: these helpers draw from lodash's `_.random`, which captures `Math.random`
 // at import time — so a test cannot stub the RNG. We assert invariants (token shape

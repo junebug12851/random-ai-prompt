@@ -6,23 +6,23 @@ each owning one sigil. This page documents the language and its randomization ma
 **micro** systems. For the macro flow see [`../systems/overview.md`](../systems/overview.md); for the
 build history that produced it see [`../context/history.md`](../context/history.md).
 
-The **active** implementation is the loader-injected `src/core/` engine (used by the SPA and the shared
+The **active** implementation is the loader-injected `engine/core/` engine (used by the SPA and the shared
 pipeline); see [`../systems/core-engine.md`](../systems/core-engine.md). **Note (historical):** the
-classic Node CLI/server pipeline (`src/prompt-modules/*`, `src/common.js`, `src/helpers/listFiles.js`)
+classic Node CLI/server pipeline (`src/prompt-modules/*`, `src/common.js`, `engine/helpers/listFiles.js`)
 and the **`<expansion>` stage** (`data/expansions/`) were **removed** from the tree — where this page
 names them below, read them as history. The current pipeline is
-`dynamic-prompt → prompt-salt → list → emphasis → cleanup` (all stages under `src/core/stages/`).
+`block → prompt-salt → list → emphasis → cleanup` (all stages under `engine/core/stages/`).
 
 ## The pipeline order
 
 `processBatch()` (`src/common.js`) runs the prompt through `settings.promptModules` in order. The
-default (`src/settings.js`, mirrored by `core/engine.js`'s `DEFAULT_ORDER`):
+default (`engine/settings.js`, mirrored by `core/engine.js`'s `DEFAULT_ORDER`):
 
 ```
-prompt → expansion → dynamic-prompt → expansion → dynamic-prompt → prompt-salt → list → cleanup
+prompt → expansion → block → expansion → block → prompt-salt → list → cleanup
 ```
 
-Expansion and dynamic-prompt run **twice** so a dynamic prompt can emit `<expansion>` tokens (and vice
+Expansion and block run **twice** so a block can emit `<expansion>` tokens (and vice
 versa) and still get resolved. Lists resolve **last** (after salt) so list randomization sees the final
 keyword skeleton. Each stage is a `(prompt, settings, imageSettings, upscaleSettings) => prompt`
 function loaded by config-driven path from `src/prompt-modules/`.
@@ -32,8 +32,8 @@ function loaded by config-driven path from `src/prompt-modules/`.
 | Sigil | Stage | Source | Meaning |
 |-------|-------|--------|---------|
 | `<name>` | `expansion.js` | `data/expansions/**/name.txt` | Splice the file's text in verbatim. |
-| `{#name}` | `dynamicPrompt.js` | `data/dynamic-prompts/v3/<cat>/name.dpl` | Call the generator's `default(...)`; insert its returned string. v3 is the DEFAULT catalog (bare `{#name}`); `{#v1/…}` / `{#v2/…}` reach the frozen older generations by path prefix; `{#folder}` / `{#any}` = run one random generator. |
-| `{name}` | `list.js` | `data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
+| `{#name}` | `block.js` | `engine/data/blocks/v3/<cat>/name.dpl` | Call the generator's `default(...)`; insert its returned string. v3 is the DEFAULT catalog (bare `{#name}`); `{#v1/…}` / `{#v2/…}` reach the frozen older generations by path prefix; `{#folder}` / `{#any}` = run one random generator. |
+| `{name}` | `list.js` | `engine/data/lists/**/name.txt` | Pull one random line, then maybe randomize it (emphasis/editing/alternating). |
 | `{salt}` / `[1234567890]` | `prompt-salt.js` | — | Inject a random or incrementing seed-salt number. |
 
 ### `<expansion>` — recursive text macros
@@ -47,7 +47,7 @@ random expansion from that folder (`.group` files work too) — a single member,
 
 ### `{#name}` — JS generator scripts
 
-The dynamic-prompt stage (`src/core/stages/dynamicPrompt.js`) re-expands up to **10 passes** while any
+The block stage (`engine/core/stages/block.js`) re-expands up to **10 passes** while any
 `{#…}` remains. The sigil is **brace-delimited** (`{#name}`, uniform with `{list}` / `<expansion>`, and
 able to carry `/` paths like `{#scene/beach}`); a bare `#` in plain text is never touched. Each generator
 is a tiny JS module that returns a prompt fragment, usually itself full of `{list}` / `{#other}` /
@@ -59,9 +59,9 @@ script with specific behavior, not a word pool). Conventions:
 
 - **`export default function (...) { return "…" }`** — required.
 - **`export const full = true`** — this prompt is a complete scene (vs. a partial fragment). Drives
-  `promptSuggestion()` and the web UI sections (see the dynamic-prompt classification section below).
+  `promptSuggestion()` and the web UI sections (see the block classification section below).
 - **`export const suggestion_exclude = true`** — valid prompt, but keep it out of random suggestions.
-- **Generation namespaces (path prefixes):** `data/dynamic-prompts/v3/` is the **default** catalog reached
+- **Generation namespaces (path prefixes):** `engine/data/blocks/v3/` is the **default** catalog reached
   by a bare `{#name}` (suffix-resolved). The two older generations are **frozen** and reached only by their
   path prefix: `{#v1/castle}` and `{#v2/scene/cave}` (a shorter `{#v2/cave}` resolves by suffix *within* v2).
   There is **no** `-v1`/`-v2` suffix form. Frozen generations force `autoAddFx`/`autoAddArtists` off (they
@@ -73,7 +73,7 @@ script with specific behavior, not a word pool). Conventions:
   `{#any-sfw}` / `{#any-nsfw}`) picks one generator from the whole catalog. The unit is one GENERATOR that
   is then run — never a union of many.
 - **Gating:** a generator whose name carries an `nsfw` token is hidden (resolves to "") unless
-  `includeAdult` is on — the same automatic name-token rule lists/expansions use (`isGatedDynPrompt`).
+  `includeAdult` is on — the same automatic name-token rule lists/expansions use (`isGatedBlock`).
 - **Auto-append:** after expansion, if `settings.autoAddFx` and the prompt didn't already pull `{#fx}`,
   one is appended; same for `{#artists}` via `autoAddArtists`. The "already included" check also trips on
   any literal `artist` substring or the per-batch `autoIncludedFx/Artists` flags (which exist to stop
@@ -88,7 +88,7 @@ script with specific behavior, not a word pool). Conventions:
 ### `{list}` — random line pull + randomization
 
 `list.js` replaces each `{name}` with a random line from the list, via the in-memory store in
-`src/helpers/listFiles.js`:
+`engine/helpers/listFiles.js`:
 
 - **Aliases:** `{keyword}` resolves to `settings.keywordsFilename`, `{artist}` to
   `settings.artistFilename`. If that filename is `false`, a *random* list (or random artist list) is
@@ -118,7 +118,7 @@ generation without changing the meaningful prompt.
 
 ## The randomization math
 
-All three helpers live in `src/helpers/` and are reused unchanged by the browser engine.
+All three helpers live in `engine/helpers/` and are reused unchanged by the browser engine.
 
 **`randomEmphasis.js`** — gated by `keywordEmphasis`; a `deEmphasisChance` roll decides emphasis vs
 de-emphasis. Level count starts at 1 and keeps incrementing while an `emphasisLevelChance` roll passes,
@@ -158,26 +158,26 @@ AND-composition in suggestions). Output is the finished AUTOMATIC1111 prompt str
 
 ## Dynamic-prompt classification and `{#random}`
 
-`src/promptFilesAndSuggestions.js` is loader-injected (fs loader in Node, Vite-glob loader in the
-browser). It reads every dynamic-prompt key and splits them into **full** vs **partial** (by the `full`
+`engine/promptFilesAndSuggestions.js` is loader-injected (fs loader in Node, Vite-glob loader in the
+browser). It reads every block key and splits them into **full** vs **partial** (by the `full`
 export), tracks `suggestion_exclude`, and special-cases the `v1/` and `user-submitted/` namespaces. From
 those buckets it builds:
 
 - **`promptSuggestion(full)`** — the engine behind `{#random}`. Optionally prepends a `prePrompt`
   (random `<expansion>`, `{#partial}`, `{list}` garnish at ~25% each) and composes 1–3 full prompts,
   sometimes AND-weighted (`… :0.75 AND … :1.1 AND … :0.50`) for blended scenes.
-- The web UI's **file pickers** (`/api/files/dynamic-prompts|expansions|lists|presets`) and the
+- The web UI's **file pickers** (`/api/files/blocks|expansions|lists|presets`) and the
   building-blocks cloud.
 
 ## Where each piece lives
 
 | Concern | File |
 |---------|------|
-| Pipeline driver (active) | `src/core/engine.js` (`createEngine`); `src/common.js` `processBatch` is legacy |
-| Stages (active) | `src/core/stages/{expansion,dynamicPrompt,list}.js` + `prompt-salt.js`/`cleanup.js`; `src/prompt-modules/*` is frozen legacy reference |
-| List store (in-memory, depletion, aliases) | `src/core/listStore.js`; `src/helpers/listFiles.js` (legacy) |
-| Randomization | `src/helpers/random{Emphasis,Editing,Alternating}.js`, `keywordRepeater.js` |
-| Generators | `data/dynamic-prompts/v2/<cat>/*.js` (+ `v1/` frozen) |
-| Content | `data/lists/**/*.txt`, `data/expansions/**/*.txt`, `data/presets/*.json` |
-| Classification / suggestions | `src/promptFilesAndSuggestions.js` |
-| Resolution manifests | `src/listManifest.js`, `src/dynPromptManifest.js`, `src/gatedLists.js` |
+| Pipeline driver (active) | `engine/core/engine.js` (`createEngine`); `src/common.js` `processBatch` is legacy |
+| Stages (active) | `engine/core/stages/{expansion,block,list}.js` + `prompt-salt.js`/`cleanup.js`; `src/prompt-modules/*` is frozen legacy reference |
+| List store (in-memory, depletion, aliases) | `engine/core/listStore.js`; `engine/helpers/listFiles.js` (legacy) |
+| Randomization | `engine/helpers/random{Emphasis,Editing,Alternating}.js`, `keywordRepeater.js` |
+| Generators | `engine/data/blocks/v2/<cat>/*.js` (+ `v1/` frozen) |
+| Content | `engine/data/lists/**/*.txt`, `data/expansions/**/*.txt`, `engine/data/presets/*.json` |
+| Classification / suggestions | `engine/promptFilesAndSuggestions.js` |
+| Resolution manifests | `engine/listManifest.js`, `engine/blockManifest.js`, `engine/gatedLists.js` |

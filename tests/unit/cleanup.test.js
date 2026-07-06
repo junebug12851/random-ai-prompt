@@ -4,7 +4,7 @@
  * so it is in scope despite living under core/stages/.
  */
 import { describe, it, expect } from "vitest";
-import cleanup from "../../src/core/stages/cleanup.js";
+import cleanup from "../../engine/core/stages/cleanup.js";
 
 describe("cleanup stage", () => {
   it("collapses runs of spaces to a single space", () => {

@@ -1,7 +1,7 @@
 # CSS Overhaul, Modularization & Theming Framework — Plan
 
 **Status:** proposal / awaiting go-ahead. No code changed yet — this is the blueprint.
-**Scope:** `gui/src/styles.css` (the 4,515-line monolith) → a modern, modular,
+**Scope:** `targets/web/frontend/styles.css` (the 4,515-line monolith) → a modern, modular,
 layered, fully token-driven CSS system + a runtime theming framework (dark/light bases ×
 neon accent presets).
 
@@ -53,7 +53,7 @@ neon accent presets).
 
 ## 2. Current-state audit (what we're starting from)
 
-- **One file:** `gui/src/styles.css`, 4,515 lines, imported once in `main.jsx`
+- **One file:** `targets/web/frontend/styles.css`, 4,515 lines, imported once in `main.jsx`
   (`import "./styles.css";`). ~60 sections, each already introduced by a `/* ---- name ---- */`
   banner — a natural seam map for the split.
 - **Already token-driven — big head start.** `:root` defines the palette as custom properties
@@ -62,14 +62,14 @@ neon accent presets).
   these, so retheming is largely "remap the variables," not "rewrite the rules."
 - **Dark-first with a light fallback.** A single `@media (prefers-color-scheme: light)` block
   overrides the surface/text/DPL tokens. There is **no runtime switch today** — the OS decides.
-- **Tooling present:** `gui/stylelint.config.mjs` exists and the CSS lint gate is green
+- **Tooling present:** `targets/web/stylelint.config.mjs` exists and the CSS lint gate is green
   (commit `c1482cc`, "clear all lint issues", 2.35.3). Build is Vite 8 + React; **no PostCSS,
   autoprefixer, or Sass** in the tree. Fonts are self-hosted via `@fontsource/*`.
-- **Settings/persistence pattern to mirror:** settings flow through `gui/storage/` (a synchronous
+- **Settings/persistence pattern to mirror:** settings flow through `targets/web/storage/` (a synchronous
   in-memory cache hydrated at boot; a real file on disk locally, `localStorage` only in the online
   build). There's already a `locale` preference (`"auto"` or a code) — a `theme`/`accent`
   preference follows the exact same shape.
-- **i18n is the architectural template.** `gui/src/i18n/` (`config.js`, `I18nProvider.jsx`,
+- **i18n is the architectural template.** `targets/web/frontend/i18n/` (`config.js`, `I18nProvider.jsx`,
   `loadMessages.js`) + a language picker in `LinksMenu.jsx` is a working example of exactly the
   provider/registry/persisted-preference/menu-picker pattern the theme system needs.
 - **Safety net exists:** `tests/e2e/visual.spec.js` (Playwright visual regression). This
@@ -98,7 +98,7 @@ maintainability.
 
 ### 3.2 File tree (the modular split)
 ```
-gui/src/styles/
+targets/web/frontend/styles/
   index.css                 # @layer decl + @imports, in order. This is what main.jsx imports.
   reset.css                 # box-sizing, margin reset, :where() normalizations
   tokens/
@@ -289,7 +289,7 @@ today's green), **Aurora** (green→cyan), **Cyan**, **Magenta/Hot-Pink**, **Vio
 ## 5. ThemeProvider (JS architecture — mirrors i18n)
 
 ```
-gui/src/theme/
+targets/web/frontend/theme/
   config.js          # registry: bases, accents, defaults, allow-listed token contract, storage keys
   ThemeProvider.jsx  # context; reads settings; sets <html> data-* ; lazy-adopts accent/custom sheet
   useTheme.js        # { mode, accent, resolvedMode, setMode, setAccent, importTheme, exportTheme }
@@ -297,7 +297,7 @@ gui/src/theme/
   presets.js         # accent seed definitions (data, not CSS) for the picker swatches
   themeFile.js       # Rung 3: serialize (export) + parse/validate (import) the theme JSON
 ```
-UI: `gui/src/components/ThemePicker.jsx` — the header button + popover form of §4.2.
+UI: `targets/web/frontend/components/ThemePicker.jsx` — the header button + popover form of §4.2.
 
 - **Persistence:** add `themeMode` (`system|dark|light`), `accent` (preset id), and `customTokens`
   (the last-imported override map, or null) to `defaultSettings` in `lib/settings.js`; they ride

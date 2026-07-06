@@ -13,7 +13,7 @@ verified by the full gate (`npm test`) + the whole Playwright suite (18 specs: E
 a11y, and the responsive viewport matrix), all green. Desktop rendering is byte-identical throughout
 (visual baselines unchanged). Optional future polish: a committed phone-width visual baseline, and the
 Single view's sticky bottom action bar.
-**Scope:** the whole `gui/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
+**Scope:** the whole `targets/web/` SPA — every top-level view (Home / Gallery / Single / Manage), the top bar,
 and the shared shell. **No feature is removed at any width.** Features *relocate* (drawer, overflow
 menu, stacked pane, sticky action bar); they never disappear. Applies to both editions — the local build
 and the online build — so anyone on any device gets the full, flexible interface.
@@ -88,7 +88,7 @@ detail table) that don't enclose a fixed popover, established per-component in P
 
 ## 4. The hard constraint: prerender + hydration
 
-The online build **prerenders first paint and `hydrateRoot`s it** (`gui/scripts/build.mjs`,
+The online build **prerenders first paint and `hydrateRoot`s it** (`targets/web/scripts/build.mjs`,
 `entry-server.jsx`), and `CLAUDE.md` is emphatic: the initial render must not touch
 `window` / `matchMedia` / `document` / `localStorage`. A `useIsMobile()` hook that *chooses a layout in
 JS* would render the desktop tree on the server and a phone tree on the client → **hydration mismatch**.

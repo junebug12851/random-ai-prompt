@@ -37,7 +37,7 @@ Existing test files and their `describe/it` counts:
 - **Node integration** (`tests/integration/`): enginePipeline 21, manageFs 14
 - **Node** regression 13, snapshot 5
 - **E2E** (`tests/e2e/`): home 4, visual 4, accessibility 3
-- **SPA** (`gui/tests/`): customStore 2, Field 8, gallery 11, promptEngine.integration 10,
+- **SPA** (`targets/web/tests/`): customStore 2, Field 8, gallery 11, promptEngine.integration 10,
   providers 11, settings 6, Settings 16, share 5, TokenPicker 4, validateDpl 12
 
 Strong where it exists; the gaps below are whole modules with **zero** direct tests.
@@ -54,18 +54,18 @@ Strong where it exists; the gaps below are whole modules with **zero** direct te
   reload-on-empty, alias resolution (`keyword`/`artist`, `false` → random), artist & NSFW gating** untested directly.
 - `core/stages/list.js` — covered only indirectly. **Emphasis path, NovelAI `()`→`{}` rewrite,
   artist detection, `{#name}` pass-through, nested token re-pull** untested directly.
-- `core/stages/dynamicPrompt.js` — covered only indirectly. **Dial arg parsing, `{#any}` family,
+- `core/stages/block.js` — covered only indirectly. **Dial arg parsing, `{#any}` family,
   implied + `.group` groups, dedup/stacking, auto-append fx/artists, NSFW gating, danbooru replacer,
   10-pass cap** untested directly.
 - `core/engine.js` — `generate()` default-prompt fallback, `generateMany` count clamp (0/NaN/neg → 1),
   `promptModules` ordering + unknown-stage skip, `\r` stripping.
-- `dynPromptManifest.js` — **untested** (`isReservedAny`, `dynGroupDirs` v1 exclusion, `dynGroupMembers`).
+- `blockManifest.js` — **untested** (`isReservedAny`, `dynGroupDirs` v1 exclusion, `dynGroupMembers`).
 - `promptFilesAndSuggestions.js` — **untested** (classification, `pickerListNames` adult on/off,
   `promptSuggestion` shapes, `gatePool`, `configure()`-not-called throw).
 - `core/nodeLoader.js` — loader contract over a temp data dir (lists, groups, dpl, markers, meta).
 - `settings.js` — a shape/type guard test (the master defaults the engine assumes).
 
-### SPA (`gui/src/lib/`) — jsdom suite
+### SPA (`targets/web/frontend/lib/`) — jsdom suite
 - `keywords.js` — **untested** (`keywordKey` accents/Unicode, `cleanTag` lora/attention/weights/BREAK/AND/pipe,
   `parseKeywords` dedupe/maxLen/max/sort, `normalizeKeywordList`).
 - `manageTree.js` — **untested** (`buildManageModel` categories/groups/NSFW-hide, `computeGhosts`,
@@ -87,17 +87,17 @@ LivePreview, Manage, ManageBlockEditor, ManageFolderEditor, ManageListEditor, Ns
 PromptResult, ProviderBox, ProviderGear, ProviderPicker, ProvidersMenu, SettingsDrawer,
 SingleView, WrapperFab.
 
-### Providers (`gui/providers/`) — contract suite
+### Providers (`targets/web/shared/`) — contract suite
 Only `local-webui` + `midjourney` covered. **Untested adapters:** comfyui, openai, gemini,
 grok, replicate, fal, bfl, ideogram, leonardo, stability `code/generate.js`; the rewrite
 adapters (openai/gemini/grok `code/rewrite.js`); `_shared/transport/*` (hostedProxy,
 localDirect, submitPoll); `_shared/dialects.js` (`engineModeFor`), `_shared/rewriteSystem.js`,
-`_shared/fieldInfo.js`. (The former Netlify functions were removed; server-side dispatch now lives in `gui/server/dispatch.js`.)
+`_shared/fieldInfo.js`. (The former Netlify functions were removed; server-side dispatch now lives in `targets/web/backend/dispatch.js`.)
 
 ## Tooling changes
 
-1. **MSW** (`msw`, dev dep in `gui/`). Add `gui/tests/msw/server.js` + handlers; wire
-   `server.listen/resetHandlers/close` into `gui/tests/setup.js`. Migrate the ad-hoc
+1. **MSW** (`msw`, dev dep in `targets/web/`). Add `targets/web/tests/msw/server.js` + handlers; wire
+   `server.listen/resetHandlers/close` into `targets/web/tests/setup.js`. Migrate the ad-hoc
    `vi.stubGlobal("fetch", …)` provider tests onto it and add the standard network
    matrix (loading, 200, 4xx unauthorized, 5xx, empty body, slow/timeout).
 2. **Playwright cross-browser** — add `firefox` and `webkit` projects + a `Mobile Chrome`
@@ -111,7 +111,7 @@ localDirect, submitPoll); `_shared/dialects.js` (`engineModeFor`), `_shared/rewr
    `test:lhci`.
 4. **Coverage config fix** — root `vitest.config.js` `coverage.include` lists a non-existent
    `src/diffSettings.js`; replace with the real now-tested modules (`helpers/random*.js`,
-   `dynPromptManifest.js`, `promptFilesAndSuggestions.js`, `core/listStore.js`,
+   `blockManifest.js`, `promptFilesAndSuggestions.js`, `core/listStore.js`,
    `core/stages/*.js`). Add modest coverage **thresholds** so a future drop fails CI.
 5. **Scripts** — extend root `package.json`: `test:e2e:all` (all browsers), `test:perf`;
    keep `test` (lint+smoke+unit+web) as the fast headless gate, `test:all` adds e2e+perf.
@@ -141,7 +141,7 @@ MDJ → no-op (returns input, `wasUsed:true`); `keywordAlternating:false` no-op;
 `keywordsFilename:"false"`→random non-artist list; artist alias + `includeArtist:false`→"";
 gated list + `includeAdult:false`→""; missing list→""; `reset()` clears state.
 
-**`core/stages/dynamicPrompt.js`** (over fakeLoader) — `{#name}` resolves; `{#a/b}` path;
+**`core/stages/block.js`** (over fakeLoader) — `{#name}` resolves; `{#a/b}` path;
 `{#any}` picks one; implied group picks a member; `.group` file picks a member; dedup drops
 2nd import; `stacking` exempt; `{#name i25% f80%}` dial parse (absent→50, 0→1, >100→100,
 non-numeric ignored); auto-add fx/artists once (idempotent via imageSettings flags); NSFW
@@ -189,13 +189,13 @@ copy/regenerate; `DplInsertBar` token insertion; `Gallery`/`SingleView` empty + 
 ## New files (inventory)
 
 - Node unit: `tests/unit/{randomEmphasis,randomEditing,randomAlternating,aliases,listStore,
-  listStage,dynamicPromptStage,dynPromptManifest,promptFilesAndSuggestions,engine,settings}.test.js`
+  listStage,blockStage,blockManifest,promptFilesAndSuggestions,engine,settings}.test.js`
 - Node loader/integration: `tests/integration/{nodeLoader,enginePipeline.extended}.test.js`
-- SPA lib: `gui/tests/lib/{keywords,manageTree,rewrite,output,online,sessionKeys,providerMeta,
+- SPA lib: `targets/web/tests/lib/{keywords,manageTree,rewrite,output,online,sessionKeys,providerMeta,
   dplLanguage,dplInserts,wrapperStore,useProvider,manageApi}.test.js(x)`
-- SPA components: `gui/tests/components/<Name>.test.jsx` (one per untested component)
-- Providers: `gui/tests/providers/<id>.test.js` + `gui/tests/providers/{transport,rewrite,
-  netlifyFunctions}.test.js`; `gui/tests/msw/{server,handlers}.js`
+- SPA components: `targets/web/tests/components/<Name>.test.jsx` (one per untested component)
+- Providers: `targets/web/tests/providers/<id>.test.js` + `targets/web/tests/providers/{transport,rewrite,
+  netlifyFunctions}.test.js`; `targets/web/tests/msw/{server,handlers}.js`
 - Perf: `tests/perf/bundleSize.test.js`, `lighthouserc.json`
 - E2E: extend `tests/e2e/` (manage flow, provider switch, share-link load, settings persist);
   add browser projects in `playwright.config.js`

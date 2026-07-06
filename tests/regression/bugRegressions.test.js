@@ -7,10 +7,10 @@
  * the fix, with a one-line note on the original symptom.
  */
 import { describe, it, expect } from "vitest";
-import { classifyRemoval, isNsfw } from "../../src/contentSafety.js";
-import { hasNsfwToken } from "../../src/gatedLists.js";
-import { resolveName } from "../../src/listManifest.js";
-import { createEngine } from "../../src/core/engine.js";
+import { classifyRemoval, isNsfw } from "../../engine/contentSafety.js";
+import { hasNsfwToken } from "../../engine/gatedLists.js";
+import { resolveName } from "../../engine/listManifest.js";
+import { createEngine } from "../../engine/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 
 const baseSettings = {
@@ -51,9 +51,9 @@ describe("regression: reserved 'keyword' wildcard must not resolve to a real lis
   });
 });
 
-describe("regression: list stage must not swallow dynamic-prompt tokens", () => {
+describe("regression: list stage must not swallow block tokens", () => {
   // Symptom: the {name} list stage mis-pulled a list named "#scene" for {#scene}.
-  it("leaves a stray {#name} token intact for the dynamic-prompt stage", () => {
+  it("leaves a stray {#name} token intact for the block stage", () => {
     const engine = createEngine(makeFakeLoader({ lists: { color: ["red"] } }));
     const out = engine.expand(
       "{#scene}",
@@ -69,10 +69,10 @@ describe("regression: NSFW generators are gated off unless adult mode is on", ()
   // Symptom: an nsfw-tokened generator could leak when includeAdult was false.
   it("resolves an nsfw generator to empty when adult is off, and runs it when on", () => {
     const loader = makeFakeLoader({
-      dynamicPrompts: { "nude-nsfw": { default: () => "explicit" } },
+      blocks: { "nude-nsfw": { default: () => "explicit" } },
     });
     const engine = createEngine(loader);
-    const modules = ["dynamic-prompt", "cleanup"];
+    const modules = ["block", "cleanup"];
     expect(
       engine.expand(
         "{#nude-nsfw}",
@@ -95,7 +95,7 @@ describe("regression: NSFW generators are gated off unless adult mode is on", ()
 describe("regression: cleanup strips the comma after AND", () => {
   // Symptom: "AND," leaked into prompts and broke SD's AND compositing.
   it("rewrites 'AND,' to 'AND'", async () => {
-    const { default: cleanup } = await import("../../src/core/stages/cleanup.js");
+    const { default: cleanup } = await import("../../engine/core/stages/cleanup.js");
     expect(cleanup("a AND, b")).toBe("a AND b");
   });
 });
