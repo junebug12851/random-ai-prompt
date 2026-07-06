@@ -302,17 +302,34 @@ jobs:
           esac
           ls -la "$out"
 
-      # Gather the Tauri updater signatures (`.sig`) next to the installers so they upload with the
-      # release. Only meaningful when the updater build ran. Assembling the cross-platform `latest.json`
-      # manifest the updater endpoint serves is the final owner step (it aggregates all three OS
-      # signatures + URLs) — see notes/reference/desktop-updater.md. Inert without the key.
-      - name: Collect updater signatures
+      # Gather each platform's Tauri UPDATER artifact + its detached `.sig`, renamed to match the
+      # installer names so the `updater-manifest` job can pair them and build `latest.json`. The
+      # signature is over the artifact BYTES, so renaming the file doesn't invalidate it. Only runs on
+      # the updater build. The updater artifact per OS: Windows = the NSIS `-setup.exe`, Linux = the
+      # `.AppImage`, macOS = the `.app.tar.gz`. See notes/reference/desktop-updater.md.
+      - name: Collect updater artifacts + signatures
         if: steps.updkey.outputs.has_key == 'true'
         shell: bash
         run: |
           set -euo pipefail
+          v="${{ needs.release.outputs.version }}"
           out="dist-desktop"; mkdir -p "$out"
-          find gui/src-tauri/target/release/bundle -name '*.sig' -exec cp {} "$out/" \; || true
+          b="gui/src-tauri/target/release/bundle"
+          case "${{ matrix.os }}" in
+            windows-latest)
+              # setup.exe already collected as the installer; add its .sig under the matching name.
+              cp "$b"/nsis/*-setup.exe.sig "$out/random-ai-prompt-$v-windows-x64-setup.exe.sig" || true
+              ;;
+            macos-latest)
+              # The macOS updater artifact is the .app.tar.gz (NOT the .dmg) + its .sig.
+              cp "$b"/macos/*.app.tar.gz "$out/random-ai-prompt-$v-macos.app.tar.gz" || true
+              cp "$b"/macos/*.app.tar.gz.sig "$out/random-ai-prompt-$v-macos.app.tar.gz.sig" || true
+              ;;
+            ubuntu-latest)
+              # AppImage already collected as the installer; add its .sig under the matching name.
+              cp "$b"/appimage/*.AppImage.sig "$out/random-ai-prompt-$v-linux-x86_64.AppImage.sig" || true
+              ;;
+          esac
           ls -la "$out"
 
       - name: Install cosign
@@ -347,3 +364,68 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "${{ needs.release.outputs.tag }}" dist-desktop/* --clobber
+
+  # Assemble the Tauri updater manifest (`latest.json`) the app's updater endpoint serves, AFTER all
+  # three desktop builds have uploaded their updater artifacts + `.sig` files. Aggregates each
+  # platform's signature (the `.sig` file's contents) with the download URL of its updater artifact.
+  # INERT without the signing key: the `updater-key` step gates every real step, so with no secret the
+  # job runs but produces nothing (matching today). Validate end-to-end on the first signed release —
+  # see notes/reference/desktop-updater.md. macOS builds only the runner's arch (aarch64); add an
+  # x86_64 mac matrix leg later if Intel Macs must auto-update.
+  updater-manifest:
+    name: Updater manifest (latest.json)
+    needs: [release, desktop]
+    if: needs.release.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload latest.json to the release
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Detect updater signing key
+        id: updkey
+        env:
+          UPDATER_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -n "${UPDATER_KEY:-}" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "No updater signing key — skipping latest.json (behaviour unchanged)."
+          fi
+
+      - name: Build and upload latest.json
+        if: steps.updkey.outputs.has_key == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="junebug12851/random-ai-prompt"
+          tag="${{ needs.release.outputs.tag }}"
+          v="${{ needs.release.outputs.version }}"
+          base="https://github.com/$repo/releases/download/$tag"
+          mkdir -p sigs
+          gh release download "$tag" -R "$repo" -p '*.sig' -D sigs || true
+          notes="$(git log -1 --pretty=%s 2>/dev/null || echo "A new version is available.")"
+          pubdate="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          read_sig() { [ -f "sigs/$1" ] && cat "sigs/$1" || echo ""; }
+          wsig="$(read_sig "random-ai-prompt-$v-windows-x64-setup.exe.sig")"
+          lsig="$(read_sig "random-ai-prompt-$v-linux-x86_64.AppImage.sig")"
+          msig="$(read_sig "random-ai-prompt-$v-macos.app.tar.gz.sig")"
+          jq -n \
+            --arg v "$v" --arg notes "$notes" --arg date "$pubdate" \
+            --arg wsig "$wsig" --arg wurl "$base/random-ai-prompt-$v-windows-x64-setup.exe" \
+            --arg lsig "$lsig" --arg lurl "$base/random-ai-prompt-$v-linux-x86_64.AppImage" \
+            --arg msig "$msig" --arg murl "$base/random-ai-prompt-$v-macos.app.tar.gz" \
+            '{version:$v, notes:$notes, pub_date:$date, platforms: (
+                {}
+                + (if $wsig != "" then {"windows-x86_64": {signature:$wsig, url:$wurl}} else {} end)
+                + (if $lsig != "" then {"linux-x86_64":   {signature:$lsig, url:$lurl}} else {} end)
+                + (if $msig != "" then {"darwin-aarch64": {signature:$msig, url:$murl}} else {} end)
+              )}' > latest.json
+          cat latest.json
+          if [ "$(jq '.platforms | length' latest.json)" -eq 0 ]; then
+            echo "::warning::no updater signatures found — latest.json has no platforms; not uploading"
+          else
+            gh release upload "$tag" latest.json --clobber
+          fi

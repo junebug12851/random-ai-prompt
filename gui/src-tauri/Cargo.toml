@@ -18,12 +18,12 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
-# OFF by default. Enables the in-app desktop auto-updater (Tauri updater plugin), the Phase 2 of the
-# updates design (notes/plans/updates-upgrades.md). It is a compile-in feature so a normal build never
-# pulls the plugin in — current builds (`tauri build`) are byte-for-byte unchanged. Turning it on also
-# needs the signing keypair + the `plugins.updater` config fragment (tauri.updater.conf.json); the
-# `desktop:build:updater` npm script wires both. See notes/reference/desktop-updater.md.
-updater = ["dep:tauri-plugin-updater"]
+# OFF by default. Enables the in-app desktop auto-updater (Tauri updater + dialog plugins), Phase 2 of
+# the updates design (notes/plans/updates-upgrades.md). It is a compile-in feature so a normal build
+# never pulls the plugins in — current builds (`tauri build`) are byte-for-byte unchanged. Turning it
+# on also needs the signing keypair + the `plugins.updater` config fragment (tauri.updater.conf.json);
+# the `desktop:build:updater` npm script wires both. See notes/reference/desktop-updater.md.
+updater = ["dep:tauri-plugin-updater", "dep:tauri-plugin-dialog"]
 
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [] }
@@ -36,3 +36,4 @@ tauri = { version = "2.11.3", features = [] }
 tauri-plugin-log = "2"
 # Optional: only compiled when the `updater` feature is enabled (see [features] above).
 tauri-plugin-updater = { version = "2", optional = true }
+tauri-plugin-dialog = { version = "2", optional = true }

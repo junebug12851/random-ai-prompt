@@ -81,12 +81,14 @@ export default function UpdateBanner() {
 
   return (
     <div className="update-banner" role="status" aria-live="polite">
-      <span className="update-banner-icon" aria-hidden="true">
-        <SparkleIcon />
-      </span>
-      <span className="update-banner-text">
-        {intl.formatMessage(msgs.available, { version: update.version })}
-      </span>
+      <div className="update-banner-head">
+        <span className="update-banner-icon" aria-hidden="true">
+          <SparkleIcon />
+        </span>
+        <span className="update-banner-text">
+          {intl.formatMessage(msgs.available, { version: update.version })}
+        </span>
+      </div>
 
       {isGit && (
         <span className="update-banner-cmd">
