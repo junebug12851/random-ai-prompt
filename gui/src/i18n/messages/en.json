@@ -57,6 +57,10 @@
     "defaultMessage": "Manage needs the local app (file access) — unavailable online",
     "description": "Tooltip when the Manage tab is unavailable (no local backend)"
   },
+  "app.moreControls": {
+    "defaultMessage": "More controls",
+    "description": "aria-label/title for the top-bar overflow button that reveals the secondary controls (providers, theme, links…) on narrow screens"
+  },
   "app.nsfwProceed": {
     "defaultMessage": "NSFW mode is on. Continue with {provider} anyway?",
     "description": "Soft confirm before using a safe-for-work-only provider while NSFW mode is on"
@@ -552,6 +556,10 @@
   "home.close": {
     "defaultMessage": "close"
   },
+  "home.closePalette": {
+    "defaultMessage": "Close building blocks",
+    "description": "aria-label for the phone-only ✕ that closes the building-block drawer"
+  },
   "home.composeModeAria": {
     "defaultMessage": "Edit the prompt or the negative prompt"
   },
@@ -605,6 +613,12 @@
   },
   "home.nsfwProceed": {
     "defaultMessage": "NSFW mode is on. Generate with {provider} anyway?"
+  },
+  "home.openBlocks": {
+    "defaultMessage": "Building blocks"
+  },
+  "home.openBlocksAria": {
+    "defaultMessage": "Open building blocks"
   },
   "home.phNegative": {
     "defaultMessage": "Negative prompt — what to keep out (DPL), e.g. blurry, lowres, '{#bad-anatomy}'"
@@ -675,6 +689,9 @@
   "inlineImg.size": {
     "defaultMessage": "Size"
   },
+  "inlineImg.sizeMenu": {
+    "defaultMessage": "Size settings"
+  },
   "inlineImg.sizeTitle": {
     "defaultMessage": "Output size — width × height"
   },
@@ -692,6 +709,12 @@
   },
   "linksMenu.docsDesc": {
     "defaultMessage": "API reference and developer guide"
+  },
+  "linksMenu.download": {
+    "defaultMessage": "Get the desktop app"
+  },
+  "linksMenu.downloadDesc": {
+    "defaultMessage": "Pre-built downloads for Windows, macOS, and Linux"
   },
   "linksMenu.github": {
     "defaultMessage": "GitHub repository"
@@ -723,6 +746,12 @@
   },
   "linksMenu.privacyDesc": {
     "defaultMessage": "What we collect (almost nothing)"
+  },
+  "linksMenu.selfhost": {
+    "defaultMessage": "Run it yourself"
+  },
+  "linksMenu.selfhostDesc": {
+    "defaultMessage": "Self-host the online edition or build from source"
   },
   "linksMenu.terms": {
     "defaultMessage": "Terms & Conditions"
@@ -865,6 +894,10 @@
   },
   "manage.attrNone": {
     "defaultMessage": "none"
+  },
+  "manage.backToList": {
+    "defaultMessage": "Back to list",
+    "description": "Phone-only button that returns from the editor to the tree (master/detail)"
   },
   "manage.badgeForcePrefixTitle": {
     "defaultMessage": "Force-prefix folder — its path shows in the token"
@@ -1259,6 +1292,9 @@
   "settings.group.salt": {
     "defaultMessage": "Salt & lists"
   },
+  "settings.group.seed": {
+    "defaultMessage": "Seed"
+  },
   "settings.group.vocabulary": {
     "defaultMessage": "Vocabulary"
   },
@@ -1301,6 +1337,18 @@
   },
   "settings.saltStart": {
     "defaultMessage": "Salt start (-1 = random)"
+  },
+  "settings.seedField": {
+    "defaultMessage": "Seed"
+  },
+  "settings.seedHintPinned": {
+    "defaultMessage": "Pinned: every roll reuses this seed and reproduces the same prompt. Any text works — numbers, words, or a phrase."
+  },
+  "settings.seedHintRandom": {
+    "defaultMessage": "A fresh random seed each roll — shown below so you can copy it."
+  },
+  "settings.seedRandom": {
+    "defaultMessage": "Random seed"
   },
   "settings.usedOnce": {
     "defaultMessage": "List entries used once"
@@ -1364,6 +1412,9 @@
   },
   "single.copyMdTitle": {
     "defaultMessage": "Copy the prompt, negative, and details as a Markdown block"
+  },
+  "single.copyMenu": {
+    "defaultMessage": "Copy options"
   },
   "single.delete": {
     "defaultMessage": "Delete"
@@ -1509,6 +1560,9 @@
   "single.rebuildFailed": {
     "defaultMessage": "Keyword rebuild failed: {error}"
   },
+  "single.rebuildLocked": {
+    "defaultMessage": "Pick a Text provider (header → Providers) to rebuild keywords with AI"
+  },
   "single.rebuildTitle": {
     "defaultMessage": "Send the prompt to the AI, break it into a clean alphabetical keyword list, and save it over these"
   },
@@ -1627,6 +1681,34 @@
   "tokenPicker.more": {
     "defaultMessage": "+{count} more — keep typing",
     "description": "Hint shown when results are truncated"
+  },
+  "update.available": {
+    "defaultMessage": "Version {version} is available.",
+    "description": "Update banner headline; {version} is the new release number"
+  },
+  "update.copied": {
+    "defaultMessage": "Copied",
+    "description": "Confirmation shown briefly after copying the git command"
+  },
+  "update.copy": {
+    "defaultMessage": "Copy command",
+    "description": "aria-label/title for the button that copies the git update command"
+  },
+  "update.dismiss": {
+    "defaultMessage": "Dismiss",
+    "description": "aria-label/title for the button that dismisses the update banner"
+  },
+  "update.download": {
+    "defaultMessage": "Download",
+    "description": "Update banner button that opens the release download page"
+  },
+  "update.gitHint": {
+    "defaultMessage": "Update your checkout:",
+    "description": "Label before the copyable git update command"
+  },
+  "update.viewRelease": {
+    "defaultMessage": "View release",
+    "description": "Update banner button that opens the release page (git edition)"
   },
   "wrapper.autoToggleLabel": {
     "defaultMessage": "Allow used blocks to extend current wrapper"

@@ -191,6 +191,22 @@ export const ServerIcon = () => (
   </svg>
 );
 
+// X / close — dismiss the update banner.
+export const CloseIcon = () => (
+  <svg {...ico} width={16} height={16} aria-hidden="true">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+// Copy (two overlapping sheets) — copy the git update command.
+export const CopyIcon = () => (
+  <svg {...ico} width={16} height={16} aria-hidden="true">
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+);
+
 // Palette (Appearance / theme picker trigger).
 export const PaletteIcon = () => (
   <svg {...ico} aria-hidden="true">

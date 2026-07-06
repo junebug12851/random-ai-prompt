@@ -49,6 +49,82 @@ import {
 
 const execP = promisify(exec);
 
+/** The GitHub repo the update check reads its latest release from. */
+const UPDATE_REPO = "junebug12851/random-ai-prompt";
+/** How long a fetched "latest release" answer is cached server-side before we ask GitHub again. */
+const UPDATE_CACHE_MS = 60 * 60 * 1000; // 1 hour
+/** In-memory cache of the last GitHub answer (shared across requests for this process). */
+let latestReleaseCache = { at: 0, value: null };
+
+/**
+ * Which edition is this local backend running as, for the update banner's edition-aware call to
+ * action. The desktop Tauri shell stamps `RAP_EDITION` (installer | portable) when it spawns the Node
+ * sidecar; a bare `npm start` / git checkout has no stamp, so we infer "git" from a `.git` dir in the
+ * cwd (the repo root the server runs from) and otherwise call it "source" (e.g. an unpacked tarball).
+ * @returns {"installer"|"portable"|"git"|"source"} The detected edition.
+ */
+function detectEdition() {
+  const stamped = (process.env.RAP_EDITION || "").trim().toLowerCase();
+  if (stamped === "installer" || stamped === "portable") return stamped;
+  try {
+    if (fs.existsSync(path.join(process.cwd(), ".git"))) return "git";
+  } catch {
+    /* fall through */
+  }
+  return "source";
+}
+
+/** @returns {string} The running app's version, read from the cwd `VERSION` file (or "" if absent). */
+function readLocalVersion() {
+  try {
+    return fs
+      .readFileSync(path.join(process.cwd(), "VERSION"), "utf8")
+      .split("\n")
+      .map((l) => l.trim())
+      .find((l) => l && !l.startsWith("#")) || "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Fetch the latest **non-prerelease** GitHub release for the repo, cached in-process for
+ * {@link UPDATE_CACHE_MS}. Returns `{ version, url, publishedAt }` or `null` (no releases / offline /
+ * error). Server-side by design: the check runs on the machine the user already trusts (the local
+ * backend already contacts GitHub for the Manage tab's restore manifest), so the browser app opens no
+ * new third-party connection. Never throws.
+ * @returns {Promise<{version: string, url: string, publishedAt: string}|null>}
+ */
+async function fetchLatestRelease() {
+  if (latestReleaseCache.value !== null && Date.now() - latestReleaseCache.at < UPDATE_CACHE_MS) {
+    return latestReleaseCache.value;
+  }
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    const res = await fetch(`https://api.github.com/repos/${UPDATE_REPO}/releases/latest`, {
+      headers: { Accept: "application/vnd.github+json", "User-Agent": "random-ai-prompt-updater" },
+      signal: ctrl.signal,
+    }).finally(() => clearTimeout(timer));
+    // 404 = the repo has no published (non-draft, non-prerelease) release yet → simply "no update".
+    if (!res.ok) {
+      latestReleaseCache = { at: Date.now(), value: null };
+      return null;
+    }
+    const rel = await res.json();
+    const version = String(rel.tag_name || "").replace(/^[vV]/, "");
+    const value = version
+      ? { version, url: rel.html_url || `https://github.com/${UPDATE_REPO}/releases`, publishedAt: rel.published_at || "" }
+      : null;
+    latestReleaseCache = { at: Date.now(), value };
+    return value;
+  } catch {
+    // Offline / aborted / malformed — cache a null briefly so a flaky network doesn't spam GitHub.
+    latestReleaseCache = { at: Date.now(), value: null };
+    return null;
+  }
+}
+
 /**
  * Run one-time startup migrations (fold any legacy flat `.gui-storage.json` into the per-namespace
  * user-settings folder). Idempotent and best-effort. Call once when a server boots.
@@ -81,6 +157,21 @@ export function createApiHandler() {
   return async (req, res, next) => {
     if (!req.url) return next();
     const u = new URL(req.url, "http://localhost");
+
+    // --- Update check (check-and-notify): edition + the latest GitHub release ---
+    // The client compares `latest.version` to its own built-in version and, if older, shows a
+    // dismissible banner (see gui/src/lib/updateCheck.js). GitHub is fetched server-side + cached,
+    // so the browser opens no new connection. See notes/plans/updates-upgrades.md.
+    if (u.pathname === "/api/update" && req.method === "GET") {
+      const latest = await fetchLatestRelease();
+      const edition = detectEdition();
+      return send(res, 200, {
+        currentVersion: readLocalVersion(),
+        edition,
+        latest: latest ? { ...latest, edition } : null,
+        updateAvailable: false, // the client decides (it knows its own baked-in version); advisory only
+      });
+    }
 
     // --- Hosted generation proxy ---
     if (u.pathname === "/api/generate" && req.method === "POST") {
