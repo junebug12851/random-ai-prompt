@@ -6,7 +6,7 @@
     <title>Download — Random AI Prompt · Fairy Fox</title>
     <meta
       name="description"
-      content="Get Random AI Prompt: use the free online edition in your browser, or build the full desktop edition from source. Packaged Windows, macOS and Linux builds are on the way."
+      content="Get Random AI Prompt: use the free online edition in your browser, or download the pre-built desktop app for Windows, macOS and Linux. Or self-host the online edition and build from source — one codebase, your choice."
     />
     <!-- The themed stylesheet (fairyfox-docs.css, copied over docdash's jsdoc.css). -->
     <link rel="stylesheet" href="styles/jsdoc.css" />
@@ -17,9 +17,11 @@
     <main id="main">
       <h1 class="page-title">Download Random AI Prompt</h1>
       <p class="dl-lead">
-        Random AI Prompt ships as two editions from one codebase. Use it free in your browser with
-        nothing to install, or build the full desktop edition from source. More packaged targets are
-        on the way — this page will grow as they land.
+        Random AI Prompt ships as one codebase in two editions, and every one is available
+        <strong>pre-built</strong> — nothing to compile unless you want to. Use it free in your
+        browser, or download the full desktop app for your operating system. Neither is "the"
+        version: the hosted site is just one deployment of the online edition, and you can self-host
+        that same build or run the desktop app locally.
       </p>
 
       <div class="dl-grid">
@@ -30,22 +32,40 @@
           </div>
           <p>
             The online edition runs entirely in your browser — bring your own API key (or just
-            generate prompt text with no key). Nothing to install, nothing stored on a server.
+            generate prompt text with no key). Nothing to install, nothing stored on a server. Want
+            to run it yourself? Every release includes a static <code>online.zip</code> bundle you can
+            host anywhere.
           </p>
           <a class="dl-btn dl-primary" href="https://prompt.fairyfox.io">Open the web app&nbsp;↗</a>
+          <a
+            class="dl-btn"
+            href="https://github.com/junebug12851/random-ai-prompt/releases/latest"
+            >Self-host bundle&nbsp;↗</a
+          >
         </article>
 
         <article class="dl-card">
           <div class="dl-card-head">
-            <h2>Desktop edition</h2>
-            <span class="dl-chip dl-on">Build from source</span>
+            <h2>Desktop app</h2>
+            <span class="dl-chip dl-on">Available now</span>
           </div>
           <p>
             The full edition adds the image gallery, single-image view, an in-app content manager,
-            local Stable Diffusion providers and an 18+ mode. Build it from source with Node&nbsp;24.
+            local Stable Diffusion providers and an 18+ mode. It's self-contained — it bundles its own
+            runtime, so there's nothing to install first. Pre-built for every platform:
           </p>
-          <a class="dl-btn" href="https://github.com/junebug12851/random-ai-prompt#readme"
-            >Build instructions&nbsp;↗</a
+          <ul class="dl-platforms">
+            <li><strong>Windows</strong> — installer (<code>.msi</code> / <code>.exe</code>) or a portable <code>.zip</code></li>
+            <li><strong>macOS</strong> — <code>.dmg</code></li>
+            <li><strong>Linux</strong> — <code>.AppImage</code> or <code>.deb</code></li>
+          </ul>
+          <a
+            class="dl-btn dl-primary"
+            href="https://github.com/junebug12851/random-ai-prompt/releases/latest"
+            >Download for your OS&nbsp;↗</a
+          >
+          <a class="dl-btn" href="https://github.com/junebug12851/random-ai-prompt#how-to-build"
+            >Or build from source&nbsp;↗</a
           >
         </article>
       </div>
@@ -53,8 +73,8 @@
       <p class="dl-note">
         Looking for the code? Everything is open source on
         <a href="https://github.com/junebug12851/random-ai-prompt">GitHub</a> — see the
-        <a href="https://github.com/junebug12851/random-ai-prompt/releases">releases</a> for tagged
-        builds and changelogs.
+        <a href="https://github.com/junebug12851/random-ai-prompt/releases">releases</a> for every
+        pre-built download, signatures and changelogs.
       </p>
     </main>
   </body>
