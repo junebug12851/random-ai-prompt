@@ -25,6 +25,11 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+
+  /* Align to the composer's centered column (see --g-col on .g-inner) so the header lines up
+     directly under the prompt box; the grid below stays full-bleed. */
+  max-width: var(--g-col);
+  margin-inline: auto;
   margin-bottom: 1rem;
 }
 
@@ -47,7 +52,9 @@
 
 .g-head-right {
   display: flex;
+  flex: 1;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.6rem;
 }
 
@@ -162,17 +169,6 @@
 .g-composer {
   max-width: var(--g-col);
   margin: 0 auto 1.1rem;
-}
-
-/* Align the header (title + search + actions) to the same centered column as the prompt box. */
-.g-head {
-  max-width: var(--g-col);
-  margin-inline: auto;
-}
-
-.g-head-right {
-  flex: 1;
-  justify-content: flex-end;
 }
 
 /* Let the search grow to fill the header's right side (up to the column) instead of a fixed pill. */
