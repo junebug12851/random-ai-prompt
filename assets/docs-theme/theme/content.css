@@ -56,6 +56,17 @@ html.ff-no-sidebar #main > img {
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
 }
+/* Shield badges (shields.io images, linked or bare) — keep them inline in a
+   wrapping row like the README's badge strip, not framed one-per-line like the
+   screenshots. Targeted by source so it catches every badge but no content image. */
+html.ff-no-sidebar #main p img[src*="shields.io"] {
+  display: inline;
+  margin: 0 0.28rem 0.4rem 0;
+  border: 0;
+  box-shadow: none;
+  border-radius: 3px;
+  vertical-align: middle;
+}
 
 /* API reference blocks. */
 section,
