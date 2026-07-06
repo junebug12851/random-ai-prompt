@@ -35,11 +35,14 @@ export function injectSkipLink() {
 export function injectHeader() {
   const page = here();
 
+  // Fixed mesh-wide primary nav — identical on every project (docs-site standard
+  // 05): Home · Projects · Games · Docs · Updates · About (About last). Don't
+  // reorder, drop, or add per project; project-specific links live in the subnav.
   const primary = [
     ["Home", `${HUB}/`, false],
     ["Projects", `${HUB}/projects/`, false],
+    ["Games", `${HUB}/games/`, false],
     ["Docs", `${HUB}/docs/`, true],
-    ["Downloads", `${HUB}/downloads/`, false],
     ["Updates", `${HUB}/blog/`, false],
     ["About", `${HUB}/about/`, false],
   ]
@@ -118,7 +121,6 @@ export function injectFooter() {
     '<nav class="ff-foot-col" aria-label="Fairy Fox"><h2>Explore</h2>' +
     `<a href="${HUB}/projects/">Projects</a>` +
     `<a href="${HUB}/docs/">Documentation</a>` +
-    `<a href="${HUB}/downloads/">Downloads</a>` +
     `<a href="${HUB}/blog/">Updates</a>` +
     `<a href="${HUB}/about/">About</a></nav>` +
     '<nav class="ff-foot-col" aria-label="This project"><h2>This project</h2>' +
