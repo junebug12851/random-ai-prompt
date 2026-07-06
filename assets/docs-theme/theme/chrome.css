@@ -138,36 +138,8 @@
   color: var(--accent-ink);
 }
 
-/* Footer (bottom of #main) — links back to the main site. */
-.ff-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--text);
-  font-weight: 700;
-  font-family: var(--display);
-  font-size: 1.12rem;
-  letter-spacing: -0.01em;
-}
-.ff-brand:hover {
-  text-decoration: none;
-  color: var(--text);
-}
-.ff-brand .ff-logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  flex: none;
-  background: linear-gradient(135deg, var(--violet), var(--amber));
-  color: #241016;
-  font-weight: 800;
-  font-family: var(--display);
-  font-size: 1rem;
-  box-shadow: 0 4px 14px -4px var(--glow);
-  border: 1px solid var(--line-2);
-}
+/* Footer (bottom of #main) — links back to the main site. Uses the shared
+   .brand / .brand-logo mark (the real fox logo), same as the header + hub footer. */
 .ff-foot {
   margin-top: auto;
   border-top: 1px solid var(--line);
@@ -179,8 +151,9 @@
   grid-template-columns: 1.5fr 1fr 1fr;
   gap: 2rem;
 }
-.ff-foot .ff-foot-brand .ff-brand {
+.ff-foot .ff-foot-brand .brand {
   margin-bottom: 0.7rem;
+  font-size: 1.12rem;
 }
 .ff-foot .ff-foot-brand p {
   color: var(--text-faint);

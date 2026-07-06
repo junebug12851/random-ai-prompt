@@ -102,10 +102,12 @@ export function injectHeader() {
 }
 
 function brandMark() {
+  // The real fairyfox.io footer brand: the fox logo image + name (same mark as the
+  // header and the hub footer) — not a placeholder monogram.
   return (
-    `<a class="ff-brand" href="${HUB}/">` +
-    '<span class="ff-logo" aria-hidden="true">F</span>' +
-    "<span>Fairy&nbsp;Fox</span></a>"
+    `<a class="brand" href="${HUB}/">` +
+    `<img class="brand-logo" src="${HUB}/assets/icons/fox.png" alt="" aria-hidden="true">` +
+    '<span class="brand-name">Fairy&nbsp;Fox</span></a>'
   );
 }
 
