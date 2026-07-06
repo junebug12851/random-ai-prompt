@@ -1,0 +1,174 @@
+/* ---------- Update banner (check-and-notify) ----------
+   A small, dismissible card that floats in the bottom-right corner ("there's an update — get it",
+   dismissible) rather than a full-width strip, so it stays out of the way. Accent-tinted so it reads
+   as a gentle notice, never an error. Local/desktop editions only. */
+.update-banner {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  width: min(340px, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0.95rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--accent-strong) 45%, var(--border));
+  border-radius: var(--radius, 14px);
+  background: color-mix(in srgb, var(--accent-strong) 10%, var(--panel));
+  color: var(--fg);
+  font-size: 0.85rem;
+  box-shadow:
+    0 10px 30px rgb(0 0 0 / 28%),
+    0 2px 8px rgb(0 0 0 / 18%);
+  animation: update-banner-in 0.22s ease-out;
+}
+
+@keyframes update-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-banner {
+    animation: none;
+  }
+}
+
+/* Headline row: sparkle + "Version X is available", with the close button pinned top-right. */
+.update-banner-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 1.4rem; /* room for the absolute close button */
+}
+
+.update-banner-icon {
+  display: inline-flex;
+  color: var(--accent-strong);
+  flex: none;
+}
+
+.update-banner-text {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* The git-checkout command block: a monospace command with a copy button. */
+.update-banner-cmd {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.update-banner-cmd-label {
+  white-space: nowrap;
+}
+
+.update-banner-cmd code {
+  flex: 1;
+  min-width: 0;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.update-banner-copy {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+}
+
+.update-banner-copy:hover {
+  background: var(--chip-hover);
+  color: var(--fg);
+}
+
+.update-banner-copied {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+/* Primary action, full-width at the foot of the card. */
+.update-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-strong);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.update-banner-cta:hover {
+  filter: brightness(1.06);
+}
+
+.update-banner-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.update-banner-cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Dismiss — pinned to the card's top-right corner. */
+.update-banner-close {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.update-banner-close:hover {
+  background: var(--chip-hover);
+  color: var(--fg);
+}
+
+.update-banner-close:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}

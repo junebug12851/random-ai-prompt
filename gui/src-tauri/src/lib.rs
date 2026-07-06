@@ -139,7 +139,8 @@ fn launch(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .filter(|p| p.exists())
         .unwrap_or_else(|| exe_dir.join("app"));
 
-    let work_root = if is_portable(&exe_dir) {
+    let portable = is_portable(&exe_dir);
+    let work_root = if portable {
         exe_dir.join("data")
     } else {
         app.path().app_data_dir()?
@@ -158,7 +159,10 @@ fn launch(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg(&serve)
         .current_dir(&work_app)
         .env("PORT", port.to_string())
-        .env("NO_OPEN", "1");
+        .env("NO_OPEN", "1")
+        // Stamp the edition so the backend's /api/update handler reports the right update path to the
+        // check-and-notify banner (portable zip vs installed build). See notes/plans/updates-upgrades.md.
+        .env("RAP_EDITION", if portable { "portable" } else { "installer" });
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
@@ -190,6 +194,53 @@ fn launch(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Phase 2 auto-updater: check once at launch and, if a signed newer release exists, ask the user
+/// (native dialog) and install on confirmation. Runs on its own thread so the check/download never
+/// blocks app startup or the UI; the updater plugin verifies the release signature against the pubkey
+/// in `tauri.updater.conf.json` before installing, so a tampered/unsigned package is refused. Compiled
+/// only under the `updater` feature. See notes/reference/desktop-updater.md.
+#[cfg(feature = "updater")]
+fn spawn_update_check(handle: tauri::AppHandle) {
+    use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+    use tauri_plugin_updater::UpdaterExt;
+
+    std::thread::spawn(move || {
+        // The updater API is async; run it to completion on this worker thread.
+        let found = tauri::async_runtime::block_on(async {
+            match handle.updater() {
+                Ok(updater) => updater.check().await.unwrap_or(None),
+                Err(_) => None,
+            }
+        });
+        let Some(update) = found else { return };
+
+        let install = handle
+            .dialog()
+            .message(format!(
+                "Version {} is available. Install it now? The app will restart to finish.",
+                update.version
+            ))
+            .title("Update available")
+            .buttons(MessageDialogButtons::OkCancelCustom(
+                "Install".to_string(),
+                "Later".to_string(),
+            ))
+            .blocking_show();
+        if !install {
+            return;
+        }
+
+        let installed = tauri::async_runtime::block_on(async {
+            update.download_and_install(|_downloaded, _total| {}, || {}).await
+        });
+        if installed.is_ok() {
+            handle.restart();
+        } else {
+            log::error!("update download/install failed");
+        }
+    });
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -200,6 +251,19 @@ pub fn run() {
                         .level(log::LevelFilter::Info)
                         .build(),
                 )?;
+            }
+            // In-app auto-updater (Phase 2). Compiled in ONLY when the crate's `updater` feature is
+            // enabled AND the `plugins.updater` config (endpoints + signing pubkey) is present; a
+            // normal build omits both, so this is inert. See notes/reference/desktop-updater.md.
+            #[cfg(feature = "updater")]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                app.handle().plugin(tauri_plugin_dialog::init())?;
+                // Check once, at launch, on a background thread. If a signed newer release exists, ask
+                // the user (native dialog — consent, never a silent install); on yes, download,
+                // install, and relaunch. A failed/declined check just leaves the running app alone.
+                spawn_update_check(app.handle().clone());
             }
             if let Err(e) = launch(app) {
                 log::error!("failed to start the Node backend: {e}");

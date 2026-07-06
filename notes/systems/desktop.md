@@ -82,5 +82,14 @@ the resulting installers are correspondingly sized. Windows uses the built-in **
 Cross-OS installers can only be produced on their own OS, so the desktop artifacts are built by the
 per-OS matrix in `release.yml` (see [`../reference/deployment.md`](../reference/deployment.md)) and
 attached to the GitHub Release: Windows `.msi` / NSIS `.exe` + a portable `.zip`, macOS `.dmg`, Linux
-`.AppImage` / `.deb`. Updates are intentionally **not** automated yet — see
+`.AppImage` / `.deb`.
+
+## Updates
+
+As of 2.44.0 the desktop (and every local) edition does a **check-and-notify** update check on launch: a
+dismissible banner appears when a newer GitHub release exists (Phase 1). The shell stamps
+`RAP_EDITION=installer|portable` on the Node child so the backend's `/api/update` handler reports the
+right download path; the full in-app auto-installer (the Tauri updater plugin) is **scaffolded but
+dormant** behind the crate's `updater` feature + a signing keypair. See
+[`../reference/desktop-updater.md`](../reference/desktop-updater.md) and
 [`../plans/updates-upgrades.md`](../plans/updates-upgrades.md).

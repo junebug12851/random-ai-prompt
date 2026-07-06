@@ -11,6 +11,21 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
+**Auto-updating — check-and-notify shipped; desktop auto-install implemented (2.44.0):** local/desktop
+editions check for a newer GitHub release on launch and show a dismissible **corner card**,
+**edition-aware** (download the new installer/portable/release, or a copyable `git pull` for a checkout)
+— the online build is exempt (always the latest deploy). Core in `gui/src/lib/updateCheck.js` (+
+`useUpdateCheck.js` + `components/UpdateBanner.jsx`); backend `GET /api/update` fetches the latest
+release **server-side** (1 h cache) + detects the edition (Tauri stamps `RAP_EDITION`; else `.git` ⇒ git;
+else source); dismissal + throttle persist through the new `update` storage namespace. **Phase 2 (full
+in-app auto-installer) is now fully wired** behind the `updater` Cargo feature: signing public key
+committed, a Rust check-on-launch → native-prompt → install/relaunch trigger (compile-verified with
+`cargo check --features updater`; default build pulls in neither the updater nor dialog crate), and a CI
+`updater-manifest` job that assembles `latest.json`. It stays **inert** until the owner adds the private
+signing key as a CI secret — the one remaining step
+([`reference/desktop-updater.md`](reference/desktop-updater.md)). Privacy page updated (desktop
+update-check disclosure). See [`plans/updates-upgrades.md`](plans/updates-upgrades.md).
+
 **Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
 edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as
 just one deployment of the online edition. New **desktop edition** (`gui/src-tauri/`): a thin **Tauri**
@@ -39,7 +54,7 @@ Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
 [`version/2026-07.md`](version/2026-07.md).
 
-**Version:** `2.43.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
+**Version:** `2.44.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
 and the desktop `gui/src-tauri/tauri.conf.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
