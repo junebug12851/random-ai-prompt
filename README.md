@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/github/package-json/v/junebug12851/random-ai-prompt?style=flat-square&label=version)](https://github.com/junebug12851/random-ai-prompt/releases)
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2024-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
 [![CI](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/junebug12851/random-ai-prompt/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/junebug12851/random-ai-prompt?style=flat-square&logo=codecov&logoColor=white)](https://codecov.io/gh/junebug12851/random-ai-prompt)
+[![Engine coverage](https://img.shields.io/codecov/c/github/junebug12851/random-ai-prompt?flag=node&style=flat-square&logo=codecov&logoColor=white&label=engine%20coverage)](https://codecov.io/gh/junebug12851/random-ai-prompt?flags%5B0%5D=node)
 [![Code quality](https://img.shields.io/codefactor/grade/github/junebug12851/random-ai-prompt?style=flat-square&logo=codefactor&logoColor=white&label=code%20quality)](https://www.codefactor.io/repository/github/junebug12851/random-ai-prompt)
 [![Quality gate](https://img.shields.io/sonar/quality_gate/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=quality%20gate)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
 [![Tech debt](https://img.shields.io/sonar/tech_debt/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=tech%20debt)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
