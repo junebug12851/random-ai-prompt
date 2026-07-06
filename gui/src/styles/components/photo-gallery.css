@@ -10,6 +10,10 @@
 }
 
 .g-inner {
+  /* The composer, gallery header, and selection bar share this centered column width so the search
+     box, title, and actions line up directly under the prompt box (the grid stays full-bleed). */
+  --g-col: 760px;
+
   max-width: 1500px;
   margin: 0 auto;
   padding: 1.1rem 1.3rem 2.5rem;
@@ -156,8 +160,26 @@
 
 /* ---------- The prompt box atop the gallery (narrow composer slot) ---------- */
 .g-composer {
-  max-width: 760px;
+  max-width: var(--g-col);
   margin: 0 auto 1.1rem;
+}
+
+/* Align the header (title + search + actions) to the same centered column as the prompt box. */
+.g-head {
+  max-width: var(--g-col);
+  margin-inline: auto;
+}
+
+.g-head-right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* Let the search grow to fill the header's right side (up to the column) instead of a fixed pill. */
+.g-head-right .g-search {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
 }
 
 /* Trim the composer to just the prompt box in this context — no outer card chrome bleed. */
@@ -171,6 +193,8 @@
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  max-width: var(--g-col);
+  margin-inline: auto;
   margin-bottom: 0.9rem;
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--border);
