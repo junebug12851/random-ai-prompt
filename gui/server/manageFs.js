@@ -92,9 +92,19 @@ const readJsonSafe = (abs) => {
 /**
  * Build the full disk snapshot the runtime loader serves the catalog from: every list / `.dpl` /
  * group / sidecar text, the `_`-marker folders, and the set of `.js`-module generator keys.
+ *
+ * By default the user overlay (`user/lists`, `user/blocks`) is merged onto the built-in pools with
+ * user-wins — that's what the live runtime engine reads. Pass `{ includeUser: false }` for a
+ * BUILT-IN-ONLY snapshot (used by the published `data/manifest.json` for ghost detection, which must
+ * describe the upstream `data/` catalog and never conflate user content).
+ * @param {object} [opts]
+ * @param {boolean} [opts.includeUser=true] Merge the user overlay onto the built-in pools.
  * @returns {object} The snapshot.
  */
-export function buildManageSnapshot() {
+export function buildManageSnapshot(opts = {}) {
+  const includeUser = opts.includeUser !== false;
+  const listRoots = includeUser ? LIST_POOL_ROOTS : [MANAGE_ROOTS.lists];
+  const dpRoots = includeUser ? DP_POOL_ROOTS : [MANAGE_ROOTS["dynamic-prompts"]];
   const lists = {};
   const listGroups = {};
   const listMeta = {};
@@ -103,7 +113,7 @@ export function buildManageSnapshot() {
   const listDisableGroupDirs = [];
   // Built-in root first, then the user overlay — so a user file of the same key overwrites the
   // built-in in every map (user-wins). This is what makes the live runtime engine honor the overlay.
-  for (const f of LIST_POOL_ROOTS.flatMap(walkManageFiles)) {
+  for (const f of listRoots.flatMap(walkManageFiles)) {
     if (f.name === "_force-prefix") {
       listForcePrefixDirs.push(f.relDir);
       continue;
@@ -134,7 +144,7 @@ export function buildManageSnapshot() {
   const dpForcePrefixDirs = [];
   const dpEnableGroupDirs = [];
   const dpDisableGroupDirs = [];
-  for (const f of DP_POOL_ROOTS.flatMap(walkManageFiles)) {
+  for (const f of dpRoots.flatMap(walkManageFiles)) {
     if (f.name === "_force-prefix") {
       dpForcePrefixDirs.push(f.relDir);
       continue;

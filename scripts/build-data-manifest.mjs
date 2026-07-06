@@ -11,7 +11,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildManageSnapshot } from "../gui/server/manageFs.js";
 
-const snap = buildManageSnapshot();
+// BUILT-IN ONLY: the published manifest describes the upstream `data/` catalog (for the Manage tab's
+// ghost/restore feature). The user overlay (`user/`) has no upstream and must never appear here.
+const snap = buildManageSnapshot({ includeUser: false });
 const manifest = {
   generatedAt: new Date().toISOString(),
   lists: [

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T20:25:38.428Z",
+  "generatedAt": "2026-07-06T16:00:44.023Z",
   "lists": [
     "artist/anime.txt",
     "artist/bw.txt",
@@ -32,6 +32,7 @@
     "look/color.txt",
     "look/emotion.txt",
     "look/expression.txt",
+    "look/focus.txt",
     "look/hair.txt",
     "look/image-effect.txt",
     "look/instrument.txt",
@@ -110,6 +111,7 @@
     "prompt/random-words.dpl",
     "prompt/random.dpl",
     "prompt/simple-random.dpl",
+    "prompt/styles.dpl",
     "scene/beach.dpl",
     "scene/castle.dpl",
     "scene/cave.dpl",
@@ -166,7 +168,6 @@
     "subject/portrait-person.dpl",
     "subject/portrait-princess.dpl",
     "subject/portrait.dpl",
-    "subject/wildlife.dpl",
-    "user/beach-merk.dpl"
+    "subject/wildlife.dpl"
   ]
 }

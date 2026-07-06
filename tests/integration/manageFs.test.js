@@ -4,7 +4,7 @@
  * own catalog, the write/sidecar/marker/move/delete ops round-trip through the snapshot (in an
  * isolated throwaway folder), the traversal guard holds, and ghost detection is exact.
  */
-import { describe, it, expect, afterAll, afterEach } from "vitest";
+import { describe, it, expect, afterAll } from "vitest";
 import {
   buildManageSnapshot,
   buildManageTree,
@@ -145,37 +145,30 @@ describe("ghost detection (manifest minus local)", () => {
   });
 });
 
-// The user overlay (user/lists, user/blocks). These write into throwaway paths under the real user
-// roots, so they live in THIS file (not a parallel one) to stay serialized with the snapshot-vs-loader
-// comparison above, which reads the shared user roots too.
-describe("user overlay — user/ content merges into the pool (user-wins)", () => {
-  const T = "zz-user-overlay-test";
-  const OVERRIDE_KEY = "look/color"; // a real built-in list (data/lists/look/color.txt)
-
-  afterEach(() => {
-    fsOp("delete", { root: "user-lists", path: T });
-    fsOp("delete", { root: "user-lists", path: "look" });
-    fsOp("delete", { root: "user-blocks", path: T });
+// The user overlay (user/lists, user/blocks). Asserted STATICALLY against the committed community
+// block `user/blocks/user/beach-merk.dpl` (key `user/beach-merk`) — no filesystem mutation, so these
+// can't race with the deterministic snapshot/engine tests that run in parallel and read the shared
+// catalog (the `keyword` wildcard unions the whole vocabulary, so even a transient extra list would
+// perturb their output).
+describe("user overlay — user/ content merges into the pool", () => {
+  it("merges the committed user block (Merk's beach) into the default snapshot pool", () => {
+    expect("user/beach-merk" in buildManageSnapshot().dpDpl).toBe(true);
   });
 
-  it("merges a new user list into the snapshot pool", () => {
-    fsOp("mkfile", { root: "user-lists", path: `${T}/mine.txt`, text: "alpha\nbeta\n" });
-    const snap = buildManageSnapshot();
-    expect(`${T}/mine` in snap.lists).toBe(true);
-    expect(snap.lists[`${T}/mine`]).toContain("alpha");
+  it("the built-in-only snapshot EXCLUDES user content (what the upstream ghost manifest uses)", () => {
+    const builtIn = buildManageSnapshot({ includeUser: false });
+    expect("user/beach-merk" in builtIn.dpDpl).toBe(false); // user content never in the manifest
+    expect("scene/beach" in builtIn.dpDpl).toBe(true); // the built-in scene is still there
   });
 
-  it("lets a user list override a built-in of the same name (user-wins)", () => {
-    const builtIn = buildManageSnapshot().lists[OVERRIDE_KEY];
-    expect(builtIn).toBeTypeOf("string"); // the built-in exists to be overridden
-    fsOp("mkfile", { root: "user-lists", path: `${OVERRIDE_KEY}.txt`, text: "USER_ONLY_COLOR\n" });
-    const overridden = buildManageSnapshot().lists[OVERRIDE_KEY];
-    expect(overridden).toContain("USER_ONLY_COLOR");
-    expect(overridden).not.toEqual(builtIn);
+  it("the Node engine loader resolves the user block", () => {
+    expect(nodeLoader.dynamicPromptNames()).toContain("user/beach-merk");
+    const mod = nodeLoader.loadDynamicPrompt("user/beach-merk");
+    expect(typeof mod.default).toBe("function");
   });
 
   it("refuses to restore user content from the repo (no upstream default)", async () => {
-    const r = await restoreFromRepo("user-lists", "look/color.txt");
+    const r = await restoreFromRepo("user-blocks", "user/beach-merk.dpl");
     expect(r.ok).toBe(false);
     expect(r.error).toMatch(/no repository default/i);
   });

@@ -13,8 +13,9 @@ user/
 
 ## How the overlay works
 
-- **Additive by default.** A new file here (e.g. `user/lists/place/merks-beach.txt`) simply shows up
-  as a new list/block, grouped at the **top** of the Manage tab under **Your content**.
+- **Additive by default.** A new file here — a list like `user/lists/place/secret-cove.txt`, or a block
+  like `user/blocks/user/beach-merk.dpl` (Merk's community beach scene ships here) — simply shows up as
+  a new list/block, grouped at the **top** of the Manage tab under **Your content**.
 - **User wins on a name clash.** If one of your files has the **same name** as a built-in
   (e.g. `user/lists/place/beach.txt` vs the built-in `beach`), **your version is used** and the
   built-in is hidden — the same "your override wins" rule settings already follow. Delete your file

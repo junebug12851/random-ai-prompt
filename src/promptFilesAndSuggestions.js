@@ -80,7 +80,7 @@ function loadDynPromptList() {
   partialNoArtistFx.length = 0;
 
   // The loader returns catalog keys relative to the dynamic-prompts root, e.g.
-  //   "scene/cave"  |  "user/beach-merk"
+  //   "scene/cave"  |  "user/beach-merk" (the latter from the user/ overlay → user/blocks/user/)
   // Generators are stored by their SHORTEST unambiguous token (computeButtonNames — basenames
   // are unique), so a bare `{#token}` resolves by suffix. User-submitted generators get a
   // `user-` token so the picker can bucket them (kept out of the random-suggestion pool).
