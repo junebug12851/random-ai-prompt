@@ -23,7 +23,10 @@ function run() {
   // Apply saved reading prefs first so the theme doesn't flash.
   loadAndApply();
   // The module sidebar shows only on API pages; the Download page is a wide layout.
+  // (These classes are also set inline in <head> at build time to avoid a
+  // first-paint flash; re-adding here is idempotent and a fallback.)
   if (!isApiPage()) root.classList.add("ff-no-sidebar");
+  if (here() === "index.html") root.classList.add("ff-home");
   if (here() === "download.html") root.classList.add("ff-download");
 
   injectHead();

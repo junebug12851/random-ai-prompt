@@ -44,9 +44,10 @@
   /* height of the fixed header+subnav stack (measured live by chrome.js) */
   --ff-header-h: 108px;
 
-  /* reading controls (tuned live by the reader menu) */
-  --reading-fs: 1.05rem;
-  --reading-lh: 1.8;
+  /* reading controls (tuned live by the reader menu) — defaults match the hub:
+     content at 1rem (= the 16.5px root), "normal" line spacing 1.65, width 46rem. */
+  --reading-fs: 1rem;
+  --reading-lh: 1.65;
   --reading-ls: 0.006em;
   --reading-width: 46rem;
 }
