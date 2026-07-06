@@ -39,10 +39,10 @@ export function hasNsfwToken(name) {
   return NSFW_TOKEN.test(String(name));
 }
 
-// Extra dynamic prompts to gate by exact name, on top of the automatic `nsfw`-token
+// Extra blocks to gate by exact name, on top of the automatic `nsfw`-token
 // rule below. Empty today (#danbooru pulls the mode-aware d/general, SFW when adult is
 // off), but kept as an escape hatch for a generator that is adult without an nsfw token.
-export const gatedDynPrompts = [];
+export const gatedBlocks = [];
 
 /**
  * @param {string} name A list/group name.
@@ -53,13 +53,13 @@ export function isGatedList(name) {
 }
 
 /**
- * Gate a dynamic prompt behind `includeAdult` AUTOMATICALLY by its name token — the same
+ * Gate a block behind `includeAdult` AUTOMATICALLY by its name token — the same
  * rule lists/expansions use (`isGatedList`) — so a generator named e.g.
  * `subject/nude-nsfw` is hidden/empty when adult is off, with no hardcoded list to keep
- * in sync. The legacy `gatedDynPrompts` array is still honored as an extra escape hatch.
- * @param {string} name A dynamic-prompt name (path or token).
- * @returns {boolean} Whether the dynamic prompt is gated behind `includeAdult`.
+ * in sync. The legacy `gatedBlocks` array is still honored as an extra escape hatch.
+ * @param {string} name A block name (path or token).
+ * @returns {boolean} Whether the block is gated behind `includeAdult`.
  */
-export function isGatedDynPrompt(name) {
-  return hasNsfwToken(name) || gatedDynPrompts.includes(name);
+export function isGatedBlock(name) {
+  return hasNsfwToken(name) || gatedBlocks.includes(name);
 }

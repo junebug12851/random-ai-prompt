@@ -1,12 +1,12 @@
 /**
  * @file
  * @brief DPL (Dynamic Prompt Language) compiler entry point: front-matter + parse + render
- * wired into a dynamic-prompt module object. The parser, renderer, intensity/focus math, word
+ * wired into a block module object. The parser, renderer, intensity/focus math, word
  * scales, and default RNG live in sibling modules (`parser.js`, `renderer.js`, `intensity.js`,
  * `words.js`, `rng.js`). See notes/reference/dpl-design.md.
  */
 
-// DPL is the v3 authoring language for dynamic prompts: a Markdown-shaped, data-not-code
+// DPL is the v3 authoring language for blocks: a Markdown-shaped, data-not-code
 // description of "what to maybe say", evaluated as a tree of weighted LAYERS. A file is a
 // layer; each section is a layer; each line is a layer. Weights are LOCAL sort keys
 // (lower = rendered earlier) — a layer only reorders its own children and never the parent.
@@ -31,7 +31,7 @@ export { intensityWord } from "./words.js";
 // ---------------------------------------------------------------------------
 
 /**
- * Compile a `.dpl` source into a dynamic-prompt module object (same shape as a JS generator).
+ * Compile a `.dpl` source into a block module object (same shape as a JS generator).
  * @param {string} source The `.dpl` file text.
  * @param {object} [bridge] Optional JS bridge: `{ resolveJs(path, ctx) }` for `{js:}` / `insert js:` / `script`.
  * @returns {{default: Function, suggestion_exclude: boolean, stacking: boolean, meta: object}} The module.

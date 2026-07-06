@@ -113,4 +113,4 @@ line can be weighted, intensity-conditioned, focus-conditioned, *and* probabilit
 - [`layering-design.md`](layering-design.md) — why pure (high-focus) generators stack cleanly as layers.
 - [`dpl-design.md`](dpl-design.md) — the base language.
 - `engine/core/dpl/dpl.js` — renderer (`[f<…]` conditions, `$focus` tokens, `ctx.focus`).
-- `engine/core/stages/dynamicPrompt.js` — `{#name fNN%}` parsing + threading (focus = 5th generator arg).
+- `engine/core/stages/block.js` — `{#name fNN%}` parsing + threading (focus = 5th generator arg).

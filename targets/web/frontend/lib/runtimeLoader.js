@@ -169,8 +169,8 @@ export const runtimeLoader = {
     if (!snap) return browserLoader.readListMeta(name);
     return snap.listMeta?.[name] ?? null;
   },
-  loadDynamicPrompt(key) {
-    if (!snap) return browserLoader.loadDynamicPrompt(key);
+  loadBlock(key) {
+    if (!snap) return browserLoader.loadBlock(key);
     if (dplCache[key]) return dplCache[key];
     const dpl = snap.dpDpl?.[key];
     if (dpl != null) {
@@ -179,29 +179,29 @@ export const runtimeLoader = {
       return mod;
     }
     // A `.js`-module generator (no `.dpl`): execute the bundled module.
-    return dpJsModule(key) ?? browserLoader.loadDynamicPrompt(key);
+    return dpJsModule(key) ?? browserLoader.loadBlock(key);
   },
-  dynamicPromptNames() {
-    return snap ? derived.dpNames.slice() : browserLoader.dynamicPromptNames();
+  blockNames() {
+    return snap ? derived.dpNames.slice() : browserLoader.blockNames();
   },
-  readDynPromptMeta(name) {
-    if (!snap) return browserLoader.readDynPromptMeta(name);
+  readBlockMeta(name) {
+    if (!snap) return browserLoader.readBlockMeta(name);
     return snap.dpMeta?.[name] ?? null;
   },
-  dynPromptForcedPrefixDirs() {
-    return snap ? snap.dpForcePrefixDirs || [] : browserLoader.dynPromptForcedPrefixDirs();
+  blockForcedPrefixDirs() {
+    return snap ? snap.dpForcePrefixDirs || [] : browserLoader.blockForcedPrefixDirs();
   },
-  dynPromptForcedPrefixDirsAll() {
-    return snap ? snap.dpForcePrefixDirs || [] : browserLoader.dynPromptForcedPrefixDirsAll();
+  blockForcedPrefixDirsAll() {
+    return snap ? snap.dpForcePrefixDirs || [] : browserLoader.blockForcedPrefixDirsAll();
   },
-  dynPromptGroupDirs() {
-    return snap ? derived.dpGroupDirs : browserLoader.dynPromptGroupDirs();
+  blockGroupDirs() {
+    return snap ? derived.dpGroupDirs : browserLoader.blockGroupDirs();
   },
-  dynPromptGroupDirsAll() {
-    return snap ? derived.dpGroupDirs : browserLoader.dynPromptGroupDirsAll();
+  blockGroupDirsAll() {
+    return snap ? derived.dpGroupDirs : browserLoader.blockGroupDirsAll();
   },
-  readDynPromptGroup(name) {
-    if (!snap) return browserLoader.readDynPromptGroup(name);
+  readBlockGroup(name) {
+    if (!snap) return browserLoader.readBlockGroup(name);
     return name in (snap.dpGroups || {}) ? splitLines(snap.dpGroups[name]) : null;
   },
   // Presets aren't editable in Manage — always served from the bundle.

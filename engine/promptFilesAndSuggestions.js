@@ -1,12 +1,12 @@
 /**
  * @file
- * @brief Loader-injected dynamic-prompt classifier (full vs partial) and random promptSuggestion() builder; also feeds the web file pickers. Notes: notes/reference/dynamic-prompts.md.
+ * @brief Loader-injected block classifier (full vs partial) and random promptSuggestion() builder; also feeds the web file pickers. Notes: notes/reference/blocks.md.
  */
 
 import { randomFloat, randomInt, sample } from "./helpers/random.js";
 
 import cleanup from "./core/stages/cleanup.js";
-import { isGatedList, hasNsfwToken, isGatedDynPrompt } from "./gatedLists.js";
+import { isGatedList, hasNsfwToken, isGatedBlock } from "./gatedLists.js";
 import { hasVariantSuffix, computeButtonNames } from "./listManifest.js";
 
 // Dynamic-prompt classification + random "suggestion" builder.
@@ -35,7 +35,7 @@ const userFiles = [];
 
 const listFiles = [];
 
-const fullDynPrompt = [];
+const fullBlock = [];
 
 // Artists should always come at the end
 const listFilesNoArtist = [];
@@ -65,27 +65,27 @@ function requireLoader() {
 }
 
 /**
- * Classify every dynamic prompt into full / partial (plus the user-submitted bucket) —
+ * Classify every block into full / partial (plus the user-submitted bucket) —
  * the lists used by `promptSuggestion()` and the web file pickers.
  * @returns {object} `{fullRegular, partialRegular, userFiles, all}`.
  */
-function loadDynPromptList() {
+function loadBlockList() {
   const l = requireLoader();
 
   fullRegular.length = 0;
   fullRegularExcluded.length = 0;
   partialRegular.length = 0;
   userFiles.length = 0;
-  fullDynPrompt.length = 0;
+  fullBlock.length = 0;
   partialNoArtistFx.length = 0;
 
-  // The loader returns catalog keys relative to the dynamic-prompts root, e.g.
+  // The loader returns catalog keys relative to the blocks root, e.g.
   //   "scene/cave"  |  "user/beach-merk" (the latter from the user/ overlay → user/blocks/user/)
   // Generators are stored by their SHORTEST unambiguous token (computeButtonNames — basenames
   // are unique), so a bare `{#token}` resolves by suffix. User-submitted generators get a
   // `user-` token so the picker can bucket them (kept out of the random-suggestion pool).
   const activeKeys = [];
-  for (const key of l.dynamicPromptNames()) {
+  for (const key of l.blockNames()) {
     if (key.startsWith("user/")) {
       userFiles.push(`user-${key.slice("user/".length)}`);
       continue;
@@ -93,10 +93,10 @@ function loadDynPromptList() {
     activeKeys.push(key);
   }
 
-  const forced = l.dynPromptForcedPrefixDirs ? l.dynPromptForcedPrefixDirs() : [];
+  const forced = l.blockForcedPrefixDirs ? l.blockForcedPrefixDirs() : [];
   const buttonNames = computeButtonNames(activeKeys, forced);
   for (const key of activeKeys) {
-    const mod = l.loadDynamicPrompt(key);
+    const mod = l.loadBlock(key);
     if (!mod) continue;
 
     // There is no full/partial distinction — every generator is just a "prompt". The whole
@@ -113,7 +113,7 @@ function loadDynPromptList() {
     partialNoArtistFx.push(name);
   }
 
-  fullDynPrompt.splice(0, 0, ...fullRegularExcluded, ...userFiles);
+  fullBlock.splice(0, 0, ...fullRegularExcluded, ...userFiles);
 
   return {
     fullRegular,
@@ -164,11 +164,11 @@ function pickerListNames() {
 }
 
 /**
- * Load the dynamic-prompt and list catalogs.
+ * Load the block and list catalogs.
  * @returns {void}
  */
 function loadAll() {
-  loadDynPromptList();
+  loadBlockList();
   loadListFileList();
 }
 
@@ -199,7 +199,7 @@ function gatePool(names, isGated) {
 function prePrompt(maxCount) {
   let prePrompt = "";
 
-  const partialPool = gatePool(partialNoArtistFx, isGatedDynPrompt);
+  const partialPool = gatePool(partialNoArtistFx, isGatedBlock);
   const listPool = gatePool(listFilesNoArtist, isGatedList);
 
   // Garnish with a few partial generators and lists (each ~25%). Pools may be empty (v3 has no
@@ -215,7 +215,7 @@ function prePrompt(maxCount) {
 
 /**
  * Build a random prompt suggestion (the engine behind `#random`): one to three full
- * dynamic prompts, sometimes AND-weighted, with optional garnish, then cleaned up.
+ * blocks, sometimes AND-weighted, with optional garnish, then cleaned up.
  * @param {boolean} [full] Use the richer multi-prompt form.
  * @returns {string} The suggested prompt.
  */
@@ -223,14 +223,14 @@ function promptSuggestion(full) {
   // Prepare building final prompt
   let ret = "";
 
-  // Keep gated (adult) dynamic prompts out unless explicitly enabled
-  const fullPool = gatePool(fullDynPrompt, isGatedDynPrompt);
+  // Keep gated (adult) blocks out unless explicitly enabled
+  const fullPool = gatePool(fullBlock, isGatedBlock);
 
   let maxOptions = full ? 3 : 0;
   let maxCount = full ? 3 : 1;
 
   switch (randomInt(0, maxOptions)) {
-    // Option 0: Pick 1 full dynamic prompt
+    // Option 0: Pick 1 full block
     case 0:
       ret = `${prePrompt(maxCount)}, {#${sample(fullPool)}}`;
       break;
@@ -261,7 +261,7 @@ function promptSuggestion(full) {
 export default {
   configure,
   init,
-  loadDynPromptList,
+  loadBlockList,
   loadListFileList,
   pickerListNames,
   loadAll,

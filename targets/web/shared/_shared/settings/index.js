@@ -3,7 +3,7 @@
  * once here instead of copied into all ~40 provider folders. Each shared setting is its own module
  * in this folder exporting a descriptor (see the {@link SharedSetting} typedef); they're
  * **auto-discovered** by globbing this folder — the same drop-a-file-in plugin pattern the providers
- * (`gui/providers/`) and dynamic prompts use. Add a file here and it applies to all providers; no
+ * (`gui/providers/`) and blocks use. Add a file here and it applies to all providers; no
  * central edit.
  *
  * The registry (`gui/providers/index.js`) calls {@link applySharedSettings} to fold every applicable

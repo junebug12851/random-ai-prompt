@@ -1,6 +1,6 @@
 # Reference — DPL global layers (auto-merge / dedup)
 
-**Status: built.** When one dynamic prompt imports another (`{#weather}`, `+weather`, a nested `{#…}` token),
+**Status: built.** When one block imports another (`{#weather}`, `+weather`, a nested `{#…}` token),
 the imported generators behave as **global layers**: each one renders **once** per prompt, rendered as a
 shared layer rather than re-run every time it is pulled in. This is an *auto-merge* — the author never wires
 named parameters or dedup logic; importing the same thing twice simply collapses to one.
@@ -52,9 +52,9 @@ The split is content judgment, but the principle is:
 
 ## 3. How it works (engine)
 
-Implemented in `engine/core/stages/dynamicPrompt.js`. The resolver loops, replacing `{#…}` tokens pass by pass:
+Implemented in `engine/core/stages/block.js`. The resolver loops, replacing `{#…}` tokens pass by pass:
 
-- A per-expansion `dedup = { seen: Set, firstPass: bool }` is created for each `dynamicPrompt()` call (state
+- A per-expansion `dedup = { seen: Set, firstPass: bool }` is created for each `block()` call (state
   never leaks between prompts).
 - **Pass 0** operates on the original (user-typed) prompt, plus any auto-appended `{#fx}` / `{#artists}`:
   `firstPass = true`. These always render; each non-stacking generator's key is added to `seen`.
@@ -74,5 +74,5 @@ segments, and rejoins), so a deduped token leaves no stray comma.
 - [`focus-design.md`](focus-design.md) — purity dial; high focus → cleaner single layers.
 - [`intensity-design.md`](intensity-design.md) — the magnitude dial.
 - [`dpl-design.md`](dpl-design.md) — the base language.
-- `engine/core/stages/dynamicPrompt.js` — the dedup loop + `stacking` check.
+- `engine/core/stages/block.js` — the dedup loop + `stacking` check.
 - `engine/core/dpl/dpl.js` — `stacking` front-matter parsing, exposed on the compiled module.

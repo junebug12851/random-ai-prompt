@@ -1,6 +1,6 @@
 /**
  * The Home composer — a focused two-pane prompt workspace. The left pane is the
- * building-block cloud (keywords, lists, expansions, dynamic prompts); the right
+ * building-block cloud (keywords, lists, expansions, blocks); the right
  * pane hosts the reusable {@link PromptComposer} prompt box (with all its bells and
  * whistles) above the generated-prompt list.
  *

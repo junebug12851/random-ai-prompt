@@ -29,7 +29,7 @@ for (const c of cases) {
     console.error(`ERROR ${c}: ${e.message}`);
     continue;
   }
-  const leftover = /\{#|\{js:/.test(out); // unresolved dynamic-prompt / js tokens = a real failure
+  const leftover = /\{#|\{js:/.test(out); // unresolved block / js tokens = a real failure
   if (typeof out !== "string" || out.trim() === "" || leftover) failed++;
   console.log(`${c}\n  -> ${out}\n`);
 }

@@ -13,7 +13,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
-// data/{lists,dynamic-prompts} — this file lives at gui/server/, so ../../../engine/data/ is the repo-root data dir.
+// data/{lists,blocks} — this file lives at gui/server/, so ../../../engine/data/ is the repo-root data dir.
 const DATA_ROOT = fileURLToPath(new URL("../../../engine/data/", import.meta.url));
 // The user overlay lives at the repo root under user/ (user/lists, user/blocks). Kept as SEPARATE
 // Manage roots so the tab can group user content on top and route edits into user/, while the runtime
@@ -23,22 +23,22 @@ const USER_ROOT = fileURLToPath(new URL("../../../user/", import.meta.url));
 /** The editable content roots, by name (built-ins + the user overlay). */
 export const MANAGE_ROOTS = {
   lists: path.join(DATA_ROOT, "lists"),
-  "dynamic-prompts": path.join(DATA_ROOT, "dynamic-prompts"),
+  "blocks": path.join(DATA_ROOT, "blocks"),
   "user-lists": path.join(USER_ROOT, "lists"),
   "user-blocks": path.join(USER_ROOT, "blocks"),
 };
 
 /** The list-pool roots in precedence order (built-in first, user last → user overrides). */
 const LIST_POOL_ROOTS = [MANAGE_ROOTS.lists, MANAGE_ROOTS["user-lists"]];
-/** The dynamic-prompt ("blocks") pool roots in precedence order (built-in first, user last). */
-const DP_POOL_ROOTS = [MANAGE_ROOTS["dynamic-prompts"], MANAGE_ROOTS["user-blocks"]];
+/** The block ("blocks") pool roots in precedence order (built-in first, user last). */
+const DP_POOL_ROOTS = [MANAGE_ROOTS["blocks"], MANAGE_ROOTS["user-blocks"]];
 /** Which Manage roots are the user overlay (no upstream default / ghost restore). */
 export const USER_MANAGE_ROOTS = new Set(["user-lists", "user-blocks"]);
 
 /**
  * Resolve a `{ root, path }` request to a safe absolute file under one of the data roots. Rejects
  * unknown roots and any path that escapes its root (traversal guard).
- * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} root `"lists"` or `"blocks"`.
  * @param {string} rel The relative path within the root.
  * @returns {string|null} The absolute path, or null if invalid.
  */
@@ -104,7 +104,7 @@ const readJsonSafe = (abs) => {
 export function buildManageSnapshot(opts = {}) {
   const includeUser = opts.includeUser !== false;
   const listRoots = includeUser ? LIST_POOL_ROOTS : [MANAGE_ROOTS.lists];
-  const dpRoots = includeUser ? DP_POOL_ROOTS : [MANAGE_ROOTS["dynamic-prompts"]];
+  const dpRoots = includeUser ? DP_POOL_ROOTS : [MANAGE_ROOTS["blocks"]];
   const lists = {};
   const listGroups = {};
   const listMeta = {};
@@ -229,7 +229,7 @@ export function writeFileAtomic(abs, text) {
 /**
  * Read-modify-write a `<name>.json` sidecar: merge `patch` (a key set to null is removed). When the
  * result is empty the sidecar file is deleted, so we never leave an empty `{}` behind.
- * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} root `"lists"` or `"blocks"`.
  * @param {string} name The logical key (e.g. "scene/castle" or a folder "fragment").
  * @param {object} patch Keys to merge (null deletes a key).
  * @returns {object|null} The merged sidecar (`{}` if it was deleted), or null on a bad path.
@@ -262,7 +262,7 @@ const MARKERS = new Set(["_force-prefix", "_enable-group-list", "_disable-group-
 
 /**
  * Create or remove a folder `_`-marker (the abstracted force-prefix / group toggles).
- * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} root `"lists"` or `"blocks"`.
  * @param {string} dir The folder path ("" for the root).
  * @param {string} marker One of the allowed marker filenames.
  * @param {boolean} on Whether the marker should exist.
@@ -300,7 +300,7 @@ const MANIFEST_CACHE_FILE = path.join(
 
 const normalizeManifest = (d) => ({
   lists: d?.lists || [],
-  "dynamic-prompts": d?.["dynamic-prompts"] || [],
+  "blocks": d?.["blocks"] || [],
 });
 
 /**
@@ -311,7 +311,7 @@ const normalizeManifest = (d) => ({
  * (checked on boot, re-downloaded at most ~once/day; falls back to the stale cache when offline). The
  * client then does a simple set difference. Paths are root-relative with extension.
  * @param {boolean} [fresh] Bypass the in-memory + disk cache and re-download now.
- * @returns {Promise<{lists: string[], "dynamic-prompts": string[]}>}
+ * @returns {Promise<{lists: string[], "blocks": string[]}>}
  */
 export async function remoteManifest(fresh = false) {
   if (!fresh && manifestCache && Date.now() - manifestAt < 5 * 60 * 1000) return manifestCache;
@@ -360,7 +360,7 @@ export async function remoteManifest(fresh = false) {
 /**
  * Restore a file to its repository default (the stable `master` branch). Overwrites the local copy;
  * if the file no longer exists upstream (404) the local copy is deleted instead.
- * @param {string} root `"lists"` or `"dynamic-prompts"`.
+ * @param {string} root `"lists"` or `"blocks"`.
  * @param {string} rel The relative path within the root (e.g. "place/city.txt").
  * @returns {Promise<{ok: boolean, deleted?: boolean, error?: string}>}
  */

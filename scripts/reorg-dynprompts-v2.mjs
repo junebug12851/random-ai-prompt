@@ -1,16 +1,16 @@
 /**
- * @file One-shot migration: move the v2 dynamic-prompt generators out of the flat
- * `data/dynamic-prompts/` root into category folders under a new `data/dynamic-prompts/v2/`
+ * @file One-shot migration: move the v2 block generators out of the flat
+ * `data/blocks/` root into category folders under a new `data/blocks/v2/`
  * tree (scene / subject / fragment / style / engine / user), rewriting every relative
  * import (src helpers + sibling cross-references) by resolving old -> new absolute paths.
  *
- * `v1/` is left frozen and untouched. After running, stage with `git add data/dynamic-prompts`.
+ * `v1/` is left frozen and untouched. After running, stage with `git add data/blocks`.
  * Re-running is a no-op once the source files are gone.
  */
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.join(import.meta.dirname, "..", "data", "dynamic-prompts");
+const root = path.join(import.meta.dirname, "..", "data", "blocks");
 
 // name (no .js) -> category folder under v2/
 const categoryMap = {
@@ -146,4 +146,4 @@ const userSubmitted = path.join(root, "user-submitted");
 if (fs.existsSync(userSubmitted) && fs.readdirSync(userSubmitted).length === 0)
   fs.rmdirSync(userSubmitted);
 
-console.log(`moved ${moved} generator files into data/dynamic-prompts/v2/`);
+console.log(`moved ${moved} generator files into data/blocks/v2/`);

@@ -116,7 +116,7 @@ export default {
   /*--use-artists <true/false>*/
   includeArtist: true,
 
-  // Whether to additionally allow adult/explicit lists and dynamic prompts.
+  // Whether to additionally allow adult/explicit lists and blocks.
   // Off by default; when off they are kept out of random suggestions and
   // resolve to "" if referenced directly.
   /*--use-adult <true/false>*/
@@ -130,7 +130,7 @@ export default {
   /*--max-artists <number>*/
   maxArtist: 2,
 
-  // When combining dynamic prompts
+  // When combining blocks
   // don't use AND to put them together
   /*--noand <true/false>*/
   noAnd: false,
@@ -170,27 +170,27 @@ export default {
   /*--preset-files <path>*/
   presetFiles: "./data/presets",
 
-  // When specifying dynamic prompts in the command, it searches this folder for them
-  // Dynamic prompts is code that dynamically generates a prompt on each run
-  /*--dynamic-prompt-files <path>*/
-  dynamicPromptFiles: "dynamic-prompts",
+  // When specifying blocks in the command, it searches this folder for them
+  // Blocks is code that dynamically generates a prompt on each run
+  /*--block-files <path>*/
+  blockFiles: "blocks",
 
   // v3-only pipeline, executed in order on each prompt change:
-  // 1. Expand dynamic prompts (the stage re-expands up to 10 passes internally)
+  // 1. Expand blocks (the stage re-expands up to 10 passes internally)
   // 2. Auto-add salt if requested
   // 3. Expand lists with list items
   // 4. Render typed ()/[] emphasis into the active dialect (SD/MJ weight, NAI braces, plain words)
   // 5. Cleanup extra spaces and commas
   // (The legacy `<expansion>` stage was removed — v1/v2-era.)
-  /*--prompt-modules <comma-seperated dynamic prompts>*/
-  promptModules: ["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"],
+  /*--prompt-modules <comma-seperated blocks>*/
+  promptModules: ["block", "prompt-salt", "list", "emphasis", "cleanup"],
 
   // Frame artists / styles in natural language: "by <artist>" and "in the style of <style>", so a
   // reader (and the model) can tell an artist from a style. Off = raw names.
   /*--natural-artist-style <true/false>*/
   naturalArtistStyle: true,
 
-  // Auto-add artists dynamic prompt at end of prompt
+  // Auto-add artists block at end of prompt
   /*--auto-artists <true/false>*/
   autoAddArtists: true,
 
@@ -210,7 +210,7 @@ export default {
 
   // The prompt to use
   // {#random-words} is replaced with the random prompt generated here
-  // {#name} runs a dynamic-prompt generator; {keyword} is the selected keywords list
+  // {#name} runs a block generator; {keyword} is the selected keywords list
   // file; {artist} is the selected artist list file
   // You can alternatively use {keyword} or {artist} or any other file in
   // ./data for a single random element from that file

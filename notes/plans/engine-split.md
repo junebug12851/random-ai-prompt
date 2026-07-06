@@ -23,9 +23,9 @@ Locked decisions (owner, 2026-06-25):
   transitional legacy code in `src/` (classic server, CLI, old `prompt-modules` stages, `common.js`,
   image/upscale/animation, `src/web/`) is **deleted** from the project — the old system is preserved by the
   `engine-v1-2` snapshot, so the in-between version is redundant.
-- **engine-v3 keeps the `v1`/`v2`/`v3` dynamic-prompt subfolders**, but v1/v2 generator code (unchanged) is
+- **engine-v3 keeps the `v1`/`v2`/`v3` block subfolders**, but v1/v2 generator code (unchanged) is
   reorganized and re-wired to the **new** keyword lists + SFW/NSFW gating — same output, new plumbing.
-- **No expansions in engine-v3** (already moved to dynamic prompts + removed from the SPA UX).
+- **No expansions in engine-v3** (already moved to blocks + removed from the SPA UX).
 - **Zero shared files** between the two trees.
 - Root **README** must tell users where old (`engine-v1-2`, complete/frozen) and new (`engine-v3`, active)
   live, and that the old is complete.

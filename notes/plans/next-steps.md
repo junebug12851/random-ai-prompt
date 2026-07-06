@@ -11,8 +11,8 @@ Ordered, roughly by priority. Update as items are done or added.
    later.
 
 0. **Web SPA bundle size.** The phase-3 engine port bundles the list/expansion text and all 113
-   dynamic prompts eagerly (~712 KB gzipped). Trim it: serve the larger list files (`danbooru`, `d-*`)
-   from `public/` via runtime fetch instead of inlining, switch dynamic-prompt imports to a lazy glob,
+   blocks eagerly (~712 KB gzipped). Trim it: serve the larger list files (`danbooru`, `d-*`)
+   from `public/` via runtime fetch instead of inlining, switch block imports to a lazy glob,
    and/or use `lodash-es` for tree-shaking. Not blocking, but worth doing before launch.
 
 1. **Live end-to-end verification with a Stable Diffusion WebUI.** Start a WebUI with `--api`, then
@@ -20,14 +20,14 @@ Ordered, roughly by priority. Update as items are done or added.
    each of variation, reroll, upscale, and animation. This is the one thing the modernization could not
    verify (no WebUI was running). Confirms the `node-fetch`→`fetch` migration and Express 5 routes in
    practice.
-2. **Review the `no-dupe-else-if` warnings.** Several `dynamic-prompts/*` files (e.g.
+2. **Review the `no-dupe-else-if` warnings.** Several `blocks/*` files (e.g.
    `portrait-princess.js`, `portrait.js`, `v1/person.js`, `v1/castle.js`, `v1/princess-simple.js`,
    `futuristic.js`, `beach.js`) have duplicate `else if` conditions — likely latent bugs in the prompt
    generators. Decide the intended condition per case (this *will* change generated prompts), or
    confirm they're harmless. Don't bulk-edit.
 3. **Grow the test harness into real assertions.** The import **smoke test now exists** (committed as
    `scripts/smoke-test.mjs`, run by `npm run smoke` / `npm test`, and in CI) — it loads the full module
-   graph, forces every dynamic prompt through `require(ESM)`, and expands a prompt. Next: add actual
+   graph, forces every block through `require(ESM)`, and expands a prompt. Next: add actual
    **unit tests** (e.g. for `cleanup` / `list` / `prompt-salt`) and a small browser-engine assertion for
    the SPA's `core/` path. See [`testing.md`](testing.md).
 4. **README refresh.** The root `README.md` predates 2.0.0; update the run instructions to the `npm`
@@ -53,7 +53,7 @@ Ordered, roughly by priority. Update as items are done or added.
    repetition modes); remaining: indentation strictness, exact `ctx` bridge surface, file layout.
 
 7a. **DPL build status.** Engine (`engine/core/dpl/dpl.js`) + 25 tests; entire v2 catalog converted to
-   `engine/data/dynamic-prompts/v3/` (`.dpl` + JS sidecars); node + browser loaders + the dynamic-prompt stage +
+   `engine/data/blocks/v3/` (`.dpl` + JS sidecars); node + browser loaders + the block stage +
    the classifier load v3 as the **default** catalog, v1/v2 frozen and addressed by `{#v1/…}` / `{#v2/…}`
    path prefixes (no suffix). The SPA has the **wrapper** UI (bottom-right button → preset list → Manage
    modal with two Start/End boxes; frames generation) and v3-default building blocks. smoke + web build

@@ -33,7 +33,7 @@ describe("list stage — resolution", () => {
     expect(stage("{color}", noEmph)).toBe("red");
   });
 
-  it("leaves a {#name} dynamic-prompt token intact (not a list)", () => {
+  it("leaves a {#name} block token intact (not a list)", () => {
     const stage = makeListStage(store({ color: ["red"] }));
     expect(stage("{#scene}", noEmph)).toBe("{#scene}");
   });

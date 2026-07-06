@@ -1,17 +1,17 @@
-# Reference — The dynamic-prompt catalog & data-build pipeline
+# Reference — The block catalog & data-build pipeline
 
-The `{#name}` generators in `engine/data/dynamic-prompts/` are where most of the original creative effort went:
+The `{#name}` generators in `engine/data/blocks/` are where most of the original creative effort went:
 ~113 little plugins that each return a prompt fragment, composed through the DSL
 ([prompt-dsl.md](prompt-dsl.md)). This page is the **catalog and authoring idiom** — how the generators
 are built, how they compose, the v1→v2 story, and how the word-lists they pull from are generated from
 raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the engine see
 [../systems/core-engine.md](../systems/core-engine.md).
 
-As of **2.3.0** the v2 generators are sorted into category folders under `engine/data/dynamic-prompts/v2/`
+As of **2.3.0** the v2 generators are sorted into category folders under `engine/data/blocks/v2/`
 (`scene` / `subject` / `fragment` / `style` / `prompt` / `user`), `v1/` stays frozen, and `{#name}` resolves
 by **path suffix** (shared `resolveName`) so every reference stays short and category-independent. The full
 parity design (sidecars, `_force-prefix`, the verification seam) is in
-[dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).
+[blocks-architecture.md](blocks-architecture.md).
 
 ## The authoring idiom
 
@@ -28,10 +28,10 @@ prompt += ", {#nature}, {#weather}, reflective street, wide shot";
 return prompt;            // export const full = true
 ```
 
-Because the output is re-fed through the pipeline (expansion/dynamic-prompt run twice, then list), a
+Because the output is re-fed through the pipeline (expansion/block run twice, then list), a
 generator freely emits `{#other-prompt}`, `{list}`, and `<expansion>` tokens and lets the engine resolve
 them. This is the composition backbone: **full** scene prompts pull in **partial** helpers. (The sigil is
-brace-delimited `{#name}` as of 2.4.0 — see [dynamic-prompts-architecture.md](dynamic-prompts-architecture.md).)
+brace-delimited `{#name}` as of 2.4.0 — see [blocks-architecture.md](blocks-architecture.md).)
 
 ## Full vs partial (the classification that drives everything)
 
@@ -81,7 +81,7 @@ from the old `engine/` folder in 2.5.0: `danbooru`→`d`, `random`→`random-wor
 
 ## v1 vs v2 — the decomposition story
 
-`engine/data/dynamic-prompts/v1/` (33 frozen modules, addressed as `{#name-v1}`, always treated as `full`, and
+`engine/data/blocks/v1/` (33 frozen modules, addressed as `{#name-v1}`, always treated as `full`, and
 they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
 generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
 `entityBasicKeywords()` and hard-bake color/weather/time (several import the shared `entityBasicKeywords`
@@ -125,5 +125,5 @@ by bare name via path-suffix resolution): `dap` (`deviantart, art station, pixiv
 (`masterpiece, highres, … HDR`; `detail/` is force-prefixed), `rays` (`god ray, light shaft, volumetric
 lighting`), `detail/legacy-person`, `pixelart`, `candlelight`, `coffecup`, `flower-pic` (itself
 `{flower}, {flower}, {artist}`), and `underwater-anime-irl` (which nests `{#anime-irl}`) — proof that
-expansions can themselves contain lists and dynamic prompts. See
+expansions can themselves contain lists and blocks. See
 [`expansions-architecture.md`](expansions-architecture.md).

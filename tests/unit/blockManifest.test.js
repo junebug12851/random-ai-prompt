@@ -1,5 +1,5 @@
 /**
- * @file Unit tests for src/dynPromptManifest.js — the dynamic-prompt analog of
+ * @file Unit tests for src/blockManifest.js — the block analog of
  * listManifest's group/wildcard helpers.
  */
 import { describe, it, expect } from "vitest";
@@ -8,7 +8,7 @@ import {
   dynGroupDirs,
   dynGroupMembers,
   RESERVED_ANY,
-} from "../../engine/dynPromptManifest.js";
+} from "../../engine/blockManifest.js";
 
 describe("isReservedAny", () => {
   it("matches the {#any} wildcard and its sfw/nsfw variants", () => {

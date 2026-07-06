@@ -17,7 +17,7 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 | `src/components/` | The UI across four top-level views — `Home` (compose + generate), `Gallery`, `SingleView`, and the `Manage` content editor — plus `ProvidersMenu`, `DplEditor`, `SettingsDrawer`/`Settings`, and `Field`. (Sub-areas are grouped under `components/{home,manage,single}/`.) The composer prompt box lives in a reusable **`PromptComposer`** (forwardRef, `insert(token)` handle, `onGenerate(text)` callback) shared by `Home` and a compact copy atop the `Gallery`. |
 | `src/lib/gallery/generateIntoGallery.js` | The Gallery's own image-generation flow — streams live placeholder cells into the grid and ingests each finished image to the feed. The counterpart to `lib/home/useImageBatches.js` (which drives the Home prompt list); kept separate so the perf-critical Home path is untouched, but mirrors its rewrite passes + sidecar `meta` shape + concurrency limiter. |
 | `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
-| `src/lib/catalog.js` | The token catalog (lists + dynamic prompts) the builder offers. |
+| `src/lib/catalog.js` | The token catalog (lists + blocks) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
 | `src/lib/providers/` | The generation providers (see below). |
 | `src/lib/dialog.js` / `src/components/DialogHost.jsx` | In-app dialog system (see below). |
@@ -37,7 +37,7 @@ every caller `await`s — keep that in mind when adding a dialog to a previously
 
 ## The provider model
 
-Generation backends are modular — the same plugin pattern the dynamic prompts use. There are ~40
+Generation backends are modular — the same plugin pattern the blocks use. There are ~40
 **provider adapters** under `targets/web/shared/<id>/` (a shared transport in `providers/_shared/` plus one
 folder per provider), registered through `targets/web/frontend/lib/providers/index.js`. Each exposes a small contract
 (`id`, `label`, whether it's `local`, whether it `needsKey`, and a `generate(...)`), and

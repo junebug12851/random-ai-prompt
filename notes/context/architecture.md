@@ -2,7 +2,7 @@
 
 ES modules (`"type": "module"`), Node 24. **One project at the repo root.** All engine code lives under
 `src/`; all prompt _content_ lives under `data/`; the React/Vite web app is `targets/web/` (its own npm package).
-The one deliberate exception to "code lives in `src/`" is `engine/data/dynamic-prompts/` — the `{#name}`
+The one deliberate exception to "code lives in `src/`" is `engine/data/blocks/` — the `{#name}`
 generators are executable `.js` but are authored as prompt content (like lists), so they live under
 `data/`.
 
@@ -18,21 +18,21 @@ src/                the isomorphic prompt engine (no framework deps)
   core/
     engine.js         engine entry: createEngine(), generate/generateMany(+Async), seeding
     dpl/              the DPL language — parser.js, renderer.js, dpl.js, intensity.js, words.js, rng.js
-    stages/           pipeline stages — dynamicPrompt.js, prompt-salt.js, list.js, emphasis.js, cleanup.js
+    stages/           pipeline stages — block.js, prompt-salt.js, list.js, emphasis.js, cleanup.js
     nodeLoader.js     Node content loader (fs + createRequire), resolved module-relative to the repo root
     browserLoader.js  browser content loader (Vite import.meta.glob) + browserCatalogData.js
     listStore.js      list-corpus access + SFW/NSFW gating;  rng.js  the seedable RNG
-  promptFilesAndSuggestions.js   scan/classify dynamic prompts, build suggestions
+  promptFilesAndSuggestions.js   scan/classify blocks, build suggestions
   settings.js                     default settings (pipeline order, content paths, dialect, gating, …)
   listResolve.js / listTags.js / nameOrder.js / listManifest.js   list resolution + metadata + virtual lists
-  dynPromptManifest.js            dynamic-prompt tag metadata
+  blockManifest.js            block tag metadata
   contentSafety.js / safetyLexicons.js / gatedLists.js   content-safety filter + NSFW gating
   helpers/          random.js, keywordRepeater.js, aliases.js, randomEmphasis/Editing/Alternating.js
 
 data/               all prompt content
   lists/            {name} word lists (by category)
   presets/          saved settings presets
-  dynamic-prompts/  flat <category>/ {#name} generators (.dpl / .js + optional .json description sidecar)
+  blocks/  flat <category>/ {#name} generators (.dpl / .js + optional .json description sidecar)
   sources/          raw build inputs (artists.csv, danbooru.csv, nai-tag-expirement.json)
   manifest.json     published content manifest (backs the Manager's ghost-pill diff)
   process-*.js      manual build scripts: turn engine/data/sources/ CSV/JSON into lists/ files
@@ -54,12 +54,12 @@ output/  user-settings.json  results.json   runtime/user data (repo root, gitign
 ## One engine, two loaders (isomorphic)
 
 The engine in `engine/core/` has no filesystem or framework dependency. Content — the lists and the
-dynamic-prompt generators — is supplied by an **injected loader**:
+block generators — is supplied by an **injected loader**:
 
 - **Node** (`nodeLoader.js`) — reads from disk with `fs` and loads `.js` generators synchronously via
   `createRequire(import.meta.url)`. It resolves the content root **module-relative**
   (`fileURLToPath(new URL("../../", import.meta.url))` → the repo root), so it does not depend on the cwd.
-- **Browser** (`browserLoader.js`) — a Vite `import.meta.glob("../../engine/data/dynamic-prompts/**/*.js")`
+- **Browser** (`browserLoader.js`) — a Vite `import.meta.glob("../../engine/data/blocks/**/*.js")`
   build-time macro bundles every generator; the lists ship as a code-split data module
   (`browserCatalogData.js`).
 
@@ -68,10 +68,10 @@ the local `/api`) and in the browser (the SPA).
 
 ## The prompt pipeline
 
-`settings.promptModules` = `["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"]`, run in
+`settings.promptModules` = `["block", "prompt-salt", "list", "emphasis", "cleanup"]`, run in
 order on each prompt string (the stages live in `engine/core/stages/`):
 
-1. **dynamic-prompt** — expand `{#name}` generators (re-expanding nested tokens up to ~10 passes),
+1. **block** — expand `{#name}` generators (re-expanding nested tokens up to ~10 passes),
    honoring the per-token intensity / focus dials.
 2. **prompt-salt** — the optional `{salt}` randomizer.
 3. **list** — expand `{name}` list tokens.
@@ -112,7 +112,7 @@ settings snapshot) is written to `output/` via `POST /api/image` and browsed thr
 ## Settings & content paths
 
 `engine/settings.js` is the default settings object — the pipeline order (`promptModules`), the content
-locations, the active dialect, gating, and so on. Content paths resolve two ways: the dynamic-prompt
+locations, the active dialect, gating, and so on. Content paths resolve two ways: the block
 loaders are **module-relative** (cwd-independent), while the list/preset settings
 (`listFiles: "./data/lists"`, `presetFiles: "./data/presets"`) are **cwd-relative** — so everything is
 run from the repo root (npm scripts always are; there is no `chdir` shim). User overrides live in

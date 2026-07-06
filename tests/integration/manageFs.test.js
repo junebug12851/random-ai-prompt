@@ -28,7 +28,7 @@ const TEST_DIR = "zz-manage-test";
 
 afterAll(() => {
   // Always clean the throwaway folder, even if a test failed mid-way.
-  fsOp("delete", { root: "dynamic-prompts", path: TEST_DIR });
+  fsOp("delete", { root: "blocks", path: TEST_DIR });
 });
 
 describe("buildManageSnapshot reproduces the engine catalog", () => {
@@ -48,14 +48,14 @@ describe("buildManageSnapshot reproduces the engine catalog", () => {
     sortEq(snap.listForcePrefixDirs, nodeLoader.forcedPrefixDirs());
   });
 
-  it("derives the same dynamic-prompt names as the Node loader", () => {
+  it("derives the same block names as the Node loader", () => {
     const dplKeys = Object.keys(snap.dpDpl);
     const set = new Set(dplKeys);
     const dpNames = [...new Set([...dplKeys, ...snap.dpJsKeys.filter((k) => !set.has(k))])].sort(
       compareNames,
     );
-    sortEq(dpNames, nodeLoader.dynamicPromptNames());
-    sortEq(snap.dpForcePrefixDirs, nodeLoader.dynPromptForcedPrefixDirs());
+    sortEq(dpNames, nodeLoader.blockNames());
+    sortEq(snap.dpForcePrefixDirs, nodeLoader.blockForcedPrefixDirs());
   });
 
   it("today's catalog is all .dpl (no .js-only generators)", () => {
@@ -66,7 +66,7 @@ describe("buildManageSnapshot reproduces the engine catalog", () => {
 describe("write / sidecar / marker / move / delete round-trip", () => {
   it("creates a file that appears in the snapshot", () => {
     fsOp("mkfile", {
-      root: "dynamic-prompts",
+      root: "blocks",
       path: `${TEST_DIR}/sample.dpl`,
       text: "T\n===\nx\n",
     });
@@ -74,23 +74,23 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
   });
 
   it("merges and removes a sidecar", () => {
-    mergeSidecar("dynamic-prompts", `${TEST_DIR}/sample`, { description: "hi", nsfw: true });
+    mergeSidecar("blocks", `${TEST_DIR}/sample`, { description: "hi", nsfw: true });
     let m = buildManageSnapshot().dpMeta[`${TEST_DIR}/sample`];
     expect(m).toMatchObject({ description: "hi", nsfw: true });
-    mergeSidecar("dynamic-prompts", `${TEST_DIR}/sample`, { nsfw: null, description: null });
+    mergeSidecar("blocks", `${TEST_DIR}/sample`, { nsfw: null, description: null });
     expect(buildManageSnapshot().dpMeta[`${TEST_DIR}/sample`]).toBeUndefined();
   });
 
   it("toggles a folder marker", () => {
-    setMarker("dynamic-prompts", TEST_DIR, "_force-prefix", true);
+    setMarker("blocks", TEST_DIR, "_force-prefix", true);
     expect(buildManageSnapshot().dpForcePrefixDirs).toContain(TEST_DIR);
-    setMarker("dynamic-prompts", TEST_DIR, "_force-prefix", false);
+    setMarker("blocks", TEST_DIR, "_force-prefix", false);
     expect(buildManageSnapshot().dpForcePrefixDirs).not.toContain(TEST_DIR);
   });
 
   it("moves a file", () => {
     fsOp("move", {
-      root: "dynamic-prompts",
+      root: "blocks",
       path: `${TEST_DIR}/sample.dpl`,
       to: `${TEST_DIR}/renamed.dpl`,
     });
@@ -104,7 +104,7 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
   });
 
   it("deletes the throwaway folder", () => {
-    fsOp("delete", { root: "dynamic-prompts", path: TEST_DIR });
+    fsOp("delete", { root: "blocks", path: TEST_DIR });
     const snap = buildManageSnapshot();
     expect(Object.keys(snap.dpDpl).some((k) => k.startsWith(`${TEST_DIR}/`))).toBe(false);
   });
@@ -137,8 +137,8 @@ describe("ghost detection (manifest minus local)", () => {
   });
 
   it("builds a model with the expected top-level categories", () => {
-    const tree = buildManageTree(MANAGE_ROOTS["dynamic-prompts"]);
-    const model = buildManageModel(tree, "dynamic-prompts", { includeAdult: true });
+    const tree = buildManageTree(MANAGE_ROOTS["blocks"]);
+    const model = buildManageModel(tree, "blocks", { includeAdult: true });
     const cats = model.children.map((c) => c.name);
     expect(cats).toContain("scene");
     expect(cats).toContain("prompt");
@@ -162,8 +162,8 @@ describe("user overlay — user/ content merges into the pool", () => {
   });
 
   it("the Node engine loader resolves the user block", () => {
-    expect(nodeLoader.dynamicPromptNames()).toContain("user/beach-merk");
-    const mod = nodeLoader.loadDynamicPrompt("user/beach-merk");
+    expect(nodeLoader.blockNames()).toContain("user/beach-merk");
+    const mod = nodeLoader.loadBlock("user/beach-merk");
     expect(typeof mod.default).toBe("function");
   });
 

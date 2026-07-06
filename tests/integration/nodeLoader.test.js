@@ -36,34 +36,34 @@ describe("nodeLoader — lists", () => {
   });
 });
 
-describe("nodeLoader — dynamic prompts", () => {
+describe("nodeLoader — blocks", () => {
   it("exposes a non-empty generator catalog", () => {
-    const names = nodeLoader.dynamicPromptNames();
+    const names = nodeLoader.blockNames();
     expect(names.length).toBeGreaterThan(0);
   });
 
   it("loads each catalog generator to a module with a default function", () => {
-    const names = nodeLoader.dynamicPromptNames();
+    const names = nodeLoader.blockNames();
     // Spot-check the first few so the test stays fast but catches a broken compile/loader.
     for (const key of names.slice(0, 5)) {
-      const mod = nodeLoader.loadDynamicPrompt(key);
+      const mod = nodeLoader.loadBlock(key);
       expect(mod, key).toBeTruthy();
       expect(typeof mod.default, key).toBe("function");
     }
   });
 
   it("returns null for an unknown generator key", () => {
-    expect(nodeLoader.loadDynamicPrompt("nope/nope-xyz")).toBeNull();
+    expect(nodeLoader.loadBlock("nope/nope-xyz")).toBeNull();
   });
 });
 
 describe("nodeLoader — metadata + group accessors", () => {
   it("returns arrays for the forced-prefix and group dir accessors", () => {
     for (const fn of [
-      nodeLoader.dynPromptForcedPrefixDirs,
-      nodeLoader.dynPromptForcedPrefixDirsAll,
-      nodeLoader.dynPromptGroupDirs,
-      nodeLoader.dynPromptGroupDirsAll,
+      nodeLoader.blockForcedPrefixDirs,
+      nodeLoader.blockForcedPrefixDirsAll,
+      nodeLoader.blockGroupDirs,
+      nodeLoader.blockGroupDirsAll,
     ]) {
       expect(Array.isArray(fn())).toBe(true);
     }
@@ -72,12 +72,12 @@ describe("nodeLoader — metadata + group accessors", () => {
   it("reads optional list/generator metadata sidecars without throwing (object or null)", () => {
     const listMeta = nodeLoader.readListMeta("color");
     expect(listMeta === null || typeof listMeta === "object").toBe(true);
-    const firstGen = nodeLoader.dynamicPromptNames()[0];
-    const genMeta = nodeLoader.readDynPromptMeta(firstGen);
+    const firstGen = nodeLoader.blockNames()[0];
+    const genMeta = nodeLoader.readBlockMeta(firstGen);
     expect(genMeta === null || typeof genMeta === "object").toBe(true);
   });
 
   it("returns null reading a group file for a non-group name", () => {
-    expect(nodeLoader.readDynPromptGroup("definitely-not-a-group-xyz")).toBeNull();
+    expect(nodeLoader.readBlockGroup("definitely-not-a-group-xyz")).toBeNull();
   });
 });

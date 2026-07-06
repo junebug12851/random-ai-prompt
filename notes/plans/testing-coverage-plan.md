@@ -54,12 +54,12 @@ Strong where it exists; the gaps below are whole modules with **zero** direct te
   reload-on-empty, alias resolution (`keyword`/`artist`, `false` → random), artist & NSFW gating** untested directly.
 - `core/stages/list.js` — covered only indirectly. **Emphasis path, NovelAI `()`→`{}` rewrite,
   artist detection, `{#name}` pass-through, nested token re-pull** untested directly.
-- `core/stages/dynamicPrompt.js` — covered only indirectly. **Dial arg parsing, `{#any}` family,
+- `core/stages/block.js` — covered only indirectly. **Dial arg parsing, `{#any}` family,
   implied + `.group` groups, dedup/stacking, auto-append fx/artists, NSFW gating, danbooru replacer,
   10-pass cap** untested directly.
 - `core/engine.js` — `generate()` default-prompt fallback, `generateMany` count clamp (0/NaN/neg → 1),
   `promptModules` ordering + unknown-stage skip, `\r` stripping.
-- `dynPromptManifest.js` — **untested** (`isReservedAny`, `dynGroupDirs` v1 exclusion, `dynGroupMembers`).
+- `blockManifest.js` — **untested** (`isReservedAny`, `dynGroupDirs` v1 exclusion, `dynGroupMembers`).
 - `promptFilesAndSuggestions.js` — **untested** (classification, `pickerListNames` adult on/off,
   `promptSuggestion` shapes, `gatePool`, `configure()`-not-called throw).
 - `core/nodeLoader.js` — loader contract over a temp data dir (lists, groups, dpl, markers, meta).
@@ -111,7 +111,7 @@ localDirect, submitPoll); `_shared/dialects.js` (`engineModeFor`), `_shared/rewr
    `test:lhci`.
 4. **Coverage config fix** — root `vitest.config.js` `coverage.include` lists a non-existent
    `src/diffSettings.js`; replace with the real now-tested modules (`helpers/random*.js`,
-   `dynPromptManifest.js`, `promptFilesAndSuggestions.js`, `core/listStore.js`,
+   `blockManifest.js`, `promptFilesAndSuggestions.js`, `core/listStore.js`,
    `core/stages/*.js`). Add modest coverage **thresholds** so a future drop fails CI.
 5. **Scripts** — extend root `package.json`: `test:e2e:all` (all browsers), `test:perf`;
    keep `test` (lint+smoke+unit+web) as the fast headless gate, `test:all` adds e2e+perf.
@@ -141,7 +141,7 @@ MDJ → no-op (returns input, `wasUsed:true`); `keywordAlternating:false` no-op;
 `keywordsFilename:"false"`→random non-artist list; artist alias + `includeArtist:false`→"";
 gated list + `includeAdult:false`→""; missing list→""; `reset()` clears state.
 
-**`core/stages/dynamicPrompt.js`** (over fakeLoader) — `{#name}` resolves; `{#a/b}` path;
+**`core/stages/block.js`** (over fakeLoader) — `{#name}` resolves; `{#a/b}` path;
 `{#any}` picks one; implied group picks a member; `.group` file picks a member; dedup drops
 2nd import; `stacking` exempt; `{#name i25% f80%}` dial parse (absent→50, 0→1, >100→100,
 non-numeric ignored); auto-add fx/artists once (idempotent via imageSettings flags); NSFW
@@ -189,7 +189,7 @@ copy/regenerate; `DplInsertBar` token insertion; `Gallery`/`SingleView` empty + 
 ## New files (inventory)
 
 - Node unit: `tests/unit/{randomEmphasis,randomEditing,randomAlternating,aliases,listStore,
-  listStage,dynamicPromptStage,dynPromptManifest,promptFilesAndSuggestions,engine,settings}.test.js`
+  listStage,blockStage,blockManifest,promptFilesAndSuggestions,engine,settings}.test.js`
 - Node loader/integration: `tests/integration/{nodeLoader,enginePipeline.extended}.test.js`
 - SPA lib: `targets/web/tests/lib/{keywords,manageTree,rewrite,output,online,sessionKeys,providerMeta,
   dplLanguage,dplInserts,wrapperStore,useProvider,manageApi}.test.js(x)`

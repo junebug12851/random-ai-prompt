@@ -2,7 +2,7 @@
  * @file
  * @brief The bundled USER-overlay prompt content (browser), isolated into its own code-split chunk.
  *
- * The user overlay (`user/lists` → lists, `user/blocks` → dynamic prompts) is a **local/desktop**
+ * The user overlay (`user/lists` → lists, `user/blocks` → blocks) is a **local/desktop**
  * feature: the hosted online build ignores it. To keep the online bundle free of user content, this
  * module is imported ONLY when NOT online — `browserLoader.initBrowserCatalog()` does a conditional
  * `await import("./browserUserCatalog.js")` (skipped when `VITE_ONLINE`), so the online chunk graph

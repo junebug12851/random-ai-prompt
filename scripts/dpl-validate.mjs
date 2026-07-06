@@ -8,9 +8,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileDpl } from "../engine/core/dpl/dpl.js";
 
-const root = fileURLToPath(new URL("../engine/data/dynamic-prompts/", import.meta.url));
+const root = fileURLToPath(new URL("../engine/data/blocks/", import.meta.url));
 
-// Walk the dynamic-prompts tree for .dpl files.
+// Walk the blocks tree for .dpl files.
 function dplFiles(dir, prefix = "") {
   const out = [];
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

@@ -317,7 +317,7 @@ function AppShell({ settings, setSettings }) {
   }, [menuOpen]);
 
   // Local mode: one SSE stream makes the app aware of changes to its own files and hot-reloads.
-  //   • data     → re-read the live catalog (lists / dynamic-prompts) so Generate + Manage reflect
+  //   • data     → re-read the live catalog (lists / blocks) so Generate + Manage reflect
   //                external edits (Manage's tree refreshes via its subscribeCatalog).
   //   • output   → reload the gallery feed so images added / removed / changed on disk appear.
   //   • settings → re-read settings from disk so an external edit applies — but skip events caused

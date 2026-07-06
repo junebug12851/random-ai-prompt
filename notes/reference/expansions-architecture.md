@@ -1,7 +1,7 @@
 # Expansions — architecture
 
 > **Removed (historical).** The `<name>` **expansion** mechanism and the entire `data/expansions/` tree
-> were **removed** from the project (superseded by the `{#name}` dynamic prompts). The `expansion` stage,
+> were **removed** from the project (superseded by the `{#name}` blocks). The `expansion` stage,
 > `data/expansions/`, and the files this page links to no longer exist in the tree — they survive only in
 > git history. This page is kept as a record of how expansions worked.
 
@@ -31,7 +31,7 @@ Expansions now nest into category folders (`detail/`, `style/`, `lighting/`, `su
 `scene/`) purely for organization. References resolve by **path suffix** via the shared
 `resolveName()` from `listManifest.js` — exact path wins, else the shallowest name ending
 `/<ref>`, ties broken by `compareNames()`. Basenames were kept unique during the move, so every
-pre-existing `<rays>` / `<legacy-detail>` reference in the dynamic prompts still resolves with no
+pre-existing `<rays>` / `<legacy-detail>` reference in the blocks still resolves with no
 edits. Discovery is recursive in both loaders (`namesUnder()` walk in Node; `**/*.txt` glob in
 the browser), and `_`-prefixed files are skipped (the same internal/config convention as lists).
 
@@ -57,7 +57,7 @@ exactly like lists. The loaders expose `expansionForcedPrefixDirs()` (a `markedD
 redundant "detail" is now carried by the folder) and the folder is force-prefixed, so they read
 `<detail/legacy>` / `<detail/legacy-person>`. As with lists this is display-only — suffix resolution still
 works — so it surfaces the folder for context rather than hard-requiring it. The lone code reference
-(`engine/data/dynamic-prompts/futuristic.js`) was updated to `<detail/legacy>`.
+(`engine/data/blocks/futuristic.js`) was updated to `<detail/legacy>`.
 
 The classic Pug editor lists expansions flat with a single section tooltip — the same treatment
 lists get there (`/api/files/expansions` returns the canonical names, so nested paths render

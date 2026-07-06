@@ -6,13 +6,13 @@ building the language. Nothing here is implemented yet — it is the analysis th
 The concrete, expanded language proposal that grew out of this analysis is in
 [`dpl-design.md`](dpl-design.md).
 
-The **DPL** is a proposed small *textual* scripting language for authoring `{#name}` dynamic prompts, so a
+The **DPL** is a proposed small *textual* scripting language for authoring `{#name}` blocks, so a
 prompt author doesn't have to hand-write JavaScript (`export default function … _.random(…) …`). The idea is
 old: the 2023-01-21/22 work sketched "a mockup of a simpler custom scripting language … may or may not be
 implemented" (see [`../version/2023-01.md`](../version/2023-01.md)) — it never was before the project went
 dormant. The two files now in `assets/mockup/` are that sketch, in two revisions. This is the language a DPL
 file would compile down to the same fragment-string a JS generator returns today (see the JS model in
-[`dynamic-prompts.md`](dynamic-prompts.md) and the runtime sigils in [`prompt-dsl.md`](prompt-dsl.md)).
+[`blocks.md`](blocks.md) and the runtime sigils in [`prompt-dsl.md`](prompt-dsl.md)).
 
 ## The two mockups, and what they encode
 
@@ -21,8 +21,8 @@ generator in two forms, DPL on the left, JS on the right.
 
 | Mockup | Encodes | JS equivalent |
 |--------|---------|---------------|
-| `mockup-of-dpl-language.txt` | a beach scene (winter / tropical variants) | `engine/data/dynamic-prompts/v2/scene/beach.js` |
-| `mockup-of-dpl-language2.txt` | a cave scene (sea / lava / ice / crystal types) | `engine/data/dynamic-prompts/v2/scene/cave.js` |
+| `mockup-of-dpl-language.txt` | a beach scene (winter / tropical variants) | `engine/data/blocks/v2/scene/beach.js` |
+| `mockup-of-dpl-language2.txt` | a cave scene (sea / lava / ice / crystal types) | `engine/data/blocks/v2/scene/cave.js` |
 
 ### Revision 1 — `mockup-of-dpl-language.txt` (beach)
 
@@ -85,7 +85,7 @@ Reading it against `beach.js` line-for-line:
   tropicalBeach();`. (In `beach.js` the else-branch is a small inline block; the mockup factors it into a
   named `tropical-beach:` section.)
 - `+name` **calls/inlines another local section** (subroutine reference). `+winter-beach` ⇒ `winterBeach()`.
-- `#name` **embeds a dynamic-prompt generator** — the same `{#name}` token, written bare here. `#eerie`,
+- `#name` **embeds a block generator** — the same `{#name}` token, written bare here. `#eerie`,
   `#mystical`, `#nature`, `#city`, `#weather`.
 - `{name}` is a **list / wildcard** pull, exactly the runtime `{list}` sigil — `{size}`.
 - `(…)` wraps output in **parentheses** (SD weight-grouping). `(#ice)` ⇒ the `({#ice})` in `winterBeach()`.
@@ -159,7 +159,7 @@ sections, rev 2 adds the `select N` group** as a cleaner pick-one. A real DPL wo
 | `*fail text` | else-branch of the previous clause | `else …` |
 | trailing plain line (END) | always appended | `prompt += ", …"` |
 | `+name` | call/inline a local section | `helperFn()` |
-| `#name` | embed a dynamic prompt | `{#name}` token |
+| `#name` | embed a block | `{#name}` token |
 | `{name}` | list / wildcard pull | `{list}` token |
 | `(…)` | parenthesize (weight group) | `(…)` in the emitted string |
 
@@ -169,7 +169,7 @@ This is the classification the whole catalog turns on, and the structural patter
 (start / middle / end layering + balancing). **Note:** start/middle/end describes the *v2 authoring habit*,
 not a rule of the language — **v3 will be structured differently**, and the proposed DPL
 ([`dpl-design.md`](dpl-design.md)) does **not** enforce an anchor/tail; lines just run in document order. Authoritative JS detail is in
-[`dynamic-prompts.md`](dynamic-prompts.md#full-vs-partial-the-classification-that-drives-everything); the
+[`blocks.md`](blocks.md#full-vs-partial-the-classification-that-drives-everything); the
 shape:
 
 **A full prompt is a complete, self-standing scene; a partial is a building-block fragment that garnishes
@@ -189,7 +189,7 @@ layers:
    ones vary every run — so output is richly varied yet never lopsided, and no single clause dominates.
    Weighted clauses (25%/20%) deliberately make rarer features rare; `*fail`/`select` enforce "pick one of
    these alternatives, not several."
-3. **END — the unconditional context.** A trailing always-appended set of *other* dynamic prompts that
+3. **END — the unconditional context.** A trailing always-appended set of *other* blocks that
    place the scene in an environment: `#city, #weather` (beach); `#nature, #wildlife, #water, #eerie,
    #mystical, #weather` (cave). After the generator returns, the **engine** additionally auto-appends
    `{#fx}` and `{#artists}` (when `autoAddFx`/`autoAddArtists` are on and not already present) — the style
@@ -228,7 +228,7 @@ The mockups are deliberately incomplete; these are the decisions a parser/compil
   can be multi-line.
 - **File identity / location** — extension (`.dpl`?), where DPL files live vs `.js` generators, and whether
   they coexist (a loader that reads both) or DPL compiles to JS at build time.
-- **Compile target** — interpret a DPL AST at runtime inside `dynamicPrompt.js`, or transpile to the
+- **Compile target** — interpret a DPL AST at runtime inside `block.js`, or transpile to the
   existing `export default function` shape so nothing downstream changes. The latter keeps the whole
   classifier / suffix-resolution / gating machinery untouched.
 - **NSFW gating, `-v1`/`user` namespaces, `_force-prefix`, `.group` markers** — how the DPL surfaces (or
@@ -240,8 +240,8 @@ The mockups are deliberately incomplete; these are the decisions a parser/compil
 | Concern | Location |
 |---------|----------|
 | The two mockups | `assets/mockup/mockup-of-dpl-language{,2}.txt` |
-| JS generators the mockups encode | `engine/data/dynamic-prompts/v2/scene/{beach,cave}.js` |
+| JS generators the mockups encode | `engine/data/blocks/v2/scene/{beach,cave}.js` |
 | Full/partial classifier | `engine/promptFilesAndSuggestions.js` |
-| Runtime sigils / pipeline | [`prompt-dsl.md`](prompt-dsl.md), `engine/core/stages/dynamicPrompt.js` |
-| JS authoring idiom & catalog | [`dynamic-prompts.md`](dynamic-prompts.md) |
+| Runtime sigils / pipeline | [`prompt-dsl.md`](prompt-dsl.md), `engine/core/stages/block.js` |
+| JS authoring idiom & catalog | [`blocks.md`](blocks.md) |
 | Original 2023 mockup history | [`../version/2023-01.md`](../version/2023-01.md) |

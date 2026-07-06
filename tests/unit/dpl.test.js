@@ -1,6 +1,6 @@
 /**
  * @file Unit tests for the DPL compiler/renderer (src/core/dpl/dpl.js) — the v3
- * "data, not code" dynamic-prompt language. Randomness is pinned so gates/choices
+ * "data, not code" block language. Randomness is pinned so gates/choices
  * are deterministic.
  */
 import { describe, it, expect } from "vitest";

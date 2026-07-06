@@ -10,7 +10,7 @@ deep-dives. This is the "understand the whole machine" reference; it grows along
 
 All code lives under **`src/`** (the `core/` engine, its loaders, `helpers/`, and the list/safety/manifest
 modules); all prompt content lives under **`data/`** (`lists/`, `presets/`, the CSV `sources/`, and
-`dynamic-prompts/` — the `{#name}` generators are executable `.js` but are treated as content, the one
+`blocks/` — the `{#name}` generators are executable `.js` but are treated as content, the one
 deliberate `src/`→`data/` exception); the React/Vite SPA is **`targets/web/`**; runtime/user data (`output/`,
 `user-settings.json`, `results.json`) stays at the repo root.
 
@@ -19,7 +19,7 @@ Read in this order:
 | Doc | Scope |
 |-----|-------|
 | [overview.md](overview.md) | **Start here.** The macro picture: the surfaces (the SPA + the local `/api` + the engine under Node), one engine / two loaders, the prompt pipeline, image generation via provider adapters, and settings as the spine. |
-| [core-engine.md](core-engine.md) | The isomorphic `core/` engine — `engine.js`, the `stages/` (dynamicPrompt / prompt-salt / list / emphasis / cleanup), `listStore`, and the `node`/`browser` loaders that let the same prompt logic run under Node and in the browser. |
+| [core-engine.md](core-engine.md) | The isomorphic `core/` engine — `engine.js`, the `stages/` (block / prompt-salt / list / emphasis / cleanup), `listStore`, and the `node`/`browser` loaders that let the same prompt logic run under Node and in the browser. |
 | [gui.md](gui.md) | The standalone React + Vite SPA in `targets/web/` — the ~40-provider BYOK model, the browser prompt engine, the in-app Manager, and the two editions (local + online). |
 | [desktop.md](desktop.md) | The pre-built **desktop edition** — a thin Tauri (Rust) shell that runs the unmodified local SPA + Node `/api` backend as a bundled sidecar, plus the staging step and the per-OS installer/portable build. |
 | [cli.md](cli.md) | **Historical.** The pre-revival CLI (`index.js` + `common.js`), now removed from the tree — kept as a record of the classic runtime. There is no CLI yet in the current project. |

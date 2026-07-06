@@ -84,7 +84,7 @@ numeric-order numbers, then letters) so users can force a default by prefixing a
 All three loaders walk `data/lists` recursively and resolve through this, so bare
 filenames, partial paths, and full paths all work and folders can nest arbitrarily.
 Basenames were kept unique during the move so the ~78 existing `{name}` references in
-dynamic prompts still resolve; only the danbooru `d-*` string references were updated.
+blocks still resolve; only the danbooru `d-*` string references were updated.
 
 ## Content safety
 
@@ -122,7 +122,7 @@ tokens and review anything the denylist missed — is the way to raise confidenc
 `-`, `.`, `_`, or string ends). So `d/general-nsfw`, `artist/nudity-nsfw`, `word/adult-nsfw` are gated while
 the plain/SFW names (`d/general`, `d/general-sfw`, `danbooru`, `color`) are not — no hardcoded list to keep
 in sync. When adult is off, gated names are dropped from the suggestion pool, hidden from the picker
-(`pickerListNames`), and `pull()` returns "" if one is referenced directly. `gatedDynPrompts` is now empty
+(`pickerListNames`), and `pull()` returns "" if one is referenced directly. `gatedBlocks` is now empty
 (`#danbooru` draws the mode-aware `d/general`, SFW when adult is off, so it needs no gating).
 
 ## The dictionary reorg

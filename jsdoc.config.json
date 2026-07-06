@@ -27,7 +27,7 @@
     "meta": {
       "title": "Random AI Prompt — docs · Fairy Fox",
       "description": "Code API and project notes for Random AI Prompt, a project under Fairy Fox (fairyfox.io).",
-      "keyword": "random-ai-prompt, Fairy Fox, JSDoc, dynamic prompts"
+      "keyword": "random-ai-prompt, Fairy Fox, JSDoc, blocks"
     },
     "sectionOrder": [
       "Tutorials",

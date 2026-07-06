@@ -33,7 +33,7 @@ thoroughly, with valid/invalid/edge inputs" (plan: `notes/plans/testing-coverage
 **419 headless tests** now pass (Node 226 + SPA 193, up from ~138 + ~60).
 
 - **Engine (Node):** direct unit tests for the `random*` helpers, the loader-injected stages
-  (`listStore`/`list`/`dynamicPrompt`), `dynPromptManifest`, `promptFilesAndSuggestions`,
+  (`listStore`/`list`/`block`), `blockManifest`, `promptFilesAndSuggestions`,
   `engine` edges, `settings`/`aliases` guards, extra `listManifest` cases, and a real-data
   `nodeLoader` integration test.
 - **SPA (jsdom):** `targets/web/tests/lib/**` (keywords, manageTree, output, rewrite, online,

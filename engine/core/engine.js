@@ -7,14 +7,14 @@
 //
 // `createEngine(loader)` returns an engine that runs the prompt-module pipeline
 // (the same stages and order as the Node CLI) over a prompt string. All data
-// access — lists, dynamic prompts — goes through the injected
+// access — lists, blocks — goes through the injected
 // `loader`, so the identical engine runs in Node (fs + createRequire loader) and
 // in the browser (Vite import.meta.glob loader). See notes/plans/web-migration.md.
 //
 // Loader interface:
 //   readListLines(name)      -> string[] | null
 //   listNames()              -> string[]
-//   loadDynamicPrompt(key)   -> { default, suggestion_exclude? } | null
+//   loadBlock(key)   -> { default, suggestion_exclude? } | null
 //
 // The pure stages (prompt-salt, cleanup) and the random* helpers are imported
 // and reused directly — only the file/plugin access is reimplemented behind the
@@ -24,28 +24,28 @@ import { createRng } from "./rng.js";
 import { withAmbientRng } from "../helpers/random.js";
 import promptSalt from "./stages/prompt-salt.js";
 import cleanup from "./stages/cleanup.js";
-import { makeDynamicPromptStage } from "./stages/dynamicPrompt.js";
+import { makeBlockStage } from "./stages/block.js";
 import { makeListStage } from "./stages/list.js";
 import emphasis from "./stages/emphasis.js";
 import { createListStore } from "./listStore.js";
 
 // v3-only pipeline. The legacy `<expansion>` stage was removed (v1/v2-era); the
-// dynamic-prompt stage internally re-expands up to 10 passes, so one entry suffices.
+// block stage internally re-expands up to 10 passes, so one entry suffices.
 // `emphasis` runs after `list` so it sees the fully expanded text (typed `()`/`[]` from the
 // prompt box AND from rendered DPL blocks) and translates it into the active dialect.
-const DEFAULT_ORDER = ["dynamic-prompt", "prompt-salt", "list", "emphasis", "cleanup"];
+const DEFAULT_ORDER = ["block", "prompt-salt", "list", "emphasis", "cleanup"];
 
 /**
  * Create a framework-agnostic prompt engine that runs the same pipeline as the CLI.
  * @param {object} loader Data-access loader (Node fs or browser glob):
- *   `readListLines`, `listNames`, `loadDynamicPrompt`.
+ *   `readListLines`, `listNames`, `loadBlock`.
  * @returns {{expand: Function, generate: Function, generateMany: Function}} The engine API.
  */
 export function createEngine(loader) {
   const store = createListStore(loader);
 
   const stages = {
-    "dynamic-prompt": makeDynamicPromptStage(loader),
+    "block": makeBlockStage(loader),
     "prompt-salt": promptSalt,
     list: makeListStage(store),
     emphasis,

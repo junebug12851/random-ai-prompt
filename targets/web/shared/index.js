@@ -2,7 +2,7 @@
  * The image-provider registry. Every provider is a self-contained folder
  * `gui/providers/<id>/` (config + settings + presets + code + data); this module
  * **auto-discovers** them by globbing each `config.js` (the same plugin pattern the
- * dynamic prompts use). Drop a folder in → it registers; no central edit.
+ * blocks use). Drop a folder in → it registers; no central edit.
  *
  * A provider manifest (its `config.js` default export) is a richer superset of the old
  * `{ id, label, local, needsKey }` shape — it also declares its `tier` (api | syntax |

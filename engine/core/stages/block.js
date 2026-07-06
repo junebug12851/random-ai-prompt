@@ -8,18 +8,18 @@
 // ({ default, suggestion_exclude }); we call `.default(...)`. Same
 // danbooru/auto-fx logic in Node and the browser.
 //
-// Generators live flat under data/dynamic-prompts/<category>/. A bare `{#name}` is
+// Generators live flat under data/blocks/<category>/. A bare `{#name}` is
 // resolved by PATH SUFFIX (the same rule lists use), so references stay short and
 // folder-independent; `{#category/name}` addresses one explicitly.
 import { sample } from "../../helpers/random.js";
 import { resolveName } from "../../listManifest.js";
-import { isReservedAny, dynGroupMembers } from "../../dynPromptManifest.js";
-import { isGatedDynPrompt } from "../../gatedLists.js";
+import { isReservedAny, dynGroupMembers } from "../../blockManifest.js";
+import { isGatedBlock } from "../../gatedLists.js";
 
 /**
- * Build the `{#name}` dynamic-prompt stage bound to a loader (loader-injected port;
+ * Build the `{#name}` block stage bound to a loader (loader-injected port;
  * suffix-resolved, auto-fx/artists, danbooru substitution).
- * @param {object} loader The loader (`{ loadDynamicPrompt, dynamicPromptNames }`).
+ * @param {object} loader The loader (`{ loadBlock, blockNames }`).
  * @returns {Function} The stage `(prompt, settings, imageSettings, upscaleSettings) => string`.
  */
 // Dials carried on a `{#name …}` reference: intensity ("how much", 4th generator arg) and focus
@@ -97,7 +97,7 @@ function pushAutoSections(mod, settings, args) {
   }
 }
 
-export function makeDynamicPromptStage(loader) {
+export function makeBlockStage(loader) {
   function run(
     key,
     settings,
@@ -107,7 +107,7 @@ export function makeDynamicPromptStage(loader) {
     focus = DEFAULT_FOCUS,
     dedup = null,
   ) {
-    const mod = loader.loadDynamicPrompt(key);
+    const mod = loader.loadBlock(key);
     if (!mod || typeof mod.default !== "function") return "";
     if (dedupSkip(mod, key, dedup)) return "";
     const args = [settings, imageSettings, upscaleSettings, intensity, focus];
@@ -116,19 +116,19 @@ export function makeDynamicPromptStage(loader) {
     return out;
   }
 
-  return function dynamicPrompt(prompt, settings, imageSettings, upscaleSettings) {
+  return function block(prompt, settings, imageSettings, upscaleSettings) {
     // A single, flat catalog: every generator is FIRST CLASS, addressed by a bare `{#name}`
     // (suffix-resolved, the same rule lists use) or a `{#category/name}` path. The `{#any}`
     // wildcard and the implied folder groups span the whole catalog.
-    const names = loader.dynamicPromptNames();
+    const names = loader.blockNames();
     let groups = [];
-    if (loader.dynPromptGroupDirsAll) groups = loader.dynPromptGroupDirsAll();
-    else if (loader.dynPromptGroupDirs) groups = loader.dynPromptGroupDirs();
+    if (loader.blockGroupDirsAll) groups = loader.blockGroupDirsAll();
+    else if (loader.blockGroupDirs) groups = loader.blockGroupDirs();
     const includeAdult = settings.includeAdult === true;
     // Gating: a generator is adult when its `.json` sidecar carries `nsfw: true` OR its name
     // carries an `nsfw` token (the automatic rule lists use). Either way it is hidden (empty)
     // unless adult is on — "acts like it doesn't exist".
-    const isNsfw = (key) => loader.readDynPromptMeta?.(key)?.nsfw === true || isGatedDynPrompt(key);
+    const isNsfw = (key) => loader.readBlockMeta?.(key)?.nsfw === true || isGatedBlock(key);
     const gateOk = (key) => includeAdult || !isNsfw(key);
     // Built once per stage call (was rebuilt for every `{#…}` token on every pass).
     const resolvePool = [...names, ...groups];
@@ -162,7 +162,7 @@ export function makeDynamicPromptStage(loader) {
         return pickFrom(dynGroupMembers(canonical, names), null, intensity, focus, dedup);
 
       // Explicit `<name>.group` file — pick one random member.
-      const groupFile = loader.readDynPromptGroup ? loader.readDynPromptGroup(canonical) : null;
+      const groupFile = loader.readBlockGroup ? loader.readBlockGroup(canonical) : null;
       if (groupFile) {
         const members = groupFile
           .map((l) => l.replace(/\r$/, "").trim())
@@ -195,7 +195,7 @@ export function makeDynamicPromptStage(loader) {
       imageSettings.autoIncludedArtists = true;
     }
 
-    // Dynamic prompts are written `{#name}` (brace-delimited, uniform with `{list}`, and able to
+    // Blocks are written `{#name}` (brace-delimited, uniform with `{list}`, and able to
     // carry `/` paths like `{#scene/beach}`). An optional ` NN%` is the intensity dial
     // (`{#beach 25%}`); absent → the default. Relative `+NN%`/`-NN%` forms are resolved to an
     // absolute percent inside the DPL renderer before they reach here.

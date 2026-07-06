@@ -82,7 +82,7 @@ Cleanest decomposition in the codebase; it's a textbook compiler. Extract **verb
 - `dpl/renderer.js` — `renderNodes`, `renderNode`, `renderInlineBody`, `renderRef`, `joinPieces`,
   `weightOf`.
 - `dpl/dpl.js` — keeps `compileDpl` (the public orchestrator) wiring the above together.
-Gate: smoke (forces every dynamic prompt to compile) + unit + snapshot (prompt output identical) +
+Gate: smoke (forces every block to compile) + unit + snapshot (prompt output identical) +
 **both loaders** build (`npm run smoke` and `npm --prefix gui run build`, per the depth-sensitivity
 rule). This phase is the strongest "no output change" candidate — snapshots are the guardrail.
 

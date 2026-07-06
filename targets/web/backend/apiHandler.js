@@ -136,7 +136,7 @@ export function runStartupMigrations() {
 
 /**
  * The directories whose changes the `/api/manage/watch` SSE reports. The two prompt-content roots
- * (lists + dynamic-prompts) drive a live catalog refresh; the output folder drives a gallery
+ * (lists + blocks) drive a live catalog refresh; the output folder drives a gallery
  * refresh; the user-settings folder drives a settings reload. Each is optional — a missing folder is
  * simply not watched (the client's manual refresh still works).
  * @returns {Array<{ scope: string, dir: string, recursive: boolean }>}
@@ -563,7 +563,7 @@ export function createApiHandler() {
       try {
         return send(res, 200, {
           lists: buildManageTree(MANAGE_ROOTS.lists),
-          "dynamic-prompts": buildManageTree(MANAGE_ROOTS["dynamic-prompts"]),
+          "blocks": buildManageTree(MANAGE_ROOTS["blocks"]),
           "user-lists": buildManageTree(MANAGE_ROOTS["user-lists"]),
           "user-blocks": buildManageTree(MANAGE_ROOTS["user-blocks"]),
         });

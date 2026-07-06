@@ -13,7 +13,7 @@ import { dialog } from "../dialog.js";
 
 // Data-root keys are fixed; their display titles are localized via `msgs` below. The user-overlay
 // roots (user/lists, user/blocks) come FIRST so "your content" groups at the top of the tree.
-const ROOTS = ["user-blocks", "user-lists", "dynamic-prompts", "lists"];
+const ROOTS = ["user-blocks", "user-lists", "blocks", "lists"];
 // The user-overlay roots — no upstream default (no ghost pills / restore), grouped as "your content".
 export const USER_ROOTS = new Set(["user-blocks", "user-lists"]);
 
@@ -48,7 +48,7 @@ export function defaultExpanded(models) {
 function rootTitle(intl, root) {
   const title = {
     lists: msgs.lists,
-    "dynamic-prompts": msgs.blocks,
+    "blocks": msgs.blocks,
     "user-lists": msgs.userLists,
     "user-blocks": msgs.userBlocks,
   }[root];

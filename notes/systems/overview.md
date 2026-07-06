@@ -31,7 +31,7 @@ There is **one isomorphic engine** (`engine/core/`) driven by **one front end** 
 - **Node** — `nodeLoader.js`: `fs` + `createRequire(import.meta.url)` for synchronous `.js` generator
   loads (Node 24 can `require()` an ES module), resolving the content root **module-relative**
   (`new URL("../../", import.meta.url)` = the repo root, cwd-independent).
-- **Browser** — `browserLoader.js`: a Vite `import.meta.glob("../../engine/data/dynamic-prompts/**/*.js")`
+- **Browser** — `browserLoader.js`: a Vite `import.meta.glob("../../engine/data/blocks/**/*.js")`
   build-time macro; the lists ship code-split (`browserCatalogData.js`).
 
 Both call each generator's `default(...)` and read its `full` / `suggestion_exclude` flags. See
@@ -43,10 +43,10 @@ The engine runs `settings.promptModules` in order over each prompt string — th
 `engine/core/stages/`:
 
 ```
-prompt → dynamic-prompt → prompt-salt → list → emphasis → cleanup
+prompt → block → prompt-salt → list → emphasis → cleanup
 ```
 
-- **dynamic-prompt** (`{#name}`) — call the generator from `engine/data/dynamic-prompts/<category>/`; nesting
+- **block** (`{#name}`) — call the generator from `engine/data/blocks/<category>/`; nesting
   re-expands up to ~10 passes; honors the per-token intensity / focus dials; NSFW-gated by name token.
   (The one flat catalog replaced the old `v1`/`v2` generations, and the legacy `<expansion>` stage was
   removed.)
@@ -62,10 +62,10 @@ The DPL parser + renderer (`engine/core/dpl/`) compile and roll each template; a
 
 ## Dynamic-prompt classification
 
-`engine/promptFilesAndSuggestions.js` scans `engine/data/dynamic-prompts/` and splits generators into **full** vs
+`engine/promptFilesAndSuggestions.js` scans `engine/data/blocks/` and splits generators into **full** vs
 **partial** by reading each module's `full` export, excluding `suggestion_exclude` ones. These drive the
 random `promptSuggestion()`s and the SPA's block pickers. Tag metadata comes from
-`engine/dynPromptManifest.js`; NSFW gating from `engine/gatedLists.js` (`isGatedDynPrompt`).
+`engine/blockManifest.js`; NSFW gating from `engine/gatedLists.js` (`isGatedBlock`).
 
 ## Image generation
 
@@ -78,7 +78,7 @@ is now one option among many.
 In the **local** edition, `POST /api/image` (`targets/web/backend/apiHandler.js`) writes each PNG plus a `.json`
 metadata sidecar (the prompt layers, the deterministic engine roll, the AI rewrite, the provider, and a
 key-stripped settings snapshot) into `output/`; `GET /api/feed` reads them back for the Gallery. The in-app
-**Manager** edits the real `data/lists` + `data/dynamic-prompts` files through `/api/manage/*`
+**Manager** edits the real `data/lists` + `data/blocks` files through `/api/manage/*`
 (`targets/web/backend/manageFs.js`) and hot-applies them via the runtime loader (`targets/web/frontend/lib/runtimeLoader.js`).
 
 ## Settings as the spine

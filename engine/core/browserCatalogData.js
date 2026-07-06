@@ -3,7 +3,7 @@
  * @brief The bundled prompt corpus (browser), isolated so it can be code-split behind a single
  *   dynamic `import()`.
  *
- * All the heavy prompt data — the dynamic-prompt generator modules, the raw list/`.dpl`/`.group`
+ * All the heavy prompt data — the block generator modules, the raw list/`.dpl`/`.group`
  * text, the JSON sidecars, and the presets — is gathered here via eager `import.meta.glob` and the
  * derived name/group/marker sets are computed at module load. `browserLoader.js` pulls this module
  * in with ONE explicit `await import("./browserCatalogData.js")` (see `initBrowserCatalog`), so this
@@ -17,28 +17,28 @@
 
 import { logicalListNames, autoGroupListDirs } from "../listManifest.js";
 
-const dpModules = import.meta.glob("../data/dynamic-prompts/**/*.js", { eager: true });
-const dpDplRaw = import.meta.glob("../data/dynamic-prompts/**/*.dpl", {
+const dpModules = import.meta.glob("../data/blocks/**/*.js", { eager: true });
+const dpDplRaw = import.meta.glob("../data/blocks/**/*.dpl", {
   query: "?raw",
   import: "default",
   eager: true,
 });
-const dpMetaModules = import.meta.glob("../data/dynamic-prompts/**/*.json", {
+const dpMetaModules = import.meta.glob("../data/blocks/**/*.json", {
   eager: true,
   import: "default",
 });
-const dpForcePrefixFiles = import.meta.glob("../data/dynamic-prompts/**/_force-prefix", {
+const dpForcePrefixFiles = import.meta.glob("../data/blocks/**/_force-prefix", {
   eager: true,
 });
-const dpGroupRaw = import.meta.glob("../data/dynamic-prompts/**/*.group", {
+const dpGroupRaw = import.meta.glob("../data/blocks/**/*.group", {
   query: "?raw",
   import: "default",
   eager: true,
 });
-const dpEnableGroupFiles = import.meta.glob("../data/dynamic-prompts/**/_enable-group-list", {
+const dpEnableGroupFiles = import.meta.glob("../data/blocks/**/_enable-group-list", {
   eager: true,
 });
-const dpDisableGroupFiles = import.meta.glob("../data/dynamic-prompts/**/_disable-group-list", {
+const dpDisableGroupFiles = import.meta.glob("../data/blocks/**/_disable-group-list", {
   eager: true,
 });
 const listRaw = import.meta.glob("../data/lists/**/*.txt", {
@@ -67,7 +67,7 @@ const presetModules = import.meta.glob("../data/presets/*.json", {
   import: "default",
 });
 
-// ".../dynamic-prompts/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
+// ".../blocks/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
 function keyFor(path, dir) {
   const marker = `/${dir}/`;
   const i = path.indexOf(marker);
@@ -89,16 +89,16 @@ const markerDirs = (files, marker, seg = "lists") =>
 // generators that have no same-name `.dpl` (otherwise the `.js` is that `.dpl`'s sidecar).
 export const dpJsModules = {};
 for (const [path, mod] of Object.entries(dpModules)) {
-  const key = keyFor(path, "dynamic-prompts");
+  const key = keyFor(path, "blocks");
   if (!isInternal(key)) dpJsModules[key] = mod;
 }
 export const dpDplText = {};
 for (const [path, raw] of Object.entries(dpDplRaw)) {
-  const key = keyFor(path, "dynamic-prompts");
+  const key = keyFor(path, "blocks");
   if (!isInternal(key)) dpDplText[key] = String(raw);
 }
-export const dynamicPromptKeys = new Set(Object.keys(dpDplText));
-for (const k of Object.keys(dpJsModules)) if (!dpDplText[k]) dynamicPromptKeys.add(k);
+export const blockKeys = new Set(Object.keys(dpDplText));
+for (const k of Object.keys(dpJsModules)) if (!dpDplText[k]) blockKeys.add(k);
 
 export const listLines = {};
 for (const [path, raw] of Object.entries(listRaw)) {
@@ -121,26 +121,26 @@ for (const [path, obj] of Object.entries(metaModules)) {
 }
 export const dpMetaMap = {};
 for (const [path, obj] of Object.entries(dpMetaModules)) {
-  const key = keyFor(path, "dynamic-prompts");
+  const key = keyFor(path, "blocks");
   if (!isInternal(key)) dpMetaMap[key] = obj;
 }
 export const dpGroupLines = {};
 for (const [path, raw] of Object.entries(dpGroupRaw)) {
-  const key = keyFor(path, "dynamic-prompts");
+  const key = keyFor(path, "blocks");
   if (!isInternal(key)) dpGroupLines[key] = String(raw).split("\n");
 }
 
 export const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
-export const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
+export const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "blocks");
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 export const groupListDirs = autoGroupListDirs(
   logicalListNames(Object.keys(listLines)),
   markerDirs(enableGroupFiles, "_enable-group-list"),
   markerDirs(disableGroupFiles, "_disable-group-list"),
 );
-// Implied groups for dynamic prompts: a category folder with 2+ generators.
+// Implied groups for blocks: a category folder with 2+ generators.
 export const dpGroupDirs = autoGroupListDirs(
-  [...dynamicPromptKeys],
-  markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
-  markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
+  [...blockKeys],
+  markerDirs(dpEnableGroupFiles, "_enable-group-list", "blocks"),
+  markerDirs(dpDisableGroupFiles, "_disable-group-list", "blocks"),
 );

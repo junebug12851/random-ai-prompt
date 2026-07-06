@@ -136,15 +136,15 @@ JSDoc extracts a real **per-function API** (it handles ESM / `export default` wh
   scripts; the vendored `lib/*.min.js` are left untouched. Each file gets a description, with richer
   multi-line module headers on the files with real logic.
 - **Per-function JSDoc** (`@param`/`@returns`/description) on **all server-side code, all 113
-  dynamic-prompt generators, all top-level `web/frontend/*` functions, and the entire `targets/web/` SPA**
+  block generators, all top-level `web/frontend/*` functions, and the entire `targets/web/` SPA**
   (every lib function + provider + the Netlify handler + every React component, each file an `@module`).
   The only things without per-function docs are anonymous callbacks (Express route arrows, jQuery
   closures, `$(document).ready`, React inline event handlers), which no generator extracts. Quality
-  varies by layer: the engine / core-logic / gui docs are bespoke; the dynamic-prompts and the
+  varies by layer: the engine / core-logic / gui docs are bespoke; the blocks and the
   classic frontend handlers are accurate generated scaffolds (correct params/returns, humanized
   descriptions).
 - **The notes pages carry the conceptual depth** the code comments don't — the prompt DSL
-  ([prompt-dsl.md](prompt-dsl.md)), the dynamic-prompt catalog ([dynamic-prompts.md](dynamic-prompts.md)),
+  ([prompt-dsl.md](prompt-dsl.md)), the block catalog ([blocks.md](blocks.md)),
   and the system map ([`../systems/`](../systems/README.md)) — and they live in the **same site**, as
   tutorials.
 
@@ -202,7 +202,7 @@ The conventions documentation passes follow, so comments read as one consistent 
 The doc-site builds clean — `npm run docs` (JSDoc + docdash, exit 0, ~244 pages): the README home, the
 per-function code API, and the whole `notes/` tree as tutorial pages with working cross-links.
 **Documentation coverage is complete** (2026-06-18): `@file` on every authored `.js`, and per-function
-JSDoc across the **whole repo** — all server-side code, all 113 dynamic prompts, all top-level
+JSDoc across the **whole repo** — all server-side code, all 113 blocks, all top-level
 `web/frontend/*` functions, **and the entire `targets/web/` React SPA** (16 modules: every lib function +
 provider + the Netlify handler + each React component, via the babel-transpile-then-JSDoc path). Only
 anonymous callbacks remain, which no generator extracts. **Doxygen was retired here** (2026-06-18) in

@@ -1,6 +1,6 @@
 /**
- * @file One-shot: write `<name>.json` sidecar metadata next to each dynamic-prompt generator
- * and each category folder, for the `data/dynamic-prompts/` tree. Re-runnable.
+ * @file One-shot: write `<name>.json` sidecar metadata next to each block generator
+ * and each category folder, for the `data/blocks/` tree. Re-runnable.
  *
  * Each sidecar is `{ description }`, plus two optional fields:
  *   - `priority` (category folders only): the block picker orders the category/folder pills by
@@ -13,7 +13,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.join(import.meta.dirname, "..", "..", "data", "dynamic-prompts");
+const root = path.join(import.meta.dirname, "..", "..", "data", "blocks");
 
 // Category-pill order in the block picker (lower = higher up). `any` (0) and `special` (9000) are
 // virtual categories ordered in the SPA itself; these are the real folder categories in between.
@@ -148,4 +148,4 @@ for (const [name, description] of Object.entries(D)) {
   fs.writeFileSync(file, JSON.stringify(meta, null, 2) + "\n");
   wrote++;
 }
-console.log(`wrote ${wrote} dynamic-prompt meta files`);
+console.log(`wrote ${wrote} block meta files`);

@@ -13,12 +13,12 @@
 //   • CONTENT (the actual words / generator code / `.dpl` text / presets / JSON sidecars) — the heavy
 //     part (~430 KB). It's code-split into its own chunk (browserCatalogData.js) and fetched at
 //     RUNTIME via a single explicit `import()` in `initBrowserCatalog`, kicked off after first paint
-//     (promptEngine.ensureCatalog). Content getters (readListLines, loadDynamicPrompt, descriptions,
+//     (promptEngine.ensureCatalog). Content getters (readListLines, loadBlock, descriptions,
 //     presets) return empty/null until that resolves; the engine facade fires a catalog-change
 //     notification on resolve so tooltips + generation light up.
 //
 // NSFW gating still holds during the pre-content window: the palette gates by the name token
-// (isGatedDynPrompt, name-only) — the JSON `nsfw:true` sidecar flag is a secondary signal that
+// (isGatedBlock, name-only) — the JSON `nsfw:true` sidecar flag is a secondary signal that
 // applies once content lands. Only used by the Vite SPA. See browserCatalogData.js for the content.
 
 import {
@@ -38,14 +38,14 @@ import compileDpl from "./dpl/dpl.js";
 // parse) even though we only ever read their KEYS here. The options MUST be an inline object literal
 // — Vite only statically analyzes literal glob options. `.js` and the empty marker files are valid
 // modules already.
-const dpModulesGlob = import.meta.glob("../data/dynamic-prompts/**/*.js");
-const dpDplRawGlob = import.meta.glob("../data/dynamic-prompts/**/*.dpl", {
+const dpModulesGlob = import.meta.glob("../data/blocks/**/*.js");
+const dpDplRawGlob = import.meta.glob("../data/blocks/**/*.dpl", {
   query: "?raw",
   import: "default",
 });
-const dpForcePrefixFiles = import.meta.glob("../data/dynamic-prompts/**/_force-prefix");
-const dpEnableGroupFiles = import.meta.glob("../data/dynamic-prompts/**/_enable-group-list");
-const dpDisableGroupFiles = import.meta.glob("../data/dynamic-prompts/**/_disable-group-list");
+const dpForcePrefixFiles = import.meta.glob("../data/blocks/**/_force-prefix");
+const dpEnableGroupFiles = import.meta.glob("../data/blocks/**/_enable-group-list");
+const dpDisableGroupFiles = import.meta.glob("../data/blocks/**/_disable-group-list");
 const listRawGlob = import.meta.glob("../data/lists/**/*.txt", {
   query: "?raw",
   import: "default",
@@ -58,7 +58,7 @@ const forcePrefixFiles = import.meta.glob("../data/lists/**/_force-prefix");
 const enableGroupFiles = import.meta.glob("../data/lists/**/_enable-group-list");
 const disableGroupFiles = import.meta.glob("../data/lists/**/_disable-group-list");
 
-// ---- USER overlay (user/lists → lists, user/blocks → dynamic prompts) --------------------------
+// ---- USER overlay (user/lists → lists, user/blocks → blocks) --------------------------
 // A LOCAL/desktop feature: the hosted online build ignores it. `ONLINE` is Vite-injected
 // (undefined off Vite, so the optional chain keeps this safe in plain Node); when online we drop the
 // user keys from every structure set below, and initBrowserCatalog never imports the user content
@@ -84,7 +84,7 @@ const userDpForcePrefixFiles = import.meta.glob("../../user/blocks/**/_force-pre
 const userDpEnableGroupFiles = import.meta.glob("../../user/blocks/**/_enable-group-list");
 const userDpDisableGroupFiles = import.meta.glob("../../user/blocks/**/_disable-group-list");
 
-// ".../dynamic-prompts/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
+// ".../blocks/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
 function keyFor(path, dir) {
   const marker = `/${dir}/`;
   const i = path.indexOf(marker);
@@ -122,24 +122,24 @@ const groupKeyNames = [
   ...(ONLINE ? [] : keysOf(userGroupRawGlob, "lists")),
 ];
 const dpDplKeys = [
-  ...keysOf(dpDplRawGlob, "dynamic-prompts"),
+  ...keysOf(dpDplRawGlob, "blocks"),
   ...(ONLINE ? [] : keysOf(userDpDplRawGlob, "blocks")),
 ];
 const dpJsKeys = [
-  ...keysOf(dpModulesGlob, "dynamic-prompts"),
+  ...keysOf(dpModulesGlob, "blocks"),
   ...(ONLINE ? [] : keysOf(userDpModulesGlob, "blocks")),
 ];
 
 // Active generator keys: every `.dpl`, plus `.js` with no same-name `.dpl`.
-const dynamicPromptKeys = new Set(dpDplKeys);
-for (const k of dpJsKeys) if (!dpDplKeys.includes(k)) dynamicPromptKeys.add(k);
+const blockKeys = new Set(dpDplKeys);
+for (const k of dpJsKeys) if (!dpDplKeys.includes(k)) blockKeys.add(k);
 
 const forcedDirs = [
   ...markerDirs(forcePrefixFiles, "_force-prefix"),
   ...(ONLINE ? [] : markerDirs(userForcePrefixFiles, "_force-prefix")),
 ];
 const dpForcedDirsAll = [
-  ...markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts"),
+  ...markerDirs(dpForcePrefixFiles, "_force-prefix", "blocks"),
   ...(ONLINE ? [] : markerDirs(userDpForcePrefixFiles, "_force-prefix", "blocks")),
 ];
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
@@ -154,15 +154,15 @@ const groupListDirs = autoGroupListDirs(
     ...(ONLINE ? [] : markerDirs(userDisableGroupFiles, "_disable-group-list")),
   ],
 );
-// Implied groups for dynamic prompts: a category folder with 2+ generators.
+// Implied groups for blocks: a category folder with 2+ generators.
 const dpGroupDirs = autoGroupListDirs(
-  [...dynamicPromptKeys],
+  [...blockKeys],
   [
-    ...markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
+    ...markerDirs(dpEnableGroupFiles, "_enable-group-list", "blocks"),
     ...(ONLINE ? [] : markerDirs(userDpEnableGroupFiles, "_enable-group-list", "blocks")),
   ],
   [
-    ...markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
+    ...markerDirs(dpDisableGroupFiles, "_disable-group-list", "blocks"),
     ...(ONLINE ? [] : markerDirs(userDpDisableGroupFiles, "_disable-group-list", "blocks")),
   ],
 );
@@ -292,7 +292,7 @@ export const browserLoader = {
   readListMeta(name) {
     return listMetaMap[name] ?? null;
   },
-  loadDynamicPrompt(key) {
+  loadBlock(key) {
     if (dplModCache[key]) return dplModCache[key];
     if (dpDplText[key]) {
       const mod = compileDpl(dpDplText[key], browserBridge(key));
@@ -301,25 +301,25 @@ export const browserLoader = {
     }
     return dpJsModules[key] ?? null;
   },
-  dynamicPromptNames() {
-    return [...dynamicPromptKeys].sort(compareNames);
+  blockNames() {
+    return [...blockKeys].sort(compareNames);
   },
-  readDynPromptMeta(name) {
+  readBlockMeta(name) {
     return dpMetaMap[name] ?? null;
   },
-  dynPromptForcedPrefixDirs() {
+  blockForcedPrefixDirs() {
     return dpForcedDirsAll;
   },
-  dynPromptForcedPrefixDirsAll() {
+  blockForcedPrefixDirsAll() {
     return dpForcedDirsAll;
   },
-  dynPromptGroupDirs() {
+  blockGroupDirs() {
     return dpGroupDirs;
   },
-  dynPromptGroupDirsAll() {
+  blockGroupDirsAll() {
     return dpGroupDirs;
   },
-  readDynPromptGroup(name) {
+  readBlockGroup(name) {
     return dpGroupLines[name] ?? null;
   },
   presetNames() {

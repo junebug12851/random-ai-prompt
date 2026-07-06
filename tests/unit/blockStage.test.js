@@ -1,19 +1,19 @@
 /**
- * @file Unit tests for src/core/stages/dynamicPrompt.js (`{#name}` stage) over an
+ * @file Unit tests for src/core/stages/block.js (`{#name}` stage) over an
  * in-memory loader: dial parsing, groups, {#any}, dedup/stacking, auto-append,
  * NSFW gating, the danbooru replacer, and the re-expansion cap.
  */
 import { describe, it, expect } from "vitest";
-import { makeDynamicPromptStage } from "../../engine/core/stages/dynamicPrompt.js";
+import { makeBlockStage } from "../../engine/core/stages/block.js";
 
 function loader({ modules = {}, groupDirs = [], groups = {}, meta = {} } = {}) {
   return {
-    dynamicPromptNames: () => Object.keys(modules),
-    loadDynamicPrompt: (k) => modules[k] ?? null,
-    dynPromptGroupDirsAll: () => groupDirs,
-    dynPromptGroupDirs: () => groupDirs,
-    readDynPromptGroup: (n) => groups[n] ?? null,
-    readDynPromptMeta: (n) => meta[n] ?? null,
+    blockNames: () => Object.keys(modules),
+    loadBlock: (k) => modules[k] ?? null,
+    blockGroupDirsAll: () => groupDirs,
+    blockGroupDirs: () => groupDirs,
+    readBlockGroup: (n) => groups[n] ?? null,
+    readBlockMeta: (n) => meta[n] ?? null,
   };
 }
 
@@ -27,25 +27,25 @@ const S = (over = {}) => ({
 
 const run = (stage, prompt, settings = S()) => stage(prompt, settings, {}, {});
 
-describe("dynamicPrompt — resolution", () => {
+describe("block — resolution", () => {
   it("runs a generator for {#name}", () => {
-    const stage = makeDynamicPromptStage(loader({ modules: { greet: { default: () => "hi" } } }));
+    const stage = makeBlockStage(loader({ modules: { greet: { default: () => "hi" } } }));
     expect(run(stage, "{#greet}")).toBe("hi");
   });
 
   it("resolves a {#category/name} path", () => {
-    const stage = makeDynamicPromptStage(loader({ modules: { "a/b": { default: () => "ab" } } }));
+    const stage = makeBlockStage(loader({ modules: { "a/b": { default: () => "ab" } } }));
     expect(run(stage, "{#a/b}")).toBe("ab");
   });
 
   it("returns '' for an unknown generator", () => {
-    const stage = makeDynamicPromptStage(loader({ modules: {} }));
+    const stage = makeBlockStage(loader({ modules: {} }));
     expect(run(stage, "{#missing}")).toBe("");
   });
 });
 
-describe("dynamicPrompt — dials (intensity/focus)", () => {
-  const stage = makeDynamicPromptStage(
+describe("block — dials (intensity/focus)", () => {
+  const stage = makeBlockStage(
     loader({ modules: { probe: { default: (_s, _i, _u, i, f) => `${i}/${f}` } } }),
   );
   it("parses i/f percents, defaulting to 50", () => {
@@ -58,9 +58,9 @@ describe("dynamicPrompt — dials (intensity/focus)", () => {
   });
 });
 
-describe("dynamicPrompt — dedup / stacking", () => {
+describe("block — dedup / stacking", () => {
   it("renders a singular generator once across nested imports", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({
         modules: {
           weather: { default: () => "rain" },
@@ -73,14 +73,14 @@ describe("dynamicPrompt — dedup / stacking", () => {
   });
 
   it("honors user-typed top-level duplicates", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({ modules: { weather: { default: () => "rain" } } }),
     );
     expect(run(stage, "{#weather}, {#weather}")).toBe("rain, rain");
   });
 
   it("exempts a stacking generator from dedup", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({
         modules: {
           tint: { default: () => "blue", stacking: true },
@@ -92,9 +92,9 @@ describe("dynamicPrompt — dedup / stacking", () => {
   });
 });
 
-describe("dynamicPrompt — groups and {#any}", () => {
+describe("block — groups and {#any}", () => {
   it("picks one member from an implied folder group", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({
         modules: { "scene/a": { default: () => "A" }, "scene/b": { default: () => "B" } },
         groupDirs: ["scene"],
@@ -104,7 +104,7 @@ describe("dynamicPrompt — groups and {#any}", () => {
   });
 
   it("picks one member from an explicit .group file", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({
         modules: { one: { default: () => "1" }, two: { default: () => "2" } },
         groups: { mix: ["one", "two"] },
@@ -114,13 +114,13 @@ describe("dynamicPrompt — groups and {#any}", () => {
   });
 
   it("{#any} picks one generator from the whole catalog", () => {
-    const stage = makeDynamicPromptStage(loader({ modules: { only: { default: () => "solo" } } }));
+    const stage = makeBlockStage(loader({ modules: { only: { default: () => "solo" } } }));
     expect(run(stage, "{#any}")).toBe("solo");
   });
 });
 
-describe("dynamicPrompt — NSFW gating", () => {
-  const stage = makeDynamicPromptStage(
+describe("block — NSFW gating", () => {
+  const stage = makeBlockStage(
     loader({ modules: { "nude-nsfw": { default: () => "x" } } }),
   );
   it("is empty when adult is off", () => {
@@ -131,9 +131,9 @@ describe("dynamicPrompt — NSFW gating", () => {
   });
 });
 
-describe("dynamicPrompt — auto-append", () => {
+describe("block — auto-append", () => {
   it("appends {#fx} once when autoAddFx is on, resolving nested tokens", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({
         modules: { fx: { default: () => "boom {#spark}" }, spark: { default: () => "zap" } },
       }),
@@ -145,9 +145,9 @@ describe("dynamicPrompt — auto-append", () => {
   });
 });
 
-describe("dynamicPrompt — danbooru replacer", () => {
+describe("block — danbooru replacer", () => {
   it("replaces ', Person' with {d/person} only for a d/ keyword file", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({ modules: { g: { default: () => "a, Person" } } }),
     );
     // The replacer regex `/, ?Person/` consumes the comma + space, so "a, Person" → "a{d/person}".
@@ -156,9 +156,9 @@ describe("dynamicPrompt — danbooru replacer", () => {
   });
 });
 
-describe("dynamicPrompt — re-expansion cap", () => {
+describe("block — re-expansion cap", () => {
   it("does not loop forever on a self-importing generator and leaves nothing dangling", () => {
-    const stage = makeDynamicPromptStage(
+    const stage = makeBlockStage(
       loader({ modules: { loop: { default: () => "{#loop}" } } }),
     );
     const out = run(stage, "{#loop}");

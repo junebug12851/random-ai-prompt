@@ -1,25 +1,25 @@
-# Dynamic prompts — architecture
+# Blocks — architecture
 
-How `engine/data/dynamic-prompts/` is structured after the modernization that brought it to parity with
+How `engine/data/blocks/` is structured after the modernization that brought it to parity with
 the keyword-list ([`list-architecture.md`](list-architecture.md)) and expansion
 ([`expansions-architecture.md`](expansions-architecture.md)) systems — **2.3.0** (the `v2/` reorg,
 suffix resolution, sidecars) and **2.4.0** (the `{#name}` sigil, name-token gating, and the uniform
 SPA). Only the parts that *make sense* for code generators were ported;
 what was intentionally left out is noted at the end. For the catalog / authoring idiom see
-[`dynamic-prompts.md`](dynamic-prompts.md); for the engine see
+[`blocks.md`](blocks.md); for the engine see
 [../systems/core-engine.md](../systems/core-engine.md).
 
-## What a dynamic prompt is
+## What a block is
 
-A **dynamic prompt** is a `engine/data/dynamic-prompts/**/<name>.js` generator script referenced in a
+A **block** is a `engine/data/blocks/**/<name>.js` generator script referenced in a
 prompt as `{#name}`. It `export default`s a function `(settings, imageSettings, upscaleSettings) =>
 string` plus optional `export const full` / `export const suggestion_exclude` flags. The
-dynamic-prompt stage runs it and splices the result in, recursively (up to 10 passes), so a
+block stage runs it and splices the result in, recursively (up to 10 passes), so a
 generator can emit `{#other}`, `{list}`, and `<expansion>` tokens that then expand.
 
 ## The `{#name}` sigil (2.4.0)
 
-Dynamic prompts are written **brace-delimited** — `{#name}` — uniform with `{list}` and
+Blocks are written **brace-delimited** — `{#name}` — uniform with `{list}` and
 `<expansion>`, and able to carry `/` paths (`{#scene/beach}`). The old bare `#name` (no braces) is no
 longer recognized: the braces stop a stray `#` in plain prompt text from being eaten, and make the three
 sigils visually consistent. The stage regex is `/\{#([\w/-]+)\}/g`; the list stage skips any
@@ -29,9 +29,9 @@ sigils visually consistent. The stage regex is `/\{#([\w/-]+)\}/g`; the list sta
 idempotent); v1 generators have no internal `#` refs, so they were untouched.
 
 The engine is loader-injected: the active code is the core stage
-[`engine/core/stages/dynamicPrompt.js`](../../engine/core/stages/dynamicPrompt.js), which calls
-`loader.loadDynamicPrompt(key)` / `loader.dynamicPromptNames()`. (The classic
-`src/prompt-modules/dynamic-prompt.js` and `src/server.js` were removed from the tree with the rest of
+[`engine/core/stages/block.js`](../../engine/core/stages/block.js), which calls
+`loader.loadBlock(key)` / `loader.blockNames()`. (The classic
+`src/prompt-modules/block.js` and `src/server.js` were removed from the tree with the rest of
 the pre-revival system.)
 
 ## The v2/ reorg (ported from lists/expansions)
@@ -52,7 +52,7 @@ still resolves with no edits, and categories never have to be typed. The stage s
 once per run into `v1/` (reached only via `{#name-v1}`) and the rest (v2, reached bare), resolving
 each against its own subset so `{#comic}` finds `v2/style/comic`, never `v1/comic`. `{#user-name}` is
 a back-compat alias that strips `user-` and resolves into `v2/user/`. Gating is automatic
-by name token: `isGatedDynPrompt(name)` in
+by name token: `isGatedBlock(name)` in
 [`gatedLists.js`](../../engine/gatedLists.js) is true when the name carries an `nsfw` token, so such a
 generator resolves to "" (and is hidden in the picker) while `includeAdult` is off — the same rule
 lists/expansions use, no hardcoded list.
@@ -63,7 +63,7 @@ Like lists, a category folder with 2+ generators is an IMPLIED group, but the "p
 GENERATOR (not one word): `{#scene}` runs one random scene generator. `.group` files and
 `_enable/_disable-group-list` markers work too. Group dirs are added to the stage's resolution pool so a
 bare `{#scene}` suffix-matches `v2/scene`. The reserved `{#any}` wildcard
-([`dynPromptManifest.js`](../../engine/dynPromptManifest.js)) picks one generator from the WHOLE v2 catalog,
+([`blockManifest.js`](../../engine/blockManifest.js)) picks one generator from the WHOLE v2 catalog,
 with the lists' `{keyword}`-style variants: `{#any}` = SFW (off) / +NSFW (on), `{#any-sfw}` = SFW always,
 `{#any-nsfw}` = nothing (off) / +NSFW (on). All picks are gate-aware (`hasNsfwToken`). Crucially these
 resolve to ONE concrete generator that is then run — never a union; the variant suffix is parsed only for
@@ -74,7 +74,7 @@ resolve to ONE concrete generator that is then run — never a union; the varian
 ## Description sidecars + tooltips (ported from lists/expansions)
 
 Each generator may carry an optional `<name>.json` sidecar (`{ "description": "…" }`) and each
-category folder a `<folder>.json`, read via `loader.readDynPromptMeta(name)`. The SPA token cloud
+category folder a `<folder>.json`, read via `loader.readBlockMeta(name)`. The SPA token cloud
 ([`targets/web/frontend/lib/promptEngine.js`](../../targets/web/frontend/lib/promptEngine.js)) shows each entry's
 description as its button tooltip, sorts entries in natural order (`compareNames`), and displays
 the shortest unambiguous `{#token}` via `computeButtonNames()`. The sidecars are regenerated by
@@ -87,14 +87,14 @@ as frozen mirrors).
 `_`-prefixed files are internal/config, never generators — both loaders skip them
 (`namesUnder` in [`nodeLoader.js`](../../engine/core/nodeLoader.js); a basename check in
 [`browserLoader.js`](../../engine/core/browserLoader.js)). A folder with an empty `_force-prefix`
-marker shows its path in the `{#token}`; the loaders expose `dynPromptForcedPrefixDirs()` and the
+marker shows its path in the `{#token}`; the loaders expose `blockForcedPrefixDirs()` and the
 classifier/SPA feed it to `computeButtonNames`. No v2 folder is force-prefixed today (basenames
 are unique, so tokens are bare), but the machinery is wired for parity.
 
 ## The UI: Full / Partial tabs + v1/v2 superset links (2.5.0)
 
 The SPA ([`targets/web/frontend/lib/promptEngine.js`](../../targets/web/frontend/lib/promptEngine.js) `getBlocks` +
-[`Home.jsx`](../../targets/web/frontend/components/Home.jsx)) groups dynamic prompts under a single **"Prompts"**
+[`Home.jsx`](../../targets/web/frontend/components/Home.jsx)) groups blocks under a single **"Prompts"**
 navbar heading that carries one **v1/v2 superset switch** (`dynVer` state; rendered `v1 v2`, v2 selected by
 default) and two sub-tabs — **full** and **partial**. Within a sub-tab, generators sit under category-folder
 pills; a folder pill is a **clickable group button** when the folder is an implied group (inserts
@@ -123,5 +123,5 @@ reorg (repointed to `../v2/subject/entity.js`).
   pool of lines; it picks ONE member generator and runs it (the "pick one generator, not one word"
   rule). See [`../decisions/rejected.md`](../decisions/rejected.md) for the back-and-forth that settled this.
 
-See [`../../engine/data/dynamic-prompts/README.md`](../../engine/data/dynamic-prompts/README.md) for the
+See [`../../engine/data/blocks/README.md`](../../engine/data/blocks/README.md) for the
 user-facing reference.

@@ -14,13 +14,13 @@ import { hasNsfwToken } from "../../../../engine/gatedLists.js";
 
 const MARKER_FILES = new Set(["_force-prefix", "_enable-group-list", "_disable-group-list"]);
 
-/** Whether a Manage root is a dynamic-prompt ("blocks") root — the built-in one or the user overlay. */
-export const isDpRoot = (root) => root === "dynamic-prompts" || root === "user-blocks";
+/** Whether a Manage root is a block ("blocks") root — the built-in one or the user overlay. */
+export const isDpRoot = (root) => root === "blocks" || root === "user-blocks";
 
 /**
  * Classify a raw filename into a catalog entry, or null if it's internal/metadata/a `.js` sidecar.
  * @param {string} f The filename.
- * @param {boolean} isDp Whether this is the dynamic-prompts root.
+ * @param {boolean} isDp Whether this is the blocks root.
  * @param {Set<string>} dplBases Basenames in this folder that have a `.dpl` (so a `.js` is a sidecar).
  * @returns {{base: string, label: string, kind: string, ext: string}|null}
  */
@@ -47,7 +47,7 @@ const dplBasesOf = (files) =>
 /**
  * Build the nested display model for one data root.
  * @param {{name: string, dirs: object[], files: string[]}} treeNode The raw root tree node.
- * @param {("lists"|"dynamic-prompts")} root Which root.
+ * @param {("lists"|"blocks")} root Which root.
  * @param {object} [opts]
  * @param {boolean} [opts.includeAdult] When false, NSFW entries (and folders that empty out) are hidden.
  * @returns {object} The root display node (`children` = categories).
@@ -145,7 +145,7 @@ function localFileSet(treeNode) {
  * adult is off.
  * @param {{name: string, dirs: object[], files: string[]}} treeNode The local raw tree for the root.
  * @param {string[]} manifestPaths The stable-branch file paths for this root (with extension).
- * @param {("lists"|"dynamic-prompts")} root Which root.
+ * @param {("lists"|"blocks")} root Which root.
  * @param {object} [opts]
  * @param {boolean} [opts.includeAdult] Show NSFW ghosts.
  * @returns {object[]} Ghost entry objects (`{ root, path, ext, kind, label, nsfw, ghost: true }`).

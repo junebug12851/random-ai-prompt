@@ -226,7 +226,7 @@ function renderRef(ref, _weight, ctx) {
     // A DPL-side section (local) or another generator/list/expansion token (passthrough).
     if (ctx.hasSection(ref.name)) return ctx.section(ref.name);
     if (ref.name.startsWith("#")) return `{${ref.name}}`; // +#weather -> {#weather}
-    return `{#${ref.name}}`; // bare name -> dynamic-prompt token, resolved downstream
+    return `{#${ref.name}}`; // bare name -> block token, resolved downstream
   }
   if (ref.kind === "js-block") return ctx.bridge?.resolveJs?.(ref.path, ctx) ?? "";
   return "";

@@ -2,7 +2,7 @@
 
 > **Location (flattened 2026-07-02):** this engine lives at **`engine/core/`** (repo root). It is **v3-only**
 > — the v1/v2 generations and the legacy `<expansion>` stage were removed, so the pipeline is now
-> `dynamic-prompt → prompt-salt → list → emphasis → cleanup` (all stages under `engine/core/stages/`).
+> `block → prompt-salt → list → emphasis → cleanup` (all stages under `engine/core/stages/`).
 
 `core/` is the **isomorphic** prompt engine, factored so the same pipeline runs **both** under Node
 (`fs` + `createRequire`) and **in the browser** (Vite `import.meta.glob`). It powers the SPA and runs
@@ -15,14 +15,14 @@ the prompt logic.
 |------|------|
 | `core/engine.js` | `createEngine(loader)` → an engine that runs the pipeline over a prompt string. |
 | `core/dpl/` | the DPL language — `parser.js`, `renderer.js`, `dpl.js`, `intensity.js`, `words.js`, `rng.js`. |
-| `core/stages/dynamicPrompt.js` | `{#name}` generator-expansion stage (factory takes the loader). |
+| `core/stages/block.js` | `{#name}` generator-expansion stage (factory takes the loader). |
 | `core/stages/prompt-salt.js` | `{salt}` randomizer stage. |
 | `core/stages/list.js` | `{name}` list stage (factory takes the loader). |
 | `core/stages/emphasis.js` | render typed `()`/`[]` emphasis into the active provider dialect. |
 | `core/stages/cleanup.js` | collapse stray spaces / commas. |
 | `core/listStore.js` | `createListStore(loader)` — per-run list state (once-only depletion, etc.). |
 | `core/rng.js` | the seedable `Rng` used for deterministic runs. |
-| `core/nodeLoader.js` | Loader impl: filesystem reads + `createRequire` dynamic-prompt loading. |
+| `core/nodeLoader.js` | Loader impl: filesystem reads + `createRequire` block loading. |
 | `core/browserLoader.js` | Loader impl: Vite `import.meta.glob` bundles the generators; lists ship code-split via `browserCatalogData.js`. |
 
 ## The loader seam
@@ -32,8 +32,8 @@ The engine never touches files or `require` directly. It calls an injected **loa
 ```
 readListLines(name, includeAdult)  -> string[] | null
 listNames()                        -> string[]
-loadDynamicPrompt(key)             -> { default, full?, suggestion_exclude? } | null
-dynamicPromptNames()               -> string[]
+loadBlock(key)             -> { default, full?, suggestion_exclude? } | null
+blockNames()               -> string[]
 ```
 
 Two loaders implement that seam — `nodeLoader` (Node) and `browserLoader` (browser) — so only the
@@ -44,12 +44,12 @@ Node runtime share the exact same engine.
 ## Default pipeline order
 
 ```
-dynamic-prompt → prompt-salt → list → emphasis → cleanup
+block → prompt-salt → list → emphasis → cleanup
 ```
 
 This is `engine.js`'s `DEFAULT_ORDER`, matching `settings.promptModules` (see [overview.md](overview.md) →
 "The prompt pipeline"). `emphasis` runs after `list` so it sees the fully expanded text. The dynamic
-prompts are ESM default-export modules in `engine/data/dynamic-prompts/`; `browserLoader` bundles them via glob,
+prompts are ESM default-export modules in `engine/data/blocks/`; `browserLoader` bundles them via glob,
 `nodeLoader` `require()`s them.
 
 ## Randomness & seeding

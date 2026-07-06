@@ -15,7 +15,7 @@ import { createEngine } from "../../../../engine/core/engine.js";
 import compileDpl from "../../../../engine/core/dpl/dpl.js";
 import promptFiles from "../../../../engine/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../../engine/listManifest.js";
-import { isGatedDynPrompt } from "../../../../engine/gatedLists.js";
+import { isGatedBlock } from "../../../../engine/gatedLists.js";
 import { getCustomPresets } from "./customStore.js";
 import { runtimeLoader } from "./runtimeLoader.js";
 import { initBrowserCatalog } from "../../../../engine/core/browserLoader.js";
@@ -284,21 +284,21 @@ export function getBlocks(opts = {}) {
   const includeAdult = opts.includeAdult === true;
 
   // --- Catalog derivations, read live from the loader (so edits/refresh are reflected) ---
-  const allDynNames = loader.dynamicPromptNames();
-  const forcedDirs = loader.dynPromptForcedPrefixDirs();
-  const groupSet = new Set(loader.dynPromptGroupDirs());
+  const allDynNames = loader.blockNames();
+  const forcedDirs = loader.blockForcedPrefixDirs();
+  const groupSet = new Set(loader.blockGroupDirs());
   const btnNames = computeButtonNames(allDynNames, forcedDirs);
 
   // Tooltip text for a generator: prefer the `.dpl` front-matter `description:`, falling back to
   // the optional `.json` sidecar.
   const dpDescFor = (key) => {
-    const mod = loader.loadDynamicPrompt(key);
-    return mod?.meta?.description || loader.readDynPromptMeta(key)?.description || undefined;
+    const mod = loader.loadBlock(key);
+    return mod?.meta?.description || loader.readBlockMeta(key)?.description || undefined;
   };
   // A generator is adult (hard-hidden when NSFW is off) when its sidecar carries `nsfw: true` or
   // its name carries an `nsfw` token — the same predicate the engine gates on.
   const isNsfwKey = (key) =>
-    loader.readDynPromptMeta(key)?.nsfw === true || isGatedDynPrompt(key);
+    loader.readBlockMeta(key)?.nsfw === true || isGatedBlock(key);
 
   // Folder-grouped category descriptors for a set of generator keys.
   const dynCatGroups = (keys) => {
@@ -311,7 +311,7 @@ export function getBlocks(opts = {}) {
       byFolder.get(folder).push(k);
     }
     return [...byFolder.entries()].map(([folder, members]) => {
-      const meta = loader.readDynPromptMeta(folder) || {};
+      const meta = loader.readBlockMeta(folder) || {};
       const pill = { category: true, label: lastSeg(folder), description: dpDescFor(folder) };
       if (groupSet.has(folder)) pill.token = `{#${lastSeg(folder)}}`;
       return {

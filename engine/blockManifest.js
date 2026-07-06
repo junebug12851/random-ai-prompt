@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Dynamic-prompt metadata + group/wildcard helpers — the analog of listManifest.js
- * for the `data/dynamic-prompts/` catalog. Pure data + tiny resolvers, browser-safe (no
+ * for the `data/blocks/` catalog. Pure data + tiny resolvers, browser-safe (no
  * Node-only imports), so it runs in Node and the Vite SPA alike.
  *
  * Like lists, a category FOLDER with 2+ generators is an IMPLIED group, but the "pick one"
@@ -22,7 +22,7 @@ import { autoGroupListDirs } from "./listManifest.js";
 export const RESERVED_ANY = "any";
 
 /**
- * @param {string} name A dynamic-prompt reference (may carry a `-sfw`/`-nsfw` suffix).
+ * @param {string} name A block reference (may carry a `-sfw`/`-nsfw` suffix).
  * @returns {boolean} Whether it is the reserved `{#any}` wildcard (any variant).
  */
 export function isReservedAny(name) {
@@ -36,7 +36,7 @@ export function isReservedAny(name) {
  * `{ anime:false, nsfw:false }`.
  * @type {Object<string, {category: (string|undefined), anime: (boolean|undefined), nsfw: (boolean|undefined)}>}
  */
-export const dynPromptTags = {
+export const blockTags = {
   "v2/prompt/d": { category: "prompt", anime: true, nsfw: false },
 };
 
@@ -44,7 +44,7 @@ export const dynPromptTags = {
  * The category folders that are IMPLIED groups: a v2 folder with 2+ generators. Reuses the
  * list rule (`autoGroupListDirs`) over the v2 names only (v1/ is excluded — it is reached
  * via `{#name-v1}`, never grouped). Marker dirs force a folder on/off.
- * @param {string[]} names All dynamic-prompt catalog names.
+ * @param {string[]} names All block catalog names.
  * @param {string[]} [enableDirs] Folders forced on (`_enable-group-list`).
  * @param {string[]} [disableDirs] Folders forced off (`_disable-group-list`).
  * @returns {string[]} The implied-group folder paths.
@@ -60,7 +60,7 @@ export function dynGroupDirs(names, enableDirs = [], disableDirs = []) {
 /**
  * Direct-child generator names of a group folder (NOT descendants — groups don't stack).
  * @param {string} dir The folder path (e.g. "v2/scene").
- * @param {string[]} names All dynamic-prompt catalog names.
+ * @param {string[]} names All block catalog names.
  * @returns {string[]} The member generator keys.
  */
 export function dynGroupMembers(dir, names) {

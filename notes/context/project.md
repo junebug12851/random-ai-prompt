@@ -12,7 +12,7 @@ library of scenes, subjects, and styles and it fills in the depth — then runs 
 
 The rest of this page describes the **pre-revival** system (the CLI + Stable-Diffusion-WebUI
 orchestration; see the banner above); the *active* app is the browser web app in `targets/web/`. The
-original tool generated random/dynamic prompts and (optionally) drove the **Stable Diffusion WebUI**
+original tool generated random/blocks and (optionally) drove the **Stable Diffusion WebUI**
 API to turn them into images, animations, variations, re-rolls, and upscales.
 
 It has two faces over one shared core:
@@ -28,7 +28,7 @@ It has two faces over one shared core:
 
 A prompt is a string with expandable tokens that a **prompt-module pipeline** rewrites:
 
-- `#name` — a **dynamic prompt**: a JS module in `dynamic-prompts/` that returns a generated fragment
+- `#name` — a **block**: a JS module in `blocks/` that returns a generated fragment
   (e.g. `#random`, `#beach`, `#artists`, `#fx`). They can nest and there are `v1/` and `user-submitted/`
   variants.
 - `{name}` — a **list**: a random line pulled from `lists/name.txt` (e.g. `{keyword}`, `{artist}`).
@@ -36,7 +36,7 @@ A prompt is a string with expandable tokens that a **prompt-module pipeline** re
 - Plus randomized emphasis/de-emphasis, editing, alternating, prompt "salt", and cleanup passes.
 
 The pipeline order lives in `settings.promptModules`
-(`["expansion", "dynamic-prompt", "expansion", "dynamic-prompt", "prompt-salt", "list", "cleanup"]`).
+(`["expansion", "block", "expansion", "block", "prompt-salt", "list", "cleanup"]`).
 
 ## Settings model
 
@@ -49,7 +49,7 @@ owns this; `userSettings()` writes back only the diff from defaults.
 
 - **Goal:** make it fun and fast to explore a huge space of image prompts with minimal typing, and to
   manage/search the resulting images locally.
-- **Goal:** keep prompts data-driven and easy to extend (drop a file in `dynamic-prompts/`, `lists/`,
+- **Goal:** keep prompts data-driven and easy to extend (drop a file in `blocks/`, `lists/`,
   `expansions/`, or `presets/`).
 - **Non-goal:** it is not an image model itself — it orchestrates the Stable Diffusion WebUI's `--api`.
 - **Non-goal:** no cloud service; everything runs locally against the user's own WebUI and writes to

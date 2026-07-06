@@ -1,7 +1,7 @@
 /**
  * @file Integration tests for the framework-agnostic prompt engine
  * (src/core/engine.js) driven by an in-memory fake loader, so the whole
- * stage pipeline (dynamic-prompt -> list -> cleanup) is exercised
+ * stage pipeline (block -> list -> cleanup) is exercised
  * end-to-end without the filesystem.
  */
 import { describe, it, expect } from "vitest";
@@ -45,14 +45,14 @@ describe("engine — list stage", () => {
   });
 });
 
-describe("engine — dynamic-prompt stage", () => {
+describe("engine — block stage", () => {
   it("runs a JS generator module for {#name}", () => {
     const engine = createEngine(
-      makeFakeLoader({ dynamicPrompts: { greet: { default: () => "hi there" } } }),
+      makeFakeLoader({ blocks: { greet: { default: () => "hi there" } } }),
     );
     const out = engine.expand(
       "{#greet}",
-      { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] },
+      { ...baseSettings, promptModules: ["block", "cleanup"] },
       {},
       {},
     );
@@ -63,7 +63,7 @@ describe("engine — dynamic-prompt stage", () => {
     const engine = createEngine(makeFakeLoader({ dpl: { greet: "hi from dpl" } }));
     const out = engine.expand(
       "{#greet}",
-      { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] },
+      { ...baseSettings, promptModules: ["block", "cleanup"] },
       {},
       {},
     );
@@ -72,16 +72,16 @@ describe("engine — dynamic-prompt stage", () => {
 });
 
 describe("engine — full pipeline", () => {
-  it("runs dynamic-prompt -> list -> cleanup in order", () => {
+  it("runs block -> list -> cleanup in order", () => {
     const engine = createEngine(
       makeFakeLoader({
         lists: { color: ["red"] },
-        dynamicPrompts: { greet: { default: () => "hi there" } },
+        blocks: { greet: { default: () => "hi there" } },
       }),
     );
     const settings = {
       ...baseSettings,
-      promptModules: ["dynamic-prompt", "list", "cleanup"],
+      promptModules: ["block", "list", "cleanup"],
     };
     const out = engine.expand("{#greet}, {color}", settings, {}, {});
     expect(out).toBe("hi there, red");
@@ -101,7 +101,7 @@ describe("engine — intensity dial", () => {
     const engine = createEngine(
       makeFakeLoader({ dpl: { mood: "base $intensity-word\n[i<10%] calm\n[i>80%] intense" } }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     expect(engine.expand("{#mood i5%}", settings, {}, {})).toBe("base speck, calm");
     expect(engine.expand("{#mood i95%}", settings, {}, {})).toBe("base gargantuan, intense");
     // Unspecified → the 50% default: neither edge condition fires.
@@ -111,10 +111,10 @@ describe("engine — intensity dial", () => {
   it("passes the intensity to a JS generator as the 4th argument (default 50)", () => {
     const engine = createEngine(
       makeFakeLoader({
-        dynamicPrompts: { probe: { default: (_s, _i, _u, intensity) => String(intensity) } },
+        blocks: { probe: { default: (_s, _i, _u, intensity) => String(intensity) } },
       }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     expect(engine.expand("{#probe i30%}", settings, {}, {})).toBe("30");
     expect(engine.expand("{#probe}", settings, {}, {})).toBe("50");
     expect(engine.expand("{#probe i0%}", settings, {}, {})).toBe("1"); // 0 → 1
@@ -128,7 +128,7 @@ describe("engine — focus dial", () => {
         dpl: { scene: "core $focus-word\n[f<30%] distant city\n[f>70%] strictly essential" },
       }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     // Low focus admits the fluff "distant city"; high focus drops it and keeps only essentials.
     expect(engine.expand("{#scene f10%}", settings, {}, {})).toBe("core lenient, distant city");
     expect(engine.expand("{#scene f95%}", settings, {}, {})).toBe(
@@ -140,12 +140,12 @@ describe("engine — focus dial", () => {
   it("passes focus to a JS generator as the 5th argument, alongside intensity", () => {
     const engine = createEngine(
       makeFakeLoader({
-        dynamicPrompts: {
+        blocks: {
           probe: { default: (_s, _i, _u, intensity, focus) => `${intensity}/${focus}` },
         },
       }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     expect(engine.expand("{#probe f80%}", settings, {}, {})).toBe("50/80");
     expect(engine.expand("{#probe}", settings, {}, {})).toBe("50/50");
     expect(engine.expand("{#probe i20% f80%}", settings, {}, {})).toBe("20/80");
@@ -157,14 +157,14 @@ describe("engine — global layer auto-merge (dedup)", () => {
     const engine = createEngine(
       makeFakeLoader({ dpl: { weather: "rain", scene: "field, {#weather}, {#weather}" } }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     // scene imports weather twice; the second nested import dedups away.
     expect(engine.expand("{#scene}", settings, {}, {})).toBe("field, rain");
   });
 
   it("always honors user-typed duplicates (top-level, not imports)", () => {
     const engine = createEngine(makeFakeLoader({ dpl: { weather: "rain" } }));
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     expect(engine.expand("{#weather}, {#weather}", settings, {}, {})).toBe("rain, rain");
   });
 
@@ -174,7 +174,7 @@ describe("engine — global layer auto-merge (dedup)", () => {
         dpl: { tint: "---\nstacking: true\n---\nblue", scene: "wall, {#tint}, {#tint}" },
       }),
     );
-    const settings = { ...baseSettings, promptModules: ["dynamic-prompt", "cleanup"] };
+    const settings = { ...baseSettings, promptModules: ["block", "cleanup"] };
     expect(engine.expand("{#scene}", settings, {}, {})).toBe("wall, blue, blue");
   });
 });
@@ -186,7 +186,7 @@ describe("engine — auto-append (fx / artists)", () => {
       ...baseSettings,
       autoAddFx: true,
       autoAddArtists: false,
-      promptModules: ["dynamic-prompt", "cleanup"],
+      promptModules: ["block", "cleanup"],
     };
     const out = engine.expand("base", settings, {}, {});
     expect(out).toContain("zap"); // the nested token resolved

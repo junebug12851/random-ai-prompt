@@ -7,7 +7,7 @@ freely without editing — or fighting merge conflicts with — the files that s
 ```
 user/
   lists/      your word lists         (overlays data/lists)
-  blocks/     your dynamic prompts     (overlays data/dynamic-prompts — "blocks" in the app)
+  blocks/     your blocks     (overlays data/blocks — "blocks" in the app)
   settings/   your settings + app state (the local per-namespace store)
 ```
 

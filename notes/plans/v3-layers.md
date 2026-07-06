@@ -111,4 +111,4 @@ the weighted-layer render model come before the start/end UX. (Start/end blocks 
 
 - [../reference/dpl-design.md](../reference/dpl-design.md) — the authoring language for these layers.
 - [../reference/dpl-language.md](../reference/dpl-language.md) — the original mockups.
-- [../reference/dynamic-prompts.md](../reference/dynamic-prompts.md) — the v2 full/partial model being retired.
+- [../reference/blocks.md](../reference/blocks.md) — the v2 full/partial model being retired.

@@ -1,7 +1,7 @@
 /**
  * The Manage tab — the in-app content manager. Same two-pane skeleton as Generate, but instead of
  * composing prompts it edits the catalog: a real, nested folder tree of the two data roots
- * (Blocks = dynamic-prompts, Lists = lists) on the left, and a big editor pane on the right.
+ * (Blocks = blocks, Lists = lists) on the left, and a big editor pane on the right.
  *
  * This is the read-only-tree foundation (phase 2): the tree shows the actual on-disk structure with
  * categories vs subfolders color-coded, force-prefix / implied-group folders badged, `_`-markers

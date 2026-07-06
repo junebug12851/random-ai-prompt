@@ -1,12 +1,12 @@
-# Dynamic prompts
+# Blocks
 
-Each `.dpl` (or `.js`) here is a **dynamic prompt**: a tiny generator referenced in a prompt as
-`{#name}`. Unlike a list (one random entry from a file), a dynamic prompt **runs code** to build a
+Each `.dpl` (or `.js`) here is a **block**: a tiny generator referenced in a prompt as
+`{#name}`. Unlike a list (one random entry from a file), a block **runs code** to build a
 fragment — usually probabilistic accretion (start from a base phrase, then append fragments under
 independent coin-flips), freely mixing literal text with nested `{#other}` and `{list}` tokens that
 the engine then resolves.
 
-## How to reference a dynamic prompt
+## How to reference a block
 
 Write `{#name}` in a prompt — brace-delimited, uniform with `{list}`, and able to carry `/` paths.
 (The old bare `#name` is no longer recognized; the braces also stop a stray `#` in normal text from
@@ -102,7 +102,7 @@ folder down; resolution still works by suffix, so the prefix is shown, not stric
 
 ## Authoring shape
 
-The generators are authored in the **DPL** dynamic-prompt language (`.dpl`); a few keep a `.js`
+The generators are authored in the **DPL** block language (`.dpl`); a few keep a `.js`
 sidecar for logic that needs real code. A `.js`-only generator looks like:
 
 ```js
@@ -120,4 +120,4 @@ from a `<category>/` file) and compose siblings either as `#tokens` (let the eng
 or as direct relative imports (`../fragment/nature.js`).
 
 See `../lists/README.md` for the parallel system and
-`../../notes/reference/dynamic-prompts-architecture.md` for the design.
+`../../notes/reference/blocks-architecture.md` for the design.

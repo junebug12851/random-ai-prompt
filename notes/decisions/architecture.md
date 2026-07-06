@@ -32,7 +32,7 @@ in each provider's settings — not a global gear knob (an earlier global attemp
 
 Rather than copy the field into ~40 provider folders, it's the first entry in a new **shared-settings
 system** (`targets/web/shared/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
-like providers/dynamic-prompts) exporting `{ key, applies, defaultFor, field }`, and
+like providers/blocks) exporting `{ key, applies, defaultFor, field }`, and
 `applySharedSettings` folds each applicable one into a provider's schema **at the registry**
 (`targets/web/shared/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
 generation settings (`flattenForProvider`). Defaults are metadata-derived (local 6 / hosted 3 / poll 4),
@@ -58,7 +58,7 @@ The SPA was internationalized with **react-intl** driven by the **FormatJS** too
   compiled catalog, loaded via `import.meta.glob` (mirroring the engine's browser data loader).
 - **English is the only shipped real locale (deliberate).** The owner's bar was "ship a language only if
   the translation is genuinely good." The app is thick with untranslatable-by-machine domain jargon (DPL,
-  prompt "salt", wrappers, expansions, dynamic-prompt tokens, NSFW gating) that can't be verified, so no
+  prompt "salt", wrappers, expansions, block tokens, NSFW gating) that can't be verified, so no
   other language ships. The whole pipeline is in place, so adding a real, human-reviewed language is a
   one-file drop-in (`compiled/<locale>.json` + a `LOCALES` entry). A generated **`en-XA` pseudo-locale**
   (accented/expanded English) ships as a coverage aid — flipping to it surfaces any un-internationalized
@@ -81,9 +81,9 @@ The SPA was internationalized with **react-intl** driven by the **FormatJS** too
   `intlRef` so the once-built editor reads the live locale), and `DplInsertBar` (memoized
   `getDplInserts(intl)`).
 
-## `dynamic-prompts/` lives under `data/`, not `src/` (2026-06-21)
+## `blocks/` lives under `data/`, not `src/` (2026-06-21)
 
-The `#name` generators were moved from `src/dynamic-prompts/` to `engine/data/dynamic-prompts/`. They are
+The `#name` generators were moved from `src/blocks/` to `engine/data/blocks/`. They are
 executable `.js` (they `import` helpers and run logic), so the June reorg first placed them with the
 rest of the code under `src/`. But conceptually they are **prompt content** — authored and extended
 exactly like `lists/`, `expansions/`, and `presets/` (the project's "drop a file in to add content"
@@ -92,9 +92,9 @@ tradeoff over the "all code in `src/`" tidiness rule, so this is the **one delib
 that rule.
 
 Mechanically the move only required path edits in the loaders, because the directory name is
-config-driven (`settings.dynamicPromptFiles = "dynamic-prompts"`): the legacy
-`src/prompt-modules/dynamic-prompt.js` now prefixes the require with `../../data/`; `core/nodeLoader.js`
-joins `rootDir/data/dynamic-prompts`; `core/browserLoader.js` globs `../../engine/data/dynamic-prompts/**/*.js`.
+config-driven (`settings.blockFiles = "blocks"`): the legacy
+`src/prompt-modules/block.js` now prefixes the require with `../../data/`; `core/nodeLoader.js`
+joins `rootDir/data/blocks`; `core/browserLoader.js` globs `../../engine/data/blocks/**/*.js`.
 The generator files still import shared helpers out of `src/` (`../../engine/helpers/…` for top-level,
 `../../../engine/helpers/…` for `v1/`). Verified green with `npm run smoke` (node + legacy loaders) and
 `npm --prefix gui run build` (browser glob). Note both loaders must stay in sync — see
@@ -102,7 +102,7 @@ The generator files still import shared helpers out of `src/` (`../../engine/hel
 
 ## Full ES modules, not a CJS/ESM hybrid (2026-06-18)
 
-The whole codebase is ESM (`"type": "module"`). We did **not** leave the dynamic-prompt plugins or any
+The whole codebase is ESM (`"type": "module"`). We did **not** leave the block plugins or any
 loader as `.cjs`. Reason: a single module system is simpler to reason about and the owner asked for full
 ESM. The one place that *needs* synchronous module loading (config-driven plugin loading) is handled
 with `createRequire` rather than by keeping those files CommonJS — Node 24 can `require()` ESM, so the
@@ -110,9 +110,9 @@ plugins can be ESM and still load synchronously.
 
 ## `createRequire` for config-driven plugin loading, not `await import()` (2026-06-18)
 
-Dynamic prompts and prompt modules are resolved by a runtime path and invoked synchronously inside
+Blocks and prompt modules are resolved by a runtime path and invoked synchronously inside
 `String.prototype.replaceAll` callbacks. Making that async would force the entire prompt pipeline
-(`processBatch` → prompt modules → nested dynamic-prompt expansion) to become async and propagate up
+(`processBatch` → prompt modules → nested block expansion) to become async and propagate up
 through `run()` and the CLI/server. That's a large, risky rewrite for no user benefit. `createRequire`
 keeps the existing synchronous control flow exactly. See
 [`../reference/esm-patterns.md`](../reference/esm-patterns.md).
@@ -153,7 +153,7 @@ design discussion:
   heavy half of a meta-framework would go unused; a lean Vite SPA is the best-aligned "proper but light"
   choice. Well-supported, great testing story.
 - **BYOK modular providers.** Users bring their own image-API key; the app never hosts GPUs or pays for
-  compute. Each backend is a module behind one interface — the same plugin shape the dynamic prompts
+  compute. Each backend is a module behind one interface — the same plugin shape the blocks
   use. This is what makes "online" viable without a cost/ops burden.
 - **No storage, no accounts.** Generated images go straight to the browser; settings live in
   `localStorage`. The server is stateless.
@@ -164,8 +164,8 @@ design discussion:
   serverless functions replace a hand-wired backend. The CLI stays, sharing the engine via a Node
   loader.
 - **Browser-safe core via an injected loader.** The prompt engine is refactored to take its data
-  (lists, expansions, dynamic prompts) through a loader interface, so it runs unchanged in Node (fs +
-  createRequire) and in the browser (Vite `import.meta.glob`). The dynamic prompts being ESM default
+  (lists, expansions, blocks) through a loader interface, so it runs unchanged in Node (fs +
+  createRequire) and in the browser (Vite `import.meta.glob`). The blocks being ESM default
   exports already is what makes the browser bundling clean.
 - **Netlify default, Cloudflare Pages as the scale option.** Chosen for a commercial-OK free tier and no
   overage surprises; near-zero lock-in since nothing is stored.
@@ -175,7 +175,7 @@ Full plan + phases: [`../plans/web-migration.md`](../plans/web-migration.md).
 ## One JSDoc doc-site, not Doxygen (2026-06-18)
 
 The documentation went through two tools before settling. Doxygen was set up first (file-level `@file`
-headers + the notes as pages), but it **cannot extract this code's symbols** — the dynamic-prompt
+headers + the notes as pages), but it **cannot extract this code's symbols** — the block
 generators are anonymous `export default function`, and Doxygen's ESM support is weak — so it could only
 ever give a File List plus the notes, never a real per-function API. **JSDoc parses ESM and
 `export default` natively**, so it was adopted and Doxygen **retired entirely**. One generator now does
@@ -191,7 +191,7 @@ wired into the JSDoc site as **tutorials**: `build-docs.mjs` walks `notes/**`, b
 hierarchy that mirrors the folder tree (the role Doxygen's `_nav.dox` played), and rewrites inter-note
 links so they resolve to the generated tutorial pages. One site carries the README home, the per-function
 code API, and the living notes with a shared sidebar + search. This is deliberate: the depth the code
-comments can't carry (the prompt DSL, the dynamic-prompt catalog, the system map) lives **beside** the API,
+comments can't carry (the prompt DSL, the block catalog, the system map) lives **beside** the API,
 not in a separate doc system. Auto-discovery means adding/renaming a note needs no nav-file maintenance.
 
 ## Keep JSDoc for the React SPA too — transpile JSX, don't switch tools (2026-06-18)

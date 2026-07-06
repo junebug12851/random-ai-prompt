@@ -14,7 +14,7 @@ describe("default settings", () => {
 
   it("declares the v3 pipeline order", () => {
     expect(settings.promptModules).toEqual([
-      "dynamic-prompt",
+      "block",
       "prompt-salt",
       "list",
       "emphasis",

@@ -53,7 +53,7 @@ walk; every prompt after is served from cache.)
   it was rebuilt once per prompt.
 - The `browserLoader` has no `fs`, but did the same logical work: it rebuilt the `allListNames(...)`
   array and re-resolved the `keyword` union on every `readListLines` call at runtime in the SPA.
-- The dynamic-prompt stage rebuilt `resolvePool = [...names, ...groups]` for **every** `{#…}` token on
+- The block stage rebuilt `resolvePool = [...names, ...groups]` for **every** `{#…}` token on
   **every** of its up-to-10 resolution passes.
 
 ## Optimizations applied (2.28.18)
@@ -63,14 +63,14 @@ change**.
 
 1. **`engine/core/nodeLoader.js` — memoize the static catalog + reads.** The directory walks
    (`physicalNames`, `markedDirs`, `dynGeneratorNames`, `groupListDirs`, the full `allNames()` set),
-   `dynamicPromptNames()` (sorted), and the keyed reads (`readListLines` by `name|includeAdult`,
-   `readListMeta`, `readDynPromptMeta`, `readDynPromptGroup`) are cached in module-level
+   `blockNames()` (sorted), and the keyed reads (`readListLines` by `name|includeAdult`,
+   `readListMeta`, `readBlockMeta`, `readBlockGroup`) are cached in module-level
    `Map`s/holders. A new `nodeLoader.refresh()` drops every cache for tooling/tests that mutate `data/`
    in place.
 2. **`engine/core/browserLoader.js` — memoize the name set + resolved lines.** `allNames()` is computed
    once; `readListLines` results are cached by `name|includeAdult`. Eliminates the per-prompt wildcard
    re-union in the SPA at runtime.
-3. **`engine/core/stages/dynamicPrompt.js` — hoist `resolvePool`.** Built once per stage call instead of
+3. **`engine/core/stages/block.js` — hoist `resolvePool`.** Built once per stage call instead of
    per token per pass.
 
 ### Why this is safe (cache invalidation)

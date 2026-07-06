@@ -57,7 +57,7 @@ export function makeListStage(store) {
     // this because they built a fresh engine per call, so the bag was always already empty.)
     promptFuncsTmp = [];
     return prompt.replaceAll(/\{([^{}\n]*)\}/gm, (match, p1) => {
-      // `{#name}` is a dynamic-prompt token (handled by the dynamic-prompt stage), not a
+      // `{#name}` is a block token (handled by the block stage), not a
       // list — leave any stray one intact rather than mis-pulling a list named "#name".
       if (p1.startsWith("#")) return match;
       if (p1 == settings.artistFilename || p1.includes("artist"))

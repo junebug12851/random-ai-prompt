@@ -60,7 +60,7 @@ describe("engine pipeline snapshot (seeded)", () => {
       listEntriesUsedOnce: true,
       autoAddFx: false,
       autoAddArtists: false,
-      promptModules: ["dynamic-prompt", "list", "cleanup"],
+      promptModules: ["block", "list", "cleanup"],
     };
     const out = withSeed(2026, () =>
       engine.expand("{adjective} {scene}, {#mood}", settings, {}, {}),

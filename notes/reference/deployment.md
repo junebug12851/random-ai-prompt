@@ -30,7 +30,7 @@ this is it.
   being used as the de-facto release — unprofessional and wrong. (Extracting the handler also fixed a
   latent bug: the convert/resize/reveal/open routes used `exec`/`execP` that were never imported.)
 - **File-watch hot reload** rides the same backend: `/api/manage/watch` is an SSE stream tagging each
-  change with a scope — `data` (lists/dynamic-prompts → live catalog refresh), `output` (the gallery
+  change with a scope — `data` (lists/blocks → live catalog refresh), `output` (the gallery
   feed), `settings` (re-read user settings, ignoring the app's own writes and guarded by atomic
   storage writes so it never clobbers `user-settings`). The app opens one stream in `App.jsx`.
 

@@ -6,13 +6,13 @@ default.)
 ## Do
 
 - **Keep it data-driven and easy to extend.** Adding a prompt should mean dropping a file in
-  `dynamic-prompts/`, `lists/`, `expansions/`, or `presets/` — not editing core logic. Preserve that.
+  `blocks/`, `lists/`, `expansions/`, or `presets/` — not editing core logic. Preserve that.
 - **Preserve generated output and user data.** A user's `output/` images (+ their `.json` sidecars) and
   `user-settings.json` are precious. Never delete, overwrite, or corrupt them as a side effect. Image
   metadata is the source of truth for the search index and for re-rolls/variations.
 - **Fail loudly, not silently.** Surface errors (the WebUI being down, a bad file) clearly; don't
   swallow them in a way that hides a problem or loses work.
-- **Match the existing module shapes.** Dynamic prompts are `export default function (settings,
+- **Match the existing module shapes.** Blocks are `export default function (settings,
   imageSettings, upscaleSettings)`; settings are `export default {…}`; the loader contracts in
   `engine/core/` expect those. Keep new files consistent so the scanners/loaders keep working.
 - **One engine, no duplicated logic.** The isomorphic `engine/core/` engine is the single source of prompt

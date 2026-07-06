@@ -5,7 +5,7 @@ detailed prompts than most people write by hand, then runs them through 40+ mode
 DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
 
 **This is a single project at the repo root, organized as an engine + build targets.** An isomorphic
-prompt **engine** (`engine/`) authored in the **DPL** dynamic-prompt language powers one or more **build
+prompt **engine** (`engine/`) authored in the **DPL** block language powers one or more **build
 targets** under `targets/`, with SFW/NSFW gating. As of 2026-07-06 the tree was restructured from the old
 `src/` + `gui/` split into this **engine/ + targets/** shape (see the changelog). The old pre-revival
 system (the 2022–2023 CommonJS yargs CLI + Express/Pug web UI) has been removed from the tree; it lives in
@@ -17,10 +17,10 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   isomorphic loaders), `engine/helpers/`, and the manifest/settings/content-safety modules
   (`engine/listManifest.js`, `engine/settings.js`, `engine/contentSafety.js`, …). The engine **owns its
   content**: `engine/data/` holds all prompt content — `engine/data/lists`, `engine/data/presets`, the raw
-  `engine/data/sources/` CSV/JSON, and the `{#name}` dynamic-prompt generators under
-  `engine/data/dynamic-prompts/`. The **one deliberate exception** to "engine code is `.js` modules" is
-  `engine/data/dynamic-prompts/`: those generators are executable `.js` authored as prompt *content* (like
-  lists), so they live under `engine/data/`. (Expansions are deprecated, superseded by dynamic prompts.)
+  `engine/data/sources/` CSV/JSON, and the `{#name}` block generators under
+  `engine/data/blocks/`. The **one deliberate exception** to "engine code is `.js` modules" is
+  `engine/data/blocks/`: those generators are executable `.js` authored as prompt *content* (like
+  lists), so they live under `engine/data/`. (Expansions are deprecated, superseded by blocks.)
 - **`targets/`** — the build targets that consume the engine. **`targets/web/`** is the React/Vite web
   target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`), `targets/web/backend/` (the
   `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
@@ -29,7 +29,7 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   **`targets/shared/`** is reserved for code shared across targets. A **`targets/cli/`** target is planned
   next (the engine is already headless/isomorphic); there is **no CLI yet**.
 - **`user/`** — the repo-root **universal override overlay** (sibling of `engine/` and `targets/`):
-  `user/lists` and `user/blocks` (dynamic prompts) override the built-in `engine/data/` content USER-WINS.
+  `user/lists` and `user/blocks` (blocks) override the built-in `engine/data/` content USER-WINS.
 - **`scripts/`** (build/meta scripts), **`tests/`** (the Node engine test suite; the web target has its
   own tests under `targets/web/tests/`), and **`notes/`** (the docs system). Runtime/user data
   (`output/`, `user-settings.json`, `results.json`, and the local `user/settings/` store) stays out of git.
@@ -72,7 +72,7 @@ The full notes system is in `notes/`, organized by topic:
 - **This is ES modules (`"type": "module"`).** Every relative import needs its **file extension**
   (`./foo.js`, not `./foo`). There is no `require`/`module.exports`/`__dirname`/`__filename` — use
   `import`/`export`, `import.meta.url`, `import.meta.dirname`. See `reference/esm-patterns.md`.
-- **Content paths resolve two ways — keep both working.** The dynamic-prompt loaders resolve
+- **Content paths resolve two ways — keep both working.** The block loaders resolve
   **module-relative** via `import.meta.url` (`engine/core/nodeLoader.js` does
   `fileURLToPath(new URL("../../", import.meta.url))` → the repo root, since `engine/core` is two below it;
   `browserLoader.js` uses a Vite glob), so they don't depend on the cwd. The list/preset settings, by
@@ -81,7 +81,7 @@ The full notes system is in `notes/`, organized by topic:
   which npm scripts always do (the package root is the repo root). There is no `chdir` shim: just run
   everything from the repo root. See `decisions/architecture.md`.
 - **There are TWO content roots — `data/` (app built-ins) and `user/` (the user overlay) — merged
-  USER-WINS.** As of 2.46.0 a repo-root `user/` folder (`user/lists`, `user/blocks` = dynamic prompts,
+  USER-WINS.** As of 2.46.0 a repo-root `user/` folder (`user/lists`, `user/blocks` = blocks,
   `user/settings` = the local per-namespace store) sits beside `data/`; the app watches both. Both
   engine loaders scan two roots per pool (`engine/core/nodeLoader.js` reads `[user, data]`, first hit wins;
   the browser keeps names at first paint from lazy globs in `browserLoader.js` and loads user *content*
@@ -93,15 +93,15 @@ The full notes system is in `notes/`, organized by topic:
   so live generation honors the overlay, but tree/fs-ops stay per-root so edits land in `user/`. User
   content has no upstream — `restoreFromRepo` REFUSES user roots (a 404 would delete the file) and
   ghost/"restore default" is suppressed. The desktop shell seeds `user/` once and preserves it across
-  upgrades. NOTE this repo-root `user/` overlay is distinct from the `engine/data/dynamic-prompts/user/`
+  upgrades. NOTE this repo-root `user/` overlay is distinct from the `engine/data/blocks/user/`
   category (the `{#user-name}` alias). See `user/README.md`.
-- **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
+- **Config-driven plugin loading uses `createRequire`, on purpose.** Blocks and prompt
   modules are loaded by a runtime path, synchronously, inside string-replace callbacks. Node 24 can
   `require()` ES modules synchronously, so `createRequire(import.meta.url)` is the correct tool — do
   **not** try to convert these to `await import()` (the call sites are synchronous and can't be made
   async without rewriting the prompt pipeline). The loaded module is a namespace: call `.default(...)`
   and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
-- **Dynamic prompts live FLAT under `engine/data/dynamic-prompts/<category>/` (the documented `src/`→`data/`
+- **Blocks live FLAT under `engine/data/blocks/<category>/` (the documented `src/`→`data/`
   exception).** As of 2.7.1 there are **no version generations** — v1/v2 were deleted in 2.7.0 and the
   `v3/` wrapper + the `{#v1/}`/`{#v2/}`/`{#any-ver}` routing were stripped, leaving one flat catalog.
   Generators are sorted into category folders (`{scene,subject,fragment,style,prompt,expansion,user}/`;
@@ -112,10 +112,10 @@ The full notes system is in `notes/`, organized by topic:
   **pick-one group** (`{#scene}` runs one random scene generator; `.group` files +
   `_enable/_disable-group-list` markers work too); `{#any}` / `{#any-sfw}` / `{#any-nsfw}` pick one
   generator from the whole catalog (the unit is one GENERATOR, never a line union). NSFW gating is
-  automatic by name token (`isGatedDynPrompt`). The resolver is the core engine
-  `engine/core/stages/dynamicPrompt.js` (one flat pool) over the two isomorphic loaders —
+  automatic by name token (`isGatedBlock`). The resolver is the core engine
+  `engine/core/stages/block.js` (one flat pool) over the two isomorphic loaders —
   `engine/core/nodeLoader.js` (fs + `createRequire`) and `engine/core/browserLoader.js`
-  (Vite `import.meta.glob("../../engine/data/dynamic-prompts/**/*.js")`).
+  (Vite `import.meta.glob("../../engine/data/blocks/**/*.js")`).
 - **Generator imports are depth-sensitive — verify with both gates after any move.** A `<category>/`
   generator reaches `src/` via `../../../engine/helpers/…` (and `../../../engine/promptFilesAndSuggestions.js`)
   and imports siblings across categories by relative path (`../fragment/nature.js`). `npm run smoke`
@@ -131,7 +131,7 @@ The full notes system is in `notes/`, organized by topic:
 - **`engine/helpers/keywordRepeater.js` uses named exports on purpose** (`keywordRepeater`,
   `artistRepeater`) because it's consumed via destructuring — don't flip it to a default export (its own
   header says so). The two built-in list aliases live in `engine/helpers/aliases.js` as named string
-  constants (`keywordAlias`, `artistAlias`), kept dependency-free so the dynamic-prompt chain stays
+  constants (`keywordAlias`, `artistAlias`), kept dependency-free so the block chain stays
   browser-safe.
 - **Never use `node-fetch`.** Node 24 has a global `fetch`; the dependency was removed in 2.0.0.
 - **The ONLINE build PRERENDERS its first paint — keep the initial render SSR-safe.** As of 2.38.0 the
@@ -198,7 +198,7 @@ npm run docs           # build the JSDoc doc-site (code API + notes as tutorials
   `cleanup.js`, `prompt-salt.js` — are covered). The **import smoke test** (`npm run smoke` →
   `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `engine/promptFilesAndSuggestions.js` +
   `engine/core/nodeLoader.js` + `engine/settings.js` the way the SPA's Node-side loader boots, forces every
-  dynamic prompt to load via `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
+  block to load via `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
   suite is separate (`npm run test:e2e`, browser via `npx playwright install chromium`). The headless
   checks run in CI (`.github/workflows/ci.yml`).
 - **Testing landmine:** lodash captures `Math.random` at import, so `_.random/_.sample/_.shuffle` can't be

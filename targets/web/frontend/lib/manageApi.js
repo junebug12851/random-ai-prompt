@@ -60,7 +60,7 @@ export async function managerAvailable() {
 }
 
 /**
- * Read the raw folder tree of both data roots (lists + dynamic-prompts), including `_`-markers
+ * Read the raw folder tree of both data roots (lists + blocks), including `_`-markers
  * and `.json` sidecars, for the Manage left panel.
  * @returns {Promise<object>} The tree.
  */
@@ -72,7 +72,7 @@ export async function getTree() {
 
 /**
  * Read one file's text.
- * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {("lists"|"blocks")} root Which data root.
  * @param {string} path The relative path within the root (e.g. "scene/castle.dpl").
  * @returns {Promise<string>} The file text.
  */
@@ -87,7 +87,7 @@ export async function readFile(root, path) {
 
 /**
  * Write one file's text.
- * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {("lists"|"blocks")} root Which data root.
  * @param {string} path The relative path within the root.
  * @param {string} text The new file contents.
  * @returns {Promise<object>} The reply (affected path).
@@ -98,7 +98,7 @@ export function writeFile(root, path, text) {
 
 /**
  * Merge a `<name>.json` sidecar (a key set to null is removed).
- * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {("lists"|"blocks")} root Which data root.
  * @param {string} name The logical key (generator/list path, or a folder).
  * @param {object} patch Keys to merge.
  * @returns {Promise<object>} The merged sidecar.
@@ -109,7 +109,7 @@ export function saveSidecar(root, name, patch) {
 
 /**
  * Toggle a folder `_`-marker.
- * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {("lists"|"blocks")} root Which data root.
  * @param {string} dir The folder path.
  * @param {("_force-prefix"|"_enable-group-list"|"_disable-group-list")} marker The marker.
  * @param {boolean} on Whether it should exist.
@@ -131,7 +131,7 @@ export function fsOp(op, args) {
 
 /**
  * Restore a file to its repository default (the stable `master` branch), overwriting the local copy.
- * @param {("lists"|"dynamic-prompts")} root Which data root.
+ * @param {("lists"|"blocks")} root Which data root.
  * @param {string} path The relative path within the root (with extension).
  * @returns {Promise<object>} The reply (`{ ok, deleted }`).
  */
@@ -142,7 +142,7 @@ export function restoreDefault(root, path) {
 /**
  * The stable-branch file manifest (for ghost / restorable entries). Returns null on failure (e.g. no
  * network or GitHub rate-limit) so ghosts just don't show.
- * @returns {Promise<{lists: string[], "dynamic-prompts": string[]}|null>}
+ * @returns {Promise<{lists: string[], "blocks": string[]}|null>}
  */
 export async function getRemoteManifest() {
   try {

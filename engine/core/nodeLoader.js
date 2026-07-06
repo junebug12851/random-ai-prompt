@@ -1,15 +1,15 @@
 /**
  * @file
- * @brief Loader implementation (Node): filesystem reads plus createRequire dynamic-prompt loading.
+ * @brief Loader implementation (Node): filesystem reads plus createRequire block loading.
  */
 
-// Node loader: reads the prompt data from the filesystem and loads dynamic-prompt
+// Node loader: reads the prompt data from the filesystem and loads block
 // plugins with createRequire (Node 24 can require() ES modules synchronously).
 // Used for Node-side verification of the engine today, and the path by which the
 // CLI will share this same engine when Express is retired (migration phase 5).
 //
 // Two content roots per kind (the "user overlay"): the app's built-in content under `data/`, plus the
-// user's own content under `user/` (lists → user/lists, dynamic prompts/"blocks" → user/blocks). The
+// user's own content under `user/` (lists → user/lists, blocks/"blocks" → user/blocks). The
 // roots are searched in PRECEDENCE order — the USER root first — so a user file with the same name as
 // a built-in OVERRIDES it (same "your override wins" rule settings follow), while a new name simply
 // adds. Name enumeration unions both roots (order-independent); content reads return the first hit.
@@ -33,17 +33,17 @@ const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root 
 // Built-in corpus lives under engine/data/ (engine-owned); the user override overlay lives at the
 // repo root under user/ (a universal overlay beside engine/ and targets/).
 const listsRoot = path.join(rootDir, "engine", "data", "lists");
-const dynPromptsRoot = path.join(rootDir, "engine", "data", "dynamic-prompts");
+const blocksRoot = path.join(rootDir, "engine", "data", "blocks");
 const userListsRoot = path.join(rootDir, "user", "lists");
 const userBlocksRoot = path.join(rootDir, "user", "blocks");
 // Content roots in PRECEDENCE order — user FIRST, so user content overrides built-ins on a name
 // clash. `.dpl`/`.js` reads and list/group/meta reads walk these and take the first hit; name walks
 // union all roots.
 const listRoots = [userListsRoot, listsRoot];
-const dynRoots = [userBlocksRoot, dynPromptsRoot];
+const dynRoots = [userBlocksRoot, blocksRoot];
 
 // --- v3 DPL support -------------------------------------------------------
-// The active dynamic-prompt catalog is v3 (`.dpl`, with optional same-name `.js` sidecars)
+// The active block catalog is v3 (`.dpl`, with optional same-name `.js` sidecars)
 // plus the frozen v1 (`.js`, addressed `#name-v1`). The v2 tree stays on disk as frozen
 // reference but is NOT loaded. A `.dpl` compiles to the same `{ default,
 // suggestion_exclude }` module a JS generator exports, so the engine/classifier are untouched.
@@ -92,7 +92,7 @@ function makeDplBridge(fileDir) {
   };
 }
 
-// Generator keys under a dynamic-prompt root's `<category>/`, skipping `_`-prefixed internals. A
+// Generator keys under a block root's `<category>/`, skipping `_`-prefixed internals. A
 // `.dpl` is the generator; a `.js` is a generator only when no same-name `.dpl` exists (otherwise it
 // is that `.dpl`'s sidecar). Unions ALL dynamic roots so user blocks add to (and can override) the
 // built-in catalog.
@@ -221,8 +221,8 @@ const allNames = () =>
   (_listNames ??= allListNames([...logicalListNames(physicalListNames()), ...groupListDirs()]));
 
 /**
- * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
- * loading. Implements `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`.
+ * Node data loader for the engine: filesystem reads + `createRequire` block
+ * loading. Implements `readListLines`, `listNames`, `loadBlock`, `blockNames`.
  * Reads the app's built-in `data/` content AND the user overlay under `user/` (user wins on a name
  * clash).
  * @type {object}
@@ -254,7 +254,7 @@ export const nodeLoader = {
   readListMeta(name) {
     return readListMeta(name);
   },
-  loadDynamicPrompt(key) {
+  loadBlock(key) {
     if (dplCache.has(key)) return dplCache.get(key);
     // User root first, so a user block overrides the built-in of the same name.
     for (const root of dynRoots) {
@@ -283,14 +283,14 @@ export const nodeLoader = {
   },
   // Dynamic-prompt catalog keys (`.dpl`, sidecar `.js` excluded; `.js`-only generators included),
   // skipping `_`-prefixed internals, in the guaranteed natural order.
-  dynamicPromptNames() {
+  blockNames() {
     _dynNamesSorted ??= [...dynGeneratorNames()].sort(compareNames);
     return _dynNamesSorted;
   },
   // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
-  // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
+  // block file or category folder, for the editor button/category tooltip; null if absent.
   // User root first.
-  readDynPromptMeta(name) {
+  readBlockMeta(name) {
     if (_dynMetaCache.has(name)) return _dynMetaCache.get(name);
     let meta = null;
     for (const root of dynRoots) {
@@ -305,16 +305,16 @@ export const nodeLoader = {
     return meta;
   },
   // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
-  dynPromptForcedPrefixDirs() {
+  blockForcedPrefixDirs() {
     return markedDirs("_force-prefix", dynRoots);
   },
   // Alias retained for the loader interface (no version generations — same set as above).
-  dynPromptForcedPrefixDirsAll() {
+  blockForcedPrefixDirsAll() {
     return markedDirs("_force-prefix", dynRoots);
   },
-  // Implied-group folders for dynamic prompts: a category folder with 2+ generators (so `{#scene}`
+  // Implied-group folders for blocks: a category folder with 2+ generators (so `{#scene}`
   // picks one random scene generator), with enable/disable marker overrides.
-  dynPromptGroupDirs() {
+  blockGroupDirs() {
     return autoGroupListDirs(
       dynGeneratorNames(),
       markedDirs("_enable-group-list", dynRoots),
@@ -322,15 +322,15 @@ export const nodeLoader = {
     );
   },
   // Alias retained for the loader interface (no version generations — same set as above).
-  dynPromptGroupDirsAll() {
+  blockGroupDirsAll() {
     return autoGroupListDirs(
       dynGeneratorNames(),
       markedDirs("_enable-group-list", dynRoots),
       markedDirs("_disable-group-list", dynRoots),
     );
   },
-  // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent. User first.
-  readDynPromptGroup(name) {
+  // Lines of an explicit `<name>.group` block group file, or null when absent. User first.
+  readBlockGroup(name) {
     if (_dynGroupCache.has(name)) return _dynGroupCache.get(name);
     const lines = readFromRoots(dynRoots, `${name}.group`);
     _dynGroupCache.set(name, lines);

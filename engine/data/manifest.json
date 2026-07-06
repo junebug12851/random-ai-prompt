@@ -79,7 +79,7 @@
     "word/preposition.txt",
     "word/verb.txt"
   ],
-  "dynamic-prompts": [
+  "blocks": [
     "expansion/detail/legacy-person.dpl",
     "expansion/detail/legacy.dpl",
     "expansion/lighting/candlelight.dpl",

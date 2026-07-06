@@ -29,7 +29,7 @@ const wrapper = ({ children }) => (
 );
 
 const TREE = {
-  "dynamic-prompts": {
+  "blocks": {
     name: "",
     files: [],
     dirs: [{ name: "scene", files: ["castle.dpl"], dirs: [] }],
@@ -81,7 +81,7 @@ describe("useManageTree", () => {
     expect(result.current.models.map((m) => m.root)).toEqual([
       "user-blocks",
       "user-lists",
-      "dynamic-prompts",
+      "blocks",
       "lists",
     ]);
   });
@@ -111,10 +111,10 @@ describe("useManageTree", () => {
     dialog.prompt.mockResolvedValue("hero");
     const { result } = await mountLoaded();
     await act(async () => {
-      await result.current.newFile("dynamic-prompts", "scene");
+      await result.current.newFile("blocks", "scene");
     });
     expect(fsOp).toHaveBeenCalledWith("mkfile", {
-      root: "dynamic-prompts",
+      root: "blocks",
       path: "scene/hero.dpl",
       text: "hero\n===\n",
     });

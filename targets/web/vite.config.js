@@ -23,11 +23,11 @@ const appVersion = JSON.parse(
 ).version;
 
 // The SPA imports the shared prompt engine from repo-root core/ (which bundles
-// the dynamic-prompts/ lists/ expansions/ data via import.meta.glob). Allow the
+// the blocks/ lists/ expansions/ data via import.meta.glob). Allow the
 // dev server to read those files above the gui root.
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
-// Those repo-root src/ files (the core engine, every dynamic prompt, and
+// Those repo-root src/ files (the core engine, every block, and
 // promptFilesAndSuggestions.js) `import _ from "lodash"`. Because they live
 // outside gui/, resolution from them would not find gui's own lodash —
 // and Vite 8 / Rolldown treats an unresolved import as a hard error (Vite 6 /
@@ -91,7 +91,7 @@ export default defineConfig({
               test: /[\\/]node_modules[\\/](react-intl|@formatjs|intl-messageformat)/,
             },
             { name: "lodash", test: /[\\/]node_modules[\\/]lodash[\\/]/ },
-            { name: "prompt-data", test: /[\\/]data[\\/](dynamic-prompts|lists|presets)[\\/]/ },
+            { name: "prompt-data", test: /[\\/]data[\\/](blocks|lists|presets)[\\/]/ },
           ],
         },
       },

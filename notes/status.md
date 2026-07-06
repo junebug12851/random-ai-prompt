@@ -3,11 +3,13 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Repository structure — engine/ + targets/ (restructured 2026-07-06, 2.47.0):** the project lives at the
+**Repository structure — engine/ + targets/ (restructured 2026-07-06, 2.47.0; the "dynamic prompt"
+concept was renamed to "block" everywhere in 2.48.0, and the Tauri target `targets/desktop` was renamed
+`targets/web-shell`):** the project lives at the
 **repo root** as an **engine + build targets**. The isomorphic prompt engine is under `engine/`
 (`engine/core/` = the DPL engine + pipeline stages + both loaders; plus `engine/helpers/` and the
 manifest/settings/content-safety modules), and the engine **owns its content** under `engine/data/`
-(lists, presets, sources, and the `{#name}` dynamic-prompt generators). Build targets live under
+(lists, presets, sources, and the `{#name}` block generators). Build targets live under
 `targets/`: `targets/web/` is the React/Vite web target (ONE npm package, split into `frontend/` +
 `backend/` + `shared/`), and `targets/web-shell/` is the Tauri shell (its own package; wraps the built local
 web target). `targets/shared/` is reserved for cross-target code and a `targets/cli/` target is planned.
@@ -123,7 +125,7 @@ fallback so its message-asserting tests stay green, and `dplInserts.js` (the DPL
 `getDplInserts(intl)` builder. See [`version/2026-06.md`](version/2026-06.md).
 
 **Manage tab (2.12.0 — on `dev`):** a 4th SPA tab, the in-app content manager (local mode only — gated
-on a file-backend capability probe, locked online). It edits the real `data/lists` + `data/dynamic-prompts`
+on a file-backend capability probe, locked online). It edits the real `data/lists` + `data/blocks`
 files on disk and **hot-applies** them live via a runtime (disk-snapshot) loader (`runtimeLoader.js`) the
 engine reads through — no reload, except an edited `.js` generator *module body* (which can't run from
 fetched text without eval, so it reloads). Left pane: the real nested folder tree (categories vs subfolders
@@ -135,14 +137,14 @@ drag-to-move, restore-default (from `main`), **ghost pills** for files deleted l
 `fs.watch`). Backend: `targets/web/backend/manageFs.js` + `/api/manage/*` (Vite dev middleware today). Plan +
 details: [`plans/manage-tab.md`](plans/manage-tab.md). Contract-tested in `tests/integration/manageFs.test.js`.
 
-**DPL intensity dial + dynamic-prompt content refactor (2.10.0 — shipped):** a `{#name}` reference can carry
+**DPL intensity dial + block content refactor (2.10.0 — shipped):** a `{#name}` reference can carry
 an intensity percent (`{#great-bridge 25%}`, 1–100; `0`→`1`; unspecified → **50%**, top-level and nested)
 that flows into the generator. Lines take intensity **conditions** in the weight slot (`[<10%] - grass`; ops
 `< <= > >= = !=`; stackable `[100|<10%]` or `[100 <10%]`); probability gates and `repeat`/`one of`/`N of`
 counts **auto-scale** by intensity; and text can interpolate it via `{intensity}`
 (tiny/small/normal/large/huge/massive), `{intensity%}`, `{intensity-num}`, each accepting a relative `±NN%`
 modifier (also on nested `{#name ±NN%}` refs). Engine in `engine/core/dpl/dpl.js` +
-`engine/core/stages/dynamicPrompt.js`; design: [`reference/intensity-design.md`](reference/intensity-design.md).
+`engine/core/stages/block.js`; design: [`reference/intensity-design.md`](reference/intensity-design.md).
 The **content refactor is complete across all five categories** (scene · fragment · subject · style ·
 prompt): de-scattered (knight no longer pulls `{#landscape}`/`[[castle]]`; beach↛city; etc.), render-farm
 filler stripped, typos fixed (`interrior`, `accesories`, `mesmorizing`, `sceptor`), `anime-irl`→`anime-realism`,
@@ -215,8 +217,8 @@ auto-fix is on. The dev server detects ImageMagick (`/api/magick`) and converts 
 conversion need the dev server's filesystem); a static/online build shows an empty gallery with a note. See
 [`version/2026-06.md`](version/2026-06.md).
 
-**Layout reorg (2.7.1):** completes the v3-only move. Dynamic prompts are now **flat** under
-`engine/data/dynamic-prompts/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
+**Layout reorg (2.7.1):** completes the v3-only move. Blocks are now **flat** under
+`engine/data/blocks/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
 version routing are gone (engine + both loaders + the SPA browser). The loose raw build inputs moved to
 `engine/data/sources/` (`artists.csv`, `danbooru.csv`, `nai-tag-expirement.json`), and the SPA folder was renamed
 **`web-app/` → `targets/web/`** (the name anticipates a planned CLI; the core engine is already headless). A fuller
@@ -245,7 +247,7 @@ owner, in the `junebug12851.github.io` repo): the registry's `notes:` link still
 (update to `tree/main/…` after the default branch flips), and the `adopts_hub`/docs-site flag is overstated.
 The registry's `branch: dev` is **correct** — that field tracks the work branch, not the default branch.
 
-**Dynamic prompts (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
+**Blocks (2.5.0):** added **pick-one groups** — a category folder with 2+ generators is an implied
 group (`{#scene}` runs one random scene generator; `.group` files + markers too), and the same for
 expansions (`<lighting>` splices one random expansion). Added the `{#any}` / `{#any-sfw}` / `{#any-nsfw}`
 wildcard (one random generator from the whole catalog, `{keyword}`-style mode variants). Renamed the
@@ -255,18 +257,18 @@ and `*-prompt`→`*` (so `{#prompt/random}` is the composite; the default `setti
 switch** (v2 default) over **full** / **partial** sub-tabs; folder-group and `{#any}` pills are clickable.
 The "pick one" always resolves to ONE concrete generator/snippet, never a line union.
 
-**Dynamic prompts (2.3.0 + 2.4.0):** `engine/data/dynamic-prompts/` was brought to full parity with the
+**Blocks (2.3.0 + 2.4.0):** `engine/data/blocks/` was brought to full parity with the
 list/expansion systems. **2.3.0:** the 79 v2 generators (+ the user-submitted one) were reorganized into
 category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`prompt`/`user`), `v1/` left
 frozen; resolution by **path suffix**, `<name>.json` description sidecars, `_`-internal / `_force-prefix` /
 `compareNames`. **2.4.0:** the sigil became **`{#name}`** (brace-delimited like `{list}`/`<expansion>`,
 `/`-path capable; bare `#name` retired — 204 internal refs migrated, v1 untouched); automatic NSFW gating
-by name token (`isGatedDynPrompt`); tag metadata (`engine/dynPromptManifest.js`); and a **uniform SPA** — one
+by name token (`isGatedBlock`); tag metadata (`engine/blockManifest.js`); and a **uniform SPA** — one
 Dynamic-prompts block with category-folder pills
 (plain labels — folders are organization, **not** groups: a generator is a script, not a word pool) and a
 **v1/v2 toggle**. Only the **new** engine (core loaders/stage, classifier, SPA) was touched — the classic
 server + `prompt-modules/` are read-only legacy reference. See
-[`reference/dynamic-prompts-architecture.md`](reference/dynamic-prompts-architecture.md).
+[`reference/blocks-architecture.md`](reference/blocks-architecture.md).
 
 **Expansions (2.2.0):** `data/expansions/` was brought to parity with the list system — the 9 snippets nest
 into category folders (`detail`, `style`, `lighting`, `subject`, `scene`) with shared path-suffix resolution
@@ -321,7 +323,7 @@ server and the CLI are untouched and still work.
 a single **JSDoc + docdash** site that unifies the per-function **code API** (every authored `.js`,
 including the React SPA via a babel-transpile-then-JSDoc step) with the **entire `notes/` tree as
 tutorials** (cross-links rewritten). **Doxygen was retired.** Coverage is complete: `@file` on every
-authored file, per-function JSDoc across all server-side code, all 113 dynamic prompts, the frontend
+authored file, per-function JSDoc across all server-side code, all 113 blocks, the frontend
 scripts, and the whole `targets/web/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
@@ -340,7 +342,7 @@ Linux set via the "Update visual baselines (Linux)" workflow (`visual-baselines.
 
 **Verification done:** `node --check` on all 152 server-side JS files (0 syntax errors); `npm run lint`
 (0 errors, 163 pre-existing style warnings); a Prettier pass over the codebase; and an **import smoke
-test** that loads the whole ES-module graph, loads all 113 dynamic prompts via `require(ESM)`, runs
+test** that loads the whole ES-module graph, loads all 113 blocks via `require(ESM)`, runs
 `promptSuggestion()`, and expands `#random` — all green.
 
 **Not yet runtime-verified end to end:** actually generating an image requires a running Stable
@@ -353,7 +355,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | Issue | Where | Status / notes |
 |-------|-------|----------------|
 | ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — 118 Vitest tests green. See [`plans/testing.md`](plans/testing.md). |
-| `no-dupe-else-if` warnings (dead branches) | several `dynamic-prompts/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
+| `no-dupe-else-if` warnings (dead branches) | several `blocks/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
 | `no-useless-escape` warnings | a few prompt/data regexes | Harmless redundant escapes; kept as warnings (changing regexes risks changing output). |
 | Live generation unverified end-to-end | the provider adapters (`targets/web/shared/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
 
@@ -364,7 +366,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | `npm install` (Node 24) | ✅ resolves clean |
 | `node --check` all JS | ✅ 0 syntax errors (152 files) |
 | `npm run lint` | ✅ 0 errors (18 warnings, pre-existing) |
-| Import smoke test (full graph + dynamic prompts + expansion) | ✅ green |
+| Import smoke test (full graph + blocks + expansion) | ✅ green |
 | `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 128 passed |
 | `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 60 passed (IntlProvider render wrapper added for i18n) |
 | `npm run lint:i18n` (gui — `eslint-plugin-formatjs`) | ✅ 0 problems |

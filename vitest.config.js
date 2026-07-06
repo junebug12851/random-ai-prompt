@@ -32,7 +32,7 @@ export default defineConfig({
         "engine/listTags.js",
         "engine/nameOrder.js",
         "engine/listResolve.js",
-        "engine/dynPromptManifest.js",
+        "engine/blockManifest.js",
         "engine/promptFilesAndSuggestions.js",
         "engine/helpers/*.js",
         "engine/core/stages/cleanup.js",
