@@ -1,12 +1,10 @@
 # Desktop auto-updater — the scaffold + the owner's finishing steps
 
-_Status: **Phase 1 shipped; Phase 2 implemented, activates on CI secret.** The check-and-notify banner
-is live for every local/desktop edition. The full in-app auto-installer is now fully wired — signing
-public key committed, the Rust check-on-launch → prompt → install trigger in place (compile-verified via
-`cargo check --features updater`), and the `latest.json` manifest assembled by CI. It stays **inert**
-until the owner adds the private signing key as a CI secret (`TAURI_SIGNING_PRIVATE_KEY`); with no
-secret the release pipeline is byte-for-byte unchanged. The single remaining owner action is **step 3
-below** (add the secrets). See the design in [`../plans/updates-upgrades.md`](../plans/updates-upgrades.md)._
+_Status: **Phase 1 + Phase 2 both LIVE.** The check-and-notify banner ships for every local/desktop
+edition, and the full in-app auto-installer is enabled and proven: the CI signing secret is set and the
+**first signed release (v2.44.0)** published all installers + `.sig` files + a valid `latest.json`. From
+here, installed builds prompt-and-self-update on the next release. See the design in
+[`../plans/updates-upgrades.md`](../plans/updates-upgrades.md)._
 
 ## What Phase 1 ships (check-and-notify — active now)
 
@@ -59,19 +57,25 @@ the release is byte-for-byte what it is today. The updater path is pure opt-in.
    OS's `.sig` + the updater-artifact download URLs into `latest.json` and uploads it to the release, so
    the endpoint (`…/releases/latest/download/latest.json`) resolves. Key-gated (inert without the secret).
 
-## The one remaining owner step (turns Phase 2 ON)
+## Owner step — DONE (Phase 2 is ON)
 
-**Add the signing key as CI secrets** (Repo → Settings → Secrets and variables → Actions), or via
-`gh secret set`:
+The signing key is set as CI secrets and the **first signed release shipped: v2.44.0** (installers +
+`.sig` for all three platforms + a well-formed `latest.json`). For reference / re-keying:
 
 - `TAURI_SIGNING_PRIVATE_KEY` — the **contents** of `%USERPROFILE%\.tauri\rap-updater.key`.
 - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — the password chosen at generation.
 
-Once both exist, the **next release** automatically builds the updater variant, signs the artifacts,
-and publishes `latest.json`. Nothing else to change. (Keep a copy of the private key + password in your
-password manager — losing either means you can't sign future updates and auto-update breaks.)
+Keep a copy of the private key + password in your password manager — losing either means you can't sign
+future updates and auto-update breaks.
 
-### Validate on the first signed release
+> **⚠️ Windows BOM gotcha (this bit us once).** Do NOT set the key with
+> `Get-Content -Raw key | gh secret set …` — PowerShell prepends a UTF-8 BOM, and Tauri then fails
+> signing with `failed to decode base64 secret key: Invalid symbol 239, offset 0` (0xEF = BOM). The
+> installers still *build*; only the signing step at the end fails. Set it BOM-free instead:
+> `gh secret set TAURI_SIGNING_PRIVATE_KEY --body ([System.IO.File]::ReadAllText("$env:USERPROFILE\.tauri\rap-updater.key").Trim())`.
+> If a release's desktop jobs fail only at signing, fix the secret and `gh run rerun <id> --failed`.
+
+### First signed release checklist (v2.44.0 — all confirmed)
 
 - Confirm the release has `latest.json` + the `.app.tar.gz`/`-setup.exe`/`.AppImage` updater artifacts
   and their `.sig` files.

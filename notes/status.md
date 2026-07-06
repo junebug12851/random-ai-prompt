@@ -18,13 +18,14 @@ editions check for a newer GitHub release on launch and show a dismissible **cor
 `useUpdateCheck.js` + `components/UpdateBanner.jsx`); backend `GET /api/update` fetches the latest
 release **server-side** (1 h cache) + detects the edition (Tauri stamps `RAP_EDITION`; else `.git` ⇒ git;
 else source); dismissal + throttle persist through the new `update` storage namespace. **Phase 2 (full
-in-app auto-installer) is now fully wired** behind the `updater` Cargo feature: signing public key
-committed, a Rust check-on-launch → native-prompt → install/relaunch trigger (compile-verified with
-`cargo check --features updater`; default build pulls in neither the updater nor dialog crate), and a CI
-`updater-manifest` job that assembles `latest.json`. It stays **inert** until the owner adds the private
-signing key as a CI secret — the one remaining step
-([`reference/desktop-updater.md`](reference/desktop-updater.md)). Privacy page updated (desktop
-update-check disclosure). See [`plans/updates-upgrades.md`](plans/updates-upgrades.md).
+in-app auto-installer) is LIVE** behind the `updater` Cargo feature: signing public key committed, a Rust
+check-on-launch → native-prompt → install/relaunch trigger (compile-verified; default build pulls in
+neither the updater nor dialog crate), and a CI `updater-manifest` job that assembles `latest.json`. The
+CI signing secret is set and the **first signed release (v2.44.0) shipped** — all installers + `.sig` +
+a valid `latest.json` attached — so installed builds prompt-and-self-update from the next release on.
+Privacy page updated (desktop update-check disclosure). See
+[`reference/desktop-updater.md`](reference/desktop-updater.md) +
+[`plans/updates-upgrades.md`](plans/updates-upgrades.md).
 
 **Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
 edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as
