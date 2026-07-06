@@ -105,7 +105,7 @@ jobs:
           set -euo pipefail
           v="${{ steps.ver.outputs.version }}"
           npm --prefix targets/web run build
-          (cd targets/web/dist && zip -qr "../../random-ai-prompt-$v-online.zip" .)
+          (cd targets/web/dist && zip -qr "../../../random-ai-prompt-$v-online.zip" .)
           ls -la random-ai-prompt-*-online.zip
 
       - name: Compose release notes
@@ -242,6 +242,11 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      # The Tauri target (targets/web-shell) is its own package and carries @tauri-apps/cli; the root
+      # install does not reach it, so install it explicitly before the desktop build.
+      - name: Install desktop (Tauri CLI) dependencies
+        run: npm --prefix targets/web-shell install --no-audit --no-fund
+
       # Auto-updater (Phase 2) wiring — INERT until the signing secret exists. This step decides which
       # of the two build steps below runs. With no `TAURI_SIGNING_PRIVATE_KEY` secret set (today),
       # has_key=false → the plain build runs exactly as before, so the release pipeline is unchanged.
@@ -263,7 +268,7 @@ jobs:
       # in-app updater) — runs unless the updater signing key is configured.
       - name: Build the desktop app
         if: steps.updkey.outputs.has_key != 'true'
-        run: npm --prefix targets/web run desktop:build
+        run: npm --prefix targets/web-shell run desktop:build
 
       # Same build WITH the in-app updater compiled in + updater artifacts signed. Only runs once the
       # signing keypair secret is present; otherwise skipped (the plain build above runs instead).
@@ -272,7 +277,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm --prefix targets/web run desktop:build:updater
+        run: npm --prefix targets/web-shell run desktop:build:updater
 
       - name: Collect artifacts
         shell: bash
