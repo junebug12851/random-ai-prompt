@@ -157,7 +157,7 @@
   width: 0.46rem;
   height: 0.46rem;
   border-radius: 50%;
-  background: currentColor;
+  background: currentcolor;
   opacity: 0.45;
 }
 .ff-auto:hover {
