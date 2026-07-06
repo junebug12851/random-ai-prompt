@@ -11,6 +11,19 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
+**Gallery composer + live placeholders, multi-select, a11y + SEO (2.45.0 — branch
+`feature/gallery-composer-a11y-seo`, on `dev` pending review):** the composer prompt box was extracted
+into a reusable `gui/src/components/PromptComposer.jsx` (Home markup unchanged); the **Gallery** now
+carries a narrow copy of it in a `.g-composer` slot at the top, and generating from it streams **live
+placeholder cells** into the grid that resolve into the finished images as each batch lands (isolated
+orchestrator `gui/src/lib/gallery/generateIntoGallery.js`; the perf-critical `useImageBatches` is
+untouched). The gallery gained **multi-select + mass delete** (checkboxes, select-all, one-confirm disk
+delete via `App.deleteManyItems`). An **accessibility** pass added a skip link, a landmark `<h1>`,
+`role="tabpanel"` view panes, `role="alert"`/`aria-live` regions, a `prefers-reduced-motion` guard, and
+`.sr-only`/`.skip-link` utilities (axe A/AA clean). An **SEO** pass added `sitemap.xml`, a `FAQPage` +
+enriched `WebApplication` JSON-LD, and a `keywords` meta. New tests:
+`generateIntoGallery` + `GalleryMultiSelect`. See [`version/2026-07.md`](version/2026-07.md).
+
 **Auto-updating — check-and-notify shipped; desktop auto-install implemented (2.44.0):** local/desktop
 editions check for a newer GitHub release on launch and show a dismissible **corner card**,
 **edition-aware** (download the new installer/portable/release, or a copyable `git pull` for a checkout)

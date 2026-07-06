@@ -35,9 +35,11 @@ import { getProvider, availableProviders } from "./lib/providers/index.js";
 import { providerMode } from "./lib/useProvider.js";
 import { refreshCatalog, ensureCatalog } from "./lib/promptEngine.js";
 import { managerAvailable } from "./lib/manageApi.js";
+import { generateIntoGallery as runGenerateIntoGallery } from "./lib/gallery/generateIntoGallery.js";
 import { dialog } from "./lib/dialog.js";
 import { APP_VERSION } from "./lib/version.js";
 import NsfwToggle from "./components/NsfwToggle.jsx";
+import PromptComposer from "./components/PromptComposer.jsx";
 import ProvidersMenu from "./components/ProvidersMenu.jsx";
 import ProviderGear from "./components/ProviderGear.jsx";
 import LinksMenu from "./components/LinksMenu.jsx";
@@ -76,6 +78,11 @@ const msgs = defineMessages({
     id: "app.switchView",
     defaultMessage: "Switch view",
     description: "aria-label for the top-bar view switcher",
+  },
+  skipToContent: {
+    id: "app.skipToContent",
+    defaultMessage: "Skip to main content",
+    description: "Keyboard skip link shown when focused, jumps past the header to the main view",
   },
   moreControls: {
     id: "app.moreControls",
@@ -119,6 +126,12 @@ const msgs = defineMessages({
     id: "app.deleteConfirm",
     defaultMessage: "Delete this image and its metadata from disk? This can't be undone.",
     description: "Confirm dialog before deleting an image from disk",
+  },
+  deleteManyConfirm: {
+    id: "app.deleteManyConfirm",
+    defaultMessage:
+      "Delete {count, plural, one {# image} other {# images}} and their metadata from disk? This can't be undone.",
+    description: "Confirm dialog before mass-deleting selected images from disk",
   },
   deleteAction: {
     id: "app.deleteAction",
@@ -223,6 +236,7 @@ function AppShell({ settings, setSettings }) {
   const [derivations, setDerivations] = useState([]); // in-flight ops: { id, parentPath, kind }
   const [magick, setMagick] = useState({ available: false, formats: [] });
   const [managerOk, setManagerOk] = useState(false); // local-mode content backend present?
+  const [galleryPending, setGalleryPending] = useState([]); // live placeholders for in-flight gens
 
   // A shared link (#s=...) seeds settings on load, then the hash is cleared.
   useEffect(() => {
@@ -494,10 +508,55 @@ function AppShell({ settings, setSettings }) {
     if (!neighbor && view === "single") setView(returnTo);
   }
 
+  // Mass-delete a set of images (+ their sidecars) from disk, after one confirm. Used by the
+  // gallery's multi-select mode. If the image open in the single view is among them, land on a
+  // neighbor (or leave the single view).
+  async function deleteManyItems(paths) {
+    const targets = Array.isArray(paths) ? paths.filter(Boolean) : [];
+    if (!targets.length) return;
+    if (
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.deleteManyConfirm, { count: targets.length }),
+        confirmLabel: intl.formatMessage(msgs.deleteAction),
+        destructive: true,
+      }))
+    )
+      return;
+    const doomed = new Set(targets);
+    await Promise.all(targets.map((p) => deleteImageFile(p)));
+    const remaining = items.filter((x) => !doomed.has(x.path));
+    setItems(remaining);
+    setCurrent((cur) => (cur && doomed.has(cur.path) ? remaining[0] || null : cur));
+    if (view === "single" && current && doomed.has(current.path)) setView(returnTo);
+  }
+
+  // Generate images straight into the gallery from the gallery's own prompt box: placeholder cells
+  // appear at the top of the grid immediately and resolve into the finished images (via the feed) as
+  // each batch lands. Soft NSFW gate first, mirroring Home. Errors propagate to the composer.
+  async function generateIntoGallery(text) {
+    if (!(await nsfwOkFor(getProvider(settings.provider)))) return;
+    await runGenerateIntoGallery({
+      text,
+      settings,
+      onAddPending: (extra) => setGalleryPending((p) => [...extra, ...p]),
+      onRemovePending: (ids) => {
+        const gone = new Set(ids);
+        setGalleryPending((p) => p.filter((x) => !gone.has(x.id)));
+      },
+      onBatchDone: () => loadFeed(),
+    });
+  }
+
   const returnLabel = intl.formatMessage(returnTo === "generate" ? msgs.tabGenerate : msgs.tabGallery);
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">
+        {intl.formatMessage(msgs.skipToContent)}
+      </a>
+      {/* One top-level heading for the page — visually hidden (the brand wordmark carries the
+          visible identity), but present for screen readers and search engines. */}
+      <h1 className="sr-only">Random AI Prompt — richer AI image &amp; text prompts, automatically</h1>
       <header className="topbar">
         <div className="brand" title="Random AI Prompt">
           <img src="/logo.png" alt="" />
@@ -515,12 +574,19 @@ function AppShell({ settings, setSettings }) {
                 : lockedHint(intl, featureKey ? intl.formatMessage(msgs[featureKey]) : label);
             // Unlocked tabs get a plain descriptive tooltip; locked ones explain why.
             const tabTitle = locked ? hint : intl.formatMessage(msgs[descKey]);
+            // Whether this tab's panel is actually in the DOM (so aria-controls references a real
+            // element). Generate is always mounted; the local-only panes mount once opened.
+            const paneMounted =
+              id === "generate" ||
+              (id === "manage" ? managerOk && opened.has("manage") : !ONLINE && opened.has(id));
             return (
               <button
                 key={id}
+                id={`tab-${id}`}
                 role="tab"
                 aria-selected={!locked && view === id}
                 aria-disabled={locked || undefined}
+                aria-controls={paneMounted ? `pane-${id}` : undefined}
                 className={`vs-tab${!locked && view === id ? " on" : ""}${locked ? " is-locked" : ""}`}
                 title={tabTitle}
                 onClick={() => (locked ? (id !== "manage" ? openFullVersion() : undefined) : go(id))}
@@ -567,8 +633,14 @@ function AppShell({ settings, setSettings }) {
           editions; the online build is always the latest deploy so it never shows). SSR-safe. */}
       <UpdateBanner />
 
-      <main>
-        <div className={`view-pane${view === "generate" ? " on" : ""}`}>
+      <main id="main-content" tabIndex={-1}>
+        <div
+          id="pane-generate"
+          role="tabpanel"
+          aria-labelledby="tab-generate"
+          hidden={view !== "generate"}
+          className={`view-pane${view === "generate" ? " on" : ""}`}
+        >
           <Home
             settings={settings}
             setSettings={setSettings}
@@ -578,7 +650,13 @@ function AppShell({ settings, setSettings }) {
         {/* Gallery + Single are local-only: the online build has no image feed and omits them.
             Each mounts (and fetches its chunk) only once first opened, then stays mounted. */}
         {!ONLINE && opened.has("gallery") && (
-          <div className={`view-pane${view === "gallery" ? " on" : ""}`}>
+          <div
+            id="pane-gallery"
+            role="tabpanel"
+            aria-labelledby="tab-gallery"
+            hidden={view !== "gallery"}
+            className={`view-pane${view === "gallery" ? " on" : ""}`}
+          >
             <Suspense fallback={null}>
               <Gallery
                 items={items}
@@ -588,12 +666,30 @@ function AppShell({ settings, setSettings }) {
                 onOpen={openFromGallery}
                 onRefresh={loadFeed}
                 onDelete={deleteItem}
+                onDeleteMany={deleteManyItems}
+                pending={galleryPending}
+                composer={
+                  <div className="g-composer">
+                    <PromptComposer
+                      settings={settings}
+                      setSettings={setSettings}
+                      compact
+                      onGenerate={generateIntoGallery}
+                    />
+                  </div>
+                }
               />
             </Suspense>
           </div>
         )}
         {!ONLINE && opened.has("single") && (
-          <div className={`view-pane${view === "single" ? " on" : ""}`}>
+          <div
+            id="pane-single"
+            role="tabpanel"
+            aria-labelledby="tab-single"
+            hidden={view !== "single"}
+            className={`view-pane${view === "single" ? " on" : ""}`}
+          >
             <Suspense fallback={null}>
               <SingleView
                 items={items}
@@ -619,7 +715,13 @@ function AppShell({ settings, setSettings }) {
         {/* Manage is local-only: only mounted when the file backend is present AND opened once
             (so the heavy CodeMirror editor chunk loads on demand, not on first paint). */}
         {managerOk && opened.has("manage") && (
-          <div className={`view-pane${view === "manage" ? " on" : ""}`}>
+          <div
+            id="pane-manage"
+            role="tabpanel"
+            aria-labelledby="tab-manage"
+            hidden={view !== "manage"}
+            className={`view-pane${view === "manage" ? " on" : ""}`}
+          >
             <Suspense fallback={null}>
               <Manage settings={settings} available={managerOk} active={view === "manage"} />
             </Suspense>

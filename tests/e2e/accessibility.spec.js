@@ -37,7 +37,7 @@ test.describe("accessibility", () => {
     await editor.click();
     await editor.pressSequentially("a fox");
     await page.getByRole("button", { name: "Generate prompt" }).click();
-    await expect(page.getByRole("heading", { name: "Prompts" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Prompts", exact: true })).toBeVisible();
 
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])

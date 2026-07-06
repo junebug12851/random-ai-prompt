@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://prompt.fairyfox.io/sitemap.xml
