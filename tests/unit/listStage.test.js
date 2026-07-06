@@ -7,8 +7,8 @@
  * invariants (the source word survives; NovelAI rewrites `(`→`{`).
  */
 import { describe, it, expect } from "vitest";
-import { makeListStage } from "../../src/core/stages/list.js";
-import { createListStore } from "../../src/core/listStore.js";
+import { makeListStage } from "../../engine/core/stages/list.js";
+import { createListStore } from "../../engine/core/listStore.js";
 
 const store = (lists) =>
   createListStore({

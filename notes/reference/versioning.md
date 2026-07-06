@@ -35,7 +35,7 @@ Docs/notes-only or test/CI-only commits don't move the number.
 |-------|------|
 | `VERSION` | The canonical number — the only thing a human edits. |
 | `package.json` `"version"` | The Node package number — kept equal to `VERSION` in the same commit. |
-| `gui/package.json` `"version"` | The SPA's number — keep it in step with the root when the SPA ships as part of a release. |
+| `targets/web/package.json` `"version"` | The SPA's number — keep it in step with the root when the SPA ships as part of a release. |
 
 There is no compiled `pse_version.h`-style generation here (this isn't a compiled app); the sync is the
 manual two-line (three with the SPA) edit above, done in the one commit that warrants the bump. If you
@@ -70,6 +70,6 @@ Run on request, report `done`/`partial`/`missing` (the per-standard slice the
 |-------------------|--------------|
 | `VERSION` is a single SemVer line | `cat VERSION` (first non-comment line) |
 | It equals the newest `vX.Y.Z` tag on `main` | `git describe --tags --abbrev=0 main` vs `VERSION` |
-| `package.json` (and `gui/package.json` when the SPA ships) match `VERSION` | grep their `"version"` fields |
+| `package.json` (and `targets/web/package.json` when the SPA ships) match `VERSION` | grep their `"version"` fields |
 | No version is hardcoded anywhere else | grep the tree for a stray `X.Y.Z` |
 | MAJOR was never bumped without the project leader's call | tag history shows no auto `→ N.0.0` |

@@ -10,7 +10,7 @@ product-behavior bugs — **out of scope** (CI/docs/data-curation/build).
 
 Homes: logic/engine → `tests/regression/bugRegressions.test.js`; SPA behavior/layout/stacking →
 `tests/e2e/responsive.spec.js` (functional, hit-test) or a sibling e2e spec; component logic →
-`gui/tests/`.
+`targets/web/tests/`.
 
 ## Already covered (no action)
 
@@ -27,7 +27,7 @@ Homes: logic/engine → `tests/regression/bugRegressions.test.js`; SPA behavior/
 ## Candidates — logic/engine (→ bugRegressions.test.js)
 
 - [ ] **86c8e10** ProviderGear accordion showed image-gen settings under the Text/Upscale roles
-  (`showSchema` logic: image, or upscale-only). Testable as a component/logic test (`gui/tests/`).
+  (`showSchema` logic: image, or upscale-only). Testable as a component/logic test (`targets/web/tests/`).
 - [ ] **475d46d** image provider "Unset" is Plain text renamed (no separate no-provider state) — assert
   the provider registry/selection invariant.
 - [ ] **854ac1a / 82d00c3** ComfyUI auto-resolve sampler+scheduler / checkpoint against `object_info`
@@ -59,4 +59,4 @@ Homes: logic/engine → `tests/regression/bugRegressions.test.js`; SPA behavior/
 
 - 2026-07-04: backlog created; 2.41.1 composer-gear guard landed. Audited `8eca885` → already covered
   (shipped its own integration test). Next: `86c8e10` ProviderGear role-schema (a component/logic test
-  in `gui/tests/`).
+  in `targets/web/tests/`).

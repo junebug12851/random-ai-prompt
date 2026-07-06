@@ -4,7 +4,7 @@
  * dynamic-prompt chain stays browser-safe; this locks their values + shape.
  */
 import { describe, it, expect } from "vitest";
-import { keywordAlias, artistAlias } from "../../src/helpers/aliases.js";
+import { keywordAlias, artistAlias } from "../../engine/helpers/aliases.js";
 
 describe("aliases", () => {
   it("exposes the keyword and artist alias names", () => {

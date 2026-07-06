@@ -52,7 +52,7 @@ The split is content judgment, but the principle is:
 
 ## 3. How it works (engine)
 
-Implemented in `src/core/stages/dynamicPrompt.js`. The resolver loops, replacing `{#…}` tokens pass by pass:
+Implemented in `engine/core/stages/dynamicPrompt.js`. The resolver loops, replacing `{#…}` tokens pass by pass:
 
 - A per-expansion `dedup = { seen: Set, firstPass: bool }` is created for each `dynamicPrompt()` call (state
   never leaks between prompts).
@@ -74,5 +74,5 @@ segments, and rejoins), so a deduped token leaves no stray comma.
 - [`focus-design.md`](focus-design.md) — purity dial; high focus → cleaner single layers.
 - [`intensity-design.md`](intensity-design.md) — the magnitude dial.
 - [`dpl-design.md`](dpl-design.md) — the base language.
-- `src/core/stages/dynamicPrompt.js` — the dedup loop + `stacking` check.
-- `src/core/dpl/dpl.js` — `stacking` front-matter parsing, exposed on the compiled module.
+- `engine/core/stages/dynamicPrompt.js` — the dedup loop + `stacking` check.
+- `engine/core/dpl/dpl.js` — `stacking` front-matter parsing, exposed on the compiled module.

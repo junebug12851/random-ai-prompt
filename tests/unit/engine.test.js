@@ -4,7 +4,7 @@
  * clamping, unknown-stage skip, and carriage-return stripping.
  */
 import { describe, it, expect } from "vitest";
-import { createEngine } from "../../src/core/engine.js";
+import { createEngine } from "../../engine/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 import { withSeed } from "../helpers/seededRandom.js";
 

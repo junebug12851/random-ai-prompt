@@ -27,8 +27,10 @@ const SKIP_DIRS = new Set([
   "playwright-report",
   ".lighthouseci",
   "assets", // includes the read-only reference clones under assets/references/
-  "src-tauri", // desktop shell + its generated app/ + Rust target/ (no authored docs)
-  "target", // Rust/Cargo build output
+  "app", // the desktop target's staged runtime payload (built by stage.mjs — copies of authored docs)
+  "gen", // Tauri-generated files under targets/desktop/
+  "dist-ssr", // throwaway SSR bundle from the online web build
+  "target", // Rust/Cargo build output (targets/desktop/target)
 ]);
 
 // Intentional *illustrative* link targets (teaching link syntax in the docs) — not real files.

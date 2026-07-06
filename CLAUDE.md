@@ -4,23 +4,38 @@ An open-source generator for AI image and text prompts that automatically builds
 detailed prompts than most people write by hand, then runs them through 40+ models (Midjourney,
 DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
 
-**This is a single project at the repo root.** An isomorphic prompt **engine** (`src/core/`) authored
-in the **DPL** dynamic-prompt language, driven by a React/Vite **web GUI** (`gui/`), with SFW/NSFW
-gating. The `gui/` name anticipates a sibling **CLI** (planned next — the core engine is already
-headless/isomorphic); there is **no CLI yet**. The old pre-revival system (the 2022–2023 CommonJS
-yargs CLI + Express/Pug web UI) has been removed from the tree; it lives in git history and as a
-read-only reference clone at `assets/references/og-pre-revival-2023-04-07-241a148/`. (The repo used to
-nest the active project under `engine-v3/` next to a frozen `engine-v1-2/`; that split was flattened on
-2026-07-02 — see the changelog.)
+**This is a single project at the repo root, organized as an engine + build targets.** An isomorphic
+prompt **engine** (`engine/`) authored in the **DPL** dynamic-prompt language powers one or more **build
+targets** under `targets/`, with SFW/NSFW gating. As of 2026-07-06 the tree was restructured from the old
+`src/` + `gui/` split into this **engine/ + targets/** shape (see the changelog). The old pre-revival
+system (the 2022–2023 CommonJS yargs CLI + Express/Pug web UI) has been removed from the tree; it lives in
+git history and as a read-only reference clone at `assets/references/og-pre-revival-2023-04-07-241a148/`.
 
-**Every path below (`src/…`, `data/…`, `gui/…`, `scripts/…`, `tests/…`) is relative to the repo root.**
-All engine code lives under `src/`; all prompt content (lists, presets, the raw `data/sources/`
-CSV/JSON, and the `{#name}` dynamic-prompt generators) lives under `data/`; the React/Vite app is `gui/`
-(its own package); build/meta scripts are in `scripts/`; the Node test suite is in `tests/`. Runtime/user
-data (`output/`, `user-settings.json`, `results.json`) stays at the repo root. The **one deliberate
-exception** to "code lives in `src/`" is `data/dynamic-prompts/`: those generators are executable `.js`
-authored as prompt *content* (like lists), so they live under `data/`. (Expansions are deprecated,
-superseded by dynamic prompts.)
+**Repository layout (every path below is relative to the repo root):**
+
+- **`engine/`** — the isomorphic prompt engine: `engine/core/` (the DPL engine + stages + the two
+  isomorphic loaders), `engine/helpers/`, and the manifest/settings/content-safety modules
+  (`engine/listManifest.js`, `engine/settings.js`, `engine/contentSafety.js`, …). The engine **owns its
+  content**: `engine/data/` holds all prompt content — `engine/data/lists`, `engine/data/presets`, the raw
+  `engine/data/sources/` CSV/JSON, and the `{#name}` dynamic-prompt generators under
+  `engine/data/dynamic-prompts/`. The **one deliberate exception** to "engine code is `.js` modules" is
+  `engine/data/dynamic-prompts/`: those generators are executable `.js` authored as prompt *content* (like
+  lists), so they live under `engine/data/`. (Expansions are deprecated, superseded by dynamic prompts.)
+- **`targets/`** — the build targets that consume the engine. **`targets/web/`** is the React/Vite web
+  target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`), `targets/web/backend/` (the
+  `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
+  `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/desktop/`**
+  is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
+  **`targets/shared/`** is reserved for code shared across targets. A **`targets/cli/`** target is planned
+  next (the engine is already headless/isomorphic); there is **no CLI yet**.
+- **`user/`** — the repo-root **universal override overlay** (sibling of `engine/` and `targets/`):
+  `user/lists` and `user/blocks` (dynamic prompts) override the built-in `engine/data/` content USER-WINS.
+- **`scripts/`** (build/meta scripts), **`tests/`** (the Node engine test suite; the web target has its
+  own tests under `targets/web/tests/`), and **`notes/`** (the docs system). Runtime/user data
+  (`output/`, `user-settings.json`, `results.json`, and the local `user/settings/` store) stays out of git.
+
+Note: the dev server (`npm run web`) is a **development-only** tool. End users run the built local
+**desktop** target (the production local edition) or the hosted **web** build — never the dev server.
 
 ## Start Here
 
@@ -58,27 +73,27 @@ The full notes system is in `notes/`, organized by topic:
   (`./foo.js`, not `./foo`). There is no `require`/`module.exports`/`__dirname`/`__filename` — use
   `import`/`export`, `import.meta.url`, `import.meta.dirname`. See `reference/esm-patterns.md`.
 - **Content paths resolve two ways — keep both working.** The dynamic-prompt loaders resolve
-  **module-relative** via `import.meta.url` (`src/core/nodeLoader.js` does
-  `fileURLToPath(new URL("../../", import.meta.url))` → the repo root, since `src/core` is two below it;
+  **module-relative** via `import.meta.url` (`engine/core/nodeLoader.js` does
+  `fileURLToPath(new URL("../../", import.meta.url))` → the repo root, since `engine/core` is two below it;
   `browserLoader.js` uses a Vite glob), so they don't depend on the cwd. The list/preset settings, by
-  contrast, are **cwd-relative** (`src/settings.js`: `listFiles: "./data/lists"`,
+  contrast, are **cwd-relative** (`engine/settings.js`: `listFiles: "./data/lists"`,
   `presetFiles: "./data/presets"`), so they only resolve when the process runs from the **repo root** —
   which npm scripts always do (the package root is the repo root). There is no `chdir` shim: just run
   everything from the repo root. See `decisions/architecture.md`.
 - **There are TWO content roots — `data/` (app built-ins) and `user/` (the user overlay) — merged
   USER-WINS.** As of 2.46.0 a repo-root `user/` folder (`user/lists`, `user/blocks` = dynamic prompts,
   `user/settings` = the local per-namespace store) sits beside `data/`; the app watches both. Both
-  engine loaders scan two roots per pool (`src/core/nodeLoader.js` reads `[user, data]`, first hit wins;
+  engine loaders scan two roots per pool (`engine/core/nodeLoader.js` reads `[user, data]`, first hit wins;
   the browser keeps names at first paint from lazy globs in `browserLoader.js` and loads user *content*
-  from a separate code-split `src/core/browserUserCatalog.js` overlaid last). A user file of the same
+  from a separate code-split `engine/core/browserUserCatalog.js` overlaid last). A user file of the same
   name **overrides** the built-in; a new name adds. The overlay is **local/desktop only** — gated OFF
   the online build via `VITE_ONLINE` (user chunk not imported, user names dropped), so the hosted
-  bundle carries no user content. In Manage (`gui/server/manageFs.js`), `user-lists`/`user-blocks` are
+  bundle carries no user content. In Manage (`targets/web/backend/manageFs.js`), `user-lists`/`user-blocks` are
   separate roots grouped on top; the runtime **snapshot merges** them onto the built-in pools (user-wins)
   so live generation honors the overlay, but tree/fs-ops stay per-root so edits land in `user/`. User
   content has no upstream — `restoreFromRepo` REFUSES user roots (a 404 would delete the file) and
   ghost/"restore default" is suppressed. The desktop shell seeds `user/` once and preserves it across
-  upgrades. NOTE this repo-root `user/` overlay is distinct from the `data/dynamic-prompts/user/`
+  upgrades. NOTE this repo-root `user/` overlay is distinct from the `engine/data/dynamic-prompts/user/`
   category (the `{#user-name}` alias). See `user/README.md`.
 - **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
   modules are loaded by a runtime path, synchronously, inside string-replace callbacks. Node 24 can
@@ -86,7 +101,7 @@ The full notes system is in `notes/`, organized by topic:
   **not** try to convert these to `await import()` (the call sites are synchronous and can't be made
   async without rewriting the prompt pipeline). The loaded module is a namespace: call `.default(...)`
   and read `.full` / `.suggestion_exclude` as named exports. See `reference/esm-patterns.md`.
-- **Dynamic prompts live FLAT under `data/dynamic-prompts/<category>/` (the documented `src/`→`data/`
+- **Dynamic prompts live FLAT under `engine/data/dynamic-prompts/<category>/` (the documented `src/`→`data/`
   exception).** As of 2.7.1 there are **no version generations** — v1/v2 were deleted in 2.7.0 and the
   `v3/` wrapper + the `{#v1/}`/`{#v2/}`/`{#any-ver}` routing were stripped, leaving one flat catalog.
   Generators are sorted into category folders (`{scene,subject,fragment,style,prompt,expansion,user}/`;
@@ -98,29 +113,29 @@ The full notes system is in `notes/`, organized by topic:
   `_enable/_disable-group-list` markers work too); `{#any}` / `{#any-sfw}` / `{#any-nsfw}` pick one
   generator from the whole catalog (the unit is one GENERATOR, never a line union). NSFW gating is
   automatic by name token (`isGatedDynPrompt`). The resolver is the core engine
-  `src/core/stages/dynamicPrompt.js` (one flat pool) over the two isomorphic loaders —
-  `src/core/nodeLoader.js` (fs + `createRequire`) and `src/core/browserLoader.js`
-  (Vite `import.meta.glob("../../data/dynamic-prompts/**/*.js")`).
+  `engine/core/stages/dynamicPrompt.js` (one flat pool) over the two isomorphic loaders —
+  `engine/core/nodeLoader.js` (fs + `createRequire`) and `engine/core/browserLoader.js`
+  (Vite `import.meta.glob("../../engine/data/dynamic-prompts/**/*.js")`).
 - **Generator imports are depth-sensitive — verify with both gates after any move.** A `<category>/`
-  generator reaches `src/` via `../../../src/helpers/…` (and `../../../src/promptFilesAndSuggestions.js`)
+  generator reaches `src/` via `../../../engine/helpers/…` (and `../../../engine/promptFilesAndSuggestions.js`)
   and imports siblings across categories by relative path (`../fragment/nature.js`). `npm run smoke`
   exercises the Node loader; a broken import in the browser glob only surfaces in
   **`npm --prefix gui run build`** (it bundles everything) — always run **both**.
 - **Dynamic-prompt files export a default function + optional `full` / `suggestion_exclude` flags.**
   `export default function (settings, imageSettings, upscaleSettings) {…}`, plus
   `export const full = true;` / `export const suggestion_exclude = true;` where applicable. Keep that
-  shape or the loader in `src/promptFilesAndSuggestions.js` won't classify them. Each generator/folder
+  shape or the loader in `engine/promptFilesAndSuggestions.js` won't classify them. Each generator/folder
   may carry an optional `<name>.json` description sidecar (editor tooltip), regenerated by
   `scripts/dynprompt-meta/write-dynprompt-meta.mjs`; `_`-prefixed files are internal (never generators),
   and a `_force-prefix` folder marker shows its path in the `#token` (all parity with lists/expansions).
-- **`src/helpers/keywordRepeater.js` uses named exports on purpose** (`keywordRepeater`,
+- **`engine/helpers/keywordRepeater.js` uses named exports on purpose** (`keywordRepeater`,
   `artistRepeater`) because it's consumed via destructuring — don't flip it to a default export (its own
-  header says so). The two built-in list aliases live in `src/helpers/aliases.js` as named string
+  header says so). The two built-in list aliases live in `engine/helpers/aliases.js` as named string
   constants (`keywordAlias`, `artistAlias`), kept dependency-free so the dynamic-prompt chain stays
   browser-safe.
 - **Never use `node-fetch`.** Node 24 has a global `fetch`; the dependency was removed in 2.0.0.
 - **The ONLINE build PRERENDERS its first paint — keep the initial render SSR-safe.** As of 2.38.0 the
-  online build (`VITE_ONLINE=true`) runs `gui/scripts/build.mjs`: client build → SSR build of
+  online build (`VITE_ONLINE=true`) runs `targets/web/scripts/build.mjs`: client build → SSR build of
   `src/entry-server.jsx` → `renderToString` → inject into `#root` → `main.jsx` `hydrateRoot`s it (local
   ships `#root` empty → `createRoot`, unchanged). This means **anything rendered on first paint must not
   touch `window`/`document`/`matchMedia`/`localStorage`/… during render** — put browser access in
@@ -139,14 +154,14 @@ The full notes system is in `notes/`, organized by topic:
 
 Node **24 LTS** (`.nvmrc` pins `24`; `package.json` `engines` requires `>=24`). The repo runs on the
 local Windows machine; use **PowerShell** to run anything, and **run everything from the repo root**
-(that's where the project's `package.json` lives). The `gui/` SPA is its own npm package; a root
+(that's where the project's `package.json` lives). The `targets/web/` SPA is its own npm package; a root
 `npm install` installs it too (via `postinstall`).
 
 ```
 npm install            # install deps (root + gui, via postinstall)
 npm run web            # DEV stage: the Vite dev server (HMR) — for development, not end users
 npm start              # RELEASE stage (local edition): build, then serve the built app + /api backend
-npm run serve          # serve an already-built local release (node gui/server/serve.js)
+npm run serve          # serve an already-built local release (node targets/web/backend/serve.js)
 npm run lint           # eslint . (flat config; 0 errors expected, warnings are pre-existing)
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
@@ -154,7 +169,7 @@ npm run check:docs     # fail on broken relative links in the Markdown docs (dri
 npm run check:tidy     # fail on untracked non-ignored files (run before finishing — nothing left uncommitted)
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
-npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under gui/tests/
+npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under targets/web/tests/
 npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
 npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
 npm test               # check:docs + lint + smoke + test:unit + test:web (the headless verification gate)
@@ -167,22 +182,22 @@ npm run docs           # build the JSDoc doc-site (code API + notes as tutorials
   features — Gallery/Single/Manage, local SD providers, NSFW — gated off via `VITE_ONLINE`). Each
   edition has the usual **dev** and **release** stages. `npm run web` is the **dev** server (HMR) and
   is **not** what end users run. The local edition's **release** stage is `npm start` (build →
-  `gui/server/serve.js`), a standalone Node server that serves the built `dist/` **plus** the `/api/*`
+  `targets/web/backend/serve.js`), a standalone Node server that serves the built `dist/` **plus** the `/api/*`
   backend. The online edition's release is the static Netlify build (no backend — BYOK calls go
-  straight from the browser). The `/api/*` handler lives once in `gui/server/apiHandler.js` and is
-  mounted by **both** the dev-server Vite plugin (`gui/vite-plugin-api.js`) and the release server, so
+  straight from the browser). The `/api/*` handler lives once in `targets/web/backend/apiHandler.js` and is
+  mounted by **both** the dev-server Vite plugin (`targets/web/vite-plugin-api.js`) and the release server, so
   the local backend is identical across stages.
 - Generating images requires a **Stable Diffusion WebUI running with `--api`** on the URL in
   `imageSettings.url` (default `http://127.0.0.1:7860`). Without it, prompt generation still runs but
   the image calls fail — that's expected, not a bug.
 - There is a **full automated test suite** (added 2.6.0 — see `notes/plans/testing.md`): **Vitest** drives
   a Node-side suite (`tests/`: unit, integration, snapshot, contract, bug-regression) and a jsdom SPA suite
-  (`gui/tests/`: unit, component/UI, contract, integration), and **Playwright** drives E2E + visual-
+  (`targets/web/tests/`: unit, component/UI, contract, integration), and **Playwright** drives E2E + visual-
   regression + `@axe-core` accessibility specs (`tests/e2e/`). It targets the **active** engine + SPA only;
   the legacy classic server is out of scope (only the pure stages the core engine still imports —
   `cleanup.js`, `prompt-salt.js` — are covered). The **import smoke test** (`npm run smoke` →
-  `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `src/promptFilesAndSuggestions.js` +
-  `src/core/nodeLoader.js` + `src/settings.js` the way the SPA's Node-side loader boots, forces every
+  `scripts/smoke-test.mjs`) is retained as the fast gate — it loads `engine/promptFilesAndSuggestions.js` +
+  `engine/core/nodeLoader.js` + `engine/settings.js` the way the SPA's Node-side loader boots, forces every
   dynamic prompt to load via `require(ESM)`, and expands a prompt. `npm test` runs lint + smoke + the Vitest suites; the Playwright
   suite is separate (`npm run test:e2e`, browser via `npx playwright install chromium`). The headless
   checks run in CI (`.github/workflows/ci.yml`).
@@ -274,13 +289,13 @@ section. (It's the analog of an in-app credits screen; treat it as a living docu
 ## Keep the Legal Docs Accurate — Your Responsibility (a standing instruction)
 
 The app's three legal documents live as self-hosted static pages at
-`gui/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
+`targets/web/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
 `.links-sep` separator; contact address `fairy@fairyfox.io`). They were rewritten to describe **what the
 app actually does** — no accounts, no analytics/cookies/tracking, settings + bring-your-own API keys
 stored only on the user's device (`rap.store.` localStorage / local files), prompts + keys sent directly
 from the device to the chosen provider (no server relay — providers that can't be called directly from a
 browser are locked out of the web build), and Netlify as the hosting processor. Fonts are **self-hosted**
-from `gui/public/fonts/`
+from `targets/web/public/fonts/`
 (no Google Fonts request), so the chosen AI provider + the Netlify hosting logs are the only third-party
 data flows. They cover web + desktop + the future mobile/Android build; age is 18+ (desktop NSFW
 capability).
@@ -294,7 +309,7 @@ dependency (fonts, CDNs, providers) or a new provider/proxy path; changing what'
 keys are handled; adding accounts/auth; shipping the mobile app or app-store distribution; or changing
 hosting. If a change makes a statement in the docs untrue, fixing the docs is part of that change — not a
 follow-up. When unsure whether a change is material, flag it and ask. (Not legal advice; for high-stakes
-changes recommend a real review.) Fonts are now self-hosted (`gui/public/fonts/`, sourced from the
+changes recommend a real review.) Fonts are now self-hosted (`targets/web/public/fonts/`, sourced from the
 `@fontsource` packages), which removed the former IP-to-Google transfer — if you ever re-add a CDN font
 or any other third-party request, update the docs to disclose it.
 
@@ -314,7 +329,7 @@ The notes are a **living document**. Keep them current as you work — don't wai
 | Made / rejected a structural decision | `notes/decisions/architecture.md` / `notes/decisions/rejected.md` |
 | Finished or unblocked a task | Update `notes/plans/next-steps.md` |
 | Changed how docs / CI / releases work | Update `notes/reference/documentation.md` / `notes/reference/deployment.md` |
-| Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `gui/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
+| Changed the app's data practices (analytics, cookies, storage, keys, providers, third-party deps, hosting, accounts, new platform) | Re-read + update the three legal pages in `targets/web/public/legal/` in the **same change** and bump their "Last updated" date. See the "Keep the Legal Docs Accurate" standing instruction above |
 | Created/renamed a Markdown note | Nothing extra needed — `scripts/build-docs.mjs` auto-discovers every `notes/**.md` and wires it into the JSDoc doc-site (hierarchy mirrors the folder tree). Keep cross-links relative (`[x](../reference/foo.md)`) so the build rewrites them to tutorial links |
 | **Renamed, moved, or removed a file/feature** | **Sweep the docs for stale references in the _same_ change.** `npm run check:docs` fails on broken links; `git grep -n "<old-name>" -- "*.md"` for prose. Fix current-state docs; leave dated history intact. See [`reference/repo-hygiene.md`](notes/reference/repo-hygiene.md) |
 | A version is warranted | Bump `VERSION` **and** `package.json` in the same commit |

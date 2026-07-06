@@ -62,7 +62,7 @@ mod.full;                 // read named exports too
 mod.suggestion_exclude;
 ```
 
-Used in `src/core/nodeLoader.js` (the dynamic-prompt loader) and `src/promptFilesAndSuggestions.js`
+Used in `engine/core/nodeLoader.js` (the dynamic-prompt loader) and `engine/promptFilesAndSuggestions.js`
 (the classification scan). **Do not** "modernize" these into `await import()`.
 
 ## Landmine 3 — default vs named exports must match the consumer
@@ -109,7 +109,7 @@ The import smoke test is a tiny script that does:
 
 ```js
 import common from "./common.js";
-import promptFiles from "./src/promptFilesAndSuggestions.js";
+import promptFiles from "./engine/promptFilesAndSuggestions.js";
 promptFiles.init(common.settings);
 promptFiles.loadAll();
 // …then expand a prompt with dynamic-prompt.js

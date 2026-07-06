@@ -4,7 +4,7 @@
  * are deterministic.
  */
 import { describe, it, expect } from "vitest";
-import compileDpl from "../../src/core/dpl/dpl.js";
+import compileDpl from "../../engine/core/dpl/dpl.js";
 
 /** Run `fn` with Math.random pinned to a constant. */
 function withRandom(value, fn) {

@@ -6,7 +6,7 @@
  * fresh module instance via vi.resetModules so it doesn't disturb the configured one.
  */
 import { describe, it, expect, vi } from "vitest";
-import promptFiles from "../../src/promptFilesAndSuggestions.js";
+import promptFiles from "../../engine/promptFilesAndSuggestions.js";
 
 const loader = {
   dynamicPromptNames: () => ["scene/beach", "fx", "user/mine", "nude-nsfw"],
@@ -25,7 +25,7 @@ const settingsAccessor = () => ({
 describe("promptFilesAndSuggestions — configuration guard", () => {
   it("throws if loadAll runs before configure (fresh instance)", async () => {
     vi.resetModules();
-    const fresh = (await import("../../src/promptFilesAndSuggestions.js")).default;
+    const fresh = (await import("../../engine/promptFilesAndSuggestions.js")).default;
     expect(() => fresh.loadDynPromptList()).toThrow(/configure/);
   });
 });

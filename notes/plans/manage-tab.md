@@ -9,7 +9,7 @@ Add a 4th top-level tab, **Manage**, after Single. It is the app's content manag
 the same two-pane skeleton as Generate (left tree + a big right pane), but instead of
 *composing* prompts it *edits the catalog* — the dynamic-prompt generators ("blocks"),
 the word lists, and the folder/category structure that organizes them, directly on disk
-under `data/dynamic-prompts/` and `data/lists/`.
+under `engine/data/dynamic-prompts/` and `engine/data/lists/`.
 
 Decisions already settled (owner answers, 2026-06-28):
 
@@ -30,7 +30,7 @@ Decisions already settled (owner answers, 2026-06-28):
 ## 2. The core technical question: can hot live-apply be clean?
 
 The browser engine today loads **all** catalog data statically at build time via Vite
-`import.meta.glob({ eager: true })` in `src/core/browserLoader.js`, and `gui/src/lib/promptEngine.js`
+`import.meta.glob({ eager: true })` in `engine/core/browserLoader.js`, and `targets/web/frontend/lib/promptEngine.js`
 builds the engine **once** at module load and computes the block catalog in module-level
 constants. So nothing reflects a disk change without a full reload today.
 
@@ -54,7 +54,7 @@ say so in the UI. Everything a normal user does hot-applies.
 
 Introduce a third loader implementing the **same loader interface** the engine already
 depends on (`readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`,
-the marker/group/meta accessors) — `gui/src/lib/runtimeLoader.js`:
+the marker/group/meta accessors) — `targets/web/frontend/lib/runtimeLoader.js`:
 
 - On first use (and on every refresh) it fetches a **catalog snapshot** from a new
   dev-server endpoint (`GET /api/manage/snapshot`): every list's text, every `.dpl` text,
@@ -90,7 +90,7 @@ flags "reload to run", it doesn't try to re-execute it.
 ## 3. New local-mode API (`/api/manage/*`)
 
 This is the **local-mode backend** for content management — part of "local mode", not a
-dev-only thing (§1). Today local mode is hosted by the Vite middleware (`gui/vite-plugin-api.js`),
+dev-only thing (§1). Today local mode is hosted by the Vite middleware (`targets/web/vite-plugin-api.js`),
 and a production local build/desktop hosts the **same** endpoints; online mode simply doesn't
 provide them. The surface is modeled on the existing image/storage middleware (same
 `readJson`/`send` helpers, localhost-only, **path-traversal guarded** to `data/lists` and
@@ -120,7 +120,7 @@ All writes return the affected paths so the client can trigger a scoped `refresh
 
 ## 4. UI — the Manage view
 
-New `gui/src/components/Manage.jsx` (+ subcomponents), mounted as a 4th `view-pane` in
+New `targets/web/frontend/components/Manage.jsx` (+ subcomponents), mounted as a 4th `view-pane` in
 `App.jsx`. Tab wiring: add `["manage", "Manage", "The content manager"]` to `TABS`, render it
 after Single, lock it in the online build like Gallery/Single. NSFW toggle stays in the header
 (it gates editing options); ProvidersMenu/ProviderGear stay hidden on this tab (already gated to

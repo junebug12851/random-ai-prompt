@@ -4,7 +4,7 @@
  * ambient source (so a seeded generation is deterministic).
  */
 import { describe, it, expect, afterEach } from "vitest";
-import { createRng } from "../../src/core/rng.js";
+import { createRng } from "../../engine/core/rng.js";
 import {
   withAmbientRng,
   setAmbientRng,
@@ -13,7 +13,7 @@ import {
   randomInt,
   sample,
   shuffle,
-} from "../../src/helpers/random.js";
+} from "../../engine/helpers/random.js";
 
 // The ambient generator lives on a process-global slot; make sure a test never leaks it.
 afterEach(() => setAmbientRng(null));

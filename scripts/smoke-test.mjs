@@ -13,9 +13,9 @@
 //
 // Run:  npm run smoke   (or: node scripts/smoke-test.mjs)
 
-import promptFiles from "../src/promptFilesAndSuggestions.js";
-import { nodeLoader } from "../src/core/nodeLoader.js";
-import baseSettings from "../src/settings.js";
+import promptFiles from "../engine/promptFilesAndSuggestions.js";
+import { nodeLoader } from "../engine/core/nodeLoader.js";
+import baseSettings from "../engine/settings.js";
 
 // The suggestion builder reads the catalog from the filesystem on the Node side.
 promptFiles.configure(nodeLoader);

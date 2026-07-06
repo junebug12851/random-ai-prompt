@@ -3,7 +3,7 @@
  * whole-word/whole-phrase matcher that drives list cleanup and the SFW/NSFW split.
  */
 import { describe, it, expect } from "vitest";
-import { normalize, classifyRemoval, isNsfw, _sets } from "../../src/contentSafety.js";
+import { normalize, classifyRemoval, isNsfw, _sets } from "../../engine/contentSafety.js";
 
 describe("contentSafety.normalize", () => {
   it("lowercases and collapses separators to single spaces", () => {

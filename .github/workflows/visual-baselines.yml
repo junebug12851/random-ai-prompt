@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm --prefix targets/web install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium

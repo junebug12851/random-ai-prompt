@@ -6,7 +6,7 @@
  * and assert the output matches exactly ONE of the three valid shapes.
  */
 import { describe, it, expect } from "vitest";
-import randomEditing from "../../src/helpers/randomEditing.js";
+import randomEditing from "../../engine/helpers/randomEditing.js";
 
 const sd = (min, max) => ({
   keywordEditing: true,

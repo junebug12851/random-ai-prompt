@@ -1,13 +1,13 @@
 # Reference — The dynamic-prompt catalog & data-build pipeline
 
-The `{#name}` generators in `data/dynamic-prompts/` are where most of the original creative effort went:
+The `{#name}` generators in `engine/data/dynamic-prompts/` are where most of the original creative effort went:
 ~113 little plugins that each return a prompt fragment, composed through the DSL
 ([prompt-dsl.md](prompt-dsl.md)). This page is the **catalog and authoring idiom** — how the generators
 are built, how they compose, the v1→v2 story, and how the word-lists they pull from are generated from
 raw sources. For the sigil mechanics see [prompt-dsl.md](prompt-dsl.md); for the engine see
 [../systems/core-engine.md](../systems/core-engine.md).
 
-As of **2.3.0** the v2 generators are sorted into category folders under `data/dynamic-prompts/v2/`
+As of **2.3.0** the v2 generators are sorted into category folders under `engine/data/dynamic-prompts/v2/`
 (`scene` / `subject` / `fragment` / `style` / `prompt` / `user`), `v1/` stays frozen, and `{#name}` resolves
 by **path suffix** (shared `resolveName`) so every reference stays short and category-independent. The full
 parity design (sidecars, `_force-prefix`, the verification seam) is in
@@ -81,7 +81,7 @@ from the old `engine/` folder in 2.5.0: `danbooru`→`d`, `random`→`random-wor
 
 ## v1 vs v2 — the decomposition story
 
-`data/dynamic-prompts/v1/` (33 frozen modules, addressed as `{#name-v1}`, always treated as `full`, and
+`engine/data/dynamic-prompts/v1/` (33 frozen modules, addressed as `{#name-v1}`, always treated as `full`, and
 they force `autoAddFx`/`autoAddArtists` off because they bake those in) are the **original monolithic**
 generators. They inline private helpers like `maybeAddColor()`, `multiColor()`, and
 `entityBasicKeywords()` and hard-bake color/weather/time (several import the shared `entityBasicKeywords`
@@ -104,7 +104,7 @@ dynamic" — the original swapped their fixed `<name>` subject for the `{#entity
 
 ## The data-build pipeline (lists from raw sources)
 
-The `{list}` word-lists in `data/lists/*.txt` are **generated**, not hand-maintained, by one-off scripts
+The `{list}` word-lists in `engine/data/lists/*.txt` are **generated**, not hand-maintained, by one-off scripts
 in `data/` from large raw sources (kept under version control as the inputs):
 
 | Script | Source | Output | Notes |
@@ -116,7 +116,7 @@ in `data/` from large raw sources (kept under version control as the inputs):
 These run manually (they `process.chdir` to the repo root and write into `settings.listFiles`); they are
 not part of normal generation. The raw sources and their licenses are credited in `list-credits.md`. The
 hand-authored lists (cities, building styles, rooms, clothes, etc.) live alongside the generated ones in
-`data/lists/`.
+`engine/data/lists/`.
 
 ## Expansions (`<name>`) the generators rely on
 

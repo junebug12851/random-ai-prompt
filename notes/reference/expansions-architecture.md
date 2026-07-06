@@ -14,7 +14,7 @@ Only the parts that *make sense* for expansions were ported. SFW/NSFW file split
 ## What an expansion is
 
 An **expansion** is a `data/expansions/<name>.txt` file referenced in a prompt as `<name>`.
-The expansion stage (`src/core/stages/expansion.js`, removed)
+The expansion stage (`engine/core/stages/expansion.js`, removed)
 splices the file's text in verbatim, recursively (up to 10 passes) and LoRA-safe (it masks
 `<lora:…>` so it is never read as an expansion). The spliced text may itself contain `#dynamic`
 prompts and `{lists}`, which then expand — so an expansion can still introduce randomness, but
@@ -23,7 +23,7 @@ the snippet itself is fixed.
 The engine is loader-injected: the only active expansion code is the core stage, which calls
 `loader.readExpansion(name)`. (`src/prompt-modules/expansion.js` is dead reference code — not
 imported anywhere.) So all of the resolution below lives in the two loaders
-([`nodeLoader.js`](../../src/core/nodeLoader.js) fs, [`browserLoader.js`](../../src/core/browserLoader.js) Vite glob).
+([`nodeLoader.js`](../../engine/core/nodeLoader.js) fs, [`browserLoader.js`](../../engine/core/browserLoader.js) Vite glob).
 
 ## Folder nesting + path-suffix resolution (ported from lists)
 
@@ -39,7 +39,7 @@ the browser), and `_`-prefixed files are skipped (the same internal/config conve
 
 Each expansion may carry an optional `<name>.json` sidecar (`{ "description": "…" }`) and each
 category folder a `<folder>.json`, read via `loader.readExpansionMeta(name)`. The SPA token cloud
-([`gui/src/lib/promptEngine.js`](../../gui/src/lib/promptEngine.js) `expansionItems()`)
+([`targets/web/frontend/lib/promptEngine.js`](../../targets/web/frontend/lib/promptEngine.js) `expansionItems()`)
 renders expansions as folder categories, mirroring the Lists block: an alphabetical run per folder
 preceded by a category pill (folder name + description tooltip), with each entry's button showing
 the shortest unambiguous token via `computeButtonNames()` and its description as the tooltip. The
@@ -57,7 +57,7 @@ exactly like lists. The loaders expose `expansionForcedPrefixDirs()` (a `markedD
 redundant "detail" is now carried by the folder) and the folder is force-prefixed, so they read
 `<detail/legacy>` / `<detail/legacy-person>`. As with lists this is display-only — suffix resolution still
 works — so it surfaces the folder for context rather than hard-requiring it. The lone code reference
-(`data/dynamic-prompts/futuristic.js`) was updated to `<detail/legacy>`.
+(`engine/data/dynamic-prompts/futuristic.js`) was updated to `<detail/legacy>`.
 
 The classic Pug editor lists expansions flat with a single section tooltip — the same treatment
 lists get there (`/api/files/expansions` returns the canonical names, so nested paths render
@@ -68,7 +68,7 @@ consistently with `/api/files/lists`). The rich categorization is an SPA feature
 A category folder with 2+ expansions is now an IMPLIED group: `<lighting>` splices **one random
 expansion** from that folder (and `.group` files + `_enable/_disable-group-list` markers work too). This
 is the "pick one" rule — it selects a single snippet and splices it, NOT a union of all members. The
-expansion stage (`src/core/stages/expansion.js`, removed) resolves the
+expansion stage (`engine/core/stages/expansion.js`, removed) resolves the
 folder, samples a member (gate-aware via `hasNsfwToken`), and splices it; the loaders expose
 `expansionGroupDirs()` / `readExpansionGroup()`. The SPA's category pills are clickable group buttons for
 these folders (inserting `<folder>`), mirroring Lists.

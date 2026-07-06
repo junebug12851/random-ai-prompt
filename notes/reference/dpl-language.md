@@ -21,8 +21,8 @@ generator in two forms, DPL on the left, JS on the right.
 
 | Mockup | Encodes | JS equivalent |
 |--------|---------|---------------|
-| `mockup-of-dpl-language.txt` | a beach scene (winter / tropical variants) | `data/dynamic-prompts/v2/scene/beach.js` |
-| `mockup-of-dpl-language2.txt` | a cave scene (sea / lava / ice / crystal types) | `data/dynamic-prompts/v2/scene/cave.js` |
+| `mockup-of-dpl-language.txt` | a beach scene (winter / tropical variants) | `engine/data/dynamic-prompts/v2/scene/beach.js` |
+| `mockup-of-dpl-language2.txt` | a cave scene (sea / lava / ice / crystal types) | `engine/data/dynamic-prompts/v2/scene/cave.js` |
 
 ### Revision 1 — `mockup-of-dpl-language.txt` (beach)
 
@@ -240,8 +240,8 @@ The mockups are deliberately incomplete; these are the decisions a parser/compil
 | Concern | Location |
 |---------|----------|
 | The two mockups | `assets/mockup/mockup-of-dpl-language{,2}.txt` |
-| JS generators the mockups encode | `data/dynamic-prompts/v2/scene/{beach,cave}.js` |
-| Full/partial classifier | `src/promptFilesAndSuggestions.js` |
-| Runtime sigils / pipeline | [`prompt-dsl.md`](prompt-dsl.md), `src/core/stages/dynamicPrompt.js` |
+| JS generators the mockups encode | `engine/data/dynamic-prompts/v2/scene/{beach,cave}.js` |
+| Full/partial classifier | `engine/promptFilesAndSuggestions.js` |
+| Runtime sigils / pipeline | [`prompt-dsl.md`](prompt-dsl.md), `engine/core/stages/dynamicPrompt.js` |
 | JS authoring idiom & catalog | [`dynamic-prompts.md`](dynamic-prompts.md) |
 | Original 2023 mockup history | [`../version/2023-01.md`](../version/2023-01.md) |

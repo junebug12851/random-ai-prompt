@@ -4,8 +4,8 @@
  * These guard against accidental behavioural drift in the renderer/pipeline.
  */
 import { describe, it, expect } from "vitest";
-import compileDpl from "../../src/core/dpl/dpl.js";
-import { createEngine } from "../../src/core/engine.js";
+import compileDpl from "../../engine/core/dpl/dpl.js";
+import { createEngine } from "../../engine/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 import { withSeed } from "../helpers/seededRandom.js";
 

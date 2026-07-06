@@ -4,7 +4,7 @@
  * NSFW gating, the danbooru replacer, and the re-expansion cap.
  */
 import { describe, it, expect } from "vitest";
-import { makeDynamicPromptStage } from "../../src/core/stages/dynamicPrompt.js";
+import { makeDynamicPromptStage } from "../../engine/core/stages/dynamicPrompt.js";
 
 function loader({ modules = {}, groupDirs = [], groups = {}, meta = {} } = {}) {
   return {

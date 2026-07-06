@@ -8,7 +8,7 @@ The app promises to stay seamless at a **100k-image gallery + 1000 prompts / ~10
 Manage file, all at once**. Three different techniques, chosen per surface:
 
 - **Gallery → windowing (bounded DOM).** 100k feed items can't all be DOM nodes, so `Gallery.jsx`
-  renders only the viewport window (+ overscan) using the pure `gui/src/lib/virtual/windowRange.js`
+  renders only the viewport window (+ overscan) using the pure `targets/web/frontend/lib/virtual/windowRange.js`
   (a full-height spacer keeps the scrollbar honest). This required trading the old wide/tall **masonry**
   for **uniform square cells** — exact row-windowing needs a fixed row height; dense masonry packing
   can't be windowed without measuring every prior item. Uniform cells are the standard large-gallery
@@ -31,10 +31,10 @@ since online providers are all browser-direct). So the "Batch chunk size" is **p
 in each provider's settings — not a global gear knob (an earlier global attempt was reverted).
 
 Rather than copy the field into ~40 provider folders, it's the first entry in a new **shared-settings
-system** (`gui/providers/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
+system** (`targets/web/shared/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
 like providers/dynamic-prompts) exporting `{ key, applies, defaultFor, field }`, and
 `applySharedSettings` folds each applicable one into a provider's schema **at the registry**
-(`gui/providers/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
+(`targets/web/shared/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
 generation settings (`flattenForProvider`). Defaults are metadata-derived (local 6 / hosted 3 / poll 4),
 overridable per provider (`config.concurrencyDefault`), and a provider that declares its own field keeps
 it (escape hatch). It applies to image, text (rewrite), and upscale providers independently — the Home
@@ -66,12 +66,12 @@ The SPA was internationalized with **react-intl** driven by the **FormatJS** too
 - **i18n boundary at the app root.** `App.jsx` is a thin root that owns settings and wraps the tree in
   `I18nProvider`; the former body moved to `AppShell` (so the shell can use `useIntl`). Locale lives in
   `settings.locale` (persisted; `"auto"` resolves from `navigator.languages`).
-- **gui-scoped ESLint, not the root config.** The repo-root ESLint config intentionally ignores `gui/**`,
-  so a separate, minimal `gui/eslint.config.js` runs **only** `eslint-plugin-formatjs`
+- **gui-scoped ESLint, not the root config.** The repo-root ESLint config intentionally ignores `targets/web/**`,
+  so a separate, minimal `targets/web/eslint.config.js` runs **only** `eslint-plugin-formatjs`
   (`enforce-default-message`) — it does not pull in `js.recommended`, so it won't flood the never-linted
   SPA with unrelated findings. Run via `npm run lint:i18n` (not part of the root headless gate).
 - **The DPL-technical lib modules are localized via an `intl` parameter, not React hooks.**
-  `gui/src/lib/dpl/validateDpl.js` (editor lint diagnostics) and `gui/src/lib/dpl/dplInserts.js` (the DPL
+  `targets/web/frontend/lib/dpl/validateDpl.js` (editor lint diagnostics) and `targets/web/frontend/lib/dpl/dplInserts.js` (the DPL
   syntax teaching catalog) are non-React isomorphic modules, so they can't use `useIntl`. Instead they take
   an `intl` argument: `validateDpl(text, intl?)` and `getDplInserts(intl)`. `validateDpl` defaults to a
   module-level **`createIntl` English instance** when no `intl` is passed, so non-React callers and the
@@ -83,7 +83,7 @@ The SPA was internationalized with **react-intl** driven by the **FormatJS** too
 
 ## `dynamic-prompts/` lives under `data/`, not `src/` (2026-06-21)
 
-The `#name` generators were moved from `src/dynamic-prompts/` to `data/dynamic-prompts/`. They are
+The `#name` generators were moved from `src/dynamic-prompts/` to `engine/data/dynamic-prompts/`. They are
 executable `.js` (they `import` helpers and run logic), so the June reorg first placed them with the
 rest of the code under `src/`. But conceptually they are **prompt content** — authored and extended
 exactly like `lists/`, `expansions/`, and `presets/` (the project's "drop a file in to add content"
@@ -94,9 +94,9 @@ that rule.
 Mechanically the move only required path edits in the loaders, because the directory name is
 config-driven (`settings.dynamicPromptFiles = "dynamic-prompts"`): the legacy
 `src/prompt-modules/dynamic-prompt.js` now prefixes the require with `../../data/`; `core/nodeLoader.js`
-joins `rootDir/data/dynamic-prompts`; `core/browserLoader.js` globs `../../data/dynamic-prompts/**/*.js`.
-The generator files still import shared helpers out of `src/` (`../../src/helpers/…` for top-level,
-`../../../src/helpers/…` for `v1/`). Verified green with `npm run smoke` (node + legacy loaders) and
+joins `rootDir/data/dynamic-prompts`; `core/browserLoader.js` globs `../../engine/data/dynamic-prompts/**/*.js`.
+The generator files still import shared helpers out of `src/` (`../../engine/helpers/…` for top-level,
+`../../../engine/helpers/…` for `v1/`). Verified green with `npm run smoke` (node + legacy loaders) and
 `npm --prefix gui run build` (browser glob). Note both loaders must stay in sync — see
 [`../../CLAUDE.md`](../../CLAUDE.md) "Critical Things Not to Get Wrong".
 
@@ -196,9 +196,9 @@ not in a separate doc system. Auto-discovery means adding/renaming a note needs 
 
 ## Keep JSDoc for the React SPA too — transpile JSX, don't switch tools (2026-06-18)
 
-The `gui/` React SPA raised the question of whether to adopt a React-specific doc tool (better-docs,
+The `targets/web/` React SPA raised the question of whether to adopt a React-specific doc tool (better-docs,
 react-docgen, Storybook). Decision: **stay on the one JSDoc site** for now. JSDoc can't parse JSX, so
-`build-docs.mjs` **babel-transpiles** `gui/src` (+ the Netlify function) into a `tmp/webapp-docs`
+`build-docs.mjs` **babel-transpiles** `targets/web/src` (+ the Netlify function) into a `tmp/webapp-docs`
 mirror (JSX stripped, comments kept) that JSDoc reads, with `@module` tags giving clean nav names. This
 keeps one source of truth for all documentation while the SPA is still young and its components are simple.
 The trigger to revisit: **if the SPA grows a real component library** with props/variants worth a visual

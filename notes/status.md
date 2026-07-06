@@ -3,37 +3,47 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
-**Repository structure (flattened 2026-07-02):** the project lives at the **repo root** — one project, no
-more `engine-vN` split. Engine code is under `src/` (`core/` = the DPL engine + pipeline stages + loaders),
-prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package), build/meta tooling in
-`scripts/`, the Node test suite in `tests/`; **all commands run from the repo root**. The pre-revival
+**Repository structure — engine/ + targets/ (restructured 2026-07-06, 2.47.0):** the project lives at the
+**repo root** as an **engine + build targets**. The isomorphic prompt engine is under `engine/`
+(`engine/core/` = the DPL engine + pipeline stages + both loaders; plus `engine/helpers/` and the
+manifest/settings/content-safety modules), and the engine **owns its content** under `engine/data/`
+(lists, presets, sources, and the `{#name}` dynamic-prompt generators). Build targets live under
+`targets/`: `targets/web/` is the React/Vite web target (ONE npm package, split into `frontend/` +
+`backend/` + `shared/`), and `targets/desktop/` is the Tauri shell (its own package; wraps the built local
+web target). `targets/shared/` is reserved for cross-target code and a `targets/cli/` target is planned.
+The universal override overlay stays at the repo-root `user/` (`user/lists`, `user/blocks`). Build/meta
+tooling is in `scripts/`, the Node engine test suite in `tests/` (the web target has its own under
+`targets/web/tests/`); **all commands run from the repo root**. The dev server (`npm run web`) is
+development-only — end users run the built local desktop target or the hosted web build. The pre-revival
 2022–2023 CommonJS system (the old CLI + classic Express/Pug server) was **removed** from the tree — it
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
-below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
+below predate this restructure and may still say `src/…`, `gui/…`, or `engine-v3/…`; those paths are now
+`engine/…` / `targets/web/…` at the repo root.) **Desktop target caveat:** its path wiring was rewritten
+to the new layout but **not yet verified with a real Tauri/Rust build** — do that before shipping desktop.
 
 **User content overlay — a repo-root `user/` folder beside `data/` (2.46.0 — branch
 `feature/user-overlay`, on that branch pending review):** a first-class **user overlay** so people
 add/tweak prompt content without touching the app's built-in files. A repo-root `user/`
 (`user/lists`, `user/blocks`, `user/settings`) sits beside `data/` and the app watches **both**, with
 **user-wins** precedence on a name clash (like a settings override). Both engine loaders scan two
-roots per pool (`src/core/nodeLoader.js` on disk; the browser keeps names at first paint from lazy
-globs and loads user content from a separate code-split `src/core/browserUserCatalog.js` overlaid
+roots per pool (`engine/core/nodeLoader.js` on disk; the browser keeps names at first paint from lazy
+globs and loads user content from a separate code-split `engine/core/browserUserCatalog.js` overlaid
 last). The overlay is **local/desktop only** — gated off the online build (`VITE_ONLINE`), so the
 hosted bundle carries no user content. The **Manage** tab groups "your content" (badged `yours`) on
 top via new `user-lists`/`user-blocks` roots; `buildManageSnapshot` merges them into the runtime pool
 so live generation honors the overlay, while edits write into `user/`. User content has no upstream,
 so ghost/"restore default" are suppressed and `restoreFromRepo` refuses user roots. Settings moved
-from `gui/user-settings/` to the unified `user/settings/` (boot migration folds the old location). The
+from `targets/web/user-settings/` to the unified `user/settings/` (boot migration folds the old location). The
 desktop shell **seeds `user/` once** and preserves it across upgrades. `npm test` green; **visual
 baselines need a refresh** (the Manage tree gained the user sections) before the `main` release. See
 [`version/2026-07.md`](version/2026-07.md).
 
 **Gallery composer + live placeholders, multi-select, a11y + SEO (2.45.0 — branch
 `feature/gallery-composer-a11y-seo`, on `dev` pending review):** the composer prompt box was extracted
-into a reusable `gui/src/components/PromptComposer.jsx` (Home markup unchanged); the **Gallery** now
+into a reusable `targets/web/frontend/components/PromptComposer.jsx` (Home markup unchanged); the **Gallery** now
 carries a narrow copy of it in a `.g-composer` slot at the top, and generating from it streams **live
 placeholder cells** into the grid that resolve into the finished images as each batch lands (isolated
-orchestrator `gui/src/lib/gallery/generateIntoGallery.js`; the perf-critical `useImageBatches` is
+orchestrator `targets/web/frontend/lib/gallery/generateIntoGallery.js`; the perf-critical `useImageBatches` is
 untouched). The gallery gained **multi-select + mass delete** (checkboxes, select-all, one-confirm disk
 delete via `App.deleteManyItems`). An **accessibility** pass added a skip link, a landmark `<h1>`,
 `role="tabpanel"` view panes, `role="alert"`/`aria-live` regions, a `prefers-reduced-motion` guard, and
@@ -44,7 +54,7 @@ enriched `WebApplication` JSON-LD, and a `keywords` meta. New tests:
 **Auto-updating — check-and-notify shipped; desktop auto-install implemented (2.44.0):** local/desktop
 editions check for a newer GitHub release on launch and show a dismissible **corner card**,
 **edition-aware** (download the new installer/portable/release, or a copyable `git pull` for a checkout)
-— the online build is exempt (always the latest deploy). Core in `gui/src/lib/updateCheck.js` (+
+— the online build is exempt (always the latest deploy). Core in `targets/web/frontend/lib/updateCheck.js` (+
 `useUpdateCheck.js` + `components/UpdateBanner.jsx`); backend `GET /api/update` fetches the latest
 release **server-side** (1 h cache) + detects the edition (Tauri stamps `RAP_EDITION`; else `.git` ⇒ git;
 else source); dismissal + throttle persist through the new `update` storage namespace. **Phase 2 (full
@@ -59,7 +69,7 @@ Privacy page updated (desktop update-check disclosure). See
 
 **Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
 edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as
-just one deployment of the online edition. New **desktop edition** (`gui/src-tauri/`): a thin **Tauri**
+just one deployment of the online edition. New **desktop edition** (`targets/desktop/`): a thin **Tauri**
 (Rust) shell that runs the unmodified local SPA + Node `/api` backend as a bundled **sidecar** (bundles
 the platform `node`, stages to a writable working copy that preserves user data across upgrades, launches
 `serve.js` on a free port, points the WebView at it). `release.yml` now attaches a self-hostable
@@ -73,20 +83,20 @@ cross-OS installers are CI-only. See [`systems/desktop.md`](systems/desktop.md).
 **Large-scale performance (2.42.0 — on `dev`):** the app is built to stay seamless at its **officially
 supported maximum simultaneous load** — a **100k-image gallery + 1000 prompts / ~10k images + a
 100k-line Manage file, all at once**. The gallery is **virtualized** (windowed uniform grid over the pure
-`gui/src/lib/virtual/windowRange.js` — bounded DOM at any count; replaced the old wide/tall masonry with
+`targets/web/frontend/lib/virtual/windowRange.js` — bounded DOM at any count; replaced the old wide/tall masonry with
 uniform cells so row-windowing is exact); the 1000-prompt results list uses `content-visibility` +
 a memoized `PromptResult` (all rows present, offscreen ones skip layout/paint/decode); and auto-image
 generation is **placeholder-first + chunked** — `useImageBatches` shows every prompt's busy placeholder
 instantly and runs the real generate behind a **per-provider concurrency limiter** (rewrites through a
 separate text-provider limiter), so a huge run never stampedes an API. The concurrency lives in a new
-**shared-settings system** (`gui/providers/_shared/settings/`, auto-discovered + injected into every
+**shared-settings system** (`targets/web/shared/_shared/settings/`, auto-discovered + injected into every
 provider's schema): a per-provider **"Batch chunk size"** with metadata defaults (local 6 / hosted 3).
 Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `playwright.perf.config.js`
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
 [`version/2026-07.md`](version/2026-07.md).
 
 **Version:** `2.46.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
-and the desktop `gui/src-tauri/tauri.conf.json`;
+and the desktop `targets/desktop/tauri.conf.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
 
@@ -100,12 +110,12 @@ was hardened from 4.2 the same day. See [`reference/git-workflow.md`](reference/
 internationalized with **react-intl** + the full **FormatJS** pipeline. Every user-facing string across
 all ~28 components (text, `title`/`placeholder`/`aria-label`, `confirm`/`prompt`, ICU plurals/numbers) is a
 `defineMessages` / `intl.formatMessage` / `<FormattedMessage>` call — **~407 messages**, English rendering
-byte-identically (visual baselines untouched). New `gui/src/i18n/` (`config.js` locale registry +
+byte-identically (visual baselines untouched). New `targets/web/frontend/i18n/` (`config.js` locale registry +
 `resolveLocale`, `loadMessages.js` `import.meta.glob` catalog loader, `I18nProvider.jsx`); `App.jsx` split
 into a thin root + `AppShell`; a **Display language** selector in Settings persisted to `settings.locale`
 (`"auto"` follows the browser). Tooling: `babel-plugin-formatjs` (auto IDs) in the Vite react plugin;
 `@formatjs/cli` scripts (`i18n:extract` → `src/i18n/messages/en.json`, `i18n:pseudo` → an `en-XA`
-pseudo-locale); `gui/eslint.config.js` + `npm run lint:i18n` (`eslint-plugin-formatjs`). **Only English is
+pseudo-locale); `targets/web/eslint.config.js` + `npm run lint:i18n` (`eslint-plugin-formatjs`). **Only English is
 shipped** as a real locale (the app's DPL/prompt jargon makes machine translation low-quality; adding a real
 language is now a one-file job). Coverage is **complete (~480 messages)** — including the DPL-technical lib
 modules: `validateDpl.js` (editor lint diagnostics) takes an optional `intl` with a `createIntl` English
@@ -122,7 +132,7 @@ blocks (DPL + JS-sidecar tabs/boilerplate), folders (rename, sidecar priority/de
 toggles), and lists (virtualized entry mode + raw CodeMirror — seamless at 27k lines). Plus add/delete,
 drag-to-move, restore-default (from `main`), **ghost pills** for files deleted locally but still upstream
 (diffed against a published `data/manifest.json`, disk-cached a day), and external-edit auto-refresh (SSE
-`fs.watch`). Backend: `gui/server/manageFs.js` + `/api/manage/*` (Vite dev middleware today). Plan +
+`fs.watch`). Backend: `targets/web/backend/manageFs.js` + `/api/manage/*` (Vite dev middleware today). Plan +
 details: [`plans/manage-tab.md`](plans/manage-tab.md). Contract-tested in `tests/integration/manageFs.test.js`.
 
 **DPL intensity dial + dynamic-prompt content refactor (2.10.0 — shipped):** a `{#name}` reference can carry
@@ -131,8 +141,8 @@ that flows into the generator. Lines take intensity **conditions** in the weight
 `< <= > >= = !=`; stackable `[100|<10%]` or `[100 <10%]`); probability gates and `repeat`/`one of`/`N of`
 counts **auto-scale** by intensity; and text can interpolate it via `{intensity}`
 (tiny/small/normal/large/huge/massive), `{intensity%}`, `{intensity-num}`, each accepting a relative `±NN%`
-modifier (also on nested `{#name ±NN%}` refs). Engine in `src/core/dpl/dpl.js` +
-`src/core/stages/dynamicPrompt.js`; design: [`reference/intensity-design.md`](reference/intensity-design.md).
+modifier (also on nested `{#name ±NN%}` refs). Engine in `engine/core/dpl/dpl.js` +
+`engine/core/stages/dynamicPrompt.js`; design: [`reference/intensity-design.md`](reference/intensity-design.md).
 The **content refactor is complete across all five categories** (scene · fragment · subject · style ·
 prompt): de-scattered (knight no longer pulls `{#landscape}`/`[[castle]]`; beach↛city; etc.), render-farm
 filler stripped, typos fixed (`interrior`, `accesories`, `mesmorizing`, `sceptor`), `anime-irl`→`anime-realism`,
@@ -140,7 +150,7 @@ list-backed + intensity-aware. The engine auto-append now re-resolves nested tok
 cause). **Open:** confirm the 50% default at the top level (one constant, `DEFAULT_INTENSITY`, to retune).
 
 **Provider header redesign (2.9.0):** the top bar is now a single **Providers dropdown**
-(`gui/src/components/ProvidersMenu.jsx`) + a provider-settings **gear** + the NSFW switch. The dropdown holds
+(`targets/web/frontend/components/ProvidersMenu.jsx`) + a provider-settings **gear** + the NSFW switch. The dropdown holds
 two rich pickers (`ProviderPicker.jsx`): **Image** (grouped Local — incl. Plain text — / Online) and **Text**
 (Off + the rewrite AIs OpenAI / Gemini / Grok), each with its **BYOK key** field (`ApiKeyField.jsx`) on the
 right in an aligned two-column grid; the key is keyed by provider id, so the same provider chosen for both rows
@@ -153,7 +163,7 @@ supports negatives), storing the per-provider negative the engine already reads.
 **Linux** set needs the `visual-baselines.yml` workflow before the `main` release.
 
 **Keyword tooling + DPL insert toolbar (2.8.0):** the single view's keyword cloud is now backed by a real
-parser (`gui/src/lib/keywords.js` — strips SD/NovelAI weighting syntax, keeps accents for display but folds
+parser (`targets/web/frontend/lib/keywords.js` — strips SD/NovelAI weighting syntax, keeps accents for display but folds
 them for dedupe/search) with a **"Rebuild with AI"** button that keyword-translates the prompt, alphabetizes,
 and saves over the image's sidecar (`POST /api/image/meta`); the composer gained an **`autoKeyword`** toggle
 beside the auto-fix wand (independent + chainable), backed by a new `KEYWORD_SYSTEM` rewrite mode; and the
@@ -163,7 +173,7 @@ selectors that still targeted `<textarea>` (red since the 2.7.26 CodeMirror swit
 `.prompt-input .cm-content`, and the Linux visual baselines were refreshed.
 
 **DPL editors (2.7.26):** the prompt, negative, and wrapper Start/End boxes are **CodeMirror 6** editors
-(`gui/src/components/DplEditor.jsx` + `gui/src/lib/dpl/dplLanguage.js`) with DPL syntax highlighting
+(`targets/web/frontend/components/DplEditor.jsx` + `targets/web/frontend/lib/dpl/dplLanguage.js`) with DPL syntax highlighting
 (theme-aware `--dpl-*` colors in `styles.css`) and a brace-aware `{…}`/`{#…}` token autocomplete. Part of a
 four-branch GUI/DPL UX pass on `dev`; the Playwright **visual baselines** still need a refresh for the
 prompt-box change.
@@ -186,15 +196,15 @@ no image feed/storage is touched (generated images stay in-memory; nothing is sa
 local build is unchanged.
 
 **Photo gallery (2.7.25):** the old v1-2 image **feed** is back as a first-class v3 view. The top-bar now
-carries a **Generate · Gallery · Single** switch (`gui/src/App.jsx`) over three top-level views that all stay
+carries a **Generate · Gallery · Single** switch (`targets/web/frontend/App.jsx`) over three top-level views that all stay
 **mounted** for the session — each keeps its state + scroll position when you switch tabs (shared feed /
-search / current-image state lives in `App`). The **gallery** (`gui/src/components/Gallery.jsx`) browses
-everything saved to `output/`; the **single** view (`gui/src/components/SingleView.jsx`) is the full
+search / current-image state lives in `App`). The **gallery** (`targets/web/frontend/components/Gallery.jsx`) browses
+everything saved to `output/`; the **single** view (`targets/web/frontend/components/SingleView.jsx`) is the full
 per-image page. Generated images and gallery thumbnails open into the single view (Back returns where you
 came from); the Single tab shows the last image, or a random one the first time. Every
 generated image now gets a **`.json` metadata sidecar** next to it (prompt sent, the deterministic engine
 roll, the AI translation, the source DPL, negative, provider, and a settings snapshot with **API keys
-stripped**), written by `POST /api/image` and read back via a new `GET /api/feed` (`gui/vite-plugin-api.js`).
+stripped**), written by `POST /api/image` and read back via a new `GET /api/feed` (`targets/web/vite-plugin-api.js`).
 The gallery is a masonry grid with keyword search; clicking opens a **dedicated single-image page** (not a
 modal) with the prompt and negative each in their DPL / engine-roll / AI-translation / sent-final layers, a
 curated details table over the full settings snapshot + raw JSON, a clickable keyword cloud, prev/next nav,
@@ -206,14 +216,14 @@ conversion need the dev server's filesystem); a static/online build shows an emp
 [`version/2026-06.md`](version/2026-06.md).
 
 **Layout reorg (2.7.1):** completes the v3-only move. Dynamic prompts are now **flat** under
-`data/dynamic-prompts/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
+`engine/data/dynamic-prompts/<category>/` — the `v3/` wrapper and the leftover `{#v1/}`/`{#v2/}`/`{#any-ver}`
 version routing are gone (engine + both loaders + the SPA browser). The loose raw build inputs moved to
-`data/sources/` (`artists.csv`, `danbooru.csv`, `nai-tag-expirement.json`), and the SPA folder was renamed
-**`web-app/` → `gui/`** (the name anticipates a planned CLI; the core engine is already headless). A fuller
+`engine/data/sources/` (`artists.csv`, `danbooru.csv`, `nai-tag-expirement.json`), and the SPA folder was renamed
+**`web-app/` → `targets/web/`** (the name anticipates a planned CLI; the core engine is already headless). A fuller
 notes sweep of the remaining `v1/v2`/`web-app` references in the deeper `reference/` docs is still pending.
 
 **Content rating (2.6.1):** the SPA now defaults to **SFW** (`settings.includeAdult: false`) and carries a
-right-aligned **NSFW** toggle in the top-bar (`gui/src/components/NsfwToggle.jsx`) — a stopgap until the
+right-aligned **NSFW** toggle in the top-bar (`targets/web/frontend/components/NsfwToggle.jsx`) — a stopgap until the
 options screen lands. Turning it ON requires a confirmation dialog; turning it OFF is immediate; the choice
 is remembered in the browser (it's part of `settings` → localStorage). The engine already gated on
 `includeAdult` (`core/listStore.js`, `core/stages/*`, `gatedLists.js`); this just exposes the switch. Still
@@ -245,13 +255,13 @@ and `*-prompt`→`*` (so `{#prompt/random}` is the composite; the default `setti
 switch** (v2 default) over **full** / **partial** sub-tabs; folder-group and `{#any}` pills are clickable.
 The "pick one" always resolves to ONE concrete generator/snippet, never a line union.
 
-**Dynamic prompts (2.3.0 + 2.4.0):** `data/dynamic-prompts/` was brought to full parity with the
+**Dynamic prompts (2.3.0 + 2.4.0):** `engine/data/dynamic-prompts/` was brought to full parity with the
 list/expansion systems. **2.3.0:** the 79 v2 generators (+ the user-submitted one) were reorganized into
 category folders under a new `v2/` root (`scene`/`subject`/`fragment`/`style`/`prompt`/`user`), `v1/` left
 frozen; resolution by **path suffix**, `<name>.json` description sidecars, `_`-internal / `_force-prefix` /
 `compareNames`. **2.4.0:** the sigil became **`{#name}`** (brace-delimited like `{list}`/`<expansion>`,
 `/`-path capable; bare `#name` retired — 204 internal refs migrated, v1 untouched); automatic NSFW gating
-by name token (`isGatedDynPrompt`); tag metadata (`src/dynPromptManifest.js`); and a **uniform SPA** — one
+by name token (`isGatedDynPrompt`); tag metadata (`engine/dynPromptManifest.js`); and a **uniform SPA** — one
 Dynamic-prompts block with category-folder pills
 (plain labels — folders are organization, **not** groups: a generator is a script, not a word pool) and a
 **v1/v2 toggle**. Only the **new** engine (core loaders/stage, classifier, SPA) was touched — the classic
@@ -265,11 +275,11 @@ SPA token cloud groups them by folder with tooltips. Random-union groups / click
 splitting were intentionally left out (they don't fit deterministic copy/paste snippets). See
 [`reference/expansions-architecture.md`](reference/expansions-architecture.md).
 
-**Keyword lists (2.1.0, branch `cleanup/list-reorg`):** the `data/lists/` corpus was purged of slurs /
-minor-sexualizing / extreme-shock content via a new `src/contentSafety.js` filter (wired into the CSV
+**Keyword lists (2.1.0, branch `cleanup/list-reorg`):** the `engine/data/lists/` corpus was purged of slurs /
+minor-sexualizing / extreme-shock content via a new `engine/contentSafety.js` filter (wired into the CSV
 build scripts), the 48k-line `keyword.txt` dictionary was sorted by part of speech into `dict-*` lists
 (`keyword.txt` is now proper nouns), and duplicated composites were collapsed into **virtual lists**
-(`src/listManifest.js`: `danbooru`, `d-keyword`, `d-character`, `artist`, `artist-digipa`, plus new
+(`engine/listManifest.js`: `danbooru`, `d-keyword`, `d-character`, `artist`, `artist-digipa`, plus new
 `danbooru-sfw` and `*-all`). See [`reference/list-architecture.md`](reference/list-architecture.md).
 
 ## Current state (read this first)
@@ -296,7 +306,7 @@ expansions, presets, the CSV sources) under **`data/`**; runtime/user data (`out
 `user-settings.json`, `results.json`) stays at the repo root. `src/chdir.js` pins the cwd to the repo
 root (its parent) so every cwd-relative path keeps working.
 
-**3. Started the web migration — a React + Vite SPA** (`gui/`, usable online BYOK or locally). The
+**3. Started the web migration — a React + Vite SPA** (`targets/web/`, usable online BYOK or locally). The
 real prompt engine was ported to a browser-safe `core/` driven by an **injected loader** (Node: fs +
 `createRequire`; browser: Vite `import.meta.glob`), so there is one engine, no duplicated prompt logic.
 As of **2.0.2** the SPA front-end is a single **redesigned home page** (`Home.jsx`) styled after the
@@ -312,7 +322,7 @@ a single **JSDoc + docdash** site that unifies the per-function **code API** (ev
 including the React SPA via a babel-transpile-then-JSDoc step) with the **entire `notes/` tree as
 tutorials** (cross-links rewritten). **Doxygen was retired.** Coverage is complete: `@file` on every
 authored file, per-function JSDoc across all server-side code, all 113 dynamic prompts, the frontend
-scripts, and the whole `gui/` SPA — only anonymous callbacks are left (no generator extracts them).
+scripts, and the whole `targets/web/` SPA — only anonymous callbacks are left (no generator extracts them).
 The full AI/notes system (`CLAUDE.md` + `notes/`) backs all of this and is kept living.
 
 **First ship (2026-06-22): the deployment hold is lifted.** The stable branch (then `master`, renamed to
@@ -345,7 +355,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 | ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — 118 Vitest tests green. See [`plans/testing.md`](plans/testing.md). |
 | `no-dupe-else-if` warnings (dead branches) | several `dynamic-prompts/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
 | `no-useless-escape` warnings | a few prompt/data regexes | Harmless redundant escapes; kept as warnings (changing regexes risks changing output). |
-| Live generation unverified end-to-end | the provider adapters (`gui/providers/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
+| Live generation unverified end-to-end | the provider adapters (`targets/web/shared/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
 
 ## Build / run health
 

@@ -6,10 +6,10 @@ docs/
 tmp/
 assets/
 src/web/frontend/lib/
-gui/
-data/*.csv
-data/*.json
-data/sources/
+targets/web/
+engine/data/*.csv
+engine/data/*.json
+engine/data/sources/
 package-lock.json
 user-settings.json
 results.json

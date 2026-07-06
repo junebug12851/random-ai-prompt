@@ -1,11 +1,11 @@
 /**
- * @file Unit tests for gui/vite-api-helpers.js — the dev-server API helpers (a Node module, so it
+ * @file Unit tests for targets/web/backend/vite-api-helpers.js — the dev-server API helpers (a Node module, so it
  * runs in this Node-env suite rather than the jsdom SPA suite). Focus: the path-traversal-safe
  * `resolveOutputFile` (a security boundary), plus the JSON request/response helpers.
  */
 import { describe, it, expect, vi } from "vitest";
 import path from "node:path";
-import { resolveOutputFile, OUTPUT_DIR, send, readJson } from "../../gui/vite-api-helpers.js";
+import { resolveOutputFile, OUTPUT_DIR, send, readJson } from "../../targets/web/backend/vite-api-helpers.js";
 
 describe("resolveOutputFile", () => {
   it("resolves a bare filename to a file inside the output dir", () => {

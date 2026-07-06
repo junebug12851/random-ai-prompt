@@ -5,7 +5,7 @@
  * end-to-end without the filesystem.
  */
 import { describe, it, expect } from "vitest";
-import { createEngine } from "../../src/core/engine.js";
+import { createEngine } from "../../engine/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 
 const baseSettings = {

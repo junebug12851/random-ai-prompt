@@ -9,7 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildManageSnapshot } from "../gui/server/manageFs.js";
+import { buildManageSnapshot } from "../targets/web/backend/manageFs.js";
 
 // BUILT-IN ONLY: the published manifest describes the upstream `data/` catalog (for the Manage tab's
 // ghost/restore feature). The user overlay (`user/`) has no upstream and must never appear here.
@@ -26,7 +26,7 @@ const manifest = {
   ].sort(),
 };
 
-const outPath = path.join(fileURLToPath(new URL("../data/", import.meta.url)), "manifest.json");
+const outPath = path.join(fileURLToPath(new URL("../engine/data/", import.meta.url)), "manifest.json");
 fs.writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(
   `wrote ${path.relative(process.cwd(), outPath)} — ${manifest.lists.length} lists, ${manifest["dynamic-prompts"].length} generators`,

@@ -10,7 +10,7 @@
  *         node scripts/profile-scenarios.mjs gallery generate   (a subset)
  * Output: perf-profile/summary.json + perf-profile/<scenario>-trace.json
  *
- * Runs the REAL release server (gui/server/serve.js) so the Manage file-read path is exercised for
+ * Runs the REAL release server (targets/web/backend/serve.js) so the Manage file-read path is exercised for
  * real; the 100k gallery feed is route-mocked, same as the test suite.
  */
 import { spawn } from "node:child_process";
@@ -52,7 +52,7 @@ async function waitForServer(url, timeoutMs = 240_000) {
 /** Build the app, then spawn the release server; returns the child + a stop() fn. */
 async function startServer() {
   await run("npm", ["run", "web:build"]);
-  const child = spawn("node", ["gui/server/serve.js"], {
+  const child = spawn("node", ["targets/web/backend/serve.js"], {
     cwd: ROOT,
     env: { ...process.env, NO_OPEN: "1", PORT: String(PORT) },
     stdio: "inherit",

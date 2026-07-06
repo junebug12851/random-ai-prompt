@@ -38,7 +38,7 @@ focused branch, stopping only for blockers.
 - Provider adapters already code-split (lazy `import()` → the small `generate-*`/`rewrite-*`/
   `upscale-*` chunks). The monolith is: react + react-dom, react-intl, **CodeMirror/@lezer**
   (used only by the Manage editor), lodash, the engine core, and **all prompt data eagerly
-  globbed** by `src/core/browserLoader.js` (`import.meta.glob(..., { eager: true })`).
+  globbed** by `engine/core/browserLoader.js` (`import.meta.glob(..., { eager: true })`).
 - Largest source files (lines): `Home.jsx` 1161, `SingleView.jsx` 870, `core/dpl/dpl.js` 824,
   `Manage.jsx` 695, `vite-plugin-api.js` 673, `ManageListEditor.jsx` 522, `dplLanguage.js` 501,
   `listManifest.js` 471, `WrapperFab.jsx` 428, `dplInserts.js` 408, `contentSafety.js` 397.
@@ -144,7 +144,7 @@ any test of emphasis-affected output is a coin-flip, so exact-output tests must 
 emphasis (`keywordEmphasis:false`/`keywordAlternating:false`) instead of asserting real output.
 
 The proper fix (its own phase/branch, **not** folded into the build/component refactor): add
-`src/core/random.js` (or `src/helpers/random.js`) — tiny utilities matching the needed lodash
+`engine/core/random.js` (or `engine/helpers/random.js`) — tiny utilities matching the needed lodash
 semantics (`random(lower,upper,floating)`, `sample`, `shuffle`, `chance`) but reading `Math.random`
 **live** — and replace the engine's `_.random`/`_.sample`/`_.shuffle` call sites with them. Then
 `withSeed` makes the entire engine reproducible, emphasis included, and the override unit tests can

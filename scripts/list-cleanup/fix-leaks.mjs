@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyRemoval, isNsfw } from "../../src/contentSafety.js";
+import { classifyRemoval, isNsfw } from "../../engine/contentSafety.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const listsDir = path.resolve(__dirname, "..", "..", "data", "lists");

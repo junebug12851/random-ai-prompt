@@ -6,7 +6,7 @@
  * deterministic; multi-entry assertions use set/again invariants.
  */
 import { describe, it, expect } from "vitest";
-import { createListStore } from "../../src/core/listStore.js";
+import { createListStore } from "../../engine/core/listStore.js";
 
 const loaderFor = (lists) => ({
   readListLines: (name) => (name in lists ? lists[name].slice() : null),

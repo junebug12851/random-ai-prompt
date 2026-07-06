@@ -11,7 +11,7 @@ library of scenes, subjects, and styles and it fills in the depth — then runs 
 **40+ models** (Midjourney, DALL·E, Gemini, FLUX, Stable Diffusion, and more), right in the browser.
 
 The rest of this page describes the **pre-revival** system (the CLI + Stable-Diffusion-WebUI
-orchestration; see the banner above); the *active* app is the browser web app in `gui/`. The
+orchestration; see the banner above); the *active* app is the browser web app in `targets/web/`. The
 original tool generated random/dynamic prompts and (optionally) drove the **Stable Diffusion WebUI**
 API to turn them into images, animations, variations, re-rolls, and upscales.
 

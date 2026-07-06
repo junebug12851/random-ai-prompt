@@ -6,7 +6,7 @@
  *
  * Construct one with plain data and hand it to `createEngine(loader)`.
  */
-import compileDpl from "../../src/core/dpl/dpl.js";
+import compileDpl from "../../engine/core/dpl/dpl.js";
 
 /**
  * Build a fake loader from in-memory data.

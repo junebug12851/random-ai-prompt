@@ -8,7 +8,7 @@ import {
   isGatedList,
   isGatedDynPrompt,
   gatedDynPrompts,
-} from "../../src/gatedLists.js";
+} from "../../engine/gatedLists.js";
 
 describe("gatedLists.hasNsfwToken", () => {
   it("matches a standalone nsfw token across delimiters", () => {

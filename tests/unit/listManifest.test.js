@@ -14,7 +14,7 @@ import {
   computeButtonNames,
   hasVariantSuffix,
   RESERVED_WILDCARD,
-} from "../../src/listManifest.js";
+} from "../../engine/listManifest.js";
 
 describe("compareNames (natural order: symbols < numbers < letters)", () => {
   it("orders numbers numerically, not lexically", () => {

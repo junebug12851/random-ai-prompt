@@ -6,9 +6,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { compileDpl } from "../src/core/dpl/dpl.js";
+import { compileDpl } from "../engine/core/dpl/dpl.js";
 
-const root = fileURLToPath(new URL("../data/dynamic-prompts/", import.meta.url));
+const root = fileURLToPath(new URL("../engine/data/dynamic-prompts/", import.meta.url));
 
 // Walk the dynamic-prompts tree for .dpl files.
 function dplFiles(dir, prefix = "") {

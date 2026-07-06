@@ -4,7 +4,7 @@
  * prompts / markers without hard-coding counts (which would be brittle as content grows).
  */
 import { describe, it, expect } from "vitest";
-import { nodeLoader } from "../../src/core/nodeLoader.js";
+import { nodeLoader } from "../../engine/core/nodeLoader.js";
 
 describe("nodeLoader — lists", () => {
   it("exposes a non-empty, de-duplicated list-name set", () => {

@@ -8,9 +8,9 @@ How the project ships. There are three independent pipelines, each with one home
 | **Docs site** | `.github/workflows/pages.yml` | Builds the JSDoc doc-site (code API + the notes) and deploys it to **GitHub Pages** on every push to `main`. |
 | **Software release** | `.github/workflows/release.yml` | Version-gated GitHub Release: desktop installers (per-OS matrix) + online bundle + source tarball + docs zip. |
 | **Visual baselines** | `.github/workflows/visual-baselines.yml` | Manual (`workflow_dispatch`): regenerates the Linux Playwright visual baselines on the e2e runner and uploads them as an artifact to download + commit. |
-| **Web app deploy** | `.github/workflows/netlify-deploy.yml` + `netlify.toml` | Builds + hosts the `gui/` SPA on **Netlify** (`prompt.fairyfox.io`); auto-deploys on push to `main` (gated on the `NETLIFY_AUTH_TOKEN` secret). |
+| **Web app deploy** | `.github/workflows/netlify-deploy.yml` + `netlify.toml` | Builds + hosts the `targets/web/` SPA on **Netlify** (`prompt.fairyfox.io`); auto-deploys on push to `main` (gated on the `NETLIFY_AUTH_TOKEN` secret). |
 
-## Local edition — the release stage (`gui/server/serve.js`)
+## Local edition — the release stage (`targets/web/backend/serve.js`)
 
 **Editions vs. stages.** One code pool builds into two editions — the full **local** build and the
 **online** build (same code, local-only features gated off via `VITE_ONLINE`). Each edition has dev
@@ -19,12 +19,12 @@ BYOK calls go straight from the browser). The **local** edition needs a real rel
 this is it.
 
 - **Dev stage:** `npm run web` → the Vite dev server, with the `/api/*` backend attached as a plugin
-  middleware (`gui/vite-plugin-api.js`). For development only — **not** what end users run.
+  middleware (`targets/web/vite-plugin-api.js`). For development only — **not** what end users run.
 - **Release stage:** `npm start` → `npm run web:build` (a real `vite build`) then `node
-  gui/server/serve.js` — a dependency-free standalone Node server that serves the built `dist/` as
+  targets/web/backend/serve.js` — a dependency-free standalone Node server that serves the built `dist/` as
   static files (SPA fallback) **and** mounts the same `/api/*` backend. `npm run serve` serves an
   already-built `dist/`. Port = `PORT` (default 4173); `NO_OPEN=1` skips opening the browser.
-- **One backend, two transports.** The handler lives once in `gui/server/apiHandler.js` and is mounted
+- **One backend, two transports.** The handler lives once in `targets/web/backend/apiHandler.js` and is mounted
   by both the dev plugin and the release server, so the local backend can't drift between stages. This
   fixed the earlier defect where the dev server was the *only* thing with a working backend, so it was
   being used as the de-facto release — unprofessional and wrong. (Extracting the handler also fixed a
@@ -51,7 +51,7 @@ means the same thing as green locally — it's the CI mirror of `npm test` + the
 **Coverage → Codecov.** The **check** and **gui** jobs run the `*:coverage` scripts (Vitest v8, now with
 an `lcov` reporter alongside text/html) and then upload to **Codecov** via `codecov/codecov-action@v4`
 (non-blocking — `fail_ci_if_error: false`), under the `node` and `gui` flags respectively. Paths are
-repo-root-relative (`coverage/node/lcov.info`, `gui/coverage/lcov.info`). Setup the repo owner does once: enable the **Codecov
+repo-root-relative (`coverage/node/lcov.info`, `targets/web/coverage/lcov.info`). Setup the repo owner does once: enable the **Codecov
 GitHub app** on the repo and add a **`CODECOV_TOKEN`** repo secret (public repos also upload tokenless,
 but the token is more reliable). The README's coverage badge (`img.shields.io/codecov/...`) reads the
 default-branch (`main`) coverage, so it populates after the first CI run on `main` post-merge. Codecov is
@@ -117,8 +117,8 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
       documented, recurring SonarSource-side performance bug (community threads + the "Speed up JS security
       analysis" productboard item). No supported property disables or time-boxes it
       (`sonar.jasmin.internal.enabled=false` is ignored — confirmed in the verbose log).
-    - It is **not one bad file**: `gui/src/components/**`, `gui/src/lib/**`, and the root files each scan
-      cleanly in isolation, but the **full `gui/src` set** stalls at ~72/80 files → an **inter-file taint
+    - It is **not one bad file**: `targets/web/frontend/components/**`, `targets/web/frontend/lib/**`, and the root files each scan
+      cleanly in isolation, but the **full `targets/web/src` set** stalls at ~72/80 files → an **inter-file taint
       blow-up** (the sensor is inter-procedural). Excluding the network source→sink files did not fix it.
     - It is **redundant** with GitHub **CodeQL** (which does our security scanning).
   Scoped to the engine core, the taint sensor finishes in ~3s (32 files) and the scan is reliable. The SPA's
@@ -188,7 +188,7 @@ from green `dev` or a `release/`/`hotfix/` branch — `main` is branch-protected
 - **`random-ai-prompt-<v>-docs.zip`** — the generated JSDoc doc-site (archival snapshot; the live site
   is on Pages).
 - **`random-ai-prompt-<v>-online.zip`** — the **online edition** as a static, self-hostable site
-  (`VITE_ONLINE=true` build of `gui/dist`). Drop it on any static host, or use `prompt.fairyfox.io`.
+  (`VITE_ONLINE=true` build of `targets/web/dist`). Drop it on any static host, or use `prompt.fairyfox.io`.
 - **Desktop installers** — built by the `desktop` matrix job (`needs: release`), one runner per OS
   (Tauri can only produce a platform's installer on that platform): Windows `.msi` + NSIS `.exe` + a
   portable `.zip`, macOS `.dmg`, Linux `.AppImage` + `.deb`. The matrix uses the runners' preinstalled
@@ -213,11 +213,11 @@ publishing: `gh workflow run release.yml -f dry_run=true`, then `gh run watch`.
 
 ## Web app deploy — `netlify.toml`
 
-The `gui/` SPA is built and hosted on Netlify, independent of the GitHub release:
+The `targets/web/` SPA is built and hosted on Netlify, independent of the GitHub release:
 
 ```
 command = npm --prefix gui install && npm --prefix gui run build
-publish = gui/dist
+publish = targets/web/dist
 ```
 
 The deployed site is fully static — **no `functions` and no `/api/*` redirect** (both were removed once
@@ -243,11 +243,11 @@ only works for providers whose APIs send CORS headers; a live preflight check (2
 
 In the online build the disabled-with-tooltip set is therefore: Gallery / Single tabs, the local SD
 providers (ComfyUI/Forge/SDNext/local-webui), the three non-CORS hosted providers above, and the NSFW
-toggle — all greyed with a click-through to the full desktop version (`gui/src/lib/online.js`).
+toggle — all greyed with a click-through to the full desktop version (`targets/web/frontend/lib/online.js`).
 
-The standalone Netlify function files (`gui/netlify/functions/generate.js` + `rewrite.js`) were
+The standalone Netlify function files (`targets/web/netlify/functions/generate.js` + `rewrite.js`) were
 **removed (2.30.1)** — they were only ever invoked by Netlify's runtime, and the online site no longer
-uses them. `server/dispatch.js` and the Vite dev middleware (`gui/vite-plugin-api.js`, serving
+uses them. `server/dispatch.js` and the Vite dev middleware (`targets/web/vite-plugin-api.js`, serving
 `/api/generate` + `/api/rewrite`) **remain** as the **local** dev proxy that the desktop full version
 uses for the non-CORS providers.
 
@@ -257,7 +257,7 @@ The app is hosted off the main `fairyfox.io` domain (which is mostly docs) on th
 
 **`netlify.toml` paths are repo-root-relative** (no `base`). The toml lives at the repo root and the
 CLI/@netlify/build resolves `publish` from the root, so the build command is `npm --prefix gui install &&
-npm --prefix gui run build` and `publish = "gui/dist"`.
+npm --prefix gui run build` and `publish = "targets/web/dist"`.
 
 **Set up (done 2026-06-27):** the site **`prompt-fairyfox`** (→ `prompt-fairyfox.netlify.app`,
 team `junebug12851`) was created and deployed via the Netlify CLI:
@@ -304,7 +304,7 @@ Alternatively the repo can be git-connected in the Netlify UI instead of using t
   and the version-gated software
   Release (`release.yml`). GitHub Pages source is **GitHub Actions** (already configured); the docs
   serve under `fairyfox.io/random-ai-prompt/`.
-- The serverless hosted-proxy path was **retired** (its `gui/netlify/functions/` files removed, 2.30.1);
+- The serverless hosted-proxy path was **retired** (its `targets/web/netlify/functions/` files removed, 2.30.1);
   the online build is browser-direct only, and non-CORS providers are locked online (use the desktop
   app). `server/dispatch.js` + the Vite dev middleware remain for the local dev proxy.
 - No code signing / packaged installers (it's a Node app shipped as source). Revisit if a packaged

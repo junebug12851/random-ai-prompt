@@ -1,6 +1,6 @@
 /**
- * @file Contract tests for the Manage tab's local-mode backend (`gui/server/manageFs.js`) and the
- * tree/ghost model (`gui/src/lib/manageTree.js`). Verifies the disk snapshot reproduces the engine's
+ * @file Contract tests for the Manage tab's local-mode backend (`targets/web/backend/manageFs.js`) and the
+ * tree/ghost model (`targets/web/frontend/lib/manageTree.js`). Verifies the disk snapshot reproduces the engine's
  * own catalog, the write/sidecar/marker/move/delete ops round-trip through the snapshot (in an
  * isolated throwaway folder), the traversal guard holds, and ghost detection is exact.
  */
@@ -13,15 +13,15 @@ import {
   fsOp,
   restoreFromRepo,
   MANAGE_ROOTS,
-} from "../../gui/server/manageFs.js";
-import { computeGhosts, buildManageModel } from "../../gui/src/lib/manageTree.js";
-import { nodeLoader } from "../../src/core/nodeLoader.js";
+} from "../../targets/web/backend/manageFs.js";
+import { computeGhosts, buildManageModel } from "../../targets/web/frontend/lib/manageTree.js";
+import { nodeLoader } from "../../engine/core/nodeLoader.js";
 import {
   logicalListNames,
   allListNames,
   autoGroupListDirs,
   compareNames,
-} from "../../src/listManifest.js";
+} from "../../engine/listManifest.js";
 
 const sortEq = (a, b) => expect([...a].sort()).toEqual([...b].sort());
 const TEST_DIR = "zz-manage-test";

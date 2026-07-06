@@ -7,10 +7,10 @@
  * the fix, with a one-line note on the original symptom.
  */
 import { describe, it, expect } from "vitest";
-import { classifyRemoval, isNsfw } from "../../src/contentSafety.js";
-import { hasNsfwToken } from "../../src/gatedLists.js";
-import { resolveName } from "../../src/listManifest.js";
-import { createEngine } from "../../src/core/engine.js";
+import { classifyRemoval, isNsfw } from "../../engine/contentSafety.js";
+import { hasNsfwToken } from "../../engine/gatedLists.js";
+import { resolveName } from "../../engine/listManifest.js";
+import { createEngine } from "../../engine/core/engine.js";
 import { makeFakeLoader } from "../helpers/fakeLoader.js";
 
 const baseSettings = {
@@ -95,7 +95,7 @@ describe("regression: NSFW generators are gated off unless adult mode is on", ()
 describe("regression: cleanup strips the comma after AND", () => {
   // Symptom: "AND," leaked into prompts and broke SD's AND compositing.
   it("rewrites 'AND,' to 'AND'", async () => {
-    const { default: cleanup } = await import("../../src/core/stages/cleanup.js");
+    const { default: cleanup } = await import("../../engine/core/stages/cleanup.js");
     expect(cleanup("a AND, b")).toBe("a AND b");
   });
 });

@@ -1,7 +1,7 @@
 # Reference — DPL design proposal (the complete language)
 
 **Status: proposal / not yet built.** A concrete design for the Dynamic Prompt Language, derived from reading
-the whole v2 generator catalog (`data/dynamic-prompts/v2/`). It builds on the two mockups in
+the whole v2 generator catalog (`engine/data/dynamic-prompts/v2/`). It builds on the two mockups in
 [`dpl-language.md`](dpl-language.md) and the JS authoring model in [`dynamic-prompts.md`](dynamic-prompts.md).
 
 The guiding line: **DPL is data, not code.** It describes *what to maybe say* — probabilities, choices,
@@ -314,7 +314,7 @@ knight, warrior
 ```
 
 **Path resolution:** a path is **relative** to the `.dpl` file (`./detail-stack.js`, `../fragment/foo.js`) or
-**root-absolute** from the project root with a leading `/` (`/src/helpers/keywordRepeater.js`).
+**root-absolute** from the project root with a leading `/` (`/engine/helpers/keywordRepeater.js`).
 
 ### JS → DPL — the `ctx` bridge (call sections, hand control back)
 

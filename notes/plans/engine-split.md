@@ -34,7 +34,7 @@ Locked decisions (owner, 2026-06-25):
 ```
 random-ai-prompt/
 ├── engine-v1-2/      pre-revival snapshot — frozen, self-contained (DONE)
-├── engine-v3/        THE project: src/core/, web-app/, data/ (dynprompts v1/v2/v3 + new lists, NO expansions),
+├── engine-v3/        THE project: engine/core/, web-app/, data/ (dynprompts v1/v2/v3 + new lists, NO expansions),
 │                     tests/, scripts/, package.json, vite/vitest/playwright/eslint configs, VERSION
 ├── notes/            repo-level notes (stay at root)
 ├── .github/          CI — retargeted into engine-v3/
@@ -45,8 +45,8 @@ random-ai-prompt/
 ## Execution stages (each verified)
 1. **DONE** — Restore `241a148` into `engine-v1-2/` (git archive → extract).
 2. Scaffold `engine-v3/`; `git mv` the new system in, **preserving relative structure** so sibling relative
-   imports stay valid (e.g. `web-app → ../../../src/core`, `data` generators → `../src/helpers/...`). Move:
-   `src/core/`, the kernel modules, `web-app/`, `data/` (minus `expansions/`), `tests/`, `scripts/`,
+   imports stay valid (e.g. `web-app → ../../../engine/core`, `data` generators → `../engine/helpers/...`). Move:
+   `engine/core/`, the kernel modules, `web-app/`, `data/` (minus `expansions/`), `tests/`, `scripts/`,
    `package.json` + lockfile, all configs, `VERSION`.
 3. **Drop** expansions from engine-v3 (`data/expansions*`, the expansion stage if new engine still imports it
    — verify) and **delete** the transitional legacy `src/` files (preserved in engine-v1-2).
@@ -59,7 +59,7 @@ random-ai-prompt/
 
 ## Landmines
 - `chdir.js` repo-root `".."` math — it's **legacy-only**, rides into engine-v1-2; engine-v3 doesn't use it.
-- `data/` generators use relative `../src/helpers/keywordRepeater.js` — fine as long as `data/` and `src/`
+- `data/` generators use relative `../engine/helpers/keywordRepeater.js` — fine as long as `data/` and `src/`
   move **together** under engine-v3 (relative depth preserved).
 - The smoke test currently boots `common.js` (legacy) — retarget to the engine-v3 core path.
 - CRLF noise: the working tree shows mass `M` files with empty `git diff` (`core.autocrlf=true`) — ignore; stage only real changes.

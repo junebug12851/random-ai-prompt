@@ -2,7 +2,7 @@
   "//": "Lighthouse CI config (performance gate). Builds the SPA, serves dist via vite preview, and asserts category scores + a few key audits. Run with: npm run test:lhci (needs @lhci/cli + Chrome). CI runs it in the perf job.",
   "ci": {
     "collect": {
-      "startServerCommand": "npm run web:build && npm --prefix gui run preview -- --port 4178 --strictPort",
+      "startServerCommand": "npm run web:build && npm --prefix targets/web run preview -- --port 4178 --strictPort",
       "url": ["http://localhost:4178/"],
       "numberOfRuns": 1,
       "settings": { "preset": "desktop" }

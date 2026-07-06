@@ -4,7 +4,7 @@
  * contract so an accidental rename or type change is caught.
  */
 import { describe, it, expect } from "vitest";
-import settings from "../../src/settings.js";
+import settings from "../../engine/settings.js";
 
 describe("default settings", () => {
   it("is a plain object with the documented prompt default", () => {

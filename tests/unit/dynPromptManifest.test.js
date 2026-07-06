@@ -8,7 +8,7 @@ import {
   dynGroupDirs,
   dynGroupMembers,
   RESERVED_ANY,
-} from "../../src/dynPromptManifest.js";
+} from "../../engine/dynPromptManifest.js";
 
 describe("isReservedAny", () => {
   it("matches the {#any} wildcard and its sfw/nsfw variants", () => {
