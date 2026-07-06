@@ -1,9 +1,12 @@
 # Desktop auto-updater — the scaffold + the owner's finishing steps
 
-_Status: **Phase 1 shipped; Phase 2 scaffolded, dormant.** The check-and-notify banner is live for
-every local/desktop edition. The full in-app auto-installer is wired but **off** — it activates only
-after the owner generates a signing keypair and adds it to CI. Until then nothing about the desktop
-build changes. See the design in [`../plans/updates-upgrades.md`](../plans/updates-upgrades.md)._
+_Status: **Phase 1 shipped; Phase 2 implemented, activates on CI secret.** The check-and-notify banner
+is live for every local/desktop edition. The full in-app auto-installer is now fully wired — signing
+public key committed, the Rust check-on-launch → prompt → install trigger in place (compile-verified via
+`cargo check --features updater`), and the `latest.json` manifest assembled by CI. It stays **inert**
+until the owner adds the private signing key as a CI secret (`TAURI_SIGNING_PRIVATE_KEY`); with no
+secret the release pipeline is byte-for-byte unchanged. The single remaining owner action is **step 3
+below** (add the secrets). See the design in [`../plans/updates-upgrades.md`](../plans/updates-upgrades.md)._
 
 ## What Phase 1 ships (check-and-notify — active now)
 
@@ -43,29 +46,38 @@ unaffected:
 With **no** `TAURI_SIGNING_PRIVATE_KEY` secret set, `has_key=false`: the plain `desktop:build` runs and
 the release is byte-for-byte what it is today. The updater path is pure opt-in.
 
-## Owner finishing steps (do these to turn Phase 2 on)
+## What's already done (in the tree)
 
-1. **Generate the updater keypair** (once), locally:
-   `npm --prefix gui run tauri signer generate -- -w ~/.tauri/rap-updater.key`
-   It prints a **public key** (base64) and writes the **private key** (+ you set a password).
-2. **Put the public key in the config fragment.** Replace `REPLACE_WITH_TAURI_UPDATER_PUBLIC_KEY` in
-   `gui/src-tauri/tauri.updater.conf.json` with the printed public key. (Public keys are safe to
-   commit.)
-3. **Add the private key to CI as repo secrets** (Settings → Secrets → Actions):
-   `TAURI_SIGNING_PRIVATE_KEY` (the file's contents) and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Once
-   present, the next release automatically builds the updater variant and uploads the `.sig` files.
-4. **Serve a `latest.json` manifest** at the endpoint the fragment points to
-   (`…/releases/latest/download/latest.json`). It aggregates **all three OS** builds' version, notes,
-   and per-target `signature` + download `url`. Because the release matrix builds each OS on its own
-   runner, assemble it in a small follow-up job that waits for all three (or adopt
-   `tauri-apps/tauri-action`, which composes `latest.json` for you). This is the one piece left as a
-   deliberate placeholder — it needs all platforms' signatures in one place.
-5. **Trigger the check/install.** This app's WebView points at the local Node server (an external
-   `http://127.0.0.1` origin), so the Tauri **JS** updater API isn't injected there — drive the update
-   from **Rust** instead: in `lib.rs`, under `#[cfg(feature = "updater")]`, call
-   `app.updater()?.check()` on launch and, if an update is found, download + install + relaunch (with
-   the "keep the previous working copy until the new one is proven" fallback from the design doc).
-   Wire this when you enable the feature.
+1. ✅ **Keypair generated** — `%USERPROFILE%\.tauri\rap-updater.key` (private, off-repo) + `.pub`.
+2. ✅ **Public key committed** — in `gui/src-tauri/tauri.updater.conf.json` (`pubkey`).
+3. ✅ **Rust check-on-launch → prompt → install** — `spawn_update_check` in `lib.rs` under
+   `#[cfg(feature = "updater")]` (the WebView is on an external `http://127.0.0.1` origin, so the update
+   is Rust-driven, not JS): on launch it checks; if a signed newer release exists it shows a **native
+   dialog** (`tauri-plugin-dialog`) and, on confirm, downloads + installs + relaunches. Compile-verified
+   with `cargo check --features updater`.
+4. ✅ **`latest.json` assembled by CI** — the `updater-manifest` job in `release.yml` aggregates each
+   OS's `.sig` + the updater-artifact download URLs into `latest.json` and uploads it to the release, so
+   the endpoint (`…/releases/latest/download/latest.json`) resolves. Key-gated (inert without the secret).
+
+## The one remaining owner step (turns Phase 2 ON)
+
+**Add the signing key as CI secrets** (Repo → Settings → Secrets and variables → Actions), or via
+`gh secret set`:
+
+- `TAURI_SIGNING_PRIVATE_KEY` — the **contents** of `%USERPROFILE%\.tauri\rap-updater.key`.
+- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — the password chosen at generation.
+
+Once both exist, the **next release** automatically builds the updater variant, signs the artifacts,
+and publishes `latest.json`. Nothing else to change. (Keep a copy of the private key + password in your
+password manager — losing either means you can't sign future updates and auto-update breaks.)
+
+### Validate on the first signed release
+
+- Confirm the release has `latest.json` + the `.app.tar.gz`/`-setup.exe`/`.AppImage` updater artifacts
+  and their `.sig` files.
+- Install the previous version, then launch a build made from the new release: it should prompt and
+  self-update. macOS auto-update covers only the runner's arch (aarch64); add an x86_64 mac matrix leg
+  if Intel Macs must auto-update.
 
 ## Guardrails carried over from the design
 
@@ -83,6 +95,8 @@ the release is byte-for-byte what it is today. The updater path is pure opt-in.
   glob build — the SSR/prerender guard covers the banner rendering `null` server-side).
 - **Phase 1, desktop:** a `desktop:dev` build shows the banner when `VERSION` is behind the latest
   release; portable vs installed report the right CTA via `RAP_EDITION`.
-- **Phase 2:** a normal `npm --prefix gui run desktop:build` still builds with **no** updater plugin
-  (feature off). Only `desktop:build:updater` (with a real pubkey + signing env) produces updater
-  artifacts. Confirm `cargo build` without the feature doesn't pull `tauri-plugin-updater`.
+- **Phase 2 (done here):** `cargo check --features updater` compiles the trigger; `cargo check` (no
+  feature) compiles clean and `cargo tree` shows **neither** `tauri-plugin-updater` nor
+  `tauri-plugin-dialog` in the default graph — a normal `npm --prefix gui run desktop:build` is
+  unaffected. Only `desktop:build:updater` (feature + config fragment + signing env) produces updater
+  artifacts. The end-to-end self-update can only be fully validated from a real signed release (above).
