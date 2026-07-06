@@ -24,7 +24,7 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
 - **`targets/`** — the build targets that consume the engine. **`targets/web/`** is the React/Vite web
   target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`), `targets/web/backend/` (the
   `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
-  `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/desktop/`**
+  `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/web-shell/`**
   is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
   **`targets/shared/`** is reserved for code shared across targets. A **`targets/cli/`** target is planned
   next (the engine is already headless/isomorphic); there is **no CLI yet**.

@@ -280,15 +280,15 @@ jobs:
           set -euo pipefail
           v="${{ needs.release.outputs.version }}"
           out="dist-desktop"; mkdir -p "$out"
-          b="targets/desktop/target/release/bundle"
+          b="targets/web-shell/target/release/bundle"
           case "${{ matrix.os }}" in
             windows-latest)
               cp "$b"/msi/*.msi "$out/random-ai-prompt-$v-windows-x64.msi" || true
               cp "$b"/nsis/*-setup.exe "$out/random-ai-prompt-$v-windows-x64-setup.exe" || true
               # Portable: raw exe + the staged payload + a .portable marker, zipped.
               p="portable/random-ai-prompt"; mkdir -p "$p"
-              cp targets/desktop/target/release/random-ai-prompt.exe "$p/"
-              cp -r targets/desktop/app "$p/app"
+              cp targets/web-shell/target/release/random-ai-prompt.exe "$p/"
+              cp -r targets/web-shell/app "$p/app"
               : > "$p/.portable"
               powershell -NoProfile -Command "Compress-Archive -Path portable/random-ai-prompt -DestinationPath '$out/random-ai-prompt-$v-windows-x64-portable.zip' -Force"
               ;;
@@ -314,7 +314,7 @@ jobs:
           set -euo pipefail
           v="${{ needs.release.outputs.version }}"
           out="dist-desktop"; mkdir -p "$out"
-          b="targets/desktop/target/release/bundle"
+          b="targets/web-shell/target/release/bundle"
           case "${{ matrix.os }}" in
             windows-latest)
               # setup.exe already collected as the installer; add its .sig under the matching name.

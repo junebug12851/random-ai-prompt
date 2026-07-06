@@ -28,9 +28,9 @@ const SKIP_DIRS = new Set([
   ".lighthouseci",
   "assets", // includes the read-only reference clones under assets/references/
   "app", // the desktop target's staged runtime payload (built by stage.mjs — copies of authored docs)
-  "gen", // Tauri-generated files under targets/desktop/
+  "gen", // Tauri-generated files under targets/web-shell/
   "dist-ssr", // throwaway SSR bundle from the online web build
-  "target", // Rust/Cargo build output (targets/desktop/target)
+  "target", // Rust/Cargo build output (targets/web-shell/target)
 ]);
 
 // Intentional *illustrative* link targets (teaching link syntax in the docs) — not real files.

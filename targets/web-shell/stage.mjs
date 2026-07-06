@@ -6,7 +6,7 @@
  * payload MIRRORS the repo layout so the backend's relative imports (which reach the
  * engine via `../../../engine/…`, the shared providers via `../shared/…`, and the
  * user overlay via `../../../user/…`) resolve unchanged inside the working copy.
- * This script assembles that payload under `targets/desktop/app/`:
+ * This script assembles that payload under `targets/web-shell/app/`:
  *
  *   app/engine                the isomorphic prompt engine + its content (engine/data)
  *   app/targets/web/dist      the built LOCAL edition SPA
@@ -26,8 +26,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url)); // targets/desktop
-const repoRoot = path.resolve(scriptDir, "..", ".."); // targets/desktop is two below the repo root
+const scriptDir = path.dirname(fileURLToPath(import.meta.url)); // targets/web-shell
+const repoRoot = path.resolve(scriptDir, "..", ".."); // targets/web-shell is two below the repo root
 const webDir = path.join(repoRoot, "targets", "web"); // the web target (its dist/backend/shared)
 const stageDir = path.join(scriptDir, "app");
 // Where to find installed packages when staging the production dep closure.

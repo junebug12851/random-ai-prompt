@@ -9,7 +9,7 @@ _Current state only._ For the chronological history of what changed each session
 manifest/settings/content-safety modules), and the engine **owns its content** under `engine/data/`
 (lists, presets, sources, and the `{#name}` dynamic-prompt generators). Build targets live under
 `targets/`: `targets/web/` is the React/Vite web target (ONE npm package, split into `frontend/` +
-`backend/` + `shared/`), and `targets/desktop/` is the Tauri shell (its own package; wraps the built local
+`backend/` + `shared/`), and `targets/web-shell/` is the Tauri shell (its own package; wraps the built local
 web target). `targets/shared/` is reserved for cross-target code and a `targets/cli/` target is planned.
 The universal override overlay stays at the repo-root `user/` (`user/lists`, `user/blocks`). Build/meta
 tooling is in `scripts/`, the Node engine test suite in `tests/` (the web target has its own under
@@ -69,7 +69,7 @@ Privacy page updated (desktop update-check disclosure). See
 
 **Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
 edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as
-just one deployment of the online edition. New **desktop edition** (`targets/desktop/`): a thin **Tauri**
+just one deployment of the online edition. New **desktop edition** (`targets/web-shell/`): a thin **Tauri**
 (Rust) shell that runs the unmodified local SPA + Node `/api` backend as a bundled **sidecar** (bundles
 the platform `node`, stages to a writable working copy that preserves user data across upgrades, launches
 `serve.js` on a free port, points the WebView at it). `release.yml` now attaches a self-hostable
@@ -96,7 +96,7 @@ Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `
 [`version/2026-07.md`](version/2026-07.md).
 
 **Version:** `2.46.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
-and the desktop `targets/desktop/tauri.conf.json`;
+and the desktop `targets/web-shell/tauri.conf.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
 

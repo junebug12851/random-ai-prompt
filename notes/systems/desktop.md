@@ -6,17 +6,17 @@ The desktop edition is **not a fork** of the app. It is a thin [Tauri](https://t
 shell that runs the *exact same* local-edition SPA + Node `/api` backend the build-from-source and
 `npm start` editions run. All prompt logic, generation, the gallery, Manage, and the providers stay
 in the JS engine (`src/`) and the Node server (`targets/web/backend/`); the shell only launches them inside a
-native window. Everything lives under **`targets/desktop/`**.
+native window. Everything lives under **`targets/web-shell/`**.
 
 ## The pieces
 
 | File | Role |
 |------|------|
-| `targets/desktop/src/lib.rs` | The shell. Stages the payload to a writable working copy, launches the Node backend as a child process (the "sidecar"), waits for it to listen, then points the WebView at it. Kills the child on exit. |
-| `targets/desktop/stage.mjs` | Build-time staging (`beforeBuildCommand`). Assembles the runnable app payload under `targets/desktop/app/` and copies the platform Node binary as the sidecar runtime. |
-| `targets/desktop/tauri.conf.json` | Tauri config: bundles `app/**/*` as a resource, the `frontend/` splash as the initial page, and per-OS bundle targets. `version` is kept mirrored to the repo `VERSION`. |
-| `targets/desktop/frontend/index.html` | A tiny branded splash shown while the Node backend boots (before the WebView navigates to it). |
-| `targets/desktop/Cargo.toml` | Rust crate. Deps: `tauri`, `tauri-plugin-log`, `serde`/`serde_json`, `log`. No app logic. |
+| `targets/web-shell/src/lib.rs` | The shell. Stages the payload to a writable working copy, launches the Node backend as a child process (the "sidecar"), waits for it to listen, then points the WebView at it. Kills the child on exit. |
+| `targets/web-shell/stage.mjs` | Build-time staging (`beforeBuildCommand`). Assembles the runnable app payload under `targets/web-shell/app/` and copies the platform Node binary as the sidecar runtime. |
+| `targets/web-shell/tauri.conf.json` | Tauri config: bundles `app/**/*` as a resource, the `frontend/` splash as the initial page, and per-OS bundle targets. `version` is kept mirrored to the repo `VERSION`. |
+| `targets/web-shell/frontend/index.html` | A tiny branded splash shown while the Node backend boots (before the WebView navigates to it). |
+| `targets/web-shell/Cargo.toml` | Rust crate. Deps: `tauri`, `tauri-plugin-log`, `serde`/`serde_json`, `log`. No app logic. |
 
 npm scripts (in `targets/web/package.json`): `stage` (run the stager), `desktop:build` (`npm run build` →
 `tauri build`), `desktop:dev` (`npm run build` → `tauri dev`). The Tauri CLI is a gui devDependency
@@ -33,7 +33,7 @@ transports (Vite dev middleware, `npm start`, the desktop shell) — they cannot
 
 ## Staging (`stage.mjs`)
 
-Assembles `targets/desktop/app/`:
+Assembles `targets/web-shell/app/`:
 
 - `src/`, `data/` — the engine + content (copied from the repo root).
 - `targets/web/dist/` — the built **local** edition SPA (`VITE_ONLINE` unset).
