@@ -130,17 +130,24 @@ function PromptComposer({ settings, setSettings, onGenerate, compact = false }, 
     rewriteProv?.rewriteLabel || rewriteProv?.label || intl.formatMessage(msgs.aiFallback);
   const hasRewrite = !!rewriteProv;
 
+  // Both setters accept a plain value OR an updater `(current) => next`, so callers that must build
+  // from the latest value (e.g. rapid building-block inserts) don't read a stale render-time value.
+  const resolveNext = (next, current) => (typeof next === "function" ? next(current ?? "") : next);
   const prompt = settings.prompt;
-  const setPrompt = (p) => setSettings({ ...settings, prompt: p });
+  const setPrompt = (next) =>
+    setSettings((s) => ({ ...s, prompt: resolveNext(next, s.prompt ?? "") }));
 
   const editMode = supportsNegative ? composeMode : "prompt";
   const negative = settings.providerParams?.[pid]?.negativePrompt ?? "";
-  const setNegative = (v) =>
+  const setNegative = (next) =>
     setSettings((s) => ({
       ...s,
       providerParams: {
         ...s.providerParams,
-        [pid]: { ...s.providerParams?.[pid], negativePrompt: v },
+        [pid]: {
+          ...s.providerParams?.[pid],
+          negativePrompt: resolveNext(next, s.providerParams?.[pid]?.negativePrompt ?? ""),
+        },
       },
     }));
   const activeValue = editMode === "negative" ? negative : prompt;
@@ -164,8 +171,12 @@ function PromptComposer({ settings, setSettings, onGenerate, compact = false }, 
   }, []);
 
   function insert(token) {
-    const sep = activeValue && !/\s$/.test(activeValue) ? ", " : "";
-    setActiveValue(`${activeValue}${sep}${token}`);
+    // Functional update so two quick inserts (before React commits) both append instead of the
+    // second overwriting the first from a stale render-time value.
+    setActiveValue((current = "") => {
+      const sep = current && !/\s$/.test(current) ? ", " : "";
+      return `${current}${sep}${token}`;
+    });
   }
 
   // No deps array on purpose: the handle is recreated each render so `insert` always closes over the

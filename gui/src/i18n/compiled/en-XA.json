@@ -233,6 +233,50 @@
       "value": "]"
     }
   ],
+  "app.deleteManyFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " ƈǿǿŭŭŀḓƞ'ŧ ƀḗḗ ḓḗḗŀḗḗŧḗḗḓ ȧȧƞḓ ȧȧřḗḗ şŧīŀŀ ŧħḗḗřḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.feature.gallery": [
     {
       "type": 0,

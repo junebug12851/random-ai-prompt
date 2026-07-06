@@ -45,6 +45,10 @@
     "defaultMessage": "Delete {count, plural, one {# image} other {# images}} and their metadata from disk? This can't be undone.",
     "description": "Confirm dialog before mass-deleting selected images from disk"
   },
+  "app.deleteManyFailed": {
+    "defaultMessage": "{count, plural, one {# image} other {# images}} couldn't be deleted and are still there.",
+    "description": "Alert shown when some images in a mass delete fail to delete"
+  },
   "app.feature.gallery": {
     "defaultMessage": "The gallery",
     "description": "Noun phrase for the gallery, used in the online-locked tooltip"

@@ -51,6 +51,26 @@ describe("Gallery multi-select", () => {
     expect(onDeleteMany).toHaveBeenCalledWith(["/api/output/a.png"]);
   });
 
+  it("keeps the selection when the mass delete is cancelled", async () => {
+    const onDeleteMany = vi.fn(() => false); // App returns false on a cancelled confirm
+    renderGallery({ onDeleteMany });
+    fireEvent.click(screen.getByRole("button", { name: "Select" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select: a fox" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete 1 image" }));
+    expect(onDeleteMany).toHaveBeenCalled();
+    // Selection preserved because the delete was cancelled.
+    expect(await screen.findByText("1 selected")).toBeTruthy();
+  });
+
+  it("clears the selection after a successful mass delete", async () => {
+    const onDeleteMany = vi.fn(() => true);
+    renderGallery({ onDeleteMany });
+    fireEvent.click(screen.getByRole("button", { name: "Select" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select: a fox" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete 1 image" }));
+    expect(await screen.findByText("None selected")).toBeTruthy();
+  });
+
   it("select-all covers every filtered item", () => {
     const onDeleteMany = vi.fn();
     renderGallery({ onDeleteMany });

@@ -236,7 +236,10 @@ export default function Gallery({
   async function deleteSelected() {
     const paths = [...selected];
     if (!paths.length) return;
-    await onDeleteMany(paths);
+    // Clear the selection only when the delete actually happened — `onDeleteMany` returns false when
+    // the user cancels the confirm dialog, in which case the selection should stay put.
+    const deleted = await onDeleteMany(paths);
+    if (deleted === false) return;
     setSelected(new Set());
   }
 
@@ -317,7 +320,9 @@ export default function Gallery({
     gridAutoRows: `${CELL}px`,
     gap: `${GAP}px`,
   };
-  const allSelected = filtered.length > 0 && selected.size >= filtered.length;
+  // "All selected" must be judged against the currently-filtered items — a raw size compare is wrong
+  // when the selection still holds items from a previous filter.
+  const allSelected = filtered.length > 0 && filtered.every((item) => selected.has(item.path));
 
   return (
     <div className="gallery-view" ref={scrollerRef} onScroll={onScroll}>

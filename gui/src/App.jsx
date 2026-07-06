@@ -133,6 +133,12 @@ const msgs = defineMessages({
       "Delete {count, plural, one {# image} other {# images}} and their metadata from disk? This can't be undone.",
     description: "Confirm dialog before mass-deleting selected images from disk",
   },
+  deleteManyFailed: {
+    id: "app.deleteManyFailed",
+    defaultMessage:
+      "{count, plural, one {# image} other {# images}} couldn't be deleted and are still there.",
+    description: "Alert shown when some images in a mass delete fail to delete",
+  },
   deleteAction: {
     id: "app.deleteAction",
     defaultMessage: "Delete",
@@ -513,7 +519,7 @@ function AppShell({ settings, setSettings }) {
   // neighbor (or leave the single view).
   async function deleteManyItems(paths) {
     const targets = Array.isArray(paths) ? paths.filter(Boolean) : [];
-    if (!targets.length) return;
+    if (!targets.length) return false;
     if (
       !(await dialog.confirm({
         message: intl.formatMessage(msgs.deleteManyConfirm, { count: targets.length }),
@@ -521,13 +527,22 @@ function AppShell({ settings, setSettings }) {
         destructive: true,
       }))
     )
-      return;
+      return false; // cancelled — the caller keeps the selection
     const doomed = new Set(targets);
-    await Promise.all(targets.map((p) => deleteImageFile(p)));
-    const remaining = items.filter((x) => !doomed.has(x.path));
-    setItems(remaining);
-    setCurrent((cur) => (cur && doomed.has(cur.path) ? remaining[0] || null : cur));
+    // Delete each file independently (one failure must not abort the rest), then rebuild the feed
+    // from disk — that's authoritative, so we never clobber a concurrent SSE refresh or a gallery
+    // generation that landed while the confirm dialog was open (the stale-snapshot bug).
+    const results = await Promise.allSettled(targets.map((p) => deleteImageFile(p)));
+    const fresh = await loadFeed();
+    setCurrent((cur) => (cur && doomed.has(cur.path) ? fresh[0] || null : cur));
     if (view === "single" && current && doomed.has(current.path)) setView(returnTo);
+    const failed = results.filter((r) => r.status === "rejected").length;
+    if (failed) {
+      // Surface partial failures rather than swallowing them; the successfully-deleted ones are
+      // already gone from the rebuilt feed, and any that failed are still present.
+      await dialog.alert({ message: intl.formatMessage(msgs.deleteManyFailed, { count: failed }) });
+    }
+    return true;
   }
 
   // Generate images straight into the gallery from the gallery's own prompt box: placeholder cells
