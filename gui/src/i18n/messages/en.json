@@ -41,6 +41,14 @@
     "defaultMessage": "Delete this image and its metadata from disk? This can't be undone.",
     "description": "Confirm dialog before deleting an image from disk"
   },
+  "app.deleteManyConfirm": {
+    "defaultMessage": "Delete {count, plural, one {# image} other {# images}} and their metadata from disk? This can't be undone.",
+    "description": "Confirm dialog before mass-deleting selected images from disk"
+  },
+  "app.deleteManyFailed": {
+    "defaultMessage": "{count, plural, one {# image} other {# images}} couldn't be deleted and are still there.",
+    "description": "Alert shown when some images in a mass delete fail to delete"
+  },
   "app.feature.gallery": {
     "defaultMessage": "The gallery",
     "description": "Noun phrase for the gallery, used in the online-locked tooltip"
@@ -64,6 +72,10 @@
   "app.nsfwProceed": {
     "defaultMessage": "NSFW mode is on. Continue with {provider} anyway?",
     "description": "Soft confirm before using a safe-for-work-only provider while NSFW mode is on"
+  },
+  "app.skipToContent": {
+    "defaultMessage": "Skip to main content",
+    "description": "Keyboard skip link shown when focused, jumps past the header to the main view"
   },
   "app.switchView": {
     "defaultMessage": "Switch view",
@@ -474,6 +486,9 @@
   "folderEd.saving": {
     "defaultMessage": "Saving…"
   },
+  "gallery.clearSelection": {
+    "defaultMessage": "Clear"
+  },
   "gallery.countImages": {
     "defaultMessage": "{count, plural, one {# image} other {# images}}"
   },
@@ -483,11 +498,23 @@
   "gallery.delete": {
     "defaultMessage": "Delete image"
   },
+  "gallery.deleteSelected": {
+    "defaultMessage": "{count, plural, one {Delete # image} other {Delete # images}}"
+  },
+  "gallery.done": {
+    "defaultMessage": "Done"
+  },
+  "gallery.doneSelecting": {
+    "defaultMessage": "Exit selection"
+  },
   "gallery.emptyNone": {
     "defaultMessage": "No images yet."
   },
   "gallery.emptySub": {
     "defaultMessage": "Generate some images and they'll appear here, read straight from your <code>output/</code> folder. (The gallery needs the local dev server — a static build has no folder to read.)"
+  },
+  "gallery.generating": {
+    "defaultMessage": "Generating…"
   },
   "gallery.loading": {
     "defaultMessage": "loading…"
@@ -511,8 +538,30 @@
   "gallery.reveal": {
     "defaultMessage": "Reveal in file explorer"
   },
+  "gallery.searchAria": {
+    "defaultMessage": "Search the gallery"
+  },
   "gallery.searchPlaceholder": {
     "defaultMessage": "Search prompts, DPL, provider…"
+  },
+  "gallery.select": {
+    "defaultMessage": "Select"
+  },
+  "gallery.selectAll": {
+    "defaultMessage": "Select all"
+  },
+  "gallery.selectAria": {
+    "defaultMessage": "Select: {label}",
+    "description": "aria-label on a gallery thumbnail while in multi-select mode"
+  },
+  "gallery.selectTitle": {
+    "defaultMessage": "Select multiple images to delete"
+  },
+  "gallery.selectedCount": {
+    "defaultMessage": "{count, plural, =0 {None selected} one {# selected} other {# selected}}"
+  },
+  "gallery.selectionBarAria": {
+    "defaultMessage": "Selection actions"
   },
   "gallery.title": {
     "defaultMessage": "Photo gallery"
@@ -562,6 +611,9 @@
   },
   "home.composeModeAria": {
     "defaultMessage": "Edit the prompt or the negative prompt"
+  },
+  "home.composerGenerating": {
+    "defaultMessage": "Generating…"
   },
   "home.confirmClearAll": {
     "defaultMessage": "Clear all results — delete their {count, plural, one {# image file} other {# image files}} from disk too?"

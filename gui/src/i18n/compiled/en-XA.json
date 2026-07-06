@@ -185,6 +185,98 @@
       "value": "]"
     }
   ],
+  "app.deleteManyConfirm": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓḗḗŀḗḗŧḗḗ "
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " ȧȧƞḓ ŧħḗḗīř ḿḗḗŧȧȧḓȧȧŧȧȧ ƒřǿǿḿ ḓīşķ? Ŧħīş ƈȧȧƞ'ŧ ƀḗḗ ŭŭƞḓǿǿƞḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.deleteManyFailed": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": " ƈǿǿŭŭŀḓƞ'ŧ ƀḗḗ ḓḗḗŀḗḗŧḗḗḓ ȧȧƞḓ ȧȧřḗḗ şŧīŀŀ ŧħḗḗřḗḗ."
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "app.feature.gallery": [
     {
       "type": 0,
@@ -271,6 +363,20 @@
     {
       "type": 0,
       "value": " ȧȧƞẏẇȧȧẏ?"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "app.skipToContent": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şķīƥ ŧǿǿ ḿȧȧīƞ ƈǿǿƞŧḗḗƞŧ"
     },
     {
       "type": 0,
@@ -2379,6 +2485,20 @@
       "value": "]"
     }
   ],
+  "gallery.clearSelection": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ƈŀḗḗȧȧř"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "gallery.countImages": [
     {
       "type": 0,
@@ -2473,6 +2593,82 @@
       "value": "]"
     }
   ],
+  "gallery.deleteSelected": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 0,
+              "value": "Ḓḗḗŀḗḗŧḗḗ "
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 0,
+              "value": "Ḓḗḗŀḗḗŧḗḗ "
+            },
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " īḿȧȧɠḗḗş"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.done": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḓǿǿƞḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.doneSelecting": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ḗẋīŧ şḗḗŀḗḗƈŧīǿǿƞ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "gallery.emptyNone": [
     {
       "type": 0,
@@ -2509,6 +2705,20 @@
     {
       "type": 0,
       "value": " ƒǿǿŀḓḗḗř. (Ŧħḗḗ ɠȧȧŀŀḗḗřẏ ƞḗḗḗḗḓş ŧħḗḗ ŀǿǿƈȧȧŀ ḓḗḗṽ şḗḗřṽḗḗř — ȧȧ şŧȧȧŧīƈ ƀŭŭīŀḓ ħȧȧş ƞǿǿ ƒǿǿŀḓḗḗř ŧǿǿ řḗḗȧȧḓ.)"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.generating": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧīƞɠ…"
     },
     {
       "type": 0,
@@ -2625,6 +2835,20 @@
       "value": "]"
     }
   ],
+  "gallery.searchAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗȧȧřƈħ ŧħḗḗ ɠȧȧŀŀḗḗřẏ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
   "gallery.searchPlaceholder": [
     {
       "type": 0,
@@ -2633,6 +2857,128 @@
     {
       "type": 0,
       "value": "Şḗḗȧȧřƈħ ƥřǿǿḿƥŧş, ḒƤĿ, ƥřǿǿṽīḓḗḗř…"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.select": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.selectAll": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧ ȧȧŀŀ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.selectAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧ: "
+    },
+    {
+      "type": 1,
+      "value": "label"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.selectTitle": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧ ḿŭŭŀŧīƥŀḗḗ īḿȧȧɠḗḗş ŧǿǿ ḓḗḗŀḗḗŧḗḗ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.selectedCount": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 6,
+      "value": "count",
+      "options": {
+        "=0": {
+          "value": [
+            {
+              "type": 0,
+              "value": "Ƞǿǿƞḗḗ şḗḗŀḗḗƈŧḗḗḓ"
+            }
+          ]
+        },
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " şḗḗŀḗḗƈŧḗḗḓ"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " şḗḗŀḗḗƈŧḗḗḓ"
+            }
+          ]
+        }
+      },
+      "offset": 0,
+      "pluralType": "cardinal"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "gallery.selectionBarAria": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Şḗḗŀḗḗƈŧīǿǿƞ ȧȧƈŧīǿǿƞş"
     },
     {
       "type": 0,
@@ -2865,6 +3211,20 @@
     {
       "type": 0,
       "value": "Ḗḓīŧ ŧħḗḗ ƥřǿǿḿƥŧ ǿǿř ŧħḗḗ ƞḗḗɠȧȧŧīṽḗḗ ƥřǿǿḿƥŧ"
+    },
+    {
+      "type": 0,
+      "value": "]"
+    }
+  ],
+  "home.composerGenerating": [
+    {
+      "type": 0,
+      "value": "["
+    },
+    {
+      "type": 0,
+      "value": "Ɠḗḗƞḗḗřȧȧŧīƞɠ…"
     },
     {
       "type": 0,

@@ -11,6 +11,19 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
+**Gallery composer + live placeholders, multi-select, a11y + SEO (2.45.0 — branch
+`feature/gallery-composer-a11y-seo`, on `dev` pending review):** the composer prompt box was extracted
+into a reusable `gui/src/components/PromptComposer.jsx` (Home markup unchanged); the **Gallery** now
+carries a narrow copy of it in a `.g-composer` slot at the top, and generating from it streams **live
+placeholder cells** into the grid that resolve into the finished images as each batch lands (isolated
+orchestrator `gui/src/lib/gallery/generateIntoGallery.js`; the perf-critical `useImageBatches` is
+untouched). The gallery gained **multi-select + mass delete** (checkboxes, select-all, one-confirm disk
+delete via `App.deleteManyItems`). An **accessibility** pass added a skip link, a landmark `<h1>`,
+`role="tabpanel"` view panes, `role="alert"`/`aria-live` regions, a `prefers-reduced-motion` guard, and
+`.sr-only`/`.skip-link` utilities (axe A/AA clean). An **SEO** pass added `sitemap.xml`, a `FAQPage` +
+enriched `WebApplication` JSON-LD, and a `keywords` meta. New tests:
+`generateIntoGallery` + `GalleryMultiSelect`. See [`version/2026-07.md`](version/2026-07.md).
+
 **Auto-updating — check-and-notify shipped; desktop auto-install implemented (2.44.0):** local/desktop
 editions check for a newer GitHub release on launch and show a dismissible **corner card**,
 **edition-aware** (download the new installer/portable/release, or a copyable `git pull` for a checkout)
@@ -18,13 +31,14 @@ editions check for a newer GitHub release on launch and show a dismissible **cor
 `useUpdateCheck.js` + `components/UpdateBanner.jsx`); backend `GET /api/update` fetches the latest
 release **server-side** (1 h cache) + detects the edition (Tauri stamps `RAP_EDITION`; else `.git` ⇒ git;
 else source); dismissal + throttle persist through the new `update` storage namespace. **Phase 2 (full
-in-app auto-installer) is now fully wired** behind the `updater` Cargo feature: signing public key
-committed, a Rust check-on-launch → native-prompt → install/relaunch trigger (compile-verified with
-`cargo check --features updater`; default build pulls in neither the updater nor dialog crate), and a CI
-`updater-manifest` job that assembles `latest.json`. It stays **inert** until the owner adds the private
-signing key as a CI secret — the one remaining step
-([`reference/desktop-updater.md`](reference/desktop-updater.md)). Privacy page updated (desktop
-update-check disclosure). See [`plans/updates-upgrades.md`](plans/updates-upgrades.md).
+in-app auto-installer) is LIVE** behind the `updater` Cargo feature: signing public key committed, a Rust
+check-on-launch → native-prompt → install/relaunch trigger (compile-verified; default build pulls in
+neither the updater nor dialog crate), and a CI `updater-manifest` job that assembles `latest.json`. The
+CI signing secret is set and the **first signed release (v2.44.0) shipped** — all installers + `.sig` +
+a valid `latest.json` attached — so installed builds prompt-and-self-update from the next release on.
+Privacy page updated (desktop update-check disclosure). See
+[`reference/desktop-updater.md`](reference/desktop-updater.md) +
+[`plans/updates-upgrades.md`](plans/updates-upgrades.md).
 
 **Pre-built distribution + desktop edition (2.43.0 — branch `feature/prebuilt-distribution`):** every
 edition now ships **pre-built** so nobody has to build from source, and the hosted site is reframed as

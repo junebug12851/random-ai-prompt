@@ -14,7 +14,8 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 | File | Role |
 |------|------|
 | `src/main.jsx` / `src/App.jsx` | Entry + shell (brand top-bar, hero, footer; opens the settings drawer). |
-| `src/components/` | The UI across four top-level views — `Home` (compose + generate), `Gallery`, `SingleView`, and the `Manage` content editor — plus `ProvidersMenu`, `DplEditor`, `SettingsDrawer`/`Settings`, and `Field`. (Sub-areas are grouped under `components/{home,manage,single}/`.) |
+| `src/components/` | The UI across four top-level views — `Home` (compose + generate), `Gallery`, `SingleView`, and the `Manage` content editor — plus `ProvidersMenu`, `DplEditor`, `SettingsDrawer`/`Settings`, and `Field`. (Sub-areas are grouped under `components/{home,manage,single}/`.) The composer prompt box lives in a reusable **`PromptComposer`** (forwardRef, `insert(token)` handle, `onGenerate(text)` callback) shared by `Home` and a compact copy atop the `Gallery`. |
+| `src/lib/gallery/generateIntoGallery.js` | The Gallery's own image-generation flow — streams live placeholder cells into the grid and ingests each finished image to the feed. The counterpart to `lib/home/useImageBatches.js` (which drives the Home prompt list); kept separate so the perf-critical Home path is untouched, but mirrors its rewrite passes + sidecar `meta` shape + concurrency limiter. |
 | `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
 | `src/lib/catalog.js` | The token catalog (lists + dynamic prompts) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
