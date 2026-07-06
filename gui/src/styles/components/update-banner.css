@@ -18,8 +18,8 @@
   color: var(--fg);
   font-size: 0.85rem;
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.28),
-    0 2px 8px rgba(0, 0, 0, 0.18);
+    0 10px 30px rgb(0 0 0 / 28%),
+    0 2px 8px rgb(0 0 0 / 18%);
   animation: update-banner-in 0.22s ease-out;
 }
 
@@ -28,6 +28,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
