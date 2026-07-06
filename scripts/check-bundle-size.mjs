@@ -12,7 +12,7 @@ import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const assetsDir = path.join(root, "gui", "dist", "assets");
+const assetsDir = path.join(root, "targets", "web", "dist", "assets");
 
 // Gzipped-JS budget for the whole SPA bundle. Set with headroom above the current
 // footprint; CI fails if a change pushes the shipped JS past it.

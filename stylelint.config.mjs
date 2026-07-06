@@ -24,7 +24,12 @@
 //    own classes.
 export default {
   extends: "stylelint-config-standard",
-  ignoreFiles: ["**/node_modules/**", "targets/web/dist/**", "targets/web/coverage/**", "targets/web-shell/**"],
+  ignoreFiles: [
+    "**/node_modules/**",
+    "targets/web/dist/**",
+    "targets/web/coverage/**",
+    "targets/web-shell/**",
+  ],
   rules: {
     "no-descending-specificity": null,
     "no-duplicate-selectors": null,

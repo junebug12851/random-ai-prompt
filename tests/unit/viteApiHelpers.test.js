@@ -5,7 +5,12 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import path from "node:path";
-import { resolveOutputFile, OUTPUT_DIR, send, readJson } from "../../targets/web/backend/vite-api-helpers.js";
+import {
+  resolveOutputFile,
+  OUTPUT_DIR,
+  send,
+  readJson,
+} from "../../targets/web/backend/vite-api-helpers.js";
 
 describe("resolveOutputFile", () => {
   it("resolves a bare filename to a file inside the output dir", () => {

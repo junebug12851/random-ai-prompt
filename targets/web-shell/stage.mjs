@@ -99,10 +99,7 @@ const stagePkg = {
     lodash: rootPkg.dependencies.lodash,
   },
 };
-fs.writeFileSync(
-  path.join(stageDir, "package.json"),
-  `${JSON.stringify(stagePkg, null, 2)}\n`,
-);
+fs.writeFileSync(path.join(stageDir, "package.json"), `${JSON.stringify(stagePkg, null, 2)}\n`);
 
 // Copy the production dependency closure (lodash + compromise, both zero-dep) from
 // the installed node_modules into the staged tree — offline and deterministic, with
@@ -126,7 +123,9 @@ console.log("stage: copying production deps (lodash + compromise)…");
       }
     }
     if (!from) {
-      throw new Error(`stage: cannot find '${name}' in node_modules — run npm install at the repo root first`);
+      throw new Error(
+        `stage: cannot find '${name}' in node_modules — run npm install at the repo root first`,
+      );
     }
     fs.cpSync(from, path.join(nmDir, name), { recursive: true });
     const pj = JSON.parse(fs.readFileSync(path.join(from, "package.json"), "utf8"));

@@ -41,7 +41,7 @@ function imageMime(file) {
 /** A representative content tree for the Manage screen's left panel. */
 function sampleTree() {
   return {
-    "blocks": {
+    blocks: {
       name: "blocks",
       dirs: [
         { name: "scene", dirs: [], files: ["city.js", "forest.js", "lake.js"] },

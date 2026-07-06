@@ -40,9 +40,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "app/**/*"
-    ],
+    "resources": ["app/**/*"],
     "windows": {
       "nsis": {
         "installMode": "currentUser"

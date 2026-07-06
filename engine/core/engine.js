@@ -45,7 +45,7 @@ export function createEngine(loader) {
   const store = createListStore(loader);
 
   const stages = {
-    "block": makeBlockStage(loader),
+    block: makeBlockStage(loader),
     "prompt-salt": promptSalt,
     list: makeListStage(store),
     emphasis,

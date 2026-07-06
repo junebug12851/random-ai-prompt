@@ -190,8 +190,8 @@ function transpileTree(absDir, relBase) {
   return n;
 }
 const waCount =
-  transpileTree(path.join(root, "gui", "src"), "src") +
-  transpileTree(path.join(root, "gui", "netlify"), "netlify");
+  transpileTree(path.join(root, "targets", "web", "frontend"), "frontend") +
+  transpileTree(path.join(root, "targets", "web", "netlify"), "netlify");
 console.log(`Transpiled ${waCount} gui files (JSX stripped) into tmp/webapp-docs for JSDoc.`);
 
 console.log(`Wired ${linkMap.size} note pages into JSDoc tutorials. Running JSDoc (docdash)…`);

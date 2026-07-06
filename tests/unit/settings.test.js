@@ -13,13 +13,7 @@ describe("default settings", () => {
   });
 
   it("declares the v3 pipeline order", () => {
-    expect(settings.promptModules).toEqual([
-      "block",
-      "prompt-salt",
-      "list",
-      "emphasis",
-      "cleanup",
-    ]);
+    expect(settings.promptModules).toEqual(["block", "prompt-salt", "list", "emphasis", "cleanup"]);
   });
 
   it("defaults to SFW StableDiffusion", () => {

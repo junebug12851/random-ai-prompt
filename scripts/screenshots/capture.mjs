@@ -38,7 +38,7 @@ import { Recorder, encodeGif } from "./frames.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, "..", "..");
-const DIST = join(REPO, "gui", "dist");
+const DIST = join(REPO, "targets", "web", "dist");
 
 const args = process.argv.slice(2);
 const has = (flag) => args.includes(flag);

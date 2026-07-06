@@ -20,13 +20,16 @@ const manifest = {
     ...Object.keys(snap.lists).map((k) => `${k}.txt`),
     ...Object.keys(snap.listGroups).map((k) => `${k}.group`),
   ].sort(),
-  "blocks": [
+  blocks: [
     ...Object.keys(snap.dpDpl).map((k) => `${k}.dpl`),
     ...snap.dpJsKeys.map((k) => `${k}.js`),
   ].sort(),
 };
 
-const outPath = path.join(fileURLToPath(new URL("../engine/data/", import.meta.url)), "manifest.json");
+const outPath = path.join(
+  fileURLToPath(new URL("../engine/data/", import.meta.url)),
+  "manifest.json",
+);
 fs.writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(
   `wrote ${path.relative(process.cwd(), outPath)} — ${manifest.lists.length} lists, ${manifest["blocks"].length} generators`,

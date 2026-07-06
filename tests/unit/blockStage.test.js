@@ -73,9 +73,7 @@ describe("block — dedup / stacking", () => {
   });
 
   it("honors user-typed top-level duplicates", () => {
-    const stage = makeBlockStage(
-      loader({ modules: { weather: { default: () => "rain" } } }),
-    );
+    const stage = makeBlockStage(loader({ modules: { weather: { default: () => "rain" } } }));
     expect(run(stage, "{#weather}, {#weather}")).toBe("rain, rain");
   });
 
@@ -120,9 +118,7 @@ describe("block — groups and {#any}", () => {
 });
 
 describe("block — NSFW gating", () => {
-  const stage = makeBlockStage(
-    loader({ modules: { "nude-nsfw": { default: () => "x" } } }),
-  );
+  const stage = makeBlockStage(loader({ modules: { "nude-nsfw": { default: () => "x" } } }));
   it("is empty when adult is off", () => {
     expect(run(stage, "{#nude-nsfw}", S({ includeAdult: false }))).toBe("");
   });
@@ -147,9 +143,7 @@ describe("block — auto-append", () => {
 
 describe("block — danbooru replacer", () => {
   it("replaces ', Person' with {d/person} only for a d/ keyword file", () => {
-    const stage = makeBlockStage(
-      loader({ modules: { g: { default: () => "a, Person" } } }),
-    );
+    const stage = makeBlockStage(loader({ modules: { g: { default: () => "a, Person" } } }));
     // The replacer regex `/, ?Person/` consumes the comma + space, so "a, Person" → "a{d/person}".
     expect(run(stage, "{#g}", S({ keywordsFilename: "d/general" }))).toBe("a{d/person}");
     expect(run(stage, "{#g}", S({ keywordsFilename: "keyword" }))).toBe("a, Person");
@@ -158,9 +152,7 @@ describe("block — danbooru replacer", () => {
 
 describe("block — re-expansion cap", () => {
   it("does not loop forever on a self-importing generator and leaves nothing dangling", () => {
-    const stage = makeBlockStage(
-      loader({ modules: { loop: { default: () => "{#loop}" } } }),
-    );
+    const stage = makeBlockStage(loader({ modules: { loop: { default: () => "{#loop}" } } }));
     const out = run(stage, "{#loop}");
     expect(out).not.toContain("{#loop}"); // dedup stops the recursion within the cap
   });

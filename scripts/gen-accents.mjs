@@ -47,6 +47,9 @@ for (const a of accents) {
     `}\n\n`;
 }
 
-const dest = path.resolve(import.meta.dirname, "../targets/web/frontend/styles/foundation/accents.css");
+const dest = path.resolve(
+  import.meta.dirname,
+  "../targets/web/frontend/styles/foundation/accents.css",
+);
 writeFileSync(dest, out);
 console.log(`wrote ${dest} (${accents.length - 1} accents)`);
