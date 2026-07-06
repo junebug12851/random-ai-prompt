@@ -39,7 +39,7 @@ jobs:
 
       - name: Install deps + Node coverage
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run test:coverage
 
       - name: SonarQube Cloud scan

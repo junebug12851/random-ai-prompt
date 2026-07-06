@@ -73,7 +73,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.ver.outputs.should_release == 'true'
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Verify (lint + smoke test)
         if: steps.ver.outputs.should_release == 'true'
@@ -240,7 +240,7 @@ jobs:
             libayatana-appindicator3-dev librsvg2-dev patchelf
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       # Builds the local SPA, stages the payload (stage.mjs), then `tauri build`.
       - name: Build the desktop app

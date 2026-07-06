@@ -7,8 +7,7 @@ name: Update visual baselines (Linux)
 # under tests/e2e/visual.spec.js-snapshots/. Run this whenever the SPA's stable chrome
 # changes. See notes/plans/testing.md and notes/reference/deployment.md.
 #
-# The project lives at the repo root. Install uses `npm install` (not `npm ci`) for the same
-# Windows-lock/@emnapi reason as ci.yml.
+# The project lives at the repo root. Install uses `npm ci` (lockfile-pinned), same as ci.yml.
 
 on:
   workflow_dispatch:
@@ -31,8 +30,8 @@ jobs:
 
       - name: Install dependencies (root + gui)
         run: |
-          npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          npm --prefix gui ci --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium
