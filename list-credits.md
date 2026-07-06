@@ -14,6 +14,11 @@ me (junebug12851) and are licensed public domain.
 
 Internally developed files atrtributed to Merk and me (juenbug12851)
 
+As of 2.46.0, user- and community-contributed lists and blocks live in the repo-root `user/` overlay
+(`user/lists`, `user/blocks`) — separate from the app's built-in `data/` content, which the app reads
+alongside `data/`. Contributions there (for example Merk's beach scenes) are credited to their authors;
+unless noted otherwise they are licensed public domain like the internally developed files above.
+
 All list files have been modified to work with this software by being cleaned up.
 As of 2.1.0 they were also passed through a content-safety filter
 (`src/contentSafety.js`) that removes slurs, content sexualizing minors, and

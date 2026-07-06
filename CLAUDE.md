@@ -65,6 +65,21 @@ The full notes system is in `notes/`, organized by topic:
   `presetFiles: "./data/presets"`), so they only resolve when the process runs from the **repo root** —
   which npm scripts always do (the package root is the repo root). There is no `chdir` shim: just run
   everything from the repo root. See `decisions/architecture.md`.
+- **There are TWO content roots — `data/` (app built-ins) and `user/` (the user overlay) — merged
+  USER-WINS.** As of 2.46.0 a repo-root `user/` folder (`user/lists`, `user/blocks` = dynamic prompts,
+  `user/settings` = the local per-namespace store) sits beside `data/`; the app watches both. Both
+  engine loaders scan two roots per pool (`src/core/nodeLoader.js` reads `[user, data]`, first hit wins;
+  the browser keeps names at first paint from lazy globs in `browserLoader.js` and loads user *content*
+  from a separate code-split `src/core/browserUserCatalog.js` overlaid last). A user file of the same
+  name **overrides** the built-in; a new name adds. The overlay is **local/desktop only** — gated OFF
+  the online build via `VITE_ONLINE` (user chunk not imported, user names dropped), so the hosted
+  bundle carries no user content. In Manage (`gui/server/manageFs.js`), `user-lists`/`user-blocks` are
+  separate roots grouped on top; the runtime **snapshot merges** them onto the built-in pools (user-wins)
+  so live generation honors the overlay, but tree/fs-ops stay per-root so edits land in `user/`. User
+  content has no upstream — `restoreFromRepo` REFUSES user roots (a 404 would delete the file) and
+  ghost/"restore default" is suppressed. The desktop shell seeds `user/` once and preserves it across
+  upgrades. NOTE this repo-root `user/` overlay is distinct from the `data/dynamic-prompts/user/`
+  category (the `{#user-name}` alias). See `user/README.md`.
 - **Config-driven plugin loading uses `createRequire`, on purpose.** Dynamic prompts and prompt
   modules are loaded by a runtime path, synchronously, inside string-replace callbacks. Node 24 can
   `require()` ES modules synchronously, so `createRequire(import.meta.url)` is the correct tool — do

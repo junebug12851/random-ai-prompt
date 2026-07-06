@@ -981,6 +981,9 @@
   "manage.editTitle": {
     "defaultMessage": "Edit {label}"
   },
+  "manage.emptyUserRoot": {
+    "defaultMessage": "Nothing here yet — use + to add your own."
+  },
   "manage.entrySoon": {
     "defaultMessage": "A full editor (with save + hot-apply) arrives next."
   },
@@ -1106,6 +1109,16 @@
   },
   "manage.typeSubfolder": {
     "defaultMessage": "Subfolder"
+  },
+  "manage.userBlocks": {
+    "defaultMessage": "Your blocks"
+  },
+  "manage.userLists": {
+    "defaultMessage": "Your lists"
+  },
+  "manage.yoursTag": {
+    "defaultMessage": "yours",
+    "description": "Small badge marking the user's own content roots at the top of Manage"
   },
   "nsfw.cancel": {
     "defaultMessage": "Cancel"

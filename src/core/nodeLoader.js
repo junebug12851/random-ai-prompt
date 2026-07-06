@@ -7,6 +7,13 @@
 // plugins with createRequire (Node 24 can require() ES modules synchronously).
 // Used for Node-side verification of the engine today, and the path by which the
 // CLI will share this same engine when Express is retired (migration phase 5).
+//
+// Two content roots per kind (the "user overlay"): the app's built-in content under `data/`, plus the
+// user's own content under `user/` (lists → user/lists, dynamic prompts/"blocks" → user/blocks). The
+// roots are searched in PRECEDENCE order — the USER root first — so a user file with the same name as
+// a built-in OVERRIDES it (same "your override wins" rule settings follow), while a new name simply
+// adds. Name enumeration unions both roots (order-independent); content reads return the first hit.
+// See user/README.md + notes/systems/core-engine.md.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,6 +32,13 @@ const require = createRequire(import.meta.url);
 const rootDir = fileURLToPath(new URL("../../", import.meta.url)); // repo root (src/core is two below)
 const listsRoot = path.join(rootDir, "data", "lists");
 const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
+const userListsRoot = path.join(rootDir, "user", "lists");
+const userBlocksRoot = path.join(rootDir, "user", "blocks");
+// Content roots in PRECEDENCE order — user FIRST, so user content overrides built-ins on a name
+// clash. `.dpl`/`.js` reads and list/group/meta reads walk these and take the first hit; name walks
+// union all roots.
+const listRoots = [userListsRoot, listsRoot];
+const dynRoots = [userBlocksRoot, dynPromptsRoot];
 
 // --- v3 DPL support -------------------------------------------------------
 // The active dynamic-prompt catalog is v3 (`.dpl`, with optional same-name `.js` sidecars)
@@ -34,7 +48,7 @@ const dynPromptsRoot = path.join(rootDir, "data", "dynamic-prompts");
 const dplCache = new Map();
 
 // --- catalog / read caches -------------------------------------------------
-// The on-disk data/ tree is static for the life of a Node process: the dev
+// The on-disk data/ + user/ trees are static for the life of a Node process: the dev
 // server's Manage tab hot-edits through a SEPARATE runtimeLoader, never this
 // loader, and the CLI/engine/tests only read. So the directory walks (which
 // recursively `readdirSync` the whole tree) and the line resolution (the
@@ -43,7 +57,7 @@ const dplCache = new Map();
 // one-time work. `nodeLoader.refresh()` drops every cache if the data ever
 // changes mid-process.
 const _physicalNamesCache = new Map(); // regex source -> string[]
-const _markedDirsCache = new Map(); // `${base}|${marker}` -> string[]
+const _markedDirsCache = new Map(); // `${bases}|${marker}` -> string[]
 const _listLinesCache = new Map(); // `${name}|${includeAdult}` -> string[]|null
 const _listMetaCache = new Map(); // name -> object|null
 const _dynMetaCache = new Map(); // name -> object|null
@@ -76,9 +90,10 @@ function makeDplBridge(fileDir) {
   };
 }
 
-// Generator keys under data/dynamic-prompts/<category>/, skipping `_`-prefixed internals. A `.dpl`
-// is the generator; a `.js` is a generator only when no same-name `.dpl` exists (otherwise it is
-// that `.dpl`'s sidecar).
+// Generator keys under a dynamic-prompt root's `<category>/`, skipping `_`-prefixed internals. A
+// `.dpl` is the generator; a `.js` is a generator only when no same-name `.dpl` exists (otherwise it
+// is that `.dpl`'s sidecar). Unions ALL dynamic roots so user blocks add to (and can override) the
+// built-in catalog.
 function dynGeneratorNames() {
   if (_dynGeneratorNames) return _dynGeneratorNames;
   const dpl = new Set();
@@ -99,84 +114,96 @@ function dynGeneratorNames() {
       }
     }
   };
-  walk(dynPromptsRoot, "");
+  for (const root of dynRoots) walk(root, "");
   const names = new Set(dpl);
   for (const n of js) if (!dpl.has(n)) names.add(n);
   _dynGeneratorNames = [...names];
   return _dynGeneratorNames;
 }
 
-// Read a list file's lines (`name.txt`) or a group file's lines (`name.group`),
-// or null when missing. `name` may be a nested path like "danbooru/d/general".
-function readListFile(name) {
-  try {
-    return fs.readFileSync(path.join(listsRoot, `${name}.txt`), "utf8").split("\n");
-  } catch {
-    return null;
+// Read a list file's lines (`name.txt`) or a group file's lines (`name.group`) from the first root
+// that has it (user root first), or null when missing in all roots. `name` may be a nested path like
+// "danbooru/d/general".
+function readFromRoots(roots, rel) {
+  for (const root of roots) {
+    try {
+      return fs.readFileSync(path.join(root, rel), "utf8").split("\n");
+    } catch {
+      /* try the next root */
+    }
   }
+  return null;
+}
+function readListFile(name) {
+  return readFromRoots(listRoots, `${name}.txt`);
 }
 function readGroupFile(name) {
-  try {
-    return fs.readFileSync(path.join(listsRoot, `${name}.group`), "utf8").split("\n");
-  } catch {
-    return null;
-  }
+  return readFromRoots(listRoots, `${name}.group`);
 }
-// Optional `<name>.json` sidecar metadata (currently `{ description }`), or null.
+// Optional `<name>.json` sidecar metadata (currently `{ description }`), user root first, or null.
 function readListMeta(name) {
   if (_listMetaCache.has(name)) return _listMetaCache.get(name);
-  let meta;
-  try {
-    meta = JSON.parse(fs.readFileSync(path.join(listsRoot, `${name}.json`), "utf8"));
-  } catch {
-    meta = null;
+  let meta = null;
+  for (const root of listRoots) {
+    try {
+      meta = JSON.parse(fs.readFileSync(path.join(root, `${name}.json`), "utf8"));
+      break;
+    } catch {
+      /* try the next root */
+    }
   }
   _listMetaCache.set(name, meta);
   return meta;
 }
 
-// Folders (relative "/"-joined paths) under `base` that contain a given marker file.
-function markedDirs(marker, base = listsRoot) {
-  const cacheKey = `${base}|${marker}`;
+// Folders (relative "/"-joined paths) that contain a given marker file, unioned across `bases`.
+function markedDirs(marker, bases = listRoots) {
+  const cacheKey = `${bases.join(",")}|${marker}`;
   const cached = _markedDirsCache.get(cacheKey);
   if (cached) return cached;
-  const out = [];
+  const out = new Set();
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
-      else if (entry.name === marker) out.push(prefix.replace(/\/$/, ""));
+      else if (entry.name === marker) out.add(prefix.replace(/\/$/, ""));
     }
   };
-  try {
-    walk(base, "");
-  } catch {
-    // ignore
+  for (const base of bases) {
+    try {
+      walk(base, "");
+    } catch {
+      // ignore a missing root
+    }
   }
-  _markedDirsCache.set(cacheKey, out);
-  return out;
+  const arr = [...out];
+  _markedDirsCache.set(cacheKey, arr);
+  return arr;
 }
 const forcedPrefixDirs = () => markedDirs("_force-prefix");
 
-// Recursively list names under data/lists as "/"-joined; `re` picks the extensions.
-// Files starting with `_` are internal/config (markers etc.) and never lists.
+// Recursively list names under the list roots as "/"-joined; `re` picks the extensions. Files
+// starting with `_` are internal/config (markers etc.) and never lists. Unions all list roots.
 function physicalNames(re) {
   const cached = _physicalNamesCache.get(re.source);
   if (cached) return cached;
-  const out = [];
+  const out = new Set();
   const walk = (dir, prefix) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) walk(path.join(dir, entry.name), `${prefix}${entry.name}/`);
       else if (!entry.name.startsWith("_") && re.test(entry.name))
-        out.push(`${prefix}${entry.name.replace(re, "")}`);
+        out.add(`${prefix}${entry.name.replace(re, "")}`);
     }
   };
-  try {
-    walk(listsRoot, "");
-  } catch {
-    // ignore
+  for (const root of listRoots) {
+    try {
+      walk(root, "");
+    } catch {
+      // ignore a missing root
+    }
   }
-  _physicalNamesCache.set(re.source, out);
-  return out;
+  const arr = [...out];
+  _physicalNamesCache.set(re.source, arr);
+  return arr;
 }
 const physicalListNames = () => physicalNames(/\.(txt|group)$/);
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
@@ -194,6 +221,8 @@ const allNames = () =>
 /**
  * Node data loader for the engine: filesystem reads + `createRequire` dynamic-prompt
  * loading. Implements `readListLines`, `listNames`, `loadDynamicPrompt`, `dynamicPromptNames`.
+ * Reads the app's built-in `data/` content AND the user overlay under `user/` (user wins on a name
+ * clash).
  * @type {object}
  */
 export const nodeLoader = {
@@ -225,22 +254,30 @@ export const nodeLoader = {
   },
   loadDynamicPrompt(key) {
     if (dplCache.has(key)) return dplCache.get(key);
-    const dplPath = path.join(dynPromptsRoot, `${key}.dpl`);
-    if (fs.existsSync(dplPath)) {
-      const mod = compileDpl(
-        fs.readFileSync(dplPath, "utf8"),
-        makeDplBridge(path.dirname(dplPath)),
-      );
-      dplCache.set(key, mod);
-      return mod;
+    // User root first, so a user block overrides the built-in of the same name.
+    for (const root of dynRoots) {
+      const dplPath = path.join(root, `${key}.dpl`);
+      if (fs.existsSync(dplPath)) {
+        const mod = compileDpl(
+          fs.readFileSync(dplPath, "utf8"),
+          makeDplBridge(path.dirname(dplPath)),
+        );
+        dplCache.set(key, mod);
+        return mod;
+      }
+      const jsPath = path.join(root, `${key}.js`);
+      if (fs.existsSync(jsPath)) {
+        try {
+          const mod = require(jsPath);
+          dplCache.set(key, mod);
+          return mod;
+        } catch {
+          /* try the next root */
+        }
+      }
     }
-    try {
-      const mod = require(path.join(dynPromptsRoot, `${key}.js`));
-      dplCache.set(key, mod);
-      return mod;
-    } catch {
-      return null;
-    }
+    dplCache.set(key, null);
+    return null;
   },
   // Dynamic-prompt catalog keys (`.dpl`, sidecar `.js` excluded; `.js`-only generators included),
   // skipping `_`-prefixed internals, in the guaranteed natural order.
@@ -250,55 +287,54 @@ export const nodeLoader = {
   },
   // Optional `<name>.json` sidecar metadata (currently `{ description }`) next to a
   // dynamic-prompt file or category folder, for the editor button/category tooltip; null if absent.
+  // User root first.
   readDynPromptMeta(name) {
     if (_dynMetaCache.has(name)) return _dynMetaCache.get(name);
-    let meta;
-    try {
-      meta = JSON.parse(fs.readFileSync(path.join(dynPromptsRoot, `${name}.json`), "utf8"));
-    } catch {
-      meta = null;
+    let meta = null;
+    for (const root of dynRoots) {
+      try {
+        meta = JSON.parse(fs.readFileSync(path.join(root, `${name}.json`), "utf8"));
+        break;
+      } catch {
+        /* try the next root */
+      }
     }
     _dynMetaCache.set(name, meta);
     return meta;
   },
   // Dynamic-prompt folders marked `_force-prefix` (the prefix is shown in the #token).
   dynPromptForcedPrefixDirs() {
-    return markedDirs("_force-prefix", dynPromptsRoot);
+    return markedDirs("_force-prefix", dynRoots);
   },
   // Alias retained for the loader interface (no version generations — same set as above).
   dynPromptForcedPrefixDirsAll() {
-    return markedDirs("_force-prefix", dynPromptsRoot);
+    return markedDirs("_force-prefix", dynRoots);
   },
   // Implied-group folders for dynamic prompts: a category folder with 2+ generators (so `{#scene}`
   // picks one random scene generator), with enable/disable marker overrides.
   dynPromptGroupDirs() {
     return autoGroupListDirs(
       dynGeneratorNames(),
-      markedDirs("_enable-group-list", dynPromptsRoot),
-      markedDirs("_disable-group-list", dynPromptsRoot),
+      markedDirs("_enable-group-list", dynRoots),
+      markedDirs("_disable-group-list", dynRoots),
     );
   },
   // Alias retained for the loader interface (no version generations — same set as above).
   dynPromptGroupDirsAll() {
     return autoGroupListDirs(
       dynGeneratorNames(),
-      markedDirs("_enable-group-list", dynPromptsRoot),
-      markedDirs("_disable-group-list", dynPromptsRoot),
+      markedDirs("_enable-group-list", dynRoots),
+      markedDirs("_disable-group-list", dynRoots),
     );
   },
-  // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent.
+  // Lines of an explicit `<name>.group` dynamic-prompt group file, or null when absent. User first.
   readDynPromptGroup(name) {
     if (_dynGroupCache.has(name)) return _dynGroupCache.get(name);
-    let lines;
-    try {
-      lines = fs.readFileSync(path.join(dynPromptsRoot, `${name}.group`), "utf8").split("\n");
-    } catch {
-      lines = null;
-    }
+    const lines = readFromRoots(dynRoots, `${name}.group`);
     _dynGroupCache.set(name, lines);
     return lines;
   },
-  // Drop every memoized catalog/read cache. Call if the on-disk data/ tree is
+  // Drop every memoized catalog/read cache. Call if the on-disk data/ or user/ tree is
   // mutated mid-process (the dev server's Manage tab does NOT — it uses a separate
   // runtime loader — so this exists for tests/tooling that edit data/ in place).
   refresh() {

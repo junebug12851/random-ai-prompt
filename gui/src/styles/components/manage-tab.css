@@ -61,6 +61,27 @@
   margin-bottom: 14px;
 }
 
+/* The user-overlay roots ("your content"), grouped at the top of the tree. A soft accent rail +
+   tint sets them apart from the built-in catalog below. */
+.mg-root-user {
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  padding-left: 2px;
+}
+
+.mg-yours-tag {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  vertical-align: middle;
+}
+
 .mg-root-title {
   font-family: var(--font-display);
   font-size: 0.74rem;

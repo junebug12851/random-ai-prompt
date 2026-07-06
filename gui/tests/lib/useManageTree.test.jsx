@@ -42,6 +42,9 @@ const TREE = {
       { name: "danbooru", files: [], dirs: [] },
     ],
   },
+  // The user-overlay roots (grouped on top). Empty here — the overlay is a separate content pool.
+  "user-blocks": { name: "", files: [], dirs: [] },
+  "user-lists": { name: "", files: [], dirs: [] },
 };
 
 function mount() {
@@ -53,7 +56,7 @@ function mount() {
 
 async function mountLoaded() {
   const h = mount();
-  await waitFor(() => expect(h.result.current.models.length).toBe(2));
+  await waitFor(() => expect(h.result.current.models.length).toBe(4));
   return h;
 }
 
@@ -74,7 +77,13 @@ describe("useManageTree", () => {
   it("loads the tree and builds a model per root when active + available", async () => {
     const { result } = await mountLoaded();
     expect(getTree).toHaveBeenCalled();
-    expect(result.current.models.map((m) => m.root)).toEqual(["dynamic-prompts", "lists"]);
+    // The user-overlay roots group first, then the built-in catalog.
+    expect(result.current.models.map((m) => m.root)).toEqual([
+      "user-blocks",
+      "user-lists",
+      "dynamic-prompts",
+      "lists",
+    ]);
   });
 
   it("newFile writes via fsOp(mkfile) and selects the new entry", async () => {

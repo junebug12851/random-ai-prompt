@@ -12,7 +12,8 @@
  * @module gui/components/Manage
  */
 import { useIntl, defineMessages } from "react-intl";
-import { useManageTree } from "../lib/manage/useManageTree.js";
+import { useManageTree, USER_ROOTS } from "../lib/manage/useManageTree.js";
+import { isDpRoot } from "../lib/manageTree.js";
 import ManageBlockEditor from "./ManageBlockEditor.jsx";
 import ManageFolderEditor from "./ManageFolderEditor.jsx";
 import ManageListEditor from "./ManageListEditor.jsx";
@@ -65,6 +66,15 @@ const msgs = defineMessages({
   refreshAria: { id: "manage.refreshAria", defaultMessage: "Refresh catalog" },
   loadingCatalog: { id: "manage.loadingCatalog", defaultMessage: "Loading the catalog…" },
   nothingMatches: { id: "manage.nothingMatches", defaultMessage: "Nothing matches." },
+  emptyUserRoot: {
+    id: "manage.emptyUserRoot",
+    defaultMessage: "Nothing here yet — use + to add your own.",
+  },
+  yoursTag: {
+    id: "manage.yoursTag",
+    defaultMessage: "yours",
+    description: "Small badge marking the user's own content roots at the top of Manage",
+  },
   backToList: {
     id: "manage.backToList",
     defaultMessage: "Back to list",
@@ -238,7 +248,7 @@ export default function Manage({ settings, available, active }) {
               </button>
               {addMenu && addMenu.root === root && addMenu.folder === node.path && (
                 <span className="mg-add-menu" role="menu">
-                  <button onClick={() => newFile(root, node.path)}>{intl.formatMessage(root === "lists" ? msgs.newList : msgs.newBlock)}</button>
+                  <button onClick={() => newFile(root, node.path)}>{intl.formatMessage(isDpRoot(root) ? msgs.newBlock : msgs.newList)}</button>
                   <button onClick={() => newFolder(root, node.path)}>{intl.formatMessage(msgs.newSubfolder)}</button>
                 </span>
               )}
@@ -305,7 +315,7 @@ export default function Manage({ settings, available, active }) {
             {models.map(({ root, title, model }) => (
               <div
                 key={root}
-                className={`mg-root${dropTarget === `${root}:` && dragEntry?.root === root ? " is-drop" : ""}`}
+                className={`mg-root${USER_ROOTS.has(root) ? " mg-root-user" : ""}${dropTarget === `${root}:` && dragEntry?.root === root ? " is-drop" : ""}`}
                 onDragOver={(ev) => {
                   if (dragEntry && dragEntry.root === root) {
                     ev.preventDefault();
@@ -322,6 +332,9 @@ export default function Manage({ settings, available, active }) {
               >
                 <div className="mg-root-title">
                   <span>{title}</span>
+                  {USER_ROOTS.has(root) && (
+                    <span className="mg-yours-tag">{intl.formatMessage(msgs.yoursTag)}</span>
+                  )}
                   <span className="mg-add-wrap">
                     <button
                       className="mg-add"
@@ -333,14 +346,18 @@ export default function Manage({ settings, available, active }) {
                     </button>
                     {addMenu && addMenu.root === root && addMenu.folder === "" && (
                       <span className="mg-add-menu" role="menu">
-                        <button onClick={() => newFile(root, "")}>{intl.formatMessage(root === "lists" ? msgs.newList : msgs.newBlock)}</button>
+                        <button onClick={() => newFile(root, "")}>{intl.formatMessage(isDpRoot(root) ? msgs.newBlock : msgs.newList)}</button>
                         <button onClick={() => newFolder(root, "")}>{intl.formatMessage(msgs.newFolder)}</button>
                       </span>
                     )}
                   </span>
                 </div>
                 {model.children.length === 0 && model.entries.length === 0 ? (
-                  <p className="empty">{intl.formatMessage(msgs.nothingMatches)}</p>
+                  <p className="empty">
+                    {intl.formatMessage(
+                      USER_ROOTS.has(root) && !query.trim() ? msgs.emptyUserRoot : msgs.nothingMatches,
+                    )}
+                  </p>
                 ) : (
                   <>
                     {model.children.map((c) => (

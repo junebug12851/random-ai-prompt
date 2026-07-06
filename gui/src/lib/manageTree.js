@@ -14,6 +14,9 @@ import { hasNsfwToken } from "../../../src/gatedLists.js";
 
 const MARKER_FILES = new Set(["_force-prefix", "_enable-group-list", "_disable-group-list"]);
 
+/** Whether a Manage root is a dynamic-prompt ("blocks") root — the built-in one or the user overlay. */
+export const isDpRoot = (root) => root === "dynamic-prompts" || root === "user-blocks";
+
 /**
  * Classify a raw filename into a catalog entry, or null if it's internal/metadata/a `.js` sidecar.
  * @param {string} f The filename.
@@ -51,7 +54,7 @@ const dplBasesOf = (files) =>
  */
 export function buildManageModel(treeNode, root, opts = {}) {
   const includeAdult = opts.includeAdult === true;
-  const isDp = root === "dynamic-prompts";
+  const isDp = isDpRoot(root);
 
   // Pass 1: collect every entry's logical path + the marker folders, for group/force-prefix info.
   const entryPaths = [];
@@ -149,7 +152,7 @@ function localFileSet(treeNode) {
  */
 export function computeGhosts(treeNode, manifestPaths, root, opts = {}) {
   const includeAdult = opts.includeAdult === true;
-  const isDp = root === "dynamic-prompts";
+  const isDp = isDpRoot(root);
   const local = localFileSet(treeNode);
   const wanted = isDp ? [".dpl"] : [".txt", ".group"];
   const ghosts = [];

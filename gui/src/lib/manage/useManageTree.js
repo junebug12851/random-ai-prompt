@@ -8,15 +8,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useIntl, defineMessages } from "react-intl";
 import { getTree, getRemoteManifest, restoreDefault, fsOp } from "../manageApi.js";
 import { refreshCatalog, subscribeCatalog } from "../promptEngine.js";
-import { buildManageModel, filterModel, computeGhosts, injectGhosts } from "../manageTree.js";
+import { buildManageModel, filterModel, computeGhosts, injectGhosts, isDpRoot } from "../manageTree.js";
 import { dialog } from "../dialog.js";
 
-// Data-root keys are fixed; their display titles are localized via `msgs` below.
-const ROOTS = ["dynamic-prompts", "lists"];
+// Data-root keys are fixed; their display titles are localized via `msgs` below. The user-overlay
+// roots (user/lists, user/blocks) come FIRST so "your content" groups at the top of the tree.
+const ROOTS = ["user-blocks", "user-lists", "dynamic-prompts", "lists"];
+// The user-overlay roots — no upstream default (no ghost pills / restore), grouped as "your content".
+export const USER_ROOTS = new Set(["user-blocks", "user-lists"]);
 
 const msgs = defineMessages({
   blocks: { id: "manage.blocks", defaultMessage: "Blocks" },
   lists: { id: "manage.lists", defaultMessage: "Lists" },
+  userBlocks: { id: "manage.userBlocks", defaultMessage: "Your blocks" },
+  userLists: { id: "manage.userLists", defaultMessage: "Your lists" },
   newFilePromptList: { id: "manage.newFilePromptList", defaultMessage: "New list name:" },
   newFilePromptBlock: { id: "manage.newFilePromptBlock", defaultMessage: "New block name:" },
   newFolderPrompt: { id: "manage.newFolderPrompt", defaultMessage: "New subfolder name:" },
@@ -25,6 +30,10 @@ const msgs = defineMessages({
     defaultMessage: "Delete {label} ({root}/{path})? This removes the file from disk.",
   },
 });
+
+/** An empty raw tree node, used when a root is absent from the backend's response (e.g. an older
+ *  backend that predates the user overlay, or a not-yet-created user/ folder). */
+const EMPTY_TREE = { name: "", dirs: [], files: [] };
 
 /** Collect the paths of every category (depth-1) folder, to expand them by default. */
 export function defaultExpanded(models) {
@@ -37,7 +46,13 @@ export function defaultExpanded(models) {
 
 /** Localized display title for a data root. */
 function rootTitle(intl, root) {
-  return intl.formatMessage(root === "lists" ? msgs.lists : msgs.blocks);
+  const title = {
+    lists: msgs.lists,
+    "dynamic-prompts": msgs.blocks,
+    "user-lists": msgs.userLists,
+    "user-blocks": msgs.userBlocks,
+  }[root];
+  return intl.formatMessage(title || msgs.blocks);
 }
 
 /**
@@ -72,7 +87,7 @@ export function useManageTree({ settings, available, active }) {
       if (initialExpand) {
         const models = ROOTS.map((root) => ({
           root,
-          model: buildManageModel(t[root], root, { includeAdult: settings.includeAdult }),
+          model: buildManageModel(t[root] || EMPTY_TREE, root, { includeAdult: settings.includeAdult }),
         }));
         setExpanded(defaultExpanded(models));
       }
@@ -99,7 +114,7 @@ export function useManageTree({ settings, available, active }) {
     if (!tree) return [];
     return ROOTS.map((root) => {
       const title = rootTitle(intl, root);
-      const full = buildManageModel(tree[root], root, { includeAdult: settings.includeAdult });
+      const full = buildManageModel(tree[root] || EMPTY_TREE, root, { includeAdult: settings.includeAdult });
       // Inject "ghost" entries: files on the stable branch that are missing locally (restorable).
       if (manifest?.[root]) {
         const ghosts = computeGhosts(tree[root], manifest[root], root, {
@@ -147,15 +162,16 @@ export function useManageTree({ settings, available, active }) {
   // Create a new block/list file in a folder, then open it for editing.
   async function newFile(root, folder) {
     setAddMenu(null);
+    const isBlock = isDpRoot(root);
     const name = cleanName(
       await dialog.prompt({
-        message: intl.formatMessage(root === "lists" ? msgs.newFilePromptList : msgs.newFilePromptBlock),
+        message: intl.formatMessage(isBlock ? msgs.newFilePromptBlock : msgs.newFilePromptList),
       }),
     );
     if (!name) return;
-    const ext = root === "lists" ? "txt" : "dpl";
+    const ext = isBlock ? "dpl" : "txt";
     const path = folder ? `${folder}/${name}` : name;
-    const boiler = root === "lists" ? "" : `${name}\n===\n`;
+    const boiler = isBlock ? `${name}\n===\n` : "";
     try {
       await fsOp("mkfile", { root, path: `${path}.${ext}`, text: boiler });
       await handleChanged();
@@ -164,7 +180,7 @@ export function useManageTree({ settings, available, active }) {
         root,
         path,
         ext,
-        kind: root === "lists" ? "list" : "generator",
+        kind: isBlock ? "generator" : "list",
         label: name,
       });
     } catch (e) {

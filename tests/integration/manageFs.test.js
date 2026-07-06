@@ -4,13 +4,14 @@
  * own catalog, the write/sidecar/marker/move/delete ops round-trip through the snapshot (in an
  * isolated throwaway folder), the traversal guard holds, and ghost detection is exact.
  */
-import { describe, it, expect, afterAll } from "vitest";
+import { describe, it, expect, afterAll, afterEach } from "vitest";
 import {
   buildManageSnapshot,
   buildManageTree,
   mergeSidecar,
   setMarker,
   fsOp,
+  restoreFromRepo,
   MANAGE_ROOTS,
 } from "../../gui/server/manageFs.js";
 import { computeGhosts, buildManageModel } from "../../gui/src/lib/manageTree.js";
@@ -112,12 +113,19 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
 describe("ghost detection (manifest minus local)", () => {
   it("flags a file present upstream but missing locally", () => {
     const tree = buildManageTree(MANAGE_ROOTS.lists);
-    // Manifest = the current local set (so nothing is a ghost yet).
-    const manifest = buildManageSnapshot();
-    const listManifestPaths = [
-      ...Object.keys(manifest.lists).map((k) => `${k}.txt`),
-      ...Object.keys(manifest.listGroups).map((k) => `${k}.group`),
-    ];
+    // Manifest = the current BUILT-IN local set (so nothing is a ghost yet). Derived from the
+    // built-in tree, not the snapshot: the snapshot now merges the user overlay too, and the real
+    // ghost feature diffs against the upstream (data/) manifest, which never contains user content.
+    const collect = (node, prefix = "") => {
+      const out = [];
+      for (const f of node.files)
+        if (f.endsWith(".txt") || f.endsWith(".group")) {
+          out.push(prefix ? `${prefix}/${f}` : f);
+        }
+      for (const d of node.dirs) out.push(...collect(d, prefix ? `${prefix}/${d.name}` : d.name));
+      return out;
+    };
+    const listManifestPaths = collect(tree);
     expect(computeGhosts(tree, listManifestPaths, "lists", { includeAdult: true })).toHaveLength(0);
 
     // Drop a known file locally → it becomes a ghost.
@@ -134,5 +142,41 @@ describe("ghost detection (manifest minus local)", () => {
     const cats = model.children.map((c) => c.name);
     expect(cats).toContain("scene");
     expect(cats).toContain("prompt");
+  });
+});
+
+// The user overlay (user/lists, user/blocks). These write into throwaway paths under the real user
+// roots, so they live in THIS file (not a parallel one) to stay serialized with the snapshot-vs-loader
+// comparison above, which reads the shared user roots too.
+describe("user overlay — user/ content merges into the pool (user-wins)", () => {
+  const T = "zz-user-overlay-test";
+  const OVERRIDE_KEY = "look/color"; // a real built-in list (data/lists/look/color.txt)
+
+  afterEach(() => {
+    fsOp("delete", { root: "user-lists", path: T });
+    fsOp("delete", { root: "user-lists", path: "look" });
+    fsOp("delete", { root: "user-blocks", path: T });
+  });
+
+  it("merges a new user list into the snapshot pool", () => {
+    fsOp("mkfile", { root: "user-lists", path: `${T}/mine.txt`, text: "alpha\nbeta\n" });
+    const snap = buildManageSnapshot();
+    expect(`${T}/mine` in snap.lists).toBe(true);
+    expect(snap.lists[`${T}/mine`]).toContain("alpha");
+  });
+
+  it("lets a user list override a built-in of the same name (user-wins)", () => {
+    const builtIn = buildManageSnapshot().lists[OVERRIDE_KEY];
+    expect(builtIn).toBeTypeOf("string"); // the built-in exists to be overridden
+    fsOp("mkfile", { root: "user-lists", path: `${OVERRIDE_KEY}.txt`, text: "USER_ONLY_COLOR\n" });
+    const overridden = buildManageSnapshot().lists[OVERRIDE_KEY];
+    expect(overridden).toContain("USER_ONLY_COLOR");
+    expect(overridden).not.toEqual(builtIn);
+  });
+
+  it("refuses to restore user content from the repo (no upstream default)", async () => {
+    const r = await restoreFromRepo("user-lists", "look/color.txt");
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/no repository default/i);
   });
 });

@@ -58,6 +58,32 @@ const forcePrefixFiles = import.meta.glob("../../data/lists/**/_force-prefix");
 const enableGroupFiles = import.meta.glob("../../data/lists/**/_enable-group-list");
 const disableGroupFiles = import.meta.glob("../../data/lists/**/_disable-group-list");
 
+// ---- USER overlay (user/lists → lists, user/blocks → dynamic prompts) --------------------------
+// A LOCAL/desktop feature: the hosted online build ignores it. `ONLINE` is Vite-injected
+// (undefined off Vite, so the optional chain keeps this safe in plain Node); when online we drop the
+// user keys from every structure set below, and initBrowserCatalog never imports the user content
+// chunk. Structure (keys) comes from these lazy globs; content comes from browserUserCatalog.js.
+const ONLINE = import.meta.env?.VITE_ONLINE === "true";
+const userListRawGlob = import.meta.glob("../../user/lists/**/*.txt", {
+  query: "?raw",
+  import: "default",
+});
+const userGroupRawGlob = import.meta.glob("../../user/lists/**/*.group", {
+  query: "?raw",
+  import: "default",
+});
+const userDpModulesGlob = import.meta.glob("../../user/blocks/**/*.js");
+const userDpDplRawGlob = import.meta.glob("../../user/blocks/**/*.dpl", {
+  query: "?raw",
+  import: "default",
+});
+const userForcePrefixFiles = import.meta.glob("../../user/lists/**/_force-prefix");
+const userEnableGroupFiles = import.meta.glob("../../user/lists/**/_enable-group-list");
+const userDisableGroupFiles = import.meta.glob("../../user/lists/**/_disable-group-list");
+const userDpForcePrefixFiles = import.meta.glob("../../user/blocks/**/_force-prefix");
+const userDpEnableGroupFiles = import.meta.glob("../../user/blocks/**/_enable-group-list");
+const userDpDisableGroupFiles = import.meta.glob("../../user/blocks/**/_disable-group-list");
+
 // ".../dynamic-prompts/scene/castle.dpl" -> "scene/castle"; ".../lists/keyword.txt" -> "keyword"
 function keyFor(path, dir) {
   const marker = `/${dir}/`;
@@ -84,28 +110,61 @@ const keysOf = (glob, dir) =>
 
 // ---- Structure (names), derived from glob KEYS synchronously at module load ----
 
-const listKeyNames = keysOf(listRawGlob, "lists");
-const groupKeyNames = keysOf(groupRawGlob, "lists");
-const dpDplKeys = keysOf(dpDplRawGlob, "dynamic-prompts");
-const dpJsKeys = keysOf(dpModulesGlob, "dynamic-prompts");
+// Built-in keys, then the user overlay concatenated on (empty when online). Duplicate names collapse
+// downstream (Sets / allListNames); a user file of the same name overrides the built-in at content
+// read (browserUserCatalog is overlaid last in initBrowserCatalog).
+const listKeyNames = [
+  ...keysOf(listRawGlob, "lists"),
+  ...(ONLINE ? [] : keysOf(userListRawGlob, "lists")),
+];
+const groupKeyNames = [
+  ...keysOf(groupRawGlob, "lists"),
+  ...(ONLINE ? [] : keysOf(userGroupRawGlob, "lists")),
+];
+const dpDplKeys = [
+  ...keysOf(dpDplRawGlob, "dynamic-prompts"),
+  ...(ONLINE ? [] : keysOf(userDpDplRawGlob, "blocks")),
+];
+const dpJsKeys = [
+  ...keysOf(dpModulesGlob, "dynamic-prompts"),
+  ...(ONLINE ? [] : keysOf(userDpModulesGlob, "blocks")),
+];
 
 // Active generator keys: every `.dpl`, plus `.js` with no same-name `.dpl`.
 const dynamicPromptKeys = new Set(dpDplKeys);
 for (const k of dpJsKeys) if (!dpDplKeys.includes(k)) dynamicPromptKeys.add(k);
 
-const forcedDirs = markerDirs(forcePrefixFiles, "_force-prefix");
-const dpForcedDirsAll = markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts");
+const forcedDirs = [
+  ...markerDirs(forcePrefixFiles, "_force-prefix"),
+  ...(ONLINE ? [] : markerDirs(userForcePrefixFiles, "_force-prefix")),
+];
+const dpForcedDirsAll = [
+  ...markerDirs(dpForcePrefixFiles, "_force-prefix", "dynamic-prompts"),
+  ...(ONLINE ? [] : markerDirs(userDpForcePrefixFiles, "_force-prefix", "blocks")),
+];
 // Implied groups: folders with 2+ direct lists, plus enable/disable marker overrides.
 const groupListDirs = autoGroupListDirs(
   logicalListNames(listKeyNames),
-  markerDirs(enableGroupFiles, "_enable-group-list"),
-  markerDirs(disableGroupFiles, "_disable-group-list"),
+  [
+    ...markerDirs(enableGroupFiles, "_enable-group-list"),
+    ...(ONLINE ? [] : markerDirs(userEnableGroupFiles, "_enable-group-list")),
+  ],
+  [
+    ...markerDirs(disableGroupFiles, "_disable-group-list"),
+    ...(ONLINE ? [] : markerDirs(userDisableGroupFiles, "_disable-group-list")),
+  ],
 );
 // Implied groups for dynamic prompts: a category folder with 2+ generators.
 const dpGroupDirs = autoGroupListDirs(
   [...dynamicPromptKeys],
-  markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
-  markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
+  [
+    ...markerDirs(dpEnableGroupFiles, "_enable-group-list", "dynamic-prompts"),
+    ...(ONLINE ? [] : markerDirs(userDpEnableGroupFiles, "_enable-group-list", "blocks")),
+  ],
+  [
+    ...markerDirs(dpDisableGroupFiles, "_disable-group-list", "dynamic-prompts"),
+    ...(ONLINE ? [] : markerDirs(userDpDisableGroupFiles, "_disable-group-list", "blocks")),
+  ],
 );
 const _allNames = allListNames([
   ...logicalListNames([...listKeyNames, ...groupKeyNames]),
@@ -168,15 +227,30 @@ let _initPromise = null;
  */
 export function initBrowserCatalog() {
   if (_initPromise) return _initPromise;
-  _initPromise = import("./browserCatalogData.js").then((d) => {
-    dpJsModules = d.dpJsModules;
-    dpDplText = d.dpDplText;
-    listLines = d.listLines;
-    groupLines = d.groupLines;
+  _initPromise = import("./browserCatalogData.js").then(async (d) => {
+    // Copy the built-in maps into fresh objects so the user overlay can be layered on WITHOUT
+    // mutating the imported module's exports.
+    dpJsModules = { ...d.dpJsModules };
+    dpDplText = { ...d.dpDplText };
+    listLines = { ...d.listLines };
+    groupLines = { ...d.groupLines };
     presets = d.presets;
-    listMetaMap = d.listMetaMap;
-    dpMetaMap = d.dpMetaMap;
-    dpGroupLines = d.dpGroupLines;
+    listMetaMap = { ...d.listMetaMap };
+    dpMetaMap = { ...d.dpMetaMap };
+    dpGroupLines = { ...d.dpGroupLines };
+    // USER overlay (local/desktop only): fetch the separate user-content chunk and assign it LAST so
+    // a user file overrides the built-in of the same name (user-wins). The online build skips this
+    // entirely, so its chunk graph never references user content.
+    if (!ONLINE) {
+      const u = await import("./browserUserCatalog.js");
+      Object.assign(dpJsModules, u.userDpJsModules);
+      Object.assign(dpDplText, u.userDpDplText);
+      Object.assign(listLines, u.userListLines);
+      Object.assign(groupLines, u.userGroupLines);
+      Object.assign(listMetaMap, u.userListMetaMap);
+      Object.assign(dpMetaMap, u.userDpMetaMap);
+      Object.assign(dpGroupLines, u.userDpGroupLines);
+    }
     _listLinesCache.clear();
   });
   return _initPromise;

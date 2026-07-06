@@ -81,8 +81,9 @@ fn ensure_working_copy(res_app: &Path, work_app: &Path) -> std::io::Result<()> {
     fs::create_dir_all(work_app)?;
 
     // Code + bundled content: refreshed on every version change. User data
-    // (output/, user-settings.json, results.json) is intentionally NOT listed,
-    // so it is left untouched across upgrades.
+    // (output/, results.json, and the whole user/ overlay — the user's own lists,
+    // blocks, and settings) is intentionally NOT listed here, so it is left
+    // untouched across upgrades. The user/ overlay is instead seeded ONCE below.
     for name in [
         "src",
         "data",
@@ -109,6 +110,16 @@ fn ensure_working_copy(res_app: &Path, work_app: &Path) -> std::io::Result<()> {
         } else {
             fs::copy(&from, &to)?;
         }
+    }
+
+    // Seed the user overlay (user/lists, user/blocks, user/README) ONCE — only when the working copy
+    // has no user/ yet (a fresh install). On upgrades user/ already exists, so it is left alone: the
+    // user's own lists/blocks and their user/settings store survive every version change. Community
+    // "seed" content therefore lands on first install and is thereafter the user's to change.
+    let user_from = res_app.join("user");
+    let user_to = work_app.join("user");
+    if user_from.exists() && !user_to.exists() {
+        copy_tree(&user_from, &user_to)?;
     }
 
     #[cfg(unix)]

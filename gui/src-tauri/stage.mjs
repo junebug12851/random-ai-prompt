@@ -57,8 +57,18 @@ copyDir(path.join(repoRoot, "data"), "data");
 copyDir(path.join(guiDir, "dist"), path.join("gui", "dist"));
 copyDir(path.join(guiDir, "server"), path.join("gui", "server"));
 copyDir(path.join(guiDir, "providers"), path.join("gui", "providers"));
-if (fs.existsSync(path.join(guiDir, "user-settings"))) {
-  copyDir(path.join(guiDir, "user-settings"), path.join("gui", "user-settings"));
+
+// The user overlay's SEED content: the community-contributed lists/blocks + the user/ README. It's
+// shipped so a fresh install already has it; the desktop shell seeds `user/` into the writable
+// working copy ONCE (first run) and never clobbers it on upgrade, so the user's own additions AND
+// their settings survive version changes. `user/settings/` is per-user RUNTIME data (the local
+// store) — it is deliberately NOT bundled (that would ship the builder's own settings); the working
+// copy creates it on demand.
+copyDir(path.join(repoRoot, "user", "lists"), path.join("user", "lists"));
+copyDir(path.join(repoRoot, "user", "blocks"), path.join("user", "blocks"));
+const userReadme = path.join(repoRoot, "user", "README.md");
+if (fs.existsSync(userReadme)) {
+  fs.copyFileSync(userReadme, path.join(stageDir, "user", "README.md"));
 }
 
 // gui-root helper modules the server imports at runtime (e.g. vite-api-helpers.js,

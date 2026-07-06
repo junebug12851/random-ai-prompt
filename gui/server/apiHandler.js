@@ -564,6 +564,8 @@ export function createApiHandler() {
         return send(res, 200, {
           lists: buildManageTree(MANAGE_ROOTS.lists),
           "dynamic-prompts": buildManageTree(MANAGE_ROOTS["dynamic-prompts"]),
+          "user-lists": buildManageTree(MANAGE_ROOTS["user-lists"]),
+          "user-blocks": buildManageTree(MANAGE_ROOTS["user-blocks"]),
         });
       } catch (e) {
         return send(res, 502, { error: e.message });

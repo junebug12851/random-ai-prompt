@@ -11,6 +11,23 @@ prompt content under `data/`, the React/Vite SPA in `gui/` (its own npm package)
 lives in git history and as a read-only reference clone under `assets/references/`. (Historical entries
 below predate the flatten and may still say `engine-v3/…`; those paths are now at the repo root.)
 
+**User content overlay — a repo-root `user/` folder beside `data/` (2.46.0 — branch
+`feature/user-overlay`, on that branch pending review):** a first-class **user overlay** so people
+add/tweak prompt content without touching the app's built-in files. A repo-root `user/`
+(`user/lists`, `user/blocks`, `user/settings`) sits beside `data/` and the app watches **both**, with
+**user-wins** precedence on a name clash (like a settings override). Both engine loaders scan two
+roots per pool (`src/core/nodeLoader.js` on disk; the browser keeps names at first paint from lazy
+globs and loads user content from a separate code-split `src/core/browserUserCatalog.js` overlaid
+last). The overlay is **local/desktop only** — gated off the online build (`VITE_ONLINE`), so the
+hosted bundle carries no user content. The **Manage** tab groups "your content" (badged `yours`) on
+top via new `user-lists`/`user-blocks` roots; `buildManageSnapshot` merges them into the runtime pool
+so live generation honors the overlay, while edits write into `user/`. User content has no upstream,
+so ghost/"restore default" are suppressed and `restoreFromRepo` refuses user roots. Settings moved
+from `gui/user-settings/` to the unified `user/settings/` (boot migration folds the old location). The
+desktop shell **seeds `user/` once** and preserves it across upgrades. `npm test` green; **visual
+baselines need a refresh** (the Manage tree gained the user sections) before the `main` release. See
+[`version/2026-07.md`](version/2026-07.md).
+
 **Gallery composer + live placeholders, multi-select, a11y + SEO (2.45.0 — branch
 `feature/gallery-composer-a11y-seo`, on `dev` pending review):** the composer prompt box was extracted
 into a reusable `gui/src/components/PromptComposer.jsx` (Home markup unchanged); the **Gallery** now
@@ -68,7 +85,7 @@ Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
 [`version/2026-07.md`](version/2026-07.md).
 
-**Version:** `2.44.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
+**Version:** `2.46.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
 and the desktop `gui/src-tauri/tauri.conf.json`;
 see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
 stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.

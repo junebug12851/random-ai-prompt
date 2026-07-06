@@ -32,11 +32,15 @@ gui/coverage/
 /test-results/
 /.vitest/
 
-# Local-file storage backend (dev only) — the legacy flat file + its post-migration rename,
-# and the new per-namespace user-settings folder (all user data; never tracked).
+# Local-file storage backend — the legacy flat file + its post-migration rename, the previous
+# per-namespace folder (now migrated under user/) + its aside, and the current user/settings/ store.
+# All user data; never tracked — only the user/ scaffold (README + .gitkeep) is.
 gui/.gui-storage.json
 gui/.gui-storage.json.migrated
 gui/user-settings/
+gui/user-settings.migrated/
+/user/settings/*
+!/user/settings/.gitkeep
 
 # Local Netlify folder
 .netlify

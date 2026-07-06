@@ -15,12 +15,25 @@ import { fileURLToPath } from "node:url";
 
 // data/{lists,dynamic-prompts} — this file lives at gui/server/, so ../../data/ is the repo-root data dir.
 const DATA_ROOT = fileURLToPath(new URL("../../data/", import.meta.url));
+// The user overlay lives at the repo root under user/ (user/lists, user/blocks). Kept as SEPARATE
+// Manage roots so the tab can group user content on top and route edits into user/, while the runtime
+// SNAPSHOT (buildManageSnapshot) merges each user root onto its built-in pool with user-wins.
+const USER_ROOT = fileURLToPath(new URL("../../user/", import.meta.url));
 
-/** The two editable content roots, by name. */
+/** The editable content roots, by name (built-ins + the user overlay). */
 export const MANAGE_ROOTS = {
   lists: path.join(DATA_ROOT, "lists"),
   "dynamic-prompts": path.join(DATA_ROOT, "dynamic-prompts"),
+  "user-lists": path.join(USER_ROOT, "lists"),
+  "user-blocks": path.join(USER_ROOT, "blocks"),
 };
+
+/** The list-pool roots in precedence order (built-in first, user last → user overrides). */
+const LIST_POOL_ROOTS = [MANAGE_ROOTS.lists, MANAGE_ROOTS["user-lists"]];
+/** The dynamic-prompt ("blocks") pool roots in precedence order (built-in first, user last). */
+const DP_POOL_ROOTS = [MANAGE_ROOTS["dynamic-prompts"], MANAGE_ROOTS["user-blocks"]];
+/** Which Manage roots are the user overlay (no upstream default / ghost restore). */
+export const USER_MANAGE_ROOTS = new Set(["user-lists", "user-blocks"]);
 
 /**
  * Resolve a `{ root, path }` request to a safe absolute file under one of the data roots. Rejects
@@ -88,7 +101,9 @@ export function buildManageSnapshot() {
   const listForcePrefixDirs = [];
   const listEnableGroupDirs = [];
   const listDisableGroupDirs = [];
-  for (const f of walkManageFiles(MANAGE_ROOTS.lists)) {
+  // Built-in root first, then the user overlay — so a user file of the same key overwrites the
+  // built-in in every map (user-wins). This is what makes the live runtime engine honor the overlay.
+  for (const f of LIST_POOL_ROOTS.flatMap(walkManageFiles)) {
     if (f.name === "_force-prefix") {
       listForcePrefixDirs.push(f.relDir);
       continue;
@@ -119,7 +134,7 @@ export function buildManageSnapshot() {
   const dpForcePrefixDirs = [];
   const dpEnableGroupDirs = [];
   const dpDisableGroupDirs = [];
-  for (const f of walkManageFiles(MANAGE_ROOTS["dynamic-prompts"])) {
+  for (const f of DP_POOL_ROOTS.flatMap(walkManageFiles)) {
     if (f.name === "_force-prefix") {
       dpForcePrefixDirs.push(f.relDir);
       continue;
@@ -146,20 +161,21 @@ export function buildManageSnapshot() {
   // A `.js` is a generator only when there's no same-name `.dpl` (otherwise it's that .dpl's sidecar).
   const dpJsKeys = [...dpJs].filter((k) => !(k in dpDpl));
 
+  const uniq = (a) => [...new Set(a)];
   return {
     lists,
     listGroups,
     listMeta,
-    listForcePrefixDirs,
-    listEnableGroupDirs,
-    listDisableGroupDirs,
+    listForcePrefixDirs: uniq(listForcePrefixDirs),
+    listEnableGroupDirs: uniq(listEnableGroupDirs),
+    listDisableGroupDirs: uniq(listDisableGroupDirs),
     dpDpl,
     dpMeta,
     dpGroups,
     dpJsKeys,
-    dpForcePrefixDirs,
-    dpEnableGroupDirs,
-    dpDisableGroupDirs,
+    dpForcePrefixDirs: uniq(dpForcePrefixDirs),
+    dpEnableGroupDirs: uniq(dpEnableGroupDirs),
+    dpDisableGroupDirs: uniq(dpDisableGroupDirs),
   };
 }
 
@@ -339,6 +355,11 @@ export async function remoteManifest(fresh = false) {
  * @returns {Promise<{ok: boolean, deleted?: boolean, error?: string}>}
  */
 export async function restoreFromRepo(root, rel) {
+  // User-overlay content has no upstream default. Never route it through the raw-URL restore (a 404
+  // there DELETES the local file) — reject up front so a user's file can't be wiped.
+  if (USER_MANAGE_ROOTS.has(root)) {
+    return { ok: false, error: "User content has no repository default" };
+  }
   const abs = resolveManagePath(root, rel);
   if (!abs) return { ok: false, error: "Invalid path" };
   const url = `${RAW_BASE}/${root}/${String(rel).split("\\").join("/")}`;

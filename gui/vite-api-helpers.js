@@ -13,15 +13,19 @@ import { promisify } from "node:util";
 const execP = promisify(exec);
 
 const guiRoot = fileURLToPath(new URL(".", import.meta.url));
+const repoRoot = path.join(guiRoot, "..");
 // Legacy single-file store (pre-folder layout). Kept only so we can migrate it once.
 const STORE_FILE = path.join(guiRoot, ".gui-storage.json");
-// The one user-settings folder: every namespace is a `.json` file under here, with `/`-delimited
-// namespaces (e.g. `providers/openai`) becoming subfolders (`user-settings/providers/openai.json`).
-// This is the local-mode equivalent of the browser's `localStorage` — all user storage in one place.
-export const USER_DIR = path.join(guiRoot, "user-settings");
+// The one settings folder, now under the unified repo-root `user/` home (settings + lists + blocks
+// all under user/). Every namespace is a `.json` file here, with `/`-delimited namespaces (e.g.
+// `providers/openai`) becoming subfolders (`user/settings/providers/openai.json`). This is the
+// local-mode equivalent of the browser's `localStorage` — all user storage in one place.
+export const USER_DIR = path.join(repoRoot, "user", "settings");
+// The previous settings folder (`gui/user-settings/`), before it moved under `user/`. Migrated once.
+const LEGACY_USER_DIR = path.join(guiRoot, "user-settings");
 // The central output folder — every provider's generated images land here on disk
 // (output, the project's runtime output dir), served back via /api/output/<file>.
-export const OUTPUT_DIR = path.join(guiRoot, "..", "output");
+export const OUTPUT_DIR = path.join(repoRoot, "output");
 
 export const IMAGE_TYPES = {
   png: "image/png",
@@ -250,22 +254,43 @@ export function listNs(dir = USER_DIR) {
 }
 
 /**
- * One-time migration of the legacy flat `.gui-storage.json` into the per-namespace folder layout.
- * Each top-level key becomes a file (old `presets:<id>` colon keys map to a `presets/<id>` subpath).
- * Runs only when the old file exists and the new folder doesn't, then renames the old file aside so
- * it's preserved but not re-migrated. Best-effort — never throws into the server.
+ * One-time migrations of older settings-storage layouts into the current `user/settings/` home.
+ * Runs on server boot; idempotent and best-effort (never throws into the server):
+ *   1. The previous per-namespace folder `gui/user-settings/` → `user/settings/`. Each namespace is
+ *      copied only when the new home doesn't already have it (never clobbering current settings), then
+ *      the old folder is renamed aside so it isn't re-migrated.
+ *   2. The ancient flat `.gui-storage.json` → the folder layout (old `presets:<id>` colon keys map to
+ *      a `presets/<id>` subpath), only when the new home is still empty.
  * @returns {void}
  */
 export function migrateLegacyStore() {
+  // 1) Fold the previous per-namespace folder (gui/user-settings/) into the new user/settings/ home.
   try {
-    if (!fs.existsSync(STORE_FILE) || fs.existsSync(USER_DIR)) return;
-    const store = JSON.parse(fs.readFileSync(STORE_FILE, "utf8"));
-    if (store && typeof store === "object") {
-      for (const [key, value] of Object.entries(store)) {
-        writeNs(key.replace(/:/g, "/"), value);
+    if (fs.existsSync(LEGACY_USER_DIR)) {
+      for (const ns of listNs(LEGACY_USER_DIR)) {
+        if (readNs(ns, USER_DIR) == null) {
+          const val = readNs(ns, LEGACY_USER_DIR);
+          if (val != null) writeNs(ns, val, USER_DIR);
+        }
+      }
+      try {
+        fs.renameSync(LEGACY_USER_DIR, `${LEGACY_USER_DIR}.migrated`);
+      } catch {
+        // best-effort: leaving it in place just means we skip-copy again next boot (idempotent)
       }
     }
-    fs.renameSync(STORE_FILE, `${STORE_FILE}.migrated`);
+  } catch {
+    // best-effort
+  }
+  // 2) Fold the ancient flat single-file store into the folder home (only if it's still empty).
+  try {
+    if (fs.existsSync(STORE_FILE) && listNs(USER_DIR).length === 0) {
+      const store = JSON.parse(fs.readFileSync(STORE_FILE, "utf8"));
+      if (store && typeof store === "object") {
+        for (const [key, value] of Object.entries(store)) writeNs(key.replace(/:/g, "/"), value);
+      }
+      fs.renameSync(STORE_FILE, `${STORE_FILE}.migrated`);
+    }
   } catch {
     // best-effort: a failed migration just means the old file is read fresh next start
   }

@@ -452,9 +452,12 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
       )}
 
       <div className="mg-editor-foot">
-        <button className="link-btn" onClick={restore} disabled={saving} title={intl.formatMessage(msgs.restoreTitle)}>
-          {intl.formatMessage(msgs.restoreDefault)}
-        </button>
+        {/* User-overlay content has no upstream default, so there's nothing to restore to. */}
+        {!String(entry.root).startsWith("user-") && (
+          <button className="link-btn" onClick={restore} disabled={saving} title={intl.formatMessage(msgs.restoreTitle)}>
+            {intl.formatMessage(msgs.restoreDefault)}
+          </button>
+        )}
         {status && <span className="mg-ok">{status}</span>}
         {error && <span className="error">{error}</span>}
       </div>
