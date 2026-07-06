@@ -25,10 +25,10 @@ export default defineConfig({
         "engine/core/**/*.js",
         "engine/contentSafety.js",
         "engine/gatedLists.js",
-        "engine/listManifest.js",
-        // The barrel above was split into these three focused, browser-safe modules; the list
-        // tests exercise them through it, so they must be measured here or their coverage is lost
-        // (SonarCloud then counts every line as uncovered).
+        // NOTE: engine/listManifest.js is intentionally NOT measured — it is a pure re-export barrel
+        // (no logic of its own). The real code lives in the three focused, browser-safe modules below,
+        // which the list tests exercise (through the barrel), so their coverage IS counted. Measuring
+        // the barrel just reports its re-export lines as 0% and drags the aggregate down for nothing.
         "engine/listTags.js",
         "engine/nameOrder.js",
         "engine/listResolve.js",
@@ -41,7 +41,13 @@ export default defineConfig({
       // The browser loader + its code-split prompt-corpus module are exercised by the SPA (jsdom)
       // suite via import.meta.glob, so they aren't measurable from the Node environment — exclude them
       // from the Node gate.
-      exclude: ["engine/core/browserLoader.js", "engine/core/browserCatalogData.js"],
+      exclude: [
+        "engine/core/browserLoader.js",
+        "engine/core/browserCatalogData.js",
+        // The browser user-overlay catalog is likewise browser-only (import.meta.glob over user/),
+        // exercised by the SPA (jsdom) suite, not the Node gate — so don't count it here.
+        "engine/core/browserUserCatalog.js",
+      ],
       // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
       reporter: ["text", "html", "lcov"],
       // CI gate (owner-approved). Set with headroom below the measured numbers
