@@ -1,0 +1,18 @@
+{
+  "name": "random-ai-prompt-web-shell",
+  "private": true,
+  "version": "2.0.8",
+  "type": "module",
+  "description": "Tauri desktop shell (its own target) that wraps the built LOCAL web target into a native app.",
+  "scripts": {
+    "stage": "node stage.mjs",
+    "tauri": "tauri",
+    "build:web": "npm --prefix ../web run build",
+    "desktop:build": "npm run build:web && tauri build",
+    "desktop:build:updater": "npm run build:web && tauri build --features updater --config tauri.updater.conf.json",
+    "desktop:dev": "npm run build:web && tauri dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

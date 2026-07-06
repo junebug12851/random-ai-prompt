@@ -1,5 +1,5 @@
-# Netlify build for the React + Vite SPA in gui/.
-# The netlify.toml sits at the repo root and paths are repo-root-relative. `npm --prefix gui`
+# Netlify build for the React + Vite SPA in targets/web/.
+# The netlify.toml sits at the repo root and paths are repo-root-relative. `npm --prefix targets/web`
 # runs the SPA's scripts in its own package dir.
 # The deployed site is fully static — there is NO server code: BYOK requests go directly
 # from the browser to the provider the user picked. (The former serverless generate/rewrite
@@ -7,8 +7,8 @@
 # the online build rather than relayed.)
 
 [build]
-  command = "npm --prefix gui install && npm --prefix gui run build"
-  publish = "gui/dist"
+  command = "npm --prefix targets/web install && npm --prefix targets/web run build"
+  publish = "targets/web/dist"
 
 # Build the ONLINE variant: Generate works for browser-direct providers (BYOK, called straight
 # from the browser), while the local-only features (Gallery / Single view, local SD providers,

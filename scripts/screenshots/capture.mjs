@@ -6,7 +6,7 @@
  *
  * Usage:
  *   node scripts/screenshots/capture.mjs [--build] [--out <dir>] [--skip-gifs]
- *     --build       Run `npm run web:build` first (otherwise reuse an existing gui/dist).
+ *     --build       Run `npm run web:build` first (otherwise reuse an existing targets/web/dist).
  *     --out <dir>   Output directory (default: <repo>/screenshots-preview). The Pages workflow
  *                   passes --out docs/jsdoc/screenshots so the images ship inside the docs site.
  *     --skip-gifs   Capture only the static PNGs (faster while iterating on shots).
@@ -65,7 +65,7 @@ const MIME = {
   ".map": "application/json; charset=utf-8",
 };
 
-/** Serve gui/dist with SPA fallback. `/api/*` never reaches here (Playwright route-mocks it). */
+/** Serve targets/web/dist with SPA fallback. `/api/*` never reaches here (Playwright route-mocks it). */
 function startServer() {
   const distRoot = resolve(DIST);
   const indexHtml = join(distRoot, "index.html");

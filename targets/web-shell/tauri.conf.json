@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Random AI Prompt",
+  "version": "2.47.0",
+  "identifier": "io.fairyfox.randomaiprompt",
+  "build": {
+    "frontendDist": "frontend",
+    "beforeBuildCommand": "npm run stage",
+    "beforeDevCommand": "npm run stage"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Random AI Prompt",
+        "width": 1200,
+        "height": 820,
+        "minWidth": 480,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": false,
+    "category": "GraphicsAndDesign",
+    "shortDescription": "Random AI image & text prompt generator",
+    "longDescription": "Compose rich AI image and text prompts from a large library of scenes, subjects, and styles, then run them through 40+ models with your own API key. The desktop edition adds the gallery, single-image view, in-app content manager, local Stable Diffusion providers, and 18+ mode.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "app/**/*"
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
+  }
+}

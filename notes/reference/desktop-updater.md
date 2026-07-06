@@ -13,11 +13,11 @@ release exists; if so, a dismissible banner offers the right update path for the
 
 | Piece | File |
 |-------|------|
-| Pure semver compare + client orchestration (throttle + per-version dismissal) | `gui/src/lib/updateCheck.js` |
-| React hook | `gui/src/lib/useUpdateCheck.js` |
-| The banner UI (edition-aware CTA) | `gui/src/components/UpdateBanner.jsx` + `gui/src/styles/components/update-banner.css` |
-| Backend: latest-release fetch (server-side, 1 h cache) + edition detection | `gui/server/apiHandler.js` (`/api/update`) |
-| Desktop edition stamp (`RAP_EDITION=installer\|portable`) | `gui/src-tauri/src/lib.rs` |
+| Pure semver compare + client orchestration (throttle + per-version dismissal) | `targets/web/frontend/lib/updateCheck.js` |
+| React hook | `targets/web/frontend/lib/useUpdateCheck.js` |
+| The banner UI (edition-aware CTA) | `targets/web/frontend/components/UpdateBanner.jsx` + `targets/web/frontend/styles/components/update-banner.css` |
+| Backend: latest-release fetch (server-side, 1 h cache) + edition detection | `targets/web/backend/apiHandler.js` (`/api/update`) |
+| Desktop edition stamp (`RAP_EDITION=installer\|portable`) | `targets/web-shell/src/lib.rs` |
 
 Edition detection (backend): `RAP_EDITION` env (set by the Tauri shell) wins; else a `.git` dir in the
 cwd ⇒ `git`; else `source`. The **online** build never checks (it is always the latest deploy) and a
@@ -35,10 +35,10 @@ unaffected:
 
 | Piece | File | Gated by |
 |-------|------|----------|
-| Optional Rust dependency + `updater` Cargo feature | `gui/src-tauri/Cargo.toml` | feature off by default → plugin not compiled |
-| Plugin registration | `gui/src-tauri/src/lib.rs` (`#[cfg(feature = "updater")]`) | the `updater` feature |
-| Updater config fragment (endpoints + `pubkey` placeholder + `createUpdaterArtifacts`) | `gui/src-tauri/tauri.updater.conf.json` | merged only via the `--config` flag |
-| Build script that enables both | `gui/package.json` → `desktop:build:updater` | only invoked by the gated CI step |
+| Optional Rust dependency + `updater` Cargo feature | `targets/web-shell/Cargo.toml` | feature off by default → plugin not compiled |
+| Plugin registration | `targets/web-shell/src/lib.rs` (`#[cfg(feature = "updater")]`) | the `updater` feature |
+| Updater config fragment (endpoints + `pubkey` placeholder + `createUpdaterArtifacts`) | `targets/web-shell/tauri.updater.conf.json` | merged only via the `--config` flag |
+| Build script that enables both | `targets/web/package.json` → `desktop:build:updater` | only invoked by the gated CI step |
 | CI: key detection + updater build + `.sig` collection | `.github/workflows/release.yml` (`desktop` job) | `steps.updkey.outputs.has_key` (the `TAURI_SIGNING_PRIVATE_KEY` secret) |
 
 With **no** `TAURI_SIGNING_PRIVATE_KEY` secret set, `has_key=false`: the plain `desktop:build` runs and
@@ -47,7 +47,7 @@ the release is byte-for-byte what it is today. The updater path is pure opt-in.
 ## What's already done (in the tree)
 
 1. ✅ **Keypair generated** — `%USERPROFILE%\.tauri\rap-updater.key` (private, off-repo) + `.pub`.
-2. ✅ **Public key committed** — in `gui/src-tauri/tauri.updater.conf.json` (`pubkey`).
+2. ✅ **Public key committed** — in `targets/web-shell/tauri.updater.conf.json` (`pubkey`).
 3. ✅ **Rust check-on-launch → prompt → install** — `spawn_update_check` in `lib.rs` under
    `#[cfg(feature = "updater")]` (the WebView is on an external `http://127.0.0.1` origin, so the update
    is Rust-driven, not JS): on launch it checks; if a signed newer release exists it shows a **native

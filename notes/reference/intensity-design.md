@@ -34,7 +34,7 @@ A `{#name}` reference may carry an `i`-prefixed intensity percent (and/or an `f`
   generator — runs at 50%. (Intensity does **not** auto-inherit from a parent; a nested `{#weather}` with
   no percent is 50%, regardless of the parent's dial. To pass a parent's level down, write it explicitly,
   e.g. `{#weather 80%}`.) The default lives in one constant (`DEFAULT_INTENSITY`) so it is trivial to retune.
-- The percent is parsed in the `{#…}` resolver (`src/core/stages/dynamicPrompt.js`) and handed to the
+- The percent is parsed in the `{#…}` resolver (`engine/core/stages/block.js`) and handed to the
   generator as the **4th argument**:
   `mod.default(settings, imageSettings, upscaleSettings, intensity, focus)` (focus is the 5th). Compiled
   `.dpl` files expose them as `ctx.intensity` / `ctx.focus`; `.js` sidecars read the 4th / 5th parameter.
@@ -124,7 +124,7 @@ The matching `$focus`, `$focus-word` tokens read the focus dial (see
 centred on **50 ≈ `normal`**. It runs `barely-there` / `near-zero` / `speck` at the bottom, through the
 `tiny` family and `normal` in the middle, up to `huge` / `colossal` / `mega` / `beyond measure` at the
 top (curated to size / amount / scale / proportion terms). The full list is the `INTENSITY_WORDS` array
-in `src/core/dpl/dpl.js` — edit it there to retune a word.
+in `engine/core/dpl/dpl.js` — edit it there to retune a word.
 
 These tokens are resolved in the DPL inline renderer (where intensity is known), so they only carry meaning
 inside a generator — not in the raw prompt box, which has no single intensity.
@@ -166,5 +166,5 @@ modifiers are a DPL-authoring feature; they have no meaning in the raw prompt bo
 - [`focus-design.md`](focus-design.md) — the **sibling dial** (`f`-prefix, `[f<NN%]`, `$focus`).
 - [`layering-design.md`](layering-design.md) — global single-layer auto-merge / dedup + the `stacking` flag.
 - [`dpl-design.md`](dpl-design.md) — the base language this extends.
-- `src/core/dpl/dpl.js` — renderer (conditions, scaling, `$intensity` / `$focus` tokens).
-- `src/core/stages/dynamicPrompt.js` — `{#name iNN% fNN%}` parsing + threading + dedup.
+- `engine/core/dpl/dpl.js` — renderer (conditions, scaling, `$intensity` / `$focus` tokens).
+- `engine/core/stages/block.js` — `{#name iNN% fNN%}` parsing + threading + dedup.

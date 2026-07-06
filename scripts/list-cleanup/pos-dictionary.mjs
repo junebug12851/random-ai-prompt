@@ -24,7 +24,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import nlp from "compromise";
-import { classifyRemoval } from "../../src/contentSafety.js";
+import { classifyRemoval } from "../../engine/contentSafety.js";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

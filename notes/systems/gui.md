@@ -1,10 +1,10 @@
-# The React SPA — `gui/`
+# The React SPA — `targets/web/`
 
-> **Location (flattened 2026-07-02):** the SPA lives at **`gui/`** (repo root). The app is **v3-only**, and
+> **Location (flattened 2026-07-02):** the SPA lives at **`targets/web/`** (repo root). The app is **v3-only**, and
 > the legacy expansion features (the "Expansions" building-block tab + the "Save as Expansion" feature)
 > were removed.
 
-A standalone **React 19 + Vite 6** single-page app (`gui/`, its own `package.json`). It runs the
+A standalone **React 19 + Vite 6** single-page app (`targets/web/`, its own `package.json`). It runs the
 **real prompt engine in the browser** ([core-engine.md](core-engine.md)) and generates images through a
 modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml` builds and deploys; see
 [`../reference/deployment.md`](../reference/deployment.md).
@@ -17,7 +17,7 @@ modular, **BYOK** (bring-your-own-key) provider model. It is what `netlify.toml`
 | `src/components/` | The UI across four top-level views — `Home` (compose + generate), `Gallery`, `SingleView`, and the `Manage` content editor — plus `ProvidersMenu`, `DplEditor`, `SettingsDrawer`/`Settings`, and `Field`. (Sub-areas are grouped under `components/{home,manage,single}/`.) The composer prompt box lives in a reusable **`PromptComposer`** (forwardRef, `insert(token)` handle, `onGenerate(text)` callback) shared by `Home` and a compact copy atop the `Gallery`. |
 | `src/lib/gallery/generateIntoGallery.js` | The Gallery's own image-generation flow — streams live placeholder cells into the grid and ingests each finished image to the feed. The counterpart to `lib/home/useImageBatches.js` (which drives the Home prompt list); kept separate so the perf-critical Home path is untouched, but mirrors its rewrite passes + sidecar `meta` shape + concurrency limiter. |
 | `src/lib/promptEngine.js` | Wraps `core/`'s `createEngine(browserLoader)` for the SPA. |
-| `src/lib/catalog.js` | The token catalog (lists + dynamic prompts) the builder offers. |
+| `src/lib/catalog.js` | The token catalog (lists + blocks) the builder offers. |
 | `src/lib/settings.js` / `customStore.js` / `share.js` | Settings, local custom tokens, shareable state. |
 | `src/lib/providers/` | The generation providers (see below). |
 | `src/lib/dialog.js` / `src/components/DialogHost.jsx` | In-app dialog system (see below). |
@@ -37,40 +37,40 @@ every caller `await`s — keep that in mind when adding a dialog to a previously
 
 ## The provider model
 
-Generation backends are modular — the same plugin pattern the dynamic prompts use. There are ~40
-**provider adapters** under `gui/providers/<id>/` (a shared transport in `providers/_shared/` plus one
-folder per provider), registered through `gui/src/lib/providers/index.js`. Each exposes a small contract
+Generation backends are modular — the same plugin pattern the blocks use. There are ~40
+**provider adapters** under `targets/web/shared/<id>/` (a shared transport in `providers/_shared/` plus one
+folder per provider), registered through `targets/web/frontend/lib/providers/index.js`. Each exposes a small contract
 (`id`, `label`, whether it's `local`, whether it `needsKey`, and a `generate(...)`), and
 `availableProviders()` **filters out providers that can't run in the current build** — the local-only SD
 backends and any provider a browser can't call directly are hidden in the **online** build
-(`ONLINE` ← `VITE_ONLINE`). Add a backend by dropping a folder in `gui/providers/` and registering it.
+(`ONLINE` ← `VITE_ONLINE`). Add a backend by dropping a folder in `targets/web/shared/` and registering it.
 
 Calls are **BYOK and go straight from the browser** to the chosen provider with the user's key — there is
 **no server relay**. (The former serverless generate/rewrite proxy was retired; a provider a browser can't
 reach is simply disabled online rather than forwarded.) The **local** edition additionally has a
-server-side dispatch path — `gui/server/dispatch.js` (`dispatch` / `dispatchRewrite`) behind its `/api` —
+server-side dispatch path — `targets/web/backend/dispatch.js` (`dispatch` / `dispatchRewrite`) behind its `/api` —
 for backends better driven from Node. Stable Diffusion is still supported but is now one option among many.
 
 ## Styling
 
-CSS lives under `gui/src/styles/` — an `index.css` entry (imported once by `main.jsx`) that declares
+CSS lives under `targets/web/frontend/styles/` — an `index.css` entry (imported once by `main.jsx`) that declares
 the `@layer` order and `@import`s a tree of focused modules: `foundation/tokens.css` (a two-tier
 token system — `--p-*` primitive palette/scales → semantic `--accent`/`--bg`/`--fg`/`--dpl-*` roles)
 + `foundation/base.css`, then one `components/<section>.css` per UI area. This replaced the former
 single ~5,360-line `styles.css` (the CSS overhaul — see
 [`../plans/css-overhaul.md`](../plans/css-overhaul.md)); the split was verified render-identical
 against the Playwright visual baseline. Theming (dark/light bases × accent presets, driven by
-`data-theme`/`data-accent` on `<html>` via a `gui/src/theme/` provider) builds on this token layer.
+`data-theme`/`data-accent` on `<html>` via a `targets/web/frontend/theme/` provider) builds on this token layer.
 
 ## Build / deploy
 
 `netlify.toml` (repo root): `npm --prefix gui install && npm --prefix gui run build` →
-`gui/dist`, with an SPA fallback to `index.html`. The online build is **fully static** — no `/api`, no
+`targets/web/dist`, with an SPA fallback to `index.html`. The online build is **fully static** — no `/api`, no
 serverless functions (BYOK calls go straight from the browser). The `/api/*` surface exists only in the
-**local** edition, served by `gui/server/serve.js`. Details in
+**local** edition, served by `targets/web/backend/serve.js`. Details in
 [`../reference/deployment.md`](../reference/deployment.md).
 
-`gui/package.json`'s `build` is `node scripts/build.mjs` (an orchestrator), not a bare `vite build`.
+`targets/web/package.json`'s `build` is `node scripts/build.mjs` (an orchestrator), not a bare `vite build`.
 Locally it just runs the client build. For the **online** build (`VITE_ONLINE=true`) it additionally
 prerenders — see below.
 

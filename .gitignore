@@ -27,16 +27,20 @@ scripts/list-cleanup/out/
 # the tests/ suite, and the committed visual baselines (tests/e2e/*-snapshots/)
 # ARE tracked; only the generated reports below are not.
 /coverage/
-gui/coverage/
+targets/web/coverage/
 /playwright-report/
 /test-results/
 /.vitest/
 
-# Local-file storage backend (dev only) — the legacy flat file + its post-migration rename,
-# and the new per-namespace user-settings folder (all user data; never tracked).
-gui/.gui-storage.json
-gui/.gui-storage.json.migrated
-gui/user-settings/
+# Local-file storage backend — the legacy flat file + its post-migration rename, the previous
+# per-namespace folder (now migrated under user/) + its aside, and the current user/settings/ store.
+# All user data; never tracked — only the user/ scaffold (README + .gitkeep) is.
+targets/web/.gui-storage.json
+targets/web/.gui-storage.json.migrated
+targets/web/user-settings/
+targets/web/user-settings.migrated/
+/user/settings/*
+!/user/settings/.gitkeep
 
 # Local Netlify folder
 .netlify
@@ -48,7 +52,7 @@ scripts/list-cleanup/out/
 
 # Large-scale perf-suite fixture files (created on disk during a run, removed on teardown; a stray
 # one after an interrupted run must never be committed). See tests/perf/.
-data/**/perf-harness-*
+engine/data/**/perf-harness-*
 # Perf profiling output (scripts/profile-scenarios.mjs — CDP traces + the summary JSON)
 /perf-profile/
 

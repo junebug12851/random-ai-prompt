@@ -16,29 +16,29 @@ support ladder, and we support whatever rung it reaches:
 
 Capabilities **expand/contract per provider** — never a lowest-common-denominator param blob.
 
-## Folder layout (under `gui/`, per owner)
+## Folder layout (under `targets/web/`, per owner)
 
 ```
-gui/providers/
+targets/web/shared/
   _shared/dialects.js                  # dialect → engine mode
   _shared/transport/{localDirect,hostedProxy,submitPoll}.js
   <id>/
     config.js     manifest: id,label,tier,dialect,transport,local,needsKey,capabilities,loaders
     settings.js   provider-owned { defaults, fields, data? }
-    presets/      provider-owned presets (user presets persist via gui/storage)
+    presets/      provider-owned presets (user presets persist via targets/web/storage)
     code/{generate.js, server.js?, format.js?}
     data/         models, samplers, sizes, parameter catalogs, workflow templates
   index.js        auto-discovery via import.meta.glob("./*/config.js")
-gui/storage/      pluggable persistence (browser | localFile) + presetStore
-gui/server/dispatch.js                 # shared hosted dispatch (Netlify + Vite middleware)
-gui/vite-plugin-api.js                 # local /api/generate + /api/storage
+targets/web/storage/      pluggable persistence (browser | localFile) + presetStore
+targets/web/backend/dispatch.js                 # shared hosted dispatch (Netlify + Vite middleware)
+targets/web/vite-plugin-api.js                 # local /api/generate + /api/storage
 ```
 
 ## Dialects
 
 `_shared/dialects.js` maps `sd | novelai | midjourney | plain` → engine `settings.mode`. The provider
 owns the dialect (the standalone "Mode" control is removed when the image-gen UI re-lands). `plain` is
-native in `src/helpers/randomEmphasis.js`: it keeps the engine's emphasis rolls and renders them as
+native in `engine/helpers/randomEmphasis.js`: it keeps the engine's emphasis rolls and renders them as
 natural-language intensifier/hedge words (provider-overridable via `plainEmphasisWords` /
 `plainDeEmphasisWords`).
 
@@ -57,7 +57,7 @@ file via `/api/storage` (browser fallback). Per-provider presets via `presetStor
 
 ## Phases
 
-1. **Framework foundation — DONE (2.7.2).** `gui/providers/` + registry + dialects (+ native `plain`) +
+1. **Framework foundation — DONE (2.7.2).** `targets/web/shared/` + registry + dialects (+ native `plain`) +
    storage + transport (Netlify fn + Vite middleware) + first providers (local-webui, comfyui, openai,
    midjourney). Tests: registry/Midjourney contract + plain-dialect unit.
 2. **UI re-add** — provider dropdown, capability-driven settings, image results, Copy-prompt for the

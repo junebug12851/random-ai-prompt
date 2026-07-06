@@ -3,7 +3,7 @@
  * CodeMirror injects its default (light) tooltip theme UNLAYERED, which beats our `@layer components`
  * overrides unless they use `!important` — without the fix the info panel rendered light-on-light
  * (near-invisible). This asserts a dark surface + light text in a dark colour scheme.
- * See gui/src/styles/components/generic-code-highlighting.css.
+ * See targets/web/frontend/styles/components/generic-code-highlighting.css.
  */
 import { test, expect } from "@playwright/test";
 

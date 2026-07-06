@@ -130,14 +130,14 @@ cd random-ai-prompt
 npm install
 ```
 
-`npm install` installs both the engine and the `gui/` application. From there you can run it live with
+`npm install` installs both the engine and the `targets/web/` application. From there you can run it live with
 `npm run web` or `npm start` (see [How to run](#how-to-run)), or produce a static production build:
 
 ```sh
 npm run web:build
 ```
 
-This outputs the built site to `gui/dist/`. The same source builds two editions: the full
+This outputs the built site to `targets/web/dist/`. The same source builds two editions: the full
 local/desktop build, and the browser-only online build, in which the local-only features are gated off
 through the `VITE_ONLINE` flag.
 

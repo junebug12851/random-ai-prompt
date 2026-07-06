@@ -3,7 +3,7 @@
 # Coverage is uploaded from TWO independent suites, each under its own flag:
 #   node — the isomorphic engine (src/core/**). Unit/integration tested
 #          to ~93%. This is what the README coverage badge tracks (flag=node).
-#   gui  — the SPA (gui/src/**). Vitest unit-covers the src/lib logic
+#   gui  — the SPA (targets/web/frontend/**). Vitest unit-covers the src/lib logic
 #          layer (~73%); the React components/editors are exercised by the
 #          Playwright e2e + accessibility suite, whose coverage is NOT uploaded to
 #          Codecov — so this flag reads low (~48%) by design, not from missing tests.
@@ -34,10 +34,10 @@ flag_management:
   individual_flags:
     - name: node
       paths:
-        - src/
+        - engine/
     - name: gui
       paths:
-        - gui/src/
+        - targets/web/frontend/
 
 comment:
   after_n_builds: 2

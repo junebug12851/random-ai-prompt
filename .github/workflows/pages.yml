@@ -8,7 +8,7 @@ name: Docs (GitHub Pages)
 # One-time setup on the repo: Settings -> Pages -> Build and deployment -> Source = GitHub Actions.
 
 # Auto-deploy on push to main: build-docs.mjs resolves notes/ + assets/ + README +
-# jsdoc.config.json and the code (src/ + gui/) all at the repo root, and `npm run docs` is green.
+# jsdoc.config.json and the code (src/ + targets/web/) all at the repo root, and `npm run docs` is green.
 on:
   push:
     branches: [main]

@@ -6,8 +6,8 @@ name: CI
 # baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
 # playwright.config.js. See notes/plans/testing.md.
 #
-# The project lives at the repo root; the SPA is the gui/ subpackage (built/tested via
-# `npm --prefix gui`).
+# The project lives at the repo root; the SPA is the targets/web/ subpackage (built/tested via
+# `npm --prefix targets/web`).
 #
 # Install uses `npm install` (not `npm ci`): the dev machine is Windows-only, and npm's
 # optional-dependency lockfile bug around @emnapi (pulled by the Linux-only native bindings of
@@ -83,16 +83,16 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: gui/package-lock.json
+          cache-dependency-path: targets/web/package-lock.json
 
       - name: Install gui dependencies
-        run: npm --prefix gui install --no-audit --no-fund
+        run: npm --prefix targets/web install --no-audit --no-fund
 
       - name: Build gui
-        run: npm --prefix gui run build
+        run: npm --prefix targets/web run build
 
       - name: Unit / component / contract tests + coverage gate (Vitest, jsdom)
-        run: npm --prefix gui run test:coverage
+        run: npm --prefix targets/web run test:coverage
 
       # Non-blocking: publish SPA coverage to Codecov under the `gui` flag (repo-root-relative path).
       - name: Upload coverage to Codecov (SPA)
@@ -100,7 +100,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: junebug12851/random-ai-prompt
-          files: gui/coverage/lcov.info
+          files: targets/web/coverage/lcov.info
           flags: gui
           fail_ci_if_error: false
 
@@ -121,7 +121,7 @@ jobs:
       - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm --prefix targets/web install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium
@@ -146,7 +146,7 @@ jobs:
       - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm --prefix targets/web install --no-audit --no-fund
 
       - name: Install Playwright browsers (chromium + firefox + webkit)
         run: npx playwright install --with-deps chromium firefox webkit
@@ -176,7 +176,7 @@ jobs:
       - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm --prefix targets/web install --no-audit --no-fund
 
       # Hard gate: the SPA's shipped JS (gzipped) must stay under the budget in
       # scripts/check-bundle-size.mjs. `test:perf` builds then checks.
@@ -206,7 +206,7 @@ jobs:
       - name: Install dependencies (root + gui)
         run: |
           npm install --no-audit --no-fund
-          npm --prefix gui install --no-audit --no-fund
+          npm --prefix targets/web install --no-audit --no-fund
 
       - name: Install Playwright browser (bundled chromium)
         run: npx playwright install --with-deps chromium

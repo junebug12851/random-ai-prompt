@@ -6,9 +6,9 @@ import {
   NSFW_TOKEN,
   hasNsfwToken,
   isGatedList,
-  isGatedDynPrompt,
-  gatedDynPrompts,
-} from "../../src/gatedLists.js";
+  isGatedBlock,
+  gatedBlocks,
+} from "../../engine/gatedLists.js";
 
 describe("gatedLists.hasNsfwToken", () => {
   it("matches a standalone nsfw token across delimiters", () => {
@@ -40,9 +40,9 @@ describe("gatedLists gating", () => {
     expect(isGatedList("artist/anime")).toBe(false);
   });
 
-  it("isGatedDynPrompt honors the token rule plus the escape-hatch list", () => {
-    expect(isGatedDynPrompt("subject/nude-nsfw")).toBe(true);
-    expect(isGatedDynPrompt("scene/castle")).toBe(false);
-    expect(Array.isArray(gatedDynPrompts)).toBe(true);
+  it("isGatedBlock honors the token rule plus the escape-hatch list", () => {
+    expect(isGatedBlock("subject/nude-nsfw")).toBe(true);
+    expect(isGatedBlock("scene/castle")).toBe(false);
+    expect(Array.isArray(gatedBlocks)).toBe(true);
   });
 });

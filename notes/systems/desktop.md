@@ -5,26 +5,26 @@ _How the pre-built **desktop edition** is assembled and how it runs. Added 2.43.
 The desktop edition is **not a fork** of the app. It is a thin [Tauri](https://tauri.app) (Rust)
 shell that runs the *exact same* local-edition SPA + Node `/api` backend the build-from-source and
 `npm start` editions run. All prompt logic, generation, the gallery, Manage, and the providers stay
-in the JS engine (`src/`) and the Node server (`gui/server/`); the shell only launches them inside a
-native window. Everything lives under **`gui/src-tauri/`**.
+in the JS engine (`src/`) and the Node server (`targets/web/backend/`); the shell only launches them inside a
+native window. Everything lives under **`targets/web-shell/`**.
 
 ## The pieces
 
 | File | Role |
 |------|------|
-| `gui/src-tauri/src/lib.rs` | The shell. Stages the payload to a writable working copy, launches the Node backend as a child process (the "sidecar"), waits for it to listen, then points the WebView at it. Kills the child on exit. |
-| `gui/src-tauri/stage.mjs` | Build-time staging (`beforeBuildCommand`). Assembles the runnable app payload under `gui/src-tauri/app/` and copies the platform Node binary as the sidecar runtime. |
-| `gui/src-tauri/tauri.conf.json` | Tauri config: bundles `app/**/*` as a resource, the `frontend/` splash as the initial page, and per-OS bundle targets. `version` is kept mirrored to the repo `VERSION`. |
-| `gui/src-tauri/frontend/index.html` | A tiny branded splash shown while the Node backend boots (before the WebView navigates to it). |
-| `gui/src-tauri/Cargo.toml` | Rust crate. Deps: `tauri`, `tauri-plugin-log`, `serde`/`serde_json`, `log`. No app logic. |
+| `targets/web-shell/src/lib.rs` | The shell. Stages the payload to a writable working copy, launches the Node backend as a child process (the "sidecar"), waits for it to listen, then points the WebView at it. Kills the child on exit. |
+| `targets/web-shell/stage.mjs` | Build-time staging (`beforeBuildCommand`). Assembles the runnable app payload under `targets/web-shell/app/` and copies the platform Node binary as the sidecar runtime. |
+| `targets/web-shell/tauri.conf.json` | Tauri config: bundles `app/**/*` as a resource, the `frontend/` splash as the initial page, and per-OS bundle targets. `version` is kept mirrored to the repo `VERSION`. |
+| `targets/web-shell/frontend/index.html` | A tiny branded splash shown while the Node backend boots (before the WebView navigates to it). |
+| `targets/web-shell/Cargo.toml` | Rust crate. Deps: `tauri`, `tauri-plugin-log`, `serde`/`serde_json`, `log`. No app logic. |
 
-npm scripts (in `gui/package.json`): `stage` (run the stager), `desktop:build` (`npm run build` →
+npm scripts (in `targets/web/package.json`): `stage` (run the stager), `desktop:build` (`npm run build` →
 `tauri build`), `desktop:dev` (`npm run build` → `tauri dev`). The Tauri CLI is a gui devDependency
 (`@tauri-apps/cli`).
 
 ## Why a Node sidecar (not a port to Rust)
 
-The local edition is a static `gui/dist/` **plus** a running Node process (`serve.js` → `apiHandler.js`)
+The local edition is a static `targets/web/dist/` **plus** a running Node process (`serve.js` → `apiHandler.js`)
 that reads the engine from `src/` and the content from `data/` (cwd-relative), and writes user data
 (`output/`, `user-settings.json`, `results.json`) to the cwd. Re-implementing any of that in Rust would
 duplicate the engine and guarantee drift. Instead the shell **bundles the platform's own `node` binary**
@@ -33,11 +33,11 @@ transports (Vite dev middleware, `npm start`, the desktop shell) — they cannot
 
 ## Staging (`stage.mjs`)
 
-Assembles `gui/src-tauri/app/`:
+Assembles `targets/web-shell/app/`:
 
 - `src/`, `data/` — the engine + content (copied from the repo root).
-- `gui/dist/` — the built **local** edition SPA (`VITE_ONLINE` unset).
-- `gui/server/`, `gui/providers/`, and every top-level `gui/*.js` helper (e.g. `vite-api-helpers.js`,
+- `targets/web/dist/` — the built **local** edition SPA (`VITE_ONLINE` unset).
+- `targets/web/backend/`, `targets/web/shared/`, and every top-level `targets/web/*.js` helper (e.g. `vite-api-helpers.js`,
   which `apiHandler.js` imports — this one is easy to miss).
 - `node_modules/` — the production dependency **closure** (`lodash` + `compromise` and its transitive
   deps `efrt`, `grad-school`, `suffix-thumb`), copied directly from the installed `node_modules` (no
@@ -75,7 +75,7 @@ them, not a replacement.
 
 ## Editions vs. what ships
 
-`data 3.8 MB + src 0.2 MB + gui/dist 2.4 MB + deps` plus the Node binary make a payload of ~96 MB;
+`data 3.8 MB + src 0.2 MB + targets/web/dist 2.4 MB + deps` plus the Node binary make a payload of ~96 MB;
 the resulting installers are correspondingly sized. Windows uses the built-in **WebView2**, macOS uses
 **WKWebView**, Linux uses **WebKitGTK** (the only OS needing extra system packages, installed in CI).
 

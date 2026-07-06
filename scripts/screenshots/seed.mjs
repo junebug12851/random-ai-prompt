@@ -41,8 +41,8 @@ function imageMime(file) {
 /** A representative content tree for the Manage screen's left panel. */
 function sampleTree() {
   return {
-    "dynamic-prompts": {
-      name: "dynamic-prompts",
+    "blocks": {
+      name: "blocks",
       dirs: [
         { name: "scene", dirs: [], files: ["city.js", "forest.js", "lake.js"] },
         { name: "subject", dirs: [], files: ["fox.js", "astronaut.js"] },

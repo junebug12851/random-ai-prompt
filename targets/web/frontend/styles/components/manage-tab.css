@@ -1,0 +1,135 @@
+/* ===== Manage tab ===== */
+.manage-locked {
+  max-width: 560px;
+  margin: 12vh auto;
+  text-align: center;
+  color: var(--fg-soft);
+  padding: 0 24px;
+}
+
+.manage-locked h2 {
+  font-family: var(--font-display);
+  margin-bottom: 10px;
+}
+
+.mg-head-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.mg-head-actions .picker-filter {
+  flex: 1;
+}
+
+.mg-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex: none;
+}
+
+.mg-refresh:hover {
+  background: var(--chip-hover);
+  color: var(--fg);
+}
+
+.mg-refresh.spinning svg {
+  animation: mg-spin 0.8s linear infinite;
+}
+
+@keyframes mg-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mg-tree {
+  overflow-y: auto;
+  padding: 4px 4px 24px;
+}
+
+.mg-root {
+  margin-bottom: 14px;
+}
+
+/* The user-overlay roots ("your content"), grouped at the top of the tree. A soft accent rail +
+   tint sets them apart from the built-in catalog below. */
+.mg-root-user {
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  padding-left: 2px;
+}
+
+.mg-yours-tag {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  vertical-align: middle;
+}
+
+.mg-root-title {
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 8px 4px;
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+
+/* Folders: categories (top level) get the accent rail; subfolders a cooler blue rail;
+   folders with special attributes (force-prefix / group) a purple rail. */
+.mg-folder {
+  border-left: 2px solid transparent;
+  margin: 1px 0;
+}
+
+.mg-folder.is-category {
+  border-left-color: var(--accent);
+}
+
+.mg-folder.is-subfolder {
+  border-left-color: var(--dpl-gen);
+}
+
+.mg-folder.is-special {
+  border-left-color: var(--dpl-gate);
+}
+
+.mg-folder-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.mg-folder-head:hover {
+  background: var(--bg-2);
+}
+
+.mg-folder-head.is-drop,
+.mg-root.is-drop {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+

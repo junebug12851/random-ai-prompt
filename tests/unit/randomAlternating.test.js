@@ -6,7 +6,7 @@
  * makes `x < 1` always true → climb to keywordAlternatingMaxLevels. Both deterministic.
  */
 import { describe, it, expect } from "vitest";
-import randomAlternating from "../../src/helpers/randomAlternating.js";
+import randomAlternating from "../../engine/helpers/randomAlternating.js";
 
 const base = (mode, chance, maxLevels) => ({
   keywordAlternating: true,

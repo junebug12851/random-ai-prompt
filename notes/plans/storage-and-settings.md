@@ -26,7 +26,7 @@ One coherent storage story for both run modes, owner's requirements:
 
 ## The two layers (keep them separate)
 
-### 1. Backend — one interface, two implementations (already exists, `gui/storage/`)
+### 1. Backend — one interface, two implementations (already exists, `targets/web/storage/`)
 
 `StorageBackend` = `{ get(ns), set(ns,obj), remove(ns), keys() }`, selected by run mode:
 
@@ -37,7 +37,7 @@ One coherent storage story for both run modes, owner's requirements:
 A namespace (`ns`) is an opaque key, e.g. `settings`, `wrappers`, `presets:openai`,
 `providers/openai`. The app/providers read & write through this and never care where bytes live.
 
-### 2. Config — versioned documents + cascade (new, `gui/storage/config.js` + `merge.js`)
+### 2. Config — versioned documents + cascade (new, `targets/web/storage/config.js` + `merge.js`)
 
 On top of the backend:
 
@@ -65,25 +65,25 @@ On top of the backend:
 ## On-disk layout (local mode)
 
 ```
-gui/                   ← the dev server's root, so the folder lives here (not the repo root,
+targets/web/                   ← the dev server's root, so the folder lives here (not the repo root,
   user-settings/                   and not to be confused with the Node engine's user-settings.json)
     settings.json                ← { __v, ...appSettings } (prompt knobs, image params, BYOK keys)
     wrapper-default.json         ← the editable built-in Default wrapper
     wrappers.json                ← saved START/END wrapper presets
     presets.json                 ← custom setting presets
     providers/                   ← created lazily, the first time a provider's settings are changed
-      openai.json                ← override diff over gui/providers/openai defaults
+      openai.json                ← override diff over targets/web/shared/openai defaults
       comfyui.json               ← …only the keys the user changed
       …
 ```
-(The whole folder is gitignored — `gui/user-settings/` — so BYOK keys in `settings.json`
+(The whole folder is gitignored — `targets/web/user-settings/` — so BYOK keys in `settings.json`
 are never committed.)
 
-Provider **defaults** stay in the provider folder (`gui/providers/<id>/settings.js` `defaults`,
+Provider **defaults** stay in the provider folder (`targets/web/shared/<id>/settings.js` `defaults`,
 optionally a sibling `<id>.json` if a literal sidecar is preferred). Same logical name on both sides
 (`<id>`), defaults-then-override, exactly as specified.
 
-The dev-server `/api/storage` endpoint maps a namespace to a file under `gui/user-settings/`:
+The dev-server `/api/storage` endpoint maps a namespace to a file under `targets/web/user-settings/`:
 `providers/x` → `…/user-settings/providers/x.json`, everything else → `…/user-settings/<ns>.json`. The
 folder + each file are created lazily on first write, so it won't exist until the dev server is running
 and the app has saved something. It migrates the old flat `.gui-storage.json` on first server start
@@ -117,12 +117,12 @@ able to destabilize the running app, so it lands as its own reviewable step with
 
 ## Checklist
 
-- [x] `gui/storage/merge.js` — deep merge + diff, with tests.
-- [x] `gui/storage/config.js` — versioned load/save + cascade, with tests.
+- [x] `targets/web/storage/merge.js` — deep merge + diff, with tests.
+- [x] `targets/web/storage/config.js` — versioned load/save + cascade, with tests.
 - [x] Dev-server `/api/storage` → `user-settings/` folder layout (+ old-file migration, list).
 - [x] Provider defaults extracted to literal `<id>.json` sidecars (static providers).
 - [x] Route app settings / customStore / wrapperStore through the layer via the boot-time hydration
-      cache (`gui/storage/cache.js`); legacy `localStorage` keys migrated forward. No direct
+      cache (`targets/web/storage/cache.js`); legacy `localStorage` keys migrated forward. No direct
       `localStorage` in local mode.
 - [x] Provider params persisted as per-provider override files (`providers/<id>`), reassembled into
       `providerParams` on load.

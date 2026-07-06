@@ -1,7 +1,7 @@
 # ESM Patterns — the CommonJS → ES-module landmine catalog
 
 The rules and gotchas for module wiring in this repo, learned during the 2026-06-18 migration. Read
-this before changing how modules import/export or how dynamic prompts/prompt modules are loaded.
+this before changing how modules import/export or how blocks/prompt modules are loaded.
 
 ## The basics (non-negotiable)
 
@@ -45,7 +45,7 @@ a top-level statement.
 
 ## Landmine 2 — synchronous, config-driven plugin loading
 
-Dynamic prompts and prompt modules are loaded by a **runtime path** and called **synchronously** inside
+Blocks and prompt modules are loaded by a **runtime path** and called **synchronously** inside
 string-replace callbacks (`prompt.replaceAll(/#(\w+)/, (m, name) => require(...)(...))`).
 `await import()` can't be used there without rewriting the whole pipeline async.
 
@@ -56,20 +56,20 @@ scoped require:
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
-const mod = require(`../${settings.dynamicPromptFiles}/${name}`); // returns the ESM namespace
+const mod = require(`../${settings.blockFiles}/${name}`); // returns the ESM namespace
 mod.default(settings, imageSettings, upscaleSettings);            // call the default export
 mod.full;                 // read named exports too
 mod.suggestion_exclude;
 ```
 
-Used in `src/core/nodeLoader.js` (the dynamic-prompt loader) and `src/promptFilesAndSuggestions.js`
+Used in `engine/core/nodeLoader.js` (the block loader) and `engine/promptFilesAndSuggestions.js`
 (the classification scan). **Do not** "modernize" these into `await import()`.
 
 ## Landmine 3 — default vs named exports must match the consumer
 
 - `helpers/keywordRepeater.js` → **named exports** (`export { keywordRepeater, artistRepeater }`),
   because consumers destructure: `import { artistRepeater } from "../helpers/keywordRepeater.js"`.
-- Dynamic prompts → `export default function (...)` plus `export const full = true;` /
+- Blocks → `export default function (...)` plus `export const full = true;` /
   `export const suggestion_exclude = true;`. The loader reads `.default`, `.full`, `.suggestion_exclude`
   off the namespace.
 - Settings files → `export default { … }`; `src/loadSettings.js` imports them as defaults.
@@ -109,10 +109,10 @@ The import smoke test is a tiny script that does:
 
 ```js
 import common from "./common.js";
-import promptFiles from "./src/promptFilesAndSuggestions.js";
+import promptFiles from "./engine/promptFilesAndSuggestions.js";
 promptFiles.init(common.settings);
 promptFiles.loadAll();
-// …then expand a prompt with dynamic-prompt.js
+// …then expand a prompt with block.js
 ```
 
-This exercises the entire graph — including loading every dynamic prompt via the synchronous require(ESM) path and the default/named export contracts — without starting a server or hitting the network.
+This exercises the entire graph — including loading every block via the synchronous require(ESM) path and the default/named export contracts — without starting a server or hitting the network.

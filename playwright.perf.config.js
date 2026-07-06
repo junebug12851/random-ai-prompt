@@ -1,7 +1,7 @@
 /**
  * @file Playwright config for the **large-scale performance suite** (tests/perf/). Distinct from the
  * functional E2E config (playwright.config.js) because it runs against the real **release server**
- * (`gui/server/serve.js`) — the full `/api/*` backend — so the Manage file-read and `fs.watch`
+ * (`targets/web/backend/serve.js`) — the full `/api/*` backend — so the Manage file-read and `fs.watch`
  * hot-reload paths are exercised for real (the gallery feed is route-mocked to 100k in-spec). Runs
  * serially (workers: 1) so scenarios don't compete for CPU and skew the timing budgets, and launches
  * Chromium with precise memory info so the heap-ceiling assertions are meaningful.
@@ -41,7 +41,7 @@ export default defineConfig({
   ],
   webServer: {
     // Build once, then serve the real release build + /api backend. NO_OPEN keeps it headless.
-    command: "npm run web:build && node gui/server/serve.js",
+    command: "npm run web:build && node targets/web/backend/serve.js",
     url: `http://localhost:${PORT}`,
     env: { NO_OPEN: "1", PORT: String(PORT) },
     reuseExistingServer: !process.env.CI,

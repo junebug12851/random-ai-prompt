@@ -20,8 +20,9 @@ export default [
       // assets/ is local-only reference material (e.g. the pinned pre-revival
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",
-      "src/web/frontend/lib/**",
-      "gui/**",
+      // The whole targets/ tree (web SPA + desktop shell) has its own tooling/lint;
+      // the root config lints only the engine, scripts, and tests.
+      "targets/**",
       "user-settings.json",
       "results.json",
     ],

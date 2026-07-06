@@ -1,5 +1,5 @@
 /**
- * @file One-shot: migrate v2 dynamic-prompt generators from the bare `#name` sigil to
+ * @file One-shot: migrate v2 block generators from the bare `#name` sigil to
  * the brace-delimited `{#name}` form (uniform with `{list}` / `<expansion>`, and able to
  * carry `/` paths). Only rewrites prompt CONTENT — `#token` on non-comment lines — leaving
  * JSDoc/`//` comments alone, and is idempotent (`(?<!\{)` guard skips already-wrapped
@@ -9,7 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.join(import.meta.dirname, "..", "data", "dynamic-prompts", "v2");
+const root = path.join(import.meta.dirname, "..", "data", "blocks", "v2");
 
 // `#name` -> `{#name}`, but only a real token (letter-led, word/hyphen/slash chars) and
 // not one already wrapped in a brace (idempotent).
