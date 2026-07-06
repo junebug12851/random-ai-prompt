@@ -44,7 +44,8 @@ The doc-site is **themed to match fairyfox.io** (this project is a node in the f
   `#nav-trigger` mobile drawer, the API member/signature/param blocks, tables, code. It also carries the
   ported hub `.site-header` + `.subnav` styles for the injected chrome (below).
 - **`fairyfox-docs.js`** injects, on every page, a **copy of the fairyfox.io site-header** (the Fairy Fox
-  brand → `fairyfox.io` + the hub's primary nav: Home/Projects/Docs/Downloads/Updates/About) **and a
+  brand → `fairyfox.io` + the hub's fixed mesh-wide primary nav: Home/Projects/Games/Docs/Updates/About)
+  **and a
   well-organized project subnav** (the in-docs section bar: Overview · Project Notes · Systems ·
   Reference · Changelog + Repository/Notes links, with the active item tracked by page). This mirrors the
   sibling **`fairyfox-games`** project, which copied the hub header and added an organized subnav to its

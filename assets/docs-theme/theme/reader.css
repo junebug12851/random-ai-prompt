@@ -1,11 +1,14 @@
-/* reader.css — the Kindle-style reader-settings menu ("Aa" button + panel). */
+/* reader.css — the reading-appearance menu ("Aa" button + panel): theme · accent
+   · text size · spacing · width, modelled on Apple Books / Kindle (preview icon
+   tiles for theme, colour dots for accent, a size slider). Saved under
+   fairyfox:reader:b. Mirrors the fairyfox.io master stylesheet. */
 
 .ff-reader-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.15rem;
-  margin-left: auto;
+  margin-left: 0.5rem;
   flex: none;
   height: 40px;
   min-width: 46px;
@@ -31,10 +34,10 @@
 }
 .ff-reader-btn:hover {
   color: var(--text);
-  background: color-mix(in srgb, var(--violet) 16%, var(--panel-2));
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel-2));
 }
 .ff-reader-btn[aria-expanded="true"] {
-  background: color-mix(in srgb, var(--violet) 18%, var(--panel-2));
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel-2));
   color: var(--text);
 }
 
@@ -42,15 +45,17 @@
   position: fixed;
   z-index: 1300;
   top: calc(64px + 0.5rem);
-  right: clamp(0.8rem, 3vw, 1.6rem);
-  width: min(20rem, calc(100vw - 1.6rem));
+  right: clamp(0.7rem, 3vw, 1.4rem);
+  width: min(21rem, calc(100vw - 1.4rem));
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
   background: var(--panel);
   border: 1px solid var(--line-2);
-  border-radius: var(--radius);
+  border-radius: 16px;
   box-shadow: var(--shadow-lg);
-  padding: 1rem 1.05rem 1.1rem;
   font-family: var(--sans);
   color: var(--text);
+  transform-origin: top right;
   opacity: 0;
   transform: translateY(-8px) scale(0.98);
   pointer-events: none;
@@ -63,32 +68,259 @@
   transform: none;
   pointer-events: auto;
 }
-.ff-reader-row {
-  margin: 0 0 1rem;
+
+/* Panel head — sticky title + close */
+.ff-rp-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
 }
-.ff-reader-row:last-child {
-  margin-bottom: 0;
-}
-.ff-reader-label {
-  display: block;
-  margin: 0 0 0.5rem;
-  font-size: 0.68rem;
+.ff-rp-title {
+  font-family: var(--display);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 1rem;
+  line-height: 1;
+}
+.ff-rp-close {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.ff-rp-close:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.ff-rp-sec {
+  padding: 0.85rem 1rem;
+}
+.ff-rp-sec + .ff-rp-sec {
+  border-top: 1px solid var(--line);
+}
+.ff-rp-label {
+  display: block;
+  margin: 0 0 0.62rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
+
+/* Theme — a section header with an Auto toggle + a segmented row of weather/time
+   icon buttons (sun = Light, sunset = Sepia, moon = Dark). */
+.ff-rp-schead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.62rem;
+}
+.ff-rp-schead .ff-rp-label {
+  margin: 0;
+}
+.ff-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  padding: 0.24rem 0.62rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--text-soft);
+  background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  transition:
+    background 0.14s var(--ease),
+    color 0.14s var(--ease),
+    border-color 0.14s var(--ease);
+}
+.ff-auto .dot {
+  width: 0.46rem;
+  height: 0.46rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+.ff-auto:hover {
+  color: var(--text);
+}
+.ff-auto[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel-2));
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.ff-auto[aria-pressed="true"] .dot {
+  opacity: 1;
+  background: var(--accent);
+}
+.ff-theme-seg {
+  display: flex;
+  gap: 0.42rem;
+}
+.ff-theme-ic {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.34rem;
+  padding: 0.62rem 0.3rem;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-3);
+  color: var(--text-soft);
+  transition:
+    background 0.14s var(--ease),
+    color 0.14s var(--ease),
+    border-color 0.14s var(--ease),
+    transform 0.14s var(--ease);
+}
+.ff-theme-ic svg {
+  width: 22px;
+  height: 22px;
+}
+.ff-theme-ic .cap {
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+.ff-theme-ic:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.ff-theme-ic[aria-pressed="true"] {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line-2));
+}
+
+/* Accent — colour dots + a clean "default" (reset to theme accent) */
+.ff-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ff-swatch {
+  width: 27px;
+  height: 27px;
+  flex: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: var(--sw, var(--panel-3));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+  transition:
+    transform 0.14s var(--ease),
+    box-shadow 0.14s var(--ease);
+}
+.ff-swatch:hover {
+  transform: scale(1.15);
+}
+.ff-swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px var(--text);
+}
+.ff-swatch-default {
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  background: var(--panel-2);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+.ff-swatch-default svg {
+  width: 15px;
+  height: 15px;
+}
+.ff-swatch-default[aria-pressed="true"] {
+  color: var(--text);
+}
+
+/* Text size — a slider between small and large A */
+.ff-size-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ff-size-row .a-end {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--text-soft);
+  line-height: 1;
+  flex: none;
+}
+.ff-size-row .a-min {
+  font-size: 0.85rem;
+}
+.ff-size-row .a-max {
+  font-size: 1.45rem;
+}
+.ff-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  margin: 0;
+  background: var(--panel-3);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.ff-range:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.ff-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.ff-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+/* Segmented (line spacing, width) */
 .ff-seg {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.28rem;
   background: var(--panel-3);
   border: 1px solid var(--line);
   border-radius: 11px;
-  padding: 0.28rem;
+  padding: 0.26rem;
 }
 .ff-seg button {
   flex: 1;
-  padding: 0.42rem 0.3rem;
+  padding: 0.44rem 0.3rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -110,18 +342,33 @@
   box-shadow: var(--shadow);
   border: 1px solid var(--line-2);
 }
-.ff-seg.ff-size button {
-  font-weight: 700;
+
+/* Panel foot — hint + reset */
+.ff-rp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--panel-2);
 }
-.ff-seg.ff-size .aa-min {
-  font-size: 0.8rem;
-}
-.ff-seg.ff-size .aa-max {
-  font-size: 1.15rem;
-}
-.ff-reader-panel .ff-hint {
-  margin: 0.9rem 0 0;
-  font-size: 0.72rem;
+.ff-rp-hint {
+  margin: 0;
+  font-size: 0.7rem;
   color: var(--text-faint);
-  line-height: 1.5;
+  line-height: 1.4;
+}
+.ff-rp-reset {
+  flex: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+.ff-rp-reset:hover {
+  text-decoration: underline;
 }
