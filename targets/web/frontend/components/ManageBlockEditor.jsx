@@ -12,8 +12,15 @@ import { useIntl, defineMessages } from "react-intl";
 import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../../engine/gatedLists.js";
+import { rewritePrompt } from "../lib/rewrite.js";
+import { effectiveKey } from "../lib/sessionKeys.js";
+import { getProvider } from "../lib/providers/index.js";
+import { cleanDplOutput, DPL_CREATE_MODE } from "../lib/dpl/dplRefine.js";
+import { m as rf } from "../lib/dpl/dplRefineMessages.js";
+import { validateDpl } from "../lib/dpl/validateDpl.js";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
+import DplRefineBar from "./DplRefineBar.jsx";
 import DplStatus from "./DplStatus.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
@@ -94,6 +101,9 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
   const [description, setDescription] = useState("");
   const [nsfwFlag, setNsfwFlag] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [refineBusy, setRefineBusy] = useState(""); // active DPL-refine mode, or "" when idle
+  const [canUndo, setCanUndo] = useState(false); // a refine can be reverted to its snapshot
+  const preRefine = useRef(null); // the DPL text captured just before the last refine
   const jsTouched = useRef(false);
   const dplEditorRef = useRef(null);
 
@@ -104,6 +114,9 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     setError("");
     setStatus("");
     setDirty(false);
+    setRefineBusy("");
+    setCanUndo(false);
+    preRefine.current = null;
     jsTouched.current = false;
     setName(entry.label);
     setTab(entry.ext === "js" ? "js" : "dpl");
@@ -148,6 +161,76 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     jsTouched.current = true;
     setTab("js");
     setDirty(true);
+  }
+
+  // Resolve the text (rewrite) provider + key for a DPL refine, mirroring the list editor's AI Expand.
+  // Sets a friendly error and returns null when no provider is chosen or its key is missing.
+  function resolveRewrite() {
+    const providerId = settings.rewriteProvider;
+    if (!providerId || providerId === "none") {
+      setStatus("");
+      setError(intl.formatMessage(rf.pickProvider));
+      return null;
+    }
+    const key = effectiveKey(providerId, settings);
+    const provider = getProvider(providerId);
+    if (provider?.needsKey && !key) {
+      setStatus("");
+      setError(intl.formatMessage(rf.noKey, { provider: provider?.label || providerId }));
+      return null;
+    }
+    return { providerId, key };
+  }
+
+  // Run one DPL refine/create through the text provider. `source` is the current template (refine) or
+  // the typed description (create). The result replaces the editor content — stashed first so it can
+  // be reverted — and is validated so the status can flag any issues to review. Not saved until Save.
+  async function runDpl(mode, source, { label, isCreate = false } = {}) {
+    const src = (source || "").trim();
+    if (!src) {
+      setStatus("");
+      setError(intl.formatMessage(isCreate ? rf.needDescription : rf.needContent));
+      return;
+    }
+    const resolved = resolveRewrite();
+    if (!resolved) return;
+
+    setError("");
+    setStatus("");
+    setRefineBusy(mode);
+    try {
+      const out = await rewritePrompt({ providerId: resolved.providerId, prompt: source, key: resolved.key, mode });
+      const cleaned = cleanDplOutput(out);
+      if (!cleaned) {
+        setError(intl.formatMessage(rf.empty));
+        return;
+      }
+      preRefine.current = dplText ?? "";
+      setDplText(cleaned);
+      setDirty(true);
+      setCanUndo(true);
+      const issues = validateDpl(cleaned, intl).filter((d) => d.severity === "error").length;
+      if (isCreate) setStatus(intl.formatMessage(rf.drafted));
+      else if (issues) setStatus(intl.formatMessage(rf.appliedIssues, { label, count: issues }));
+      else setStatus(intl.formatMessage(rf.applied, { label }));
+    } catch (e) {
+      setError(intl.formatMessage(rf.failed, { error: e.message || String(e) }));
+    } finally {
+      setRefineBusy("");
+    }
+  }
+
+  const handleRefine = (action) => runDpl(action.mode, dplText, { label: action.label });
+  const handleCreate = (desc) => runDpl(DPL_CREATE_MODE, desc, { isCreate: true });
+
+  function undoRefine() {
+    if (preRefine.current == null) return;
+    setDplText(preRefine.current);
+    setDirty(true);
+    setCanUndo(false);
+    preRefine.current = null;
+    setError("");
+    setStatus(intl.formatMessage(rf.reverted));
   }
 
   async function save() {
@@ -267,7 +350,12 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         </div>
       )}
 
-      {showDpl && tab === "dpl" && <DplInsertBar editorRef={dplEditorRef} settings={settings} />}
+      {showDpl && tab === "dpl" && (
+        <>
+          <DplInsertBar editorRef={dplEditorRef} settings={settings} />
+          <DplRefineBar busyMode={refineBusy} disabled={saving} onRefine={handleRefine} onCreate={handleCreate} />
+        </>
+      )}
 
       <div className="mg-editor-body">
         {showDpl && tab === "dpl" && (
@@ -277,6 +365,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
             onChange={(v) => {
               setDplText(v);
               setDirty(true);
+              setCanUndo(false); // a manual edit supersedes the last refine's revert point
             }}
             settings={settings}
             className="mg-cm"
@@ -302,6 +391,11 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         {!hasJs && (
           <button className="link-btn" onClick={createJsSidecar}>
             {intl.formatMessage(msgs.createJs)}
+          </button>
+        )}
+        {canUndo && (
+          <button className="link-btn" onClick={undoRefine} disabled={saving || Boolean(refineBusy)}>
+            {intl.formatMessage(rf.undo)}
           </button>
         )}
         {hasJs && <span className="mg-note">{intl.formatMessage(msgs.jsNote)}</span>}

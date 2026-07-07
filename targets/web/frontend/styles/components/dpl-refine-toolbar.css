@@ -1,0 +1,179 @@
+/* ---------- DPL refine toolbar (Manage block editor, under the insert bar) ----------
+   One-click AI refinements grouped by dimension (more/less pill pairs) plus a
+   Draft-from-description control. Shares the pill look of the insert toolbar. */
+.dpl-refine-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  margin: 0.1rem 0 0.55rem;
+  position: relative;
+}
+
+.dpl-rf-lead {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding-right: 0.1rem;
+  min-width: 3.4em; /* holds width steady when it flips to "Refining…"/"Drafting…" */
+}
+
+/* A dimension cluster: a tiny label above its more/less pills. */
+.dpl-rf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dpl-rf-group-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding-left: 0.1rem;
+}
+
+.dpl-rf-group-pills {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.dpl-rf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  padding: 0.26rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-rf-pill:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.dpl-rf-pill:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dpl-rf-pill.is-busy {
+  border-color: var(--accent);
+  color: var(--fg);
+  background: var(--accent-soft);
+}
+
+.dpl-rf-glyph {
+  font-weight: 800;
+  font-size: 0.9em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.dpl-rf-pill.dir-less .dpl-rf-glyph {
+  color: var(--muted);
+}
+
+/* A soft vertical divider before the create control. */
+.dpl-rf-sep {
+  width: 1px;
+  align-self: stretch;
+  min-height: 1.6rem;
+  background: var(--border-soft);
+  margin: 0 0.15rem;
+}
+
+.dpl-rf-create {
+  display: flex;
+  flex: 1 1 16rem;
+  min-width: 12rem;
+}
+
+.dpl-rf-create-open {
+  font: inherit;
+  font-size: 0.76rem;
+  padding: 0.26rem 0.6rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.dpl-rf-create-open:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.dpl-rf-create-open:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dpl-rf-create-row {
+  display: flex;
+  flex: 1;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.dpl-rf-create-input {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  font: 0.85rem/1.4 var(--font-body);
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--fg);
+}
+
+.dpl-rf-create-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.dpl-rf-create-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dpl-rf-create-actions .primary {
+  font-size: 0.78rem;
+  padding: 0.32rem 0.7rem;
+}
+
+/* Compact: let clusters wrap tidily and give the create row the full width. */
+@media (width <= 768px) {
+  .dpl-rf-pill {
+    min-height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .dpl-rf-sep {
+    display: none;
+  }
+
+  .dpl-rf-create {
+    flex-basis: 100%;
+  }
+}

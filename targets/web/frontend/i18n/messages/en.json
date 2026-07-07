@@ -405,6 +405,153 @@
   "dplLint.word.tabs": {
     "defaultMessage": "tabs"
   },
+  "dplRefine.applied": {
+    "defaultMessage": "{label} applied — review, then Save."
+  },
+  "dplRefine.appliedIssues": {
+    "defaultMessage": "{label} applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo."
+  },
+  "dplRefine.complexLabel": {
+    "defaultMessage": "Complexity"
+  },
+  "dplRefine.complexLess": {
+    "defaultMessage": "Simplify"
+  },
+  "dplRefine.complexLessHint": {
+    "defaultMessage": "Collapse choices and gates into fewer, clearer lines."
+  },
+  "dplRefine.complexMore": {
+    "defaultMessage": "More complex"
+  },
+  "dplRefine.complexMoreHint": {
+    "defaultMessage": "Turn flat lines into choices, gates, and repeats so each roll differs."
+  },
+  "dplRefine.createAria": {
+    "defaultMessage": "Describe the subject to draft a template"
+  },
+  "dplRefine.createCancel": {
+    "defaultMessage": "Cancel"
+  },
+  "dplRefine.createOpen": {
+    "defaultMessage": "Draft from description…"
+  },
+  "dplRefine.createOpenHint": {
+    "defaultMessage": "Describe a subject and let AI build a strong starting template."
+  },
+  "dplRefine.createPlaceholder": {
+    "defaultMessage": "e.g. a battle-worn space marine on a rain-soaked alien ruin at dusk"
+  },
+  "dplRefine.createSubmit": {
+    "defaultMessage": "Draft"
+  },
+  "dplRefine.detailLabel": {
+    "defaultMessage": "Detail"
+  },
+  "dplRefine.detailLess": {
+    "defaultMessage": "Trim detail"
+  },
+  "dplRefine.detailLessHint": {
+    "defaultMessage": "Strip filler and keep only the strong, essential fragments."
+  },
+  "dplRefine.detailMore": {
+    "defaultMessage": "Add detail"
+  },
+  "dplRefine.detailMoreHint": {
+    "defaultMessage": "Layer in more texture, material, lighting, and mood — mostly behind gates."
+  },
+  "dplRefine.drafted": {
+    "defaultMessage": "Drafted a template — review, then Save."
+  },
+  "dplRefine.drafting": {
+    "defaultMessage": "Drafting…"
+  },
+  "dplRefine.empty": {
+    "defaultMessage": "The AI returned nothing — try again."
+  },
+  "dplRefine.failed": {
+    "defaultMessage": "Refine failed: {error}"
+  },
+  "dplRefine.focusLabel": {
+    "defaultMessage": "Focus"
+  },
+  "dplRefine.focusLess": {
+    "defaultMessage": "Loosen"
+  },
+  "dplRefine.focusLessHint": {
+    "defaultMessage": "Add atmospheric garnish as [f<40%] lines for low-focus rolls."
+  },
+  "dplRefine.focusMore": {
+    "defaultMessage": "Sharpen"
+  },
+  "dplRefine.focusMoreHint": {
+    "defaultMessage": "Keep only the essential subject; push fluff behind [f<40%]."
+  },
+  "dplRefine.intensityLabel": {
+    "defaultMessage": "Intensity"
+  },
+  "dplRefine.intensityLess": {
+    "defaultMessage": "Ease"
+  },
+  "dplRefine.intensityLessHint": {
+    "defaultMessage": "Add pared-back [i<25%] variants for a clean image when dialed down."
+  },
+  "dplRefine.intensityMore": {
+    "defaultMessage": "Crank"
+  },
+  "dplRefine.intensityMoreHint": {
+    "defaultMessage": "Add lavish [i>70%] variants for a richer image when dialed up."
+  },
+  "dplRefine.lead": {
+    "defaultMessage": "Refine"
+  },
+  "dplRefine.needContent": {
+    "defaultMessage": "Write or draft a template first, then refine it."
+  },
+  "dplRefine.needDescription": {
+    "defaultMessage": "Type a short description first."
+  },
+  "dplRefine.noKey": {
+    "defaultMessage": "No API key for {provider} — add it under Home → gear → Auto-fix."
+  },
+  "dplRefine.pickProvider": {
+    "defaultMessage": "Pick a text (AI) provider first — Home → gear → Auto-fix."
+  },
+  "dplRefine.polishLabel": {
+    "defaultMessage": "Polish"
+  },
+  "dplRefine.reverted": {
+    "defaultMessage": "Reverted the last refine."
+  },
+  "dplRefine.tighten": {
+    "defaultMessage": "Tighten"
+  },
+  "dplRefine.tightenHint": {
+    "defaultMessage": "Fix indentation, tokens, and duplicates without changing the intent."
+  },
+  "dplRefine.toolbar": {
+    "defaultMessage": "Refine this template with AI"
+  },
+  "dplRefine.undo": {
+    "defaultMessage": "Undo"
+  },
+  "dplRefine.varietyLabel": {
+    "defaultMessage": "Variety"
+  },
+  "dplRefine.varietyLess": {
+    "defaultMessage": "More consistent"
+  },
+  "dplRefine.varietyLessHint": {
+    "defaultMessage": "Fix the most variable choices so rolls look alike."
+  },
+  "dplRefine.varietyMore": {
+    "defaultMessage": "More varied"
+  },
+  "dplRefine.varietyMoreHint": {
+    "defaultMessage": "Add choices and '{salt}' so repeated generations differ."
+  },
+  "dplRefine.working": {
+    "defaultMessage": "Refining…"
+  },
   "dplStatus.errors": {
     "defaultMessage": "{count, plural, one {# DPL error} other {# DPL errors}}"
   },
