@@ -80,6 +80,7 @@
 @import url("./components/dpl-editor.css") layer(components);
 @import url("./components/generic-code-highlighting.css") layer(components);
 @import url("./components/dpl-insert-toolbar.css") layer(components);
+@import url("./components/dpl-refine-toolbar.css") layer(components);
 @import url("./components/composer-corner.css") layer(components);
 @import url("./components/prompt-result-click-to.css") layer(components);
 @import url("./components/gallery-thumbnail-open-button.css") layer(components);

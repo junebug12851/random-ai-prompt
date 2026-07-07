@@ -388,14 +388,15 @@ export async function restoreFromRepo(root, rel) {
 }
 
 /**
- * Filesystem op on the content tree (create folder / create file / delete / move-or-rename). Each is
- * traversal-guarded to the data roots.
- * @param {string} op `"mkdir" | "mkfile" | "delete" | "move"`.
- * @param {object} args `{ root, path, to?, text? }`.
+ * Filesystem op on the content tree (create folder / create file / delete / move-or-rename / copy).
+ * Each is traversal-guarded to the data roots. `copy` may target a DIFFERENT root via `toRoot` (used
+ * to override a built-in into the user overlay); `move` stays within `root`.
+ * @param {string} op `"mkdir" | "mkfile" | "delete" | "move" | "copy"`.
+ * @param {object} args `{ root, path, to?, toRoot?, text? }`.
  * @returns {{ok: boolean, error?: string}}
  */
 export function fsOp(op, args) {
-  const { root, path: rel, to, text } = args || {};
+  const { root, path: rel, to, toRoot, text } = args || {};
   const abs = resolveManagePath(root, rel);
   if (!abs) return { ok: false, error: "Invalid path" };
   try {
@@ -412,6 +413,15 @@ export function fsOp(op, args) {
       if (fs.existsSync(dest)) return { ok: false, error: "Destination exists" };
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.renameSync(abs, dest);
+    } else if (op === "copy") {
+      // Copy a single file, optionally into another root (traversal-guarded on both ends). Refuses to
+      // clobber an existing destination so an override can't silently overwrite a user's edited copy.
+      const dest = resolveManagePath(toRoot || root, to);
+      if (!dest) return { ok: false, error: "Invalid destination" };
+      if (!fs.existsSync(abs)) return { ok: false, error: "Source missing" };
+      if (fs.existsSync(dest)) return { ok: false, error: "Destination exists" };
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.copyFileSync(abs, dest);
     } else {
       return { ok: false, error: `Unknown op: ${op}` };
     }

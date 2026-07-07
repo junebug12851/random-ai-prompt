@@ -118,6 +118,7 @@ export default function Manage({ settings, available, active }) {
     newFolder,
     moveEntryTo,
     deleteEntry,
+    overrideEntry,
     restoreGhost,
   } = useManageTree({ settings, available, active });
 
@@ -383,9 +384,9 @@ export default function Manage({ settings, available, active }) {
         {selected?.type === "folder" ? (
           <ManageFolderEditor node={selected} onChanged={handleChanged} />
         ) : selected?.type === "entry" && selected.kind === "generator" ? (
-          <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} />
+          <ManageBlockEditor entry={selected} settings={settings} onChanged={handleChanged} onOverride={overrideEntry} />
         ) : selected?.type === "entry" && (selected.kind === "list" || selected.kind === "group") ? (
-          <ManageListEditor entry={selected} settings={settings} onChanged={handleChanged} />
+          <ManageListEditor entry={selected} settings={settings} onChanged={handleChanged} onOverride={overrideEntry} />
         ) : (
           <ManageDetail selected={selected} />
         )}

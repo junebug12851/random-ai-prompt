@@ -39,10 +39,11 @@ const OVERSCAN = 8;
  * @param {Function} props.onChanged Hot-apply + refresh after a write; gets the new path on rename.
  * @returns {JSX.Element}
  */
-export default function ManageListEditor({ entry, settings = {}, onChanged }) {
+export default function ManageListEditor({ entry, settings = {}, onChanged, onOverride }) {
   const intl = useIntl();
   const base = entry.path;
   const folder = base.includes("/") ? base.slice(0, base.lastIndexOf("/")) : "";
+  const isBuiltIn = !String(entry.root).startsWith("user-"); // built-ins can be overridden into user/
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -452,6 +453,16 @@ export default function ManageListEditor({ entry, settings = {}, onChanged }) {
       )}
 
       <div className="mg-editor-foot">
+        {isBuiltIn && onOverride && (
+          <button
+            className="link-btn"
+            onClick={() => onOverride(entry)}
+            disabled={saving}
+            title={intl.formatMessage(msgs.overrideTitle)}
+          >
+            {intl.formatMessage(msgs.override)}
+          </button>
+        )}
         {/* User-overlay content has no upstream default, so there's nothing to restore to. */}
         {!String(entry.root).startsWith("user-") && (
           <button className="link-btn" onClick={restore} disabled={saving} title={intl.formatMessage(msgs.restoreTitle)}>

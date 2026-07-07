@@ -23,7 +23,12 @@
 .mg-add-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+
+  /* Anchor to the button's RIGHT edge and grow leftward. The "+" controls sit near the right edge of
+     the narrow tree pane, so opening left-to-right (left: 0) pushed the 130px menu past the pane and
+     forced a horizontal scrollbar. Right-aligning keeps it inside the pane. */
+  right: 0;
+  left: auto;
   z-index: 5;
   display: flex;
   flex-direction: column;

@@ -1,0 +1,264 @@
+/* ---------- DPL refine toolbar (Manage block editor, under the insert bar) ----------
+   One tidy row: a "Refine" lead, five stepper combos ([− Label +]), and a lone Cleanup pill.
+   The free-text Modify/Draft control lives in the editor corner (see the bottom of this file). */
+.dpl-refine-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.45rem;
+  margin: 0.1rem 0 0.55rem;
+}
+
+.dpl-rf-lead {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding-right: 0.05rem;
+  min-width: 3.2em; /* holds width steady when it flips to "Refining…" */
+}
+
+/* A dimension stepper combo: [ − Label + ] as one pill-shaped unit. */
+.dpl-rf-combo {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  overflow: hidden;
+}
+
+.dpl-rf-combo-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.55rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--fg-soft);
+  white-space: nowrap;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.dpl-rf-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  padding: 0.26rem 0;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-rf-step.plus {
+  color: var(--accent);
+}
+
+.dpl-rf-step:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.dpl-rf-step.is-busy {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+/* Lone action (Cleanup): a simple pill. */
+.dpl-rf-solo {
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.1;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-2);
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-rf-solo:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.dpl-rf-solo.is-busy {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.dpl-rf-combo:has(.dpl-rf-step:disabled),
+.dpl-rf-solo:disabled {
+  opacity: 0.5;
+}
+
+.dpl-rf-step:disabled {
+  cursor: default;
+}
+
+.dpl-rf-solo:disabled {
+  cursor: default;
+}
+
+/* ---------- Corner Modify/Draft control (pinned top-right of the DPL editor) ---------- */
+
+/* The DPL editor gets a wrapper so the corner control can be absolutely positioned over it, and the
+   editor text gets a top gutter so the first line clears the control. */
+.dpl-editor-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.dpl-editor-wrap .dpl-editor .cm-content {
+  padding-top: 2.5rem;
+}
+
+/* Inset from the right far enough to clear a vertical scrollbar, so the combo never sits on top of it
+   when the template overflows. (CodeMirror already wraps long lines inside the scrollbar, so the text
+   itself stays clear — no scrollbar-gutter needed, which can trip CM's measure loop.) */
+.dpl-ask-corner {
+  position: absolute;
+  top: 0.4rem;
+  right: 1.25rem;
+  z-index: 6;
+}
+
+.dpl-ask-combo {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--elevated);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgb(0 0 0 / 25%));
+}
+
+.dpl-ask-seg {
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.1;
+  padding: 0.26rem 0.7rem;
+  border: none;
+  background: transparent;
+  color: var(--fg-soft);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-ask-seg + .dpl-ask-seg {
+  border-left: 1px solid var(--border);
+}
+
+.dpl-ask-seg:hover:not(:disabled) {
+  color: var(--fg);
+  background: var(--accent-soft);
+}
+
+.dpl-ask-seg.on {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.dpl-ask-seg:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dpl-ask-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+}
+
+.dpl-ask-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 7;
+  width: 320px;
+  max-width: min(88vw, 360px);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dpl-ask-pop-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.dpl-ask-input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: 0.85rem/1.4 var(--font-body);
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--fg);
+}
+
+.dpl-ask-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.dpl-ask-pop-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dpl-ask-hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.dpl-ask-send {
+  font-size: 0.8rem;
+  padding: 0.34rem 0.9rem;
+  white-space: nowrap;
+}
+
+/* Compact: keep the steppers tappable; the corner popover already caps at viewport width. */
+@media (width <= 768px) {
+  .dpl-rf-step {
+    min-width: 2rem;
+    padding: 0.34rem 0;
+  }
+
+  .dpl-rf-combo-label,
+  .dpl-rf-solo {
+    font-size: 0.8rem;
+  }
+}

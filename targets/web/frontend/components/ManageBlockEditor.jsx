@@ -12,8 +12,16 @@ import { useIntl, defineMessages } from "react-intl";
 import { javascript } from "@codemirror/lang-javascript";
 import { readFile, writeFile, saveSidecar, fsOp } from "../lib/manageApi.js";
 import { hasNsfwToken } from "../../../../engine/gatedLists.js";
+import { rewritePrompt } from "../lib/rewrite.js";
+import { effectiveKey } from "../lib/sessionKeys.js";
+import { getProvider } from "../lib/providers/index.js";
+import { cleanDplOutput, buildCustomPrompt, DPL_CREATE_MODE, DPL_CUSTOM_MODE } from "../lib/dpl/dplRefine.js";
+import { m as rf } from "../lib/dpl/dplRefineMessages.js";
+import { validateDpl } from "../lib/dpl/validateDpl.js";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
+import DplRefineBar from "./DplRefineBar.jsx";
+import DplAskCorner from "./DplAskCorner.jsx";
 import DplStatus from "./DplStatus.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
@@ -65,6 +73,12 @@ const msgs = defineMessages({
     id: "blockEd.jsNote",
     defaultMessage: "JS runs on reload — DPL and the rest hot-apply.",
   },
+  override: { id: "blockEd.override", defaultMessage: "Create override" },
+  overrideTitle: {
+    id: "blockEd.overrideTitle",
+    defaultMessage:
+      "Copy this built-in block into your overlay so you can edit it safely — your copy wins and survives app updates; the original stays untouched.",
+  },
   loading: { id: "blockEd.loading", defaultMessage: "Loading…" },
 });
 
@@ -76,11 +90,12 @@ const msgs = defineMessages({
  *   Receives the new logical path on a rename.
  * @returns {JSX.Element}
  */
-export default function ManageBlockEditor({ entry, settings, onChanged }) {
+export default function ManageBlockEditor({ entry, settings, onChanged, onOverride }) {
   const intl = useIntl();
   const base = entry.path; // logical key, no extension
   const folder = base.includes("/") ? base.slice(0, base.lastIndexOf("/")) : "";
   const nameNsfw = hasNsfwToken(base);
+  const isBuiltIn = !String(entry.root).startsWith("user-"); // built-ins can be overridden into user/
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -94,6 +109,9 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
   const [description, setDescription] = useState("");
   const [nsfwFlag, setNsfwFlag] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [refineBusy, setRefineBusy] = useState(""); // active DPL-refine mode, or "" when idle
+  const [canUndo, setCanUndo] = useState(false); // a refine can be reverted to its snapshot
+  const preRefine = useRef(null); // the DPL text captured just before the last refine
   const jsTouched = useRef(false);
   const dplEditorRef = useRef(null);
 
@@ -104,6 +122,9 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     setError("");
     setStatus("");
     setDirty(false);
+    setRefineBusy("");
+    setCanUndo(false);
+    preRefine.current = null;
     jsTouched.current = false;
     setName(entry.label);
     setTab(entry.ext === "js" ? "js" : "dpl");
@@ -148,6 +169,95 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     jsTouched.current = true;
     setTab("js");
     setDirty(true);
+  }
+
+  // Resolve the text (rewrite) provider + key for a DPL refine, mirroring the list editor's AI Expand.
+  // Sets a friendly error and returns null when no provider is chosen or its key is missing.
+  function resolveRewrite() {
+    const providerId = settings.rewriteProvider;
+    if (!providerId || providerId === "none") {
+      setStatus("");
+      setError(intl.formatMessage(rf.pickProvider));
+      return null;
+    }
+    const key = effectiveKey(providerId, settings);
+    const provider = getProvider(providerId);
+    if (provider?.needsKey && !key) {
+      setStatus("");
+      setError(intl.formatMessage(rf.noKey, { provider: provider?.label || providerId }));
+      return null;
+    }
+    return { providerId, key };
+  }
+
+  // Run one DPL refine / create / custom-modify through the text provider. `prompt` is the current
+  // template (refine), the typed description (create), or the instruction+template message (custom).
+  // The result replaces the editor content — stashed first so it can be reverted — and is validated so
+  // the status can flag any issues to review. Not saved until Save. `kind` picks the status wording.
+  async function runDpl(mode, prompt, { label, kind = "refine" } = {}) {
+    if (!(prompt || "").trim()) {
+      setStatus("");
+      const needMsg = kind === "create" ? rf.needDescription : kind === "custom" ? rf.needInstruction : rf.needContent;
+      setError(intl.formatMessage(needMsg));
+      return;
+    }
+    const resolved = resolveRewrite();
+    if (!resolved) return;
+
+    setError("");
+    setStatus("");
+    setRefineBusy(mode);
+    try {
+      const out = await rewritePrompt({ providerId: resolved.providerId, prompt, key: resolved.key, mode });
+      const cleaned = cleanDplOutput(out);
+      if (!cleaned) {
+        setError(intl.formatMessage(rf.empty));
+        return;
+      }
+      preRefine.current = dplText ?? "";
+      setDplText(cleaned);
+      setDirty(true);
+      setCanUndo(true);
+      const issues = validateDpl(cleaned, intl).filter((d) => d.severity === "error").length;
+      if (kind === "create") setStatus(intl.formatMessage(rf.drafted));
+      else if (kind === "custom")
+        setStatus(intl.formatMessage(issues ? rf.modifiedIssues : rf.modified, { count: issues }));
+      else if (issues) setStatus(intl.formatMessage(rf.appliedIssues, { label, count: issues }));
+      else setStatus(intl.formatMessage(rf.applied, { label }));
+    } catch (e) {
+      setError(intl.formatMessage(rf.failed, { error: e.message || String(e) }));
+    } finally {
+      setRefineBusy("");
+    }
+  }
+
+  const handleRefine = (action) => runDpl(action.mode, dplText, { label: action.label });
+  const handleCreate = (desc) => runDpl(DPL_CREATE_MODE, desc, { kind: "create" });
+
+  // Free-text modify: needs both an instruction and a template to work on. Compose them into the
+  // message the `dpl-custom` system prompt expects, then run it like any other refine.
+  function handleCustom(instruction) {
+    if (!(instruction || "").trim()) {
+      setStatus("");
+      setError(intl.formatMessage(rf.needInstruction));
+      return;
+    }
+    if (!(dplText || "").trim()) {
+      setStatus("");
+      setError(intl.formatMessage(rf.needContent));
+      return;
+    }
+    runDpl(DPL_CUSTOM_MODE, buildCustomPrompt(instruction, dplText), { kind: "custom" });
+  }
+
+  function undoRefine() {
+    if (preRefine.current == null) return;
+    setDplText(preRefine.current);
+    setDirty(true);
+    setCanUndo(false);
+    preRefine.current = null;
+    setError("");
+    setStatus(intl.formatMessage(rf.reverted));
   }
 
   async function save() {
@@ -267,21 +377,30 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
         </div>
       )}
 
-      {showDpl && tab === "dpl" && <DplInsertBar editorRef={dplEditorRef} settings={settings} />}
+      {showDpl && tab === "dpl" && (
+        <>
+          <DplInsertBar editorRef={dplEditorRef} settings={settings} />
+          <DplRefineBar busyMode={refineBusy} disabled={saving} onRefine={handleRefine} />
+        </>
+      )}
 
       <div className="mg-editor-body">
         {showDpl && tab === "dpl" && (
-          <DplEditor
-            ref={dplEditorRef}
-            value={dplText}
-            onChange={(v) => {
-              setDplText(v);
-              setDirty(true);
-            }}
-            settings={settings}
-            className="mg-cm"
-            ariaLabel={intl.formatMessage(msgs.ariaDpl)}
-          />
+          <div className="dpl-editor-wrap">
+            <DplEditor
+              ref={dplEditorRef}
+              value={dplText}
+              onChange={(v) => {
+                setDplText(v);
+                setDirty(true);
+                setCanUndo(false); // a manual edit supersedes the last refine's revert point
+              }}
+              settings={settings}
+              className="mg-cm"
+              ariaLabel={intl.formatMessage(msgs.ariaDpl)}
+            />
+            <DplAskCorner busyMode={refineBusy} disabled={saving} onCreate={handleCreate} onCustom={handleCustom} />
+          </div>
         )}
         {hasJs && tab === "js" && (
           <CodeEditor
@@ -299,9 +418,24 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       </div>
 
       <div className="mg-editor-foot">
+        {isBuiltIn && onOverride && (
+          <button
+            className="link-btn"
+            onClick={() => onOverride(entry)}
+            disabled={saving || Boolean(refineBusy)}
+            title={intl.formatMessage(msgs.overrideTitle)}
+          >
+            {intl.formatMessage(msgs.override)}
+          </button>
+        )}
         {!hasJs && (
           <button className="link-btn" onClick={createJsSidecar}>
             {intl.formatMessage(msgs.createJs)}
+          </button>
+        )}
+        {canUndo && (
+          <button className="link-btn" onClick={undoRefine} disabled={saving || Boolean(refineBusy)}>
+            {intl.formatMessage(rf.undo)}
           </button>
         )}
         {hasJs && <span className="mg-note">{intl.formatMessage(msgs.jsNote)}</span>}
