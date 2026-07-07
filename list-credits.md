@@ -239,3 +239,12 @@ window and produces the per-OS installers:
 
 AI assistance: the Tauri desktop shell, the Node-sidecar packaging, and the per-OS release matrix were
 designed and implemented with Claude (Anthropic).
+
+The command-line edition (targets/cli/, the `rap` tool) is built with:
+
+  commander              https://github.com/tj/commander.js             MIT
+  picocolors             https://github.com/alexeyraspopov/picocolors   ISC
+
+AI assistance: the CLI target — its command surface, the Node provider registry, the in-process
+backend + fetch shim for headless image generation, and the bash/zsh/fish/PowerShell completion — was
+designed and implemented with Claude (Anthropic).

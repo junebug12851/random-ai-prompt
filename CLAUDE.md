@@ -26,8 +26,14 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
   `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/web-shell/`**
   is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
-  **`targets/shared/`** is reserved for code shared across targets. A **`targets/cli/`** target is planned
-  next (the engine is already headless/isomorphic); there is **no CLI yet**.
+  **`targets/shared/`** is reserved for code shared across targets. **`targets/cli/`** is the
+  command-line target (the `rap` tool, added 2.50.0 — its own npm package): a traditional args + flags
+  CLI that reuses the engine + the `targets/web/shared/` provider adapters + the `user/settings/` store
+  to generate prompts and images headlessly, with multi-shell completion. It must stay at parity with
+  BOTH the engine and the GUI by default (every `engine/settings.js` field is a flag; the same provider
+  set + keys). See [`notes/systems/cli.md`](notes/systems/cli.md). For image gen it runs the real
+  backend (`targets/web/backend/apiHandler.js`) in-process with a `fetch` shim, so provider adapters run
+  unmodified.
 - **`user/`** — the repo-root **universal override overlay** (sibling of `engine/` and `targets/`):
   `user/lists` and `user/blocks` (blocks) override the built-in `engine/data/` content USER-WINS.
 - **`scripts/`** (build/meta scripts), **`tests/`** (the Node engine test suite; the web target has its
