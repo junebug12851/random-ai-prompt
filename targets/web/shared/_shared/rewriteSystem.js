@@ -113,6 +113,13 @@ export const DPL_TASKS = {
     "TASK: CLEAN UP this template without changing its intent. Fix indentation, remove duplicate or " +
     "contradictory lines, repair malformed tokens or brackets, and tidy wording. Keep every section, " +
     "token, and behaviour.",
+  "dpl-custom":
+    "TASK: The user message has two parts — an INSTRUCTION describing a change, then, after a line " +
+    "reading `--- TEMPLATE ---`, the current DPL template. Apply the instruction to that template and " +
+    "return the full revised DPL. Follow the instruction precisely; keep everything it does not ask you " +
+    "to change — the subject, the sections, and every existing `{list}` / `{#name}` token. If the " +
+    "instruction is unrelated to the template, make the smallest sensible change and otherwise leave it " +
+    "as-is.",
   "dpl-create":
     "TASK: The user message is a plain-English description of a subject or scene. Produce ONE complete, " +
     "well-formed DPL template that is a strong STARTING point — good enough to use as-is and easy to " +

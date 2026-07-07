@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { systemFor, DPL_PRIMER, DPL_TASKS, REWRITE_SYSTEM } from "../../shared/_shared/rewriteSystem.js";
-import { DPL_REFINE_MODES, DPL_CREATE_MODE } from "../../frontend/lib/dpl/dplRefine.js";
+import { DPL_REFINE_MODES, DPL_CREATE_MODE, DPL_CUSTOM_MODE } from "../../frontend/lib/dpl/dplRefine.js";
 
 describe("systemFor — legacy modes", () => {
   it("defaults to the prose fix", () => {
@@ -21,7 +21,7 @@ describe("systemFor — legacy modes", () => {
 });
 
 describe("systemFor — DPL modes", () => {
-  const allModes = [...DPL_REFINE_MODES, DPL_CREATE_MODE];
+  const allModes = [...DPL_REFINE_MODES, DPL_CREATE_MODE, DPL_CUSTOM_MODE];
 
   it("catalog modes and the primer/task map agree", () => {
     // Every catalog mode has a task, and every task is reachable from the catalog (no orphans).
@@ -46,6 +46,12 @@ describe("systemFor — DPL modes", () => {
     expect(DPL_PRIMER).toMatch(/focus/i);
     expect(DPL_PRIMER).toContain("[i>70%]");
     expect(DPL_PRIMER).toContain("[f<40%]");
+  });
+
+  it("the custom prompt keys on the INSTRUCTION / --- TEMPLATE --- contract", () => {
+    const sys = systemFor(DPL_CUSTOM_MODE);
+    expect(sys).toContain("INSTRUCTION");
+    expect(sys).toContain("--- TEMPLATE ---");
   });
 
   it("the create prompt carries the winning-formula scaffold", () => {

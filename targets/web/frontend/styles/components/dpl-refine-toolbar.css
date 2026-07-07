@@ -96,44 +96,66 @@
   margin: 0 0.15rem;
 }
 
-.dpl-rf-create {
+/* The free-text message box: a Modify/Draft segmented toggle over one input + Send. Takes the full
+   width of the bar (its own row) so the pills stay compact above it. */
+.dpl-rf-ask {
   display: flex;
-  flex: 1 1 16rem;
-  min-width: 12rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1 1 100%;
+  min-width: 0;
 }
 
-.dpl-rf-create-open {
-  font: inherit;
-  font-size: 0.76rem;
-  padding: 0.26rem 0.6rem;
-  border: 1px dashed var(--border);
+.dpl-rf-ask-seg {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--bg-2);
+}
+
+.dpl-rf-seg-btn {
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.1;
+  padding: 0.24rem 0.7rem;
+  border: none;
   background: transparent;
   color: var(--fg-soft);
   cursor: pointer;
   transition:
-    color 0.12s ease,
-    border-color 0.12s ease;
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
-.dpl-rf-create-open:hover:not(:disabled) {
+.dpl-rf-seg-btn + .dpl-rf-seg-btn {
+  border-left: 1px solid var(--border);
+}
+
+.dpl-rf-seg-btn:hover:not(:disabled) {
   color: var(--fg);
-  border-color: var(--accent);
 }
 
-.dpl-rf-create-open:disabled {
+.dpl-rf-seg-btn.on {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+.dpl-rf-seg-btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-.dpl-rf-create-row {
+.dpl-rf-ask-row {
   display: flex;
-  flex: 1;
   gap: 0.4rem;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
-.dpl-rf-create-input {
+.dpl-rf-ask-input {
   flex: 1;
   min-width: 0;
   resize: vertical;
@@ -145,24 +167,24 @@
   color: var(--fg);
 }
 
-.dpl-rf-create-input:focus {
+.dpl-rf-ask-input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: var(--ring);
 }
 
-.dpl-rf-create-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+.dpl-rf-ask-input:disabled {
+  opacity: 0.6;
 }
 
-.dpl-rf-create-actions .primary {
-  font-size: 0.78rem;
-  padding: 0.32rem 0.7rem;
+.dpl-rf-ask-send {
+  align-self: stretch;
+  font-size: 0.8rem;
+  padding: 0.32rem 0.9rem;
+  white-space: nowrap;
 }
 
-/* Compact: let clusters wrap tidily and give the create row the full width. */
+/* Compact: keep pills tappable and let the ask box own the full width (it already does). */
 @media (width <= 768px) {
   .dpl-rf-pill {
     min-height: 32px;
@@ -171,9 +193,5 @@
 
   .dpl-rf-sep {
     display: none;
-  }
-
-  .dpl-rf-create {
-    flex-basis: 100%;
   }
 }

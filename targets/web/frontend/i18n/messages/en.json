@@ -411,6 +411,18 @@
   "dplRefine.appliedIssues": {
     "defaultMessage": "{label} applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo."
   },
+  "dplRefine.askCreate": {
+    "defaultMessage": "Draft new"
+  },
+  "dplRefine.askCreateHint": {
+    "defaultMessage": "Describe a subject and let AI build a fresh starting template."
+  },
+  "dplRefine.askModify": {
+    "defaultMessage": "Modify"
+  },
+  "dplRefine.askModifyHint": {
+    "defaultMessage": "Type a change and the AI re-processes the current template."
+  },
   "dplRefine.complexLabel": {
     "defaultMessage": "Complexity"
   },
@@ -428,15 +440,6 @@
   },
   "dplRefine.createAria": {
     "defaultMessage": "Describe the subject to draft a template"
-  },
-  "dplRefine.createCancel": {
-    "defaultMessage": "Cancel"
-  },
-  "dplRefine.createOpen": {
-    "defaultMessage": "Draft from description…"
-  },
-  "dplRefine.createOpenHint": {
-    "defaultMessage": "Describe a subject and let AI build a strong starting template."
   },
   "dplRefine.createPlaceholder": {
     "defaultMessage": "e.g. a battle-worn space marine on a rain-soaked alien ruin at dusk"
@@ -504,11 +507,29 @@
   "dplRefine.lead": {
     "defaultMessage": "Refine"
   },
+  "dplRefine.modified": {
+    "defaultMessage": "Change applied — review, then Save."
+  },
+  "dplRefine.modifiedIssues": {
+    "defaultMessage": "Change applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo."
+  },
+  "dplRefine.modifyAria": {
+    "defaultMessage": "Describe a change to this template"
+  },
+  "dplRefine.modifyPlaceholder": {
+    "defaultMessage": "e.g. make the armor ornate, swap the sword for a spear, add a stormy dusk sky"
+  },
+  "dplRefine.modifying": {
+    "defaultMessage": "Modifying…"
+  },
   "dplRefine.needContent": {
     "defaultMessage": "Write or draft a template first, then refine it."
   },
   "dplRefine.needDescription": {
     "defaultMessage": "Type a short description first."
+  },
+  "dplRefine.needInstruction": {
+    "defaultMessage": "Type a change to make first."
   },
   "dplRefine.noKey": {
     "defaultMessage": "No API key for {provider} — add it under Home → gear → Auto-fix."
@@ -521,6 +542,9 @@
   },
   "dplRefine.reverted": {
     "defaultMessage": "Reverted the last refine."
+  },
+  "dplRefine.send": {
+    "defaultMessage": "Send"
   },
   "dplRefine.tighten": {
     "defaultMessage": "Tighten"

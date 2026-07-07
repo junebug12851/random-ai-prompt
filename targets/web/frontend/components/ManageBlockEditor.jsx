@@ -15,7 +15,7 @@ import { hasNsfwToken } from "../../../../engine/gatedLists.js";
 import { rewritePrompt } from "../lib/rewrite.js";
 import { effectiveKey } from "../lib/sessionKeys.js";
 import { getProvider } from "../lib/providers/index.js";
-import { cleanDplOutput, DPL_CREATE_MODE } from "../lib/dpl/dplRefine.js";
+import { cleanDplOutput, buildCustomPrompt, DPL_CREATE_MODE, DPL_CUSTOM_MODE } from "../lib/dpl/dplRefine.js";
 import { m as rf } from "../lib/dpl/dplRefineMessages.js";
 import { validateDpl } from "../lib/dpl/validateDpl.js";
 import DplEditor from "./DplEditor.jsx";
@@ -182,14 +182,15 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     return { providerId, key };
   }
 
-  // Run one DPL refine/create through the text provider. `source` is the current template (refine) or
-  // the typed description (create). The result replaces the editor content — stashed first so it can
-  // be reverted — and is validated so the status can flag any issues to review. Not saved until Save.
-  async function runDpl(mode, source, { label, isCreate = false } = {}) {
-    const src = (source || "").trim();
-    if (!src) {
+  // Run one DPL refine / create / custom-modify through the text provider. `prompt` is the current
+  // template (refine), the typed description (create), or the instruction+template message (custom).
+  // The result replaces the editor content — stashed first so it can be reverted — and is validated so
+  // the status can flag any issues to review. Not saved until Save. `kind` picks the status wording.
+  async function runDpl(mode, prompt, { label, kind = "refine" } = {}) {
+    if (!(prompt || "").trim()) {
       setStatus("");
-      setError(intl.formatMessage(isCreate ? rf.needDescription : rf.needContent));
+      const needMsg = kind === "create" ? rf.needDescription : kind === "custom" ? rf.needInstruction : rf.needContent;
+      setError(intl.formatMessage(needMsg));
       return;
     }
     const resolved = resolveRewrite();
@@ -199,7 +200,7 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
     setStatus("");
     setRefineBusy(mode);
     try {
-      const out = await rewritePrompt({ providerId: resolved.providerId, prompt: source, key: resolved.key, mode });
+      const out = await rewritePrompt({ providerId: resolved.providerId, prompt, key: resolved.key, mode });
       const cleaned = cleanDplOutput(out);
       if (!cleaned) {
         setError(intl.formatMessage(rf.empty));
@@ -210,7 +211,9 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       setDirty(true);
       setCanUndo(true);
       const issues = validateDpl(cleaned, intl).filter((d) => d.severity === "error").length;
-      if (isCreate) setStatus(intl.formatMessage(rf.drafted));
+      if (kind === "create") setStatus(intl.formatMessage(rf.drafted));
+      else if (kind === "custom")
+        setStatus(intl.formatMessage(issues ? rf.modifiedIssues : rf.modified, { count: issues }));
       else if (issues) setStatus(intl.formatMessage(rf.appliedIssues, { label, count: issues }));
       else setStatus(intl.formatMessage(rf.applied, { label }));
     } catch (e) {
@@ -221,7 +224,23 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
   }
 
   const handleRefine = (action) => runDpl(action.mode, dplText, { label: action.label });
-  const handleCreate = (desc) => runDpl(DPL_CREATE_MODE, desc, { isCreate: true });
+  const handleCreate = (desc) => runDpl(DPL_CREATE_MODE, desc, { kind: "create" });
+
+  // Free-text modify: needs both an instruction and a template to work on. Compose them into the
+  // message the `dpl-custom` system prompt expects, then run it like any other refine.
+  function handleCustom(instruction) {
+    if (!(instruction || "").trim()) {
+      setStatus("");
+      setError(intl.formatMessage(rf.needInstruction));
+      return;
+    }
+    if (!(dplText || "").trim()) {
+      setStatus("");
+      setError(intl.formatMessage(rf.needContent));
+      return;
+    }
+    runDpl(DPL_CUSTOM_MODE, buildCustomPrompt(instruction, dplText), { kind: "custom" });
+  }
 
   function undoRefine() {
     if (preRefine.current == null) return;
@@ -353,7 +372,13 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       {showDpl && tab === "dpl" && (
         <>
           <DplInsertBar editorRef={dplEditorRef} settings={settings} />
-          <DplRefineBar busyMode={refineBusy} disabled={saving} onRefine={handleRefine} onCreate={handleCreate} />
+          <DplRefineBar
+            busyMode={refineBusy}
+            disabled={saving}
+            onRefine={handleRefine}
+            onCreate={handleCreate}
+            onCustom={handleCustom}
+          />
         </>
       )}
 

@@ -6,8 +6,10 @@ import { createIntl, createIntlCache } from "react-intl";
 import {
   getDplRefineActions,
   cleanDplOutput,
+  buildCustomPrompt,
   DPL_REFINE_MODES,
   DPL_CREATE_MODE,
+  DPL_CUSTOM_MODE,
 } from "../../frontend/lib/dpl/dplRefine.js";
 
 const intl = createIntl({ locale: "en", messages: {} }, createIntlCache());
@@ -40,6 +42,7 @@ describe("getDplRefineActions", () => {
     const modes = groups.flatMap((g) => g.actions.map((a) => a.mode));
     expect(modes.sort()).toEqual([...DPL_REFINE_MODES].sort());
     expect(modes).not.toContain(DPL_CREATE_MODE); // create lives on its own control
+    expect(modes).not.toContain(DPL_CUSTOM_MODE); // custom modify lives on its own control
     for (const g of groups) {
       for (const a of g.actions) {
         expect(a.label).toBeTruthy();
@@ -76,5 +79,16 @@ describe("cleanDplOutput", () => {
     expect(cleanDplOutput("a\r\nb")).toBe("a\nb");
     expect(cleanDplOutput("")).toBe("");
     expect(cleanDplOutput(null)).toBe("");
+  });
+});
+
+describe("buildCustomPrompt", () => {
+  it("packs the instruction and template around the --- TEMPLATE --- delimiter", () => {
+    const out = buildCustomPrompt("  make it ornate  ", "Start\n===\nknight");
+    expect(out).toBe("INSTRUCTION:\nmake it ornate\n\n--- TEMPLATE ---\nStart\n===\nknight");
+  });
+
+  it("tolerates nullish inputs", () => {
+    expect(buildCustomPrompt(null, null)).toBe("INSTRUCTION:\n\n\n--- TEMPLATE ---\n");
   });
 });

@@ -86,23 +86,35 @@ export const m = defineMessages({
     defaultMessage: "Fix indentation, tokens, and duplicates without changing the intent.",
   },
 
-  // Create-from-description
-  createOpen: { id: "dplRefine.createOpen", defaultMessage: "Draft from description…" },
-  createOpenHint: {
-    id: "dplRefine.createOpenHint",
-    defaultMessage: "Describe a subject and let AI build a strong starting template.",
+  // Free-text message box: a segmented Modify (change the current template) / Draft new (from a
+  // description) control with one input.
+  askModify: { id: "dplRefine.askModify", defaultMessage: "Modify" },
+  askModifyHint: {
+    id: "dplRefine.askModifyHint",
+    defaultMessage: "Type a change and the AI re-processes the current template.",
+  },
+  askCreate: { id: "dplRefine.askCreate", defaultMessage: "Draft new" },
+  askCreateHint: {
+    id: "dplRefine.askCreateHint",
+    defaultMessage: "Describe a subject and let AI build a fresh starting template.",
+  },
+  modifyPlaceholder: {
+    id: "dplRefine.modifyPlaceholder",
+    defaultMessage: "e.g. make the armor ornate, swap the sword for a spear, add a stormy dusk sky",
   },
   createPlaceholder: {
     id: "dplRefine.createPlaceholder",
     defaultMessage: "e.g. a battle-worn space marine on a rain-soaked alien ruin at dusk",
   },
-  createSubmit: { id: "dplRefine.createSubmit", defaultMessage: "Draft" },
-  createCancel: { id: "dplRefine.createCancel", defaultMessage: "Cancel" },
+  modifyAria: { id: "dplRefine.modifyAria", defaultMessage: "Describe a change to this template" },
   createAria: { id: "dplRefine.createAria", defaultMessage: "Describe the subject to draft a template" },
+  send: { id: "dplRefine.send", defaultMessage: "Send" },
+  createSubmit: { id: "dplRefine.createSubmit", defaultMessage: "Draft" },
 
   // Shared status / errors (parent-driven)
   working: { id: "dplRefine.working", defaultMessage: "Refining…" },
   drafting: { id: "dplRefine.drafting", defaultMessage: "Drafting…" },
+  modifying: { id: "dplRefine.modifying", defaultMessage: "Modifying…" },
   undo: { id: "dplRefine.undo", defaultMessage: "Undo" },
   pickProvider: {
     id: "dplRefine.pickProvider",
@@ -120,6 +132,10 @@ export const m = defineMessages({
     id: "dplRefine.needDescription",
     defaultMessage: "Type a short description first.",
   },
+  needInstruction: {
+    id: "dplRefine.needInstruction",
+    defaultMessage: "Type a change to make first.",
+  },
   empty: {
     id: "dplRefine.empty",
     defaultMessage: "The AI returned nothing — try again.",
@@ -134,6 +150,12 @@ export const m = defineMessages({
       "{label} applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo.",
   },
   drafted: { id: "dplRefine.drafted", defaultMessage: "Drafted a template — review, then Save." },
+  modified: { id: "dplRefine.modified", defaultMessage: "Change applied — review, then Save." },
+  modifiedIssues: {
+    id: "dplRefine.modifiedIssues",
+    defaultMessage:
+      "Change applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo.",
+  },
   reverted: { id: "dplRefine.reverted", defaultMessage: "Reverted the last refine." },
   failed: { id: "dplRefine.failed", defaultMessage: "Refine failed: {error}" },
 });

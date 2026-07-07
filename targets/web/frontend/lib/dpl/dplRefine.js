@@ -30,6 +30,20 @@ export const DPL_REFINE_MODES = Object.freeze([
 /** The create-from-description mode (used by the bar's own control). */
 export const DPL_CREATE_MODE = "dpl-create";
 
+/** The free-text "apply this instruction to the current template" mode. */
+export const DPL_CUSTOM_MODE = "dpl-custom";
+
+/**
+ * Compose the user message for a {@link DPL_CUSTOM_MODE} request: the free-text instruction, then the
+ * current template after a fixed `--- TEMPLATE ---` delimiter the system prompt keys on.
+ * @param {string} instruction The user's change request.
+ * @param {string} template The current DPL template.
+ * @returns {string} The combined prompt for the text provider.
+ */
+export function buildCustomPrompt(instruction, template) {
+  return `INSTRUCTION:\n${String(instruction ?? "").trim()}\n\n--- TEMPLATE ---\n${String(template ?? "")}`;
+}
+
 /**
  * Build the localized refine-action catalog.
  * @param {import("react-intl").IntlShape} intl The react-intl instance (from `useIntl()`).

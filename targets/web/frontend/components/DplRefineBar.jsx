@@ -11,7 +11,7 @@
  * path as the list editor's "AI Expand".
  * @module gui/components/DplRefineBar
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { getDplRefineActions } from "../lib/dpl/dplRefine.js";
 import { m } from "../lib/dpl/dplRefineMessages.js";
@@ -44,39 +44,43 @@ function RefinePill({ action, busy, running, disabled, onPick }) {
  * @param {boolean} [props.disabled] Hard-disable every control (e.g. while saving).
  * @param {Function} props.onRefine `(action)` — the picked refine action `{ id, mode, label, … }`.
  * @param {Function} props.onCreate `(description)` — the typed description for a fresh draft.
+ * @param {Function} props.onCustom `(instruction)` — a free-text change to apply to the current template.
  * @returns {JSX.Element}
  */
-export default function DplRefineBar({ busyMode = "", disabled = false, onRefine, onCreate }) {
+export default function DplRefineBar({ busyMode = "", disabled = false, onRefine, onCreate, onCustom }) {
   const intl = useIntl();
   const groups = useMemo(() => getDplRefineActions(intl), [intl]);
   const busy = Boolean(busyMode);
   const anyDisabled = busy || disabled;
 
-  const [creating, setCreating] = useState(false);
-  const [desc, setDesc] = useState("");
+  // The free-text box: "modify" re-processes the current template; "create" drafts a new one.
+  const [intent, setIntent] = useState("modify");
+  const [text, setText] = useState("");
   const inputRef = useRef(null);
 
   const createRunning = busyMode === "dpl-create";
-  useEffect(() => {
-    if (creating) inputRef.current?.focus();
-  }, [creating]);
+  const customRunning = busyMode === "dpl-custom";
+  const leadMsg = customRunning ? m.modifying : createRunning ? m.drafting : busy ? m.working : m.lead;
 
-  const submitCreate = () => {
-    const text = desc.trim();
-    if (!text) {
+  const submitAsk = () => {
+    const t = text.trim();
+    if (!t) {
       inputRef.current?.focus();
       return;
     }
-    onCreate?.(text);
-    setCreating(false);
-    setDesc("");
+    if (intent === "create") onCreate?.(t);
+    else onCustom?.(t);
+    // Keep the text: modify is often iterative, and a validation bounce (no provider) shouldn't wipe it.
+  };
+
+  const setMode = (next) => {
+    setIntent(next);
+    inputRef.current?.focus();
   };
 
   return (
     <div className="dpl-refine-bar" role="toolbar" aria-label={intl.formatMessage(m.toolbar)}>
-      <span className="dpl-rf-lead">
-        {intl.formatMessage(busy ? (createRunning ? m.drafting : m.working) : m.lead)}
-      </span>
+      <span className="dpl-rf-lead">{intl.formatMessage(leadMsg)}</span>
 
       {groups.map((g) => (
         <div className="dpl-rf-group" key={g.key}>
@@ -98,54 +102,52 @@ export default function DplRefineBar({ busyMode = "", disabled = false, onRefine
 
       <div className="dpl-rf-sep" aria-hidden="true" />
 
-      <div className="dpl-rf-create">
-        {!creating ? (
+      <div className="dpl-rf-ask">
+        <div className="dpl-rf-ask-seg" role="tablist" aria-label={intl.formatMessage(m.toolbar)}>
           <button
             type="button"
-            className="dpl-rf-create-open"
-            onClick={() => setCreating(true)}
+            role="tab"
+            aria-selected={intent === "modify"}
+            className={`dpl-rf-seg-btn${intent === "modify" ? " on" : ""}`}
+            onClick={() => setMode("modify")}
             disabled={anyDisabled}
-            title={intl.formatMessage(m.createOpenHint)}
+            title={intl.formatMessage(m.askModifyHint)}
           >
-            {intl.formatMessage(m.createOpen)}
+            {intl.formatMessage(m.askModify)}
           </button>
-        ) : (
-          <div className="dpl-rf-create-row">
-            <textarea
-              ref={inputRef}
-              className="dpl-rf-create-input"
-              rows={2}
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitCreate();
-                if (e.key === "Escape") {
-                  setCreating(false);
-                  setDesc("");
-                }
-              }}
-              placeholder={intl.formatMessage(m.createPlaceholder)}
-              aria-label={intl.formatMessage(m.createAria)}
-              disabled={anyDisabled}
-            />
-            <div className="dpl-rf-create-actions">
-              <button type="button" className="primary" onClick={submitCreate} disabled={anyDisabled || !desc.trim()}>
-                {intl.formatMessage(createRunning ? m.drafting : m.createSubmit)}
-              </button>
-              <button
-                type="button"
-                className="link-btn"
-                onClick={() => {
-                  setCreating(false);
-                  setDesc("");
-                }}
-                disabled={busy}
-              >
-                {intl.formatMessage(m.createCancel)}
-              </button>
-            </div>
-          </div>
-        )}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={intent === "create"}
+            className={`dpl-rf-seg-btn${intent === "create" ? " on" : ""}`}
+            onClick={() => setMode("create")}
+            disabled={anyDisabled}
+            title={intl.formatMessage(m.askCreateHint)}
+          >
+            {intl.formatMessage(m.askCreate)}
+          </button>
+        </div>
+        <div className="dpl-rf-ask-row">
+          <textarea
+            ref={inputRef}
+            className="dpl-rf-ask-input"
+            rows={2}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                submitAsk();
+              }
+            }}
+            placeholder={intl.formatMessage(intent === "create" ? m.createPlaceholder : m.modifyPlaceholder)}
+            aria-label={intl.formatMessage(intent === "create" ? m.createAria : m.modifyAria)}
+            disabled={anyDisabled}
+          />
+          <button type="button" className="primary dpl-rf-ask-send" onClick={submitAsk} disabled={anyDisabled || !text.trim()}>
+            {intl.formatMessage(intent === "create" ? m.createSubmit : m.send)}
+          </button>
+        </div>
       </div>
     </div>
   );
