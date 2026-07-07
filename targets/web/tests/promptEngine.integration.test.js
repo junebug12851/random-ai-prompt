@@ -19,7 +19,9 @@ import {
 
 // The bundled catalog now loads lazily/asynchronously (kept off the first-paint graph), so trigger +
 // await it before exercising generation/blocks — mirrors how the SPA loads it from a mount effect.
-beforeAll(() => ensureCatalog());
+// This real glob-import of the whole data corpus takes ~9s on its own and creeps past the default 10s
+// hook timeout under a heavier parallel suite, so give the warmup generous headroom.
+beforeAll(() => ensureCatalog(), 30000);
 
 const settings = {
   prompt: "{#random-words}",

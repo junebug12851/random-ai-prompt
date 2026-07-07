@@ -412,16 +412,25 @@
     "defaultMessage": "{label} applied, but the result has {count, plural, one {# issue} other {# issues}} — review or Undo."
   },
   "dplRefine.askCreate": {
-    "defaultMessage": "Draft new"
+    "defaultMessage": "Draft"
   },
   "dplRefine.askCreateHint": {
     "defaultMessage": "Describe a subject and let AI build a fresh starting template."
+  },
+  "dplRefine.askCreateTitle": {
+    "defaultMessage": "Draft a new template"
+  },
+  "dplRefine.askEnterHint": {
+    "defaultMessage": "⌘/Ctrl + Enter to send"
   },
   "dplRefine.askModify": {
     "defaultMessage": "Modify"
   },
   "dplRefine.askModifyHint": {
     "defaultMessage": "Type a change and the AI re-processes the current template."
+  },
+  "dplRefine.askModifyTitle": {
+    "defaultMessage": "Modify this template"
   },
   "dplRefine.complexLabel": {
     "defaultMessage": "Complexity"
@@ -547,13 +556,16 @@
     "defaultMessage": "Send"
   },
   "dplRefine.tighten": {
-    "defaultMessage": "Tighten"
+    "defaultMessage": "Cleanup"
   },
   "dplRefine.tightenHint": {
     "defaultMessage": "Fix indentation, tokens, and duplicates without changing the intent."
   },
   "dplRefine.toolbar": {
     "defaultMessage": "Refine this template with AI"
+  },
+  "dplRefine.toolbarAsk": {
+    "defaultMessage": "Modify or draft a template with AI"
   },
   "dplRefine.undo": {
     "defaultMessage": "Undo"

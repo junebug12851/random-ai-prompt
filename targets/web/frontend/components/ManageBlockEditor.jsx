@@ -21,6 +21,7 @@ import { validateDpl } from "../lib/dpl/validateDpl.js";
 import DplEditor from "./DplEditor.jsx";
 import DplInsertBar from "./DplInsertBar.jsx";
 import DplRefineBar from "./DplRefineBar.jsx";
+import DplAskCorner from "./DplAskCorner.jsx";
 import DplStatus from "./DplStatus.jsx";
 import CodeEditor from "./CodeEditor.jsx";
 
@@ -372,30 +373,27 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       {showDpl && tab === "dpl" && (
         <>
           <DplInsertBar editorRef={dplEditorRef} settings={settings} />
-          <DplRefineBar
-            busyMode={refineBusy}
-            disabled={saving}
-            onRefine={handleRefine}
-            onCreate={handleCreate}
-            onCustom={handleCustom}
-          />
+          <DplRefineBar busyMode={refineBusy} disabled={saving} onRefine={handleRefine} />
         </>
       )}
 
       <div className="mg-editor-body">
         {showDpl && tab === "dpl" && (
-          <DplEditor
-            ref={dplEditorRef}
-            value={dplText}
-            onChange={(v) => {
-              setDplText(v);
-              setDirty(true);
-              setCanUndo(false); // a manual edit supersedes the last refine's revert point
-            }}
-            settings={settings}
-            className="mg-cm"
-            ariaLabel={intl.formatMessage(msgs.ariaDpl)}
-          />
+          <div className="dpl-editor-wrap">
+            <DplEditor
+              ref={dplEditorRef}
+              value={dplText}
+              onChange={(v) => {
+                setDplText(v);
+                setDirty(true);
+                setCanUndo(false); // a manual edit supersedes the last refine's revert point
+              }}
+              settings={settings}
+              className="mg-cm"
+              ariaLabel={intl.formatMessage(msgs.ariaDpl)}
+            />
+            <DplAskCorner busyMode={refineBusy} disabled={saving} onCreate={handleCreate} onCustom={handleCustom} />
+          </div>
         )}
         {hasJs && tab === "js" && (
           <CodeEditor

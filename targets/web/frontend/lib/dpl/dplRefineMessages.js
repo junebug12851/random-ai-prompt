@@ -11,6 +11,7 @@ export const m = defineMessages({
   // Toolbar chrome
   lead: { id: "dplRefine.lead", defaultMessage: "Refine" },
   toolbar: { id: "dplRefine.toolbar", defaultMessage: "Refine this template with AI" },
+  toolbarAsk: { id: "dplRefine.toolbarAsk", defaultMessage: "Modify or draft a template with AI" },
 
   // Detail
   detailLabel: { id: "dplRefine.detailLabel", defaultMessage: "Detail" },
@@ -80,7 +81,7 @@ export const m = defineMessages({
 
   // Polish (single action)
   polishLabel: { id: "dplRefine.polishLabel", defaultMessage: "Polish" },
-  tighten: { id: "dplRefine.tighten", defaultMessage: "Tighten" },
+  tighten: { id: "dplRefine.tighten", defaultMessage: "Cleanup" },
   tightenHint: {
     id: "dplRefine.tightenHint",
     defaultMessage: "Fix indentation, tokens, and duplicates without changing the intent.",
@@ -93,11 +94,14 @@ export const m = defineMessages({
     id: "dplRefine.askModifyHint",
     defaultMessage: "Type a change and the AI re-processes the current template.",
   },
-  askCreate: { id: "dplRefine.askCreate", defaultMessage: "Draft new" },
+  askModifyTitle: { id: "dplRefine.askModifyTitle", defaultMessage: "Modify this template" },
+  askCreate: { id: "dplRefine.askCreate", defaultMessage: "Draft" },
   askCreateHint: {
     id: "dplRefine.askCreateHint",
     defaultMessage: "Describe a subject and let AI build a fresh starting template.",
   },
+  askCreateTitle: { id: "dplRefine.askCreateTitle", defaultMessage: "Draft a new template" },
+  askEnterHint: { id: "dplRefine.askEnterHint", defaultMessage: "⌘/Ctrl + Enter to send" },
   modifyPlaceholder: {
     id: "dplRefine.modifyPlaceholder",
     defaultMessage: "e.g. make the armor ornate, swap the sword for a spear, add a stormy dusk sky",
