@@ -121,3 +121,209 @@
   font-weight: 700;
 }
 
+/* ---------- Gutters: line numbers + the `+` action gutter ---------- */
+.dpl-editor .cm-gutters {
+  background: transparent;
+  border: none;
+  color: var(--faint);
+  font-family: var(--font-body);
+}
+
+.dpl-editor .cm-lineNumbers .cm-gutterElement {
+  padding: 0 6px 0 8px;
+  min-width: 1.6em;
+}
+
+.dpl-editor .cm-activeLineGutter {
+  background: transparent;
+  color: var(--accent);
+}
+
+/* The hovered/active line body highlight (kept faint so tokens stay legible). */
+.dpl-editor .cm-activeLine {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+/* The `+` line-action gutter and its marker. */
+.dpl-editor .dpl-la-gutter {
+  min-width: 18px;
+}
+
+.dpl-editor .dpl-la-gutter .cm-gutterElement {
+  cursor: pointer;
+  padding: 0;
+}
+
+.dpl-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: 5px;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.dpl-la-gutter .cm-gutterElement:hover .dpl-plus {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- The context-aware line-action menu (position:fixed on body) ---------- */
+.dpl-la-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 28%);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fg);
+}
+
+.dpl-la-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.dpl-la-back {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.dpl-la-back:hover {
+  color: var(--accent);
+}
+
+.dpl-la-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dpl-la-item:hover {
+  background: var(--accent-soft);
+}
+
+.dpl-la-arrow {
+  color: var(--faint);
+}
+
+/* ---------- The hover intensity/focus dials ---------- */
+.dpl-dials {
+  position: fixed;
+  z-index: 9999;
+  transform: translate(-50%, calc(-100% - 8px));
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 26%);
+}
+
+.dpl-dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  user-select: none;
+}
+
+.dpl-dial-svg {
+  cursor: grab;
+  touch-action: none;
+}
+
+.dpl-dial-svg:active {
+  cursor: grabbing;
+}
+
+.dpl-dial-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.dpl-dial-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.dpl-dial-needle {
+  stroke: var(--fg);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.dpl-dial-home {
+  stroke: var(--faint);
+  stroke-width: 1.5;
+}
+
+.dpl-dial-hub {
+  fill: var(--accent);
+}
+
+.dpl-dial.is-default .dpl-dial-needle {
+  stroke: var(--muted);
+}
+
+.dpl-dial.is-default .dpl-dial-hub {
+  fill: var(--muted);
+}
+
+.dpl-dial-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg);
+  line-height: 1;
+}
+
+.dpl-dial.is-default .dpl-dial-num {
+  color: var(--muted);
+}
+
+.dpl-dial-label {
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  color: var(--faint);
+  text-transform: lowercase;
+}
+
