@@ -372,6 +372,132 @@
   "dplInsertBar.toolbar": {
     "defaultMessage": "Insert DPL syntax"
   },
+  "dplInteractive.dialFocus": {
+    "defaultMessage": "focus"
+  },
+  "dplInteractive.dialIntensity": {
+    "defaultMessage": "intensity"
+  },
+  "dplInteractive.fmDesc": {
+    "defaultMessage": "description:"
+  },
+  "dplInteractive.fmScript": {
+    "defaultMessage": "script:"
+  },
+  "dplInteractive.fmStacking": {
+    "defaultMessage": "stacking: true"
+  },
+  "dplInteractive.fmSuggestions": {
+    "defaultMessage": "suggestions: off"
+  },
+  "dplInteractive.frontMatter": {
+    "defaultMessage": "Front matter"
+  },
+  "dplInteractive.insertAbove": {
+    "defaultMessage": "Insert blank line above"
+  },
+  "dplInteractive.insertBelow": {
+    "defaultMessage": "Insert blank line below"
+  },
+  "dplInteractive.insertFrontMatter": {
+    "defaultMessage": "Insert front matter"
+  },
+  "dplInteractive.newSection": {
+    "defaultMessage": "New section…"
+  },
+  "dplInteractive.promBullet": {
+    "defaultMessage": "Bullet - …"
+  },
+  "dplInteractive.promCond": {
+    "defaultMessage": "Dial condition [i<50%]"
+  },
+  "dplInteractive.promMaybe": {
+    "defaultMessage": "Maybe (50% chance)"
+  },
+  "dplInteractive.promOtherwise": {
+    "defaultMessage": "Otherwise (fallback)"
+  },
+  "dplInteractive.promPct": {
+    "defaultMessage": "NN% chance"
+  },
+  "dplInteractive.promWeight": {
+    "defaultMessage": "Weighted [100]"
+  },
+  "dplInteractive.promote": {
+    "defaultMessage": "Promote to…"
+  },
+  "dplInteractive.replaceWith": {
+    "defaultMessage": "Replace line with…"
+  },
+  "dplInteractive.secAutoBegin": {
+    "defaultMessage": "Auto Begin"
+  },
+  "dplInteractive.secAutoEnd": {
+    "defaultMessage": "Auto End"
+  },
+  "dplInteractive.secCustom": {
+    "defaultMessage": "Custom section…"
+  },
+  "dplInteractive.secStart": {
+    "defaultMessage": "Start (entry)"
+  },
+  "dplInteractive.tplBullet": {
+    "defaultMessage": "Bullet - …"
+  },
+  "dplInteractive.tplCall": {
+    "defaultMessage": "Call +block"
+  },
+  "dplInteractive.tplComment": {
+    "defaultMessage": "Comment ; …"
+  },
+  "dplInteractive.tplCond": {
+    "defaultMessage": "Dial condition [i<50%]"
+  },
+  "dplInteractive.tplGoback": {
+    "defaultMessage": "Go back"
+  },
+  "dplInteractive.tplGoto": {
+    "defaultMessage": "Go to section"
+  },
+  "dplInteractive.tplInsert": {
+    "defaultMessage": "Insert block"
+  },
+  "dplInteractive.tplInsertJs": {
+    "defaultMessage": "Insert JS file"
+  },
+  "dplInteractive.tplMaybe": {
+    "defaultMessage": "Maybe (50% chance)"
+  },
+  "dplInteractive.tplNOf": {
+    "defaultMessage": "N of (pick N)"
+  },
+  "dplInteractive.tplOneOf": {
+    "defaultMessage": "One of (pick 1)"
+  },
+  "dplInteractive.tplOneOfNothing": {
+    "defaultMessage": "One of, or nothing"
+  },
+  "dplInteractive.tplOtherwise": {
+    "defaultMessage": "Otherwise (fallback)"
+  },
+  "dplInteractive.tplPct": {
+    "defaultMessage": "NN% chance"
+  },
+  "dplInteractive.tplRangeOf": {
+    "defaultMessage": "A to B of (pick a range)"
+  },
+  "dplInteractive.tplRepeat": {
+    "defaultMessage": "Repeat N times"
+  },
+  "dplInteractive.tplRepeatRange": {
+    "defaultMessage": "Repeat A to B times"
+  },
+  "dplInteractive.tplText": {
+    "defaultMessage": "Plain text"
+  },
+  "dplInteractive.tplWeight": {
+    "defaultMessage": "Weighted [100]"
+  },
   "dplLint.extraClose": {
     "defaultMessage": "A {closeBrace} with no matching {openBrace}."
   },

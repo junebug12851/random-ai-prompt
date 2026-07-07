@@ -148,14 +148,36 @@ const dplParser = {
         state.lineStart = false;
         return "weight";
       }
-      // Gates: `NN%`, `NN% chance`, `maybe`, `otherwise`.
-      if (stream.match(/^(?:\d+(?:\.\d+)?%(?:\s*chance)?|maybe|otherwise)\b/i)) {
+      // A leading COMBINED weight/condition spec bracket — `[100 i<10% f<40%]`, `[f<40%|100]`. The
+      // pure-weight `[900]` is already consumed above; anything else here mixes a weight and/or the
+      // `i`/`f` dial conditions, so color the whole bracket as a dial. (`[[castle]]` / `[deemph]` /
+      // `[a:b:0.5]` don't match — their inner text isn't a digit or an `i`/`f` condition — so they
+      // fall through and stay payload, exactly as the engine parser treats them.)
+      if (
+        stream.match(
+          /^\[\s*(?:\d+|[if]\s*(?:<=|>=|==|!=|<|>|=)\s*\d+(?:\.\d+)?%)(?:[\s|]+(?:\d+|[if]\s*(?:<=|>=|==|!=|<|>|=)\s*\d+(?:\.\d+)?%))*\s*\]/i,
+        )
+      ) {
+        state.lineStart = false;
+        return "dial";
+      }
+      // Gates: an optional leading `otherwise`, then `NN%` / `NN% chance` / `maybe`. Coloring the
+      // `otherwise NN%` / `otherwise maybe` pair as ONE gate token matches the parser (which reads
+      // `otherwise` then a second scaling gate on the same line).
+      if (
+        stream.match(/^otherwise\b(?:\s+(?:\d+(?:\.\d+)?%\s*chance|\d+(?:\.\d+)?%|maybe\b))?/i)
+      ) {
         state.lineStart = false;
         return "gate";
       }
-      // `insert js:` (a JS path, not a name target).
+      if (stream.match(/^(?:\d+(?:\.\d+)?%(?:\s*chance)?|maybe)\b/i)) {
+        state.lineStart = false;
+        return "gate";
+      }
+      // `insert js:` — the keyword, then its JS path colored as a ref (via expectName).
       if (stream.match(/^insert\s+js:/i)) {
         state.lineStart = false;
+        state.expectName = true;
         return "keyword";
       }
       // `go to` / `insert` — these take a NAME target we color next.
@@ -164,12 +186,17 @@ const dplParser = {
         state.expectName = true;
         return "keyword";
       }
-      // Choices / repeats / the rest of flow (no name target).
+      // Choices: `one of` / `N of` / `A to B of`, with an optional `(NN% nothing)` miss cap.
       if (
         stream.match(
-          /^(?:one\s+of|\d+\s+to\s+\d+\s+of|\d+\s+of|repeat\s+\d+(?:\s+to\s+\d+)?\s+times|go\s+back|branch)\b/i,
+          /^(?:one\s+of|\d+\s+to\s+\d+\s+of|\d+\s+of)(?:\s*\(\s*\d+(?:\.\d+)?%\s*nothing\s*\))?/i,
         )
       ) {
+        state.lineStart = false;
+        return "keyword";
+      }
+      // Repeats / the rest of flow (no name target).
+      if (stream.match(/^(?:repeat\s+\d+(?:\s+to\s+\d+)?\s+times|go\s+back|branch)\b/i)) {
         state.lineStart = false;
         return "keyword";
       }
