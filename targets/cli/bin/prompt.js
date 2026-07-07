@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @file
- * @brief `rap` CLI entry point. Registers the JSON-attribute ESM hook (so the shared provider
+ * @brief `prompt` CLI entry point. Registers the JSON-attribute ESM hook (so the shared provider
  * adapters' bare `.json` imports load under Node), then hands off to src/main.js. Kept tiny so the
  * shebang file rarely changes.
  */

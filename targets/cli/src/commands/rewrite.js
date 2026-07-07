@@ -35,7 +35,7 @@ export default function registerRewrite(program) {
       }
       const provider = await getProvider(providerId);
       if (!provider || !(provider.loadRewrite || provider.rewrite)) {
-        say("err", `"${providerId}" can't rewrite prompts. See: rap list providers`);
+        say("err", `"${providerId}" can't rewrite prompts. See: prompt list providers`);
         process.exitCode = 1;
         return;
       }
@@ -43,7 +43,7 @@ export default function registerRewrite(program) {
       if (!key) {
         say(
           "err",
-          `Provider "${providerId}" needs an API key. Set one with: rap keys set ${providerId} <key>`,
+          `Provider "${providerId}" needs an API key. Set one with: prompt keys set ${providerId} <key>`,
         );
         process.exitCode = 1;
         return;

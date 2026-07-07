@@ -1,7 +1,7 @@
 /**
  * @file
- * @brief CLI program assembly. Builds the `rap` commander program, wires global options (color,
- * JSON) and every subcommand, and makes `generate` the default so `rap "a cat"` just works. Kept a
+ * @brief CLI program assembly. Builds the `prompt` commander program, wires global options (color,
+ * JSON) and every subcommand, and makes `generate` the default so `prompt "a cat"` just works. Kept a
  * thin coordinator — each command lives in its own file under `commands/`.
  */
 import { Command } from "commander";
@@ -36,11 +36,11 @@ function version() {
 export function buildProgram() {
   const program = new Command();
   program
-    .name("rap")
+    .name("prompt")
     .description(
       `${c.heading("random-ai-prompt")} — generate rich AI image/text prompts and run them through image providers.\n` +
         "Uses the same engine + providers as the web/desktop app. Prompt generation needs nothing; image\n" +
-        "generation uses a local Stable Diffusion WebUI or a BYOK provider (see: rap list providers).",
+        "generation uses a local Stable Diffusion WebUI or a BYOK provider (see: prompt list providers).",
     )
     .version(version(), "-v, --version", "Print the CLI version")
     .option("--json", "Machine-readable JSON output")
@@ -67,12 +67,12 @@ export function buildProgram() {
   program.addHelpText(
     "after",
     `\n${c.subhead("Examples:")}\n` +
-      `  ${c.muted("$")} rap "a {#animal} in a {biome}"        generate one prompt from a template\n` +
-      `  ${c.muted("$")} rap --prompts 5 --nsfw                five prompts, adult content enabled\n` +
-      `  ${c.muted("$")} rap -p forge --images "a castle"      generate an image via local Forge WebUI\n` +
-      `  ${c.muted("$")} rap list blocks                       browse every building block\n` +
-      `  ${c.muted("$")} rap keys set openai sk-...            store a provider API key\n` +
-      `  ${c.muted("$")} rap completion zsh > _rap             install shell completion\n`,
+      `  ${c.muted("$")} prompt "a {#animal} in a {biome}"        generate one prompt from a template\n` +
+      `  ${c.muted("$")} prompt --prompts 5 --nsfw                five prompts, adult content enabled\n` +
+      `  ${c.muted("$")} prompt -p forge --images "a castle"      generate an image via local Forge WebUI\n` +
+      `  ${c.muted("$")} prompt list blocks                       browse every building block\n` +
+      `  ${c.muted("$")} prompt keys set openai sk-...            store a provider API key\n` +
+      `  ${c.muted("$")} prompt completion zsh > _prompt             install shell completion\n`,
   );
 
   return program;

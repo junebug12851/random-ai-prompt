@@ -5,14 +5,14 @@
   "type": "module",
   "private": true,
   "bin": {
-    "rap": "bin/rap.js"
+    "prompt": "bin/prompt.js"
   },
   "main": "src/main.js",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
-    "start": "node bin/rap.js",
+    "start": "node bin/prompt.js",
     "test": "vitest run"
   },
   "dependencies": {

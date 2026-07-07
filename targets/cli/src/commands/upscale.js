@@ -19,12 +19,12 @@ export default function registerUpscale(program) {
   program
     .command("upscale <image>")
     .description("AI-upscale a saved image (a /api/output/<file> path, a filename, or a data: URL)")
-    .requiredOption("-p, --provider <id>", "Upscale provider id (see: rap list providers)")
+    .requiredOption("-p, --provider <id>", "Upscale provider id (see: prompt list providers)")
     .action(async (image, opts, command) => {
       const json = command.optsWithGlobals().json;
       const provider = (await allProviders()).find((p) => p.id === opts.provider);
       if (!provider) {
-        say("err", `Unknown provider "${opts.provider}". See: rap list providers`);
+        say("err", `Unknown provider "${opts.provider}". See: prompt list providers`);
         process.exitCode = 1;
         return;
       }

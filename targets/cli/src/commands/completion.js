@@ -19,10 +19,10 @@ export default function registerCompletion(program) {
     .addHelpText(
       "after",
       `\n${c.subhead("Install:")}\n` +
-        `  ${c.muted("bash")}        rap completion bash   > /etc/bash_completion.d/rap\n` +
-        `  ${c.muted("zsh")}         rap completion zsh    > "\${fpath[1]}/_rap"\n` +
-        `  ${c.muted("fish")}        rap completion fish   > ~/.config/fish/completions/rap.fish\n` +
-        `  ${c.muted("powershell")}  rap completion powershell | Out-String | Invoke-Expression\n`,
+        `  ${c.muted("bash")}        prompt completion bash   > /etc/bash_completion.d/prompt\n` +
+        `  ${c.muted("zsh")}         prompt completion zsh    > "\${fpath[1]}/_prompt"\n` +
+        `  ${c.muted("fish")}        prompt completion fish   > ~/.config/fish/completions/prompt.fish\n` +
+        `  ${c.muted("powershell")}  prompt completion powershell | Out-String | Invoke-Expression\n`,
     )
     .action((shell) => {
       if (!shell) {

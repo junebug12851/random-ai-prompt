@@ -2,8 +2,8 @@
  * @file
  * @brief The `config` command — read/write the CLI's persisted defaults. Stored in the CLI's own
  * `user/settings/cli.json` namespace (never clobbers the GUI's `settings.json`), so a value set here
- * becomes the default for every `rap generate` while the GUI keeps its own. Keys are the same
- * `settings` keys the flags map to (see `rap generate --help`), coerced by the matching flag's type.
+ * becomes the default for every `prompt generate` while the GUI keeps its own. Keys are the same
+ * `settings` keys the flags map to (see `prompt generate --help`), coerced by the matching flag's type.
  */
 import path from "node:path";
 import { c, say } from "../lib/colors.js";
@@ -30,7 +30,10 @@ export default function registerConfig(program) {
       if (command.optsWithGlobals().json) return printJson(cfg);
       const rows = Object.entries(cfg).map(([k, v]) => [c.key(k), c.value(String(v))]);
       if (!rows.length) {
-        say("info", c.muted("No CLI config set yet. Set one with: rap config set <key> <value>"));
+        say(
+          "info",
+          c.muted("No CLI config set yet. Set one with: prompt config set <key> <value>"),
+        );
         return;
       }
       console.log(c.heading("CLI config"));
@@ -65,7 +68,7 @@ export default function registerConfig(program) {
       } else {
         say(
           "warn",
-          `"${key}" isn't a known setting key — storing as a string. (See: rap generate --help)`,
+          `"${key}" isn't a known setting key — storing as a string. (See: prompt generate --help)`,
         );
       }
       const cfg = readConfig();
@@ -95,7 +98,7 @@ export default function registerConfig(program) {
 }
 
 /**
- * A config blob without the secret `keys` map (keys are managed by `rap keys`).
+ * A config blob without the secret `keys` map (keys are managed by `prompt keys`).
  * @param {object} cfg The config.
  * @returns {object} The config without `keys`.
  */

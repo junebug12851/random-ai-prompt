@@ -23,8 +23,8 @@ below predate this restructure and may still say `src/…`, `gui/…`, or `engin
 `engine/…` / `targets/web/…` at the repo root.) **Desktop target caveat:** its path wiring was rewritten
 to the new layout but **not yet verified with a real Tauri/Rust build** — do that before shipping desktop.
 
-**CLI target — the `rap` command-line tool (2.50.0 — branch `feature/cli-target`):** a new build
-target under `targets/cli/` (own npm package, `@random-ai-prompt/cli`, bin `rap`). Traditional args +
+**CLI target — the `prompt` command-line tool (2.50.0 — branch `feature/cli-target`):** a new build
+target under `targets/cli/` (own npm package, `@random-ai-prompt/cli`, bin `prompt`). Traditional args +
 flags, `--help`, colored output, and bash/zsh/fish/PowerShell completion — **full parity with the engine
 and the GUI by default**: it reuses the shared engine, the `targets/web/shared/` provider adapters, and
 the `user/settings/` store (shared BYOK keys), exposing every `engine/settings.js` field as a flag.

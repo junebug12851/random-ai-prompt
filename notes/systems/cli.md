@@ -1,6 +1,6 @@
-# The CLI target — `targets/cli/` (`rap`)
+# The CLI target — `targets/cli/` (`prompt`)
 
-The **command-line target**: a traditional args-and-flags CLI (`rap`) that generates AI image/text
+The **command-line target**: a traditional args-and-flags CLI (`prompt`) that generates AI image/text
 prompts and runs them through the image providers — **the same engine, providers, settings, and
 on-disk store the web/desktop app uses**. No TUI, no interactive mode: everything is a subcommand with
 flags and a `--help` page, plus colored output and shell completion for bash/zsh/fish/PowerShell.
@@ -43,14 +43,14 @@ in-process** and shims `fetch`:
   folder with the same `.json` sidecar** the GUI gallery reads (`src/lib/imagegen.js` mirrors the
   SPA's `useImageBatches.runBatch`: rewrite passes → negative roll → provider generate → ingest).
 
-An `api`-tier provider is only ever called when the user passes `--images`, so `rap -p openai "x"`
+An `api`-tier provider is only ever called when the user passes `--images`, so `prompt -p openai "x"`
 without `--images` never spends credits — it just prints the prompt. Copy-only providers
 (`plain`/`novelai`/`midjourney`) never hit the network; they format the prompt in their dialect.
 
 ### The JSON-import hook
 
 The shared provider files use bare JSON imports (`import x from "./x.json"`) that Vite normally
-transforms; Node 24 rejects them without a `type: json` attribute. `bin/rap.js` registers an ESM
+transforms; Node 24 rejects them without a `type: json` attribute. `bin/prompt.js` registers an ESM
 resolve hook (`src/lib/jsonLoader.mjs`) that injects the attribute, so the provider code loads
 unmodified. (Under Vitest the transform handles JSON, so tests don't need the hook.)
 
@@ -58,7 +58,7 @@ unmodified. (Under Vitest the transform handles JSON, so tests don't need the ho
 
 | Path | Role |
 |------|------|
-| `bin/rap.js` | Entry shim — registers the JSON hook, then runs `src/main.js`. |
+| `bin/prompt.js` | Entry shim — registers the JSON hook, then runs `src/main.js`. |
 | `src/main.js` | Builds the commander program, global flags (`--json`, `--color/--no-color`), wires subcommands. |
 | `src/commands/` | One file per command: `generate` (default), `list`, `config`, `keys`, `rewrite`, `upscale`, `completion`. |
 | `src/lib/optionSpec.js` | Single source of truth for every generation flag (engine + image + rewrite) → coercion + overrides + completion. |
@@ -67,26 +67,26 @@ unmodified. (Under Vitest the transform handles JSON, so tests don't need the ho
 | `src/lib/imagegen.js` | Per-prompt provider orchestration + upscale (mirrors `useImageBatches`). |
 | `src/lib/settings.js` / `presets.js` / `keys.js` / `store.js` | Settings merge, preset loading, BYOK keys, the shared file store. |
 | `src/lib/backend.js` | In-process backend + `fetch` shim. |
-| `src/lib/completion.js` | bash/zsh/fish/PowerShell script generators + the `rap __complete` dynamic resolver. |
+| `src/lib/completion.js` | bash/zsh/fish/PowerShell script generators + the `prompt __complete` dynamic resolver. |
 | `src/lib/colors.js` / `format.js` | picocolors styling (honors `NO_COLOR`/`FORCE_COLOR`) + tables/JSON output. |
 
 ## Commands (quick reference)
 
-- `rap [prompt]` / `rap generate` — generate prompts; `--images -p <id>` to also generate images. Every
-  `engine/settings.js` field is a flag (`rap generate --help`); plus `--provider`, `--preset`, `--seed`,
+- `prompt [prompt]` / `prompt generate` — generate prompts; `--images -p <id>` to also generate images. Every
+  `engine/settings.js` field is a flag (`prompt generate --help`); plus `--provider`, `--preset`, `--seed`,
   `--random`, `--nsfw`, image knobs (`--width/--height/--steps/--cfg/--sampler/--model/--size/--negative`),
   and `--rewrite-provider/--auto-fix/--auto-keyword`. `--json` for machine output.
-- `rap list <blocks|lists|providers|presets|dialects|samplers|settings> [filter]` — browse the catalog.
-- `rap config <get|set|unset|list|path>` — persisted CLI defaults (`cli` namespace).
-- `rap keys <set|get|remove|list>` — BYOK keys (on-device; `--shared` to also write the GUI store).
-- `rap rewrite <prompt> [-p id] [--keyword]` — standalone auto-fix / keyword rewrite.
-- `rap upscale <image> -p <id>` — AI-upscale a saved image.
-- `rap completion <bash|zsh|fish|powershell>` — print a completion script.
+- `prompt list <blocks|lists|providers|presets|dialects|samplers|settings> [filter]` — browse the catalog.
+- `prompt config <get|set|unset|list|path>` — persisted CLI defaults (`cli` namespace).
+- `prompt keys <set|get|remove|list>` — BYOK keys (on-device; `--shared` to also write the GUI store).
+- `prompt rewrite <prompt> [-p id] [--keyword]` — standalone auto-fix / keyword rewrite.
+- `prompt upscale <image> -p <id>` — AI-upscale a saved image.
+- `prompt completion <bash|zsh|fish|powershell>` — print a completion script.
 
 ## Completion
 
 `src/lib/completion.js` generates a script per shell from the same flag spec the parser uses (so it
-never drifts), and a hidden `rap __complete <kind>` command resolves dynamic values live (provider
+never drifts), and a hidden `prompt __complete <kind>` command resolves dynamic values live (provider
 ids, preset names, samplers, block/list names, …) — kubectl/gh-style, so completion reflects the
 user's actual catalog and installed providers.
 

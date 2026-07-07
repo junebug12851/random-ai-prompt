@@ -22,7 +22,7 @@ Read in this order:
 | [core-engine.md](core-engine.md) | The isomorphic `core/` engine — `engine.js`, the `stages/` (block / prompt-salt / list / emphasis / cleanup), `listStore`, and the `node`/`browser` loaders that let the same prompt logic run under Node and in the browser. |
 | [gui.md](gui.md) | The standalone React + Vite SPA in `targets/web/` — the ~40-provider BYOK model, the browser prompt engine, the in-app Manager, and the two editions (local + online). |
 | [desktop.md](desktop.md) | The pre-built **desktop edition** — a thin Tauri (Rust) shell that runs the unmodified local SPA + Node `/api` backend as a bundled sidecar, plus the staging step and the per-OS installer/portable build. |
-| [cli.md](cli.md) | The **CLI target** (`targets/cli/`, the `rap` tool, 2.50.0): a traditional args + flags command-line target that reuses the engine + providers + settings store at parity with the GUI, with multi-shell completion. (Also notes the removed pre-revival CLI.) |
+| [cli.md](cli.md) | The **CLI target** (`targets/cli/`, the `prompt` tool, 2.50.0): a traditional args + flags command-line target that reuses the engine + providers + settings store at parity with the GUI, with multi-shell completion. (Also notes the removed pre-revival CLI.) |
 | [server.md](server.md) | **Historical.** The pre-revival Express/Pug web UI + its self-healing image index, now removed from the tree — kept as a record of the classic server. |
 
 How this relates to the other notes:

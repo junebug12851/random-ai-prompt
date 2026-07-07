@@ -146,7 +146,7 @@ async function settings({ json }) {
   console.log(table(rows, { indent: 2 }));
   console.log(
     c.muted(
-      "\nOverride any of these with flags on `rap generate`, or persist with `rap config set`.",
+      "\nOverride any of these with flags on `prompt generate`, or persist with `prompt config set`.",
     ),
   );
 }

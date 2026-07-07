@@ -27,7 +27,7 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/web-shell/`**
   is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
   **`targets/shared/`** is reserved for code shared across targets. **`targets/cli/`** is the
-  command-line target (the `rap` tool, added 2.50.0 — its own npm package): a traditional args + flags
+  command-line target (the `prompt` tool, added 2.50.0 — its own npm package): a traditional args + flags
   CLI that reuses the engine + the `targets/web/shared/` provider adapters + the `user/settings/` store
   to generate prompts and images headlessly, with multi-shell completion. It must stay at parity with
   BOTH the engine and the GUI by default (every `engine/settings.js` field is a flag; the same provider
@@ -298,7 +298,7 @@ The app's three legal documents live as self-hosted static pages at
 `targets/web/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
 `.links-sep` separator; contact address `fairy@fairyfox.io`). They were rewritten to describe **what the
 app actually does** — no accounts, no analytics/cookies/tracking, settings + bring-your-own API keys
-stored only on the user's device (`rap.store.` localStorage / local files), prompts + keys sent directly
+stored only on the user's device (`prompt.store.` localStorage / local files), prompts + keys sent directly
 from the device to the chosen provider (no server relay — providers that can't be called directly from a
 browser are locked out of the web build), and Netlify as the hosting processor. Fonts are **self-hosted**
 from `targets/web/public/fonts/`

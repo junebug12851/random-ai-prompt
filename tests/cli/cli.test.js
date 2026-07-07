@@ -111,11 +111,11 @@ describe("providers registry (Node discovery)", () => {
 });
 
 describe("completion", () => {
-  it("emits a script for every supported shell mentioning rap", () => {
+  it("emits a script for every supported shell mentioning prompt", () => {
     for (const shell of ["bash", "zsh", "fish", "powershell"]) {
       const s = scriptFor(shell);
       expect(s).toBeTypeOf("string");
-      expect(s).toContain("rap");
+      expect(s).toContain("prompt");
     }
     expect(scriptFor("tcsh")).toBeNull();
   });

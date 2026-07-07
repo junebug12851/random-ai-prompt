@@ -240,7 +240,7 @@ window and produces the per-OS installers:
 AI assistance: the Tauri desktop shell, the Node-sidecar packaging, and the per-OS release matrix were
 designed and implemented with Claude (Anthropic).
 
-The command-line edition (targets/cli/, the `rap` tool) is built with:
+The command-line edition (targets/cli/, the `prompt` tool) is built with:
 
   commander              https://github.com/tj/commander.js             MIT
   picocolors             https://github.com/alexeyraspopov/picocolors   ISC

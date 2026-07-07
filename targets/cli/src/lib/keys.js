@@ -3,7 +3,7 @@
  * @brief BYOK API-key storage for the CLI. Keys are stored in the CLI's own config namespace
  * (`user/settings/cli.json` → `keys` map) and are ALSO read from the GUI's `settings.json` `keys`
  * map, so a key saved in the desktop/web app works in the CLI and vice-versa (GUI parity). A key can
- * additionally come from an env var (`RAP_KEY_<PROVIDERID>`) for CI / one-off use without persisting.
+ * additionally come from an env var (`PROMPT_KEY_<PROVIDERID>`) for CI / one-off use without persisting.
  */
 import * as store from "./store.js";
 import { CLI_NS, GUI_NS } from "./settings.js";
@@ -17,7 +17,7 @@ import { CLI_NS, GUI_NS } from "./settings.js";
 export function getKey(id) {
   const env =
     process.env[
-      `RAP_KEY_${String(id)
+      `PROMPT_KEY_${String(id)
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, "_")}`
     ];
@@ -78,14 +78,14 @@ export function listKeys() {
   const ids = new Set([...Object.keys(cli), ...Object.keys(gui)]);
   // Env-provided keys too.
   for (const k of Object.keys(process.env)) {
-    if (k.startsWith("RAP_KEY_")) ids.add(k.slice("RAP_KEY_".length).toLowerCase());
+    if (k.startsWith("PROMPT_KEY_")) ids.add(k.slice("PROMPT_KEY_".length).toLowerCase());
   }
   const out = [];
   for (const id of ids) {
     const val = getKey(id);
     if (!val) continue;
     let source = "gui";
-    if (process.env[`RAP_KEY_${id.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`]) source = "env";
+    if (process.env[`PROMPT_KEY_${id.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`]) source = "env";
     else if (cli[id]) source = "cli";
     out.push({ id, source, masked: mask(val) });
   }

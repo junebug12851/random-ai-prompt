@@ -49,7 +49,9 @@ async function applyRewrites(text, settings) {
   if (!useFix && !useKeyword) return { text, changed: false };
   const rkey = getKey(settings.rewriteProvider);
   if (!rkey)
-    throw new Error("Auto-rewrite is on but the rewrite provider has no API key (rap keys set).");
+    throw new Error(
+      "Auto-rewrite is on but the rewrite provider has no API key (prompt keys set).",
+    );
   let working = text;
   if (useFix) {
     const fixed = await rewritePrompt({
@@ -140,7 +142,7 @@ export async function runProvider({ prompt, promptDpl, settings, provider }) {
   const key = getKey(provider.id);
   if (provider.needsKey && !key) {
     throw new Error(
-      `Provider "${provider.id}" needs an API key. Set one with: rap keys set ${provider.id} <key>`,
+      `Provider "${provider.id}" needs an API key. Set one with: prompt keys set ${provider.id} <key>`,
     );
   }
 
@@ -180,7 +182,7 @@ export async function upscaleImage({ providerId, image, params }) {
   const key = getKey(providerId);
   if (provider.needsKey && !key) {
     throw new Error(
-      `Provider "${providerId}" needs an API key. Set one with: rap keys set ${providerId} <key>`,
+      `Provider "${providerId}" needs an API key. Set one with: prompt keys set ${providerId} <key>`,
     );
   }
   const res = await fetch("/api/upscale", {

@@ -27,7 +27,7 @@ export default function registerKeys(program) {
       const found = listKeys();
       if (command.optsWithGlobals().json) return printJson(found);
       if (!found.length) {
-        say("info", c.muted("No keys stored. Add one with: rap keys set <provider> <key>"));
+        say("info", c.muted("No keys stored. Add one with: prompt keys set <provider> <key>"));
         return;
       }
       console.log(c.heading("Stored API keys"));
@@ -47,7 +47,7 @@ export default function registerKeys(program) {
       if (!(await getProvider(provider))) {
         say(
           "warn",
-          `"${provider}" isn't a known provider id, but storing the key anyway. (See: rap list providers)`,
+          `"${provider}" isn't a known provider id, but storing the key anyway. (See: prompt list providers)`,
         );
       }
       setKey(provider, key, !!opts.shared);

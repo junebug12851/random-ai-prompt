@@ -63,7 +63,7 @@ export function resolvePresets(spec) {
     .filter(Boolean);
   return names.map((n) => {
     const p = loadPreset(n);
-    if (!p) throw new Error(`Unknown preset "${n}". See: rap list presets`);
+    if (!p) throw new Error(`Unknown preset "${n}". See: prompt list presets`);
     return p;
   });
 }

@@ -25,10 +25,10 @@ export default function registerGenerate(program) {
     .aliases(["gen", "g"])
     .description("Generate prompts (and optionally images)")
     .argument("[prompt]", "Prompt template (DPL). Defaults to the saved/{#random-words} prompt")
-    .option("-p, --provider <id>", "Image provider id (see: rap list providers)")
+    .option("-p, --provider <id>", "Image provider id (see: prompt list providers)")
     .option("--images", "Generate images with the selected provider")
     .option("--no-images", "Only generate text prompts (no images)")
-    .option("--preset <names>", "Comma-separated presets to apply (see: rap list presets)")
+    .option("--preset <names>", "Comma-separated presets to apply (see: prompt list presets)")
     .option("--seed <seed>", "Pin the prompt seed (reproducible batch)")
     .option("--random", "Force a fresh random prompt seed")
     .option("--nsfw", "Enable adult/NSFW content")
@@ -65,7 +65,7 @@ export default function registerGenerate(program) {
     // Resolve the provider and align the prompt dialect to it (unless the user forced --mode).
     const provider = (await getProvider(settings.provider)) || (await getProvider("plain"));
     if (!provider) {
-      say("err", `Unknown provider "${settings.provider}". See: rap list providers`);
+      say("err", `Unknown provider "${settings.provider}". See: prompt list providers`);
       process.exitCode = 1;
       return;
     }
@@ -77,7 +77,7 @@ export default function registerGenerate(program) {
 
     const wantImages = settings.generateImages && provider.tier === "api";
     // Copy-only providers just format the prompt (no network/cost), so always run them. An `api`
-    // provider is only called when the user actually asked for images — so `rap -p openai "x"`
+    // provider is only called when the user actually asked for images — so `prompt -p openai "x"`
     // without --images never spends credits; it just prints the prompt.
     const doRun = provider.tier !== "api" || wantImages;
     const needBackend =

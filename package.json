@@ -18,7 +18,7 @@
     "start": "npm run web:build && node targets/web/backend/serve.js",
     "serve": "node targets/web/backend/serve.js",
     "web:install": "npm --prefix targets/web install",
-    "cli": "node targets/cli/bin/rap.js",
+    "cli": "node targets/cli/bin/prompt.js",
     "cli:install": "npm --prefix targets/cli install",
     "gen:accents": "node scripts/gen-accents.mjs",
     "postinstall": "npm --prefix targets/web install && npm --prefix targets/cli install",
