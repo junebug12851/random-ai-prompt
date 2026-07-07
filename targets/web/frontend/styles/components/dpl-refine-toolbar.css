@@ -119,6 +119,7 @@
 }
 
 /* ---------- Corner Modify/Draft control (pinned top-right of the DPL editor) ---------- */
+
 /* The DPL editor gets a wrapper so the corner control can be absolutely positioned over it, and the
    editor text gets a top gutter so the first line clears the control. */
 .dpl-editor-wrap {
@@ -131,10 +132,13 @@
   padding-top: 2.5rem;
 }
 
+/* Inset from the right far enough to clear a vertical scrollbar, so the combo never sits on top of it
+   when the template overflows. (CodeMirror already wraps long lines inside the scrollbar, so the text
+   itself stays clear — no scrollbar-gutter needed, which can trip CM's measure loop.) */
 .dpl-ask-corner {
   position: absolute;
   top: 0.4rem;
-  right: 0.4rem;
+  right: 1.25rem;
   z-index: 6;
 }
 

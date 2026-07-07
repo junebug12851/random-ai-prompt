@@ -29,6 +29,11 @@ const msgs = defineMessages({
     id: "manage.deleteEntryConfirm",
     defaultMessage: "Delete {label} ({root}/{path})? This removes the file from disk.",
   },
+  overrideConfirm: {
+    id: "manage.overrideConfirm",
+    defaultMessage:
+      "Create an editable copy of the built-in {label} in your overlay? Your copy takes priority and survives updates; the original stays untouched.",
+  },
 });
 
 /** An empty raw tree node, used when a root is absent from the backend's response (e.g. an older
@@ -252,6 +257,42 @@ export function useManageTree({ settings, available, active }) {
     }
   }
 
+  // Create an editable OVERRIDE of a built-in entry: copy its files (content + js/json sidecars) into
+  // the matching user-overlay root, which wins at runtime and survives app updates — the built-in is
+  // left untouched. If an override already exists we just open it (copy refuses to clobber). No-op for
+  // entries that are already in the user overlay or are ghosts.
+  async function overrideEntry(e) {
+    if (!e || e.ghost || USER_ROOTS.has(e.root)) return;
+    const toRoot = `user-${e.root}`; // "blocks" → "user-blocks", "lists" → "user-lists"
+    const openUserCopy = () => setSelected({ type: "entry", ...e, root: toRoot });
+    if (
+      !(await dialog.confirm({
+        message: intl.formatMessage(msgs.overrideConfirm, { label: e.label }),
+      }))
+    )
+      return;
+    try {
+      // Copy the main file. `fsOp` throws on a backend error (HTTP 400) — a "Destination exists" means
+      // an override is already there, so just open it rather than surfacing an error.
+      await fsOp("copy", { root: e.root, path: `${e.path}.${e.ext}`, toRoot, to: `${e.path}.${e.ext}` });
+      for (const side of ["js", "json"]) {
+        try {
+          await fsOp("copy", { root: e.root, path: `${e.path}.${side}`, toRoot, to: `${e.path}.${side}` });
+        } catch {
+          /* no such sidecar — fine */
+        }
+      }
+      await handleChanged();
+      openUserCopy();
+    } catch (err) {
+      if (/exists/i.test(err?.message || "")) {
+        openUserCopy(); // already overridden — open the user copy
+        return;
+      }
+      setError(err.message || String(err));
+    }
+  }
+
   // Restore a ghost entry (a file deleted locally but present upstream) from the stable branch.
   async function restoreGhost(e) {
     try {
@@ -289,6 +330,7 @@ export function useManageTree({ settings, available, active }) {
     newFolder,
     moveEntryTo,
     deleteEntry,
+    overrideEntry,
     restoreGhost,
   };
 }

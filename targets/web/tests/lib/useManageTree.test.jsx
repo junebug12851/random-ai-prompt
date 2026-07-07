@@ -173,6 +173,55 @@ describe("useManageTree", () => {
     expect(restoreDefault).toHaveBeenCalledWith("lists", "look/old.txt");
   });
 
+  it("overrideEntry copies a built-in's files into the user overlay and selects the copy", async () => {
+    dialog.confirm.mockResolvedValue(true);
+    const { result } = await mountLoaded();
+    const entry = { root: "blocks", path: "scene/castle", ext: "dpl", kind: "generator", label: "castle" };
+    await act(async () => {
+      await result.current.overrideEntry(entry);
+    });
+    expect(fsOp).toHaveBeenCalledWith("copy", {
+      root: "blocks",
+      path: "scene/castle.dpl",
+      toRoot: "user-blocks",
+      to: "scene/castle.dpl",
+    });
+    // Sidecars are attempted too (ignored if absent).
+    expect(fsOp).toHaveBeenCalledWith("copy", expect.objectContaining({ to: "scene/castle.json", toRoot: "user-blocks" }));
+    expect(result.current.selected).toMatchObject({ type: "entry", root: "user-blocks", path: "scene/castle", label: "castle" });
+  });
+
+  it("overrideEntry is a no-op when not confirmed", async () => {
+    dialog.confirm.mockResolvedValue(false);
+    const { result } = await mountLoaded();
+    fsOp.mockClear();
+    await act(async () => {
+      await result.current.overrideEntry({ root: "lists", path: "look/color", ext: "txt", label: "color" });
+    });
+    expect(fsOp).not.toHaveBeenCalled();
+  });
+
+  it("overrideEntry ignores entries already in the user overlay", async () => {
+    const { result } = await mountLoaded();
+    fsOp.mockClear();
+    await act(async () => {
+      await result.current.overrideEntry({ root: "user-blocks", path: "x", ext: "dpl", label: "x" });
+    });
+    expect(dialog.confirm).not.toHaveBeenCalled();
+    expect(fsOp).not.toHaveBeenCalled();
+  });
+
+  it("overrideEntry opens the existing copy when an override already exists", async () => {
+    dialog.confirm.mockResolvedValue(true);
+    fsOp.mockRejectedValueOnce(new Error("Destination exists")); // the main copy
+    const { result } = await mountLoaded();
+    await act(async () => {
+      await result.current.overrideEntry({ root: "blocks", path: "scene/castle", ext: "dpl", kind: "generator", label: "castle" });
+    });
+    expect(result.current.selected).toMatchObject({ type: "entry", root: "user-blocks", path: "scene/castle" });
+    expect(result.current.error).toBe("");
+  });
+
   it("toggle flips a folder's expanded state", async () => {
     const { result } = await mountLoaded();
     const key = "lists:look";

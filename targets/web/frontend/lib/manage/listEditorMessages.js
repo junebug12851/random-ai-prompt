@@ -78,4 +78,10 @@ export const msgs = defineMessages({
     defaultMessage: "Fetch the default from the repo (master)",
   },
   restoreDefault: { id: "listEd.restoreDefault", defaultMessage: "Restore default" },
+  override: { id: "listEd.override", defaultMessage: "Create override" },
+  overrideTitle: {
+    id: "listEd.overrideTitle",
+    defaultMessage:
+      "Copy this built-in list into your overlay so you can edit it safely — your copy wins and survives app updates; the original stays untouched.",
+  },
 });

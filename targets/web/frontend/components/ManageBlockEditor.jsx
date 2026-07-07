@@ -73,6 +73,12 @@ const msgs = defineMessages({
     id: "blockEd.jsNote",
     defaultMessage: "JS runs on reload — DPL and the rest hot-apply.",
   },
+  override: { id: "blockEd.override", defaultMessage: "Create override" },
+  overrideTitle: {
+    id: "blockEd.overrideTitle",
+    defaultMessage:
+      "Copy this built-in block into your overlay so you can edit it safely — your copy wins and survives app updates; the original stays untouched.",
+  },
   loading: { id: "blockEd.loading", defaultMessage: "Loading…" },
 });
 
@@ -84,11 +90,12 @@ const msgs = defineMessages({
  *   Receives the new logical path on a rename.
  * @returns {JSX.Element}
  */
-export default function ManageBlockEditor({ entry, settings, onChanged }) {
+export default function ManageBlockEditor({ entry, settings, onChanged, onOverride }) {
   const intl = useIntl();
   const base = entry.path; // logical key, no extension
   const folder = base.includes("/") ? base.slice(0, base.lastIndexOf("/")) : "";
   const nameNsfw = hasNsfwToken(base);
+  const isBuiltIn = !String(entry.root).startsWith("user-"); // built-ins can be overridden into user/
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -411,6 +418,16 @@ export default function ManageBlockEditor({ entry, settings, onChanged }) {
       </div>
 
       <div className="mg-editor-foot">
+        {isBuiltIn && onOverride && (
+          <button
+            className="link-btn"
+            onClick={() => onOverride(entry)}
+            disabled={saving || Boolean(refineBusy)}
+            title={intl.formatMessage(msgs.overrideTitle)}
+          >
+            {intl.formatMessage(msgs.override)}
+          </button>
+        )}
         {!hasJs && (
           <button className="link-btn" onClick={createJsSidecar}>
             {intl.formatMessage(msgs.createJs)}

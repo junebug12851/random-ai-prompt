@@ -27,8 +27,9 @@ const sortEq = (a, b) => expect([...a].sort()).toEqual([...b].sort());
 const TEST_DIR = "zz-manage-test";
 
 afterAll(() => {
-  // Always clean the throwaway folder, even if a test failed mid-way.
+  // Always clean the throwaway folders, even if a test failed mid-way (both roots the tests touch).
   fsOp("delete", { root: "blocks", path: TEST_DIR });
+  fsOp("delete", { root: "user-blocks", path: TEST_DIR });
 });
 
 describe("buildManageSnapshot reproduces the engine catalog", () => {
@@ -97,6 +98,31 @@ describe("write / sidecar / marker / move / delete round-trip", () => {
     const snap = buildManageSnapshot();
     expect(`${TEST_DIR}/renamed` in snap.dpDpl).toBe(true);
     expect(`${TEST_DIR}/sample` in snap.dpDpl).toBe(false);
+  });
+
+  it("copies a built-in file into the user overlay root (override)", () => {
+    fsOp("mkfile", { root: "blocks", path: `${TEST_DIR}/copyme.dpl`, text: "C\n===\ny\n" });
+    // Cross-root copy: blocks → user-blocks, same relative path.
+    const r = fsOp("copy", {
+      root: "blocks",
+      path: `${TEST_DIR}/copyme.dpl`,
+      toRoot: "user-blocks",
+      to: `${TEST_DIR}/copyme.dpl`,
+    });
+    expect(r.ok).toBe(true);
+    // The user overlay wins in the default (merged) snapshot, so the key is present.
+    expect(`${TEST_DIR}/copyme` in buildManageSnapshot().dpDpl).toBe(true);
+    // Refuses to clobber an existing destination.
+    expect(
+      fsOp("copy", {
+        root: "blocks",
+        path: `${TEST_DIR}/copyme.dpl`,
+        toRoot: "user-blocks",
+        to: `${TEST_DIR}/copyme.dpl`,
+      }).ok,
+    ).toBe(false);
+    // Clean up the user-overlay copy so it doesn't linger.
+    fsOp("delete", { root: "user-blocks", path: TEST_DIR });
   });
 
   it("blocks path traversal", () => {

@@ -147,6 +147,12 @@
   "blockEd.nsfwMarkTitle": {
     "defaultMessage": "Mark this block as NSFW (gated behind adult mode)."
   },
+  "blockEd.override": {
+    "defaultMessage": "Create override"
+  },
+  "blockEd.overrideTitle": {
+    "defaultMessage": "Copy this built-in block into your overlay so you can edit it safely — your copy wins and survives app updates; the original stays untouched."
+  },
   "blockEd.rename": {
     "defaultMessage": "Rename"
   },
@@ -1063,6 +1069,12 @@
   "listEd.onlyDupes": {
     "defaultMessage": "The AI returned only entries you already have — try again."
   },
+  "listEd.override": {
+    "defaultMessage": "Create override"
+  },
+  "listEd.overrideTitle": {
+    "defaultMessage": "Copy this built-in list into your overlay so you can edit it safely — your copy wins and survives app updates; the original stays untouched."
+  },
   "listEd.pickProvider": {
     "defaultMessage": "Pick a text (AI) provider first — Home → gear → Auto-fix."
   },
@@ -1262,6 +1274,9 @@
   },
   "manage.nsfwTag": {
     "defaultMessage": "18+"
+  },
+  "manage.overrideConfirm": {
+    "defaultMessage": "Create an editable copy of the built-in {label} in your overlay? Your copy takes priority and survives updates; the original stays untouched."
   },
   "manage.panelTitle": {
     "defaultMessage": "Manage"

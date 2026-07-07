@@ -121,8 +121,9 @@ export function setMarker(root, dir, marker, on) {
 
 /**
  * A filesystem op on the content tree.
- * @param {("mkdir"|"mkfile"|"delete"|"move")} op The operation.
- * @param {object} args `{ root, path, to?, text? }`.
+ * @param {("mkdir"|"mkfile"|"delete"|"move"|"copy")} op The operation. `copy` may target another root
+ *   via `toRoot` (used to override a built-in into the user overlay).
+ * @param {object} args `{ root, path, to?, toRoot?, text? }`.
  * @returns {Promise<object>} The reply.
  */
 export function fsOp(op, args) {
