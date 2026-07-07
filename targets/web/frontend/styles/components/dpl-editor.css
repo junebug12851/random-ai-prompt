@@ -125,7 +125,9 @@
 .dpl-editor .cm-gutters {
   background: transparent;
   border: none;
-  color: var(--faint);
+
+  /* Quiet, dimmed numbers — legible but recessed so they never compete with the code. */
+  color: color-mix(in srgb, var(--faint) 55%, transparent);
   font-family: var(--font-body);
 }
 
@@ -134,14 +136,16 @@
   min-width: 1.6em;
 }
 
+/* The active line's number: a clean neutral brighten (NOT the bright accent, which glowed). */
 .dpl-editor .cm-activeLineGutter {
   background: transparent;
-  color: var(--accent);
+  color: var(--muted);
 }
 
-/* The hovered/active line body highlight (kept faint so tokens stay legible). */
+/* The active line body highlight: a whisper-subtle neutral lift (theme-adaptive via --fg), not a
+   milky accent-tinted wash. */
 .dpl-editor .cm-activeLine {
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  background: color-mix(in srgb, var(--fg) 3.5%, transparent);
 }
 
 /* The `+` line-action gutter and its marker. */
