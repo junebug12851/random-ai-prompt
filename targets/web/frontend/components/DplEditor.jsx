@@ -12,11 +12,22 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { useIntl } from "react-intl";
 import { Compartment, EditorState } from "@codemirror/state";
-import { EditorView, keymap, placeholder as placeholderExt, drawSelection } from "@codemirror/view";
+import {
+  EditorView,
+  keymap,
+  placeholder as placeholderExt,
+  drawSelection,
+  lineNumbers,
+  highlightActiveLine,
+  highlightActiveLineGutter,
+} from "@codemirror/view";
 import { history, defaultKeymap, historyKeymap, insertNewlineAndIndent } from "@codemirror/commands";
 import { autocompletion, completionKeymap, snippet, startCompletion } from "@codemirror/autocomplete";
 import { linter } from "@codemirror/lint";
 import { dplLanguage, dplCompletionSource, dplKindBadge, inFrontMatter } from "../lib/dpl/dplLanguage.js";
+import { dplDials } from "../lib/dpl/dplDials.js";
+import { dplLineActions } from "../lib/dpl/dplLineActions.js";
+import { buildInteractiveLabels } from "../lib/dpl/dplInteractiveMessages.js";
 import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
 import { validateDpl } from "../lib/dpl/validateDpl.js";
 
@@ -108,12 +119,19 @@ function DplEditor(
       }
     });
 
+    const interactiveLabels = buildInteractiveLabels(intlRef.current);
+
     const state = EditorState.create({
       doc: value ?? "",
       extensions: [
         history(),
         drawSelection(),
         EditorView.lineWrapping,
+        lineNumbers(),
+        highlightActiveLineGutter(),
+        highlightActiveLine(),
+        dplLineActions(interactiveLabels),
+        dplDials(interactiveLabels),
         dplLanguage(),
         makeDplLinter(intlRef),
         autocompletion({

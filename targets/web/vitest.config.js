@@ -24,6 +24,11 @@ export default mergeConfig(viteConfig, {
         // autocomplete source — verified via the e2e editor specs, not unit-mounted.
         "frontend/lib/dpl/dplLanguage.js",
         "frontend/lib/dpl/dplComplete.js",
+        // CodeMirror interactive glue — the hover intensity/focus dials and the `+` line-action
+        // gutter/menu are DOM/ViewPlugin code, verified in the live editor (Chrome) + e2e, not
+        // unit-mounted (jsdom has no layout, so coordsAtPos/posAtCoords are meaningless here).
+        "frontend/lib/dpl/dplDials.js",
+        "frontend/lib/dpl/dplLineActions.js",
         "frontend/lib/providers/index.js",
         "**/*.test.{js,jsx}",
       ],
