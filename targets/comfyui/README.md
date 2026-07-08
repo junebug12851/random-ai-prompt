@@ -44,19 +44,27 @@ No `pip install` step — there are no third-party dependencies.
 
 | Node | What it does |
 |------|--------------|
-| **🎲 Random AI Prompt** | The flagship. A DPL / natural-language template in (blank = fully random), a rich prompt out. Widgets: `template`, `seed` (with ComfyUI's *control_after_generate* — set *randomize* to re-roll, *fixed* to reproduce), `nsfw`, and a `preset` dropdown. |
-| **🎲 Prompt List** | Draw one random entry from a named word list (`{list}`). |
-| **🎲 Prompt Block** | Run one block generator (`{#block}`) — a scene / subject / style fragment. |
-| **🎲 DPL Expand** | Expand any raw DPL template — the DPL processor, unadorned (for power users). |
+| **Random AI Prompt** | The flagship. A DPL / natural-language template in (blank = fully random), a rich prompt out. Widgets: `template`, `seed` (ComfyUI's *control_after_generate* — *randomize* to re-roll, *fixed* to reproduce), `nsfw`, and a `preset` dropdown. |
+| **Prompt List** | Draw one random entry from a named word list (`{list}`). |
+| **Prompt Block** | Run one block generator (`{#block}`) — a scene / subject / style fragment. |
+| **DPL Expand** | Expand any raw DPL template — the DPL processor, unadorned (for writing DPL directly). |
+| **Prompt Batch** | Generate N prompt variations as a **list**, to fan out into multiple images from one node. |
+| **Combine Prompts** | Join several prompt pieces (List / Block / Generator outputs, or text) into one, skipping empties — build a prompt by hand. |
+| **Show Prompt** | Display a prompt on the node (and pass it through) — see what the engine produced. |
 
-The `seed` on every node is ComfyUI's native seed control, so **re-roll** is just setting it to
-*randomize*; a *fixed* seed reproduces the same prompt.
+The flagship sits at the top of the **Add Node → Random AI Prompt** menu; the helpers are grouped under
+**Random AI Prompt/helpers**. Every input and output has a hover tooltip, and each node carries a
+description. The `seed` on every generating node is ComfyUI's native seed control, so **re-roll** is just
+setting it to *randomize*; a *fixed* seed reproduces the same prompt.
 
-### Live dropdowns
+### Live dropdowns, sidebar, and an example workflow
 
-The List / Block / Preset dropdowns are populated **live** from the engine's catalog via the plugin's
-own same-origin routes (`/random_ai_prompt/catalog`, registered on ComfyUI's server) — so edits you make
-in the app's Manage tab appear here without restarting ComfyUI.
+The List / Block / Preset dropdowns are populated **live** from the engine's catalog via the plugin's own
+same-origin routes (`/random_ai_prompt/catalog`, registered on ComfyUI's server) — so edits you make in
+the app's Manage tab appear here without restarting ComfyUI. On newer ComfyUI frontends, a **sidebar tab**
+shows the engine connection + catalog counts. And `example_workflows/random-ai-prompt.json` is a drag-in
+starter (Random AI Prompt → Show Prompt) — wire the flagship's `prompt` output into your `CLIP Text
+Encode` to feed image generation.
 
 ## Testing
 

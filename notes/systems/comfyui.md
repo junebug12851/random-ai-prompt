@@ -42,19 +42,26 @@ ComfyUI (Python nodes) ──HTTP──▶ app backend (/api/prompt, /api/prompt
 |------|------|
 | `__init__.py` | Exposes `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` + `WEB_DIRECTORY`; imports `routes`. |
 | `client.py` | The only thing that talks to the app backend — `generate` / `catalog` + the configured-URL store, base-URL resolution, friendly errors. Stdlib `urllib`. |
-| `nodes.py` | The five node classes (fat generator + four helpers). |
-| `routes.py` | Same-origin proxy routes on ComfyUI's server (`/random_ai_prompt/catalog`, `/status`) so the browser extension avoids cross-origin/CORS to the app. Best-effort (no-op outside ComfyUI). |
-| `web/randomAiPrompt.js` | Frontend extension: a Settings URL field, LIVE list/block/preset dropdowns from the catalog, and a reachability warning. |
-| `pyproject.toml` / `requirements.txt` / `README.md` | ComfyUI Registry metadata (no deps) + install/usage docs. |
+| `nodes.py` | The seven node classes: the fat generator + helpers (List / Block / DPL Expand / Batch / Combine / Show). |
+| `routes.py` | Same-origin proxy routes on ComfyUI's server (`/random_ai_prompt/catalog`, `/status`, `/config`) so the browser extension avoids cross-origin/CORS to the app. Best-effort (no-op outside ComfyUI). |
+| `web/randomAiPrompt.js` | Frontend extension: the Settings URL field, LIVE dropdowns, the app icon + brand colours on nodes, the "Show Prompt" text display, and a status sidebar. |
+| `example_workflows/` | A drag-in starter workflow (Generator → Show Prompt). |
+| `pyproject.toml` / `requirements.txt` / `LICENSE` / `README.md` | ComfyUI Registry metadata (no deps) + Apache-2.0 license + install/usage docs. |
 
 ## The nodes (fat generator + helpers)
 
-- **🎲 Random AI Prompt** (`RandomAIPromptGenerator`) — the flagship. A DPL/natural-language `template`
+- **Random AI Prompt** (`RandomAIPromptGenerator`) — the flagship. A DPL/natural-language `template`
   (blank = fully random) → a rich prompt `STRING`. Widgets: `template`, `seed` (ComfyUI's native
   `control_after_generate` → *randomize* re-rolls, *fixed* reproduces), `nsfw`, and a `preset` dropdown.
-- **🎲 Prompt List** (`RandomAIPromptList`) — one random entry from a `{list}`.
-- **🎲 Prompt Block** (`RandomAIPromptBlock`) — one block generator `{#block}`.
-- **🎲 DPL Expand** (`RandomAIPromptDPL`) — expand any raw DPL (power users).
+- **Prompt List** (`RandomAIPromptList`) — one random entry from a `{list}`.
+- **Prompt Block** (`RandomAIPromptBlock`) — one block generator `{#block}`.
+- **DPL Expand** (`RandomAIPromptDPL`) — expand any raw DPL (for writing DPL directly).
+- **Prompt Batch** (`RandomAIPromptBatch`) — N seeded variations as a `STRING` list (`OUTPUT_IS_LIST`) to fan out into multiple images.
+- **Combine Prompts** (`RandomAIPromptCombine`) — join wired prompt pieces into one, skipping empties (manual piping).
+- **Show Prompt** (`RandomAIPromptShow`) — display the text on the node + pass it through (an `OUTPUT_NODE`).
+
+The generator is top-level; the six helpers are grouped under **Random AI Prompt/helpers**. Every input
+and output carries a tooltip, and each node a `DESCRIPTION`.
 
 An AI-rewrite node was considered and **deliberately dropped**: a node whose job is to call a third-party
 text API mid-graph (dragging BYOK keys into the graph) is off-paradigm for ComfyUI — the same reason
@@ -69,8 +76,9 @@ prompt-relevant ones (nsfw, non-anime, no-people) do.
 
 `INPUT_TYPES` (Python) fetches the catalog best-effort so combos work even without the JS. The frontend
 extension then refreshes them live from the same-origin `/random_ai_prompt/catalog` proxy — so edits in
-the app's **Manage** tab appear in ComfyUI without a restart. (A future enhancement: a status sidebar over
-the app's existing `/api/manage/watch` SSE; deferred because cross-origin SSE needs more proxying.)
+the app's **Manage** tab appear in ComfyUI without a restart. A **sidebar tab** (newer ComfyUI frontends)
+shows engine connection + catalog counts via `/random_ai_prompt/status`. (Future: live push over the
+app's `/api/manage/watch` SSE; the sidebar polls for now, since cross-origin SSE needs more proxying.)
 
 ## Verification
 

@@ -199,11 +199,131 @@ class RandomAIPromptDPL:
         return f"{template}|{seed}|{nsfw}"
 
 
+class RandomAIPromptBatch:
+    """Generate several prompt variations at once, as a list — for fanning out into multiple images."""
+
+    DESCRIPTION = (
+        "Generate N prompt variations from one template and output them as a LIST — feed it downstream "
+        "to fan out into multiple images. A pinned seed reproduces the whole batch."
+    )
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        presets = ["none"] + list(client.catalog().get("presets") or [])
+        return {
+            "required": {
+                "template": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "default": "",
+                        "placeholder": "Leave blank for fully random variations, or type DPL.",
+                        "tooltip": "The template each variation expands from. Blank = fully random.",
+                    },
+                ),
+                "count": (
+                    "INT",
+                    {"default": 4, "min": 1, "max": 64, "tooltip": "How many variations to generate."},
+                ),
+                "seed": _SEED,
+                "nsfw": _NSFW,
+                "preset": (
+                    presets,
+                    {"tooltip": "Apply a saved preset's settings before generating. 'none' = no preset."},
+                ),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("prompts",)
+    OUTPUT_IS_LIST = (True,)
+    OUTPUT_TOOLTIPS = ("The list of generated prompt variations.",)
+    FUNCTION = "run"
+    CATEGORY = HELPERS
+
+    def run(self, template, count, seed, nsfw, preset):
+        result = client.generate(
+            template=template,
+            seed=seed,
+            count=count,
+            preset=preset,
+            settings={"includeAdult": bool(nsfw)},
+        )
+        return (result.get("prompts") or [],)
+
+    @classmethod
+    def IS_CHANGED(cls, template, count, seed, nsfw, preset):
+        return f"{template}|{count}|{seed}|{nsfw}|{preset}"
+
+
+class RandomAIPromptCombine:
+    """Helper: join several prompt pieces into one string (skips empties) — manual piping of parts."""
+
+    DESCRIPTION = (
+        "Join several prompt pieces into one string, separated by `separator`, skipping empties. Wire "
+        "Prompt List / Block / Generator outputs into the slots to build a prompt by hand."
+    )
+
+    @staticmethod
+    def _slot():
+        return ("STRING", {"forceInput": True, "tooltip": "A prompt piece to include (empties skipped)."})
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "separator": (
+                    "STRING",
+                    {"default": ", ", "tooltip": "Placed between the pieces. Default is a comma-space."},
+                ),
+                "text_1": cls._slot(),
+                "text_2": cls._slot(),
+            },
+            "optional": {"text_3": cls._slot(), "text_4": cls._slot()},
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("prompt",)
+    OUTPUT_TOOLTIPS = ("The combined prompt.",)
+    FUNCTION = "run"
+    CATEGORY = HELPERS
+
+    def run(self, separator, text_1="", text_2="", text_3="", text_4=""):
+        parts = [str(p) for p in (text_1, text_2, text_3, text_4) if p and str(p).strip()]
+        return (str(separator).join(parts),)
+
+
+class RandomAIPromptShow:
+    """Helper: display a prompt string on the node (and pass it through for further chaining)."""
+
+    DESCRIPTION = (
+        "Show a prompt string right on the node — handy to see what the engine produced. Passes the "
+        "text through unchanged so you can keep chaining it."
+    )
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"text": ("STRING", {"forceInput": True, "tooltip": "The prompt to display."})}}
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("text",)
+    OUTPUT_TOOLTIPS = ("The same text, passed through.",)
+    FUNCTION = "run"
+    OUTPUT_NODE = True
+    CATEGORY = HELPERS
+
+    def run(self, text):
+        return {"ui": {"text": [text]}, "result": (text,)}
+
+
 NODE_CLASS_MAPPINGS = {
     "RandomAIPromptGenerator": RandomAIPromptGenerator,
     "RandomAIPromptList": RandomAIPromptList,
     "RandomAIPromptBlock": RandomAIPromptBlock,
     "RandomAIPromptDPL": RandomAIPromptDPL,
+    "RandomAIPromptBatch": RandomAIPromptBatch,
+    "RandomAIPromptCombine": RandomAIPromptCombine,
+    "RandomAIPromptShow": RandomAIPromptShow,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -211,4 +331,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "RandomAIPromptList": "Prompt List",
     "RandomAIPromptBlock": "Prompt Block",
     "RandomAIPromptDPL": "DPL Expand",
+    "RandomAIPromptBatch": "Prompt Batch",
+    "RandomAIPromptCombine": "Combine Prompts",
+    "RandomAIPromptShow": "Show Prompt",
 }
