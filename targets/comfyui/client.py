@@ -49,11 +49,14 @@ def configured_url() -> str:
 def set_configured_url(url: str) -> str:
     """Persist the Settings URL so both the dropdowns and generation use it. Returns the stored value."""
     global _configured_url
-    _configured_url = (url or "").strip()
+    candidate = (url or "").strip()
+    # Only accept http(s): the value arrives from a POST to /random_ai_prompt/config (an arbitrary
+    # string), so a file:// or other scheme could turn the nodes' urlopen into a local-file / SSRF read.
+    _configured_url = candidate if candidate.lower().startswith(("http://", "https://")) else ""
     try:
         with open(_CONFIG_PATH, "w", encoding="utf-8") as handle:
             json.dump({"url": _configured_url}, handle)
-    except Exception:  # noqa: BLE001 - best-effort persistence
+    except Exception:  # noqa: BLE001  # nosec B110 - best-effort persistence
         pass
     return _configured_url
 
@@ -74,7 +77,7 @@ def _probe(url: str, timeout: float = 1.5) -> bool:
         req = urllib.request.Request(
             url.rstrip("/") + "/api/prompt/catalog", headers={"Accept": "application/json"}
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310 - http(s) candidates only
             if not (200 <= resp.status < 300):
                 return False
             data = json.loads(resp.read().decode("utf-8"))
@@ -97,6 +100,8 @@ def base_url() -> str:
     """Resolve the backend base URL. Precedence: the Settings URL → the ``RANDOM_AI_PROMPT_URL`` env var
     → an auto-detected running app on a standard port (4173 or 5173) → the default. Slash stripped."""
     url = _configured_url or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip()
+    if url and not url.lower().startswith(("http://", "https://")):
+        url = ""  # never let a non-HTTP(S) value (e.g. from the env var) reach urlopen
     if not url:
         url = _autodetect() or DEFAULT_URL
     return url.rstrip("/")
@@ -111,7 +116,7 @@ def _request(method: str, path: str, body: dict | None = None, timeout: float | 
         headers["Content-Type"] = "application/json"
     req = urllib.request.Request(target, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=timeout or _TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=timeout or _TIMEOUT) as resp:  # nosec B310 - base_url() is http(s)-only
             payload = resp.read().decode("utf-8")
         return json.loads(payload) if payload else {}
     except urllib.error.HTTPError as exc:
