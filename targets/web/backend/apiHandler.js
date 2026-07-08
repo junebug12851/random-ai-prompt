@@ -55,6 +55,7 @@ import {
   listNames,
   nodeLoader,
 } from "../../../engine/nodeEngine.js";
+import { presetNames, resolvePresets, applyPreset } from "../../../engine/presets.js";
 
 const execP = promisify(exec);
 
@@ -266,8 +267,13 @@ export function createApiHandler() {
     // batch (reproducible); omit for a fresh roll. Returns { seed, prompts }.
     if (u.pathname === "/api/prompt" && req.method === "POST") {
       const body = (await readJson(req)) || {};
-      const { settings: reqSettings, template, seed, count } = body;
-      const settings = { ...engineDefaults(), ...(reqSettings || {}) };
+      const { settings: reqSettings, template, seed, count, preset } = body;
+      let settings = { ...engineDefaults(), ...(reqSettings || {}) };
+      try {
+        for (const p of resolvePresets(preset)) settings = applyPreset(settings, p);
+      } catch (e) {
+        return send(res, 400, { error: e.message || "Unknown preset" });
+      }
       if (typeof template === "string" && template.trim() !== "") settings.prompt = template;
       if (count != null) settings.promptCount = Math.max(1, Number(count) || 1);
       if (seed != null && String(seed).trim() !== "") {
@@ -289,6 +295,7 @@ export function createApiHandler() {
         return send(res, 200, {
           lists: listNames(),
           blocks: blockNames(),
+          presets: presetNames(),
           listGroups: nodeLoader.groupListDirs(),
           blockGroups: nodeLoader.blockGroupDirs(),
         });

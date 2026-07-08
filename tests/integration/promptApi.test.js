@@ -75,5 +75,22 @@ describe("GET /api/prompt/catalog", () => {
     expect(json.blocks.length).toBeGreaterThan(0);
     expect(Array.isArray(json.listGroups)).toBe(true);
     expect(Array.isArray(json.blockGroups)).toBe(true);
+    expect(Array.isArray(json.presets)).toBe(true);
+    expect(json.presets.length).toBeGreaterThan(0);
+    expect(json.presets).toContain("no-people");
+  });
+});
+
+describe("POST /api/prompt with a preset", () => {
+  it("applies a known preset and still generates", async () => {
+    const res = await postPrompt({ template: "{keyword}", preset: "no-people", count: 1 });
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.prompts).toHaveLength(1);
+  });
+
+  it("rejects an unknown preset with 400", async () => {
+    const res = await postPrompt({ template: "{keyword}", preset: "definitely-not-a-preset" });
+    expect(res.status).toBe(400);
   });
 });
