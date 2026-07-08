@@ -11,6 +11,9 @@ are small helpers.
 
 The ``seed`` widget carries ComfyUI's native ``control_after_generate`` — set it to *randomize* to
 re-roll a fresh prompt each run, or *fixed* to reproduce one. Same inputs → same prompt (cached).
+
+The app's URL is configured once, in **Settings → "Random AI Prompt — app URL"** (or the
+``RANDOM_AI_PROMPT_URL`` env var), not per-node — so the nodes stay uncluttered, the Comfy way.
 """
 
 from __future__ import annotations
@@ -19,7 +22,6 @@ from . import client
 
 CATEGORY = "Random AI Prompt"
 _SEED = ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True})
-_SERVER_URL = ("STRING", {"default": "", "multiline": False})
 
 
 def _first(result: dict) -> str:
@@ -48,7 +50,6 @@ class RandomAIPromptGenerator:
                 "nsfw": ("BOOLEAN", {"default": False}),
                 "preset": (presets,),
             },
-            "optional": {"server_url": _SERVER_URL},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -56,19 +57,15 @@ class RandomAIPromptGenerator:
     FUNCTION = "generate"
     CATEGORY = CATEGORY
 
-    def generate(self, template, seed, nsfw, preset, server_url=""):
+    def generate(self, template, seed, nsfw, preset):
         result = client.generate(
-            template=template,
-            seed=seed,
-            preset=preset,
-            settings={"includeAdult": bool(nsfw)},
-            url=server_url,
+            template=template, seed=seed, preset=preset, settings={"includeAdult": bool(nsfw)}
         )
         return (_first(result),)
 
     @classmethod
-    def IS_CHANGED(cls, template, seed, nsfw, preset, server_url=""):
-        return f"{template}|{seed}|{nsfw}|{preset}|{server_url}"
+    def IS_CHANGED(cls, template, seed, nsfw, preset):
+        return f"{template}|{seed}|{nsfw}|{preset}"
 
 
 class RandomAIPromptList:
@@ -76,22 +73,19 @@ class RandomAIPromptList:
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {
-            "required": {"list_name": (client._names(None, "lists"),), "seed": _SEED},
-            "optional": {"server_url": _SERVER_URL},
-        }
+        return {"required": {"list_name": (client._names("lists"),), "seed": _SEED}}
 
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text",)
     FUNCTION = "run"
     CATEGORY = CATEGORY
 
-    def run(self, list_name, seed, server_url=""):
-        return (_first(client.generate(template="{" + list_name + "}", seed=seed, url=server_url)),)
+    def run(self, list_name, seed):
+        return (_first(client.generate(template="{" + list_name + "}", seed=seed)),)
 
     @classmethod
-    def IS_CHANGED(cls, list_name, seed, server_url=""):
-        return f"{list_name}|{seed}|{server_url}"
+    def IS_CHANGED(cls, list_name, seed):
+        return f"{list_name}|{seed}"
 
 
 class RandomAIPromptBlock:
@@ -99,22 +93,19 @@ class RandomAIPromptBlock:
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {
-            "required": {"block_name": (client._names(None, "blocks"),), "seed": _SEED},
-            "optional": {"server_url": _SERVER_URL},
-        }
+        return {"required": {"block_name": (client._names("blocks"),), "seed": _SEED}}
 
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text",)
     FUNCTION = "run"
     CATEGORY = CATEGORY
 
-    def run(self, block_name, seed, server_url=""):
-        return (_first(client.generate(template="{#" + block_name + "}", seed=seed, url=server_url)),)
+    def run(self, block_name, seed):
+        return (_first(client.generate(template="{#" + block_name + "}", seed=seed)),)
 
     @classmethod
-    def IS_CHANGED(cls, block_name, seed, server_url=""):
-        return f"{block_name}|{seed}|{server_url}"
+    def IS_CHANGED(cls, block_name, seed):
+        return f"{block_name}|{seed}"
 
 
 class RandomAIPromptDPL:
@@ -128,7 +119,6 @@ class RandomAIPromptDPL:
                 "seed": _SEED,
                 "nsfw": ("BOOLEAN", {"default": False}),
             },
-            "optional": {"server_url": _SERVER_URL},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -136,40 +126,13 @@ class RandomAIPromptDPL:
     FUNCTION = "run"
     CATEGORY = CATEGORY
 
-    def run(self, template, seed, nsfw, server_url=""):
-        result = client.generate(
-            template=template, seed=seed, settings={"includeAdult": bool(nsfw)}, url=server_url
-        )
+    def run(self, template, seed, nsfw):
+        result = client.generate(template=template, seed=seed, settings={"includeAdult": bool(nsfw)})
         return (_first(result),)
 
     @classmethod
-    def IS_CHANGED(cls, template, seed, nsfw, server_url=""):
-        return f"{template}|{seed}|{nsfw}|{server_url}"
-
-
-class RandomAIPromptRewrite:
-    """Helper: rewrite a prompt through a text provider (auto-fix or keyword-translate). BYOK."""
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "prompt": ("STRING", {"multiline": True, "default": "", "forceInput": True}),
-                "provider": ("STRING", {"default": "openai"}),
-                "api_key": ("STRING", {"default": "", "multiline": False, "password": True}),
-                "mode": (["fix", "keyword"],),
-            },
-            "optional": {"server_url": _SERVER_URL},
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("prompt",)
-    FUNCTION = "run"
-    CATEGORY = CATEGORY
-
-    def run(self, prompt, provider, api_key, mode, server_url=""):
-        result = client.rewrite(prompt, provider, api_key, mode=mode, url=server_url)
-        return (result.get("prompt") or result.get("text") or prompt,)
+    def IS_CHANGED(cls, template, seed, nsfw):
+        return f"{template}|{seed}|{nsfw}"
 
 
 NODE_CLASS_MAPPINGS = {
@@ -177,13 +140,11 @@ NODE_CLASS_MAPPINGS = {
     "RandomAIPromptList": RandomAIPromptList,
     "RandomAIPromptBlock": RandomAIPromptBlock,
     "RandomAIPromptDPL": RandomAIPromptDPL,
-    "RandomAIPromptRewrite": RandomAIPromptRewrite,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "RandomAIPromptGenerator": "🎲 Random AI Prompt",
-    "RandomAIPromptList": "🎲 Prompt List",
-    "RandomAIPromptBlock": "🎲 Prompt Block",
-    "RandomAIPromptDPL": "🎲 DPL Expand",
-    "RandomAIPromptRewrite": "🎲 Prompt Rewrite",
+    "RandomAIPromptGenerator": "Random AI Prompt",
+    "RandomAIPromptList": "Prompt List",
+    "RandomAIPromptBlock": "Prompt Block",
+    "RandomAIPromptDPL": "DPL Expand",
 }

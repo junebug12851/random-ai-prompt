@@ -16,16 +16,15 @@ running Random AI Prompt app's local backend — the nodes just make HTTP calls 
 So it needs **no Python dependencies** (standard library only) and never re-implements engine logic.
 
 **Point it at your running app.** Start the Random AI Prompt **desktop app** (or `npm start` from the
-repo), which serves the backend on `http://127.0.0.1:4173` by default. Override the URL — this applies to
-**both the dropdowns and generation** — via, in precedence order:
+repo), which serves the backend on `http://127.0.0.1:4173` by default. Configure the URL **once** — it
+applies to both the dropdowns and generation — via, in precedence order:
 
-1. the optional `server_url` widget on any node (per-node override), then
-2. **Settings → "Random AI Prompt — app URL"** in ComfyUI (persisted; the usual way), then
-3. the `RANDOM_AI_PROMPT_URL` environment variable, then
-4. the default `http://127.0.0.1:4173`.
+1. **Settings → "Random AI Prompt — app URL"** in ComfyUI (persisted; the usual, Comfy-native way), then
+2. the `RANDOM_AI_PROMPT_URL` environment variable, then
+3. the default `http://127.0.0.1:4173`.
 
 > Running the **dev server** (`npm run web`) instead of the desktop build? It serves on **`:5173`**, so
-> set the Settings field (or `server_url`) to `http://localhost:5173`.
+> set the Settings field to `http://localhost:5173`.
 
 If the app isn't running, the nodes still load; the dropdowns fill in and generation works as soon as
 it's reachable.
@@ -49,7 +48,6 @@ No `pip install` step — there are no third-party dependencies.
 | **🎲 Prompt List** | Draw one random entry from a named word list (`{list}`). |
 | **🎲 Prompt Block** | Run one block generator (`{#block}`) — a scene / subject / style fragment. |
 | **🎲 DPL Expand** | Expand any raw DPL template — the DPL processor, unadorned (for power users). |
-| **🎲 Prompt Rewrite** | Rewrite a prompt through a text provider (auto-fix or keyword-translate). Bring your own API key. |
 
 The `seed` on every node is ComfyUI's native seed control, so **re-roll** is just setting it to
 *randomize*; a *fixed* seed reproduces the same prompt.

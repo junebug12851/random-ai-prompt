@@ -2,13 +2,13 @@
 HTTP client for the Random AI Prompt engine.
 
 The ComfyUI nodes are thin wrappers: every bit of prompt/engine behaviour runs in the Node engine
-behind the app's local backend (``/api/prompt``, ``/api/prompt/catalog``, ``/api/rewrite``). This
-module is the only place that talks to it. Dependency-free (stdlib ``urllib``) so the plugin needs no
-``pip install``.
+behind the app's local backend (``/api/prompt``, ``/api/prompt/catalog``). This module is the only
+place that talks to it. Dependency-free (stdlib ``urllib``) so the plugin needs no ``pip install``.
 
 Point-at-running-app model: the nodes call a running Random AI Prompt app (the desktop build or
-``npm start``), which serves the backend on ``http://127.0.0.1:4173`` by default. Override with the
-``RANDOM_AI_PROMPT_URL`` environment variable, or per-node via the optional ``server_url`` widget.
+``npm start``), which serves the backend on ``http://127.0.0.1:4173`` by default. The URL is configured
+once — in **Settings → "Random AI Prompt — app URL"** (persisted via ``/random_ai_prompt/config``), or
+the ``RANDOM_AI_PROMPT_URL`` environment variable — not per node, so the graph stays uncluttered.
 """
 
 from __future__ import annotations
@@ -58,20 +58,15 @@ def set_configured_url(url: str) -> str:
     return _configured_url
 
 
-def base_url(override: str | None = None) -> str:
-    """Resolve the backend base URL. Precedence: a per-node ``server_url`` override → the Settings URL
-    → the ``RANDOM_AI_PROMPT_URL`` env var → the default. Trailing slash stripped."""
-    url = (
-        (override or "").strip()
-        or _configured_url
-        or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip()
-        or DEFAULT_URL
-    )
+def base_url() -> str:
+    """Resolve the backend base URL: the Settings URL → the ``RANDOM_AI_PROMPT_URL`` env var → the
+    default. Trailing slash stripped."""
+    url = _configured_url or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip() or DEFAULT_URL
     return url.rstrip("/")
 
 
-def _request(method: str, path: str, url: str | None, body: dict | None = None) -> dict:
-    target = base_url(url) + path
+def _request(method: str, path: str, body: dict | None = None) -> dict:
+    target = base_url() + path
     data = None
     headers = {"Accept": "application/json"}
     if body is not None:
@@ -94,9 +89,9 @@ def _request(method: str, path: str, url: str | None, body: dict | None = None) 
         ) from exc
     except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
         raise EngineError(
-            f"Could not reach the Random AI Prompt app at {base_url(url)} "
-            f"({exc}). Is it running? Start the desktop app or `npm start`, or set "
-            f"RANDOM_AI_PROMPT_URL / the node's server_url."
+            f"Could not reach the Random AI Prompt app at {base_url()} "
+            f"({exc}). Is it running? Start the desktop app or `npm start`, or set the app URL in "
+            f"Settings / RANDOM_AI_PROMPT_URL."
         ) from exc
 
 
@@ -107,7 +102,6 @@ def generate(
     count: int = 1,
     preset: str | None = None,
     settings: dict | None = None,
-    url: str | None = None,
 ) -> dict:
     """POST /api/prompt → {"seed", "prompts"}. ``template`` blank = the engine's default random prompt."""
     body: dict = {"count": max(1, int(count or 1))}
@@ -119,17 +113,7 @@ def generate(
         body["preset"] = preset
     if settings:
         body["settings"] = settings
-    return _request("POST", "/api/prompt", url, body)
-
-
-def rewrite(prompt: str, provider_id: str, key: str, mode: str = "fix", url: str | None = None) -> dict:
-    """POST /api/rewrite → {"prompt"|"text"...}. ``mode`` is "fix" (auto-fix) or "keyword"."""
-    return _request(
-        "POST",
-        "/api/rewrite",
-        url,
-        {"providerId": provider_id, "prompt": prompt, "key": key, "mode": mode},
-    )
+    return _request("POST", "/api/prompt", body)
 
 
 # --- Catalog (list / block / preset names) for the node dropdowns, cached briefly ---------------
@@ -138,13 +122,14 @@ _CATALOG_TTL = 15  # seconds — short, so a running app's edits (Manage) show u
 _catalog_cache: dict = {"at": 0.0, "url": None, "value": None}
 
 
-def catalog(url: str | None = None) -> dict:
+def catalog() -> dict:
     """GET /api/prompt/catalog → {"lists","blocks","presets","listGroups","blockGroups"}.
 
-    Best-effort + cached: returns empty lists when the app isn't running, so INPUT_TYPES can fall back
-    to a placeholder instead of raising at node-registration time.
+    Best-effort + cached (keyed by the resolved URL, so it re-fetches when the Settings URL changes):
+    returns empty lists when the app isn't running, so INPUT_TYPES can fall back to a placeholder
+    instead of raising at node-registration time.
     """
-    resolved = base_url(url)
+    resolved = base_url()
     now = time.time()
     if (
         _catalog_cache["value"] is not None
@@ -153,16 +138,16 @@ def catalog(url: str | None = None) -> dict:
     ):
         return _catalog_cache["value"]
     try:
-        value = _request("GET", "/api/prompt/catalog", url)
+        value = _request("GET", "/api/prompt/catalog")
     except EngineError:
         value = {"lists": [], "blocks": [], "presets": [], "listGroups": [], "blockGroups": []}
     _catalog_cache.update(at=now, url=resolved, value=value)
     return value
 
 
-def _names(url: str | None, key: str, *, extra: list[str] | None = None) -> list[str]:
+def _names(key: str, *, extra: list[str] | None = None) -> list[str]:
     """A COMBO option list for a catalog ``key``, with a placeholder when the app is unreachable."""
-    names = list(catalog(url).get(key) or [])
+    names = list(catalog().get(key) or [])
     if not names:
         return ["(start the Random AI Prompt app)"]
     return (extra or []) + names

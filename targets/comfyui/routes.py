@@ -23,21 +23,18 @@ try:  # pragma: no cover - only runs inside ComfyUI
     _routes = PromptServer.instance.routes
 
     @_routes.get("/random_ai_prompt/catalog")
-    async def _catalog(request):
-        url = request.query.get("url") or None
-        cat = await asyncio.to_thread(client.catalog, url)
+    async def _catalog(_request):
+        cat = await asyncio.to_thread(client.catalog)
         return web.json_response(cat)
 
     @_routes.get("/random_ai_prompt/status")
-    async def _status(request):
-        url = request.query.get("url") or None
-
+    async def _status(_request):
         def _probe():
             try:
-                cat = client.catalog(url)
-                return {"ok": bool(cat.get("lists")), "url": client.base_url(url)}
+                cat = client.catalog()
+                return {"ok": bool(cat.get("lists")), "url": client.base_url()}
             except Exception:  # noqa: BLE001
-                return {"ok": False, "url": client.base_url(url)}
+                return {"ok": False, "url": client.base_url()}
 
         return web.json_response(await asyncio.to_thread(_probe))
 

@@ -7,6 +7,7 @@
  *      doesn't need to be running when ComfyUI starts, and edits (in the app's Manage tab) show up on
  *      the next graph interaction.
  *   3. Surfaces a clear warning when the app isn't reachable.
+ *   4. Draws the app icon on each of the plugin's node title bars.
  *
  * It talks to the plugin's OWN same-origin routes (`/random_ai_prompt/*`, registered in routes.py),
  * which proxy to the app backend — so there's no cross-origin/CORS problem.
@@ -20,6 +21,18 @@ const COMBO_WIDGET = {
   RandomAIPromptBlock: { widget: "block_name", key: "blocks" },
   RandomAIPromptGenerator: { widget: "preset", key: "presets", prepend: ["none"] },
 };
+
+// The four nodes this plugin registers — used to draw the app icon on their title bars.
+const OUR_NODES = new Set([
+  "RandomAIPromptGenerator",
+  "RandomAIPromptList",
+  "RandomAIPromptBlock",
+  "RandomAIPromptDPL",
+]);
+
+// The app icon, served from this plugin's web/ dir (WEB_DIRECTORY), drawn in each node's title bar.
+const ICON = new Image();
+ICON.src = new URL("./icon.png", import.meta.url).href;
 
 function serverUrl() {
   try {
@@ -124,10 +137,23 @@ app.registerExtension({
     }
   },
 
-  // Patch the combo options at registration so freshly created nodes get live catalog values even
-  // when the Python side couldn't reach the app at import time.
-  async beforeRegisterNodeDef(_nodeType, nodeData) {
-    const spec = COMBO_WIDGET[nodeData?.name];
+  // At registration: draw the app icon on our nodes' title bars, and patch the combo options so
+  // freshly created nodes get live catalog values even if the Python side couldn't reach the app.
+  async beforeRegisterNodeDef(nodeType, nodeData) {
+    if (!OUR_NODES.has(nodeData?.name)) return;
+
+    // App icon, top-right of the title bar, over whatever the node draws.
+    const origDraw = nodeType.prototype.onDrawForeground;
+    nodeType.prototype.onDrawForeground = function (ctx) {
+      origDraw?.apply(this, arguments);
+      if (this.flags?.collapsed || !ICON.complete || !ICON.naturalWidth) return;
+      const size = 18;
+      const titleH = window.LiteGraph?.NODE_TITLE_HEIGHT ?? 30;
+      ctx.drawImage(ICON, this.size[0] - size - 6, -titleH + (titleH - size) / 2, size, size);
+    };
+
+    // Live catalog dropdowns (combo nodes only).
+    const spec = COMBO_WIDGET[nodeData.name];
     if (!spec) return;
     const cat = await catalog();
     const values = optionsFor(nodeData.name, cat);
