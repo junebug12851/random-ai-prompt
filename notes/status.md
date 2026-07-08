@@ -328,7 +328,7 @@ real prompt engine was ported to a browser-safe `core/` driven by an **injected 
 `createRequire`; browser: Vite `import.meta.glob`), so there is one engine, no duplicated prompt logic.
 As of **2.0.2** the SPA front-end is a single **redesigned home page** (`Home.jsx`) styled after the
 pre-revival generate screen — dark charcoal + mint brand, Rokkitt/Maven Pro, a hero, and one composer
-that unifies prompt building (blocks cloud, share links, custom expansions/presets, chaos,
+that unifies prompt building (blocks cloud, share links, custom expansions/presets,
 Normal/Anime toggle, live preview) **and** generation (provider line, generate prompts/images,
 in-session gallery). The full settings form lives in a right-side slide-over drawer
 (`SettingsDrawer.jsx`). Build tooling is **Vite 8 / @vitejs/plugin-react 6**. The classic Express + Pug

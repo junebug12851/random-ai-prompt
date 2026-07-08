@@ -254,14 +254,6 @@ export const ENGINE_FLAGS = [
     group: "Prompt engine",
     desc: "Don't print the prompt (images only)",
   },
-  {
-    flag: "--chaos <f>",
-    opt: "chaos",
-    key: "chaos",
-    type: "float",
-    group: "Prompt engine",
-    desc: "Scale emphasis/alternating knobs (1 = off)",
-  },
 ];
 
 /** @type {FlagSpec[]} Provider / image-generation flags — the GUI's provider knobs. */

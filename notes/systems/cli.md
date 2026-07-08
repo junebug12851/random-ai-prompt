@@ -62,7 +62,7 @@ unmodified. (Under Vitest the transform handles JSON, so tests don't need the ho
 | `src/main.js` | Builds the commander program, global flags (`--json`, `--color/--no-color`), wires subcommands. |
 | `src/commands/` | One file per command: `generate` (default), `list`, `config`, `keys`, `rewrite`, `upscale`, `completion`. |
 | `src/lib/optionSpec.js` | Single source of truth for every generation flag (engine + image + rewrite) → coercion + overrides + completion. |
-| `src/lib/engine.js` / `promptRun.js` | Engine bootstrap + the seed/chaos prompt-run logic (Node port of the SPA's `promptEngine.js`). |
+| `src/lib/engine.js` / `promptRun.js` | Node engine bootstrap + a thin binding of the shared, engine-owned prompt-run (`engine/promptRun.js`) — the seed/reroll logic shared with the SPA + the backend. |
 | `src/lib/providers.js` | Node provider registry (fs-discover + dynamic import). |
 | `src/lib/imagegen.js` | Per-prompt provider orchestration + upscale (mirrors `useImageBatches`). |
 | `src/lib/settings.js` / `presets.js` / `keys.js` / `store.js` | Settings merge, preset loading, BYOK keys, the shared file store. |

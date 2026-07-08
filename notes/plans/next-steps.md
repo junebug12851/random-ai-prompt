@@ -36,7 +36,7 @@ Ordered, roughly by priority. Update as items are done or added.
    exists and only the **Build** tab is currently shown while the UI is reworked. Complete that rework
    and unhide the other tabs. (The older `web/frontend/` jQuery client modernization is now largely
    superseded by this SPA — do it only if the classic server is kept long-term.) The 2026-06-19
-   home-screen refinement removed several working features (image generation, chaos, presets, the
+   home-screen refinement removed several working features (image generation, presets, the
    Settings button/drawer, the mode badge) to be brought back — tracked in
    [`removed-pending-readd.md`](removed-pending-readd.md). The owner wants presets re-added as a richer
    thing (full settings + auto-generation), not the old apply/save dropdown.

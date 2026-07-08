@@ -141,9 +141,11 @@ capped at `emphasisMaxLevels`. Per engine:
 `emphasisLevelChance` roll passes up to `keywordAlternatingMaxLevels`; StableDiffusion wraps the whole
 thing in `[...]`.
 
-**`chaos` (CLI `--chaos <pct>`, `applyArgs.js`)** scales the whole randomization envelope at once:
-multiplies `emphasisChance`, `emphasisLevelChance`, `emphasisMaxLevels`, and
-`keywordAlternatingMaxLevels`, and nudges `deEmphasisChance` (clamped to 0.25–0.5).
+**`chaos` — removed 2026-07-07.** This was a pre-DPL knob (CLI `--chaos <pct>`) that scaled the whole
+randomization envelope at once — multiplying `emphasisChance`, `emphasisLevelChance`,
+`emphasisMaxLevels`, and `keywordAlternatingMaxLevels`, and nudging `deEmphasisChance` (clamped
+0.25–0.5). It was never an engine setting and was disposed of; individual emphasis/alternating knobs
+still exist and are set directly.
 
 **`keywordRepeater.js`** (`keywordRepeater` / `artistRepeater`, named exports) — helpers a dynamic
 prompt can call to emit a *variable count* of `{keyword}` / `{artist}` tokens:
