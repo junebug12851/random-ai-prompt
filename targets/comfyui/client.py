@@ -21,15 +21,52 @@ import urllib.request
 
 DEFAULT_URL = "http://127.0.0.1:4173"
 _TIMEOUT = 60  # seconds — generation is fast, but allow for a cold engine boot on the first call.
+# Where the ComfyUI Settings "app URL" is persisted, so it drives BOTH the dropdowns and generation
+# (and survives a restart). Lives beside the plugin; gitignored.
+_CONFIG_PATH = os.path.join(os.path.dirname(__file__), ".config.json")
 
 
 class EngineError(RuntimeError):
     """A friendly error when the app/backend can't be reached or returns an error."""
 
 
+def _load_configured_url() -> str:
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as handle:
+            return (json.load(handle).get("url") or "").strip()
+    except Exception:  # noqa: BLE001 - no/invalid config file → no configured URL
+        return ""
+
+
+_configured_url = _load_configured_url()
+
+
+def configured_url() -> str:
+    """The URL set via the ComfyUI Settings field (empty if unset)."""
+    return _configured_url
+
+
+def set_configured_url(url: str) -> str:
+    """Persist the Settings URL so both the dropdowns and generation use it. Returns the stored value."""
+    global _configured_url
+    _configured_url = (url or "").strip()
+    try:
+        with open(_CONFIG_PATH, "w", encoding="utf-8") as handle:
+            json.dump({"url": _configured_url}, handle)
+    except Exception:  # noqa: BLE001 - best-effort persistence
+        pass
+    return _configured_url
+
+
 def base_url(override: str | None = None) -> str:
-    """Resolve the backend base URL: explicit override → env var → default. Trailing slash stripped."""
-    url = (override or "").strip() or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip() or DEFAULT_URL
+    """Resolve the backend base URL. Precedence: a per-node ``server_url`` override → the Settings URL
+    → the ``RANDOM_AI_PROMPT_URL`` env var → the default. Trailing slash stripped."""
+    url = (
+        (override or "").strip()
+        or _configured_url
+        or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip()
+        or DEFAULT_URL
+    )
     return url.rstrip("/")
 
 

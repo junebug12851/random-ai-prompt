@@ -34,9 +34,9 @@ async function catalog() {
   if (_catalog) return _catalog;
   _catalog = (async () => {
     try {
-      const u = serverUrl();
-      const q = u ? `?url=${encodeURIComponent(u)}` : "";
-      const res = await fetch(`/random_ai_prompt/catalog${q}`);
+      // No ?url here: the Python side holds the configured URL (set via /config below), so the
+      // dropdowns and generation always resolve the SAME backend.
+      const res = await fetch(`/random_ai_prompt/catalog`);
       if (!res.ok) return null;
       return await res.json();
     } catch {
@@ -44,6 +44,39 @@ async function catalog() {
     }
   })();
   return _catalog;
+}
+
+// Tell the Python side which app URL to use, so GENERATION (not just the dropdowns) honours the
+// Settings field. This is the fix for "changing the Setting did nothing" — the node's generate()
+// reads this configured URL.
+async function postConfig(url) {
+  try {
+    await fetch(`/random_ai_prompt/config`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: url || "" }),
+    });
+  } catch {
+    /* ignore — generation falls back to env var / default */
+  }
+}
+
+function applyWidget(node, cat) {
+  const spec = COMBO_WIDGET[node?.comfyClass];
+  if (!spec) return;
+  const values = optionsFor(node.comfyClass, cat);
+  if (!values) return;
+  const widget = (node.widgets || []).find((w) => w.name === spec.widget);
+  if (!widget) return;
+  widget.options = widget.options || {};
+  widget.options.values = values;
+  if (!values.includes(widget.value)) widget.value = values[0];
+}
+
+async function refreshAllNodes() {
+  const cat = await catalog();
+  for (const node of app.graph?._nodes || []) applyWidget(node, cat);
+  app.graph?.setDirtyCanvas?.(true, true);
 }
 
 function optionsFor(nodeName, cat) {
@@ -63,16 +96,19 @@ app.registerExtension({
       name: "Random AI Prompt — app URL (blank = http://127.0.0.1:4173)",
       type: "text",
       defaultValue: "",
-      onChange: (value) => {
+      onChange: async (value) => {
         try {
           localStorage.setItem(URL_KEY, value || "");
         } catch {
           /* ignore storage errors */
         }
-        _catalog = null; // re-fetch against the new URL next time
+        await postConfig(value); // GENERATION honours this too, not just the dropdowns
+        _catalog = null; // re-fetch the catalog against the new URL
+        refreshAllNodes();
       },
     });
 
+    await postConfig(serverUrl()); // sync the persisted URL to the Python side on load
     const cat = await catalog();
     if (!cat || !(cat.lists && cat.lists.length)) {
       const msg =
@@ -103,15 +139,7 @@ app.registerExtension({
   // Also refresh the widget on an existing node instance (e.g. after the app comes up) so the
   // dropdown isn't stuck on the "(start the app)" placeholder.
   async nodeCreated(node) {
-    const spec = COMBO_WIDGET[node?.comfyClass];
-    if (!spec) return;
-    const cat = await catalog();
-    const values = optionsFor(node.comfyClass, cat);
-    if (!values) return;
-    const widget = (node.widgets || []).find((w) => w.name === spec.widget);
-    if (!widget) return;
-    widget.options = widget.options || {};
-    widget.options.values = values;
-    if (!values.includes(widget.value)) widget.value = values[0];
+    if (!COMBO_WIDGET[node?.comfyClass]) return;
+    applyWidget(node, await catalog());
   },
 });

@@ -41,5 +41,18 @@ try:  # pragma: no cover - only runs inside ComfyUI
 
         return web.json_response(await asyncio.to_thread(_probe))
 
+    @_routes.get("/random_ai_prompt/config")
+    async def _config_get(_request):
+        return web.json_response({"url": client.configured_url()})
+
+    @_routes.post("/random_ai_prompt/config")
+    async def _config_post(request):
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001 - tolerate an empty/invalid body
+            body = {}
+        url = client.set_configured_url((body or {}).get("url", ""))
+        return web.json_response({"url": url})
+
 except Exception:  # noqa: BLE001 - not inside ComfyUI; routes are optional
     pass

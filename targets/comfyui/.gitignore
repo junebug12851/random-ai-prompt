@@ -1,0 +1,6 @@
+# Runtime config written by the ComfyUI "app URL" Settings field (see client.py / routes.py).
+.config.json
+
+# Python bytecode.
+__pycache__/
+*.pyc
