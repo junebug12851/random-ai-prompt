@@ -41,6 +41,11 @@ export function presetNames() {
  * @returns {object|null} The preset `{settings, imageSettings, upscaleSettings}` (or null).
  */
 export function loadPreset(name) {
+  // The name reaches here from the /api/prompt request body, so it must be a plain preset name — never
+  // usable to read arbitrary files. Reject path separators and `..` traversal before touching the fs.
+  if (typeof name !== "string" || !name.trim() || /[\\/]/.test(name) || name.includes("..")) {
+    return null;
+  }
   for (const root of ROOTS) {
     try {
       return JSON.parse(fs.readFileSync(path.join(root, `${name}.json`), "utf8"));
