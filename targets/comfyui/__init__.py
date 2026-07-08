@@ -11,7 +11,9 @@ frontend extension in ``web/`` (live catalog dropdowns + a status panel) via ``W
 """
 
 from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
-from . import routes  # noqa: F401 - registers same-origin proxy routes on ComfyUI's server (if present)
+from . import routes  # noqa: F401 - registers same-origin proxy routes (prints its own status)
+
+print(f"[Random AI Prompt] loaded {len(NODE_CLASS_MAPPINGS)} nodes")
 
 WEB_DIRECTORY = "./web"
 

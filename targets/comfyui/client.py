@@ -19,7 +19,7 @@ import time
 import urllib.error
 import urllib.request
 
-DEFAULT_URL = "http://127.0.0.1:4173"
+DEFAULT_URL = "http://localhost:4173"
 _TIMEOUT = 60  # seconds — generation is fast, but allow for a cold engine boot on the first call.
 # Where the ComfyUI Settings "app URL" is persisted, so it drives BOTH the dropdowns and generation
 # (and survives a restart). Lives beside the plugin; gitignored.
@@ -58,10 +58,47 @@ def set_configured_url(url: str) -> str:
     return _configured_url
 
 
+# Standard ports we auto-detect a running app on when nothing is configured: the desktop / `npm start`
+# release server (4173) and the Vite dev server (5173). We use `localhost` (NOT 127.0.0.1) so urllib
+# tries BOTH IPv6 (::1) and IPv4 — the Vite dev server binds IPv6-only, the desktop server dual-stack,
+# so `localhost` reaches either.
+_CANDIDATE_URLS = ["http://localhost:4173", "http://localhost:5173"]
+_DETECT_TTL = 10.0  # seconds — re-probe at most this often, so a just-started app is found quickly.
+_detect_cache: dict = {"at": 0.0, "url": None}
+
+
+def _probe(url: str, timeout: float = 1.5) -> bool:
+    """True if a REAL Random AI Prompt catalog answers at ``url`` — not just any 200 (a static/SPA
+    server would 200 an index.html for an unknown path, which we must not mistake for the API)."""
+    try:
+        req = urllib.request.Request(
+            url.rstrip("/") + "/api/prompt/catalog", headers={"Accept": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            if not (200 <= resp.status < 300):
+                return False
+            data = json.loads(resp.read().decode("utf-8"))
+        return isinstance(data, dict) and "lists" in data and "blocks" in data
+    except Exception:  # noqa: BLE001 - unreachable / wrong port / not our API
+        return False
+
+
+def _autodetect() -> str | None:
+    """Find a running app on a standard port (cached briefly). None if none respond."""
+    now = time.time()
+    if now - _detect_cache["at"] < _DETECT_TTL:
+        return _detect_cache["url"]
+    found = next((u for u in _CANDIDATE_URLS if _probe(u)), None)
+    _detect_cache.update(at=now, url=found)
+    return found
+
+
 def base_url() -> str:
-    """Resolve the backend base URL: the Settings URL → the ``RANDOM_AI_PROMPT_URL`` env var → the
-    default. Trailing slash stripped."""
-    url = _configured_url or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip() or DEFAULT_URL
+    """Resolve the backend base URL. Precedence: the Settings URL → the ``RANDOM_AI_PROMPT_URL`` env var
+    → an auto-detected running app on a standard port (4173 or 5173) → the default. Slash stripped."""
+    url = _configured_url or os.environ.get("RANDOM_AI_PROMPT_URL", "").strip()
+    if not url:
+        url = _autodetect() or DEFAULT_URL
     return url.rstrip("/")
 
 

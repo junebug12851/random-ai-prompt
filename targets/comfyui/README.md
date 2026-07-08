@@ -21,10 +21,12 @@ applies to both the dropdowns and generation — via, in precedence order:
 
 1. **Settings → "Random AI Prompt — app URL"** in ComfyUI (persisted; the usual, Comfy-native way), then
 2. the `RANDOM_AI_PROMPT_URL` environment variable, then
-3. the default `http://127.0.0.1:4173`.
+3. **auto-detection** — a running app on a standard port (**4173** desktop / `npm start`, or **5173**
+   dev server) is found automatically, so it usually "just works" without any config, then
+4. the default `http://127.0.0.1:4173`.
 
-> Running the **dev server** (`npm run web`) instead of the desktop build? It serves on **`:5173`**, so
-> set the Settings field to `http://localhost:5173`.
+> Running the **dev server** (`npm run web`) instead of the desktop build? It serves on **`:5173`**, which
+> is auto-detected — no config needed. (You can still pin it in the Settings field if you prefer.)
 
 If the app isn't running, the nodes still load; the dropdowns fill in and generation works as soon as
 it's reachable.
@@ -65,6 +67,17 @@ the app's Manage tab appear here without restarting ComfyUI. On newer ComfyUI fr
 shows the engine connection + catalog counts. And `example_workflows/random-ai-prompt.json` is a drag-in
 starter (Random AI Prompt → Show Prompt) — wire the flagship's `prompt` output into your `CLIP Text
 Encode` to feed image generation.
+
+## Troubleshooting
+
+- **"Won't connect."** Make sure the app is running (the desktop build, `npm start`, or the dev server
+  `npm run web`). The plugin **auto-detects** it on `localhost:4173` / `localhost:5173` (both IPv4 and
+  IPv6); for any other port, set **Settings → "Random AI Prompt — app URL"**. On startup the ComfyUI
+  console prints `[Random AI Prompt] …` lines — `server routes registered` and the resolved app URL, or a
+  WARNING with the reason if the routes couldn't register. Share those lines if it's still stuck.
+- **Updated the plugin?** If you *copied* this folder into `custom_nodes`, re-copy it after each update
+  (or symlink it), then **restart ComfyUI** so the Python changes load and **hard-refresh** the browser
+  for the JS.
 
 ## Testing
 
