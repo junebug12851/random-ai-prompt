@@ -239,3 +239,23 @@ window and produces the per-OS installers:
 
 AI assistance: the Tauri desktop shell, the Node-sidecar packaging, and the per-OS release matrix were
 designed and implemented with Claude (Anthropic).
+
+The command-line edition (targets/cli/, the `prompt` tool) is built with:
+
+  commander              https://github.com/tj/commander.js             MIT
+  picocolors             https://github.com/alexeyraspopov/picocolors   ISC
+
+AI assistance: the CLI target — its command surface, the Node provider registry, the in-process
+backend + fetch shim for headless image generation, and the bash/zsh/fish/PowerShell completion — was
+designed and implemented with Claude (Anthropic).
+
+The ComfyUI edition (targets/comfyui/) is a custom-node plugin for:
+
+  ComfyUI                 https://github.com/comfyanonymous/ComfyUI       GPL-3.0
+
+It bundles no third-party Python dependencies (the standard library only).
+
+AI assistance: the ComfyUI target — the node suite (a fat natural-language generator + helpers), the
+dependency-free HTTP client, the same-origin proxy routes, the frontend extension for live catalog
+dropdowns, and the backend `/api/prompt` + `/api/prompt/catalog` routes it rides on — was designed and
+implemented with Claude (Anthropic).

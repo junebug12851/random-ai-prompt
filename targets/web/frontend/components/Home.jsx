@@ -6,8 +6,8 @@
  *
  * Image generation is back (per the active provider: api-tier renders into the Gallery;
  * the syntax tier copies a formatted prompt). Still removed (see
- * notes/plans/removed-pending-readd.md): the chaos knob, presets, and the Normal/Anime style
- * toggle (the anime word lists mix SFW + explicit adult tags and need a proper split first).
+ * notes/plans/removed-pending-readd.md): presets and the Normal/Anime style toggle (the anime
+ * word lists mix SFW + explicit adult tags and need a proper split first).
  * @module gui/components/Home
  */
 import { useEffect, useRef, useState } from "react";

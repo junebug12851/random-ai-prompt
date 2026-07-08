@@ -1,0 +1,2 @@
+# Random AI Prompt — ComfyUI nodes.
+# No third-party dependencies: the plugin uses the Python standard library only (urllib, json, asyncio).
