@@ -15,9 +15,17 @@ import threading
 from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 from . import client, routes  # noqa: F401 - routes registers the proxy routes (prints its own status)
 
-# Warm the catalog cache off-thread at load, so the first ComfyUI /object_info (which calls every
-# node's INPUT_TYPES synchronously) usually hits a warm cache instead of a blocking fetch.
-threading.Thread(target=client.catalog, daemon=True).start()
+def _warm_catalog_cache():
+    # Best-effort: warm the catalog off-thread so the first ComfyUI /object_info (which calls every
+    # node's INPUT_TYPES synchronously) hits a warm cache instead of a blocking fetch. A failure just
+    # leaves the cache cold (nodes fetch on demand) — surface it with a status line, don't crash.
+    try:
+        client.catalog()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[Random AI Prompt] catalog warm-up skipped: {exc}")
+
+
+threading.Thread(target=_warm_catalog_cache, daemon=True).start()
 
 print(f"[Random AI Prompt] loaded {len(NODE_CLASS_MAPPINGS)} nodes")
 
