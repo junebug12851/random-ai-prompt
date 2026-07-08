@@ -1,0 +1,17 @@
+# ComfyUI Registry metadata (https://docs.comfy.org/registry/overview).
+# The plugin has NO third-party Python dependencies — it uses the standard library only.
+[project]
+name = "random-ai-prompt"
+description = "Natural-language prompt-engine nodes for ComfyUI — the DPL processor, blocks, lists, and presets from the Random AI Prompt project, as STRING sources for CLIP Text Encode."
+version = "0.1.0"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/junebug12851/random-ai-prompt"
+
+[tool.comfy]
+PublisherId = "junebug12851"
+DisplayName = "Random AI Prompt"
+Icon = ""

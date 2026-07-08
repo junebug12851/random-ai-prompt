@@ -46,8 +46,25 @@ import {
   listNs,
   migrateLegacyStore,
 } from "./vite-api-helpers.js";
+import { createPromptRun } from "../../../engine/promptRun.js";
+import {
+  bootNodeEngine,
+  setActiveSettings,
+  engineDefaults,
+  blockNames,
+  listNames,
+  nodeLoader,
+} from "../../../engine/nodeEngine.js";
+import { presetNames, resolvePresets, applyPreset } from "../../../engine/presets.js";
 
 const execP = promisify(exec);
+
+// Lazily bind the shared prompt-run to the booted Node engine (idempotent) — powers /api/prompt.
+let _promptRun = null;
+function promptRun() {
+  if (!_promptRun) _promptRun = createPromptRun(bootNodeEngine(), { setActiveSettings });
+  return _promptRun;
+}
 
 /** The GitHub repo the update check reads its latest release from. */
 const UPDATE_REPO = "junebug12851/random-ai-prompt";
@@ -240,6 +257,50 @@ export function createApiHandler() {
         return send(res, 200, out);
       } catch (e) {
         return send(res, 502, { error: e.message || "Rewrite failed" });
+      }
+    }
+
+    // --- prompt generation (DPL expand) — for headless clients like the ComfyUI target ---
+    // Runs the SHARED engine + prompt-run (engine/promptRun.js) server-side and returns the
+    // generated prompt(s). Body: { settings?, template?, seed?, count? }. `template` (when given)
+    // overrides settings.prompt; omit it for the engine's default random prompt. `seed` pins the
+    // batch (reproducible); omit for a fresh roll. Returns { seed, prompts }.
+    if (u.pathname === "/api/prompt" && req.method === "POST") {
+      const body = (await readJson(req)) || {};
+      const { settings: reqSettings, template, seed, count, preset } = body;
+      let settings = { ...engineDefaults(), ...(reqSettings || {}) };
+      try {
+        for (const p of resolvePresets(preset)) settings = applyPreset(settings, p);
+      } catch (e) {
+        return send(res, 400, { error: e.message || "Unknown preset" });
+      }
+      if (typeof template === "string" && template.trim() !== "") settings.prompt = template;
+      if (count != null) settings.promptCount = Math.max(1, Number(count) || 1);
+      if (seed != null && String(seed).trim() !== "") {
+        settings.randomSeed = false;
+        settings.promptSeed = String(seed);
+      }
+      try {
+        const { seed: usedSeed, prompts } = promptRun().generatePrompts(settings);
+        return send(res, 200, { seed: usedSeed, prompts });
+      } catch (e) {
+        return send(res, 500, { error: e.message || "Prompt generation failed" });
+      }
+    }
+
+    // --- prompt catalog (list / block names + groups) for the ComfyUI node dropdowns ---
+    if (u.pathname === "/api/prompt/catalog" && req.method === "GET") {
+      try {
+        bootNodeEngine();
+        return send(res, 200, {
+          lists: listNames(),
+          blocks: blockNames(),
+          presets: presetNames(),
+          listGroups: nodeLoader.groupListDirs(),
+          blockGroups: nodeLoader.blockGroupDirs(),
+        });
+      } catch (e) {
+        return send(res, 500, { error: e.message || "Catalog failed" });
       }
     }
 

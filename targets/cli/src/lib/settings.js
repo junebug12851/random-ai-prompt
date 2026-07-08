@@ -10,6 +10,7 @@
  */
 import { engineDefaults } from "./engine.js";
 import * as store from "./store.js";
+import { applyPreset } from "../../../../engine/presets.js";
 
 /** The CLI's persisted-config namespace (its own file — never clobbers the GUI's `settings`). */
 export const CLI_NS = "cli";
@@ -92,37 +93,8 @@ function stripKeys(cfg) {
   return rest;
 }
 
-/**
- * Apply a preset's legacy-shaped object onto flat settings. `preset.settings` merges flat; the
- * legacy `imageSettings` / `upscaleSettings` sub-objects are mapped onto the current flat keys the
- * providers read (width→imageWidth, height→imageHeight, steps→imageSteps, negativePrompt, seed, cfg).
- * @param {object} base The current flat settings.
- * @param {object} preset A preset object.
- * @returns {object} The merged settings.
- */
-export function applyPreset(base, preset) {
-  if (!preset || typeof preset !== "object") return base;
-  const out = { ...base, ...(preset.settings || {}) };
-  const img = preset.imageSettings || {};
-  const map = {
-    width: "imageWidth",
-    height: "imageHeight",
-    steps: "imageSteps",
-    cfg: "cfg",
-    seed: "seed",
-    sampler: "sampler",
-    negativePrompt: "negativePrompt",
-    batchSize: "batchSize",
-    restoreFaces: "restoreFaces",
-  };
-  for (const [from, to] of Object.entries(map)) {
-    if (img[from] !== undefined) out[to] = img[from];
-  }
-  // Upscale settings pass through untouched (the CLI's upscale command reads them by their own keys).
-  if (preset.upscaleSettings)
-    out.upscaleSettings = { ...(base.upscaleSettings || {}), ...preset.upscaleSettings };
-  return out;
-}
+// `applyPreset` is the shared engine-owned helper (engine/presets.js); re-exported here for compat.
+export { applyPreset };
 
 /**
  * Read the persisted CLI config blob (its own namespace).

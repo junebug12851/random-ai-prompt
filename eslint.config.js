@@ -25,6 +25,10 @@ export default [
       // too (with the Node-ESM ruleset below) alongside the engine, scripts, and tests.
       "targets/web/**",
       "targets/web-shell/**",
+      // The ComfyUI target is a Python custom-node package with a ComfyUI-runtime browser JS
+      // extension (imports ComfyUI's own scripts, uses browser globals) — not part of our Node/web
+      // build, so the root JS lint doesn't apply.
+      "targets/comfyui/**",
       "user-settings.json",
       "results.json",
     ],
