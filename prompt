@@ -1,0 +1,4 @@
+#!/bin/sh
+# Convenience launcher so you can run the CLI as `./prompt` from the repo root (macOS/Linux/Git Bash).
+# Forwards every argument to the Node CLI entry (targets/cli/bin/prompt.js).
+exec node "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/targets/cli/bin/prompt.js" "$@"
