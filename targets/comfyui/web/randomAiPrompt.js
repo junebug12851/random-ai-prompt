@@ -51,9 +51,20 @@ function serverUrl() {
   }
 }
 
-let _catalog = null; // cached promise; reset when the URL setting changes
+// Escape untrusted text before it goes into innerHTML (the status panel shows the configured URL).
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+  );
+}
+
+let _catalog = null; // cached promise
+let _catalogAt = 0; // when it was last fetched
+const _CATALOG_TTL = 15000; // ms — matches the Python TTL, so Manage edits appear without a restart
 async function catalog() {
-  if (_catalog) return _catalog;
+  if (_catalog && Date.now() - _catalogAt < _CATALOG_TTL) return _catalog;
+  _catalogAt = Date.now();
   _catalog = (async () => {
     try {
       const res = await fetch(`/random_ai_prompt/catalog`);
@@ -118,7 +129,7 @@ async function renderStatus(el) {
   const statusEl = el.querySelector("#rap-status");
   const update = async () => {
     statusEl.textContent = "Checking…";
-    _catalog = null;
+    _catalog = null; // invalidate so Refresh actually re-fetches
     let ok = false;
     let url = "";
     try {
@@ -128,12 +139,14 @@ async function renderStatus(el) {
     } catch {
       /* not reachable */
     }
+    await refreshAllNodes(); // Refresh also updates existing node dropdowns, not just the counts
     const cat = await catalog();
     const n = (k) => (cat?.[k] || []).length;
+    const safeUrl = escapeHtml(url);
     statusEl.innerHTML = ok
-      ? `<span style="color:#3fb950;">● Connected</span><br><small>${url}</small>` +
+      ? `<span style="color:#3fb950;">● Connected</span><br><small>${safeUrl}</small>` +
         `<br>${n("lists")} lists · ${n("blocks")} blocks · ${n("presets")} presets`
-      : `<span style="color:#f85149;">● Not reachable</span><br><small>${url || "(default)"}</small>` +
+      : `<span style="color:#f85149;">● Not reachable</span><br><small>${safeUrl || "(default)"}</small>` +
         `<br>Start the app or set the URL in Settings.`;
   };
   el.querySelector("#rap-refresh").onclick = update;
@@ -171,7 +184,10 @@ app.registerExtension({
       render: (el) => renderStatus(el),
     });
 
-    await postConfig(serverUrl()); // sync the persisted URL to the Python side on load
+    // Sync the Settings value to the Python side on load — but NEVER post an empty value (that would
+    // wipe the backend's saved URL / disable auto-detect). The Settings value is the source of truth.
+    const savedUrl = app.ui.settings.getSettingValue?.("randomAiPrompt.serverUrl") || serverUrl();
+    if (savedUrl) await postConfig(savedUrl);
     const cat = await catalog();
     if (!cat || !(cat.lists && cat.lists.length)) {
       const msg =

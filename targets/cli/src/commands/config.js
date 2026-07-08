@@ -55,6 +55,14 @@ export default function registerConfig(program) {
     .command("set <key> <value>")
     .description("Set a config value (coerced to the setting's type)")
     .action((key, value) => {
+      if (key === "keys") {
+        say(
+          "err",
+          "Use `prompt keys` to manage API keys — `config` won't touch the reserved `keys` map.",
+        );
+        process.exitCode = 1;
+        return;
+      }
       const spec = byKey.get(key);
       let coerced = value;
       if (spec) {
@@ -81,6 +89,14 @@ export default function registerConfig(program) {
     .command("unset <key>")
     .description("Remove a config value")
     .action((key) => {
+      if (key === "keys") {
+        say(
+          "err",
+          "Use `prompt keys` to manage API keys — `config` won't touch the reserved `keys` map.",
+        );
+        process.exitCode = 1;
+        return;
+      }
       const cfg = readConfig();
       if (!(key in cfg)) {
         say("warn", `"${key}" is not set.`);

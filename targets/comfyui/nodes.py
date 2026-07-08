@@ -56,7 +56,7 @@ class RandomAIPromptGenerator:
 
     @classmethod
     def INPUT_TYPES(cls):
-        presets = ["none"] + list(client.catalog().get("presets") or [])
+        presets = ["none", *(client.catalog().get("presets") or [])]
         return {
             "required": {
                 "template": (
@@ -209,7 +209,7 @@ class RandomAIPromptBatch:
 
     @classmethod
     def INPUT_TYPES(cls):
-        presets = ["none"] + list(client.catalog().get("presets") or [])
+        presets = ["none", *(client.catalog().get("presets") or [])]
         return {
             "required": {
                 "template": (

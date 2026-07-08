@@ -24,7 +24,7 @@ export async function startBackend() {
   if (server) return base;
   runStartupMigrations();
   const handler = createApiHandler();
-  server = http.createServer((req, res) => {
+  const srv = http.createServer((req, res) => {
     handler(req, res, () => {
       // No API route matched — the CLI only uses /api/*, so anything else is a 404.
       res.statusCode = 404;
@@ -33,9 +33,12 @@ export async function startBackend() {
     });
   });
   await new Promise((resolve, reject) => {
-    server.on("error", reject);
-    server.listen(0, "127.0.0.1", resolve);
+    srv.on("error", reject);
+    srv.listen(0, "127.0.0.1", resolve);
   });
+  // Only mark the backend started AFTER the port is bound — a failed listen() must not leave `server`
+  // set with an empty `base` (the guard above would then return "" forever instead of retrying).
+  server = srv;
   const { port } = server.address();
   base = `http://127.0.0.1:${port}`;
   installFetchShim(base);

@@ -304,7 +304,7 @@ The app's three legal documents live as self-hosted static pages at
 `targets/web/public/legal/{privacy,terms,cookies}.html` (linked from `LinksMenu.jsx` below the
 `.links-sep` separator; contact address `fairy@fairyfox.io`). They were rewritten to describe **what the
 app actually does** — no accounts, no analytics/cookies/tracking, settings + bring-your-own API keys
-stored only on the user's device (`prompt.store.` localStorage / local files), prompts + keys sent directly
+stored only on the user's device (`rap.store.` localStorage / local files), prompts + keys sent directly
 from the device to the chosen provider (no server relay — providers that can't be called directly from a
 browser are locked out of the web build), and Netlify as the hosting processor. Fonts are **self-hosted**
 from `targets/web/public/fonts/`

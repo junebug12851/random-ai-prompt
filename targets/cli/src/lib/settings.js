@@ -3,7 +3,7 @@
  * @brief The CLI settings model. Mirrors the GUI's settings shape (prompt knobs match the engine;
  * image params are read by the providers) so the CLI, engine, and GUI stay in parity. Layered merge:
  *   engine defaults  →  app/provider defaults  →  active provider's schema defaults
- *   →  persisted CLI config (user/settings/cli)  →  shared GUI settings (optional)  →  presets
+ *   →  shared GUI settings (optional)  →  persisted CLI config (user/settings/cli)  →  presets
  *   →  per-command flag overrides.
  * Later layers win. Persisted CLI config lives in its own `cli` namespace so the CLI never clobbers
  * the GUI's `settings.json`; BYOK keys are read from BOTH the CLI store and the shared GUI store.

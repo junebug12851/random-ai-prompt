@@ -275,7 +275,9 @@ export function createApiHandler() {
         return send(res, 400, { error: e.message || "Unknown preset" });
       }
       if (typeof template === "string" && template.trim() !== "") settings.prompt = template;
-      if (count != null) settings.promptCount = Math.max(1, Number(count) || 1);
+      // Cap the batch size: this runs a synchronous generateMany on the request thread, so an
+      // unbounded client-supplied count could block the event loop / exhaust resources.
+      if (count != null) settings.promptCount = Math.min(100, Math.max(1, Number(count) || 1));
       if (seed != null && String(seed).trim() !== "") {
         settings.randomSeed = false;
         settings.promptSeed = String(seed);

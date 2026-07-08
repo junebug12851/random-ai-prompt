@@ -10,8 +10,14 @@ ComfyUI discovers ``NODE_CLASS_MAPPINGS`` / ``NODE_DISPLAY_NAME_MAPPINGS`` here,
 frontend extension in ``web/`` (live catalog dropdowns + a status panel) via ``WEB_DIRECTORY``.
 """
 
+import threading
+
 from .nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
-from . import routes  # noqa: F401 - registers same-origin proxy routes (prints its own status)
+from . import client, routes  # noqa: F401 - routes registers the proxy routes (prints its own status)
+
+# Warm the catalog cache off-thread at load, so the first ComfyUI /object_info (which calls every
+# node's INPUT_TYPES synchronously) usually hits a warm cache instead of a blocking fetch.
+threading.Thread(target=client.catalog, daemon=True).start()
 
 print(f"[Random AI Prompt] loaded {len(NODE_CLASS_MAPPINGS)} nodes")
 

@@ -102,7 +102,7 @@ def base_url() -> str:
     return url.rstrip("/")
 
 
-def _request(method: str, path: str, body: dict | None = None) -> dict:
+def _request(method: str, path: str, body: dict | None = None, timeout: float | None = None) -> dict:
     target = base_url() + path
     data = None
     headers = {"Accept": "application/json"}
@@ -111,7 +111,7 @@ def _request(method: str, path: str, body: dict | None = None) -> dict:
         headers["Content-Type"] = "application/json"
     req = urllib.request.Request(target, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=timeout or _TIMEOUT) as resp:
             payload = resp.read().decode("utf-8")
         return json.loads(payload) if payload else {}
     except urllib.error.HTTPError as exc:
@@ -175,7 +175,9 @@ def catalog() -> dict:
     ):
         return _catalog_cache["value"]
     try:
-        value = _request("GET", "/api/prompt/catalog")
+        # Short timeout: catalog() feeds INPUT_TYPES, which ComfyUI calls synchronously on
+        # /object_info — a slow app must not stall that path for long.
+        value = _request("GET", "/api/prompt/catalog", timeout=4)
     except EngineError:
         value = {"lists": [], "blocks": [], "presets": [], "listGroups": [], "blockGroups": []}
     _catalog_cache.update(at=now, url=resolved, value=value)
@@ -187,4 +189,4 @@ def _names(key: str, *, extra: list[str] | None = None) -> list[str]:
     names = list(catalog().get(key) or [])
     if not names:
         return ["(start the Random AI Prompt app)"]
-    return (extra or []) + names
+    return [*(extra or []), *names]

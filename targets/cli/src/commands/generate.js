@@ -87,7 +87,6 @@ export default function registerGenerate(program) {
         settings.rewriteProvider !== "none");
 
     const results = [];
-    let failed = false;
     if (doRun) {
       if (needBackend) await startBackend();
       try {
@@ -97,14 +96,15 @@ export default function registerGenerate(program) {
           );
         }
       } catch (e) {
+        // A provider failure partway through the batch must not discard the prompts/images already
+        // produced (api-tier credits may already be spent, files already written) — surface the error
+        // but fall through to print what succeeded.
         say("err", e.message || String(e));
         process.exitCode = 1;
-        failed = true;
       } finally {
         if (needBackend) await stopBackend();
       }
     }
-    if (failed) return;
 
     // --- Output ---
     if (global.json) {

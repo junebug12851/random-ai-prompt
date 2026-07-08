@@ -50,7 +50,10 @@ def _register() -> None:
             body = await request.json()
         except Exception:  # noqa: BLE001 - tolerate an empty/invalid body
             body = {}
-        url = client.set_configured_url((body or {}).get("url", ""))
+        # request.json() also returns valid non-object JSON (list/str/number); normalize to a dict.
+        if not isinstance(body, dict):
+            body = {}
+        url = client.set_configured_url(body.get("url", ""))
         return web.json_response({"url": url})
 
 
