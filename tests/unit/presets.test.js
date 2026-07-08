@@ -54,7 +54,14 @@ describe("applyPreset", () => {
     const base = { a: 1, imageWidth: 512, upscaleSettings: { x: 1 } };
     const preset = {
       settings: { includeAdult: true },
-      imageSettings: { width: 768, height: 1024, steps: 30, cfg: 7, negativePrompt: "no", sampler: "Euler" },
+      imageSettings: {
+        width: 768,
+        height: 1024,
+        steps: 30,
+        cfg: 7,
+        negativePrompt: "no",
+        sampler: "Euler",
+      },
       upscaleSettings: { upscaleToSize: true },
     };
     const out = applyPreset(base, preset);
