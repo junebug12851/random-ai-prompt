@@ -32,7 +32,7 @@ export function presetNames() {
     }
     for (const f of entries) if (f.endsWith(".json")) names.add(f.slice(0, -5));
   }
-  return [...names].sort();
+  return [...names].sort((a, b) => a.localeCompare(b));
 }
 
 /**
