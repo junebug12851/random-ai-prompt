@@ -207,7 +207,7 @@ So the DPL's full/partial distinction is structural, not just a flag: a **full**
 a trailing END context line; a **partial** file is a body of `*` clauses with an empty base and no trailing
 context. The `=- full prompt` header makes it explicit for the classifier and UI.
 
-The randomization envelope (emphasis, editing, alternating, `chaos` scaling, `keywordRepeater`) is applied
+The randomization envelope (emphasis, editing, alternating, `keywordRepeater`) is applied
 *later* by the list/randomization stages, not by the generator/DPL — see
 [`prompt-dsl.md`](prompt-dsl.md#the-randomization-math). The DPL only decides *which clauses appear and what
 text/tokens they contribute*.

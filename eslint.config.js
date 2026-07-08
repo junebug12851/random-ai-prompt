@@ -20,9 +20,11 @@ export default [
       // assets/ is local-only reference material (e.g. the pinned pre-revival
       // source snapshot) — gitignored and never a build/lint input.
       "assets/**",
-      // The whole targets/ tree (web SPA + desktop shell) has its own tooling/lint;
-      // the root config lints only the engine, scripts, and tests.
-      "targets/**",
+      // The web SPA + desktop shell have their own tooling/lint (targets/web/eslint.config.js).
+      // The CLI target (targets/cli) is pure Node ESM like the engine, so the root config lints it
+      // too (with the Node-ESM ruleset below) alongside the engine, scripts, and tests.
+      "targets/web/**",
+      "targets/web-shell/**",
       "user-settings.json",
       "results.json",
     ],
@@ -42,7 +44,7 @@ export default [
       },
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       "no-empty": ["warn", { allowEmptyCatch: true }],
       // Pre-existing patterns in the hand-written prompt/data files. Flagged so
       // they stay visible, but kept as warnings: "fixing" a regex escape or a

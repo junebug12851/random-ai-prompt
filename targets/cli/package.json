@@ -1,0 +1,22 @@
+{
+  "name": "@random-ai-prompt/cli",
+  "version": "2.50.0",
+  "description": "Command-line target for random-ai-prompt: generate AI image/text prompts and run them through image providers, with the same engine the web app uses. Traditional args + --help + multi-shell completion.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "prompt": "bin/prompt.js"
+  },
+  "main": "src/main.js",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node bin/prompt.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^14.0.2",
+    "picocolors": "^1.1.1"
+  }
+}

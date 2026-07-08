@@ -13,6 +13,7 @@
  */
 import { createEngine } from "../../../../engine/core/engine.js";
 import compileDpl from "../../../../engine/core/dpl/dpl.js";
+import { forEngine } from "../../../../engine/promptRun.js";
 import promptFiles from "../../../../engine/promptFilesAndSuggestions.js";
 import { computeButtonNames, compareNames } from "../../../../engine/listManifest.js";
 import { isGatedBlock } from "../../../../engine/gatedLists.js";
@@ -101,59 +102,6 @@ export async function refreshCatalog() {
   promptFiles.loadAll();
   notifyCatalog();
   return true;
-}
-
-/**
- * Scale the emphasis / alternating knobs by `settings.chaos` (mirrors the CLI `--chaos`).
- * @param {object} settings The generation settings.
- * @returns {object} The (possibly) chaos-scaled settings.
- */
-function withChaos(settings) {
-  const c = Number(settings.chaos);
-  if (!c || c === 1) return settings;
-  return {
-    ...settings,
-    emphasisChance: settings.emphasisChance * c,
-    emphasisLevelChance: settings.emphasisLevelChance * c,
-    emphasisMaxLevels: Math.round(settings.emphasisMaxLevels * c),
-    deEmphasisChance: Math.min(0.5, Math.max(0.25, settings.deEmphasisChance * c)),
-    keywordAlternatingMaxLevels: Math.round(settings.keywordAlternatingMaxLevels * c),
-  };
-}
-
-/**
- * Which seed (if any) the engine should use for this call. The rule is explicit — there are NO magic
- * seed values:
- *   1. `explicitSeed` (when given) always wins. The batch roll uses this to fork one base seed into a
- *      distinct-but-reproducible sub-seed per prompt.
- *   2. Otherwise, when `randomSeed` is OFF, the run is pinned to `promptSeed` verbatim (any integer,
- *      including 0 and negatives, is honoured).
- *   3. Otherwise (random on, the default) → `undefined`: the engine stays unseeded and rerolls fresh.
- * The image-provider `seed` is NEVER used here — that's a different field (see the module header).
- * @param {object} settings GUI settings.
- * @param {string|number} [explicitSeed] A caller-forced seed.
- * @returns {string|undefined} The engine seed, or undefined for a random roll.
- */
-function seedFor(settings, explicitSeed) {
-  if (explicitSeed != null && explicitSeed !== "") return String(explicitSeed);
-  if (settings.randomSeed === false) {
-    const ps = settings.promptSeed;
-    if (ps != null && String(ps).trim() !== "") return String(ps).trim();
-  }
-  return undefined;
-}
-
-/**
- * Translate GUI settings into the shape the core engine wants: chaos-scaled, the image `seed` dropped,
- * and the engine `seed` resolved via {@link seedFor}.
- * @param {object} settings The GUI generation settings.
- * @param {string|number} [explicitSeed] A caller-forced seed (see {@link seedFor}).
- * @returns {object} Engine settings.
- */
-function forEngine(settings, explicitSeed) {
-  const { seed: _imageSeed, ...base } = withChaos(settings);
-  const s = seedFor(settings, explicitSeed);
-  return s === undefined ? base : { ...base, seed: s };
 }
 
 /**
