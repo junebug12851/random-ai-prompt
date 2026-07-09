@@ -1,17 +1,19 @@
 /**
  * @file Phone-local storage for the mobile target — the counterpart to the desktop /api backend.
- * Images (generated + derived) and the user content overlay (custom word lists) live under the app's
- * document directory. Web-safe: on react-native-web (used for headless UI verification) there's no
- * filesystem, so every call degrades to an in-memory no-op and screens still render.
+ * Images (generated) + their prompt metadata, and the user content overlay (custom word lists), live
+ * under the app's document directory. Metadata lives in a single `index.json` keyed by image name (so
+ * listing stays O(1) at the 100k max instead of reading a sidecar per image — the mobile equivalent of
+ * the web's per-image `.json` sidecars the dev server reads). Web-safe: on react-native-web (headless
+ * UI verification) there's no filesystem, so every call degrades to an in-memory no-op.
  */
 import { Platform } from "react-native";
 
-// Legacy functional API (stable in SDK 54; the new File/Directory API is object-oriented).
 const FS = Platform.OS === "web" ? null : require("expo-file-system/legacy");
 
 const ROOT = FS ? `${FS.documentDirectory}rap/` : null;
 const IMAGES = ROOT ? `${ROOT}images/` : null;
 const LISTS = ROOT ? `${ROOT}lists/` : null;
+const INDEX = IMAGES ? `${IMAGES}index.json` : null;
 
 export const storageAvailable = !!FS;
 
@@ -21,24 +23,42 @@ async function ensure(dir) {
   if (!info.exists) await FS.makeDirectoryAsync(dir, { intermediates: true });
 }
 
-/** @returns {Promise<Array<{name:string, uri:string}>>} Saved images, newest first by name. */
+async function readIndex() {
+  if (!FS) return {};
+  try {
+    return JSON.parse(await FS.readAsStringAsync(INDEX));
+  } catch {
+    return {};
+  }
+}
+async function writeIndex(idx) {
+  if (!FS) return;
+  await FS.writeAsStringAsync(INDEX, JSON.stringify(idx));
+}
+const nameOf = (uri) => uri.split("/").pop();
+
+/**
+ * @returns {Promise<Array<{name, uri, prompt?, provider?, model?, createdAt?}>>} Saved images, newest
+ *   first (names embed the creation timestamp), each merged with its metadata from index.json.
+ */
 export async function listImages() {
   if (!FS) return [];
   await ensure(IMAGES);
-  const names = await FS.readDirectoryAsync(IMAGES);
+  const [names, idx] = await Promise.all([FS.readDirectoryAsync(IMAGES), readIndex()]);
   return names
     .filter((n) => /\.(png|jpe?g|webp)$/i.test(n))
     .sort()
     .reverse()
-    .map((n) => ({ name: n, uri: `${IMAGES}${n}` }));
+    .map((n) => ({ name: n, uri: `${IMAGES}${n}`, ...(idx[n] || {}) }));
 }
 
 /**
- * Save a generated image into the gallery from any source a provider returns: a `data:` base64 URL
- * (OpenAI / Stability / Gemini), an `https:` URL (fal / Leonardo), or a local `file:` uri. Picks a
- * unique name and returns `{ name, uri }`.
+ * Save a generated image into the gallery from any source a provider returns (`data:` base64 /
+ * `https:` URL / local `file:`), recording its prompt metadata in index.json. Returns `{ name, uri }`.
+ * @param {string} src
+ * @param {{prompt?:string, provider?:string, model?:string}} [meta]
  */
-export async function saveImageSrc(src) {
+export async function saveImageSrc(src, meta = {}) {
   if (!FS) return null;
   await ensure(IMAGES);
   const name = `img-${Date.now()}-${Math.floor(Math.random() * 1e6)}.png`;
@@ -51,10 +71,18 @@ export async function saveImageSrc(src) {
   } else {
     await FS.copyAsync({ from: src, to: dest });
   }
+  const idx = await readIndex();
+  idx[name] = {
+    prompt: meta.prompt || "",
+    provider: meta.provider || "",
+    model: meta.model || "",
+    createdAt: Date.now(),
+  };
+  await writeIndex(idx);
   return { name, uri: dest };
 }
 
-/** Copy an image (from a provider result / temp uri) into the gallery. */
+/** Copy an image (from a temp uri) into the gallery. */
 export async function saveImageFromUri(srcUri, name) {
   if (!FS) return null;
   await ensure(IMAGES);
@@ -66,6 +94,22 @@ export async function saveImageFromUri(srcUri, name) {
 export async function deleteImage(uri) {
   if (!FS) return;
   await FS.deleteAsync(uri, { idempotent: true });
+  const idx = await readIndex();
+  if (idx[nameOf(uri)]) {
+    delete idx[nameOf(uri)];
+    await writeIndex(idx);
+  }
+}
+
+/** Bulk-delete images (+ their metadata) — the gallery's multi-select delete. */
+export async function deleteImages(uris) {
+  if (!FS || !uris.length) return;
+  const idx = await readIndex();
+  for (const uri of uris) {
+    await FS.deleteAsync(uri, { idempotent: true });
+    delete idx[nameOf(uri)];
+  }
+  await writeIndex(idx);
 }
 
 /** @returns {Promise<string[]>} Names of the user's custom word lists (without .txt). */

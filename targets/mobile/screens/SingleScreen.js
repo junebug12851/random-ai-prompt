@@ -40,7 +40,14 @@ export default function SingleScreen({ image, onBack, onDeleted }) {
         cachePolicy="disk"
         transition={120}
       />
-      <Text style={styles.name}>{image.name}</Text>
+      {image.prompt ? (
+        <Text style={styles.prompt} selectable>
+          {image.prompt}
+        </Text>
+      ) : null}
+      <Text style={styles.meta}>
+        {[image.provider, image.model].filter(Boolean).join(" · ") || image.name}
+      </Text>
       <View style={styles.actions}>
         <TouchableOpacity style={styles.btn} onPress={onBack}>
           <Text style={styles.btnText}>Back</Text>
@@ -63,6 +70,8 @@ const makeStyles = (T) =>
   StyleSheet.create({
     scroll: { padding: 16 },
     name: { color: T.fgSoft, fontSize: 15, marginTop: 12, marginBottom: 14 },
+    prompt: { color: T.fg, fontSize: 15, lineHeight: 22, marginTop: 14 },
+    meta: { color: T.muted, fontSize: 13, marginTop: 6, marginBottom: 14 },
     actions: { flexDirection: "row", gap: 10 },
     btn: {
       flex: 1,

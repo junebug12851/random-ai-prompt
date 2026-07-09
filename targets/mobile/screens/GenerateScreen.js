@@ -174,7 +174,7 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
         for (const img of images) {
-          await saveImageSrc(img);
+          await saveImageSrc(img, { prompt: prompts[i], provider, model: provSettings.model });
           saved++;
         }
         if (saved) onGenerated?.();
