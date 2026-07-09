@@ -133,34 +133,28 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
                 })}
               </View>
 
-              {/* Folder sub-tabs (hidden while searching — results go flat). The items live in a row
-                  View (not the ScrollView's contentContainer) because `gap` on a horizontal
-                  ScrollView's contentContainerStyle doesn't apply on Android — the pills would pile up
-                  at x=0 and look collapsed/textless. */}
+              {/* Folder sub-tabs (hidden while searching — results go flat). A wrapping row, NOT a
+                  horizontal ScrollView: on Android a horizontal ScrollView here collapsed the pills to
+                  zero width (no text / wrong size). Wrapping lays out reliably and shows every folder,
+                  like the web nav which also wraps. */}
               {!searching && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.subTabsPad}
-                >
-                  <View style={styles.subTabsRow}>
+                <View style={styles.subTabsWrap}>
+                  <SubTab
+                    label="all"
+                    count={active ? active.items.filter((i) => !i.category).length : 0}
+                    on={effSub === "All"}
+                    onPress={() => setActiveSub("All")}
+                  />
+                  {subCats.map((c) => (
                     <SubTab
-                      label="all"
-                      count={active ? active.items.filter((i) => !i.category).length : 0}
-                      on={effSub === "All"}
-                      onPress={() => setActiveSub("All")}
+                      key={c.label}
+                      label={c.label}
+                      count={c.items.length}
+                      on={effSub === c.label}
+                      onPress={() => setActiveSub(c.label)}
                     />
-                    {subCats.map((c) => (
-                      <SubTab
-                        key={c.label}
-                        label={c.label}
-                        count={c.items.length}
-                        on={effSub === c.label}
-                        onPress={() => setActiveSub(c.label)}
-                      />
-                    ))}
-                  </View>
-                </ScrollView>
+                  ))}
+                </View>
               )}
 
               {hint ? (
@@ -296,8 +290,13 @@ const styles = StyleSheet.create({
   countText: { color: T.muted, fontSize: 11, fontWeight: "800" },
   countTextOn: { color: T.accentInk },
 
-  subTabsPad: { paddingHorizontal: 16, paddingBottom: 12 },
-  subTabsRow: { flexDirection: "row", gap: 8 },
+  subTabsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
   subTab: {
     flexDirection: "row",
     alignItems: "center",

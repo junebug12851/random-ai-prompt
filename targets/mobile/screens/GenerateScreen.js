@@ -9,6 +9,7 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { T } from "../lib/theme.js";
 import {
@@ -81,6 +82,7 @@ export default function GenerateScreen() {
   const [results, setResults] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
   const [focused, setFocused] = useState(false);
+  const insets = useSafeAreaInsets();
   const caret = useRef(prompt.length);
   const promptRef = useRef(prompt);
   promptRef.current = prompt;
@@ -348,7 +350,7 @@ export default function GenerateScreen() {
       />
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { bottom: insets.bottom + 24 }]}
         onPress={() => setPaletteOpen(true)}
         activeOpacity={0.85}
       >
@@ -499,7 +501,7 @@ const styles = StyleSheet.create({
 
   fieldBar: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
     gap: 12,
     marginTop: 14,
