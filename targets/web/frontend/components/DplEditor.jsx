@@ -30,6 +30,7 @@ import { dplLineActions } from "../lib/dpl/dplLineActions.js";
 import { buildInteractiveLabels } from "../lib/dpl/dplInteractiveMessages.js";
 import { getDplCompletions, expandPrompt } from "../lib/promptEngine.js";
 import { validateDpl } from "../lib/dpl/validateDpl.js";
+import { editorChromeTheme } from "../lib/editorChrome.js";
 
 // CodeMirror linter fed by the shared DPL validator — underlines bad spots and shows the message on
 // hover; the gutter marks each line with an issue. The same validator backs the editors' status icon.
@@ -167,6 +168,7 @@ function DplEditor(
           ariaLabel ? EditorView.contentAttributes.of({ "aria-label": ariaLabel }) : [],
         ),
         EditorView.theme({ "&": { height: "100%" } }),
+        editorChromeTheme,
         updateListener,
       ],
     });

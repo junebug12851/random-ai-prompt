@@ -122,30 +122,21 @@
 }
 
 /* ---------- Gutters: line numbers + the `+` action gutter ---------- */
-.dpl-editor .cm-gutters {
-  background: transparent;
-  border: none;
 
-  /* Quiet, dimmed numbers — legible but recessed so they never compete with the code. */
-  color: color-mix(in srgb, var(--faint) 55%, transparent);
+/* The gutter background, the active-line body, the active-line NUMBER, and the selection color now
+   live in the shared CodeMirror `theme` (lib/editorChrome.js) — NOT here. A plain-CSS override on
+   `.cm-gutters` / `.cm-activeLine` sits at the same specificity as CodeMirror's own gutter
+   baseTheme and loses to it on source order (CM injects its \3c style> after our bundle), which is
+   exactly what let CM's light defaults — a bright-white gutter (#f5f5f5) and a milky active-line
+   wash — leak through in dark mode. A `theme` extension gets StyleModule priority over the
+   baseTheme, so it wins. Only gutter LAYOUT (font + number padding) stays here. */
+.dpl-editor .cm-gutters {
   font-family: var(--font-body);
 }
 
 .dpl-editor .cm-lineNumbers .cm-gutterElement {
   padding: 0 6px 0 8px;
   min-width: 1.6em;
-}
-
-/* The active line's number: a clean neutral brighten (NOT the bright accent, which glowed). */
-.dpl-editor .cm-activeLineGutter {
-  background: transparent;
-  color: var(--muted);
-}
-
-/* The active line body highlight: a whisper-subtle neutral lift (theme-adaptive via --fg), not a
-   milky accent-tinted wash. */
-.dpl-editor .cm-activeLine {
-  background: color-mix(in srgb, var(--fg) 3.5%, transparent);
 }
 
 /* The `+` line-action gutter and its marker. */
