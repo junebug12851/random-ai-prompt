@@ -14,6 +14,7 @@ import {
   MonitorIcon,
   MoonIcon,
   SunIcon,
+  CheckIcon,
 } from "../lib/icons.js";
 
 // Keep in sync with the repo VERSION / package.json (the web reads it from lib/version.js at build).
@@ -104,7 +105,7 @@ const MODES = [
  * @param {{ visible: boolean, onClose: () => void, top: number }} props
  */
 export default function OverflowMenu({ visible, onClose, top }) {
-  const { T, mode, setMode, accent, setAccent, accents } = useTheme();
+  const { T, mode, setMode, accent, setAccent, accents, locale, setLocale, locales } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
 
   const open = (url) => {
@@ -151,6 +152,26 @@ export default function OverflowMenu({ visible, onClose, top }) {
                 );
               })}
             </View>
+
+            <View style={styles.sep} />
+
+            {/* Language — folds in above the links, like the web LinksMenu. English-only for now. */}
+            <Text style={styles.sectionLabel}>LANGUAGE</Text>
+            {locales.map((l) => {
+              const on = locale === l.id;
+              return (
+                <TouchableOpacity
+                  key={l.id}
+                  style={styles.row}
+                  onPress={() => setLocale(l.id)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.rowLabel, { flex: 1 }]}>{l.label}</Text>
+                  {on && <CheckIcon size={16} color={T.accent} />}
+                </TouchableOpacity>
+              );
+            })}
+            <Text style={styles.langNote}>English is the only language for now.</Text>
 
             <View style={styles.sep} />
 
@@ -272,4 +293,5 @@ const makeStyles = (T) =>
       textAlign: "center",
       paddingVertical: 8,
     },
+    langNote: { color: T.faint, fontSize: 11.5, marginTop: 4, marginLeft: 8 },
   });

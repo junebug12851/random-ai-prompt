@@ -114,6 +114,15 @@ export const ACCENTS = [
 export const DEFAULT_ACCENT = "mint";
 const MINT_STRONG = "#21c98a"; // the mint --accent-strong (others derive to their own accent)
 
+// Selectable display languages. English is the only fully-authored locale (same as the web, whose
+// config ships only English + a dev pseudo-locale); "auto" follows the device. Add a real language by
+// dropping in a translated catalog + registering it here — the picker is ready for it.
+export const LOCALES = [
+  { id: "auto", label: "Auto (device)" },
+  { id: "en", label: "English" },
+];
+export const DEFAULT_LOCALE = "auto";
+
 function hexToRgba(hex, a) {
   const h = hex.replace("#", "");
   const n =
@@ -151,6 +160,7 @@ export function ThemeProvider({ children }) {
   const system = useColorScheme(); // "light" | "dark" | null
   const [mode, setMode] = useState("system"); // "system" | "dark" | "light"
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
+  const [locale, setLocale] = useState(DEFAULT_LOCALE); // "auto" | "en"
   const [ready, setReady] = useState(false);
 
   // Load the persisted choice once.
@@ -165,6 +175,7 @@ export function ThemeProvider({ children }) {
             if (alive) {
               if (j.mode) setMode(j.mode);
               if (j.accent) setAccent(j.accent);
+              if (j.locale) setLocale(j.locale);
             }
           }
         } catch {
@@ -181,14 +192,26 @@ export function ThemeProvider({ children }) {
   // Persist after the initial load (so we don't clobber the saved file with defaults).
   useEffect(() => {
     if (!ready || !FS) return;
-    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent })).catch(() => {});
-  }, [mode, accent, ready]);
+    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent, locale })).catch(() => {});
+  }, [mode, accent, locale, ready]);
 
   const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
   const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
   const value = useMemo(
-    () => ({ T, mode, setMode, accent, setAccent, accents: ACCENTS, resolved, ready }),
-    [T, mode, accent, resolved, ready],
+    () => ({
+      T,
+      mode,
+      setMode,
+      accent,
+      setAccent,
+      accents: ACCENTS,
+      locale,
+      setLocale,
+      locales: LOCALES,
+      resolved,
+      ready,
+    }),
+    [T, mode, accent, locale, resolved, ready],
   );
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
@@ -204,6 +227,9 @@ export function useTheme() {
     accent: DEFAULT_ACCENT,
     setAccent: () => {},
     accents: ACCENTS,
+    locale: DEFAULT_LOCALE,
+    setLocale: () => {},
+    locales: LOCALES,
     resolved: "dark",
     ready: true,
   };
