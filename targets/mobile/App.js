@@ -52,7 +52,7 @@ function Root() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <StatusBar style="light" />
       <View style={styles.topbar}>
-        <Image source={require("./assets/icon.png")} style={styles.logo} />
+        <Image source={require("./assets/logo.png")} style={styles.logo} resizeMode="contain" />
 
         <View style={styles.switch}>
           {TABS.map((t) => {
