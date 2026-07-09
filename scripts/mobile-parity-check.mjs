@@ -100,24 +100,66 @@ async function checkProviders() {
   }
   for (const p of IMAGE_PROVIDERS) {
     const w = web[p.id];
-    if (!w) fail(`mobile provider "${p.id}" has no web config`);
-    else if (w.transport !== "browser-direct")
+    if (!w) {
+      fail(`mobile provider "${p.id}" has no web config`);
+      continue;
+    }
+    if (p.local) {
+      // local-direct providers hit the user's OWN server; on native there's no CORS, so no backend
+      // of ours is needed. They must be local-direct on the web too.
+      if (w.transport === "local-direct") pass(`"${p.id}" is local-direct on the web (local server)`);
+      else fail(`"${p.id}" is marked local on mobile but "${w.transport}" on the web`);
+    } else if (w.transport !== "browser-direct") {
       fail(
         `"${p.id}" is "${w.transport}" on the web, not browser-direct — it can't run on mobile (no backend)`,
       );
-    else pass(`"${p.id}" is browser-direct on the web`);
+    } else {
+      pass(`"${p.id}" is browser-direct on the web`);
+    }
   }
   // Info (not a failure): browser-direct IMAGE providers on the web not yet wired on mobile.
   const mobIds = new Set(IMAGE_PROVIDERS.map((p) => p.id));
-  const missing = Object.entries(web)
+  const missingBd = Object.entries(web)
     .filter(([id, w]) => w.transport === "browser-direct" && w.tier === "api" && !mobIds.has(id))
     .map(([id]) => id);
-  if (missing.length)
-    console.log(`  ℹ web browser-direct image providers not yet on mobile: ${missing.join(", ")}`);
+  if (missingBd.length)
+    console.log(`  ℹ web browser-direct image providers not yet on mobile: ${missingBd.join(", ")}`);
+  const missingLocal = Object.entries(web)
+    .filter(([id, w]) => w.transport === "local-direct" && !mobIds.has(id))
+    .map(([id]) => id);
+  if (missingLocal.length)
+    console.log(`  ℹ web local-direct image providers not yet on mobile: ${missingLocal.join(", ")}`);
+}
+
+// ---------- 5. Local provider settings: mobile field keys == web provider settings.js field keys ----
+async function checkLocalSettings() {
+  console.log("Local provider settings (imageProviders.js  ⇄  web shared/*/settings.js)");
+  const { IMAGE_PROVIDERS } = await imp(join(MOBILE, "lib/imageProviders.js"));
+  // Which web settings.js each mobile local provider mirrors (forge/sdnext reuse local-webui).
+  const SRC = {
+    comfyui: "comfyui/settings.js",
+    forge: "local-webui/settings.js",
+    sdnext: "local-webui/settings.js",
+  };
+  for (const p of IMAGE_PROVIDERS.filter((x) => x.local)) {
+    const rel = SRC[p.id];
+    if (!rel) { fail(`no known web settings.js mapped for local provider "${p.id}"`); continue; }
+    const src = readFileSync(join(WEB, "shared", rel), "utf8");
+    const block = src.slice(src.indexOf("fields:"), src.indexOf("data:") + 1 || undefined);
+    const webKeys = [...block.matchAll(/key:\s*"([A-Za-z0-9_]+)"/g)].map((m) => m[1]);
+    const mobKeys = (p.settings || []).map((f) => f.key);
+    if (eq(webKeys, mobKeys)) pass(`"${p.id}" settings fields match (${mobKeys.length})`);
+    else fail(`"${p.id}" settings fields differ — web [${webKeys}] vs mobile [${mobKeys}]`);
+    // The URL field must default to the 192.168.1.1 hint the user asked for.
+    const urlField = (p.settings || []).find((f) => f.key === p.serverKey);
+    if (urlField && /192\.168\.1\.1/.test(String(urlField.default)))
+      pass(`"${p.id}" Server URL defaults to the 192.168.1.1 hint`);
+    else fail(`"${p.id}" Server URL should default to 192.168.1.1 (got "${urlField?.default}")`);
+  }
 }
 
 console.log("mobile ⇄ web parity check\n");
-for (const step of [checkAccents, checkLocales, checkDplInserts, checkProviders]) {
+for (const step of [checkAccents, checkLocales, checkDplInserts, checkProviders, checkLocalSettings]) {
   await step();
   console.log("");
 }

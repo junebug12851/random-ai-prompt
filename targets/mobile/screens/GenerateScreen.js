@@ -159,13 +159,15 @@ export default function GenerateScreen({ onGenerated }) {
       setGenMsg("");
       return;
     }
-    const key = await getKey(provider);
-    if (!key) {
+    // Local providers (ComfyUI / Forge / SD.Next) need no key — they hit the user's own server.
+    const key = prov.local ? "" : await getKey(provider);
+    if (!prov.local && !key) {
       setGenMsg(`Add your ${prov.label} API key in the ⋯ menu to generate images.`);
       return;
     }
     // Generate one image per rolled prompt, saving each into the Gallery as it lands.
     const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}) };
+    const model = provSettings.model || provSettings.comfyCheckpoint || undefined;
     setGenerating(true);
     let saved = 0;
     let error = "";
@@ -174,7 +176,7 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
         for (const img of images) {
-          await saveImageSrc(img, { prompt: prompts[i], provider, model: provSettings.model });
+          await saveImageSrc(img, { prompt: prompts[i], provider, model });
           saved++;
         }
         if (saved) onGenerated?.();

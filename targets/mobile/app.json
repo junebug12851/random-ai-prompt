@@ -9,6 +9,7 @@
     "newArchEnabled": true,
     "android": {
       "package": "io.fairyfox.randomaiprompt",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#0e0f13",
         "foregroundImage": "./assets/android-icon-foreground.png",

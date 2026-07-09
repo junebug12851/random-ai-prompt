@@ -34,6 +34,10 @@ import {
 // Keep in sync with the repo VERSION / package.json (the web reads it from lib/version.js at build).
 const APP_VERSION = "2.51.1";
 
+// Default Server URL for a local provider (its serverKey field's default).
+const providerServerDefault = (p) =>
+  (p.settings || []).find((f) => f.key === p.serverKey)?.default || "";
+
 const LINKS = {
   github: "https://github.com/junebug12851/random-ai-prompt",
   releases: "https://github.com/junebug12851/random-ai-prompt/releases",
@@ -280,7 +284,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                     {provider === pv.id && <CheckIcon size={16} color={T.accent} />}
                   </TouchableOpacity>
                 ))}
-                {sel && (
+                {sel && !sel.local && (
                   <>
                     <TextInput
                       style={styles.keyInput}
@@ -302,6 +306,25 @@ export default function OverflowMenu({ visible, onClose, top }) {
                     </View>
                   </>
                 )}
+                {sel && sel.local && (
+                  <>
+                    <TextInput
+                      style={styles.keyInput}
+                      value={providerSettings[sel.id]?.[sel.serverKey] ?? providerServerDefault(sel)}
+                      onChangeText={(v) => setProviderSetting(sel.id, sel.serverKey, v)}
+                      placeholder="http://192.168.1.1:8188"
+                      placeholderTextColor={T.faint}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="url"
+                    />
+                    <View style={styles.provFoot}>
+                      <Text style={styles.provNote}>
+                        Your own server on this Wi-Fi (no key). More options in Provider settings.
+                      </Text>
+                    </View>
+                  </>
+                )}
               </>
             )}
 
@@ -317,22 +340,41 @@ export default function OverflowMenu({ visible, onClose, top }) {
                     return (
                       <View key={f.key} style={styles.setBlock}>
                         <Text style={styles.setLabel}>{f.label}</Text>
-                        <View style={styles.chips}>
-                          {f.options.map((opt) => {
-                            const on = cur === opt;
-                            return (
-                              <TouchableOpacity
-                                key={opt}
-                                style={[styles.chip, on && styles.chipOn]}
-                                onPress={() => setProviderSetting(sel.id, f.key, opt)}
-                              >
-                                <Text style={[styles.chipText, on && styles.chipTextOn]}>
-                                  {opt}
-                                </Text>
-                              </TouchableOpacity>
-                            );
-                          })}
-                        </View>
+                        {f.options ? (
+                          <View style={styles.chips}>
+                            {f.options.map((opt) => {
+                              const on = cur === opt;
+                              return (
+                                <TouchableOpacity
+                                  key={opt}
+                                  style={[styles.chip, on && styles.chipOn]}
+                                  onPress={() => setProviderSetting(sel.id, f.key, opt)}
+                                >
+                                  <Text style={[styles.chipText, on && styles.chipTextOn]}>
+                                    {opt}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <TextInput
+                            style={styles.setInput}
+                            value={String(cur ?? "")}
+                            onChangeText={(v) => setProviderSetting(sel.id, f.key, v)}
+                            placeholder={f.placeholder || ""}
+                            placeholderTextColor={T.faint}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            keyboardType={
+                              f.type === "number"
+                                ? "numbers-and-punctuation"
+                                : f.key === sel.serverKey
+                                  ? "url"
+                                  : "default"
+                            }
+                          />
+                        )}
                       </View>
                     );
                   })
@@ -482,6 +524,17 @@ const makeStyles = (T) =>
       letterSpacing: 0.5,
       marginBottom: 8,
       marginLeft: 4,
+    },
+    setInput: {
+      color: T.fg,
+      fontSize: 14,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+      marginHorizontal: 2,
     },
     chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingHorizontal: 2 },
     chip: {
