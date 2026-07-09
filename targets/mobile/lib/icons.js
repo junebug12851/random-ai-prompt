@@ -197,3 +197,33 @@ export const ExternalLinkIcon = (p) => (
     <Line x1="10" y1="14" x2="21" y2="3" />
   </Icon>
 );
+
+// --- Appearance (theme mode) icons ---
+
+export const MonitorIcon = (p) => (
+  <Icon {...p}>
+    <Rect x="2" y="3" width="20" height="14" rx="2" />
+    <Line x1="8" y1="21" x2="16" y2="21" />
+    <Line x1="12" y1="17" x2="12" y2="21" />
+  </Icon>
+);
+
+export const MoonIcon = (p) => (
+  <Icon {...p}>
+    <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </Icon>
+);
+
+export const SunIcon = (p) => (
+  <Icon {...p}>
+    <Circle cx="12" cy="12" r="5" />
+    <Line x1="12" y1="1" x2="12" y2="3" />
+    <Line x1="12" y1="21" x2="12" y2="23" />
+    <Line x1="4.2" y1="4.2" x2="5.6" y2="5.6" />
+    <Line x1="18.4" y1="18.4" x2="19.8" y2="19.8" />
+    <Line x1="1" y1="12" x2="3" y2="12" />
+    <Line x1="21" y1="12" x2="23" y2="12" />
+    <Line x1="4.2" y1="19.8" x2="5.6" y2="18.4" />
+    <Line x1="18.4" y1="5.6" x2="19.8" y2="4.2" />
+  </Icon>
+);

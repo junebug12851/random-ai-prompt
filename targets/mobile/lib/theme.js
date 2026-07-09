@@ -1,10 +1,17 @@
 /**
- * @file Design tokens mirrored from the web app's foundation
- * (targets/web/frontend/styles/foundation/tokens.css), dark base — so the mobile target looks like the
- * same product as the web/desktop editions. Accent is the app's mint; surfaces/text/borders match the web.
+ * Mobile theming — the counterpart to the web's ThemeProvider + tokens.css. Provides the semantic
+ * token object `T` for the current base (System / Dark / Light) and accent, plus setters, over React
+ * context. Choices persist to the app's document dir. Mirrors the web palettes + the 9 accent presets
+ * (theme/themes/*.json). Components read `const { T } = useTheme()` and build their styles from it.
  */
-export const T = {
-  // surfaces
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { Platform, useColorScheme } from "react-native";
+
+const FS = Platform.OS === "web" ? null : require("expo-file-system/legacy");
+const FILE = FS ? `${FS.documentDirectory}rap-theme.json` : null;
+
+// Neutral palettes — foundation/tokens.css primitives.
+const DARK = {
   bg: "#1c1c1f",
   input: "#2a2a2f",
   panel: "#232328",
@@ -12,25 +19,192 @@ export const T = {
   elevated: "#2c2c33",
   chip: "#2a2a31",
   chipHover: "#34343d",
-  // text
   fg: "#fafafa",
   fgSoft: "#d6d6dc",
   muted: "#aaaab2",
   faint: "#97979f",
-  // lines
   border: "#34343c",
   borderSoft: "#2b2b32",
-  // accent (mint)
-  accent: "#34e2a0",
-  accentStrong: "#21c98a",
-  accentInk: "#06231a",
-  accentSoft: "rgba(52,226,160,0.14)",
-  // danger
-  dangerBorder: "#6b2230",
-  dangerBg: "#3a1620",
-  dangerFg: "#ffb3c0",
-  // scales
-  radius: 14,
-  radiusSm: 10,
-  radiusPill: 999,
 };
+const LIGHT = {
+  bg: "#f5f5f7",
+  input: "#ffffff",
+  panel: "#ffffff",
+  panel2: "#fafafb",
+  elevated: "#ffffff",
+  chip: "#eeeef1",
+  chipHover: "#e3e3e8",
+  fg: "#18181b",
+  fgSoft: "#2c2c31",
+  muted: "#6a6a73",
+  faint: "#9a9aa2",
+  border: "#e2e2e7",
+  borderSoft: "#ededf1",
+};
+// Danger + scales are base-independent.
+const DANGER = { dangerBorder: "#6b2230", dangerBg: "#3a1620", dangerFg: "#ffb3c0" };
+const SCALES = { radius: 14, radiusSm: 10, radiusPill: 999 };
+
+// Accent presets — theme/themes/*.json (dark = neon tone, light = pastel; ink = text on the accent).
+export const ACCENTS = [
+  {
+    id: "mint",
+    label: "Mint",
+    swatch: "#34e2a0",
+    dark: { accent: "#34e2a0", ink: "#06231a" },
+    light: { accent: "#34e2a0", ink: "#04150f" },
+  },
+  {
+    id: "teal",
+    label: "Teal",
+    swatch: "#3de8c8",
+    dark: { accent: "#3de8c8", ink: "#04231e" },
+    light: { accent: "#6fe6cf", ink: "#04231e" },
+  },
+  {
+    id: "cyan",
+    label: "Cyan",
+    swatch: "#46e6ff",
+    dark: { accent: "#46e6ff", ink: "#052430" },
+    light: { accent: "#7fe9ff", ink: "#052430" },
+  },
+  {
+    id: "blue",
+    label: "Blue",
+    swatch: "#5b9dff",
+    dark: { accent: "#5b9dff", ink: "#071630" },
+    light: { accent: "#8fbcff", ink: "#071630" },
+  },
+  {
+    id: "violet",
+    label: "Violet",
+    swatch: "#b18bff",
+    dark: { accent: "#b18bff", ink: "#1a0a2e" },
+    light: { accent: "#c7b0ff", ink: "#1a0a2e" },
+  },
+  {
+    id: "magenta",
+    label: "Magenta",
+    swatch: "#f27bff",
+    dark: { accent: "#f27bff", ink: "#2a082b" },
+    light: { accent: "#f4a8ff", ink: "#2a082b" },
+  },
+  {
+    id: "pink",
+    label: "Pink",
+    swatch: "#ff77a8",
+    dark: { accent: "#ff77a8", ink: "#2e0a18" },
+    light: { accent: "#ffa6c2", ink: "#2e0a18" },
+  },
+  {
+    id: "coral",
+    label: "Coral",
+    swatch: "#ff8a6b",
+    dark: { accent: "#ff8a6b", ink: "#2e1108" },
+    light: { accent: "#ffb199", ink: "#2e1108" },
+  },
+  {
+    id: "amber",
+    label: "Amber",
+    swatch: "#ffcb52",
+    dark: { accent: "#ffcb52", ink: "#2a1e04" },
+    light: { accent: "#ffdd8a", ink: "#2a1e04" },
+  },
+];
+export const DEFAULT_ACCENT = "mint";
+const MINT_STRONG = "#21c98a"; // the mint --accent-strong (others derive to their own accent)
+
+function hexToRgba(hex, a) {
+  const h = hex.replace("#", "");
+  const n =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h;
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/** Build the semantic token object for a resolved base ("dark"|"light") + accent id. */
+export function buildTokens(resolved, accentId) {
+  const base = resolved === "light" ? LIGHT : DARK;
+  const preset = ACCENTS.find((a) => a.id === accentId) || ACCENTS[0];
+  const tone = resolved === "light" ? preset.light : preset.dark;
+  return {
+    ...base,
+    ...DANGER,
+    ...SCALES,
+    accent: tone.accent,
+    accentStrong: preset.id === "mint" ? MINT_STRONG : tone.accent,
+    accentInk: tone.ink,
+    accentSoft: hexToRgba(tone.accent, 0.14),
+  };
+}
+
+const ThemeCtx = createContext(null);
+
+export function ThemeProvider({ children }) {
+  const system = useColorScheme(); // "light" | "dark" | null
+  const [mode, setMode] = useState("system"); // "system" | "dark" | "light"
+  const [accent, setAccent] = useState(DEFAULT_ACCENT);
+  const [ready, setReady] = useState(false);
+
+  // Load the persisted choice once.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (FS) {
+        try {
+          const info = await FS.getInfoAsync(FILE);
+          if (info.exists) {
+            const j = JSON.parse(await FS.readAsStringAsync(FILE));
+            if (alive) {
+              if (j.mode) setMode(j.mode);
+              if (j.accent) setAccent(j.accent);
+            }
+          }
+        } catch {
+          /* first run / unreadable — keep defaults */
+        }
+      }
+      if (alive) setReady(true);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Persist after the initial load (so we don't clobber the saved file with defaults).
+  useEffect(() => {
+    if (!ready || !FS) return;
+    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent })).catch(() => {});
+  }, [mode, accent, ready]);
+
+  const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
+  const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
+  const value = useMemo(
+    () => ({ T, mode, setMode, accent, setAccent, accents: ACCENTS, resolved, ready }),
+    [T, mode, accent, resolved, ready],
+  );
+  return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
+}
+
+/** The theme hook. Falls back to dark+mint if used outside the provider (e.g. web-render probes). */
+export function useTheme() {
+  const ctx = useContext(ThemeCtx);
+  if (ctx) return ctx;
+  return {
+    T: buildTokens("dark", DEFAULT_ACCENT),
+    mode: "system",
+    setMode: () => {},
+    accent: DEFAULT_ACCENT,
+    setAccent: () => {},
+    accents: ACCENTS,
+    resolved: "dark",
+    ready: true,
+  };
+}

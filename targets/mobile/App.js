@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { T } from "./lib/theme.js";
+import { ThemeProvider, useTheme } from "./lib/theme.js";
 import { MoreIcon } from "./lib/icons.js";
 import OverflowMenu from "./components/OverflowMenu.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
@@ -23,13 +23,17 @@ const TABS = [
 // legal pages + version — the web's compact LinksMenu). Panes stay MOUNTED (visibility toggled).
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <Root />
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <Root />
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
 
 function Root() {
+  const { T, resolved } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   const insets = useSafeAreaInsets();
   const [view, setView] = useState("generate");
   const [image, setImage] = useState(null);
@@ -50,7 +54,7 @@ function Root() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <StatusBar style="light" />
+      <StatusBar style={resolved === "light" ? "dark" : "light"} />
       <View style={styles.topbar}>
         <Image source={require("./assets/logo.png")} style={styles.logo} resizeMode="contain" />
 
@@ -99,49 +103,50 @@ function Root() {
 
 const R = 44; // overflow toggle size
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: T.bg },
-  topbar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-  },
-  logo: { width: 32, height: 32, borderRadius: 8 },
-  // enclosed pill switch (view-switch.css)
-  switch: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: T.input,
-    borderRadius: T.radiusPill,
-    borderWidth: 1,
-    borderColor: T.border,
-    paddingHorizontal: 3,
-    paddingVertical: 3,
-  },
-  tab: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 8,
-    borderRadius: T.radiusPill,
-  },
-  tabOn: { backgroundColor: T.accentStrong },
-  tabText: { color: T.muted, fontSize: 13, fontWeight: "700" },
-  tabTextOn: { color: T.accentInk, fontWeight: "800" },
-  more: {
-    width: R,
-    height: R,
-    borderRadius: R / 2,
-    borderWidth: 1,
-    borderColor: T.border,
-    backgroundColor: T.input,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  body: { flex: 1 },
-  pane: { ...StyleSheet.absoluteFillObject },
-  hidden: { display: "none" },
-});
+const makeStyles = (T) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
+    topbar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+    logo: { width: 32, height: 32, borderRadius: 8 },
+    // enclosed pill switch (view-switch.css)
+    switch: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: T.input,
+      borderRadius: T.radiusPill,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 3,
+      paddingVertical: 3,
+    },
+    tab: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+      borderRadius: T.radiusPill,
+    },
+    tabOn: { backgroundColor: T.accentStrong },
+    tabText: { color: T.muted, fontSize: 13, fontWeight: "700" },
+    tabTextOn: { color: T.accentInk, fontWeight: "800" },
+    more: {
+      width: R,
+      height: R,
+      borderRadius: R / 2,
+      borderWidth: 1,
+      borderColor: T.border,
+      backgroundColor: T.input,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    body: { flex: 1 },
+    pane: { ...StyleSheet.absoluteFillObject },
+    hidden: { display: "none" },
+  });

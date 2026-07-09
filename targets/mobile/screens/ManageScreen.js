@@ -1,12 +1,20 @@
-import { useState, useEffect, useCallback, useRef, memo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { T } from "../lib/theme.js";
-import { listUserLists, readUserList, writeUserList, deleteUserList, storageAvailable } from "../lib/storage.js";
+import { useTheme } from "../lib/theme.js";
+import {
+  listUserLists,
+  readUserList,
+  writeUserList,
+  deleteUserList,
+  storageAvailable,
+} from "../lib/storage.js";
 
 // One editable line. The input is UNCONTROLLED (defaultValue) and writes straight into the shared line
 // object on change — so typing never re-renders the (up to 100k-row) list. Memoized on the line object.
 const LineRow = memo(function LineRow({ line, onCommit, onDelete }) {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   return (
     <View style={styles.lineRow}>
       <TextInput
@@ -27,6 +35,8 @@ const LineRow = memo(function LineRow({ line, onCommit, onDelete }) {
 
 // The windowed editor for one list — master/detail's detail pane (the web Manage's phone layout).
 function Editor({ name, onClose }) {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   const linesRef = useRef([]);
   const nextId = useRef(0);
   const [view, setView] = useState([]);
@@ -41,7 +51,8 @@ function Editor({ name, onClose }) {
     }
     const needle = f.toLowerCase();
     const out = [];
-    for (let i = 0; i < all.length; i++) if (all[i].text.toLowerCase().includes(needle)) out.push(all[i]);
+    for (let i = 0; i < all.length; i++)
+      if (all[i].text.toLowerCase().includes(needle)) out.push(all[i]);
     setView(out);
   }, []);
 
@@ -117,7 +128,9 @@ function Editor({ name, onClose }) {
         contentContainerStyle={{ padding: 14 }}
         renderItem={({ item }) => <LineRow line={item} onCommit={onCommit} onDelete={onDelete} />}
         ListEmptyComponent={
-          ready ? <Text style={styles.none}>{filter ? "No matching lines." : "Empty — add a line."}</Text> : null
+          ready ? (
+            <Text style={styles.none}>{filter ? "No matching lines." : "Empty — add a line."}</Text>
+          ) : null
         }
       />
     </View>
@@ -130,6 +143,8 @@ function Editor({ name, onClose }) {
  * runtime overlay (so {name} draws from them during generation) is the next step.
  */
 export default function ManageScreen() {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   const [lists, setLists] = useState([]);
   const [editing, setEditing] = useState(null);
   const [newName, setNewName] = useState("");
@@ -173,8 +188,9 @@ export default function ManageScreen() {
     <View style={styles.scroll}>
       <Text style={styles.h}>Your custom lists</Text>
       <Text style={styles.hint}>
-        Word lists stored on your phone (editor stays smooth to 100k lines). Hooking them into generation
-        as a live overlay is the next step.{storageAvailable ? "" : " (Storage is off in the web preview.)"}
+        Word lists stored on your phone (editor stays smooth to 100k lines). Hooking them into
+        generation as a live overlay is the next step.
+        {storageAvailable ? "" : " (Storage is off in the web preview.)"}
       </Text>
       <View style={styles.newRow}>
         <TextInput
@@ -209,28 +225,95 @@ export default function ManageScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  scroll: { flex: 1, padding: 16 },
-  h: { color: T.fg, fontSize: 18, fontWeight: "700", marginBottom: 6 },
-  hint: { color: T.muted, fontSize: 13, lineHeight: 19, marginBottom: 14 },
-  newRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
-  newInput: { flex: 1, color: T.fg, fontSize: 15, backgroundColor: T.input, borderRadius: T.radiusSm, borderWidth: 1, borderColor: T.border, paddingHorizontal: 12, paddingVertical: 10 },
-  none: { color: T.faint, fontSize: 14, textAlign: "center", marginTop: 8 },
-  listRow: { flexDirection: "row", alignItems: "center", backgroundColor: T.panel, borderRadius: T.radiusSm, paddingHorizontal: 14, paddingVertical: 14, marginBottom: 8, borderWidth: 1, borderColor: T.borderSoft },
-  listName: { color: T.fgSoft, fontSize: 15, fontWeight: "600" },
-  del: { color: T.dangerFg, fontSize: 13, fontWeight: "700" },
-  primary: { backgroundColor: T.accent, paddingHorizontal: 18, borderRadius: T.radiusSm, alignItems: "center", justifyContent: "center" },
-  btnTextP: { color: T.accentInk, fontSize: 15, fontWeight: "800" },
-  editorWrap: { flex: 1 },
-  editorHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 10 },
-  back: { color: T.accent, fontSize: 15, fontWeight: "700" },
-  editorTitle: { color: T.fg, fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center", marginHorizontal: 10 },
-  save: { color: T.accent, fontSize: 15, fontWeight: "800" },
-  toolbar: { flexDirection: "row", gap: 10, paddingHorizontal: 14, paddingBottom: 10 },
-  filter: { flex: 1, color: T.fg, fontSize: 14, backgroundColor: T.input, borderRadius: T.radiusSm, borderWidth: 1, borderColor: T.border, paddingHorizontal: 12, paddingVertical: 9 },
-  addBtn: { backgroundColor: T.chip, borderRadius: T.radiusSm, paddingHorizontal: 14, justifyContent: "center", borderWidth: 1, borderColor: T.border },
-  addBtnText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
-  lineRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
-  lineInput: { flex: 1, color: T.fg, fontSize: 15, backgroundColor: T.panel, borderRadius: 8, borderWidth: 1, borderColor: T.border, paddingHorizontal: 12, paddingVertical: 9 },
-  lineDel: { color: T.faint, fontSize: 16, fontWeight: "700", paddingHorizontal: 4 },
-});
+const makeStyles = (T) =>
+  StyleSheet.create({
+    scroll: { flex: 1, padding: 16 },
+    h: { color: T.fg, fontSize: 18, fontWeight: "700", marginBottom: 6 },
+    hint: { color: T.muted, fontSize: 13, lineHeight: 19, marginBottom: 14 },
+    newRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
+    newInput: {
+      flex: 1,
+      color: T.fg,
+      fontSize: 15,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+    },
+    none: { color: T.faint, fontSize: 14, textAlign: "center", marginTop: 8 },
+    listRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: T.panel,
+      borderRadius: T.radiusSm,
+      paddingHorizontal: 14,
+      paddingVertical: 14,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+    },
+    listName: { color: T.fgSoft, fontSize: 15, fontWeight: "600" },
+    del: { color: T.dangerFg, fontSize: 13, fontWeight: "700" },
+    primary: {
+      backgroundColor: T.accent,
+      paddingHorizontal: 18,
+      borderRadius: T.radiusSm,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    btnTextP: { color: T.accentInk, fontSize: 15, fontWeight: "800" },
+    editorWrap: { flex: 1 },
+    editorHead: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    back: { color: T.accent, fontSize: 15, fontWeight: "700" },
+    editorTitle: {
+      color: T.fg,
+      fontSize: 16,
+      fontWeight: "700",
+      flex: 1,
+      textAlign: "center",
+      marginHorizontal: 10,
+    },
+    save: { color: T.accent, fontSize: 15, fontWeight: "800" },
+    toolbar: { flexDirection: "row", gap: 10, paddingHorizontal: 14, paddingBottom: 10 },
+    filter: {
+      flex: 1,
+      color: T.fg,
+      fontSize: 14,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+    addBtn: {
+      backgroundColor: T.chip,
+      borderRadius: T.radiusSm,
+      paddingHorizontal: 14,
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: T.border,
+    },
+    addBtnText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
+    lineRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
+    lineInput: {
+      flex: 1,
+      color: T.fg,
+      fontSize: 15,
+      backgroundColor: T.panel,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+    lineDel: { color: T.faint, fontSize: 16, fontWeight: "700", paddingHorizontal: 4 },
+  });

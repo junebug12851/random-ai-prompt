@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
-import { T } from "../lib/theme.js";
+import { useTheme } from "../lib/theme.js";
 import {
   CheckIcon,
   EyeIcon,
@@ -45,6 +45,8 @@ function activeToken(text, caret) {
 }
 
 function ToolBtn({ children, onPress, on, disabled }) {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   return (
     <TouchableOpacity
       style={[styles.tool, on && styles.toolOn, disabled && styles.toolOff]}
@@ -57,6 +59,8 @@ function ToolBtn({ children, onPress, on, disabled }) {
 }
 
 const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   return (
     <View style={styles.result}>
       <View style={styles.resultHead}>
@@ -73,6 +77,8 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
 });
 
 export default function GenerateScreen() {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   const [prompt, setPrompt] = useState(baseSettings.prompt || "{#random-words}");
   const [promptCount, setPromptCount] = useState(1);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -413,220 +419,226 @@ export default function GenerateScreen() {
 const CODE_FONT = 14.5;
 const CODE_LH = 22;
 
-const styles = StyleSheet.create({
-  listPad: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 20 },
-  card: {
-    backgroundColor: T.elevated,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: T.borderSoft,
-  },
+const makeStyles = (T) =>
+  StyleSheet.create({
+    listPad: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 20 },
+    card: {
+      backgroundColor: T.elevated,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+    },
 
-  editor: {
-    marginTop: 12,
-    backgroundColor: T.input,
-    borderRadius: T.radiusSm,
-    borderWidth: 1,
-    borderColor: T.border,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 12,
-  },
-  editorFocus: { borderColor: T.accent },
-  editorHead: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  editorHeadRight: { flexDirection: "row", alignItems: "center" },
-  headIcon: { paddingHorizontal: 8, paddingVertical: 2 },
-  badMark: { color: T.dangerFg, fontSize: 16, fontWeight: "800" },
+    editor: {
+      marginTop: 12,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingTop: 10,
+      paddingBottom: 12,
+    },
+    editorFocus: { borderColor: T.accent },
+    editorHead: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+    },
+    editorHeadRight: { flexDirection: "row", alignItems: "center" },
+    headIcon: { paddingHorizontal: 8, paddingVertical: 2 },
+    badMark: { color: T.dangerFg, fontSize: 16, fontWeight: "800" },
 
-  codeRow: { flexDirection: "row" },
-  gutter: {
-    paddingRight: 12,
-    marginRight: 12,
-    borderRightWidth: 1,
-    borderRightColor: T.borderSoft,
-  },
-  gutterLine: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "flex-end" },
-  gutterNum: { color: T.faint, fontSize: CODE_FONT, lineHeight: CODE_LH, fontFamily: "monospace" },
-  gutterPlus: { color: T.muted, fontSize: CODE_FONT, lineHeight: CODE_LH, fontWeight: "700" },
-  codeInput: {
-    flex: 1,
-    color: T.fg,
-    fontSize: CODE_FONT,
-    lineHeight: CODE_LH,
-    fontFamily: "monospace",
-    padding: 0,
-    minHeight: CODE_LH * 3,
-    textAlignVertical: "top",
-  },
+    codeRow: { flexDirection: "row" },
+    gutter: {
+      paddingRight: 12,
+      marginRight: 12,
+      borderRightWidth: 1,
+      borderRightColor: T.borderSoft,
+    },
+    gutterLine: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "flex-end" },
+    gutterNum: {
+      color: T.faint,
+      fontSize: CODE_FONT,
+      lineHeight: CODE_LH,
+      fontFamily: "monospace",
+    },
+    gutterPlus: { color: T.muted, fontSize: CODE_FONT, lineHeight: CODE_LH, fontWeight: "700" },
+    codeInput: {
+      flex: 1,
+      color: T.fg,
+      fontSize: CODE_FONT,
+      lineHeight: CODE_LH,
+      fontFamily: "monospace",
+      padding: 0,
+      minHeight: CODE_LH * 3,
+      textAlignVertical: "top",
+    },
 
-  suggStripPad: { paddingTop: 10, paddingBottom: 2 },
-  suggStripRow: { flexDirection: "row", gap: 8 },
-  sugg: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: T.radiusPill,
-    backgroundColor: T.panel,
-    borderWidth: 1,
-    borderColor: T.border,
-  },
-  suggLabel: { color: T.fg, fontSize: 13, fontWeight: "700", fontFamily: "monospace" },
-  suggKind: { color: T.faint, fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
+    suggStripPad: { paddingTop: 10, paddingBottom: 2 },
+    suggStripRow: { flexDirection: "row", gap: 8 },
+    sugg: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: T.radiusPill,
+      backgroundColor: T.panel,
+      borderWidth: 1,
+      borderColor: T.border,
+    },
+    suggLabel: { color: T.fg, fontSize: 13, fontWeight: "700", fontFamily: "monospace" },
+    suggKind: { color: T.faint, fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
 
-  previewBox: {
-    marginTop: 12,
-    backgroundColor: T.panel,
-    borderRadius: T.radiusSm,
-    borderWidth: 1,
-    borderColor: T.accent,
-    padding: 12,
-  },
-  previewLabel: {
-    color: T.accent,
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 6,
-  },
-  previewText: { color: T.fgSoft, fontSize: 14, lineHeight: 21 },
+    previewBox: {
+      marginTop: 12,
+      backgroundColor: T.panel,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.accent,
+      padding: 12,
+    },
+    previewLabel: {
+      color: T.accent,
+      fontSize: 10,
+      fontWeight: "800",
+      letterSpacing: 1,
+      marginBottom: 6,
+    },
+    previewText: { color: T.fgSoft, fontSize: 14, lineHeight: 21 },
 
-  fieldBar: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 12,
-    marginTop: 14,
-  },
-  leftCluster: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 10,
-    rowGap: 12,
-    flexShrink: 1,
-  },
-  promptsCount: { flexDirection: "row", alignItems: "center", gap: 8 },
-  promptsLabel: {
-    color: T.muted,
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginRight: 2,
-  },
-  countBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: T.chip,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: T.border,
-  },
-  countBtnText: { color: T.fgSoft, fontSize: 18, fontWeight: "700", lineHeight: 20 },
-  countVal: { color: T.fg, fontSize: 16, fontWeight: "800", minWidth: 26, textAlign: "center" },
+    fieldBar: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      justifyContent: "space-between",
+      gap: 12,
+      marginTop: 14,
+    },
+    leftCluster: {
+      flexDirection: "row",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 10,
+      rowGap: 12,
+      flexShrink: 1,
+    },
+    promptsCount: { flexDirection: "row", alignItems: "center", gap: 8 },
+    promptsLabel: {
+      color: T.muted,
+      fontSize: 12,
+      fontWeight: "800",
+      letterSpacing: 1,
+      marginRight: 2,
+    },
+    countBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: T.chip,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: T.border,
+    },
+    countBtnText: { color: T.fgSoft, fontSize: 18, fontWeight: "700", lineHeight: 20 },
+    countVal: { color: T.fg, fontSize: 16, fontWeight: "800", minWidth: 26, textAlign: "center" },
 
-  toolGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
-  tool: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: T.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toolOn: { borderColor: T.accent, backgroundColor: T.accentSoft },
-  toolOff: { opacity: 0.45 },
-  genRound: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: T.accent,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    toolGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
+    tool: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: T.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    toolOn: { borderColor: T.accent, backgroundColor: T.accentSoft },
+    toolOff: { opacity: 0.45 },
+    genRound: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: T.accent,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  resultsHead: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-    marginTop: 2,
-  },
-  resultsTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
-  resultsHeadRight: { flexDirection: "row", alignItems: "center", gap: 14 },
-  count: { color: T.muted, fontSize: 13 },
-  clearAll: { color: T.dangerFg, fontSize: 13, fontWeight: "700" },
-  result: {
-    backgroundColor: T.panel,
-    borderRadius: T.radius,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: T.borderSoft,
-  },
-  resultHead: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  resultNum: { color: T.faint, fontSize: 12, fontWeight: "700" },
-  copyLink: { color: T.accent, fontSize: 13, fontWeight: "700" },
-  resultText: { color: T.fgSoft, fontSize: 15, lineHeight: 22 },
+    resultsHead: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 10,
+      marginTop: 2,
+    },
+    resultsTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
+    resultsHeadRight: { flexDirection: "row", alignItems: "center", gap: 14 },
+    count: { color: T.muted, fontSize: 13 },
+    clearAll: { color: T.dangerFg, fontSize: 13, fontWeight: "700" },
+    result: {
+      backgroundColor: T.panel,
+      borderRadius: T.radius,
+      padding: 14,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+    },
+    resultHead: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+    },
+    resultNum: { color: T.faint, fontSize: 12, fontWeight: "700" },
+    copyLink: { color: T.accent, fontSize: 13, fontWeight: "700" },
+    resultText: { color: T.fgSoft, fontSize: 15, lineHeight: 22 },
 
-  fab: {
-    position: "absolute",
-    left: 20,
-    bottom: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: T.accent,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
+    fab: {
+      position: "absolute",
+      left: 20,
+      bottom: 24,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: T.accent,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000",
+      shadowOpacity: 0.35,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 6,
+    },
 
-  sheetScrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
-  gearSheet: {
-    backgroundColor: T.panel,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    borderTopWidth: 1,
-    borderColor: T.border,
-  },
-  gearHead: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 10,
-  },
-  gearTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
-  gearClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
-  gearBody: { paddingHorizontal: 18, paddingBottom: 28, paddingTop: 4 },
-  gearRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-  },
-  gearLabel: { color: T.fgSoft, fontSize: 15 },
-  gearNote: { color: T.faint, fontSize: 13, marginTop: 8 },
-});
+    sheetScrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+    gearSheet: {
+      backgroundColor: T.panel,
+      borderTopLeftRadius: 18,
+      borderTopRightRadius: 18,
+      borderTopWidth: 1,
+      borderColor: T.border,
+    },
+    gearHead: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 18,
+      paddingTop: 16,
+      paddingBottom: 10,
+    },
+    gearTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
+    gearClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
+    gearBody: { paddingHorizontal: 18, paddingBottom: 28, paddingTop: 4 },
+    gearRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingVertical: 10,
+    },
+    gearLabel: { color: T.fgSoft, fontSize: 15 },
+    gearNote: { color: T.faint, fontSize: 13, marginTop: 8 },
+  });

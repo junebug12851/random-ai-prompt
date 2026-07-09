@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from "react-native";
-import { T } from "../lib/theme.js";
+import { useTheme } from "../lib/theme.js";
 import { ChevronDownIcon } from "../lib/icons.js";
 import { DPL_INSERTS, materialize } from "../lib/dplInserts.js";
 import { expandOnce } from "../lib/engine.js";
@@ -39,6 +39,8 @@ function useExamples(openCat) {
  * @param {{ onInsert: (text: string) => void }} props
  */
 export default function InsertMenu({ onInsert }) {
+  const { T } = useTheme();
+  const styles = useMemo(() => makeStyles(T), [T]);
   const [open, setOpen] = useState(false);
   const [activeKey, setActiveKey] = useState(null);
   const openCat = DPL_INSERTS.find((c) => c.key === activeKey) || null;
@@ -133,89 +135,90 @@ export default function InsertMenu({ onInsert }) {
   );
 }
 
-const styles = StyleSheet.create({
-  insert: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: T.radiusPill,
-    borderWidth: 1,
-    borderColor: T.border,
-    backgroundColor: T.panel,
-  },
-  insertOn: { borderColor: T.accent },
-  insertText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
+const makeStyles = (T) =>
+  StyleSheet.create({
+    insert: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: T.radiusPill,
+      borderWidth: 1,
+      borderColor: T.border,
+      backgroundColor: T.panel,
+    },
+    insertOn: { borderColor: T.accent },
+    insertText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
 
-  scrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
-  sheet: {
-    backgroundColor: T.panel,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    maxHeight: "80%",
-    borderTopWidth: 1,
-    borderColor: T.border,
-  },
-  head: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: T.borderSoft,
-  },
-  title: { color: T.fg, fontSize: 16, fontWeight: "800" },
-  close: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
-  back: { paddingVertical: 2 },
-  backText: { color: T.accent, fontSize: 15, fontWeight: "800" },
-  body: { paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 28 },
+    scrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+    sheet: {
+      backgroundColor: T.panel,
+      borderTopLeftRadius: 18,
+      borderTopRightRadius: 18,
+      maxHeight: "80%",
+      borderTopWidth: 1,
+      borderColor: T.border,
+    },
+    head: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 18,
+      paddingTop: 16,
+      paddingBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: T.borderSoft,
+    },
+    title: { color: T.fg, fontSize: 16, fontWeight: "800" },
+    close: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
+    back: { paddingVertical: 2 },
+    backText: { color: T.accent, fontSize: 15, fontWeight: "800" },
+    body: { paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 28 },
 
-  catRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: T.elevated,
-    borderRadius: T.radiusSm,
-    borderWidth: 1,
-    borderColor: T.borderSoft,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-    marginBottom: 8,
-  },
-  catName: { color: T.fg, fontSize: 15, fontWeight: "700" },
-  catHint: { color: T.muted, fontSize: 12.5, marginTop: 2 },
-  catArrow: { color: T.faint, fontSize: 22, fontWeight: "700", marginLeft: 10 },
+    catRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: T.elevated,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+      paddingHorizontal: 14,
+      paddingVertical: 13,
+      marginBottom: 8,
+    },
+    catName: { color: T.fg, fontSize: 15, fontWeight: "700" },
+    catHint: { color: T.muted, fontSize: 12.5, marginTop: 2 },
+    catArrow: { color: T.faint, fontSize: 22, fontWeight: "700", marginLeft: 10 },
 
-  item: {
-    backgroundColor: T.elevated,
-    borderRadius: T.radiusSm,
-    borderWidth: 1,
-    borderColor: T.borderSoft,
-    padding: 12,
-    marginBottom: 8,
-  },
-  itemName: { color: T.fg, fontSize: 15, fontWeight: "700" },
-  itemDesc: { color: T.muted, fontSize: 12.5, marginTop: 3, lineHeight: 17 },
-  itemSyntax: { color: T.accent, fontSize: 13, fontFamily: "monospace", marginTop: 6 },
-  exRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 8,
-    marginTop: 6,
-    borderTopWidth: 1,
-    borderTopColor: T.borderSoft,
-    paddingTop: 6,
-  },
-  exLabel: {
-    color: T.faint,
-    fontSize: 10,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginTop: 2,
-  },
-  exText: { color: T.fgSoft, fontSize: 12.5, fontFamily: "monospace", flex: 1 },
-});
+    item: {
+      backgroundColor: T.elevated,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+      padding: 12,
+      marginBottom: 8,
+    },
+    itemName: { color: T.fg, fontSize: 15, fontWeight: "700" },
+    itemDesc: { color: T.muted, fontSize: 12.5, marginTop: 3, lineHeight: 17 },
+    itemSyntax: { color: T.accent, fontSize: 13, fontFamily: "monospace", marginTop: 6 },
+    exRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 8,
+      marginTop: 6,
+      borderTopWidth: 1,
+      borderTopColor: T.borderSoft,
+      paddingTop: 6,
+    },
+    exLabel: {
+      color: T.faint,
+      fontSize: 10,
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      marginTop: 2,
+    },
+    exText: { color: T.fgSoft, fontSize: 12.5, fontFamily: "monospace", flex: 1 },
+  });
