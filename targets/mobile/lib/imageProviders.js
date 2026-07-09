@@ -102,6 +102,20 @@ export const IMAGE_PROVIDERS = [
     keyHint: "sk-…",
     keyUrl: "https://platform.openai.com/api-keys",
     generate: openai,
+    settings: [
+      {
+        key: "model",
+        label: "Model",
+        options: ["gpt-image-1", "dall-e-3", "dall-e-2"],
+        default: "gpt-image-1",
+      },
+      {
+        key: "size",
+        label: "Size",
+        options: ["1024x1024", "1536x1024", "1024x1536"],
+        default: "1024x1024",
+      },
+    ],
   },
   {
     id: "fal",
@@ -109,6 +123,20 @@ export const IMAGE_PROVIDERS = [
     keyHint: "fal key",
     keyUrl: "https://fal.ai/dashboard/keys",
     generate: fal,
+    settings: [
+      {
+        key: "model",
+        label: "Model",
+        options: ["fal-ai/flux/schnell", "fal-ai/flux/dev", "fal-ai/fast-sdxl"],
+        default: "fal-ai/flux/schnell",
+      },
+      {
+        key: "imageSize",
+        label: "Size",
+        options: ["square_hd", "square", "portrait_4_3", "landscape_4_3"],
+        default: "square_hd",
+      },
+    ],
   },
   {
     id: "stability",
@@ -116,6 +144,15 @@ export const IMAGE_PROVIDERS = [
     keyHint: "sk-…",
     keyUrl: "https://platform.stability.ai/account/keys",
     generate: stability,
+    settings: [
+      { key: "model", label: "Model", options: ["core", "sd3", "ultra"], default: "core" },
+      {
+        key: "aspectRatio",
+        label: "Aspect",
+        options: ["1:1", "16:9", "9:16", "3:2", "2:3"],
+        default: "1:1",
+      },
+    ],
   },
   {
     id: "gemini",
@@ -123,7 +160,23 @@ export const IMAGE_PROVIDERS = [
     keyHint: "AI…",
     keyUrl: "https://aistudio.google.com/apikey",
     generate: gemini,
+    settings: [
+      {
+        key: "model",
+        label: "Model",
+        options: ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"],
+        default: "gemini-2.5-flash-image",
+      },
+    ],
   },
 ];
 
 export const getImageProvider = (id) => IMAGE_PROVIDERS.find((p) => p.id === id);
+
+/** Default settings ({key: default}) for a provider. */
+export function providerDefaults(id) {
+  const p = getImageProvider(id);
+  const out = {};
+  if (p) for (const f of p.settings || []) out[f.key] = f.default;
+  return out;
+}

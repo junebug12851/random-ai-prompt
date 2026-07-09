@@ -26,7 +26,7 @@ import {
 } from "../lib/icons.js";
 import { run, baseSettings, expandOnce } from "../lib/engine.js";
 import { getDplCompletions } from "../lib/blockCatalog.js";
-import { getImageProvider } from "../lib/imageProviders.js";
+import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
 import { saveImageSrc } from "../lib/storage.js";
 import InsertMenu from "../components/InsertMenu.js";
@@ -80,7 +80,7 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
 });
 
 export default function GenerateScreen({ onGenerated }) {
-  const { T, provider } = useTheme();
+  const { T, provider, providerSettings } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
   const [genMsg, setGenMsg] = useState("");
@@ -165,13 +165,14 @@ export default function GenerateScreen({ onGenerated }) {
       return;
     }
     // Generate one image per rolled prompt, saving each into the Gallery as it lands.
+    const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}) };
     setGenerating(true);
     let saved = 0;
     let error = "";
     for (let i = 0; i < prompts.length; i++) {
       setGenMsg(`Generating image ${i + 1} of ${prompts.length}…`);
       try {
-        const { images } = await prov.generate({ prompt: prompts[i], key });
+        const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
         for (const img of images) {
           await saveImageSrc(img);
           saved++;
@@ -186,7 +187,7 @@ export default function GenerateScreen({ onGenerated }) {
     setGenMsg(
       error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
     );
-  }, [generating, settings, provider, onGenerated]);
+  }, [generating, settings, provider, providerSettings, onGenerated]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {

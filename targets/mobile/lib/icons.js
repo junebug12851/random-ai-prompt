@@ -214,6 +214,15 @@ export const MoonIcon = (p) => (
   </Icon>
 );
 
+export const PaletteIcon = (p) => (
+  <Icon {...p}>
+    <Path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 0 1 1.6-1.6H16c3 0 5.5-2.5 5.5-5.6C21.5 6 17.5 2 12 2z" />
+    <Circle cx="7.5" cy="10.5" r="1.2" fill={p.color || "#fff"} stroke="none" />
+    <Circle cx="12" cy="7.5" r="1.2" fill={p.color || "#fff"} stroke="none" />
+    <Circle cx="16.5" cy="10.5" r="1.2" fill={p.color || "#fff"} stroke="none" />
+  </Icon>
+);
+
 export const SunIcon = (p) => (
   <Icon {...p}>
     <Circle cx="12" cy="12" r="5" />

@@ -162,7 +162,11 @@ export function ThemeProvider({ children }) {
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [locale, setLocale] = useState(DEFAULT_LOCALE); // "auto" | "en"
   const [provider, setProvider] = useState(""); // selected image provider id ("" = none)
+  const [providerSettings, setProviderSettings] = useState({}); // { [providerId]: { model, size, … } }
   const [ready, setReady] = useState(false);
+
+  const setProviderSetting = (id, key, val) =>
+    setProviderSettings((s) => ({ ...s, [id]: { ...s[id], [key]: val } }));
 
   // Load the persisted choice once.
   useEffect(() => {
@@ -178,6 +182,7 @@ export function ThemeProvider({ children }) {
               if (j.accent) setAccent(j.accent);
               if (j.locale) setLocale(j.locale);
               if (j.provider != null) setProvider(j.provider);
+              if (j.providerSettings) setProviderSettings(j.providerSettings);
             }
           }
         } catch {
@@ -194,8 +199,11 @@ export function ThemeProvider({ children }) {
   // Persist after the initial load (so we don't clobber the saved file with defaults).
   useEffect(() => {
     if (!ready || !FS) return;
-    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent, locale, provider })).catch(() => {});
-  }, [mode, accent, locale, provider, ready]);
+    FS.writeAsStringAsync(
+      FILE,
+      JSON.stringify({ mode, accent, locale, provider, providerSettings }),
+    ).catch(() => {});
+  }, [mode, accent, locale, provider, providerSettings, ready]);
 
   const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
   const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
@@ -212,10 +220,12 @@ export function ThemeProvider({ children }) {
       locales: LOCALES,
       provider,
       setProvider,
+      providerSettings,
+      setProviderSetting,
       resolved,
       ready,
     }),
-    [T, mode, accent, locale, provider, resolved, ready],
+    [T, mode, accent, locale, provider, providerSettings, resolved, ready],
   );
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
@@ -236,6 +246,8 @@ export function useTheme() {
     locales: LOCALES,
     provider: "",
     setProvider: () => {},
+    providerSettings: {},
+    setProviderSetting: () => {},
     resolved: "dark",
     ready: true,
   };
