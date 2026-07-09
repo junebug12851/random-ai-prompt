@@ -34,6 +34,7 @@
     "manifest": "node scripts/build-data-manifest.mjs",
     "metro:catalog": "node scripts/build-metro-catalog.mjs",
     "metro:parity": "node scripts/build-metro-catalog.mjs --tier=full && node scripts/metro-parity-check.mjs",
+    "mobile:parity": "node scripts/mobile-parity-check.mjs",
     "docs": "node scripts/build-docs.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
@@ -48,7 +49,7 @@
     "profile": "node scripts/profile-scenarios.mjs",
     "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
-    "test": "npm run check:docs && npm run lint && npm run smoke && npm run test:unit && npm run test:web",
+    "test": "npm run check:docs && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web",
     "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios"
   },
   "dependencies": {

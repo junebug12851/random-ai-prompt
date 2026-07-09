@@ -6,6 +6,11 @@
  */
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { Platform, useColorScheme } from "react-native";
+import { ACCENTS, DEFAULT_ACCENT, LOCALES, DEFAULT_LOCALE } from "./themeData.js";
+
+// Re-export so existing consumers keep importing these from lib/theme.js unchanged. The data lives in
+// the RN-free themeData.js so the parity check can import it in Node.
+export { ACCENTS, DEFAULT_ACCENT, LOCALES, DEFAULT_LOCALE };
 
 const FS = Platform.OS === "web" ? null : require("expo-file-system/legacy");
 const FILE = FS ? `${FS.documentDirectory}rap-theme.json` : null;
@@ -45,83 +50,7 @@ const LIGHT = {
 const DANGER = { dangerBorder: "#6b2230", dangerBg: "#3a1620", dangerFg: "#ffb3c0" };
 const SCALES = { radius: 14, radiusSm: 10, radiusPill: 999 };
 
-// Accent presets — theme/themes/*.json (dark = neon tone, light = pastel; ink = text on the accent).
-export const ACCENTS = [
-  {
-    id: "mint",
-    label: "Mint",
-    swatch: "#34e2a0",
-    dark: { accent: "#34e2a0", ink: "#06231a" },
-    light: { accent: "#34e2a0", ink: "#04150f" },
-  },
-  {
-    id: "teal",
-    label: "Teal",
-    swatch: "#3de8c8",
-    dark: { accent: "#3de8c8", ink: "#04231e" },
-    light: { accent: "#6fe6cf", ink: "#04231e" },
-  },
-  {
-    id: "cyan",
-    label: "Cyan",
-    swatch: "#46e6ff",
-    dark: { accent: "#46e6ff", ink: "#052430" },
-    light: { accent: "#7fe9ff", ink: "#052430" },
-  },
-  {
-    id: "blue",
-    label: "Blue",
-    swatch: "#5b9dff",
-    dark: { accent: "#5b9dff", ink: "#071630" },
-    light: { accent: "#8fbcff", ink: "#071630" },
-  },
-  {
-    id: "violet",
-    label: "Violet",
-    swatch: "#b18bff",
-    dark: { accent: "#b18bff", ink: "#1a0a2e" },
-    light: { accent: "#c7b0ff", ink: "#1a0a2e" },
-  },
-  {
-    id: "magenta",
-    label: "Magenta",
-    swatch: "#f27bff",
-    dark: { accent: "#f27bff", ink: "#2a082b" },
-    light: { accent: "#f4a8ff", ink: "#2a082b" },
-  },
-  {
-    id: "pink",
-    label: "Pink",
-    swatch: "#ff77a8",
-    dark: { accent: "#ff77a8", ink: "#2e0a18" },
-    light: { accent: "#ffa6c2", ink: "#2e0a18" },
-  },
-  {
-    id: "coral",
-    label: "Coral",
-    swatch: "#ff8a6b",
-    dark: { accent: "#ff8a6b", ink: "#2e1108" },
-    light: { accent: "#ffb199", ink: "#2e1108" },
-  },
-  {
-    id: "amber",
-    label: "Amber",
-    swatch: "#ffcb52",
-    dark: { accent: "#ffcb52", ink: "#2a1e04" },
-    light: { accent: "#ffdd8a", ink: "#2a1e04" },
-  },
-];
-export const DEFAULT_ACCENT = "mint";
 const MINT_STRONG = "#21c98a"; // the mint --accent-strong (others derive to their own accent)
-
-// Selectable display languages. English is the only fully-authored locale (same as the web, whose
-// config ships only English + a dev pseudo-locale); "auto" follows the device. Add a real language by
-// dropping in a translated catalog + registering it here — the picker is ready for it.
-export const LOCALES = [
-  { id: "auto", label: "Auto (device)" },
-  { id: "en", label: "English" },
-];
-export const DEFAULT_LOCALE = "auto";
 
 function hexToRgba(hex, a) {
   const h = hex.replace("#", "");
