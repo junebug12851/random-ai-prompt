@@ -32,6 +32,8 @@
     "check:docs": "node scripts/check-links.mjs",
     "check:tidy": "node scripts/check-tidy.mjs",
     "manifest": "node scripts/build-data-manifest.mjs",
+    "metro:catalog": "node scripts/build-metro-catalog.mjs",
+    "metro:parity": "node scripts/build-metro-catalog.mjs --tier=full && node scripts/metro-parity-check.mjs",
     "docs": "node scripts/build-docs.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
