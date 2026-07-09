@@ -72,6 +72,7 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/reference/deployment.md` | **Releases / CI** — the GitHub Actions pipelines (`ci.yml`, `pages.yml`, `release.yml`), the version gate, and the Netlify gui deploy |
 | `notes/reference/git-workflow.md` | Branch model + commit style + hard safety rules. Read before any git op |
 | `notes/reference/repo-hygiene.md` | **Keeping the repo from rotting** — the guards against uncommitted files, doc drift, and branch litter (`check:docs`, `check:tidy`, auto-delete-on-merge) and the rules they enforce |
+| `notes/reference/maintenance-sweep.md` | **The periodic full-repo cleanup runbook** — audit branches/PRs → close merged branches → ship `dev`→`main` → reconcile docs/notes/README → verify. Run on "full maintenance / clean things up" |
 | `notes/reference/versioning.md` | Version-number scheme — SemVer, the `VERSION` file, keeping `package.json` in sync |
 | `notes/decisions/architecture.md` | Key structural choices and why |
 | `notes/decisions/rejected.md` | Things tried/considered that were rejected — don't repeat |

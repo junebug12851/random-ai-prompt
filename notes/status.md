@@ -12,7 +12,7 @@ manifest/settings/content-safety modules), and the engine **owns its content** u
 (lists, presets, sources, and the `{#name}` block generators). Build targets live under
 `targets/`: `targets/web/` is the React/Vite web target (ONE npm package, split into `frontend/` +
 `backend/` + `shared/`), and `targets/web-shell/` is the Tauri shell (its own package; wraps the built local
-web target). `targets/shared/` is reserved for cross-target code and a `targets/cli/` target is planned.
+web target). `targets/shared/` is reserved for cross-target code. Two further targets have since shipped: `targets/cli/` (the `prompt` command-line tool, 2.50.0) and `targets/comfyui/` (the ComfyUI custom-node target, 2.51.0).
 The universal override overlay stays at the repo-root `user/` (`user/lists`, `user/blocks`). Build/meta
 tooling is in `scripts/`, the Node engine test suite in `tests/` (the web target has its own under
 `targets/web/tests/`); **all commands run from the repo root**. The dev server (`npm run web`) is
@@ -112,10 +112,12 @@ Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
 [`version/2026-07.md`](version/2026-07.md).
 
-**Version:** `2.46.0` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
+**Version:** `2.51.1` (single source of truth: repo-root `VERSION`; kept in sync with `package.json`
 and the desktop `targets/web-shell/tauri.conf.json`;
-see [`reference/versioning.md`](reference/versioning.md)). The monorepo flatten + `engine-v1-2` removal +
-stage consolidation is on `dev` (branch `feature/flatten-monorepo`) pending the owner's go-ahead to release.
+see [`reference/versioning.md`](reference/versioning.md)). Everything through 2.51.1 is **merged and
+released to `main`**. As of the **2026-07-09 maintenance sweep** the repo carries only two branches —
+`main` and `dev` — on both the local checkout and GitHub, with no open pull requests; all prior
+`feature/*` and dependabot branches have been merged and deleted.
 
 **`main` is branch-protected (2026-07-02):** releases now run **through a pull request** (`gh pr merge
 --merge`), not a local `git push origin main`. PR-required with 0 approvals (solo self-merge), strict
@@ -369,23 +371,24 @@ patterns, but were not launched live (launching the server opens a browser on th
 
 | Issue | Where | Status / notes |
 |-------|-------|----------------|
-| ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — 118 Vitest tests green. See [`plans/testing.md`](plans/testing.md). |
-| `no-dupe-else-if` warnings (dead branches) | several `blocks/**.js` (e.g. `v2/subject/portrait-princess.js`, `v1/*`) | Pre-existing duplicate `else if` conditions flag as ESLint warnings. They likely indicate latent logic bugs in the prompt generators, but "fixing" them changes generated prompts, so they're left as warnings to review deliberately. See [`plans/next-steps.md`](plans/next-steps.md). |
-| `no-useless-escape` warnings | a few prompt/data regexes | Harmless redundant escapes; kept as warnings (changing regexes risks changing output). |
+| ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — **738 Vitest tests** green (319 Node + 419 jsdom). See [`plans/testing.md`](plans/testing.md). |
+| ~~`no-dupe-else-if` / `no-useless-escape` lint warnings~~ | ~~`blocks/**.js`, some regexes~~ | **RESOLVED.** The tech-debt sweep cleared all ESLint warnings; `npm run lint` (eslint + stylelint) is now **0 problems**. |
 | Live generation unverified end-to-end | the provider adapters (`targets/web/shared/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
 
 ## Build / run health
 
+_Headless gate re-run on **2026-07-09** (the maintenance sweep). Playwright E2E/perf, the docs build,
+and the SPA production build were not re-run in this sweep but are green in CI._
+
 | Area | Status |
 |------|--------|
 | `npm install` (Node 24) | ✅ resolves clean |
-| `node --check` all JS | ✅ 0 syntax errors (152 files) |
-| `npm run lint` | ✅ 0 errors (18 warnings, pre-existing) |
-| Import smoke test (full graph + blocks + expansion) | ✅ green |
-| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 128 passed |
-| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 60 passed (IntlProvider render wrapper added for i18n) |
-| `npm run lint:i18n` (gui — `eslint-plugin-formatjs`) | ✅ 0 problems |
-| `npm run test:e2e` (Playwright — E2E/visual/a11y) | ✅ 8 passed (system Chrome via `channel: "chrome"`; visual baselines committed). The bundled Chrome-for-Testing build hit an SxS launch error here even with VC++ present, so the config uses the system Chrome; CI can drop the channel. |
-| `npm run test:perf:scenarios` (Playwright — gallery 100k · 1000 prompts · Manage 100k · hot-reload · max-load) | ✅ 5 passed (real release server; bounded DOM + heap ceilings + scroll/tab-switch budgets) |
-| `npm run docs` (JSDoc + docdash doc-site, ~244 pages) | ✅ exit 0 |
-| `gui` SPA `vite build` | ✅ green |
+| `npm test` (headless gate: check:docs · lint · smoke · test:unit · test:web) | ✅ green (2026-07-09) |
+| `npm run check:docs` | ✅ all relative doc links resolve |
+| `npm run lint` (eslint + stylelint) | ✅ 0 problems (no warnings) |
+| `npm run smoke` | ✅ ES-module graph + all blocks load; sample prompt expands |
+| `npm run test:unit` (Vitest, Node — unit/integration/snapshot/regression) | ✅ 319 passed (35 files) |
+| `npm run test:web` (Vitest, jsdom — SPA unit/component/contract/integration) | ✅ 419 passed (63 files) |
+| `npm run check:tidy` | ✅ working tree tidy (no untracked non-ignored files) |
+| `npm run test:e2e` · `test:perf:scenarios` (Playwright — E2E/visual/a11y + perf) | ✅ green in CI (not re-run in this sweep) |
+| `npm run docs` (JSDoc doc-site) · `targets/web` SPA `vite build` | ✅ green in CI (not re-run in this sweep) |
