@@ -133,28 +133,33 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
                 })}
               </View>
 
-              {/* Folder sub-tabs (hidden while searching — results go flat). */}
+              {/* Folder sub-tabs (hidden while searching — results go flat). The items live in a row
+                  View (not the ScrollView's contentContainer) because `gap` on a horizontal
+                  ScrollView's contentContainerStyle doesn't apply on Android — the pills would pile up
+                  at x=0 and look collapsed/textless. */}
               {!searching && (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.subTabs}
+                  contentContainerStyle={styles.subTabsPad}
                 >
-                  <SubTab
-                    label="all"
-                    count={active ? active.items.filter((i) => !i.category).length : 0}
-                    on={effSub === "All"}
-                    onPress={() => setActiveSub("All")}
-                  />
-                  {subCats.map((c) => (
+                  <View style={styles.subTabsRow}>
                     <SubTab
-                      key={c.label}
-                      label={c.label}
-                      count={c.items.length}
-                      on={effSub === c.label}
-                      onPress={() => setActiveSub(c.label)}
+                      label="all"
+                      count={active ? active.items.filter((i) => !i.category).length : 0}
+                      on={effSub === "All"}
+                      onPress={() => setActiveSub("All")}
                     />
-                  ))}
+                    {subCats.map((c) => (
+                      <SubTab
+                        key={c.label}
+                        label={c.label}
+                        count={c.items.length}
+                        on={effSub === c.label}
+                        onPress={() => setActiveSub(c.label)}
+                      />
+                    ))}
+                  </View>
                 </ScrollView>
               )}
 
@@ -291,13 +296,14 @@ const styles = StyleSheet.create({
   countText: { color: T.muted, fontSize: 11, fontWeight: "800" },
   countTextOn: { color: T.accentInk },
 
-  subTabs: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingBottom: 12 },
+  subTabsPad: { paddingHorizontal: 16, paddingBottom: 12 },
+  subTabsRow: { flexDirection: "row", gap: 8 },
   subTab: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: T.radiusPill,
     borderWidth: 1,
     borderColor: T.border,

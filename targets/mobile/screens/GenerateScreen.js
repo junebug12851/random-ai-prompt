@@ -201,7 +201,14 @@ export default function GenerateScreen() {
               {Array.from({ length: lineCount }, (_, i) => (
                 <View key={i} style={styles.gutterLine}>
                   <Text style={styles.gutterNum}>{i + 1}</Text>
-                  {i === 0 && <Text style={styles.gutterPlus}>+</Text>}
+                  {i === 0 && (
+                    <TouchableOpacity
+                      onPress={() => setPrompt((p) => (p.endsWith("\n") || !p ? p : p + "\n"))}
+                      hitSlop={10}
+                    >
+                      <Text style={styles.gutterPlus}>+</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               ))}
             </View>
@@ -234,19 +241,21 @@ export default function GenerateScreen() {
             horizontal
             keyboardShouldPersistTaps="always"
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.suggStrip}
+            contentContainerStyle={styles.suggStripPad}
           >
-            {suggestions.map((c) => (
-              <TouchableOpacity
-                key={c.token}
-                style={styles.sugg}
-                onPress={() => applyCompletion(c.token)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.suggLabel}>{c.label}</Text>
-                <Text style={styles.suggKind}>{c.kind === "gen" ? "block" : "list"}</Text>
-              </TouchableOpacity>
-            ))}
+            <View style={styles.suggStripRow}>
+              {suggestions.map((c) => (
+                <TouchableOpacity
+                  key={c.token}
+                  style={styles.sugg}
+                  onPress={() => applyCompletion(c.token)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.suggLabel}>{c.label}</Text>
+                  <Text style={styles.suggKind}>{c.kind === "gen" ? "block" : "list"}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </ScrollView>
         )}
 
@@ -260,43 +269,48 @@ export default function GenerateScreen() {
         )}
 
         <View style={styles.fieldBar}>
-          <View style={styles.promptsCount}>
-            <Text style={styles.promptsLabel}>PROMPTS</Text>
-            <TouchableOpacity
-              style={styles.countBtn}
-              onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
-            >
-              <Text style={styles.countBtnText}>−</Text>
-            </TouchableOpacity>
-            <Text style={styles.countVal}>{promptCount}</Text>
-            <TouchableOpacity
-              style={styles.countBtn}
-              onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
-            >
-              <Text style={styles.countBtnText}>+</Text>
-            </TouchableOpacity>
+          {/* Left cluster: the Prompts-per-run count + the tool icons (left-aligned, wraps on narrow
+              widths). The generate button is separate, pinned to the right. */}
+          <View style={styles.leftCluster}>
+            <View style={styles.promptsCount}>
+              <Text style={styles.promptsLabel}>PROMPTS</Text>
+              <TouchableOpacity
+                style={styles.countBtn}
+                onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+              >
+                <Text style={styles.countBtnText}>−</Text>
+              </TouchableOpacity>
+              <Text style={styles.countVal}>{promptCount}</Text>
+              <TouchableOpacity
+                style={styles.countBtn}
+                onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+              >
+                <Text style={styles.countBtnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.toolGroup}>
+              <ToolBtn disabled>
+                <WandIcon size={18} color={T.faint} />
+              </ToolBtn>
+              <ToolBtn disabled>
+                <TagIcon size={18} color={T.faint} />
+              </ToolBtn>
+              <ToolBtn on onPress={() => setPaletteOpen(true)}>
+                <BracketsIcon size={18} color={T.accent} />
+              </ToolBtn>
+              <ToolBtn onPress={copyAll}>
+                <ShareIcon size={17} color={T.muted} />
+              </ToolBtn>
+              <ToolBtn onPress={generate}>
+                <ShuffleIcon size={17} color={T.muted} />
+              </ToolBtn>
+            </View>
           </View>
 
-          <View style={styles.toolGroup}>
-            <ToolBtn disabled>
-              <WandIcon size={18} color={T.faint} />
-            </ToolBtn>
-            <ToolBtn disabled>
-              <TagIcon size={18} color={T.faint} />
-            </ToolBtn>
-            <ToolBtn on onPress={() => setPaletteOpen(true)}>
-              <BracketsIcon size={18} color={T.accent} />
-            </ToolBtn>
-            <ToolBtn onPress={copyAll}>
-              <ShareIcon size={17} color={T.muted} />
-            </ToolBtn>
-            <ToolBtn onPress={generate}>
-              <ShuffleIcon size={17} color={T.muted} />
-            </ToolBtn>
-            <TouchableOpacity style={styles.genRound} onPress={generate} activeOpacity={0.85}>
-              <SparkleIcon size={22} color={T.accentInk} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.genRound} onPress={generate} activeOpacity={0.85}>
+            <SparkleIcon size={22} color={T.accentInk} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -450,7 +464,8 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
 
-  suggStrip: { gap: 8, paddingTop: 10, paddingBottom: 2 },
+  suggStripPad: { paddingTop: 10, paddingBottom: 2 },
+  suggStripRow: { flexDirection: "row", gap: 8 },
   sugg: {
     flexDirection: "row",
     alignItems: "center",
@@ -486,9 +501,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    flexWrap: "wrap",
-    rowGap: 12,
+    gap: 12,
     marginTop: 14,
+  },
+  leftCluster: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 10,
+    rowGap: 12,
+    flexShrink: 1,
   },
   promptsCount: { flexDirection: "row", alignItems: "center", gap: 8 },
   promptsLabel: {
@@ -530,7 +552,6 @@ const styles = StyleSheet.create({
     backgroundColor: T.accent,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 2,
   },
 
   resultsHead: {
