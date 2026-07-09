@@ -3,10 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 // The SHARED engine, driven by the Metro static catalog — the exact engine the web + CLI use, no re-port.
-import { createEngine } from "./engine/core/engine.js";
-import { metroLoader } from "./engine/core/metroLoader.js";
-import { createPromptRun } from "./engine/promptRun.js";
-import baseSettings from "./engine/settings.js";
+import { createEngine } from "engine/core/engine.js";
+import { metroLoader } from "engine/core/metroLoader.js";
+import { createPromptRun } from "engine/promptRun.js";
+import baseSettings from "engine/settings.js";
 
 const engine = createEngine(metroLoader);
 const run = createPromptRun(engine);
