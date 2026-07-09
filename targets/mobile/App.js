@@ -1,49 +1,100 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import GenerateScreen from "./screens/GenerateScreen.js";
+import GalleryScreen from "./screens/GalleryScreen.js";
+import SingleScreen from "./screens/SingleScreen.js";
+import ManageScreen from "./screens/ManageScreen.js";
 
-// The SHARED engine, driven by the Metro static catalog — the exact engine the web + CLI use, no re-port.
-import { createEngine } from "engine/core/engine.js";
-import { metroLoader } from "engine/core/metroLoader.js";
-import { createPromptRun } from "engine/promptRun.js";
-import baseSettings from "engine/settings.js";
+const TABS = [
+  { id: "generate", label: "Generate", icon: "✦" },
+  { id: "gallery", label: "Gallery", icon: "▦" },
+  { id: "single", label: "Single", icon: "◉" },
+  { id: "manage", label: "Manage", icon: "☰" },
+];
 
-const engine = createEngine(metroLoader);
-const run = createPromptRun(engine);
-
+// All panes stay MOUNTED (visibility toggled) so each keeps its state + scroll when you switch tabs —
+// the same approach the web SPA uses. `display:none` on RN removes a view from layout without unmounting.
 export default function App() {
-  const settings = useMemo(() => ({ ...baseSettings, generateImages: false }), []);
-  const [prompt, setPrompt] = useState(() => run.generatePrompt(settings));
-  const reroll = useCallback(() => setPrompt(run.generatePrompt(settings)), [settings]);
+  const [view, setView] = useState("generate");
+  const [image, setImage] = useState(null);
+  const [galleryKey, setGalleryKey] = useState(0);
+
+  const openImage = useCallback((it) => {
+    setImage(it);
+    setView("single");
+  }, []);
+  const afterDelete = useCallback(() => {
+    setImage(null);
+    setGalleryKey((k) => k + 1);
+    setView("gallery");
+  }, []);
+
+  const pane = (id) => [styles.pane, view === id ? null : styles.hidden];
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      <Text style={styles.title}>Random AI Prompt</Text>
-      <Text style={styles.subtitle}>engine + metroLoader running on React Native</Text>
-      <ScrollView style={styles.promptBox} contentContainerStyle={styles.promptContent}>
-        <Text style={styles.prompt}>{prompt}</Text>
-      </ScrollView>
-      <TouchableOpacity style={styles.button} onPress={reroll} activeOpacity={0.8}>
-        <Text style={styles.buttonText}>Reroll</Text>
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.title}>Random AI Prompt</Text>
+        <Text style={styles.tag}>{TABS.find((t) => t.id === view)?.label}</Text>
+      </View>
+
+      <View style={styles.body}>
+        <View style={pane("generate")}>
+          <GenerateScreen />
+        </View>
+        <View style={pane("gallery")}>
+          <GalleryScreen onOpen={openImage} refreshKey={galleryKey} />
+        </View>
+        <View style={pane("single")}>
+          <SingleScreen image={image} onBack={() => setView("gallery")} onDeleted={afterDelete} />
+        </View>
+        <View style={pane("manage")}>
+          <ManageScreen />
+        </View>
+      </View>
+
+      <View style={styles.tabbar}>
+        {TABS.map((t) => {
+          const on = view === t.id;
+          return (
+            <TouchableOpacity key={t.id} style={styles.tab} onPress={() => setView(t.id)} activeOpacity={0.7}>
+              <Text style={[styles.tabIcon, on && styles.tabOn]}>{t.icon}</Text>
+              <Text style={[styles.tabLabel, on && styles.tabOn]}>{t.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0e0f13", paddingHorizontal: 20, paddingTop: 24 },
-  title: { color: "#fff", fontSize: 26, fontWeight: "700" },
-  subtitle: { color: "#8a90a2", fontSize: 13, marginTop: 4, marginBottom: 16 },
-  promptBox: { flex: 1, backgroundColor: "#1a1c22", borderRadius: 14, padding: 16 },
-  promptContent: { paddingBottom: 8 },
-  prompt: { color: "#e8eaf0", fontSize: 16, lineHeight: 24 },
-  button: {
-    backgroundColor: "#5b8cff",
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    marginVertical: 20,
+  container: { flex: 1, backgroundColor: "#0e0f13" },
+  header: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    paddingHorizontal: 18,
+    paddingTop: 10,
+    paddingBottom: 12,
   },
-  buttonText: { color: "#fff", fontSize: 17, fontWeight: "600" },
+  title: { color: "#fff", fontSize: 22, fontWeight: "700" },
+  tag: { color: "#5b8cff", fontSize: 13, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
+  body: { flex: 1 },
+  pane: { ...StyleSheet.absoluteFillObject },
+  hidden: { display: "none" },
+  tabbar: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#1e2027",
+    backgroundColor: "#121317",
+    paddingTop: 8,
+    paddingBottom: 10,
+  },
+  tab: { flex: 1, alignItems: "center", gap: 3 },
+  tabIcon: { color: "#6b7185", fontSize: 18 },
+  tabLabel: { color: "#6b7185", fontSize: 11, fontWeight: "600" },
+  tabOn: { color: "#5b8cff" },
 });
