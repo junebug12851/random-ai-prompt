@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, memo } from "react";
 import * as Clipboard from "expo-clipboard";
 import {
   StyleSheet,
@@ -15,7 +15,6 @@ import {
   CheckIcon,
   EyeIcon,
   GearIcon,
-  ChevronDownIcon,
   WandIcon,
   TagIcon,
   BracketsIcon,
@@ -24,47 +23,26 @@ import {
   SparkleIcon,
   GridIcon,
 } from "../lib/icons.js";
-
-// The SHARED engine, driven by the Metro static catalog — the exact engine the web + CLI use, no re-port.
-import { createEngine } from "engine/core/engine.js";
-import { metroLoader } from "engine/core/metroLoader.js";
-import { createPromptRun } from "engine/promptRun.js";
-import baseSettings from "engine/settings.js";
-
-const engine = createEngine(metroLoader);
-const run = createPromptRun(engine);
+import { run, baseSettings, expandOnce } from "../lib/engine.js";
+import { getDplCompletions } from "../lib/blockCatalog.js";
+import InsertMenu from "../components/InsertMenu.js";
+import BlockPalette from "../components/BlockPalette.js";
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-const last = (k) => k.split("/").pop();
-const TOKEN = "#6b9bff";
+const COMPLETIONS = getDplCompletions();
 
-// The building-block palette, grouped from the engine's own catalog. Blocks insert as {#name}, lists as
-// {name} — the web palette, adapted to a mobile drawer.
-const PALETTE = (() => {
-  const blocks = metroLoader.blockNames();
-  const lists = metroLoader.listNames().filter((n) => !n.includes("-nsfw"));
-  const byCat = {};
-  for (const b of blocks) {
-    const cat = b.includes("/") ? b.split("/")[0] : "block";
-    (byCat[cat] ||= []).push({ token: `{#${last(b)}}`, label: last(b) });
-  }
-  const groups = [
-    {
-      title: "Wildcards",
-      items: [
-        { token: "{#random-words}", label: "random" },
-        { token: "{#any}", label: "any" },
-      ],
-    },
-  ];
-  for (const cat of Object.keys(byCat).sort()) groups.push({ title: cat, items: byCat[cat] });
-  groups.push({ title: "lists", items: lists.map((n) => ({ token: `{${n}}`, label: last(n) })) });
-  return groups;
-})();
+// The token being typed at the caret: the last unclosed "{…" run with no whitespace. Drives the
+// completion strip (the mobile form of the web editor's autocomplete dropdown).
+function activeToken(text, caret) {
+  const upto = text.slice(0, caret);
+  const open = upto.lastIndexOf("{");
+  if (open < 0) return null;
+  if (upto.indexOf("}", open) !== -1) return null; // already closed before the caret
+  const frag = upto.slice(open);
+  if (/\s/.test(frag)) return null;
+  return { start: open, frag };
+}
 
-// One circular toolbar icon button. `on` = active mint ring (the web's active tool); `disabled` = the
-// muted, non-pressable look the web gives auto-fix / keyword-translate when no text provider is set
-// (mobile has none). No hitSlop: 40px targets are big enough, and hitSlop made neighbors overlap.
 function ToolBtn({ children, onPress, on, disabled }) {
   return (
     <TouchableOpacity
@@ -77,8 +55,6 @@ function ToolBtn({ children, onPress, on, disabled }) {
   );
 }
 
-// One result row — memoized + stable identity so a single change re-renders one row, keeping the
-// FlashList smooth as up to 1000 prompts roll out.
 const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
   return (
     <View style={styles.result}>
@@ -100,9 +76,14 @@ export default function GenerateScreen() {
   const [promptCount, setPromptCount] = useState(1);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [gearOpen, setGearOpen] = useState(false);
-  const [preview, setPreview] = useState(null); // one-shot expansion shown under the editor
+  const [previewOn, setPreviewOn] = useState(false);
+  const [preview, setPreview] = useState("");
   const [results, setResults] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
+  const [focused, setFocused] = useState(false);
+  const caret = useRef(prompt.length);
+  const promptRef = useRef(prompt);
+  promptRef.current = prompt;
 
   const lineCount = useMemo(() => Math.max(1, prompt.split("\n").length), [prompt]);
   const valid = useMemo(() => {
@@ -116,6 +97,31 @@ export default function GenerateScreen() {
     }
     return depth === 0;
   }, [prompt]);
+
+  // Completion candidates for the token at the caret.
+  const [caretTick, setCaretTick] = useState(0); // bump to recompute suggestions on caret move
+  const suggestions = useMemo(() => {
+    if (!focused) return [];
+    const at = activeToken(prompt, caret.current);
+    if (!at) return [];
+    const f = at.frag.toLowerCase();
+    if (f === "{" || f === "{#") return COMPLETIONS.slice(0, 24); // just opened — show a starter set
+    return COMPLETIONS.filter(
+      (c) =>
+        c.token.toLowerCase().startsWith(f) ||
+        c.label.toLowerCase().includes(f.replace(/^\{#?/, "")),
+    ).slice(0, 24);
+  }, [prompt, focused, caretTick]);
+
+  const applyCompletion = useCallback((token) => {
+    const text = promptRef.current;
+    const at = activeToken(text, caret.current);
+    const start = at ? at.start : text.length;
+    const end = at ? caret.current : text.length;
+    const next = text.slice(0, start) + token + text.slice(end);
+    setPrompt(next);
+    caret.current = start + token.length;
+  }, []);
 
   const settings = useMemo(
     () => ({
@@ -132,13 +138,19 @@ export default function GenerateScreen() {
     const { seed, prompts } = run.generatePrompts(settings);
     setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
     setCopiedId(null);
-    setPreview(null);
   }, [settings]);
 
-  const doPreview = useCallback(() => {
-    const { prompts } = run.generatePrompts({ ...settings, promptCount: 1 });
-    setPreview(prompts[0] || "");
-  }, [settings]);
+  // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
+  useEffect(() => {
+    if (!previewOn) {
+      setPreview("");
+      return undefined;
+    }
+    const roll = () => setPreview(expandOnce(promptRef.current || "{#random-words}"));
+    roll();
+    const id = setInterval(roll, 1000);
+    return () => clearInterval(id);
+  }, [previewOn]);
 
   const copy = useCallback(async (text) => {
     await Clipboard.setStringAsync(text);
@@ -150,27 +162,24 @@ export default function GenerateScreen() {
     setCopiedId("__all__");
   }, [results]);
 
-  const insert = useCallback((token) => {
+  const insertToken = useCallback((token) => {
     setPrompt((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
     setPaletteOpen(false);
+  }, []);
+  // Insert a DPL snippet from the Insert menu at the end (line constructs onto a fresh line).
+  const insertSnippet = useCallback((text) => {
+    setPrompt((p) => {
+      if (!p.trim()) return text;
+      return /\n\s*$/.test(p) || p.endsWith("\n") ? p + text : `${p}\n${text}`;
+    });
   }, []);
 
   const header = (
     <View>
-      {/* Composer card — the web PromptComposer, natively. */}
       <View style={styles.card}>
-        <TouchableOpacity
-          style={styles.insert}
-          onPress={() => setPaletteOpen(true)}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.insertText}>Insert</Text>
-          <ChevronDownIcon size={15} color={T.fgSoft} />
-        </TouchableOpacity>
+        <InsertMenu onInsert={insertSnippet} />
 
-        {/* Code-editor-style prompt box: a plain monospace input (reliable — no overlay), with the DPL
-            status ✓/✕ in the top-left corner and preview/settings in the top-right, like the web. */}
-        <View style={styles.editor}>
+        <View style={[styles.editor, focused && styles.editorFocus]}>
           <View style={styles.editorHead}>
             {valid ? (
               <CheckIcon size={16} color={T.accentStrong} />
@@ -178,8 +187,8 @@ export default function GenerateScreen() {
               <Text style={styles.badMark}>✕</Text>
             )}
             <View style={styles.editorHeadRight}>
-              <TouchableOpacity onPress={doPreview} style={styles.headIcon}>
-                <EyeIcon size={18} color={T.muted} />
+              <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon}>
+                <EyeIcon size={18} color={previewOn ? T.accent : T.muted} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon}>
                 <GearIcon size={18} color={T.muted} />
@@ -199,7 +208,16 @@ export default function GenerateScreen() {
             <TextInput
               style={styles.codeInput}
               value={prompt}
-              onChangeText={setPrompt}
+              onChangeText={(t) => {
+                setPrompt(t);
+                setCaretTick((n) => n + 1);
+              }}
+              onSelectionChange={(e) => {
+                caret.current = e.nativeEvent.selection.end;
+                setCaretTick((n) => n + 1);
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               placeholder="{#random-words}"
               placeholderTextColor={T.faint}
               autoCapitalize="none"
@@ -210,17 +228,37 @@ export default function GenerateScreen() {
           </View>
         </View>
 
-        {preview != null && (
+        {/* DPL completion strip — the mobile form of the web editor's autocomplete dropdown. */}
+        {suggestions.length > 0 && (
+          <ScrollView
+            horizontal
+            keyboardShouldPersistTaps="always"
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.suggStrip}
+          >
+            {suggestions.map((c) => (
+              <TouchableOpacity
+                key={c.token}
+                style={styles.sugg}
+                onPress={() => applyCompletion(c.token)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.suggLabel}>{c.label}</Text>
+                <Text style={styles.suggKind}>{c.kind === "gen" ? "block" : "list"}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+
+        {previewOn && (
           <View style={styles.previewBox}>
-            <Text style={styles.previewLabel}>Preview</Text>
+            <Text style={styles.previewLabel}>PREVIEW · LIVE</Text>
             <Text style={styles.previewText} selectable>
-              {preview || "(empty)"}
+              {preview || "…"}
             </Text>
           </View>
         )}
 
-        {/* Field bar — the web composer footer. Left: editable Prompts-per-run count. Right: tools +
-            round generate. Wraps on narrow widths (Prompts on top, tools below), like the web. */}
         <View style={styles.fieldBar}>
           <View style={styles.promptsCount}>
             <Text style={styles.promptsLabel}>PROMPTS</Text>
@@ -295,7 +333,6 @@ export default function GenerateScreen() {
         estimatedItemSize={104}
       />
 
-      {/* Building-blocks palette FAB — the web's bottom-left green button. */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setPaletteOpen(true)}
@@ -304,49 +341,12 @@ export default function GenerateScreen() {
         <GridIcon size={24} color={T.accentInk} />
       </TouchableOpacity>
 
-      {/* Building-block palette — an off-canvas drawer on the web; a bottom sheet here. */}
-      <Modal
+      <BlockPalette
         visible={paletteOpen}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setPaletteOpen(false)}
-      >
-        <View style={styles.sheetScrim}>
-          <TouchableOpacity
-            style={{ flex: 1 }}
-            onPress={() => setPaletteOpen(false)}
-            activeOpacity={1}
-          />
-          <View style={styles.sheet}>
-            <View style={styles.sheetHead}>
-              <Text style={styles.sheetTitle}>Building blocks</Text>
-              <TouchableOpacity onPress={() => setPaletteOpen(false)}>
-                <Text style={styles.sheetClose}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView contentContainerStyle={styles.sheetBody}>
-              {PALETTE.map((g) => (
-                <View key={g.title} style={styles.paletteGroup}>
-                  <Text style={styles.paletteCat}>{g.title}</Text>
-                  <View style={styles.chips}>
-                    {g.items.map((it) => (
-                      <TouchableOpacity
-                        key={it.token}
-                        style={styles.chip}
-                        onPress={() => insert(it.token)}
-                      >
-                        <Text style={styles.chipText}>{it.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setPaletteOpen(false)}
+        onInsert={insertToken}
+      />
 
-      {/* Prompt settings — the web's gear popover. Minimal for now (Prompts per run); more to come. */}
       <Modal
         visible={gearOpen}
         animationType="slide"
@@ -359,11 +359,11 @@ export default function GenerateScreen() {
             onPress={() => setGearOpen(false)}
             activeOpacity={1}
           />
-          <View style={styles.sheet}>
-            <View style={styles.sheetHead}>
-              <Text style={styles.sheetTitle}>Prompt settings</Text>
+          <View style={styles.gearSheet}>
+            <View style={styles.gearHead}>
+              <Text style={styles.gearTitle}>Prompt settings</Text>
               <TouchableOpacity onPress={() => setGearOpen(false)}>
-                <Text style={styles.sheetClose}>✕</Text>
+                <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.gearBody}>
@@ -408,22 +408,8 @@ const styles = StyleSheet.create({
     borderColor: T.borderSoft,
   },
 
-  insert: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: T.radiusPill,
-    borderWidth: 1,
-    borderColor: T.border,
-    backgroundColor: T.panel,
-    marginBottom: 12,
-  },
-  insertText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
-
   editor: {
+    marginTop: 12,
     backgroundColor: T.input,
     borderRadius: T.radiusSm,
     borderWidth: 1,
@@ -432,6 +418,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 12,
   },
+  editorFocus: { borderColor: T.accent },
   editorHead: {
     flexDirection: "row",
     alignItems: "center",
@@ -463,17 +450,32 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
 
+  suggStrip: { gap: 8, paddingTop: 10, paddingBottom: 2 },
+  sugg: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: T.radiusPill,
+    backgroundColor: T.panel,
+    borderWidth: 1,
+    borderColor: T.border,
+  },
+  suggLabel: { color: T.fg, fontSize: 13, fontWeight: "700", fontFamily: "monospace" },
+  suggKind: { color: T.faint, fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
+
   previewBox: {
     marginTop: 12,
     backgroundColor: T.panel,
     borderRadius: T.radiusSm,
     borderWidth: 1,
-    borderColor: T.borderSoft,
+    borderColor: T.accent,
     padding: 12,
   },
   previewLabel: {
-    color: T.muted,
-    fontSize: 11,
+    color: T.accent,
+    fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1,
     marginBottom: 6,
@@ -577,17 +579,15 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 
-  // sheets (palette + gear)
   sheetScrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
-  sheet: {
+  gearSheet: {
     backgroundColor: T.panel,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
-    maxHeight: "72%",
     borderTopWidth: 1,
     borderColor: T.border,
   },
-  sheetHead: {
+  gearHead: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -595,28 +595,8 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 10,
   },
-  sheetTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
-  sheetClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
-  sheetBody: { paddingHorizontal: 16, paddingBottom: 28 },
-  paletteGroup: { marginBottom: 16 },
-  paletteCat: {
-    color: T.muted,
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 8,
-  },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: T.radiusPill,
-    backgroundColor: T.chip,
-    borderWidth: 1,
-    borderColor: T.border,
-  },
-  chipText: { color: T.fgSoft, fontSize: 13, fontWeight: "600" },
+  gearTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
+  gearClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
   gearBody: { paddingHorizontal: 18, paddingBottom: 28, paddingTop: 4 },
   gearRow: {
     flexDirection: "row",
