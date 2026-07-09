@@ -26,6 +26,9 @@ import {
 } from "../lib/icons.js";
 import { run, baseSettings, expandOnce } from "../lib/engine.js";
 import { getDplCompletions } from "../lib/blockCatalog.js";
+import { getImageProvider } from "../lib/imageProviders.js";
+import { getKey } from "../lib/keys.js";
+import { saveImageSrc } from "../lib/storage.js";
 import InsertMenu from "../components/InsertMenu.js";
 import BlockPalette from "../components/BlockPalette.js";
 
@@ -76,9 +79,11 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
   );
 });
 
-export default function GenerateScreen() {
-  const { T } = useTheme();
+export default function GenerateScreen({ onGenerated }) {
+  const { T, provider } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
+  const [generating, setGenerating] = useState(false);
+  const [genMsg, setGenMsg] = useState("");
   const [prompt, setPrompt] = useState(baseSettings.prompt || "{#random-words}");
   const [promptCount, setPromptCount] = useState(1);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -142,11 +147,46 @@ export default function GenerateScreen() {
     [prompt, promptCount],
   );
 
-  const generate = useCallback(() => {
+  const generate = useCallback(async () => {
+    if (generating) return;
     const { seed, prompts } = run.generatePrompts(settings);
     setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
     setCopiedId(null);
-  }, [settings]);
+
+    // No image provider configured → prompts only (the current behaviour).
+    const prov = provider ? getImageProvider(provider) : null;
+    if (!prov) {
+      setGenMsg("");
+      return;
+    }
+    const key = await getKey(provider);
+    if (!key) {
+      setGenMsg(`Add your ${prov.label} API key in the ⋯ menu to generate images.`);
+      return;
+    }
+    // Generate one image per rolled prompt, saving each into the Gallery as it lands.
+    setGenerating(true);
+    let saved = 0;
+    let error = "";
+    for (let i = 0; i < prompts.length; i++) {
+      setGenMsg(`Generating image ${i + 1} of ${prompts.length}…`);
+      try {
+        const { images } = await prov.generate({ prompt: prompts[i], key });
+        for (const img of images) {
+          await saveImageSrc(img);
+          saved++;
+        }
+        if (saved) onGenerated?.();
+      } catch (e) {
+        error = e?.message || String(e);
+        break;
+      }
+    }
+    setGenerating(false);
+    setGenMsg(
+      error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
+    );
+  }, [generating, settings, provider, onGenerated]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {
@@ -316,10 +356,21 @@ export default function GenerateScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.genRound} onPress={generate} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[styles.genRound, generating && styles.genRoundBusy]}
+            onPress={generate}
+            disabled={generating}
+            activeOpacity={0.85}
+          >
             <SparkleIcon size={22} color={T.accentInk} />
           </TouchableOpacity>
         </View>
+
+        {genMsg ? (
+          <Text style={[styles.genMsg, genMsg.startsWith("Error") && styles.genMsgErr]}>
+            {genMsg}
+          </Text>
+        ) : null}
       </View>
 
       {results.length > 0 && (
@@ -567,6 +618,9 @@ const makeStyles = (T) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    genRoundBusy: { opacity: 0.55 },
+    genMsg: { color: T.muted, fontSize: 13, marginTop: 12, textAlign: "center" },
+    genMsgErr: { color: T.dangerFg },
 
     resultsHead: {
       flexDirection: "row",

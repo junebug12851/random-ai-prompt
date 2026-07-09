@@ -83,7 +83,7 @@ function Root() {
 
       <View style={styles.body}>
         <View style={pane("generate")}>
-          <GenerateScreen onOpenImage={openImage} />
+          <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
         </View>
         <View style={pane("gallery")}>
           <GalleryScreen onOpen={openImage} refreshKey={galleryKey} />

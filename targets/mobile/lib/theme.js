@@ -161,6 +161,7 @@ export function ThemeProvider({ children }) {
   const [mode, setMode] = useState("system"); // "system" | "dark" | "light"
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [locale, setLocale] = useState(DEFAULT_LOCALE); // "auto" | "en"
+  const [provider, setProvider] = useState(""); // selected image provider id ("" = none)
   const [ready, setReady] = useState(false);
 
   // Load the persisted choice once.
@@ -176,6 +177,7 @@ export function ThemeProvider({ children }) {
               if (j.mode) setMode(j.mode);
               if (j.accent) setAccent(j.accent);
               if (j.locale) setLocale(j.locale);
+              if (j.provider != null) setProvider(j.provider);
             }
           }
         } catch {
@@ -192,8 +194,8 @@ export function ThemeProvider({ children }) {
   // Persist after the initial load (so we don't clobber the saved file with defaults).
   useEffect(() => {
     if (!ready || !FS) return;
-    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent, locale })).catch(() => {});
-  }, [mode, accent, locale, ready]);
+    FS.writeAsStringAsync(FILE, JSON.stringify({ mode, accent, locale, provider })).catch(() => {});
+  }, [mode, accent, locale, provider, ready]);
 
   const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
   const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
@@ -208,10 +210,12 @@ export function ThemeProvider({ children }) {
       locale,
       setLocale,
       locales: LOCALES,
+      provider,
+      setProvider,
       resolved,
       ready,
     }),
-    [T, mode, accent, locale, resolved, ready],
+    [T, mode, accent, locale, provider, resolved, ready],
   );
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
@@ -230,6 +234,8 @@ export function useTheme() {
     locale: DEFAULT_LOCALE,
     setLocale: () => {},
     locales: LOCALES,
+    provider: "",
+    setProvider: () => {},
     resolved: "dark",
     ready: true,
   };

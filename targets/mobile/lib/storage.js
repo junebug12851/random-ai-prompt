@@ -33,6 +33,27 @@ export async function listImages() {
     .map((n) => ({ name: n, uri: `${IMAGES}${n}` }));
 }
 
+/**
+ * Save a generated image into the gallery from any source a provider returns: a `data:` base64 URL
+ * (OpenAI / Stability / Gemini), an `https:` URL (fal / Leonardo), or a local `file:` uri. Picks a
+ * unique name and returns `{ name, uri }`.
+ */
+export async function saveImageSrc(src) {
+  if (!FS) return null;
+  await ensure(IMAGES);
+  const name = `img-${Date.now()}-${Math.floor(Math.random() * 1e6)}.png`;
+  const dest = `${IMAGES}${name}`;
+  if (src.startsWith("data:")) {
+    const base64 = src.slice(src.indexOf(",") + 1);
+    await FS.writeAsStringAsync(dest, base64, { encoding: FS.EncodingType.Base64 });
+  } else if (/^https?:/i.test(src)) {
+    await FS.downloadAsync(src, dest);
+  } else {
+    await FS.copyAsync({ from: src, to: dest });
+  }
+  return { name, uri: dest };
+}
+
 /** Copy an image (from a provider result / temp uri) into the gallery. */
 export async function saveImageFromUri(srcUri, name) {
   if (!FS) return null;
@@ -52,7 +73,10 @@ export async function listUserLists() {
   if (!FS) return [];
   await ensure(LISTS);
   const names = await FS.readDirectoryAsync(LISTS);
-  return names.filter((n) => n.endsWith(".txt")).map((n) => n.replace(/\.txt$/, "")).sort();
+  return names
+    .filter((n) => n.endsWith(".txt"))
+    .map((n) => n.replace(/\.txt$/, ""))
+    .sort();
 }
 
 export async function readUserList(name) {

@@ -1,6 +1,17 @@
-import { useMemo } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView, Linking } from "react-native";
+import { useMemo, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  ScrollView,
+  Linking,
+} from "react-native";
 import { useTheme } from "../lib/theme.js";
+import { IMAGE_PROVIDERS, getImageProvider } from "../lib/imageProviders.js";
+import { getKey, setKey } from "../lib/keys.js";
 import {
   GitHubIcon,
   BookIcon,
@@ -105,8 +116,37 @@ const MODES = [
  * @param {{ visible: boolean, onClose: () => void, top: number }} props
  */
 export default function OverflowMenu({ visible, onClose, top }) {
-  const { T, mode, setMode, accent, setAccent, accents, locale, setLocale, locales } = useTheme();
+  const {
+    T,
+    mode,
+    setMode,
+    accent,
+    setAccent,
+    accents,
+    locale,
+    setLocale,
+    locales,
+    provider,
+    setProvider,
+  } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
+  const [apiKey, setApiKey] = useState("");
+  const sel = getImageProvider(provider);
+
+  // Load the stored key for the selected provider (from the OS keystore).
+  useEffect(() => {
+    let alive = true;
+    if (provider) getKey(provider).then((k) => alive && setApiKey(k));
+    else setApiKey("");
+    return () => {
+      alive = false;
+    };
+  }, [provider]);
+
+  const onKeyChange = (v) => {
+    setApiKey(v);
+    setKey(provider, v);
+  };
 
   const open = (url) => {
     onClose();
@@ -118,7 +158,58 @@ export default function OverflowMenu({ visible, onClose, top }) {
       <View style={styles.root}>
         <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         <View style={[styles.panel, { top }]}>
-          <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={styles.body}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Image provider (BYOK) — the web ProvidersMenu + ProviderGear key field. Only the
+                browser-direct providers that work without a backend are listed. */}
+            <Text style={styles.sectionLabel}>IMAGE PROVIDER</Text>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => setProvider("")}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.rowLabel, { flex: 1 }]}>None — prompts only</Text>
+              {provider === "" && <CheckIcon size={16} color={T.accent} />}
+            </TouchableOpacity>
+            {IMAGE_PROVIDERS.map((pv) => (
+              <TouchableOpacity
+                key={pv.id}
+                style={styles.row}
+                onPress={() => setProvider(pv.id)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.rowLabel, { flex: 1 }]}>{pv.label}</Text>
+                {provider === pv.id && <CheckIcon size={16} color={T.accent} />}
+              </TouchableOpacity>
+            ))}
+            {sel && (
+              <>
+                <TextInput
+                  style={styles.keyInput}
+                  value={apiKey}
+                  onChangeText={onKeyChange}
+                  placeholder={`API key (${sel.keyHint})`}
+                  placeholderTextColor={T.faint}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                <View style={styles.provFoot}>
+                  <Text style={styles.provNote}>Stored securely on your device (BYOK).</Text>
+                  {sel.keyUrl && (
+                    <TouchableOpacity onPress={() => open(sel.keyUrl)}>
+                      <Text style={styles.provLink}>Get a key ↗</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
+            )}
+
+            <View style={styles.sep} />
+
             {/* Appearance — the web ThemePicker (mode + accent). */}
             <Text style={styles.sectionLabel}>APPEARANCE</Text>
             <View style={styles.segmented}>
@@ -294,4 +385,25 @@ const makeStyles = (T) =>
       paddingVertical: 8,
     },
     langNote: { color: T.faint, fontSize: 11.5, marginTop: 4, marginLeft: 8 },
+    keyInput: {
+      marginTop: 8,
+      marginHorizontal: 4,
+      color: T.fg,
+      fontSize: 14,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+    provFoot: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 6,
+      marginHorizontal: 8,
+    },
+    provNote: { color: T.faint, fontSize: 11.5, flex: 1 },
+    provLink: { color: T.accent, fontSize: 12, fontWeight: "700" },
   });
