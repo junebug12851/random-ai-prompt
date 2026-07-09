@@ -1,8 +1,9 @@
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { Image } from "expo-image";
+import { T } from "../lib/theme.js";
 import { deleteImage } from "../lib/storage.js";
 
-/** One image up close, opened from the Gallery. Detail/re-roll/resize actions grow here as image gen lands. */
+/** One image up close, opened from the Gallery. Details/re-rolls/resizes grow here as image gen lands. */
 export default function SingleScreen({ image, onBack, onDeleted }) {
   const { width } = useWindowDimensions();
 
@@ -18,12 +19,12 @@ export default function SingleScreen({ image, onBack, onDeleted }) {
     );
   }
 
-  const w = Math.min(width, 900) - 36;
+  const w = Math.min(width, 900) - 32;
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
       <Image
         source={image.uri}
-        style={{ width: w, height: w, borderRadius: 12, backgroundColor: "#1a1c22" }}
+        style={{ width: w, height: w, borderRadius: T.radius, backgroundColor: T.panel }}
         contentFit="contain"
         cachePolicy="disk"
         transition={120}
@@ -48,15 +49,15 @@ export default function SingleScreen({ image, onBack, onDeleted }) {
 }
 
 const styles = StyleSheet.create({
-  scroll: { padding: 18 },
-  name: { color: "#e8eaf0", fontSize: 15, marginTop: 12, marginBottom: 14 },
+  scroll: { padding: 16 },
+  name: { color: T.fgSoft, fontSize: 15, marginTop: 12, marginBottom: 14 },
   actions: { flexDirection: "row", gap: 10 },
-  btn: { flex: 1, paddingVertical: 13, borderRadius: 10, backgroundColor: "#23262f", alignItems: "center" },
-  btnText: { color: "#dbe4ff", fontSize: 15, fontWeight: "700" },
-  delBtn: { backgroundColor: "#3a2226" },
-  delText: { color: "#ff9aa5" },
+  btn: { flex: 1, paddingVertical: 13, borderRadius: T.radiusSm, backgroundColor: T.chip, alignItems: "center", borderWidth: 1, borderColor: T.border },
+  btnText: { color: T.fgSoft, fontSize: 15, fontWeight: "700" },
+  delBtn: { backgroundColor: T.dangerBg, borderColor: T.dangerBorder },
+  delText: { color: T.dangerFg },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
   emptyIcon: { fontSize: 44, marginBottom: 12 },
-  emptyTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 8 },
-  emptyBody: { color: "#8a90a2", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  emptyTitle: { color: T.fg, fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  emptyBody: { color: T.muted, fontSize: 14, lineHeight: 21, textAlign: "center" },
 });

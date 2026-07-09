@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
+import { T } from "../lib/theme.js";
 import { listImages } from "../lib/storage.js";
 
 /**
- * Gallery of images saved on the phone, built for the supported max load (100k images). A recycling
- * FlashList (only on-screen cells are mounted, views are reused) over uniform square cells — the RN
- * equivalent of the web gallery's windowed uniform grid — with expo-image for disk-cached, memory-bounded
- * thumbnails (`recyclingKey` keeps decodes correct as cells recycle).
+ * Gallery of images saved on the phone, built for the supported max load (100k). A recycling FlashList
+ * over uniform square cells (the RN equivalent of the web's windowed grid) with expo-image for
+ * disk-cached, memory-bounded thumbnails (recyclingKey keeps decodes correct as cells recycle).
  */
 export default function GalleryScreen({ onOpen, refreshKey }) {
   const [items, setItems] = useState([]);
@@ -56,7 +56,7 @@ export default function GalleryScreen({ onOpen, refreshKey }) {
         <TouchableOpacity onPress={() => onOpen?.(item)} activeOpacity={0.85} style={{ padding: pad / 2 }}>
           <Image
             source={item.uri}
-            style={{ width: cell, height: cell, borderRadius: 10, backgroundColor: "#1a1c22" }}
+            style={{ width: cell, height: cell, borderRadius: T.radiusSm, backgroundColor: T.panel }}
             contentFit="cover"
             recyclingKey={item.uri}
             transition={120}
@@ -71,6 +71,6 @@ export default function GalleryScreen({ onOpen, refreshKey }) {
 const styles = StyleSheet.create({
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
   emptyIcon: { fontSize: 44, marginBottom: 12 },
-  emptyTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 8 },
-  emptyBody: { color: "#8a90a2", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  emptyTitle: { color: T.fg, fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  emptyBody: { color: T.muted, fontSize: 14, lineHeight: 21, textAlign: "center" },
 });

@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, memo } from "react";
 import * as Clipboard from "expo-clipboard";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Switch } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Switch, Modal, ScrollView } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import { T } from "../lib/theme.js";
 
 // The SHARED engine, driven by the Metro static catalog — the exact engine the web + CLI use, no re-port.
 import { createEngine } from "engine/core/engine.js";
@@ -12,16 +13,24 @@ import baseSettings from "engine/settings.js";
 const engine = createEngine(metroLoader);
 const run = createPromptRun(engine);
 
-const QUICK_PICKS = [
-  { label: "Random", token: "{#random-words}" },
-  { label: "Any", token: "{#any}" },
-  { label: "Scene", token: "{#scene}" },
-  { label: "Subject", token: "{#subject}" },
-  { label: "Style", token: "{#style}" },
-  { label: "Fragment", token: "{#fragment}" },
-];
-
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+const last = (k) => k.split("/").pop();
+
+// The building-block palette, grouped from the engine's own catalog. Blocks insert as {#name}, lists as
+// {name} — the web palette, adapted to a mobile drawer.
+const PALETTE = (() => {
+  const blocks = metroLoader.blockNames();
+  const lists = metroLoader.listNames().filter((n) => !n.includes("-nsfw"));
+  const byCat = {};
+  for (const b of blocks) {
+    const cat = b.includes("/") ? b.split("/")[0] : "block";
+    (byCat[cat] ||= []).push({ token: `{#${last(b)}}`, label: last(b) });
+  }
+  const groups = [{ title: "Wildcards", items: [{ token: "{#random-words}", label: "random" }, { token: "{#any}", label: "any" }] }];
+  for (const cat of Object.keys(byCat).sort()) groups.push({ title: cat, items: byCat[cat] });
+  groups.push({ title: "lists", items: lists.map((n) => ({ token: `{${n}}`, label: last(n) })) });
+  return groups;
+})();
 
 function Stepper({ value, setValue, min = 0, max = 99 }) {
   return (
@@ -46,18 +55,20 @@ function Row({ label, children }) {
   );
 }
 
-// One result row. Memoized + given stable identity across generations so a single change re-renders one
-// row — the RN analog of the web's memoized PromptResult + content-visibility trick, so the FlashList
-// stays smooth as 1000 rows roll out.
-const ResultRow = memo(function ResultRow({ index, text, copied, onCopy }) {
+// One result row — memoized + stable identity so a single change re-renders one row, keeping the
+// FlashList smooth as up to 1000 prompts roll out.
+const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
   return (
     <View style={styles.result}>
+      <View style={styles.resultHead}>
+        <Text style={styles.resultNum}>#{number}</Text>
+        <TouchableOpacity onPress={() => onCopy(text)} hitSlop={8}>
+          <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.resultText} selectable>
         {text}
       </Text>
-      <TouchableOpacity style={styles.copyBtn} onPress={() => onCopy(text, index)} hitSlop={8}>
-        <Text style={styles.copyBtnText}>{copied ? "Copied ✓" : "Copy"}</Text>
-      </TouchableOpacity>
     </View>
   );
 });
@@ -68,10 +79,11 @@ export default function GenerateScreen() {
   const [kwMin, setKwMin] = useState(baseSettings.keywordCount ?? 5);
   const [kwMax, setKwMax] = useState(baseSettings.keywordMaxCount ?? 7);
   const [includeArtist, setIncludeArtist] = useState(baseSettings.includeArtist ?? true);
-  const [maxArtist, setMaxArtist] = useState(baseSettings.maxArtist ?? 2);
   const [randomSeed, setRandomSeed] = useState(true);
-  const [results, setResults] = useState([]); // Array<{ id, text }>
-  const [copied, setCopied] = useState(-1);
+  const [showSettings, setShowSettings] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [results, setResults] = useState([]);
+  const [copiedId, setCopiedId] = useState(null);
 
   const settings = useMemo(
     () => ({
@@ -81,112 +93,171 @@ export default function GenerateScreen() {
       keywordCount: Math.min(kwMin, kwMax),
       keywordMaxCount: Math.max(kwMin, kwMax),
       includeArtist,
-      maxArtist,
       randomSeed,
       generateImages: false,
     }),
-    [prompt, promptCount, kwMin, kwMax, includeArtist, maxArtist, randomSeed],
+    [prompt, promptCount, kwMin, kwMax, includeArtist, randomSeed],
   );
 
   const generate = useCallback(() => {
     const { seed, prompts } = run.generatePrompts(settings);
-    // Stable per-row identity (seed+index) so FlashList/React can keep unchanged rows referentially equal.
-    setResults(prompts.map((text, i) => ({ id: `${seed}:${i}`, text })));
-    setCopied(-1);
+    // Newest on top, stable id, matching the web (a roll adds to the list).
+    setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
+    setCopiedId(null);
   }, [settings]);
 
-  const copy = useCallback(async (text, i) => {
+  const copy = useCallback(async (text) => {
     await Clipboard.setStringAsync(text);
-    setCopied(i);
+    setCopiedId(text);
+  }, []);
+
+  const insert = useCallback((token) => {
+    setPrompt((p) => (p.trim() ? `${p.trim()} ${token}` : token));
+    setPaletteOpen(false);
   }, []);
 
   const header = (
     <View>
       <View style={styles.card}>
-        <Text style={styles.cardLabel}>Prompt</Text>
-        <View style={styles.chips}>
-          {QUICK_PICKS.map((q) => {
-            const on = prompt === q.token;
-            return (
-              <TouchableOpacity key={q.token} style={[styles.chip, on && styles.chipOn]} onPress={() => setPrompt(q.token)}>
-                <Text style={[styles.chipText, on && styles.chipTextOn]}>{q.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
         <TextInput
           style={styles.input}
           value={prompt}
           onChangeText={setPrompt}
           placeholder="{#random-words}"
-          placeholderTextColor="#5a607a"
+          placeholderTextColor={T.faint}
           autoCapitalize="none"
           autoCorrect={false}
           multiline
         />
+        <View style={styles.composerRow}>
+          <TouchableOpacity style={styles.blocksBtn} onPress={() => setPaletteOpen(true)} activeOpacity={0.8}>
+            <Text style={styles.blocksBtnText}>◧ Building blocks</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.genBtn} onPress={generate} activeOpacity={0.85}>
+            <Text style={styles.genBtnText}>Generate</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={styles.settingsToggle} onPress={() => setShowSettings((s) => !s)} hitSlop={6}>
+          <Text style={styles.settingsToggleText}>{showSettings ? "▾ Settings" : "▸ Settings"}</Text>
+        </TouchableOpacity>
+        {showSettings && (
+          <View style={styles.settingsBox}>
+            <Row label="Prompts"><Stepper value={promptCount} setValue={setPromptCount} min={1} max={1000} /></Row>
+            <Row label="Keywords (min)"><Stepper value={kwMin} setValue={setKwMin} min={0} max={20} /></Row>
+            <Row label="Keywords (max)"><Stepper value={kwMax} setValue={setKwMax} min={0} max={20} /></Row>
+            <Row label="Include artists">
+              <Switch value={includeArtist} onValueChange={setIncludeArtist} trackColor={{ true: T.accentStrong, false: T.input }} thumbColor={includeArtist ? T.accent : T.faint} />
+            </Row>
+            <Row label="Random each time">
+              <Switch value={randomSeed} onValueChange={setRandomSeed} trackColor={{ true: T.accentStrong, false: T.input }} thumbColor={randomSeed ? T.accent : T.faint} />
+            </Row>
+          </View>
+        )}
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardLabel}>Settings</Text>
-        <Row label="Prompts"><Stepper value={promptCount} setValue={setPromptCount} min={1} max={1000} /></Row>
-        <Row label="Keywords (min)"><Stepper value={kwMin} setValue={setKwMin} min={0} max={20} /></Row>
-        <Row label="Keywords (max)"><Stepper value={kwMax} setValue={setKwMax} min={0} max={20} /></Row>
-        <Row label="Include artists">
-          <Switch value={includeArtist} onValueChange={setIncludeArtist} trackColor={{ true: "#3a53a4", false: "#2a2d38" }} thumbColor={includeArtist ? "#5b8cff" : "#8a90a2"} />
-        </Row>
-        {includeArtist && <Row label="Max artists"><Stepper value={maxArtist} setValue={setMaxArtist} min={0} max={5} /></Row>}
-        <Row label="Random each time">
-          <Switch value={randomSeed} onValueChange={setRandomSeed} trackColor={{ true: "#3a53a4", false: "#2a2d38" }} thumbColor={randomSeed ? "#5b8cff" : "#8a90a2"} />
-        </Row>
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={generate} activeOpacity={0.85}>
-        <Text style={styles.buttonText}>Generate</Text>
-      </TouchableOpacity>
-
+      {results.length > 0 && (
+        <View style={styles.resultsHead}>
+          <Text style={styles.resultsTitle}>Prompts</Text>
+          <View style={styles.resultsHeadRight}>
+            <Text style={styles.count}>{results.length} generated</Text>
+            <TouchableOpacity onPress={() => setResults([])} hitSlop={8}>
+              <Text style={styles.clearAll}>Clear all</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
       {results.length === 0 && (
-        <Text style={styles.hint}>Tap Generate to roll up to {promptCount} prompt{promptCount === 1 ? "" : "s"}.</Text>
+        <Text style={styles.hint}>Compose a prompt and tap Generate to roll up to {promptCount}.</Text>
       )}
     </View>
   );
 
   return (
-    <FlashList
-      data={results}
-      keyExtractor={(it) => it.id}
-      ListHeaderComponent={header}
-      contentContainerStyle={styles.listPad}
-      keyboardShouldPersistTaps="handled"
-      renderItem={({ item, index }) => (
-        <ResultRow index={index} text={item.text} copied={copied === index} onCopy={copy} />
-      )}
-      estimatedItemSize={92}
-    />
+    <>
+      <FlashList
+        data={results}
+        keyExtractor={(it) => it.id}
+        ListHeaderComponent={header}
+        contentContainerStyle={styles.listPad}
+        keyboardShouldPersistTaps="handled"
+        renderItem={({ item, index }) => (
+          <ResultRow number={results.length - index} text={item.text} copied={copiedId === item.text} onCopy={copy} />
+        )}
+        estimatedItemSize={104}
+      />
+
+      {/* Building-block palette — an off-canvas drawer on the web; a bottom sheet here. */}
+      <Modal visible={paletteOpen} animationType="slide" transparent onRequestClose={() => setPaletteOpen(false)}>
+        <View style={styles.sheetScrim}>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => setPaletteOpen(false)} activeOpacity={1} />
+          <View style={styles.sheet}>
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>Building blocks</Text>
+              <TouchableOpacity onPress={() => setPaletteOpen(false)} hitSlop={8}>
+                <Text style={styles.sheetClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={styles.sheetBody}>
+              {PALETTE.map((g) => (
+                <View key={g.title} style={styles.paletteGroup}>
+                  <Text style={styles.paletteCat}>{g.title}</Text>
+                  <View style={styles.chips}>
+                    {g.items.map((it) => (
+                      <TouchableOpacity key={it.token} style={styles.chip} onPress={() => insert(it.token)}>
+                        <Text style={styles.chipText}>{it.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  listPad: { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 16 },
-  card: { backgroundColor: "#1a1c22", borderRadius: 14, padding: 14, marginBottom: 14 },
-  cardLabel: { color: "#8a90a2", fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
-  chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: "#23262f", borderWidth: 1, borderColor: "#2e323d" },
-  chipOn: { backgroundColor: "#2b3a63", borderColor: "#5b8cff" },
-  chipText: { color: "#c3c8d6", fontSize: 13, fontWeight: "600" },
-  chipTextOn: { color: "#dbe4ff" },
-  input: { color: "#e8eaf0", fontSize: 15, backgroundColor: "#0e0f13", borderRadius: 10, borderWidth: 1, borderColor: "#2e323d", paddingHorizontal: 12, paddingVertical: 10, minHeight: 44 },
+  listPad: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 20 },
+  card: { backgroundColor: T.panel, borderRadius: T.radius, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: T.borderSoft },
+  input: { color: T.fg, fontSize: 15, backgroundColor: T.input, borderRadius: T.radiusSm, borderWidth: 1, borderColor: T.border, paddingHorizontal: 12, paddingVertical: 11, minHeight: 52, textAlignVertical: "top" },
+  composerRow: { flexDirection: "row", gap: 10, marginTop: 12 },
+  blocksBtn: { flex: 1, backgroundColor: T.chip, borderRadius: T.radiusSm, paddingVertical: 13, alignItems: "center", borderWidth: 1, borderColor: T.border },
+  blocksBtnText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
+  genBtn: { flex: 1, backgroundColor: T.accent, borderRadius: T.radiusSm, paddingVertical: 13, alignItems: "center" },
+  genBtnText: { color: T.accentInk, fontSize: 15, fontWeight: "800" },
+  settingsToggle: { marginTop: 12, alignSelf: "flex-start" },
+  settingsToggleText: { color: T.muted, fontSize: 13, fontWeight: "700" },
+  settingsBox: { marginTop: 8, borderTopWidth: 1, borderTopColor: T.borderSoft, paddingTop: 4 },
   row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 8 },
-  rowLabel: { color: "#e8eaf0", fontSize: 15 },
+  rowLabel: { color: T.fgSoft, fontSize: 15 },
   rowControl: { flexDirection: "row", alignItems: "center" },
   stepper: { flexDirection: "row", alignItems: "center", gap: 4 },
-  stepBtn: { width: 34, height: 34, borderRadius: 8, backgroundColor: "#23262f", alignItems: "center", justifyContent: "center" },
-  stepBtnText: { color: "#dbe4ff", fontSize: 20, fontWeight: "700", lineHeight: 22 },
-  stepValue: { color: "#fff", fontSize: 16, fontWeight: "700", minWidth: 34, textAlign: "center" },
-  button: { backgroundColor: "#5b8cff", borderRadius: 12, paddingVertical: 16, alignItems: "center", marginBottom: 16 },
-  buttonText: { color: "#fff", fontSize: 17, fontWeight: "700" },
-  result: { backgroundColor: "#1a1c22", borderRadius: 12, padding: 14, marginBottom: 10 },
-  resultText: { color: "#e8eaf0", fontSize: 15, lineHeight: 22 },
-  copyBtn: { alignSelf: "flex-start", marginTop: 10, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: "#23262f" },
-  copyBtnText: { color: "#9fb4ff", fontSize: 13, fontWeight: "700" },
-  hint: { color: "#5a607a", fontSize: 14, textAlign: "center", marginTop: 4 },
+  stepBtn: { width: 34, height: 34, borderRadius: 8, backgroundColor: T.chip, alignItems: "center", justifyContent: "center" },
+  stepBtnText: { color: T.fgSoft, fontSize: 20, fontWeight: "700", lineHeight: 22 },
+  stepValue: { color: T.fg, fontSize: 16, fontWeight: "700", minWidth: 34, textAlign: "center" },
+  resultsHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10, marginTop: 2 },
+  resultsTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
+  resultsHeadRight: { flexDirection: "row", alignItems: "center", gap: 14 },
+  count: { color: T.muted, fontSize: 13 },
+  clearAll: { color: T.dangerFg, fontSize: 13, fontWeight: "700" },
+  hint: { color: T.faint, fontSize: 14, textAlign: "center", marginTop: 8 },
+  result: { backgroundColor: T.panel, borderRadius: T.radius, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: T.borderSoft },
+  resultHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
+  resultNum: { color: T.faint, fontSize: 12, fontWeight: "700" },
+  copyLink: { color: T.accent, fontSize: 13, fontWeight: "700" },
+  resultText: { color: T.fgSoft, fontSize: 15, lineHeight: 22 },
+  // palette sheet
+  sheetScrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
+  sheet: { backgroundColor: T.panel, borderTopLeftRadius: 18, borderTopRightRadius: 18, maxHeight: "72%", borderTopWidth: 1, borderColor: T.border },
+  sheetHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, paddingTop: 16, paddingBottom: 10 },
+  sheetTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
+  sheetClose: { color: T.muted, fontSize: 18, fontWeight: "700" },
+  sheetBody: { paddingHorizontal: 16, paddingBottom: 28 },
+  paletteGroup: { marginBottom: 16 },
+  paletteCat: { color: T.muted, fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: T.radiusPill, backgroundColor: T.chip, borderWidth: 1, borderColor: T.border },
+  chipText: { color: T.fgSoft, fontSize: 13, fontWeight: "600" },
 });
