@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Switch,
   Modal,
   ScrollView,
 } from "react-native";
@@ -37,7 +36,7 @@ const run = createPromptRun(engine);
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const last = (k) => k.split("/").pop();
-const TOKEN = "#6b9bff"; // {…} token color, matching the web editor's blue
+const TOKEN = "#6b9bff";
 
 // The building-block palette, grouped from the engine's own catalog. Blocks insert as {#name}, lists as
 // {name} — the web palette, adapted to a mobile drawer.
@@ -63,81 +62,15 @@ const PALETTE = (() => {
   return groups;
 })();
 
-// Tokenize a prompt into colored runs for the highlight layer: {…} spans blue, everything else default.
-function highlight(text) {
-  const parts = [];
-  const re = /\{[^}]*\}/g;
-  let i = 0,
-    m,
-    key = 0;
-  while ((m = re.exec(text))) {
-    if (m.index > i)
-      parts.push(
-        <Text key={key++} style={styles.codePlain}>
-          {text.slice(i, m.index)}
-        </Text>,
-      );
-    parts.push(
-      <Text key={key++} style={styles.codeToken}>
-        {m[0]}
-      </Text>,
-    );
-    i = m.index + m[0].length;
-  }
-  if (i < text.length)
-    parts.push(
-      <Text key={key++} style={styles.codePlain}>
-        {text.slice(i)}
-      </Text>,
-    );
-  if (parts.length === 0)
-    parts.push(
-      <Text key={key++} style={styles.codePlain}>
-        {" "}
-      </Text>,
-    );
-  return parts;
-}
-
-function Stepper({ value, setValue, min = 0, max = 99 }) {
-  return (
-    <View style={styles.stepper}>
-      <TouchableOpacity
-        style={styles.stepBtn}
-        onPress={() => setValue(clamp(value - 1, min, max))}
-        hitSlop={8}
-      >
-        <Text style={styles.stepBtnText}>−</Text>
-      </TouchableOpacity>
-      <Text style={styles.stepValue}>{value}</Text>
-      <TouchableOpacity
-        style={styles.stepBtn}
-        onPress={() => setValue(clamp(value + 1, min, max))}
-        hitSlop={8}
-      >
-        <Text style={styles.stepBtnText}>+</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-function SettingRow({ label, children }) {
-  return (
-    <View style={styles.setRow}>
-      <Text style={styles.setLabel}>{label}</Text>
-      <View style={styles.setControl}>{children}</View>
-    </View>
-  );
-}
-
-// One circular toolbar icon button. `on` gives it the active mint ring, like the web's active tool.
-function ToolBtn({ children, onPress, on }) {
+// One circular toolbar icon button. `on` = active mint ring (the web's active tool); `disabled` = the
+// muted, non-pressable look the web gives auto-fix / keyword-translate when no text provider is set
+// (mobile has none). No hitSlop: 40px targets are big enough, and hitSlop made neighbors overlap.
+function ToolBtn({ children, onPress, on, disabled }) {
   return (
     <TouchableOpacity
-      style={[styles.tool, on && styles.toolOn]}
-      onPress={onPress}
-      activeOpacity={0.7}
-      hitSlop={6}
+      style={[styles.tool, on && styles.toolOn, disabled && styles.toolOff]}
+      onPress={disabled ? undefined : onPress}
+      activeOpacity={disabled ? 1 : 0.6}
     >
       {children}
     </TouchableOpacity>
@@ -151,7 +84,7 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
     <View style={styles.result}>
       <View style={styles.resultHead}>
         <Text style={styles.resultNum}>#{number}</Text>
-        <TouchableOpacity onPress={() => onCopy(text)} hitSlop={8}>
+        <TouchableOpacity onPress={() => onCopy(text)}>
           <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
         </TouchableOpacity>
       </View>
@@ -165,18 +98,14 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
 export default function GenerateScreen() {
   const [prompt, setPrompt] = useState(baseSettings.prompt || "{#random-words}");
   const [promptCount, setPromptCount] = useState(1);
-  const [kwMin, setKwMin] = useState(baseSettings.keywordCount ?? 5);
-  const [kwMax, setKwMax] = useState(baseSettings.keywordMaxCount ?? 7);
-  const [includeArtist, setIncludeArtist] = useState(baseSettings.includeArtist ?? true);
-  const [randomSeed, setRandomSeed] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [gearOpen, setGearOpen] = useState(false);
+  const [preview, setPreview] = useState(null); // one-shot expansion shown under the editor
   const [results, setResults] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
 
   const lineCount = useMemo(() => Math.max(1, prompt.split("\n").length), [prompt]);
   const valid = useMemo(() => {
-    // Balanced braces = "valid" indicator, like the web's ✓/✗.
     let depth = 0;
     for (const ch of prompt) {
       if (ch === "{") depth++;
@@ -193,19 +122,22 @@ export default function GenerateScreen() {
       ...baseSettings,
       prompt,
       promptCount: clamp(promptCount, 1, 1000),
-      keywordCount: Math.min(kwMin, kwMax),
-      keywordMaxCount: Math.max(kwMin, kwMax),
-      includeArtist,
-      randomSeed,
+      randomSeed: true,
       generateImages: false,
     }),
-    [prompt, promptCount, kwMin, kwMax, includeArtist, randomSeed],
+    [prompt, promptCount],
   );
 
   const generate = useCallback(() => {
     const { seed, prompts } = run.generatePrompts(settings);
     setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
     setCopiedId(null);
+    setPreview(null);
+  }, [settings]);
+
+  const doPreview = useCallback(() => {
+    const { prompts } = run.generatePrompts({ ...settings, promptCount: 1 });
+    setPreview(prompts[0] || "");
   }, [settings]);
 
   const copy = useCallback(async (text) => {
@@ -219,7 +151,7 @@ export default function GenerateScreen() {
   }, [results]);
 
   const insert = useCallback((token) => {
-    setPrompt((p) => (p.trim() ? `${p.trim()} ${token}` : token));
+    setPrompt((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
     setPaletteOpen(false);
   }, []);
 
@@ -236,16 +168,21 @@ export default function GenerateScreen() {
           <ChevronDownIcon size={15} color={T.fgSoft} />
         </TouchableOpacity>
 
-        {/* Code-editor-style prompt box: highlight layer + transparent editable input overlaid. */}
+        {/* Code-editor-style prompt box: a plain monospace input (reliable — no overlay), with the DPL
+            status ✓/✕ in the top-left corner and preview/settings in the top-right, like the web. */}
         <View style={styles.editor}>
           <View style={styles.editorHead}>
-            <CheckIcon size={16} color={valid ? T.accentStrong : T.dangerFg} />
+            {valid ? (
+              <CheckIcon size={16} color={T.accentStrong} />
+            ) : (
+              <Text style={styles.badMark}>✕</Text>
+            )}
             <View style={styles.editorHeadRight}>
-              <TouchableOpacity hitSlop={8} onPress={() => generate()}>
+              <TouchableOpacity onPress={doPreview} style={styles.headIcon}>
                 <EyeIcon size={18} color={T.muted} />
               </TouchableOpacity>
-              <TouchableOpacity hitSlop={8} onPress={() => setShowSettings((s) => !s)}>
-                <GearIcon size={18} color={showSettings ? T.accent : T.muted} />
+              <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon}>
+                <GearIcon size={18} color={T.muted} />
               </TouchableOpacity>
             </View>
           </View>
@@ -259,67 +196,55 @@ export default function GenerateScreen() {
                 </View>
               ))}
             </View>
-            <View style={styles.codeCol}>
-              <Text style={styles.codeLayer} pointerEvents="none">
-                {highlight(prompt)}
-              </Text>
-              <TextInput
-                style={styles.codeInput}
-                value={prompt}
-                onChangeText={setPrompt}
-                placeholder="{#random-words}"
-                placeholderTextColor={T.faint}
-                autoCapitalize="none"
-                autoCorrect={false}
-                multiline
-                spellCheck={false}
-              />
-            </View>
+            <TextInput
+              style={styles.codeInput}
+              value={prompt}
+              onChangeText={setPrompt}
+              placeholder="{#random-words}"
+              placeholderTextColor={T.faint}
+              autoCapitalize="none"
+              autoCorrect={false}
+              multiline
+              spellCheck={false}
+            />
           </View>
         </View>
 
-        {showSettings && (
-          <View style={styles.settingsBox}>
-            <SettingRow label="Prompts">
-              <Stepper value={promptCount} setValue={setPromptCount} min={1} max={1000} />
-            </SettingRow>
-            <SettingRow label="Keywords (min)">
-              <Stepper value={kwMin} setValue={setKwMin} min={0} max={20} />
-            </SettingRow>
-            <SettingRow label="Keywords (max)">
-              <Stepper value={kwMax} setValue={setKwMax} min={0} max={20} />
-            </SettingRow>
-            <SettingRow label="Include artists">
-              <Switch
-                value={includeArtist}
-                onValueChange={setIncludeArtist}
-                trackColor={{ true: T.accentStrong, false: T.input }}
-                thumbColor={includeArtist ? T.accent : T.faint}
-              />
-            </SettingRow>
-            <SettingRow label="Random each time">
-              <Switch
-                value={randomSeed}
-                onValueChange={setRandomSeed}
-                trackColor={{ true: T.accentStrong, false: T.input }}
-                thumbColor={randomSeed ? T.accent : T.faint}
-              />
-            </SettingRow>
+        {preview != null && (
+          <View style={styles.previewBox}>
+            <Text style={styles.previewLabel}>Preview</Text>
+            <Text style={styles.previewText} selectable>
+              {preview || "(empty)"}
+            </Text>
           </View>
         )}
 
-        <Text style={styles.promptsCount}>
-          PROMPTS <Text style={styles.promptsNum}>{promptCount}</Text>
-        </Text>
+        {/* Field bar — the web composer footer. Left: editable Prompts-per-run count. Right: tools +
+            round generate. Wraps on narrow widths (Prompts on top, tools below), like the web. */}
+        <View style={styles.fieldBar}>
+          <View style={styles.promptsCount}>
+            <Text style={styles.promptsLabel}>PROMPTS</Text>
+            <TouchableOpacity
+              style={styles.countBtn}
+              onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+            >
+              <Text style={styles.countBtnText}>−</Text>
+            </TouchableOpacity>
+            <Text style={styles.countVal}>{promptCount}</Text>
+            <TouchableOpacity
+              style={styles.countBtn}
+              onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+            >
+              <Text style={styles.countBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Tool toolbar + round generate button — the web composer footer. */}
-        <View style={styles.toolbar}>
           <View style={styles.toolGroup}>
-            <ToolBtn onPress={() => setShowSettings((s) => !s)}>
-              <WandIcon size={18} color={T.muted} />
+            <ToolBtn disabled>
+              <WandIcon size={18} color={T.faint} />
             </ToolBtn>
-            <ToolBtn onPress={() => setPaletteOpen(true)}>
-              <TagIcon size={18} color={T.muted} />
+            <ToolBtn disabled>
+              <TagIcon size={18} color={T.faint} />
             </ToolBtn>
             <ToolBtn on onPress={() => setPaletteOpen(true)}>
               <BracketsIcon size={18} color={T.accent} />
@@ -327,18 +252,13 @@ export default function GenerateScreen() {
             <ToolBtn onPress={copyAll}>
               <ShareIcon size={17} color={T.muted} />
             </ToolBtn>
-            <ToolBtn
-              onPress={() => {
-                setRandomSeed(true);
-                generate();
-              }}
-            >
+            <ToolBtn onPress={generate}>
               <ShuffleIcon size={17} color={T.muted} />
             </ToolBtn>
+            <TouchableOpacity style={styles.genRound} onPress={generate} activeOpacity={0.85}>
+              <SparkleIcon size={22} color={T.accentInk} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.genRound} onPress={generate} activeOpacity={0.85}>
-            <SparkleIcon size={22} color={T.accentInk} />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -347,7 +267,7 @@ export default function GenerateScreen() {
           <Text style={styles.resultsTitle}>Prompts</Text>
           <View style={styles.resultsHeadRight}>
             <Text style={styles.count}>{results.length} generated</Text>
-            <TouchableOpacity onPress={() => setResults([])} hitSlop={8}>
+            <TouchableOpacity onPress={() => setResults([])}>
               <Text style={styles.clearAll}>Clear all</Text>
             </TouchableOpacity>
           </View>
@@ -400,7 +320,7 @@ export default function GenerateScreen() {
           <View style={styles.sheet}>
             <View style={styles.sheetHead}>
               <Text style={styles.sheetTitle}>Building blocks</Text>
-              <TouchableOpacity onPress={() => setPaletteOpen(false)} hitSlop={8}>
+              <TouchableOpacity onPress={() => setPaletteOpen(false)}>
                 <Text style={styles.sheetClose}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -422,6 +342,51 @@ export default function GenerateScreen() {
                 </View>
               ))}
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Prompt settings — the web's gear popover. Minimal for now (Prompts per run); more to come. */}
+      <Modal
+        visible={gearOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setGearOpen(false)}
+      >
+        <View style={styles.sheetScrim}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => setGearOpen(false)}
+            activeOpacity={1}
+          />
+          <View style={styles.sheet}>
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>Prompt settings</Text>
+              <TouchableOpacity onPress={() => setGearOpen(false)}>
+                <Text style={styles.sheetClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.gearBody}>
+              <View style={styles.gearRow}>
+                <Text style={styles.gearLabel}>Prompts per run</Text>
+                <View style={styles.promptsCount}>
+                  <TouchableOpacity
+                    style={styles.countBtn}
+                    onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+                  >
+                    <Text style={styles.countBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.countVal}>{promptCount}</Text>
+                  <TouchableOpacity
+                    style={styles.countBtn}
+                    onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+                  >
+                    <Text style={styles.countBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <Text style={styles.gearNote}>More prompt settings are coming to mobile.</Text>
+            </View>
           </View>
         </View>
       </Modal>
@@ -473,7 +438,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  editorHeadRight: { flexDirection: "row", alignItems: "center", gap: 16 },
+  editorHeadRight: { flexDirection: "row", alignItems: "center" },
+  headIcon: { paddingHorizontal: 8, paddingVertical: 2 },
+  badMark: { color: T.dangerFg, fontSize: 16, fontWeight: "800" },
 
   codeRow: { flexDirection: "row" },
   gutter: {
@@ -485,42 +452,64 @@ const styles = StyleSheet.create({
   gutterLine: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "flex-end" },
   gutterNum: { color: T.faint, fontSize: CODE_FONT, lineHeight: CODE_LH, fontFamily: "monospace" },
   gutterPlus: { color: T.muted, fontSize: CODE_FONT, lineHeight: CODE_LH, fontWeight: "700" },
-  codeCol: { flex: 1, minHeight: CODE_LH * 3 },
-  codeLayer: { fontSize: CODE_FONT, lineHeight: CODE_LH, fontFamily: "monospace" },
-  codePlain: { color: T.fg, fontSize: CODE_FONT, lineHeight: CODE_LH, fontFamily: "monospace" },
-  codeToken: {
-    color: TOKEN,
-    fontSize: CODE_FONT,
-    lineHeight: CODE_LH,
-    fontFamily: "monospace",
-    fontWeight: "700",
-  },
   codeInput: {
-    ...StyleSheet.absoluteFillObject,
-    color: "transparent",
+    flex: 1,
+    color: T.fg,
     fontSize: CODE_FONT,
     lineHeight: CODE_LH,
     fontFamily: "monospace",
     padding: 0,
+    minHeight: CODE_LH * 3,
     textAlignVertical: "top",
   },
 
-  promptsCount: {
+  previewBox: {
+    marginTop: 12,
+    backgroundColor: T.panel,
+    borderRadius: T.radiusSm,
+    borderWidth: 1,
+    borderColor: T.borderSoft,
+    padding: 12,
+  },
+  previewLabel: {
+    color: T.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  previewText: { color: T.fgSoft, fontSize: 14, lineHeight: 21 },
+
+  fieldBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    rowGap: 12,
+    marginTop: 14,
+  },
+  promptsCount: { flexDirection: "row", alignItems: "center", gap: 8 },
+  promptsLabel: {
     color: T.muted,
     fontSize: 12,
     fontWeight: "800",
     letterSpacing: 1,
-    marginTop: 14,
+    marginRight: 2,
   },
-  promptsNum: { color: T.fg, fontSize: 13, fontWeight: "800" },
-
-  toolbar: {
-    flexDirection: "row",
+  countBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: T.chip,
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 10,
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: T.border,
   },
-  toolGroup: { flexDirection: "row", alignItems: "center", gap: 10 },
+  countBtnText: { color: T.fgSoft, fontSize: 18, fontWeight: "700", lineHeight: 20 },
+  countVal: { color: T.fg, fontSize: 16, fontWeight: "800", minWidth: 26, textAlign: "center" },
+
+  toolGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
   tool: {
     width: 40,
     height: 40,
@@ -531,6 +520,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   toolOn: { borderColor: T.accent, backgroundColor: T.accentSoft },
+  toolOff: { opacity: 0.45 },
   genRound: {
     width: 52,
     height: 52,
@@ -538,28 +528,8 @@ const styles = StyleSheet.create({
     backgroundColor: T.accent,
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: 2,
   },
-
-  settingsBox: { marginTop: 12, borderTopWidth: 1, borderTopColor: T.borderSoft, paddingTop: 6 },
-  setRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  setLabel: { color: T.fgSoft, fontSize: 15 },
-  setControl: { flexDirection: "row", alignItems: "center" },
-  stepper: { flexDirection: "row", alignItems: "center", gap: 4 },
-  stepBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: T.chip,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stepBtnText: { color: T.fgSoft, fontSize: 20, fontWeight: "700", lineHeight: 22 },
-  stepValue: { color: T.fg, fontSize: 16, fontWeight: "700", minWidth: 34, textAlign: "center" },
 
   resultsHead: {
     flexDirection: "row",
@@ -607,7 +577,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 
-  // palette sheet
+  // sheets (palette + gear)
   sheetScrim: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)" },
   sheet: {
     backgroundColor: T.panel,
@@ -626,7 +596,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   sheetTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
-  sheetClose: { color: T.muted, fontSize: 18, fontWeight: "700" },
+  sheetClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
   sheetBody: { paddingHorizontal: 16, paddingBottom: 28 },
   paletteGroup: { marginBottom: 16 },
   paletteCat: {
@@ -647,4 +617,13 @@ const styles = StyleSheet.create({
     borderColor: T.border,
   },
   chipText: { color: T.fgSoft, fontSize: 13, fontWeight: "600" },
+  gearBody: { paddingHorizontal: 18, paddingBottom: 28, paddingTop: 4 },
+  gearRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  gearLabel: { color: T.fgSoft, fontSize: 15 },
+  gearNote: { color: T.faint, fontSize: 13, marginTop: 8 },
 });

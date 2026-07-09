@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { T } from "./lib/theme.js";
 import { PencilIcon, MoreIcon } from "./lib/icons.js";
@@ -18,7 +19,17 @@ const TABS = [
 // Top bar mirroring the web SPA's phone header, on one row: brand mark (dark rounded square + mint
 // pencil), the enclosed pill view-switch (active tab green-filled), and the ⋯ overflow. Panes stay
 // MOUNTED (visibility toggled) so each keeps its state + scroll across switches — same as App.jsx.
+// SafeAreaView from react-native-safe-area-context (NOT react-native, whose SafeAreaView is a no-op on
+// Android) insets the top bar below the status bar so the tabs aren't covered or mis-tappable.
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <Root />
+    </SafeAreaProvider>
+  );
+}
+
+function Root() {
   const [view, setView] = useState("generate");
   const [image, setImage] = useState(null);
   const [galleryKey, setGalleryKey] = useState(0);
@@ -36,7 +47,7 @@ export default function App() {
   const pane = (id) => [styles.pane, view === id ? null : styles.hidden];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <StatusBar style="light" />
       <View style={styles.topbar}>
         <View style={styles.logo}>
