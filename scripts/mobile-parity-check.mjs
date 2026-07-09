@@ -79,56 +79,68 @@ async function checkDplInserts() {
   else fail(`category mismatch — web [${webKeys}] vs mobile [${mobKeys}]`);
 }
 
-// ---------- 4. Image providers: every mobile provider is browser-direct in the web configs ----------
+// ---------- 4. Provider ROLE completeness: mobile MUST cover every provider the phone can run --------
+// The phone has no backend of ours, so a web provider is "mobile-capable" iff it talks straight to its
+// API from the client (browser-direct), hits the user's own server (local-direct), or needs no network
+// at all (transport "none" — copy-prompt). The web exposes THREE provider roles (image generation /
+// text prompt-rewrite / upscale). For each role, mobile MUST expose the same mobile-capable set — a
+// missing one is a FAILURE, not a note. This is the completeness gate: it proves nothing runnable was
+// dropped, instead of only checking that what was ported happens to match.
 async function checkProviders() {
-  console.log("Image providers (imageProviders.js  ⇄  web shared/*/config.js)");
-  const { IMAGE_PROVIDERS } = await imp(join(MOBILE, "lib/imageProviders.js"));
+  console.log("Provider role completeness (mobile registries  ⇄  web shared/*/config.js)");
+  const mod = await imp(join(MOBILE, "lib/imageProviders.js"));
+  const mobImage = new Set((mod.IMAGE_PROVIDERS || []).map((p) => p.id));
+  const mobText = new Set((mod.TEXT_PROVIDERS || []).map((p) => p.id));
+  const mobUpscale = new Set((mod.UPSCALE_PROVIDERS || []).map((p) => p.id));
+
   const shared = join(WEB, "shared");
-  const web = {};
+  const web = [];
   for (const d of readdirSync(shared, { withFileTypes: true })) {
     if (!d.isDirectory()) continue;
     let cfg;
-    try {
-      cfg = readFileSync(join(shared, d.name, "config.js"), "utf8");
-    } catch {
-      continue;
-    }
+    try { cfg = readFileSync(join(shared, d.name, "config.js"), "utf8"); } catch { continue; }
     const id = cfg.match(/id:\s*"([^"]+)"/)?.[1];
+    if (!id) continue;
     const transport = cfg.match(/transport:\s*"([^"]+)"/)?.[1];
     const tier = cfg.match(/tier:\s*"([^"]+)"/)?.[1];
-    if (id) web[id] = { transport, tier };
+    const capBlock = cfg.slice(cfg.indexOf("capabilities"));
+    web.push({
+      id, transport, tier,
+      textOnly: /textOnly:\s*true/.test(cfg),
+      upscaleOnly: /upscaleOnly:\s*true/.test(cfg),
+      hasGenerate: /loadGenerate/.test(cfg),
+      hasRewrite: /loadRewrite/.test(cfg),
+      hasUpscale: /loadUpscale/.test(cfg) && /upscale:\s*true/.test(capBlock),
+    });
   }
-  for (const p of IMAGE_PROVIDERS) {
-    const w = web[p.id];
-    if (!w) {
-      fail(`mobile provider "${p.id}" has no web config`);
-      continue;
-    }
-    if (p.local) {
-      // local-direct providers hit the user's OWN server; on native there's no CORS, so no backend
-      // of ours is needed. They must be local-direct on the web too.
-      if (w.transport === "local-direct") pass(`"${p.id}" is local-direct on the web (local server)`);
-      else fail(`"${p.id}" is marked local on mobile but "${w.transport}" on the web`);
-    } else if (w.transport !== "browser-direct") {
-      fail(
-        `"${p.id}" is "${w.transport}" on the web, not browser-direct — it can't run on mobile (no backend)`,
-      );
-    } else {
-      pass(`"${p.id}" is browser-direct on the web`);
-    }
-  }
-  // Info (not a failure): browser-direct IMAGE providers on the web not yet wired on mobile.
-  const mobIds = new Set(IMAGE_PROVIDERS.map((p) => p.id));
-  const missingBd = Object.entries(web)
-    .filter(([id, w]) => w.transport === "browser-direct" && w.tier === "api" && !mobIds.has(id))
-    .map(([id]) => id);
-  if (missingBd.length)
-    console.log(`  ℹ web browser-direct image providers not yet on mobile: ${missingBd.join(", ")}`);
-  const missingLocal = Object.entries(web)
-    .filter(([id, w]) => w.transport === "local-direct" && !mobIds.has(id))
-    .map(([id]) => id);
-  if (missingLocal.length)
-    console.log(`  ℹ web local-direct image providers not yet on mobile: ${missingLocal.join(", ")}`);
+  const mobileCapable = (p) => ["browser-direct", "local-direct", "none"].includes(p.transport);
+
+  // Expected mobile-capable set per role, computed straight from the web configs (mirrors the web's
+  // own picker filters in ProvidersMenu.jsx).
+  const expImage = web.filter((p) => mobileCapable(p) && !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"));
+  const expText = web.filter((p) => mobileCapable(p) && p.hasRewrite);
+  const expUpscale = web.filter((p) => mobileCapable(p) && p.hasUpscale);
+
+  const role = (name, expected, have) => {
+    const exp = expected.map((p) => p.id).sort();
+    const missing = exp.filter((id) => !have.has(id));
+    const extra = [...have].filter((id) => !exp.includes(id));
+    if (!missing.length && !extra.length)
+      pass(`${name}: all ${exp.length} mobile-capable providers present (${exp.join(", ")})`);
+    if (missing.length)
+      fail(`${name}: MISSING ${missing.length} mobile-capable provider(s): ${missing.join(", ")}`);
+    if (extra.length)
+      fail(`${name}: mobile lists provider(s) with no mobile-capable ${name} role on the web: ${extra.join(", ")}`);
+  };
+  role("Image", expImage, mobImage);
+  role("Text/rewrite", expText, mobText);
+  role("Upscale", expUpscale, mobUpscale);
+
+  // Desktop-only providers the phone genuinely can't run (hosted-proxy needs our backend) — reported,
+  // never failed. These are correctly ABSENT from mobile.
+  const desktopOnly = web.filter((p) => p.transport === "hosted-proxy").map((p) => p.id);
+  if (desktopOnly.length)
+    console.log(`  ℹ desktop-only (hosted-proxy — needs a backend, correctly absent on mobile): ${desktopOnly.length}`);
 }
 
 // ---------- 5. Local provider settings: mobile field keys == web provider settings.js field keys ----
