@@ -17,6 +17,7 @@ import {
 } from "@codemirror/language";
 import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 import { tags as t } from "@lezer/highlight";
+import { editorChromeTheme } from "../lib/editorChrome.js";
 
 // Token → CSS class. Colors are set theme-aware in styles.css (`.cm-tok-*`), reusing the same
 // palette as the DPL highlighter so code reads consistently in both light and dark themes.
@@ -96,6 +97,7 @@ function CodeEditor(
       placeholderExt(placeholder),
       ariaLabel ? EditorView.contentAttributes.of({ "aria-label": ariaLabel }) : [],
       EditorView.theme({ "&": { height: "100%" }, ".cm-scroller": { overflow: "auto" } }),
+      editorChromeTheme,
       updateListener,
     ];
     const state = EditorState.create({ doc: value ?? "", extensions });
