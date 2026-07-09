@@ -30,7 +30,7 @@ sandbox — it has reported false file truncations; see [`fix-patterns.md`](fix-
 
 ### 1. Audit the git + GitHub state (read-only first)
 
-```
+```sh
 git fetch --all --prune
 git branch -vv                       # local branches + tracking
 git branch -r                        # remote branches
@@ -56,7 +56,7 @@ closing discards them. Get the owner's call, then act on the answer. If unattend
 
 Only after confirming they are fully merged (step 1). Deleting a branch with unmerged commits loses work.
 
-```
+```sh
 git branch -d <merged-branch> ...            # -d refuses an unmerged branch (safety)
 git push origin --delete <merged-remote> ... # remote
 ```
@@ -96,7 +96,7 @@ Reconcile every current-state surface with the code as it actually is now:
 
 ### 6. Verify — before *and* after
 
-```
+```sh
 npm test          # check:docs · lint · smoke · test:unit · test:web (the headless gate)
 npm run check:tidy # no untracked, non-ignored files left behind
 ```
