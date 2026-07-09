@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { T } from "./lib/theme.js";
-import { PencilIcon, MoreIcon } from "./lib/icons.js";
+import { MoreIcon } from "./lib/icons.js";
+import OverflowMenu from "./components/OverflowMenu.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
 import GalleryScreen from "./screens/GalleryScreen.js";
 import SingleScreen from "./screens/SingleScreen.js";
@@ -16,11 +17,10 @@ const TABS = [
   { id: "manage", label: "Manage" },
 ];
 
-// Top bar mirroring the web SPA's phone header, on one row: brand mark (dark rounded square + mint
-// pencil), the enclosed pill view-switch (active tab green-filled), and the ⋯ overflow. Panes stay
-// MOUNTED (visibility toggled) so each keeps its state + scroll across switches — same as App.jsx.
-// SafeAreaView from react-native-safe-area-context (NOT react-native, whose SafeAreaView is a no-op on
-// Android) insets the top bar below the status bar so the tabs aren't covered or mis-tappable.
+// Top bar mirroring the web SPA's phone header (title-bar.css + topbar-responsive.css): the brand mark
+// (the app logo; the wordmark is hidden on phones), the enclosed pill view-switch (active tab filled
+// with accent-strong), a spacer, and the ⋯ overflow that opens the controls menu (the project links +
+// legal pages + version — the web's compact LinksMenu). Panes stay MOUNTED (visibility toggled).
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -30,9 +30,11 @@ export default function App() {
 }
 
 function Root() {
+  const insets = useSafeAreaInsets();
   const [view, setView] = useState("generate");
   const [image, setImage] = useState(null);
   const [galleryKey, setGalleryKey] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const openImage = useCallback((it) => {
     setImage(it);
@@ -50,9 +52,7 @@ function Root() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <StatusBar style="light" />
       <View style={styles.topbar}>
-        <View style={styles.logo}>
-          <PencilIcon size={22} color={T.accent} strokeWidth={2.1} />
-        </View>
+        <Image source={require("./assets/icon.png")} style={styles.logo} />
 
         <View style={styles.switch}>
           {TABS.map((t) => {
@@ -72,7 +72,7 @@ function Root() {
           })}
         </View>
 
-        <TouchableOpacity style={styles.more} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)}>
           <MoreIcon size={20} color={T.fgSoft} />
         </TouchableOpacity>
       </View>
@@ -91,52 +91,45 @@ function Root() {
           <ManageScreen />
         </View>
       </View>
+
+      <OverflowMenu visible={menuOpen} onClose={() => setMenuOpen(false)} top={insets.top + 62} />
     </SafeAreaView>
   );
 }
 
-const R = 46; // brand mark / overflow size
+const R = 44; // overflow toggle size
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: T.bg },
   topbar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 9,
   },
-  logo: {
-    width: R,
-    height: R,
-    borderRadius: 13,
-    backgroundColor: "#161619",
-    borderWidth: 1,
-    borderColor: T.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  // enclosed pill switch
+  logo: { width: 32, height: 32, borderRadius: 8 },
+  // enclosed pill switch (view-switch.css)
   switch: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: T.panel,
+    backgroundColor: T.input,
     borderRadius: T.radiusPill,
     borderWidth: 1,
     borderColor: T.border,
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    paddingHorizontal: 3,
+    paddingVertical: 3,
   },
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 9,
+    paddingVertical: 8,
     borderRadius: T.radiusPill,
   },
-  tabOn: { backgroundColor: T.accent },
-  tabText: { color: T.fgSoft, fontSize: 13.5, fontWeight: "700" },
+  tabOn: { backgroundColor: T.accentStrong },
+  tabText: { color: T.muted, fontSize: 13, fontWeight: "700" },
   tabTextOn: { color: T.accentInk, fontWeight: "800" },
   more: {
     width: R,
@@ -144,7 +137,7 @@ const styles = StyleSheet.create({
     borderRadius: R / 2,
     borderWidth: 1,
     borderColor: T.border,
-    backgroundColor: T.panel,
+    backgroundColor: T.input,
     alignItems: "center",
     justifyContent: "center",
   },
