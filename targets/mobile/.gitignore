@@ -43,3 +43,8 @@ yarn-error.*
 # linked-in engine (junction to ../../engine, created by npm run link:engine)
 engine/
 /dist
+
+# cloud-verify web export + detached run logs
+dist-web/
+*.log
+*.pid

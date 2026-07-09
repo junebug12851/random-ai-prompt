@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
-import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { T } from "./lib/theme.js";
+import { PencilIcon, MoreIcon } from "./lib/icons.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
 import GalleryScreen from "./screens/GalleryScreen.js";
 import SingleScreen from "./screens/SingleScreen.js";
@@ -14,9 +15,9 @@ const TABS = [
   { id: "manage", label: "Manage" },
 ];
 
-// Top-bar navigation mirroring the web SPA: brand + a condensed, horizontally-scrollable view switch
-// (Generate / Gallery / Single / Manage). Panes stay MOUNTED (visibility toggled) so each keeps its
-// state + scroll on tab switch — the same approach App.jsx uses on the web.
+// Top bar mirroring the web SPA's phone header, on one row: brand mark (dark rounded square + mint
+// pencil), the enclosed pill view-switch (active tab green-filled), and the ⋯ overflow. Panes stay
+// MOUNTED (visibility toggled) so each keeps its state + scroll across switches — same as App.jsx.
 export default function App() {
   const [view, setView] = useState("generate");
   const [image, setImage] = useState(null);
@@ -38,29 +39,31 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.topbar}>
-        <View style={styles.brand}>
-          <View style={styles.logo} />
-          <Text style={styles.wordmark}>Random AI Prompt</Text>
+        <View style={styles.logo}>
+          <PencilIcon size={22} color={T.accent} strokeWidth={2.1} />
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.viewSwitch}
-        >
+
+        <View style={styles.switch}>
           {TABS.map((t) => {
             const on = view === t.id;
             return (
               <TouchableOpacity
                 key={t.id}
-                style={[styles.vsTab, on && styles.vsTabOn]}
+                style={[styles.tab, on && styles.tabOn]}
                 onPress={() => setView(t.id)}
-                activeOpacity={0.7}
+                activeOpacity={0.8}
               >
-                <Text style={[styles.vsTabText, on && styles.vsTabTextOn]}>{t.label}</Text>
+                <Text style={[styles.tabText, on && styles.tabTextOn]} numberOfLines={1}>
+                  {t.label}
+                </Text>
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+        </View>
+
+        <TouchableOpacity style={styles.more} activeOpacity={0.7}>
+          <MoreIcon size={20} color={T.fgSoft} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.body}>
@@ -81,22 +84,59 @@ export default function App() {
   );
 }
 
+const R = 46; // brand mark / overflow size
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: T.bg },
   topbar: {
-    borderBottomWidth: 1,
-    borderBottomColor: T.borderSoft,
-    paddingTop: 4,
-    paddingBottom: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  brand: { flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 16, paddingVertical: 8 },
-  logo: { width: 20, height: 20, borderRadius: 6, backgroundColor: T.accent },
-  wordmark: { color: T.fg, fontSize: 18, fontWeight: "700", letterSpacing: 0.2 },
-  viewSwitch: { flexDirection: "row", gap: 6, paddingHorizontal: 12, paddingTop: 2 },
-  vsTab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: T.radiusPill },
-  vsTabOn: { backgroundColor: T.accentSoft },
-  vsTabText: { color: T.muted, fontSize: 15, fontWeight: "600" },
-  vsTabTextOn: { color: T.accent, fontWeight: "700" },
+  logo: {
+    width: R,
+    height: R,
+    borderRadius: 13,
+    backgroundColor: "#161619",
+    borderWidth: 1,
+    borderColor: T.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // enclosed pill switch
+  switch: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: T.panel,
+    borderRadius: T.radiusPill,
+    borderWidth: 1,
+    borderColor: T.border,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 9,
+    borderRadius: T.radiusPill,
+  },
+  tabOn: { backgroundColor: T.accent },
+  tabText: { color: T.fgSoft, fontSize: 13.5, fontWeight: "700" },
+  tabTextOn: { color: T.accentInk, fontWeight: "800" },
+  more: {
+    width: R,
+    height: R,
+    borderRadius: R / 2,
+    borderWidth: 1,
+    borderColor: T.border,
+    backgroundColor: T.panel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   body: { flex: 1 },
   pane: { ...StyleSheet.absoluteFillObject },
   hidden: { display: "none" },
