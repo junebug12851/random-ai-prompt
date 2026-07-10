@@ -24,7 +24,12 @@ describe("promptLayers / negativeLayers", () => {
     expect(promptLayers(m)).toEqual({ dpl: "d", roll: "r", ai: "a", final: "f" });
   });
   it("falls back to a legacy flat prompt string as the sent layer", () => {
-    expect(promptLayers({ prompt: "hi" })).toEqual({ dpl: null, roll: null, ai: null, final: "hi" });
+    expect(promptLayers({ prompt: "hi" })).toEqual({
+      dpl: null,
+      roll: null,
+      ai: null,
+      final: "hi",
+    });
   });
   it("handles missing meta", () => {
     expect(promptLayers(null)).toEqual({ dpl: null, roll: null, ai: null, final: null });
@@ -130,13 +135,24 @@ describe("linkChildren", () => {
   it("attaches children to their parent by name; orphans stay empty", () => {
     const items = [
       { name: "p.png", uri: "u1" },
-      { name: "c.png", uri: "u2", parent: "p.png", derivedKind: "variation", derivedSource: "final" },
+      {
+        name: "c.png",
+        uri: "u2",
+        parent: "p.png",
+        derivedKind: "variation",
+        derivedSource: "final",
+      },
       { name: "orphan.png", uri: "u3", parent: "missing.png" },
     ];
     const linked = linkChildren(items);
     const p = linked.find((x) => x.name === "p.png");
     expect(p.children).toHaveLength(1);
-    expect(p.children[0]).toMatchObject({ name: "c.png", uri: "u2", kind: "variation", source: "final" });
+    expect(p.children[0]).toMatchObject({
+      name: "c.png",
+      uri: "u2",
+      kind: "variation",
+      source: "final",
+    });
     expect(linked.find((x) => x.name === "orphan.png").children).toEqual([]);
     expect(linked.find((x) => x.name === "c.png").children).toEqual([]);
   });
@@ -144,7 +160,10 @@ describe("linkChildren", () => {
 
 describe("toMarkdown", () => {
   it("emits prompt, negative, and a details table", () => {
-    const md = toMarkdown("a fox", "blurry", [["Provider", "ComfyUI"], ["Seed", "42"]]);
+    const md = toMarkdown("a fox", "blurry", [
+      ["Provider", "ComfyUI"],
+      ["Seed", "42"],
+    ]);
     expect(md).toContain("**Prompt**");
     expect(md).toContain("a fox");
     expect(md).toContain("**Negative**");

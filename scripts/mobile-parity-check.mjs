@@ -98,14 +98,20 @@ async function checkProviders() {
   for (const d of readdirSync(shared, { withFileTypes: true })) {
     if (!d.isDirectory()) continue;
     let cfg;
-    try { cfg = readFileSync(join(shared, d.name, "config.js"), "utf8"); } catch { continue; }
+    try {
+      cfg = readFileSync(join(shared, d.name, "config.js"), "utf8");
+    } catch {
+      continue;
+    }
     const id = cfg.match(/id:\s*"([^"]+)"/)?.[1];
     if (!id) continue;
     const transport = cfg.match(/transport:\s*"([^"]+)"/)?.[1];
     const tier = cfg.match(/tier:\s*"([^"]+)"/)?.[1];
     const capBlock = cfg.slice(cfg.indexOf("capabilities"));
     web.push({
-      id, transport, tier,
+      id,
+      transport,
+      tier,
       textOnly: /textOnly:\s*true/.test(cfg),
       upscaleOnly: /upscaleOnly:\s*true/.test(cfg),
       hasGenerate: /loadGenerate/.test(cfg),
@@ -115,7 +121,10 @@ async function checkProviders() {
   }
   // EVERY web provider must be present per role — hosted-proxy ones run via a Backend URL, so nothing
   // is left out (mirrors the web's picker filters in ProvidersMenu.jsx, minus the online/local gating).
-  const expImage = web.filter((p) => !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"));
+  const expImage = web.filter(
+    (p) =>
+      !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"),
+  );
   const expText = web.filter((p) => p.hasRewrite);
   const expUpscale = web.filter((p) => p.hasUpscale);
 
@@ -128,7 +137,9 @@ async function checkProviders() {
     if (missing.length)
       fail(`${name}: MISSING ${missing.length} mobile-capable provider(s): ${missing.join(", ")}`);
     if (extra.length)
-      fail(`${name}: mobile lists provider(s) with no mobile-capable ${name} role on the web: ${extra.join(", ")}`);
+      fail(
+        `${name}: mobile lists provider(s) with no mobile-capable ${name} role on the web: ${extra.join(", ")}`,
+      );
   };
   role("Image", expImage, mobImage);
   role("Text/rewrite", expText, mobText);
@@ -143,7 +154,11 @@ async function checkProviders() {
 function checkSurfaces() {
   console.log("Surface feature parity (Generate / Gallery / Header)");
   const read = (rel) => {
-    try { return readFileSync(join(MOBILE, rel), "utf8"); } catch { return ""; }
+    try {
+      return readFileSync(join(MOBILE, rel), "utf8");
+    } catch {
+      return "";
+    }
   };
   const files = {
     app: read("App.js"),
@@ -156,7 +171,12 @@ function checkSurfaces() {
   const CHECKS = [
     // Header (topbar + overflow)
     ["Header", "logo", "app", /logo\.png/],
-    ["Header", "tab switch (Generate/Gallery/Single/Manage)", "app", /Generate[\s\S]*Gallery[\s\S]*Manage/],
+    [
+      "Header",
+      "tab switch (Generate/Gallery/Single/Manage)",
+      "app",
+      /Generate[\s\S]*Gallery[\s\S]*Manage/,
+    ],
     ["Header", "overflow menu", "app", /OverflowMenu/],
     ["Header", "Image role picker", "overflow", /"img"/],
     ["Header", "Text role picker", "overflow", /"text"/],
@@ -244,7 +264,10 @@ async function checkLocalSettings() {
   };
   for (const p of IMAGE_PROVIDERS.filter((x) => x.local)) {
     const rel = SRC[p.id];
-    if (!rel) { fail(`no known web settings.js mapped for local provider "${p.id}"`); continue; }
+    if (!rel) {
+      fail(`no known web settings.js mapped for local provider "${p.id}"`);
+      continue;
+    }
     const src = readFileSync(join(WEB, "shared", rel), "utf8");
     const block = src.slice(src.indexOf("fields:"), src.indexOf("data:") + 1 || undefined);
     const webKeys = [...block.matchAll(/key:\s*"([A-Za-z0-9_]+)"/g)].map((m) => m[1]);
@@ -260,7 +283,14 @@ async function checkLocalSettings() {
 }
 
 console.log("mobile ⇄ web parity check\n");
-for (const step of [checkAccents, checkLocales, checkDplInserts, checkProviders, checkLocalSettings, checkSurfaces]) {
+for (const step of [
+  checkAccents,
+  checkLocales,
+  checkDplInserts,
+  checkProviders,
+  checkLocalSettings,
+  checkSurfaces,
+]) {
   await step();
   console.log("");
 }

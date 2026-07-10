@@ -50,6 +50,12 @@ export default defineConfig({
         // The browser user-overlay catalog is likewise browser-only (import.meta.glob over user/),
         // exercised by the SPA (jsdom) suite, not the Node gate — so don't count it here.
         "engine/core/browserUserCatalog.js",
+        // The Metro loader + its generated static catalog are the MOBILE analog of the browser loader/
+        // catalog above: exercised by the mobile path (metroLoader output == nodeLoader, proven by
+        // scripts/metro-parity-check.mjs), not this Node unit gate. metroCatalogData.js is generated +
+        // gitignored. Excluded here for the same reason as their browser twins.
+        "engine/core/metroLoader.js",
+        "engine/core/metroCatalogData.js",
       ],
       // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
       reporter: ["text", "html", "lcov"],

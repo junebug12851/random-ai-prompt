@@ -7,6 +7,7 @@ tmp/
 assets/
 src/web/frontend/lib/
 targets/web/
+targets/mobile/
 engine/data/*.csv
 engine/data/*.json
 engine/data/sources/

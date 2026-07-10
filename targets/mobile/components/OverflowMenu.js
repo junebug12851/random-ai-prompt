@@ -39,7 +39,7 @@ import {
 } from "../lib/icons.js";
 
 // Keep in sync with the repo VERSION / package.json.
-const APP_VERSION = "2.51.1";
+const APP_VERSION = "2.52.0";
 
 const LINKS = {
   github: "https://github.com/junebug12851/random-ai-prompt",

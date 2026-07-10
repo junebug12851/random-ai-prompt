@@ -39,7 +39,7 @@ describe("OverflowMenu (mounted)", () => {
     const { getByText } = await setup();
     ["Image", "Text", "Upscale", "Provider settings", "Appearance", "Language"].forEach((t) =>
       expect(getByText(t)).toBeTruthy());
-    expect(getByText("v2.51.1")).toBeTruthy();
+    expect(getByText("v2.52.0")).toBeTruthy();
     expect(getByText("Privacy Policy")).toBeTruthy();
   });
 

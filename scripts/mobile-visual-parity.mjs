@@ -22,23 +22,40 @@ const MOBILE = join(ROOT, "targets/mobile");
 const OUT = join(MOBILE, "dist");
 const SHOTS = join(ROOT, "artifacts/mobile-parity");
 const PORT = 8099;
-const W = 390, H = 844;
+const W = 390,
+  H = 844;
 const noBuild = process.argv.includes("--no-build");
 
 const MIME = {
-  ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
-  ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ttf": "font/ttf",
-  ".woff": "font/woff", ".woff2": "font/woff2", ".map": "application/json", ".ico": "image/x-icon",
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".ttf": "font/ttf",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".map": "application/json",
+  ".ico": "image/x-icon",
 };
 
-function log(m) { console.log(m); }
+function log(m) {
+  console.log(m);
+}
 
 function build() {
-  if (noBuild) { log("• --no-build: reusing existing export"); return existsSync(OUT); }
+  if (noBuild) {
+    log("• --no-build: reusing existing export");
+    return existsSync(OUT);
+  }
   log("• Exporting mobile web build (expo export --platform web)…");
   const npx = process.platform === "win32" ? "npx.cmd" : "npx";
   const r = spawnSync(npx, ["expo", "export", "--platform", "web", "--output-dir", "dist"], {
-    cwd: MOBILE, stdio: "inherit", env: process.env,
+    cwd: MOBILE,
+    stdio: "inherit",
+    env: process.env,
   });
   return r.status === 0 && existsSync(OUT);
 }
@@ -49,13 +66,16 @@ function serve() {
     let file = join(OUT, p);
     try {
       if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT, "index.html");
-    } catch { file = join(OUT, "index.html"); }
+    } catch {
+      file = join(OUT, "index.html");
+    }
     try {
       const body = readFileSync(file);
       res.writeHead(200, { "Content-Type": MIME[extname(file)] || "application/octet-stream" });
       res.end(body);
     } catch {
-      res.writeHead(404); res.end("not found");
+      res.writeHead(404);
+      res.end("not found");
     }
   });
   return new Promise((resolve) => srv.listen(PORT, () => resolve(srv)));
@@ -81,7 +101,9 @@ async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
   page.on("pageerror", (e) => log(`  ! page error: ${e.message}`));
-  page.on("console", (m) => { if (m.type() === "error") log(`  ! console: ${m.text().slice(0, 160)}`); });
+  page.on("console", (m) => {
+    if (m.type() === "error") log(`  ! console: ${m.text().slice(0, 160)}`);
+  });
   const shot = async (name) => {
     const path = join(SHOTS, `${name}.png`);
     await page.screenshot({ path });
@@ -92,7 +114,10 @@ async function main() {
       await page.getByText(label, { exact: true }).first().click({ timeout: 3000 });
       await page.waitForTimeout(600);
       return true;
-    } catch { log(`  · couldn't tap "${label}" (skipping)`); return false; }
+    } catch {
+      log(`  · couldn't tap "${label}" (skipping)`);
+      return false;
+    }
   };
 
   try {
@@ -101,7 +126,8 @@ async function main() {
     await shot("01-generate");
 
     for (const t of ["Gallery", "Single", "Manage"]) {
-      if (await tap(t)) await shot(`0${["Gallery", "Single", "Manage"].indexOf(t) + 2}-${t.toLowerCase()}`);
+      if (await tap(t))
+        await shot(`0${["Gallery", "Single", "Manage"].indexOf(t) + 2}-${t.toLowerCase()}`);
     }
     await tap("Generate");
 
@@ -111,7 +137,11 @@ async function main() {
     const openOverflow = async () => {
       await page.mouse.click(W - 24, 42);
       await page.waitForTimeout(700);
-      return page.locator("text=Upscale").first().isVisible().catch(() => false);
+      return page
+        .locator("text=Upscale")
+        .first()
+        .isVisible()
+        .catch(() => false);
     };
     const opened = await openOverflow();
     await shot("05-overflow"); // always capture what the click produced
@@ -131,7 +161,9 @@ async function main() {
     srv.close();
   }
 
-  log(`\n✓ Mobile visual-parity screenshots in artifacts/mobile-parity/ (compare against the web SPA at ${W}px).`);
+  log(
+    `\n✓ Mobile visual-parity screenshots in artifacts/mobile-parity/ (compare against the web SPA at ${W}px).`,
+  );
 }
 
 main();
