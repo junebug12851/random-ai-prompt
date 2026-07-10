@@ -41,6 +41,20 @@ const LIST_OPTIONS = [
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const COMPLETIONS = getDplCompletions();
 
+// Share link — encode settings (minus secrets) into the web app's #s= hash so a setup can be
+// restored elsewhere (mirrors targets/web/frontend/lib/share.js).
+const SHARE_BASE = "https://prompt.fairyfox.io/";
+function b64url(str) {
+  // btoa over a UTF-8-safe byte string, then URL-safe.
+  const utf8 = unescape(encodeURIComponent(str));
+  const b64 = typeof btoa === "function" ? btoa(utf8) : Buffer.from(utf8, "binary").toString("base64");
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function shareUrl(settings) {
+  const { keys, ...shareable } = settings || {};
+  return `${SHARE_BASE}#s=${b64url(JSON.stringify(shareable))}`;
+}
+
 // The token being typed at the caret: the last unclosed "{…" run with no whitespace. Drives the
 // completion strip (the mobile form of the web editor's autocomplete dropdown).
 function activeToken(text, caret) {
@@ -322,6 +336,11 @@ export default function GenerateScreen({ onGenerated }) {
     await Clipboard.setStringAsync(results.map((r) => r.text).join("\n"));
     setCopiedId("__all__");
   }, [results]);
+  // Share link: copy a URL that restores these settings on the web app (mirrors the web share button).
+  const share = useCallback(async () => {
+    await Clipboard.setStringAsync(shareUrl(settings));
+    setGenMsg("Share link copied to clipboard ✓");
+  }, [settings]);
 
   const insertToken = useCallback((token) => {
     setPrompt((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
@@ -460,7 +479,7 @@ export default function GenerateScreen({ onGenerated }) {
               <ToolBtn on onPress={() => setPaletteOpen(true)}>
                 <BracketsIcon size={18} color={T.accent} />
               </ToolBtn>
-              <ToolBtn onPress={copyAll}>
+              <ToolBtn onPress={share}>
                 <ShareIcon size={17} color={T.muted} />
               </ToolBtn>
               <ToolBtn onPress={generate}>
@@ -491,6 +510,9 @@ export default function GenerateScreen({ onGenerated }) {
           <Text style={styles.resultsTitle}>Prompts</Text>
           <View style={styles.resultsHeadRight}>
             <Text style={styles.count}>{results.length} generated</Text>
+            <TouchableOpacity onPress={copyAll}>
+              <Text style={styles.copyLink}>Copy all</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setResults([])}>
               <Text style={styles.clearAll}>Clear all</Text>
             </TouchableOpacity>

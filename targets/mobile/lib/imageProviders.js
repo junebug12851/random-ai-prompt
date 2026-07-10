@@ -587,7 +587,7 @@ const LOCAL_WEBUI_SETTINGS = [
 export const IMAGE_PROVIDERS = [
   // --- Local group ---
   { id: "plain", label: "None — prompts only", group: "local", copy: true, description: "No API — just rolls prompts you can copy.", settings: [] },
-  { id: "comfyui", label: "ComfyUI (local server)", group: "local", local: true, serverKey: "comfyUrl", generate: comfyImage,
+  { id: "comfyui", label: "ComfyUI (local server)", group: "local", local: true, negative: true, serverKey: "comfyUrl", generate: comfyImage,
     description: "Local ComfyUI — node-based SD/FLUX. Free, runs on your machine.",
     settings: [
       { key: "comfyUrl", label: "Server URL", type: "text", default: "http://192.168.1.1:8188", placeholder: "http://192.168.1.1:8188" },
@@ -603,9 +603,9 @@ export const IMAGE_PROVIDERS = [
       { key: "seed", label: "Seed (-1 = random)", type: "number", default: -1 },
       { key: "negativePrompt", label: "Negative prompt", type: "text", default: "" },
     ] },
-  { id: "forge", label: "Forge WebUI (local server)", group: "local", local: true, serverKey: "localWebuiUrl", generate: localWebuiImage,
+  { id: "forge", label: "Forge WebUI (local server)", group: "local", local: true, negative: true, serverKey: "localWebuiUrl", generate: localWebuiImage,
     description: "Local Forge WebUI (Stable Diffusion). Free, runs on your machine.", settings: LOCAL_WEBUI_SETTINGS },
-  { id: "sdnext", label: "SD.Next (local server)", group: "local", local: true, serverKey: "localWebuiUrl", generate: localWebuiImage,
+  { id: "sdnext", label: "SD.Next (local server)", group: "local", local: true, negative: true, serverKey: "localWebuiUrl", generate: localWebuiImage,
     description: "Local SD.Next (Stable Diffusion). Free, runs on your machine.", settings: LOCAL_WEBUI_SETTINGS },
   // --- Online group (browser-direct BYOK) ---
   { id: "openai", label: "OpenAI (DALL·E / gpt-image)", group: "online", keyHint: "sk-…", keyUrl: "https://platform.openai.com/api-keys", generate: openaiImage,
@@ -621,7 +621,7 @@ export const IMAGE_PROVIDERS = [
       { key: "imageSize", label: "Size", options: ["square_hd", "square", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"], default: "square_hd" },
       { key: "batchSize", label: "Images", type: "number", default: 1 },
     ] },
-  { id: "stability", label: "Stability AI", group: "online", keyHint: "sk-…", keyUrl: "https://platform.stability.ai/account/keys", generate: stabilityImage,
+  { id: "stability", label: "Stability AI", group: "online", negative: true, keyHint: "sk-…", keyUrl: "https://platform.stability.ai/account/keys", generate: stabilityImage,
     description: "Stability AI — Stable Image Core / SD3 / Ultra.",
     settings: [
       { key: "model", label: "Model", options: ["core", "sd3", "ultra"], default: "core" },
