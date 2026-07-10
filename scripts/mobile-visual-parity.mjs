@@ -65,11 +65,17 @@ function build() {
 function serve() {
   const srv = createServer((req, res) => {
     const p = decodeURIComponent(req.url.split("?")[0]);
-    // Resolve the request under OUT_ROOT and reject anything that escapes it (e.g. `/../../etc/passwd`).
-    // A request that would leave the served directory falls back to index.html rather than reading it.
+    // Resolve the request under OUT_ROOT and REJECT anything that escapes it (e.g. `/../../etc/passwd`)
+    // with an early return, before the path ever reaches statSync/readFileSync — so no user-controlled
+    // path can leave the served directory (path-traversal guard).
     const candidate = resolve(OUT_ROOT, "." + (p.startsWith("/") ? p : "/" + p));
-    const inRoot = candidate === OUT_ROOT || candidate.startsWith(OUT_ROOT + sep);
-    let file = inRoot ? candidate : join(OUT_ROOT, "index.html");
+    if (candidate !== OUT_ROOT && !candidate.startsWith(OUT_ROOT + sep)) {
+      res.writeHead(403);
+      res.end("forbidden");
+      return;
+    }
+    // `file` is now proven to be inside OUT_ROOT (or the constant index.html fallback).
+    let file = candidate;
     try {
       if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT_ROOT, "index.html");
     } catch {
