@@ -11,6 +11,7 @@ import {
   Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
 import {
@@ -81,31 +82,77 @@ function ToolBtn({ children, onPress, on, disabled }) {
   );
 }
 
-const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
+const ResultRow = memo(function ResultRow({
+  number,
+  text,
+  images,
+  copied,
+  onCopy,
+  canImages,
+  busy,
+  onGenImages,
+}) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   return (
     <View style={styles.result}>
       <View style={styles.resultHead}>
         <Text style={styles.resultNum}>#{number}</Text>
-        <TouchableOpacity onPress={() => onCopy(text)}>
-          <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
-        </TouchableOpacity>
+        <View style={styles.resultHeadRight}>
+          {canImages && (
+            <TouchableOpacity onPress={() => onGenImages(text)} disabled={busy}>
+              <Text style={[styles.copyLink, busy && { opacity: 0.5 }]}>
+                {busy ? "Generating…" : "Generate images"}
+              </Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => onCopy(text)}>
+            <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.resultText} selectable>
         {text}
       </Text>
+      {images && images.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.resultThumbs}
+        >
+          {images.map((uri, i) => (
+            <Image
+              key={i}
+              source={{ uri }}
+              style={styles.resultThumb}
+              contentFit="cover"
+              transition={120}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 });
 
 export default function GenerateScreen({ onGenerated }) {
-  const { T, provider, rewriteProvider, providerSettings, backendUrl } = useTheme();
+  const { T, provider, rewriteProvider, providerSettings, setProviderSetting, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
   const [genMsg, setGenMsg] = useState("");
   const [prompt, setPrompt] = useState(baseSettings.prompt || "{#random-words}");
   const [promptCount, setPromptCount] = useState(1);
+  const [composeMode, setComposeMode] = useState("prompt"); // "prompt" | "negative"
+  const [wrapperOpen, setWrapperOpen] = useState(false);
+
+  // The active image provider + its negative-prompt capability. The negative lives in
+  // providerSettings[id].negativePrompt (the same field the adapters read).
+  const imgProv = getImageProvider(provider);
+  const supportsNegative = !!imgProv?.negative;
+  const editMode = supportsNegative ? composeMode : "prompt";
+  const negative = providerSettings[provider]?.negativePrompt ?? "";
+  const setNegative = (v) =>
+    setProviderSetting(provider, "negativePrompt", typeof v === "function" ? v(negative) : v);
   const [cfg, setCfg] = useState({}); // gear overrides on top of baseSettings (seed, vocab, emphasis, …)
   const [autoFix, setAutoFix] = useState(false); // wand — rewrite prompt with the Text provider
   const [autoKeyword, setAutoKeyword] = useState(false); // tag — keyword-translate with the Text provider
@@ -116,16 +163,22 @@ export default function GenerateScreen({ onGenerated }) {
   const [preview, setPreview] = useState("");
   const [results, setResults] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
+  const [rowBusy, setRowBusy] = useState(null); // id of the result row currently generating images
   const [focused, setFocused] = useState(false);
   const insets = useSafeAreaInsets();
   const caret = useRef(prompt.length);
   const promptRef = useRef(prompt);
   promptRef.current = prompt;
 
-  const lineCount = useMemo(() => Math.max(1, prompt.split("\n").length), [prompt]);
+  // The editor edits the prompt or (when the provider supports it and the Negative tab is active)
+  // the negative prompt.
+  const activeValue = editMode === "negative" ? negative : prompt;
+  const setActiveValue = editMode === "negative" ? setNegative : setPrompt;
+
+  const lineCount = useMemo(() => Math.max(1, activeValue.split("\n").length), [activeValue]);
   const valid = useMemo(() => {
     let depth = 0;
-    for (const ch of prompt) {
+    for (const ch of activeValue) {
       if (ch === "{") depth++;
       else if (ch === "}") {
         depth--;
@@ -133,12 +186,12 @@ export default function GenerateScreen({ onGenerated }) {
       }
     }
     return depth === 0;
-  }, [prompt]);
+  }, [activeValue]);
 
   // Completion candidates for the token at the caret.
   const [caretTick, setCaretTick] = useState(0); // bump to recompute suggestions on caret move
   const suggestions = useMemo(() => {
-    if (!focused) return [];
+    if (!focused || editMode === "negative") return [];
     const at = activeToken(prompt, caret.current);
     if (!at) return [];
     const f = at.frag.toLowerCase();
@@ -172,6 +225,15 @@ export default function GenerateScreen({ onGenerated }) {
   );
   const getS = (k) => (cfg[k] !== undefined ? cfg[k] : baseSettings[k]);
   const setS = (k, v) => setCfg((c) => ({ ...c, [k]: v }));
+
+  // Inline image controls (Images count + Size/Ratio) surfaced next to the Prompts counter — they
+  // read/write the SAME providerSettings[id] fields the ⋯ menu edits, so the two stay in lockstep.
+  const imgProvSettings = imgProv?.settings || [];
+  const imgBatchField = imgProvSettings.find((f) => f.key === "batchSize");
+  const imgSizeField = imgProvSettings.find((f) => ["size", "imageSize", "aspectRatio"].includes(f.key));
+  const imgGet = (k, d) =>
+    providerSettings[provider]?.[k] ?? providerDefaults(provider)[k] ?? d;
+  const setImgParam = (k, v) => setProviderSetting(provider, k, v);
 
   // Gear field rows (plain functions returning JSX so TextInputs keep focus between keystrokes).
   const grp = (title, children) => (
@@ -242,9 +304,51 @@ export default function GenerateScreen({ onGenerated }) {
     </View>
   );
 
+  // The active wrapper (a { start, end } DPL pair) frames every rolled prompt — mirrors the web's
+  // buildRoll: render each part once, join [start, prompt, end] with ", ", then roll the wrapped
+  // text (folding each fired block's Auto Begin/End when "use block auto-sections" is on).
+  const wrap = getS("wrapper") || { start: "", end: "" };
+  const wrapActive = !!(wrap.start?.trim() || wrap.end?.trim());
+  const setWrap = (patch) => setS("wrapper", { ...wrap, ...patch });
+  const renderPart = useCallback(
+    (part, seed) => {
+      if (!part || !part.trim()) return "";
+      try {
+        return run.generatePrompt({ ...settings, prompt: part, autoSink: null }, seed) || "";
+      } catch {
+        return part;
+      }
+    },
+    [settings],
+  );
+  const rollPrompts = useCallback(() => {
+    if (!wrapActive) return run.generatePrompts(settings);
+    const count = clamp(promptCount, 1, 1000);
+    const base =
+      settings.randomSeed === false && String(settings.promptSeed ?? "").trim() !== ""
+        ? String(settings.promptSeed).trim()
+        : String(Math.floor(Math.random() * 0x7fffffff));
+    const useAuto = settings.useAutoSections !== false;
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const fseed = `${base}#${i}`;
+      const wrapped = [renderPart(wrap.start, fseed), prompt, renderPart(wrap.end, fseed)]
+        .map((s) => (s || "").trim())
+        .filter(Boolean)
+        .join(", ");
+      const sink = { begin: [], end: [] };
+      const result = run.generatePrompt({ ...settings, prompt: wrapped, autoSink: useAuto ? sink : null }, fseed);
+      const framed = useAuto
+        ? [sink.begin.join(", "), result, sink.end.join(", ")].map((s) => s.trim()).filter(Boolean).join(", ")
+        : result;
+      out.push(framed);
+    }
+    return { seed: base, prompts: out };
+  }, [wrapActive, wrap.start, wrap.end, settings, promptCount, prompt, renderPart]);
+
   const generate = useCallback(async () => {
     if (generating) return;
-    const { seed, prompts: rolled } = run.generatePrompts(settings);
+    const { seed, prompts: rolled } = rollPrompts();
     setCopiedId(null);
 
     // Text rewrite (auto-fix / keyword-translate) with the selected Text provider, if toggled on.
@@ -313,7 +417,7 @@ export default function GenerateScreen({ onGenerated }) {
     setGenMsg(
       error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
     );
-  }, [generating, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, backendUrl, onGenerated]);
+  }, [generating, rollPrompts, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, backendUrl, onGenerated]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {
@@ -342,6 +446,39 @@ export default function GenerateScreen({ onGenerated }) {
     setGenMsg("Share link copied to clipboard ✓");
   }, [settings]);
 
+  // Generate images for a SINGLE result row (the web per-prompt "generate images" action) — saves each
+  // into the Gallery and attaches thumbnails back onto that row.
+  const canImages = !!imgProv && !imgProv.copy;
+  const genImagesFor = useCallback(
+    async (item) => {
+      const prov = getImageProvider(provider);
+      if (!prov || prov.copy) {
+        setGenMsg("Pick an image provider in the ⋯ menu to generate images.");
+        return;
+      }
+      const key = prov.local ? "" : await getKey(provider);
+      if (!prov.local && !key) {
+        setGenMsg(`Add your ${prov.label} API key in the ⋯ menu to generate images.`);
+        return;
+      }
+      const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}), backendUrl };
+      const model = provSettings.model || provSettings.comfyCheckpoint || undefined;
+      setRowBusy(item.id);
+      try {
+        const { images } = await prov.generate({ prompt: item.text, key, settings: provSettings });
+        for (const img of images) await saveImageSrc(img, { prompt: item.text, provider, model });
+        setResults((prev) =>
+          prev.map((r) => (r.id === item.id ? { ...r, images: [...(r.images || []), ...images] } : r)),
+        );
+        onGenerated?.();
+      } catch (e) {
+        setGenMsg(`Error: ${e?.message || e}`);
+      }
+      setRowBusy(null);
+    },
+    [provider, providerSettings, backendUrl, imgProv, onGenerated],
+  );
+
   const insertToken = useCallback((token) => {
     setPrompt((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
     setPaletteOpen(false);
@@ -361,11 +498,29 @@ export default function GenerateScreen({ onGenerated }) {
 
         <View style={[styles.editor, focused && styles.editorFocus]}>
           <View style={styles.editorHead}>
-            {valid ? (
-              <CheckIcon size={16} color={T.accentStrong} />
-            ) : (
-              <Text style={styles.badMark}>✕</Text>
-            )}
+            <View style={styles.editorHeadLeft}>
+              {valid ? (
+                <CheckIcon size={16} color={T.accentStrong} />
+              ) : (
+                <Text style={styles.badMark}>✕</Text>
+              )}
+              {supportsNegative && (
+                <View style={styles.cmTabs}>
+                  <TouchableOpacity
+                    style={[styles.cmTab, editMode === "prompt" && styles.cmTabOn]}
+                    onPress={() => setComposeMode("prompt")}
+                  >
+                    <Text style={[styles.cmTabText, editMode === "prompt" && styles.cmTabTextOn]}>Prompt</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.cmTab, editMode === "negative" && styles.cmTabOn]}
+                    onPress={() => setComposeMode("negative")}
+                  >
+                    <Text style={[styles.cmTabText, editMode === "negative" && styles.cmTabTextOn]}>Negative</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
             <View style={styles.editorHeadRight}>
               <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon}>
                 <EyeIcon size={18} color={previewOn ? T.accent : T.muted} />
@@ -383,7 +538,7 @@ export default function GenerateScreen({ onGenerated }) {
                   <Text style={styles.gutterNum}>{i + 1}</Text>
                   {i === 0 && (
                     <TouchableOpacity
-                      onPress={() => setPrompt((p) => (p.endsWith("\n") || !p ? p : p + "\n"))}
+                      onPress={() => setActiveValue((p) => (p.endsWith("\n") || !p ? p : p + "\n"))}
                       hitSlop={10}
                     >
                       <Text style={styles.gutterPlus}>+</Text>
@@ -394,9 +549,9 @@ export default function GenerateScreen({ onGenerated }) {
             </View>
             <TextInput
               style={styles.codeInput}
-              value={prompt}
+              value={activeValue}
               onChangeText={(t) => {
-                setPrompt(t);
+                setActiveValue(t);
                 setCaretTick((n) => n + 1);
               }}
               onSelectionChange={(e) => {
@@ -405,7 +560,7 @@ export default function GenerateScreen({ onGenerated }) {
               }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder="{#random-words}"
+              placeholder={editMode === "negative" ? "Negative prompt — what to keep out" : "{#random-words}"}
               placeholderTextColor={T.faint}
               autoCapitalize="none"
               autoCorrect={false}
@@ -469,6 +624,37 @@ export default function GenerateScreen({ onGenerated }) {
               </TouchableOpacity>
             </View>
 
+            {/* Inline image controls (Images count + Size/Ratio) — capability-driven from the provider. */}
+            {imgBatchField && (
+              <View style={styles.promptsCount}>
+                <Text style={styles.promptsLabel}>IMAGES</Text>
+                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) - 1, 1, 8))}>
+                  <Text style={styles.countBtnText}>−</Text>
+                </TouchableOpacity>
+                <Text style={styles.countVal}>{imgGet("batchSize", 1)}</Text>
+                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) + 1, 1, 8))}>
+                  <Text style={styles.countBtnText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {imgSizeField && imgSizeField.options && (
+              <View style={styles.sizeInline}>
+                <Text style={styles.promptsLabel}>{imgSizeField.key === "aspectRatio" ? "RATIO" : "SIZE"}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sizeChips}>
+                  {imgSizeField.options.map((opt) => {
+                    const val = typeof opt === "object" ? opt.value : opt;
+                    const lab = typeof opt === "object" ? opt.label : opt;
+                    const on = imgGet(imgSizeField.key, imgSizeField.default) === val;
+                    return (
+                      <TouchableOpacity key={String(val)} style={[styles.setChip, on && styles.setChipOn]} onPress={() => setImgParam(imgSizeField.key, val)}>
+                        <Text style={[styles.setChipText, on && styles.setChipTextOn]}>{lab}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
+
             <View style={styles.toolGroup}>
               <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)}>
                 <WandIcon size={18} color={autoFix ? T.accent : canRewrite ? T.muted : T.faint} />
@@ -476,14 +662,14 @@ export default function GenerateScreen({ onGenerated }) {
               <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)}>
                 <TagIcon size={18} color={autoKeyword ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn on onPress={() => setPaletteOpen(true)}>
-                <BracketsIcon size={18} color={T.accent} />
+              <ToolBtn on={wrapActive} onPress={() => setWrapperOpen(true)}>
+                <BracketsIcon size={18} color={wrapActive ? T.accent : T.muted} />
               </ToolBtn>
               <ToolBtn onPress={share}>
                 <ShareIcon size={17} color={T.muted} />
               </ToolBtn>
-              <ToolBtn onPress={generate}>
-                <ShuffleIcon size={17} color={T.muted} />
+              <ToolBtn on onPress={() => setPaletteOpen(true)}>
+                <GridIcon size={17} color={T.accent} />
               </ToolBtn>
             </View>
           </View>
@@ -534,8 +720,12 @@ export default function GenerateScreen({ onGenerated }) {
           <ResultRow
             number={results.length - index}
             text={item.text}
+            images={item.images}
             copied={copiedId === item.text}
             onCopy={copy}
+            canImages={canImages}
+            busy={rowBusy === item.id}
+            onGenImages={() => genImagesFor(item)}
           />
         )}
         estimatedItemSize={104}
@@ -618,6 +808,75 @@ export default function GenerateScreen({ onGenerated }) {
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={wrapperOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setWrapperOpen(false)}
+      >
+        <View style={styles.sheetScrim}>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => setWrapperOpen(false)} activeOpacity={1} />
+          <View style={styles.gearSheet}>
+            <View style={styles.gearHead}>
+              <Text style={styles.gearTitle}>Wrapper</Text>
+              <TouchableOpacity onPress={() => setWrapperOpen(false)}>
+                <Text style={styles.gearClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={styles.gearScroll}
+              contentContainerStyle={styles.gearBody}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.wrapHint}>
+                Frames every generated prompt with a start and end (DPL is allowed, so {"{#…}"} blocks
+                re-roll per prompt). Joined as: start, prompt, end.
+              </Text>
+              <Text style={styles.grpTitle}>Start</Text>
+              <TextInput
+                style={styles.wrapInput}
+                value={wrap.start}
+                onChangeText={(t) => setWrap({ start: t })}
+                placeholder="e.g. masterpiece, best quality"
+                placeholderTextColor={T.faint}
+                autoCapitalize="none"
+                autoCorrect={false}
+                multiline
+              />
+              <Text style={styles.grpTitle}>End</Text>
+              <TextInput
+                style={styles.wrapInput}
+                value={wrap.end}
+                onChangeText={(t) => setWrap({ end: t })}
+                placeholder="e.g. {#fx}, {#artists}"
+                placeholderTextColor={T.faint}
+                autoCapitalize="none"
+                autoCorrect={false}
+                multiline
+              />
+              <View style={styles.setRow}>
+                <Text style={styles.setRowLabel}>Use block auto-sections</Text>
+                <Switch
+                  value={getS("useAutoSections") !== false}
+                  onValueChange={(v) => setS("useAutoSections", v)}
+                  trackColor={{ true: T.accent, false: T.border }}
+                  thumbColor="#fff"
+                />
+              </View>
+              <TouchableOpacity
+                style={styles.resetBtn}
+                onPress={() => {
+                  setS("wrapper", { start: "", end: "" });
+                }}
+              >
+                <Text style={styles.resetText}>Clear wrapper</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -654,9 +913,27 @@ const makeStyles = (T) =>
       justifyContent: "space-between",
       marginBottom: 8,
     },
+    editorHeadLeft: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 1 },
     editorHeadRight: { flexDirection: "row", alignItems: "center" },
     headIcon: { paddingHorizontal: 8, paddingVertical: 2 },
     badMark: { color: T.dangerFg, fontSize: 16, fontWeight: "800" },
+
+    cmTabs: {
+      flexDirection: "row",
+      gap: 4,
+      backgroundColor: T.panel,
+      borderRadius: T.radiusPill,
+      borderWidth: 1,
+      borderColor: T.border,
+      padding: 2,
+    },
+    cmTab: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: T.radiusPill },
+    cmTabOn: { backgroundColor: T.accentSoft },
+    cmTabText: { color: T.muted, fontSize: 12.5, fontWeight: "700" },
+    cmTabTextOn: { color: T.accent },
+
+    sizeInline: { flexDirection: "row", alignItems: "center", gap: 6, flexShrink: 1 },
+    sizeChips: { flexDirection: "row", gap: 6, paddingRight: 6 },
 
     codeRow: { flexDirection: "row" },
     gutter: {
@@ -803,8 +1080,18 @@ const makeStyles = (T) =>
       marginBottom: 8,
     },
     resultNum: { color: T.faint, fontSize: 12, fontWeight: "700" },
+    resultHeadRight: { flexDirection: "row", alignItems: "center", gap: 16 },
     copyLink: { color: T.accent, fontSize: 13, fontWeight: "700" },
     resultText: { color: T.fgSoft, fontSize: 15, lineHeight: 22 },
+    resultThumbs: { flexDirection: "row", gap: 8, paddingTop: 10 },
+    resultThumb: {
+      width: 84,
+      height: 84,
+      borderRadius: T.radiusSm,
+      backgroundColor: T.input,
+      borderWidth: 1,
+      borderColor: T.borderSoft,
+    },
 
     fab: {
       position: "absolute",
@@ -854,6 +1141,21 @@ const makeStyles = (T) =>
       marginBottom: 6,
     },
     resetText: { color: T.muted, fontSize: 12.5, fontWeight: "700" },
+    wrapHint: { color: T.muted, fontSize: 12.5, lineHeight: 18, marginBottom: 10 },
+    wrapInput: {
+      color: T.fg,
+      fontSize: 14,
+      fontFamily: "monospace",
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      minHeight: 54,
+      textAlignVertical: "top",
+      marginBottom: 6,
+    },
     grp: { marginTop: 12 },
     grpTitle: {
       color: T.muted,

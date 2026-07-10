@@ -10,7 +10,11 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useTheme } from "../lib/theme.js";
-import { listImages, deleteImages } from "../lib/storage.js";
+import { listImages, deleteImages, saveImageSrc } from "../lib/storage.js";
+import { run, baseSettings } from "../lib/engine.js";
+import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
+import { getKey } from "../lib/keys.js";
+import { SparkleIcon } from "../lib/icons.js";
 
 // One thumbnail cell — memoized (like the web's <Thumb>) so at the 100k max a single selection toggle
 // re-renders ONLY that cell, not every visible one. `selected` is passed as a boolean (not the Set) so
@@ -51,8 +55,8 @@ const Cell = memo(function Cell({ item, size, pad, selectMode, selected, onPress
  * Delete N / Done) with per-cell selection rings, and empty / no-match states — over a recycling
  * FlashList grid of uniform square thumbnails (expo-image, disk-cached) built for the 100k max load.
  */
-export default function GalleryScreen({ onOpen, refreshKey }) {
-  const { T } = useTheme();
+export default function GalleryScreen({ onOpen, refreshKey, onGenerated }) {
+  const { T, provider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
   const [items, setItems] = useState([]);
@@ -60,6 +64,15 @@ export default function GalleryScreen({ onOpen, refreshKey }) {
   const [query, setQuery] = useState("");
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState(() => new Set()); // uri values
+  // Compact prompt composer atop the gallery (mirrors the web's PromptComposer on the gallery view):
+  // roll a prompt + fire an image batch straight into this grid, with pending placeholder tiles while
+  // the batch is in flight.
+  const [composeText, setComposeText] = useState("");
+  const [composeBusy, setComposeBusy] = useState(false);
+  const [pending, setPending] = useState(0);
+  const [composeMsg, setComposeMsg] = useState("");
+  const imgProv = getImageProvider(provider);
+  const canImages = !!imgProv && !imgProv.copy;
 
   const pad = 12;
   const w = Math.min(width, 900);
@@ -114,8 +127,84 @@ export default function GalleryScreen({ onOpen, refreshKey }) {
 
   const allSelected = filtered.length > 0 && filtered.every((i) => selected.has(i.uri));
 
+  // Roll one prompt from the composer box (DPL allowed) and fire an image batch into the gallery.
+  const generateHere = useCallback(async () => {
+    if (composeBusy) return;
+    const prov = getImageProvider(provider);
+    if (!prov || prov.copy) {
+      setComposeMsg("Pick an image provider in the ⋯ menu to generate here.");
+      return;
+    }
+    const dpl = composeText.trim() || "{#random-words}";
+    const { prompts } = run.generatePrompts({ ...baseSettings, prompt: dpl, promptCount: 1, generateImages: false });
+    const key = prov.local ? "" : await getKey(provider);
+    if (!prov.local && !key) {
+      setComposeMsg(`Add your ${prov.label} API key in the ⋯ menu to generate images.`);
+      return;
+    }
+    const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}), backendUrl };
+    const model = provSettings.model || provSettings.comfyCheckpoint || undefined;
+    setComposeBusy(true);
+    setComposeMsg("");
+    setPending(Math.max(1, Number(provSettings.batchSize) || 1));
+    let saved = 0;
+    let error = "";
+    try {
+      for (const p of prompts) {
+        const { images } = await prov.generate({ prompt: p, key, settings: provSettings });
+        for (const img of images) {
+          await saveImageSrc(img, { prompt: p, provider, model });
+          saved++;
+        }
+      }
+    } catch (e) {
+      error = e?.message || String(e);
+    }
+    setPending(0);
+    setComposeBusy(false);
+    setComposeMsg(error ? `Error: ${error}` : saved ? "" : "No images returned.");
+    if (saved) {
+      reload();
+      onGenerated?.();
+    }
+  }, [composeBusy, composeText, provider, providerSettings, backendUrl, reload, onGenerated]);
+
   const header = (
     <View style={styles.head}>
+      {/* Compact composer — generate straight into the gallery without leaving this tab. */}
+      <View style={styles.composer}>
+        <TextInput
+          style={styles.composerInput}
+          value={composeText}
+          onChangeText={setComposeText}
+          placeholder="{#random-words} — prompt to generate here"
+          placeholderTextColor={T.faint}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <TouchableOpacity
+          style={[styles.composerBtn, (composeBusy || !canImages) && styles.composerBtnOff]}
+          onPress={generateHere}
+          disabled={composeBusy || !canImages}
+          activeOpacity={0.85}
+        >
+          <SparkleIcon size={18} color={T.accentInk} />
+        </TouchableOpacity>
+      </View>
+      {composeMsg ? (
+        <Text style={[styles.composerMsg, composeMsg.startsWith("Error") && { color: T.dangerFg }]}>
+          {composeMsg}
+        </Text>
+      ) : null}
+      {pending > 0 && (
+        <View style={styles.pendingRow}>
+          {Array.from({ length: pending }, (_, i) => (
+            <View key={i} style={[styles.pendingCell, { width: cell, height: cell }]}>
+              <Text style={styles.pendingDots}>…</Text>
+            </View>
+          ))}
+        </View>
+      )}
       <View style={styles.headTop}>
         <Text style={styles.title}>Photo gallery</Text>
         <Text style={styles.count}>
@@ -230,6 +319,39 @@ export default function GalleryScreen({ onOpen, refreshKey }) {
 const makeStyles = (T) =>
   StyleSheet.create({
     head: { paddingHorizontal: 10, paddingTop: 14, paddingBottom: 6 },
+    composer: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
+    composerInput: {
+      flex: 1,
+      color: T.fg,
+      fontSize: 14,
+      fontFamily: "monospace",
+      backgroundColor: T.input,
+      borderRadius: T.radiusPill,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 14,
+      paddingVertical: 9,
+    },
+    composerBtn: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: T.accent,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    composerBtnOff: { opacity: 0.5 },
+    composerMsg: { color: T.muted, fontSize: 12.5, marginBottom: 8 },
+    pendingRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+    pendingCell: {
+      borderRadius: T.radiusSm,
+      backgroundColor: T.input,
+      borderWidth: 1,
+      borderColor: T.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    pendingDots: { color: T.faint, fontSize: 22, fontWeight: "800" },
     headTop: { flexDirection: "row", alignItems: "baseline", gap: 8, marginBottom: 10 },
     title: { color: T.fg, fontSize: 20, fontWeight: "800" },
     count: { color: T.muted, fontSize: 13 },
