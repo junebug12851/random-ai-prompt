@@ -80,3 +80,4 @@ jest.mock("expo-secure-store", () => ({
   setItemAsync: jest.fn(async () => {}),
   deleteItemAsync: jest.fn(async () => {}),
 }));
+jest.mock("expo-status-bar", () => ({ StatusBar: () => null }));

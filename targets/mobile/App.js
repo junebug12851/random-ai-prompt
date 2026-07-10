@@ -82,7 +82,7 @@ function Root() {
           })}
         </View>
 
-        <TouchableOpacity style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)}>
+        <TouchableOpacity style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)} accessibilityLabel="More options">
           <MoreIcon size={20} color={T.fgSoft} />
         </TouchableOpacity>
       </View>
