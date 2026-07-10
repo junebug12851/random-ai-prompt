@@ -32,6 +32,12 @@
     "check:docs": "node scripts/check-links.mjs",
     "check:tidy": "node scripts/check-tidy.mjs",
     "manifest": "node scripts/build-data-manifest.mjs",
+    "metro:catalog": "node scripts/build-metro-catalog.mjs",
+    "metro:parity": "node scripts/build-metro-catalog.mjs --tier=full && node scripts/metro-parity-check.mjs",
+    "mobile:parity": "node scripts/mobile-parity-check.mjs",
+    "mobile:parity:engine": "npm run metro:parity",
+    "mobile:parity:visual": "node scripts/mobile-visual-parity.mjs",
+    "mobile:parity:all": "npm run mobile:parity:engine && npm run mobile:parity && npm run mobile:parity:visual",
     "docs": "node scripts/build-docs.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
@@ -46,8 +52,9 @@
     "profile": "node scripts/profile-scenarios.mjs",
     "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
-    "test": "npm run check:docs && npm run lint && npm run smoke && npm run test:unit && npm run test:web",
-    "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios"
+    "test": "npm run check:docs && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
+    "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios",
+    "test:mobile": "npm --prefix targets/mobile test"
   },
   "dependencies": {
     "compromise": "^14.15.1",
