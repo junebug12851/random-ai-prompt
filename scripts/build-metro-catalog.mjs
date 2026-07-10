@@ -49,6 +49,13 @@ const TIER = ["full", "sfw"].includes(argOf("tier", "sfw")) ? argOf("tier", "sfw
 const SFW_ONLY = TIER !== "full";
 const outPath = argOf("out", path.join(rootDir, "engine", "core", "metroCatalogData.js"));
 
+// Generated `.js` block imports must resolve relative to the OUTPUT file's directory, not a hardcoded
+// `engine/core/` — otherwise a custom `--out` emits import specifiers that point at the wrong place.
+const importSpecifierFor = (absFile) => {
+  const rel = path.relative(path.dirname(outPath), absFile).split(path.sep).join("/");
+  return rel.startsWith(".") ? rel : `./${rel}`;
+};
+
 // Placeholder for the all-ages scrub lexicon. Returns true to DROP a list line. The base corpus is
 // already purged of slurs / minor-sexual / extreme content by contentSafety.js; this is the extra
 // edgy-but-not-NSFW pass for the all-ages ("Everyone"-rated) Play build. Populate against contentSafety's
@@ -124,7 +131,7 @@ for (const f of walk(blocksRoot)) {
   }
   const key = stripExt(f.rel);
   if (gatedOut(key)) continue;
-  if (f.rel.endsWith(".js")) dpJsFiles.push({ key, importPath: `../data/blocks/${f.rel}` });
+  if (f.rel.endsWith(".js")) dpJsFiles.push({ key, importPath: importSpecifierFor(f.abs) });
   else if (f.rel.endsWith(".dpl")) dpDplText[key] = fs.readFileSync(f.abs, "utf8");
   else if (f.rel.endsWith(".json")) dpMetaMap[key] = JSON.parse(fs.readFileSync(f.abs, "utf8"));
   else if (f.rel.endsWith(".group")) dpGroupLines[key] = readGroup(f.abs);

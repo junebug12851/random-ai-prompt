@@ -62,7 +62,14 @@ function build() {
 
 function serve() {
   const srv = createServer((req, res) => {
-    const reqPath = decodeURIComponent(req.url.split("?")[0]);
+    // decodeURIComponent throws on malformed escapes (e.g. `/%`); this runs outside the fs try blocks,
+    // so guard it or one bad request would crash the dev server. Fall back to the site root.
+    let reqPath;
+    try {
+      reqPath = decodeURIComponent(req.url.split("?")[0]);
+    } catch {
+      reqPath = "/";
+    }
     // Path-traversal sanitizer (the form CodeQL's js/path-injection help recommends): normalize the
     // request, strip any leading `../` / `..\` segments, then join under OUT — so no user-controlled
     // path can escape the served directory.

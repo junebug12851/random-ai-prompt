@@ -71,9 +71,10 @@ describe("metroLoader — accessor surface", () => {
     expect(metroLoader.loadBlock("no/such/block")).toBeNull();
   });
 
-  it("every block name loads to a non-null module (exercises .js + compiled .dpl paths)", () => {
+  it("every block name loads to a truthy module (exercises .js + compiled .dpl paths)", () => {
     for (const key of metroLoader.blockNames()) {
-      expect(metroLoader.loadBlock(key), `block failed to load: ${key}`).not.toBeNull();
+      // toBeTruthy (not just not-null) so a regression that returns undefined also fails.
+      expect(metroLoader.loadBlock(key), `block failed to load: ${key}`).toBeTruthy();
     }
   });
 
@@ -84,14 +85,20 @@ describe("metroLoader — accessor surface", () => {
     expect(Array.isArray(metroLoader.blockForcedPrefixDirsAll())).toBe(true);
     expect(typeof metroLoader.blockGroupDirs()).toBe("object");
     expect(typeof metroLoader.blockGroupDirsAll()).toBe("object");
-    // Meta accessors return an object for known names or null for unknown ones (never throw).
-    const someList = metroLoader.listNames()[0];
-    expect(() => metroLoader.readListMeta(someList)).not.toThrow();
+    // Meta accessors return an object for known names or null for unknown ones — never undefined, and
+    // never throw. Validate the actual returned value (not just that the call didn't throw).
+    const isObjectOrNull = (v) => v === null || typeof v === "object";
+    const listMeta = metroLoader.readListMeta(metroLoader.listNames()[0]);
+    expect(listMeta).not.toBeUndefined();
+    expect(isObjectOrNull(listMeta)).toBe(true);
     expect(metroLoader.readListMeta("no/such/list")).toBeNull();
-    const someBlock = metroLoader.blockNames()[0];
-    expect(() => metroLoader.readBlockMeta(someBlock)).not.toThrow();
+    const blockMeta = metroLoader.readBlockMeta(metroLoader.blockNames()[0]);
+    expect(blockMeta).not.toBeUndefined();
+    expect(isObjectOrNull(blockMeta)).toBe(true);
     expect(metroLoader.readBlockMeta("no/such/block")).toBeNull();
-    expect(() => metroLoader.readBlockGroup("anything")).not.toThrow();
+    const group = metroLoader.readBlockGroup("anything");
+    expect(group).not.toBeUndefined();
+    expect(isObjectOrNull(group)).toBe(true);
   });
 
   it("exposes presets (mobile ships built-in presets; nodeLoader exposes none)", () => {
