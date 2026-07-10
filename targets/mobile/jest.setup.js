@@ -6,7 +6,20 @@
  */
 /* eslint-disable */
 // Safe-area context ships its own jest mock.
-jest.mock("react-native-safe-area-context", () => require("react-native-safe-area-context/jest/mock"));
+jest.mock("react-native-safe-area-context", () => {
+  const React = require("react");
+  const inset = { top: 0, right: 0, bottom: 0, left: 0 };
+  const frame = { x: 0, y: 0, width: 390, height: 844 };
+  return {
+    SafeAreaProvider: ({ children }) => children,
+    SafeAreaView: ({ children }) => children,
+    SafeAreaInsetsContext: React.createContext(inset),
+    useSafeAreaInsets: () => inset,
+    useSafeAreaFrame: () => frame,
+    SafeAreaConsumer: ({ children }) => children(inset),
+    initialWindowMetrics: { insets: inset, frame },
+  };
+});
 
 // expo-image -> plain RN Image so <Image source={uri}/> renders as a host node.
 jest.mock("expo-image", () => {
@@ -18,13 +31,18 @@ jest.mock("expo-image", () => {
 jest.mock("@shopify/flash-list", () => {
   const React = require("react");
   const { ScrollView } = require("react-native");
-  const FlashList = ({ ListHeaderComponent, data = [], renderItem, keyExtractor }) => {
+  const FlashList = ({ ListHeaderComponent, ListEmptyComponent, data = [], renderItem, keyExtractor }) => {
     const header = ListHeaderComponent
       ? React.isValidElement(ListHeaderComponent) ? ListHeaderComponent : React.createElement(ListHeaderComponent)
       : null;
-    const rows = (data || []).map((item, index) =>
-      React.createElement(React.Fragment, { key: keyExtractor ? keyExtractor(item, index) : String(index) },
-        renderItem ? renderItem({ item, index }) : null));
+    const emptyEl = ListEmptyComponent
+      ? (React.isValidElement(ListEmptyComponent) ? ListEmptyComponent : React.createElement(ListEmptyComponent))
+      : null;
+    const rows = (data && data.length)
+      ? data.map((item, index) =>
+          React.createElement(React.Fragment, { key: keyExtractor ? keyExtractor(item, index) : String(index) },
+            renderItem ? renderItem({ item, index }) : null))
+      : (emptyEl ? [emptyEl] : []);
     return React.createElement(ScrollView, null, header, rows);
   };
   return { FlashList };

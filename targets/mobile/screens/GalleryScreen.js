@@ -202,6 +202,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
         <TouchableOpacity
           style={[styles.composerBtn, (composeBusy || !canImages) && styles.composerBtnOff]}
           onPress={generateHere}
+          accessibilityLabel="Generate here"
           disabled={composeBusy || !canImages}
           activeOpacity={0.85}
         >

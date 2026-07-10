@@ -552,10 +552,10 @@ export default function GenerateScreen({ onGenerated }) {
               )}
             </View>
             <View style={styles.editorHeadRight}>
-              <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon}>
+              <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon} accessibilityLabel="Toggle live preview">
                 <EyeIcon size={18} color={previewOn ? T.accent : T.muted} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon}>
+              <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon} accessibilityLabel="Prompt settings">
                 <GearIcon size={18} color={T.muted} />
               </TouchableOpacity>
             </View>
@@ -707,6 +707,7 @@ export default function GenerateScreen({ onGenerated }) {
           <TouchableOpacity
             style={[styles.genRound, generating && styles.genRoundBusy]}
             onPress={generate}
+            accessibilityLabel="Generate"
             disabled={generating}
             activeOpacity={0.85}
           >
