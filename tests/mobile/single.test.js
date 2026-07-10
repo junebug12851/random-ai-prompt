@@ -37,7 +37,7 @@ describe("promptLayers / negativeLayers", () => {
   it("negativeLayers reads enriched + legacy + empty", () => {
     expect(negativeLayers({ negativeLayers: { final: "bad" } }).final).toBe("bad");
     expect(negativeLayers({ negative: "nope" }).final).toBe("nope");
-    expect(negativeLayers({}).final).toBe(null);
+    expect(negativeLayers({}).final).toBeNull();
   });
 });
 
@@ -93,10 +93,12 @@ describe("buildDetails", () => {
     const map = Object.fromEntries(rows);
     expect(map.Provider).toBe("ComfyUI");
     expect(map.Model).toBe("sdxl");
-    expect(map.Steps).toBe(30);
-    expect(map.CFG).toBe(6.5);
+    // buildDetails passes raw setting values straight through; the fromEntries map is inferred
+    // string-valued, so read the numeric rows as numbers to keep the equality types aligned.
+    expect(Number(map.Steps)).toBe(30);
+    expect(Number(map.CFG)).toBe(6.5);
     expect(map.Sampler).toBe("euler");
-    expect(map.Seed).toBe(42);
+    expect(Number(map.Seed)).toBe(42);
     expect(map.Size).toBe("1024x1024");
     expect(map.File).toBe("img.png");
     const restKeys = rest.map(([k]) => k);
@@ -118,13 +120,13 @@ describe("parseKeywords", () => {
     expect(tags).toContain("masterpiece");
     expect(tags).toContain("fox");
     expect(tags).toContain("cinematic lighting");
-    expect(tags.filter((t) => t === "fox").length).toBe(1);
+    expect(tags.filter((t) => t === "fox")).toHaveLength(1);
     expect(tags).not.toContain("a");
     expect(tags).not.toContain("123");
   });
   it("caps at 80", () => {
     const many = Array.from({ length: 200 }, (_, i) => "kw" + i).join(", ");
-    expect(parseKeywords(many).length).toBe(80);
+    expect(parseKeywords(many)).toHaveLength(80);
   });
   it("empty in -> empty out", () => {
     expect(parseKeywords("")).toEqual([]);

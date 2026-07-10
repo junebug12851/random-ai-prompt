@@ -4,7 +4,7 @@
  * flows wire: rolling prompts into results, opening the full prompt-settings gear, and the live preview.
  */
 import React from "react";
-import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
+import { render, fireEvent, act } from "@testing-library/react-native";
 
 jest.mock("../../lib/theme.js", () => ({
   useTheme: () => ({

@@ -14,7 +14,6 @@ import {
   ScrollView,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Modal,
@@ -44,7 +43,6 @@ import { run, baseSettings } from "../lib/engine.js";
 import {
   promptLayers,
   negativeLayers,
-  promptText,
   buildDetails,
   parseKeywords,
   linkChildren,
@@ -70,7 +68,7 @@ async function copyText(t) {
 }
 
 export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onSearch }) {
-  const { T, rewriteProvider, upscaleProvider, providerSettings, backendUrl } = useTheme();
+  const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
 

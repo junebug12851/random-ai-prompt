@@ -22,7 +22,6 @@ import {
   TagIcon,
   BracketsIcon,
   ShareIcon,
-  ShuffleIcon,
   SparkleIcon,
   GridIcon,
 } from "../lib/icons.js";

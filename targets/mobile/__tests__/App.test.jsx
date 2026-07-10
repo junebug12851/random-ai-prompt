@@ -4,7 +4,6 @@
  * menu are mocked to markers so the test focuses on the shell composition + wiring.
  */
 import React from "react";
-import { Text } from "react-native";
 import { render, fireEvent, act } from "@testing-library/react-native";
 
 jest.mock("../lib/theme.js", () => ({

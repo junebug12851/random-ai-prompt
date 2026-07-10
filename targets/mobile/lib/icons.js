@@ -1,4 +1,4 @@
-import Svg, { Path, Circle, Rect, Line, Polyline, G } from "react-native-svg";
+import Svg, { Path, Circle, Rect, Line, Polyline } from "react-native-svg";
 
 // Feather-style line icons, hand-matched to the web SPA's icon set. One tiny wrapper so every icon
 // takes the same (size, color, strokeWidth) props and renders crisply on native + web.

@@ -39,7 +39,7 @@ describe("BlockPalette (mounted)", () => {
   });
 
   it("search filters the chip cloud", async () => {
-    const { getByPlaceholderText, getByText, queryByText, findByText } = await setup();
+    const { getByPlaceholderText, queryByText, findByText } = await setup();
     fireEvent.changeText(getByPlaceholderText("Search blocks…"), "cat");
     expect(await findByText("cat")).toBeTruthy();
     expect(queryByText("fox")).toBeNull();
