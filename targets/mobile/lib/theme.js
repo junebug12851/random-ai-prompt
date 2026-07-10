@@ -90,7 +90,9 @@ export function ThemeProvider({ children }) {
   const [mode, setMode] = useState("system"); // "system" | "dark" | "light"
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [locale, setLocale] = useState(DEFAULT_LOCALE); // "auto" | "en"
-  const [provider, setProvider] = useState(""); // selected image provider id ("" = none)
+  const [provider, setProvider] = useState("plain"); // image provider id (plain = prompts only)
+  const [rewriteProvider, setRewriteProvider] = useState("none"); // text/rewrite provider ("none" = off)
+  const [upscaleProvider, setUpscaleProvider] = useState("none"); // upscaler ("none" = off)
   const [providerSettings, setProviderSettings] = useState({}); // { [providerId]: { model, size, … } }
   const [ready, setReady] = useState(false);
 
@@ -111,6 +113,8 @@ export function ThemeProvider({ children }) {
               if (j.accent) setAccent(j.accent);
               if (j.locale) setLocale(j.locale);
               if (j.provider != null) setProvider(j.provider);
+              if (j.rewriteProvider != null) setRewriteProvider(j.rewriteProvider);
+              if (j.upscaleProvider != null) setUpscaleProvider(j.upscaleProvider);
               if (j.providerSettings) setProviderSettings(j.providerSettings);
             }
           }
@@ -130,9 +134,9 @@ export function ThemeProvider({ children }) {
     if (!ready || !FS) return;
     FS.writeAsStringAsync(
       FILE,
-      JSON.stringify({ mode, accent, locale, provider, providerSettings }),
+      JSON.stringify({ mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings }),
     ).catch(() => {});
-  }, [mode, accent, locale, provider, providerSettings, ready]);
+  }, [mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings, ready]);
 
   const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
   const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
@@ -149,12 +153,16 @@ export function ThemeProvider({ children }) {
       locales: LOCALES,
       provider,
       setProvider,
+      rewriteProvider,
+      setRewriteProvider,
+      upscaleProvider,
+      setUpscaleProvider,
       providerSettings,
       setProviderSetting,
       resolved,
       ready,
     }),
-    [T, mode, accent, locale, provider, providerSettings, resolved, ready],
+    [T, mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings, resolved, ready],
   );
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
@@ -173,8 +181,12 @@ export function useTheme() {
     locale: DEFAULT_LOCALE,
     setLocale: () => {},
     locales: LOCALES,
-    provider: "",
+    provider: "plain",
     setProvider: () => {},
+    rewriteProvider: "none",
+    setRewriteProvider: () => {},
+    upscaleProvider: "none",
+    setUpscaleProvider: () => {},
     providerSettings: {},
     setProviderSetting: () => {},
     resolved: "dark",

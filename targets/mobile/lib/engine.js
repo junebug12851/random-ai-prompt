@@ -11,6 +11,15 @@ export const loader = metroLoader;
 export const run = createPromptRun(createEngine(metroLoader));
 export { baseSettings };
 
+/** Word-list names for the gear's Vocabulary selects (mirrors the web getListNames()). */
+export function getListNames() {
+  try {
+    return loader.listNames().slice().sort();
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Expand one DPL string to a concrete example (used by the live preview + the Insert menu examples).
  * No auto-FX / auto-artist noise, so the example reflects just the DPL — matching the web.

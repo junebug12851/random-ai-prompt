@@ -8,6 +8,7 @@ import {
   View,
   Modal,
   ScrollView,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
@@ -24,13 +25,18 @@ import {
   SparkleIcon,
   GridIcon,
 } from "../lib/icons.js";
-import { run, baseSettings, expandOnce } from "../lib/engine.js";
+import { run, baseSettings, expandOnce, getListNames } from "../lib/engine.js";
 import { getDplCompletions } from "../lib/blockCatalog.js";
-import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
+import { getImageProvider, getTextProvider, providerDefaults, systemFor } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
 import { saveImageSrc } from "../lib/storage.js";
 import InsertMenu from "../components/InsertMenu.js";
 import BlockPalette from "../components/BlockPalette.js";
+
+const LIST_OPTIONS = [
+  { value: false, label: "(fully random)" },
+  ...getListNames().map((n) => ({ value: n, label: n })),
+];
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const COMPLETIONS = getDplCompletions();
@@ -80,12 +86,16 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
 });
 
 export default function GenerateScreen({ onGenerated }) {
-  const { T, provider, providerSettings } = useTheme();
+  const { T, provider, rewriteProvider, providerSettings } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
   const [genMsg, setGenMsg] = useState("");
   const [prompt, setPrompt] = useState(baseSettings.prompt || "{#random-words}");
   const [promptCount, setPromptCount] = useState(1);
+  const [cfg, setCfg] = useState({}); // gear overrides on top of baseSettings (seed, vocab, emphasis, …)
+  const [autoFix, setAutoFix] = useState(false); // wand — rewrite prompt with the Text provider
+  const [autoKeyword, setAutoKeyword] = useState(false); // tag — keyword-translate with the Text provider
+  const canRewrite = !!rewriteProvider && rewriteProvider !== "none";
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [gearOpen, setGearOpen] = useState(false);
   const [previewOn, setPreviewOn] = useState(false);
@@ -139,24 +149,123 @@ export default function GenerateScreen({ onGenerated }) {
   const settings = useMemo(
     () => ({
       ...baseSettings,
+      ...cfg,
       prompt,
       promptCount: clamp(promptCount, 1, 1000),
-      randomSeed: true,
       generateImages: false,
     }),
-    [prompt, promptCount],
+    [prompt, promptCount, cfg],
+  );
+  const getS = (k) => (cfg[k] !== undefined ? cfg[k] : baseSettings[k]);
+  const setS = (k, v) => setCfg((c) => ({ ...c, [k]: v }));
+
+  // Gear field rows (plain functions returning JSX so TextInputs keep focus between keystrokes).
+  const grp = (title, children) => (
+    <View style={styles.grp} key={title}>
+      <Text style={styles.grpTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+  const toggleRow = (label, key, defaultOn) => (
+    <View style={styles.setRow} key={key}>
+      <Text style={styles.setRowLabel}>{label}</Text>
+      <Switch
+        value={defaultOn ? getS(key) !== false : !!getS(key)}
+        onValueChange={(v) => setS(key, v)}
+        trackColor={{ true: T.accent, false: T.border }}
+        thumbColor="#fff"
+      />
+    </View>
+  );
+  const numRow = (label, key) => (
+    <View style={styles.setRow} key={key}>
+      <Text style={styles.setRowLabel}>{label}</Text>
+      <TextInput
+        style={styles.setNum}
+        keyboardType="numbers-and-punctuation"
+        value={String(getS(key) ?? "")}
+        onChangeText={(v) => setS(key, v === "" || v === "-" ? v : Number(v))}
+        placeholderTextColor={T.faint}
+      />
+    </View>
+  );
+  const textRow = (label, key, readOnly) => (
+    <View style={styles.setRow} key={key}>
+      <Text style={styles.setRowLabel}>{label}</Text>
+      <TextInput
+        style={[styles.setTextInput, readOnly && { opacity: 0.5 }]}
+        editable={!readOnly}
+        value={String(getS(key) ?? "")}
+        onChangeText={(v) => setS(key, v)}
+        autoCapitalize="none"
+        autoCorrect={false}
+        placeholderTextColor={T.faint}
+      />
+    </View>
+  );
+  const selectRow = (label, key, options) => (
+    <View style={styles.setSelBlock} key={key}>
+      <Text style={styles.setRowLabel}>{label}</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.setChips}
+      >
+        {options.map((o) => {
+          const on = getS(key) === o.value;
+          return (
+            <TouchableOpacity
+              key={String(o.value)}
+              style={[styles.setChip, on && styles.setChipOn]}
+              onPress={() => setS(key, o.value)}
+            >
+              <Text style={[styles.setChipText, on && styles.setChipTextOn]}>{o.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 
   const generate = useCallback(async () => {
     if (generating) return;
-    const { seed, prompts } = run.generatePrompts(settings);
-    setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
+    const { seed, prompts: rolled } = run.generatePrompts(settings);
     setCopiedId(null);
 
-    // No image provider configured → prompts only (the current behaviour).
-    const prov = provider ? getImageProvider(provider) : null;
-    if (!prov) {
-      setGenMsg("");
+    // Text rewrite (auto-fix / keyword-translate) with the selected Text provider, if toggled on.
+    let prompts = rolled;
+    const rprov = canRewrite ? getTextProvider(rewriteProvider) : null;
+    if (rprov && (autoFix || autoKeyword)) {
+      const rkey = await getKey(rewriteProvider);
+      if (!rkey) {
+        setGenMsg(`Add your ${rprov.label} key in the ⋯ menu to use auto-fix / keyword rewrite.`);
+      } else {
+        setGenerating(true);
+        try {
+          const out = [];
+          for (let i = 0; i < rolled.length; i++) {
+            setGenMsg(`Rewriting prompt ${i + 1} of ${rolled.length}…`);
+            let t = rolled[i];
+            if (autoFix) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("fix") })).text || t;
+            if (autoKeyword) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("keyword") })).text || t;
+            out.push(t);
+          }
+          prompts = out;
+        } catch (e) {
+          setGenMsg(`Rewrite error: ${e?.message || e}`);
+          prompts = rolled;
+        }
+        setGenerating(false);
+      }
+    }
+
+    setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
+
+    // Copy providers (plain / novelai) or none → prompts only.
+    const prov = getImageProvider(provider);
+    if (!prov || prov.copy) {
+      if (!autoFix && !autoKeyword) setGenMsg("");
       return;
     }
     // Local providers (ComfyUI / Forge / SD.Next) need no key — they hit the user's own server.
@@ -165,7 +274,7 @@ export default function GenerateScreen({ onGenerated }) {
       setGenMsg(`Add your ${prov.label} API key in the ⋯ menu to generate images.`);
       return;
     }
-    // Generate one image per rolled prompt, saving each into the Gallery as it lands.
+    // Generate one image per prompt, saving each into the Gallery as it lands.
     const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}) };
     const model = provSettings.model || provSettings.comfyCheckpoint || undefined;
     setGenerating(true);
@@ -189,7 +298,7 @@ export default function GenerateScreen({ onGenerated }) {
     setGenMsg(
       error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
     );
-  }, [generating, settings, provider, providerSettings, onGenerated]);
+  }, [generating, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, onGenerated]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {
@@ -341,11 +450,11 @@ export default function GenerateScreen({ onGenerated }) {
             </View>
 
             <View style={styles.toolGroup}>
-              <ToolBtn disabled>
-                <WandIcon size={18} color={T.faint} />
+              <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)}>
+                <WandIcon size={18} color={autoFix ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn disabled>
-                <TagIcon size={18} color={T.faint} />
+              <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)}>
+                <TagIcon size={18} color={autoKeyword ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
               <ToolBtn on onPress={() => setPaletteOpen(true)}>
                 <BracketsIcon size={18} color={T.accent} />
@@ -442,27 +551,47 @@ export default function GenerateScreen({ onGenerated }) {
                 <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.gearBody}>
-              <View style={styles.gearRow}>
-                <Text style={styles.gearLabel}>Prompts per run</Text>
-                <View style={styles.promptsCount}>
-                  <TouchableOpacity
-                    style={styles.countBtn}
-                    onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
-                  >
-                    <Text style={styles.countBtnText}>−</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.countVal}>{promptCount}</Text>
-                  <TouchableOpacity
-                    style={styles.countBtn}
-                    onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
-                  >
-                    <Text style={styles.countBtnText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <Text style={styles.gearNote}>More prompt settings are coming to mobile.</Text>
-            </View>
+            <ScrollView
+              style={styles.gearScroll}
+              contentContainerStyle={styles.gearBody}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <TouchableOpacity style={styles.resetBtn} onPress={() => setCfg({})}>
+                <Text style={styles.resetText}>Reset to defaults</Text>
+              </TouchableOpacity>
+
+              {grp("Seed", [
+                toggleRow("Random seed", "randomSeed", true),
+                textRow("Seed", "promptSeed", getS("randomSeed") !== false),
+              ])}
+              {grp("Vocabulary", [
+                selectRow("Keyword list", "keywordsFilename", LIST_OPTIONS),
+                selectRow("Artist list", "artistFilename", LIST_OPTIONS),
+                toggleRow("Natural language for artists & styles", "naturalArtistStyle", true),
+              ])}
+              {grp("Emphasis", [
+                toggleRow("Randomly emphasize keywords", "keywordEmphasis"),
+                numRow("Emphasis chance", "emphasisChance"),
+                numRow("Extra-level chance", "emphasisLevelChance"),
+                numRow("Max levels", "emphasisMaxLevels"),
+                numRow("De-emphasis chance", "deEmphasisChance"),
+              ])}
+              {grp("Editing & alternating", [
+                toggleRow("Keyword editing", "keywordEditing"),
+                numRow("Editing min", "keywordEditingMin"),
+                numRow("Editing max", "keywordEditingMax"),
+                toggleRow("Keyword alternating", "keywordAlternating"),
+                numRow("Alternating max levels", "keywordAlternatingMaxLevels"),
+              ])}
+              {grp("Salt & lists", [
+                toggleRow("Prompt salt", "promptSalt"),
+                numRow("Salt start (-1 = random)", "promptSaltStart"),
+                toggleRow("Don't combine with AND", "noAnd"),
+                toggleRow("List entries used once", "listEntriesUsedOnce"),
+                toggleRow("Reload lists each prompt", "reloadListsOnPromptChange"),
+              ])}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -678,6 +807,7 @@ const makeStyles = (T) =>
       borderTopRightRadius: 18,
       borderTopWidth: 1,
       borderColor: T.border,
+      maxHeight: "82%",
     },
     gearHead: {
       flexDirection: "row",
@@ -689,13 +819,71 @@ const makeStyles = (T) =>
     },
     gearTitle: { color: T.fg, fontSize: 17, fontWeight: "700" },
     gearClose: { color: T.muted, fontSize: 18, fontWeight: "700", paddingHorizontal: 6 },
-    gearBody: { paddingHorizontal: 18, paddingBottom: 28, paddingTop: 4 },
-    gearRow: {
+    gearScroll: { flexGrow: 0 },
+    gearBody: { paddingHorizontal: 18, paddingBottom: 32, paddingTop: 4 },
+    resetBtn: {
+      alignSelf: "flex-end",
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      marginBottom: 6,
+    },
+    resetText: { color: T.muted, fontSize: 12.5, fontWeight: "700" },
+    grp: { marginTop: 12 },
+    grpTitle: {
+      color: T.muted,
+      fontSize: 11.5,
+      fontWeight: "800",
+      letterSpacing: 0.6,
+      textTransform: "uppercase",
+      marginBottom: 4,
+    },
+    setRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingVertical: 10,
+      paddingVertical: 8,
+      gap: 12,
     },
-    gearLabel: { color: T.fgSoft, fontSize: 15 },
-    gearNote: { color: T.faint, fontSize: 13, marginTop: 8 },
+    setRowLabel: { color: T.fgSoft, fontSize: 14.5, flex: 1 },
+    setNum: {
+      color: T.fg,
+      fontSize: 14,
+      minWidth: 74,
+      textAlign: "right",
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    setTextInput: {
+      color: T.fg,
+      fontSize: 14,
+      minWidth: 140,
+      flexShrink: 1,
+      textAlign: "right",
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    setSelBlock: { paddingVertical: 8 },
+    setChips: { flexDirection: "row", gap: 8, paddingVertical: 6, paddingRight: 8 },
+    setChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: T.radiusPill,
+      borderWidth: 1,
+      borderColor: T.border,
+      backgroundColor: T.elevated,
+    },
+    setChipOn: { borderColor: T.accent, backgroundColor: T.accentSoft },
+    setChipText: { color: T.fgSoft, fontSize: 13, fontWeight: "600" },
+    setChipTextOn: { color: T.accent },
   });
