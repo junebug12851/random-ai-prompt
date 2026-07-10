@@ -89,7 +89,12 @@ function Root() {
           <GalleryScreen onOpen={openImage} refreshKey={galleryKey} />
         </View>
         <View style={pane("single")}>
-          <SingleScreen image={image} onBack={() => setView("gallery")} onDeleted={afterDelete} />
+          <SingleScreen
+            image={image}
+            onBack={() => setView("gallery")}
+            onDeleted={afterDelete}
+            onUpscaled={() => setGalleryKey((k) => k + 1)}
+          />
         </View>
         <View style={pane("manage")}>
           <ManageScreen />

@@ -80,6 +80,8 @@ async function main() {
   log(`• Serving ${OUT} at http://localhost:${PORT}`);
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
+  page.on("pageerror", (e) => log(`  ! page error: ${e.message}`));
+  page.on("console", (m) => { if (m.type() === "error") log(`  ! console: ${m.text().slice(0, 160)}`); });
   const shot = async (name) => {
     const path = join(SHOTS, `${name}.png`);
     await page.screenshot({ path });
@@ -107,22 +109,18 @@ async function main() {
     // The trigger is an SVG icon button (no text) at the top-right of the one-row topbar, so click
     // by position with a couple of fallbacks.
     const openOverflow = async () => {
-      for (const [x, y] of [[W - 22, 40], [W - 22, 56], [W - 30, 44]]) {
-        await page.mouse.click(x, y);
-        await page.waitForTimeout(500);
-        if (await page.locator("text=Providers").first().isVisible().catch(() => false)) return true;
-      }
-      return false;
+      await page.mouse.click(W - 24, 42);
+      await page.waitForTimeout(700);
+      return page.locator("text=Upscale").first().isVisible().catch(() => false);
     };
-    if (await openOverflow()) {
-      await shot("05-overflow");
-      if (await tap("Providers")) {
-        await shot("06-providers");
-        if (await tap("ComfyUI (local server)")) await shot("07-comfyui-serverurl");
-      }
-      await tap("Provider settings");
-      await page.waitForTimeout(400);
-      await shot("08-provider-settings");
+    const opened = await openOverflow();
+    await shot("05-overflow"); // always capture what the click produced
+    if (opened) {
+      if (await tap("Image")) await shot("06-image-grouped");
+      await tap("Image provider"); // back
+      if (await tap("Text")) await shot("07-text-role");
+      await tap("Text (prompt & keyword rewrite)"); // back
+      if (await tap("Upscale")) await shot("08-upscale-role");
     } else {
       log("  couldn't open the overflow menu (skipping provider surfaces)");
     }
