@@ -150,6 +150,7 @@ function checkSurfaces() {
     overflow: read("components/OverflowMenu.js"),
     generate: read("screens/GenerateScreen.js"),
     gallery: read("screens/GalleryScreen.js"),
+    single: read("screens/SingleScreen.js"),
   };
   // [surface, feature, fileKey, /marker/]
   const CHECKS = [
@@ -193,6 +194,31 @@ function checkSurfaces() {
     ["Gallery", "memoized cell (100k perf)", "gallery", /memo\(/],
     ["Gallery", "compact composer atop gallery", "gallery", /Composer|composer/],
     ["Gallery", "pending placeholder cells", "gallery", /pending|placeholder/],
+    // Single (full parity with web SingleView.jsx) — every meaningful web feature mapped to mobile.
+    ["Single", "back navigation", "single", /onBack/],
+    ["Single", "prev/next navigation", "single", /hasPrev/],
+    ["Single", "position (i / N)", "single", /index \+ 1/],
+    ["Single", "open-full viewer", "single", /viewerOpen/],
+    ["Single", "share (reveal equivalent)", "single", /Sharing/],
+    ["Single", "save to Photos (download)", "single", /saveToPhotos/],
+    ["Single", "delete", "single", /deleteImage/],
+    ["Single", "convert format", "single", /doConvert/],
+    ["Single", "resize scales", "single", /RESIZE_SCALES/],
+    ["Single", "AI upscale", "single", /doUpscale/],
+    ["Single", "lineage parent link", "single", /Parent/],
+    ["Single", "derived-children strips", "single", /DerivedStrip/],
+    ["Single", "in-flight derivation placeholders", "single", /derivations/],
+    ["Single", "prompt layers (sent/ai/roll/dpl)", "single", /DPL source/],
+    ["Single", "negative prompt layers", "single", /Negative/],
+    ["Single", "inline re-roll / make-variation", "single", /runDerive/],
+    ["Single", "curated details table", "single", /buildDetails/],
+    ["Single", "raw JSON toggle", "single", /rawView/],
+    ["Single", "all-settings expandable", "single", /restSettings/],
+    ["Single", "copy Markdown", "single", /Copy Markdown/],
+    ["Single", "copy JSON", "single", /Copy JSON/],
+    ["Single", "keyword cloud", "single", /parseKeywords/],
+    ["Single", "keyword rebuild (AI)", "single", /rebuildKeywords/],
+    ["Single", "keyword search", "single", /onSearch/],
   ];
   const bySurface = {};
   for (const [surface, feature, fileKey, re] of CHECKS) {

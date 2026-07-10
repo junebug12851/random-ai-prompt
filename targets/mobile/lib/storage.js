@@ -54,9 +54,15 @@ export async function listImages() {
 
 /**
  * Save a generated image into the gallery from any source a provider returns (`data:` base64 /
- * `https:` URL / local `file:`), recording its prompt metadata in index.json. Returns `{ name, uri }`.
+ * `https:` URL / local `file:`), recording its full prompt/settings metadata in index.json — the
+ * mobile counterpart of the web's per-image `.json` sidecar. The rich fields (prompt layers,
+ * negative, seed, size, settings snapshot, lineage) power the Single view's layered prompt cards,
+ * details table, keyword cloud, and re-roll / variation lineage. Returns `{ name, uri }`.
  * @param {string} src
- * @param {{prompt?:string, provider?:string, model?:string}} [meta]
+ * @param {{prompt?:string, negative?:string, layers?:object, negativeLayers?:object,
+ *   provider?:string, providerLabel?:string, model?:string, seed?:(string|number),
+ *   size?:string, settings?:object, keywords?:string[], parent?:string,
+ *   derivedKind?:string, derivedSource?:string}} [meta]
  */
 export async function saveImageSrc(src, meta = {}) {
   if (!FS) return null;
@@ -74,12 +80,39 @@ export async function saveImageSrc(src, meta = {}) {
   const idx = await readIndex();
   idx[name] = {
     prompt: meta.prompt || "",
+    negative: meta.negative || "",
+    layers: meta.layers || null,
+    negativeLayers: meta.negativeLayers || null,
     provider: meta.provider || "",
+    providerLabel: meta.providerLabel || "",
     model: meta.model || "",
+    seed: meta.seed ?? null,
+    size: meta.size || "",
+    settings: meta.settings || null,
+    keywords: Array.isArray(meta.keywords) ? meta.keywords : null,
+    parent: meta.parent || null,
+    derivedKind: meta.derivedKind || null,
+    derivedSource: meta.derivedSource || null,
     createdAt: Date.now(),
   };
   await writeIndex(idx);
   return { name, uri: dest };
+}
+
+/**
+ * Merge a metadata patch into a saved image's index entry (e.g. saving an AI-rebuilt keyword list
+ * from the Single view). Returns the merged entry, or null when unavailable.
+ * @param {string} uri The image uri.
+ * @param {object} patch The fields to merge.
+ */
+export async function updateImageMeta(uri, patch) {
+  if (!FS) return null;
+  const idx = await readIndex();
+  const key = nameOf(uri);
+  if (!idx[key]) return null;
+  idx[key] = { ...idx[key], ...patch };
+  await writeIndex(idx);
+  return idx[key];
 }
 
 /** Copy an image (from a temp uri) into the gallery. */

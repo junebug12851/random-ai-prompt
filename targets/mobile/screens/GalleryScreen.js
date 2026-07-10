@@ -13,6 +13,7 @@ import { useTheme } from "../lib/theme.js";
 import { listImages, deleteImages, saveImageSrc } from "../lib/storage.js";
 import { run, baseSettings } from "../lib/engine.js";
 import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
+import { sizeFromSettings } from "../lib/single.js";
 import { getKey } from "../lib/keys.js";
 import { SparkleIcon } from "../lib/icons.js";
 
@@ -55,7 +56,7 @@ const Cell = memo(function Cell({ item, size, pad, selectMode, selected, onPress
  * Delete N / Done) with per-cell selection rings, and empty / no-match states — over a recycling
  * FlashList grid of uniform square thumbnails (expo-image, disk-cached) built for the 100k max load.
  */
-export default function GalleryScreen({ onOpen, refreshKey, onGenerated }) {
+export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchTerm, searchSeq }) {
   const { T, provider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
@@ -94,6 +95,11 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated }) {
   useEffect(() => {
     reload();
   }, [reload, refreshKey]);
+  // A keyword tapped in the Single view arrives as (searchTerm, searchSeq) — apply it to the search
+  // box (seq bumps even when the term repeats, so tapping the same tag re-focuses the filter).
+  useEffect(() => {
+    if (searchSeq) setQuery(searchTerm || "");
+  }, [searchSeq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const q = query.trim().toLowerCase();
   const filtered = useMemo(() => {
@@ -150,10 +156,21 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated }) {
     let saved = 0;
     let error = "";
     try {
+      const negText = provSettings.negativePrompt || "";
       for (const p of prompts) {
         const { images } = await prov.generate({ prompt: p, key, settings: provSettings });
         for (const img of images) {
-          await saveImageSrc(img, { prompt: p, provider, model });
+          await saveImageSrc(img, {
+            prompt: p,
+            negative: negText,
+            layers: { dpl, roll: p, ai: null, final: p },
+            negativeLayers: negText ? { final: negText } : null,
+            provider,
+            providerLabel: prov.label,
+            model,
+            size: sizeFromSettings(provSettings),
+            settings: provSettings,
+          });
           saved++;
         }
       }

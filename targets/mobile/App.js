@@ -38,11 +38,17 @@ function Root() {
   const [view, setView] = useState("generate");
   const [image, setImage] = useState(null);
   const [galleryKey, setGalleryKey] = useState(0);
+  const [gallerySearch, setGallerySearch] = useState({ term: "", seq: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
 
   const openImage = useCallback((it) => {
     setImage(it);
     setView("single");
+  }, []);
+  // Keyword-cloud search from the Single view: jump to the Gallery pre-filtered to the tapped tag.
+  const searchFromSingle = useCallback((term) => {
+    setGallerySearch((s) => ({ term, seq: s.seq + 1 }));
+    setView("gallery");
   }, []);
   const afterDelete = useCallback(() => {
     setImage(null);
@@ -86,7 +92,13 @@ function Root() {
           <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
         </View>
         <View style={pane("gallery")}>
-          <GalleryScreen onOpen={openImage} refreshKey={galleryKey} />
+          <GalleryScreen
+            onOpen={openImage}
+            refreshKey={galleryKey}
+            onGenerated={() => setGalleryKey((k) => k + 1)}
+            searchTerm={gallerySearch.term}
+            searchSeq={gallerySearch.seq}
+          />
         </View>
         <View style={pane("single")}>
           <SingleScreen
@@ -94,6 +106,7 @@ function Root() {
             onBack={() => setView("gallery")}
             onDeleted={afterDelete}
             onUpscaled={() => setGalleryKey((k) => k + 1)}
+            onSearch={searchFromSingle}
           />
         </View>
         <View style={pane("manage")}>

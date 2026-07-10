@@ -29,6 +29,7 @@ import {
 import { run, baseSettings, expandOnce, getListNames } from "../lib/engine.js";
 import { getDplCompletions } from "../lib/blockCatalog.js";
 import { getImageProvider, getTextProvider, providerDefaults, systemFor } from "../lib/imageProviders.js";
+import { sizeFromSettings } from "../lib/single.js";
 import { getKey } from "../lib/keys.js";
 import { saveImageSrc } from "../lib/storage.js";
 import InsertMenu from "../components/InsertMenu.js";
@@ -403,8 +404,25 @@ export default function GenerateScreen({ onGenerated }) {
       setGenMsg(`Generating image ${i + 1} of ${prompts.length}…`);
       try {
         const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
+        const negText = provSettings.negativePrompt || "";
         for (const img of images) {
-          await saveImageSrc(img, { prompt: prompts[i], provider, model });
+          await saveImageSrc(img, {
+            prompt: prompts[i],
+            negative: negText,
+            layers: {
+              dpl: prompt,
+              roll: rolled[i] ?? null,
+              ai: autoFix || autoKeyword ? prompts[i] : null,
+              final: prompts[i],
+            },
+            negativeLayers: negText ? { final: negText } : null,
+            provider,
+            providerLabel: prov.label,
+            model,
+            seed,
+            size: sizeFromSettings(provSettings),
+            settings: provSettings,
+          });
           saved++;
         }
         if (saved) onGenerated?.();
@@ -466,7 +484,19 @@ export default function GenerateScreen({ onGenerated }) {
       setRowBusy(item.id);
       try {
         const { images } = await prov.generate({ prompt: item.text, key, settings: provSettings });
-        for (const img of images) await saveImageSrc(img, { prompt: item.text, provider, model });
+        const negText = provSettings.negativePrompt || "";
+        for (const img of images)
+          await saveImageSrc(img, {
+            prompt: item.text,
+            negative: negText,
+            layers: { final: item.text },
+            negativeLayers: negText ? { final: negText } : null,
+            provider,
+            providerLabel: imgProv?.label,
+            model,
+            size: sizeFromSettings(provSettings),
+            settings: provSettings,
+          });
         setResults((prev) =>
           prev.map((r) => (r.id === item.id ? { ...r, images: [...(r.images || []), ...images] } : r)),
         );
