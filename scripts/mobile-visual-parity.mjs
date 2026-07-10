@@ -15,11 +15,13 @@ import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, mkdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join, extname } from "node:path";
+import { dirname, join, extname, resolve, sep } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MOBILE = join(ROOT, "targets/mobile");
 const OUT = join(MOBILE, "dist");
+// Absolute, normalized root that every served path must stay inside (path-traversal guard).
+const OUT_ROOT = resolve(OUT);
 const SHOTS = join(ROOT, "artifacts/mobile-parity");
 const PORT = 8099;
 const W = 390,
@@ -62,12 +64,16 @@ function build() {
 
 function serve() {
   const srv = createServer((req, res) => {
-    let p = decodeURIComponent(req.url.split("?")[0]);
-    let file = join(OUT, p);
+    const p = decodeURIComponent(req.url.split("?")[0]);
+    // Resolve the request under OUT_ROOT and reject anything that escapes it (e.g. `/../../etc/passwd`).
+    // A request that would leave the served directory falls back to index.html rather than reading it.
+    const candidate = resolve(OUT_ROOT, "." + (p.startsWith("/") ? p : "/" + p));
+    const inRoot = candidate === OUT_ROOT || candidate.startsWith(OUT_ROOT + sep);
+    let file = inRoot ? candidate : join(OUT_ROOT, "index.html");
     try {
-      if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT, "index.html");
+      if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT_ROOT, "index.html");
     } catch {
-      file = join(OUT, "index.html");
+      file = join(OUT_ROOT, "index.html");
     }
     try {
       const body = readFileSync(file);
