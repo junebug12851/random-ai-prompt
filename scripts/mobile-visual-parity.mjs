@@ -15,13 +15,11 @@ import { spawnSync } from "node:child_process";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, mkdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join, extname, resolve, sep } from "node:path";
+import { dirname, join, extname, normalize } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MOBILE = join(ROOT, "targets/mobile");
 const OUT = join(MOBILE, "dist");
-// Absolute, normalized root that every served path must stay inside (path-traversal guard).
-const OUT_ROOT = resolve(OUT);
 const SHOTS = join(ROOT, "artifacts/mobile-parity");
 const PORT = 8099;
 const W = 390,
@@ -64,22 +62,16 @@ function build() {
 
 function serve() {
   const srv = createServer((req, res) => {
-    const p = decodeURIComponent(req.url.split("?")[0]);
-    // Resolve the request under OUT_ROOT and REJECT anything that escapes it (e.g. `/../../etc/passwd`)
-    // with an early return, before the path ever reaches statSync/readFileSync — so no user-controlled
-    // path can leave the served directory (path-traversal guard).
-    const candidate = resolve(OUT_ROOT, "." + (p.startsWith("/") ? p : "/" + p));
-    if (candidate !== OUT_ROOT && !candidate.startsWith(OUT_ROOT + sep)) {
-      res.writeHead(403);
-      res.end("forbidden");
-      return;
-    }
-    // `file` is now proven to be inside OUT_ROOT (or the constant index.html fallback).
-    let file = candidate;
+    const reqPath = decodeURIComponent(req.url.split("?")[0]);
+    // Path-traversal sanitizer (the form CodeQL's js/path-injection help recommends): normalize the
+    // request, strip any leading `../` / `..\` segments, then join under OUT — so no user-controlled
+    // path can escape the served directory.
+    const safe = normalize(reqPath).replace(/^(\.\.(\/|\\|$))+/, "");
+    let file = join(OUT, safe);
     try {
-      if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT_ROOT, "index.html");
+      if (!existsSync(file) || statSync(file).isDirectory()) file = join(OUT, "index.html");
     } catch {
-      file = join(OUT_ROOT, "index.html");
+      file = join(OUT, "index.html");
     }
     try {
       const body = readFileSync(file);
