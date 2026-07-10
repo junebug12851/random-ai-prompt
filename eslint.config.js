@@ -24,6 +24,7 @@ export default [
       // The CLI target (targets/cli) is pure Node ESM like the engine, so the root config lints it
       // too (with the Node-ESM ruleset below) alongside the engine, scripts, and tests.
       "targets/web/**",
+      "targets/mobile/**", // Expo/React-Native app: its own toolchain (jest-expo).
       "targets/web-shell/**",
       // The ComfyUI target is a Python custom-node package with a ComfyUI-runtime browser JS
       // extension (imports ComfyUI's own scripts, uses browser globals) — not part of our Node/web

@@ -52,8 +52,9 @@
     "profile": "node scripts/profile-scenarios.mjs",
     "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
-    "test": "npm run check:docs && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web",
-    "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios"
+    "test": "npm run check:docs && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
+    "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios",
+    "test:mobile": "npm --prefix targets/mobile test"
   },
   "dependencies": {
     "compromise": "^14.15.1",

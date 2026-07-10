@@ -48,8 +48,21 @@ rebuild). Storage (`lib/storage.js`) is expo-file-system, web-safe no-op under `
   `dist-web/` bundle → Playwright screenshot at 390px, compared against a web reference render. `dist-web/`
   and run logs are gitignored.
 
-## Open follow-ups
+## Testing
 
+Four layers, mirroring the web target's rigor:
+
+- **Engine/data parity** — `scripts/metro-parity-check.mjs` (metroLoader output == nodeLoader).
+- **Ported-catalog + surface parity** — `scripts/mobile-parity-check.mjs` (accents/locales/DPL/providers
+  match the web SOURCES, and each focus surface — Header / Generate / Gallery / Single — carries a marker
+  for every web feature; no per-feature ignores). Wired into `npm test`.
+- **Component/behavior** — `jest-expo` + React Native Testing Library mount the REAL screens (the Android
+  code path) with native modules mocked (`targets/mobile/jest.setup.js`) and assert render + wiring. Run
+  `npm --prefix targets/mobile test` (root `test:mobile`, in `npm test`). Pure helpers (`lib/single.js`)
+  also have root-vitest unit tests under `tests/mobile/`.
+- **Visual/UX parity** — `expo export --platform web` → Playwright screenshot at 390px vs a web reference.
+
+## Open follow-ups
 - Wire image generation (reuse `targets/web/shared/` provider adapters + expo-secure-store keys) → Gallery.
 - Wire the Manage user overlay into runtime generation (metroLoader runtime overlay).
 - Load the real brand fonts (Maven Pro / Space Grotesk); light/dark theme following the system.
