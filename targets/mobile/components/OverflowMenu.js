@@ -400,6 +400,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
 /** BYOK secure key field bound to a provider id (shared across roles for the same provider). */
 function KeyField({ id, hint, keyUrl, styles, T, onOpen }) {
   const [val, setVal] = useState("");
+  const [err, setErr] = useState("");
   useEffect(() => {
     let alive = true;
     getKey(id).then((k) => alive && setVal(k || ""));
@@ -407,9 +408,11 @@ function KeyField({ id, hint, keyUrl, styles, T, onOpen }) {
       alive = false;
     };
   }, [id]);
-  const change = (v) => {
+  const change = async (v) => {
     setVal(v);
-    setKey(id, v);
+    // Surface a failed keystore write instead of letting BYOK look saved when it wasn't.
+    const ok = await setKey(id, v);
+    setErr(ok ? "" : "Couldn’t save to the secure keystore — try again.");
   };
   return (
     <>
@@ -424,7 +427,9 @@ function KeyField({ id, hint, keyUrl, styles, T, onOpen }) {
         autoCorrect={false}
       />
       <View style={styles.provFoot}>
-        <Text style={styles.provNote}>Stored securely on your device (BYOK).</Text>
+        <Text style={[styles.provNote, err ? { color: T.dangerFg } : null]}>
+          {err || "Stored securely on your device (BYOK)."}
+        </Text>
         {keyUrl && (
           <TouchableOpacity onPress={() => onOpen(keyUrl)}>
             <Text style={styles.provLink}>Get a key ↗</Text>

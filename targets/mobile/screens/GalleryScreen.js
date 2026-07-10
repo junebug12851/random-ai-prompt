@@ -62,6 +62,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const { width } = useWindowDimensions();
   const [items, setItems] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadErr, setLoadErr] = useState("");
   const [query, setQuery] = useState("");
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState(() => new Set()); // uri values
@@ -81,16 +82,24 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const cell = Math.floor((w - pad) / cols) - pad;
 
   const reload = useCallback(() => {
-    listImages().then((it) => {
-      setItems(it);
-      setLoaded(true);
-      // Drop any selected uris that no longer exist.
-      setSelected((prev) => {
-        if (!prev.size) return prev;
-        const live = new Set(it.map((i) => i.uri));
-        return new Set([...prev].filter((u) => live.has(u)));
+    listImages()
+      .then((it) => {
+        setLoadErr("");
+        setItems(it);
+        setLoaded(true);
+        // Drop any selected uris that no longer exist.
+        setSelected((prev) => {
+          if (!prev.size) return prev;
+          const live = new Set(it.map((i) => i.uri));
+          return new Set([...prev].filter((u) => live.has(u)));
+        });
+      })
+      .catch((e) => {
+        // Don't leave the screen stuck on "loading…" — surface the failure with a retry path.
+        setItems([]);
+        setLoadErr(e?.message || String(e));
+        setLoaded(true);
       });
-    });
   }, []);
   useEffect(() => {
     reload();
@@ -126,9 +135,15 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const deleteSelected = useCallback(async () => {
     const uris = [...selected];
     if (!uris.length) return;
-    await deleteImages(uris);
-    setSelected(new Set());
-    reload();
+    try {
+      await deleteImages(uris);
+    } catch (e) {
+      // Surface a mid-batch FS error instead of leaving the selection in a stuck, silent state.
+      setComposeMsg(`Error: ${e?.message || String(e)}`);
+    } finally {
+      setSelected(new Set());
+      reload();
+    }
   }, [selected, reload]);
 
   const allSelected = filtered.length > 0 && filtered.every((i) => selected.has(i.uri));
@@ -279,15 +294,32 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
         </View>
       )}
 
-      {loaded && items.length === 0 && (
+      {loaded && loadErr ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyIcon}>🖼️</Text>
-          <Text style={styles.emptyTitle}>No images yet</Text>
-          <Text style={styles.emptyBody}>
-            Set an image provider + API key in the ⋯ menu, then Generate — every image lands here
-            (smooth to 100k).{" "}
-          </Text>
+          <Text style={styles.emptyIcon}>⚠️</Text>
+          <Text style={styles.emptyTitle}>Couldn’t load images</Text>
+          <Text style={styles.emptyBody}>{loadErr}</Text>
+          <TouchableOpacity
+            onPress={reload}
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading images"
+            style={{ marginTop: 12, paddingVertical: 8, paddingHorizontal: 16 }}
+          >
+            <Text style={{ color: T.accentFg, fontWeight: "600" }}>Tap to retry</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        loaded &&
+        items.length === 0 && (
+          <View style={styles.empty}>
+            <Text style={styles.emptyIcon}>🖼️</Text>
+            <Text style={styles.emptyTitle}>No images yet</Text>
+            <Text style={styles.emptyBody}>
+              Set an image provider + API key in the ⋯ menu, then Generate — every image lands here
+              (smooth to 100k).{" "}
+            </Text>
+          </View>
+        )
       )}
       {loaded && items.length > 0 && filtered.length === 0 && (
         <Text style={styles.none}>No images match “{query}”.</Text>

@@ -169,6 +169,9 @@ export default function GenerateScreen({ onGenerated }) {
   const caret = useRef(prompt.length);
   const promptRef = useRef(prompt);
   promptRef.current = prompt;
+  // Monotonic per-click batch counter so result-row ids are unique even when a fixed promptSeed reuses
+  // the same seed across generations (otherwise `${seed}:${i}` ids collide and image updates misattribute).
+  const batchSeq = useRef(0);
 
   // The editor edits the prompt or (when the provider supports it and the Negative tab is active)
   // the negative prompt.
@@ -379,12 +382,15 @@ export default function GenerateScreen({ onGenerated }) {
       }
     }
 
-    setResults((prev) => [...prompts.map((text, i) => ({ id: `${seed}:${i}`, text })), ...prev]);
+    const batchId = `${seed}-${batchSeq.current++}`;
+    setResults((prev) => [...prompts.map((text, i) => ({ id: `${batchId}:${i}`, text })), ...prev]);
 
     // Copy providers (plain / novelai) or none → prompts only.
     const prov = getImageProvider(provider);
     if (!prov || prov.copy) {
-      if (!autoFix && !autoKeyword) setGenMsg("");
+      // Always clear the transient "Rewriting…" status — even when autoFix/autoKeyword ran — so it
+      // doesn't linger after generation actually finished on the copy/no-provider path.
+      setGenMsg("");
       return;
     }
     // Local providers (ComfyUI / Forge / SD.Next) need no key — they hit the user's own server.
@@ -508,17 +514,25 @@ export default function GenerateScreen({ onGenerated }) {
     [provider, providerSettings, backendUrl, imgProv, onGenerated],
   );
 
-  const insertToken = useCallback((token) => {
-    setPrompt((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
-    setPaletteOpen(false);
-  }, []);
+  // Insert into whichever field is active (Prompt, or Negative when that tab is selected) — matches the
+  // gutter "+" which already targets setActiveValue — rather than always writing to the Prompt.
+  const insertToken = useCallback(
+    (token) => {
+      setActiveValue((p) => (p.trim() ? `${p.trim()}, ${token}` : token));
+      setPaletteOpen(false);
+    },
+    [setActiveValue],
+  );
   // Insert a DPL snippet from the Insert menu at the end (line constructs onto a fresh line).
-  const insertSnippet = useCallback((text) => {
-    setPrompt((p) => {
-      if (!p.trim()) return text;
-      return /\n\s*$/.test(p) || p.endsWith("\n") ? p + text : `${p}\n${text}`;
-    });
-  }, []);
+  const insertSnippet = useCallback(
+    (text) => {
+      setActiveValue((p) => {
+        if (!p.trim()) return text;
+        return /\n\s*$/.test(p) || p.endsWith("\n") ? p + text : `${p}\n${text}`;
+      });
+    },
+    [setActiveValue],
+  );
 
   const header = (
     <View>

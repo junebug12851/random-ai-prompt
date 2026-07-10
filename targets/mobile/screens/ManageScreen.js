@@ -157,7 +157,9 @@ export default function ManageScreen() {
   }, [reload]);
 
   const create = useCallback(async () => {
-    const n = newName.trim().replace(/[^a-z0-9/_-]/gi, "");
+    // No `/`: writeUserList stores `${LISTS}${name}.txt` and listUserLists only scans the top-level
+    // lists dir, so a `folder/list` name wouldn't round-trip. Keep names flat.
+    const n = newName.trim().replace(/[^a-z0-9_-]/gi, "");
     if (!n) return;
     await writeUserList(n, "");
     setNewName("");

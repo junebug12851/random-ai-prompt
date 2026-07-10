@@ -64,6 +64,17 @@ export async function listImages() {
  *   size?:string, settings?:object, keywords?:string[], parent?:string,
  *   derivedKind?:string, derivedSource?:string}} [meta]
  */
+// legacy expo-file-system downloadAsync has no AbortSignal, so a stalled remote source would hang
+// saveImageSrc forever. Race it against an app-level timeout that rejects with a clear error instead.
+const REMOTE_DOWNLOAD_TIMEOUT_MS = 60_000;
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 export async function saveImageSrc(src, meta = {}) {
   if (!FS) return null;
   await ensure(IMAGES);
@@ -73,7 +84,7 @@ export async function saveImageSrc(src, meta = {}) {
     const base64 = src.slice(src.indexOf(",") + 1);
     await FS.writeAsStringAsync(dest, base64, { encoding: FS.EncodingType.Base64 });
   } else if (/^https?:/i.test(src)) {
-    await FS.downloadAsync(src, dest);
+    await withTimeout(FS.downloadAsync(src, dest), REMOTE_DOWNLOAD_TIMEOUT_MS, "Image download");
   } else {
     await FS.copyAsync({ from: src, to: dest });
   }

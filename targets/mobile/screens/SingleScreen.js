@@ -329,8 +329,10 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
 
   // --- Convert format (expo-image-manipulator) → save to Photos (the mobile "download") ---
   const doConvert = async (fmt) => {
-    if (!Manip) return;
+    // Guard + serialize like doResize/doUpscale so rapid double-taps can't race manipulateAsync/setMsg.
+    if (busy || !Manip) return;
     setConvertOpen(false);
+    setBusy(true);
     try {
       const format =
         fmt === "JPEG" ? Manip.SaveFormat.JPEG : fmt === "WEBP" ? Manip.SaveFormat.WEBP : Manip.SaveFormat.PNG;
@@ -339,6 +341,8 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
       setMsg(ok ? `Converted to ${fmt} and saved to Photos ✓` : "Converted (couldn't save to Photos).");
     } catch (e) {
       setMsg(`Error: ${e?.message || String(e)}`);
+    } finally {
+      setBusy(false);
     }
   };
 

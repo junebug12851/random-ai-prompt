@@ -35,10 +35,30 @@ function readableError(data, url, status) {
   return msg || `${url} returned ${status}`;
 }
 
+// Every network call goes through this: React Native's fetch has no built-in timeout, so a hung
+// server or dead Wi-Fi would block a generation forever (submitPoll only checks its deadline between
+// cycles). Wrap fetch with an AbortController-backed timeout, merged with any caller-supplied signal,
+// so a single stalled request aborts with a clear error instead of hanging.
+const FETCH_TIMEOUT_MS = 120_000;
+function fetchWithTimeout(url, options = {}) {
+  const { timeoutMs = FETCH_TIMEOUT_MS, signal: external, ...rest } = options;
+  const controller = new AbortController();
+  const onAbort = () => controller.abort();
+  if (external) {
+    if (external.aborted) controller.abort();
+    else external.addEventListener?.("abort", onAbort, { once: true });
+  }
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...rest, signal: controller.signal }).finally(() => {
+    clearTimeout(timer);
+    external?.removeEventListener?.("abort", onAbort);
+  });
+}
+
 async function localPostJson(url, body, signal) {
   let res;
   try {
-    res = await fetch(url, {
+    res = await fetchWithTimeout(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       signal,
@@ -55,7 +75,7 @@ async function localPostJson(url, body, signal) {
 async function localGetJson(url, signal) {
   let res;
   try {
-    res = await fetch(url, { method: "GET", signal });
+    res = await fetchWithTimeout(url, { method: "GET", signal });
   } catch (e) {
     throw new Error(`Can't reach ${url} — check the Server URL and that the server is on this Wi-Fi.`);
   }
@@ -103,7 +123,7 @@ function proxyBase(settings = {}) {
 async function proxyPost(settings, path, body) {
   let res;
   try {
-    res = await fetch(`${proxyBase(settings)}${path}`, {
+    res = await fetchWithTimeout(`${proxyBase(settings)}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -137,7 +157,7 @@ const proxyUpscale = (providerId) => async ({ image, key, settings = {} }) => {
 // =============================================================================================
 
 async function openaiImage({ prompt, key, settings = {} }) {
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/images/generations", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({ model: settings.model || "gpt-image-1", prompt, size: settings.size || "1024x1024", n: settings.n || 1 }),
@@ -151,7 +171,7 @@ async function openaiImage({ prompt, key, settings = {} }) {
 
 async function falImage({ prompt, key, settings = {} }) {
   const model = settings.model || "fal-ai/flux/schnell";
-  const res = await fetch(`https://fal.run/${model}`, {
+  const res = await fetchWithTimeout(`https://fal.run/${model}`, {
     method: "POST",
     headers: { Authorization: `Key ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ prompt, num_images: settings.batchSize || 1, image_size: settings.imageSize || "square_hd" }),
@@ -170,7 +190,7 @@ async function stabilityImage({ prompt, key, settings = {} }) {
   fd.append("output_format", "png");
   fd.append("aspect_ratio", settings.aspectRatio || "1:1");
   if (settings.negativePrompt) fd.append("negative_prompt", settings.negativePrompt);
-  const res = await fetch(`https://api.stability.ai/v2beta/stable-image/generate/${endpoint}`, {
+  const res = await fetchWithTimeout(`https://api.stability.ai/v2beta/stable-image/generate/${endpoint}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
     body: fd,
@@ -185,7 +205,7 @@ async function stabilityImage({ prompt, key, settings = {} }) {
 async function geminiImage({ prompt, key, settings = {} }) {
   const model = settings.model || "gemini-2.5-flash-image";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"] } }),
@@ -205,7 +225,7 @@ async function geminiImage({ prompt, key, settings = {} }) {
 
 // Grok (xAI) — OpenAI-compatible images endpoint (ported from grok/code/server.js).
 async function grokImage({ prompt, key, settings = {} }) {
-  const res = await fetch("https://api.x.ai/v1/images/generations", {
+  const res = await fetchWithTimeout("https://api.x.ai/v1/images/generations", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({ model: settings.model || "grok-2-image", prompt, n: num(settings.batchSize, 1) }),
@@ -222,7 +242,7 @@ async function leonardoImage({ prompt, key, settings = {} }) {
   const headers = { Authorization: `Bearer ${key}`, "Content-Type": "application/json", accept: "application/json" };
   return submitPoll({
     submit: async () => {
-      const res = await fetch("https://cloud.leonardo.ai/api/rest/v1/generations", {
+      const res = await fetchWithTimeout("https://cloud.leonardo.ai/api/rest/v1/generations", {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -240,7 +260,7 @@ async function leonardoImage({ prompt, key, settings = {} }) {
       return { id };
     },
     poll: async (sub) => {
-      const res = await fetch(`https://cloud.leonardo.ai/api/rest/v1/generations/${sub.id}`, { headers });
+      const res = await fetchWithTimeout(`https://cloud.leonardo.ai/api/rest/v1/generations/${sub.id}`, { headers });
       return res.json().catch(() => ({}));
     },
     isDone: (s) => s?.generations_by_pk?.status === "COMPLETE",
@@ -289,7 +309,7 @@ async function comfyImage({ prompt, settings = {} }) {
   g["7"].inputs.text = settings.negativePrompt || "";
   g["5"].inputs.width = num(settings.imageWidth, 512);
   g["5"].inputs.height = num(settings.imageHeight, 512);
-  g["5"].inputs.batch_size = num(settings.batchSize, 1);
+  g["5"].inputs.batch_size = Math.max(1, num(settings.batchSize, 1));
   const seed = num(settings.seed, -1);
   g["3"].inputs.seed = seed >= 0 ? seed : Math.floor(Math.random() * 1e15);
   g["3"].inputs.steps = num(settings.imageSteps, 20);
@@ -352,7 +372,7 @@ async function comfyImage({ prompt, settings = {} }) {
 
 // fal.ai Real-ESRGAN (browser-direct). `image` is a data: URL.
 async function falUpscale({ image, key }) {
-  const res = await fetch("https://fal.run/fal-ai/esrgan", {
+  const res = await fetchWithTimeout("https://fal.run/fal-ai/esrgan", {
     method: "POST",
     headers: { Authorization: `Key ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ image_url: image, scale: 4, model: "RealESRGAN_x4plus", output_format: "png" }),
@@ -369,7 +389,7 @@ async function stabilityUpscale({ imageFile, key }) {
   const fd = new FormData();
   fd.append("image", imageFile);
   fd.append("output_format", "png");
-  const res = await fetch("https://api.stability.ai/v2beta/stable-image/upscale/fast", {
+  const res = await fetchWithTimeout("https://api.stability.ai/v2beta/stable-image/upscale/fast", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
     body: fd,
@@ -384,7 +404,7 @@ async function stabilityUpscale({ imageFile, key }) {
 // Leonardo Universal Upscaler (browser-direct, S3 upload → submit → poll). `imageFile` = RN file part.
 async function leonardoUpscale({ imageFile, key }) {
   const headers = { Authorization: `Bearer ${key}`, "Content-Type": "application/json", accept: "application/json" };
-  const initRes = await fetch("https://cloud.leonardo.ai/api/rest/v1/init-image", {
+  const initRes = await fetchWithTimeout("https://cloud.leonardo.ai/api/rest/v1/init-image", {
     method: "POST",
     headers,
     body: JSON.stringify({ extension: "png" }),
@@ -397,11 +417,11 @@ async function leonardoUpscale({ imageFile, key }) {
   const fd = new FormData();
   for (const [k, v] of Object.entries(fields)) fd.append(k, v);
   fd.append("file", imageFile);
-  const s3 = await fetch(up.url, { method: "POST", body: fd });
+  const s3 = await fetchWithTimeout(up.url, { method: "POST", body: fd });
   if (!s3.ok) throw new Error(`Leonardo image upload failed (${s3.status}).`);
   const result = await submitPoll({
     submit: async () => {
-      const res = await fetch("https://cloud.leonardo.ai/api/rest/v1/variations/universal-upscaler", {
+      const res = await fetchWithTimeout("https://cloud.leonardo.ai/api/rest/v1/variations/universal-upscaler", {
         method: "POST",
         headers,
         body: JSON.stringify({ initImageId: up.id, upscaleMultiplier: 2 }),
@@ -413,7 +433,7 @@ async function leonardoUpscale({ imageFile, key }) {
       return { id };
     },
     poll: async (sub) => {
-      const res = await fetch(`https://cloud.leonardo.ai/api/rest/v1/variations/${sub.id}`, { headers });
+      const res = await fetchWithTimeout(`https://cloud.leonardo.ai/api/rest/v1/variations/${sub.id}`, { headers });
       return res.json().catch(() => ({}));
     },
     isDone: (s) => (s?.generated_image_variation_generic || []).some((v) => v?.status === "COMPLETE"),
@@ -446,7 +466,7 @@ async function comfyUpscale({ imageFile, settings = {} }) {
   fd.append("overwrite", "true");
   let upRes;
   try {
-    upRes = await fetch(`${base}/upload/image`, { method: "POST", body: fd });
+    upRes = await fetchWithTimeout(`${base}/upload/image`, { method: "POST", body: fd });
   } catch (e) {
     throw new Error(`Can't reach ${base} — check the Server URL and that ComfyUI is on this Wi-Fi.`);
   }
@@ -516,7 +536,7 @@ export const systemFor = (mode) => (mode === "keyword" ? KEYWORD_SYSTEM : REWRIT
 // OpenAI-compatible chat rewrite factory (Groq / OpenRouter / xAI / OpenAI all speak this shape).
 function makeChatRewrite({ url, model, label }) {
   return async function rewrite({ prompt, key, system }) {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
@@ -543,7 +563,7 @@ const openrouterRewrite = makeChatRewrite({ url: "https://openrouter.ai/api/v1/c
 
 async function geminiRewrite({ prompt, key, system }) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`;
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ systemInstruction: { parts: [{ text: system || REWRITE_SYSTEM }] }, contents: [{ parts: [{ text: prompt }] }] }),
