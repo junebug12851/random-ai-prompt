@@ -18,7 +18,7 @@ const FS = Platform.OS === "web" ? null : require("expo-file-system/legacy");
 
 /** One image up close, opened from the Gallery — with details, upscale (via the chosen Upscaler), and delete. */
 export default function SingleScreen({ image, onBack, onDeleted, onUpscaled }) {
-  const { T, upscaleProvider, providerSettings } = useTheme();
+  const { T, upscaleProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
   const [busy, setBusy] = useState(false);
@@ -55,7 +55,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled }) {
         return;
       }
       // Local upscalers reuse the image provider's server URL / model settings (same provider id).
-      const settings = { ...providerDefaults(up.id), ...(providerSettings[up.id] || {}) };
+      const settings = { ...providerDefaults(up.id), ...(providerSettings[up.id] || {}), backendUrl };
       const args = { key, settings };
       if (up.mode === "dataurl") {
         const b64 = await FS.readAsStringAsync(image.uri, { encoding: FS.EncodingType.Base64 });

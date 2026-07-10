@@ -109,17 +109,15 @@ async function checkProviders() {
       textOnly: /textOnly:\s*true/.test(cfg),
       upscaleOnly: /upscaleOnly:\s*true/.test(cfg),
       hasGenerate: /loadGenerate/.test(cfg),
-      hasRewrite: /loadRewrite/.test(cfg),
+      hasRewrite: /loadRewrite/.test(cfg) || /\brewrite:\s*true/.test(cfg),
       hasUpscale: /loadUpscale/.test(cfg) && /upscale:\s*true/.test(capBlock),
     });
   }
-  const mobileCapable = (p) => ["browser-direct", "local-direct", "none"].includes(p.transport);
-
-  // Expected mobile-capable set per role, computed straight from the web configs (mirrors the web's
-  // own picker filters in ProvidersMenu.jsx).
-  const expImage = web.filter((p) => mobileCapable(p) && !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"));
-  const expText = web.filter((p) => mobileCapable(p) && p.hasRewrite);
-  const expUpscale = web.filter((p) => mobileCapable(p) && p.hasUpscale);
+  // EVERY web provider must be present per role — hosted-proxy ones run via a Backend URL, so nothing
+  // is left out (mirrors the web's picker filters in ProvidersMenu.jsx, minus the online/local gating).
+  const expImage = web.filter((p) => !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"));
+  const expText = web.filter((p) => p.hasRewrite);
+  const expUpscale = web.filter((p) => p.hasUpscale);
 
   const role = (name, expected, have) => {
     const exp = expected.map((p) => p.id).sort();
@@ -135,12 +133,77 @@ async function checkProviders() {
   role("Image", expImage, mobImage);
   role("Text/rewrite", expText, mobText);
   role("Upscale", expUpscale, mobUpscale);
+  const proxied = web.filter((p) => p.transport === "hosted-proxy").length;
+  console.log(`  ℹ ${proxied} hosted-proxy providers included via the Backend URL setting`);
+}
 
-  // Desktop-only providers the phone genuinely can't run (hosted-proxy needs our backend) — reported,
-  // never failed. These are correctly ABSENT from mobile.
-  const desktopOnly = web.filter((p) => p.transport === "hosted-proxy").map((p) => p.id);
-  if (desktopOnly.length)
-    console.log(`  ℹ desktop-only (hosted-proxy — needs a backend, correctly absent on mobile): ${desktopOnly.length}`);
+// ---------- 6. Surface feature parity: Generate / Gallery / Header must match the web features ------
+// A mandatory gate: for each of the three focus surfaces, assert the mobile implementation carries a
+// marker for every web feature. A missing marker fails loudly so a dropped/omitted feature can't hide.
+function checkSurfaces() {
+  console.log("Surface feature parity (Generate / Gallery / Header)");
+  const read = (rel) => {
+    try { return readFileSync(join(MOBILE, rel), "utf8"); } catch { return ""; }
+  };
+  const files = {
+    app: read("App.js"),
+    overflow: read("components/OverflowMenu.js"),
+    generate: read("screens/GenerateScreen.js"),
+    gallery: read("screens/GalleryScreen.js"),
+  };
+  // [surface, feature, fileKey, /marker/]
+  const CHECKS = [
+    // Header (topbar + overflow)
+    ["Header", "logo", "app", /logo\.png/],
+    ["Header", "tab switch (Generate/Gallery/Single/Manage)", "app", /Generate[\s\S]*Gallery[\s\S]*Manage/],
+    ["Header", "overflow menu", "app", /OverflowMenu/],
+    ["Header", "Image role picker", "overflow", /"img"/],
+    ["Header", "Text role picker", "overflow", /"text"/],
+    ["Header", "Upscale role picker", "overflow", /"up"/],
+    ["Header", "grouped Local/Online", "overflow", /groupHead\("Local"\)/],
+    ["Header", "Backend URL field", "overflow", /backendField/],
+    ["Header", "Provider settings", "overflow", /Provider settings/],
+    ["Header", "Appearance (theme+accent)", "overflow", /Appearance/],
+    ["Header", "Language", "overflow", /Language/],
+    ["Header", "version + legal links", "overflow", /APP_VERSION[\s\S]*Privacy Policy/],
+    // Generate
+    ["Generate", "DPL insert menu", "generate", /InsertMenu/],
+    ["Generate", "DPL editor", "generate", /codeInput/],
+    ["Generate", "live validity status", "generate", /valid\b/],
+    ["Generate", "live preview", "generate", /previewOn/],
+    ["Generate", "prompt-settings gear (full)", "generate", /Salt & lists/],
+    ["Generate", "prompts-per-run", "generate", /promptCount/],
+    ["Generate", "auto-fix (wand)", "generate", /autoFix/],
+    ["Generate", "keyword-translate (tag)", "generate", /autoKeyword/],
+    ["Generate", "building-block palette", "generate", /BlockPalette/],
+    ["Generate", "completion strip", "generate", /suggestions/],
+    ["Generate", "generate button", "generate", /SparkleIcon/],
+    ["Generate", "negative prompt tab", "generate", /composeMode|Negative/],
+    ["Generate", "wrapper button", "generate", /[Ww]rapper/],
+    ["Generate", "share link", "generate", /shareUrl|Share link/],
+    ["Generate", "random suggestion", "generate", /suggestion/],
+    ["Generate", "inline per-prompt image batches", "generate", /batch|InlineImage/],
+    // Gallery
+    ["Gallery", "title", "gallery", /Photo gallery/],
+    ["Gallery", "live count", "gallery", /images?`|count/],
+    ["Gallery", "search", "gallery", /[Ss]earch/],
+    ["Gallery", "multi-select", "gallery", /[Ss]elect/],
+    ["Gallery", "refresh", "gallery", /[Rr]efresh/],
+    ["Gallery", "bulk delete", "gallery", /deleteImages|Delete/],
+    ["Gallery", "memoized cell (100k perf)", "gallery", /memo\(/],
+    ["Gallery", "compact composer atop gallery", "gallery", /Composer|composer/],
+    ["Gallery", "pending placeholder cells", "gallery", /pending|placeholder/],
+  ];
+  const bySurface = {};
+  for (const [surface, feature, fileKey, re] of CHECKS) {
+    bySurface[surface] = bySurface[surface] || { ok: 0, miss: [] };
+    if (re.test(files[fileKey] || "")) bySurface[surface].ok++;
+    else bySurface[surface].miss.push(feature);
+  }
+  for (const [surface, r] of Object.entries(bySurface)) {
+    if (!r.miss.length) pass(`${surface}: all ${r.ok} features present`);
+    else fail(`${surface}: ${r.ok} present, MISSING ${r.miss.length}: ${r.miss.join(", ")}`);
+  }
 }
 
 // ---------- 5. Local provider settings: mobile field keys == web provider settings.js field keys ----
@@ -171,7 +234,7 @@ async function checkLocalSettings() {
 }
 
 console.log("mobile ⇄ web parity check\n");
-for (const step of [checkAccents, checkLocales, checkDplInserts, checkProviders, checkLocalSettings]) {
+for (const step of [checkAccents, checkLocales, checkDplInserts, checkProviders, checkLocalSettings, checkSurfaces]) {
   await step();
   console.log("");
 }

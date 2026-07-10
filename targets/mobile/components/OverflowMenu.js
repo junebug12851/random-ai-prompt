@@ -100,6 +100,8 @@ export default function OverflowMenu({ visible, onClose, top }) {
     setRewriteProvider,
     upscaleProvider,
     setUpscaleProvider,
+    backendUrl,
+    setBackendUrl,
     providerSettings,
     setProviderSetting,
   } = useTheme();
@@ -143,6 +145,25 @@ export default function OverflowMenu({ visible, onClose, top }) {
   );
 
   const groupHead = (title) => <Text style={styles.groupHead}>{title}</Text>;
+
+  // Backend URL field for hosted-proxy providers (shared globally across roles).
+  const backendField = () => (
+    <View key="backend">
+      <TextInput
+        style={styles.keyInput}
+        value={backendUrl}
+        onChangeText={setBackendUrl}
+        placeholder="Backend URL — https://your-server"
+        placeholderTextColor={T.faint}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="url"
+      />
+      <View style={styles.provFoot}>
+        <Text style={styles.provNote}>Hosted provider — routes through this backend (your desktop app or self-hosted).</Text>
+      </View>
+    </View>
+  );
 
   // BYOK secure key field for the currently-selected provider of a role.
   const keyField = (id, hint, keyUrl) => (
@@ -240,6 +261,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                 )}
                 {image && image.local && serverField(image)}
                 {image && !image.local && !image.copy && keyField(image.id, image.keyHint, image.keyUrl)}
+                {image && image.proxy && backendField()}
               </>
             )}
 
@@ -253,6 +275,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                   pickRow(p.id, p.label, p.description, rewriteProvider === p.id, () => setRewriteProvider(p.id)),
                 )}
                 {rewrite && keyField(rewrite.id, rewrite.keyHint, rewrite.keyUrl)}
+                {rewrite && rewrite.proxy && backendField()}
                 <Text style={styles.emptyNote}>Turn it on per run with the wand / tag buttons on the prompt box.</Text>
               </>
             )}
@@ -272,6 +295,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                 )}
                 {upscale && upscale.local && serverField({ id: upscale.id, serverKey: upscale.serverKey, settings: getImageProvider(upscale.id)?.settings })}
                 {upscale && !upscale.local && keyField(upscale.id, upscale.keyHint, upscale.keyUrl)}
+                {upscale && upscale.proxy && backendField()}
                 <Text style={styles.emptyNote}>Used in the single-image view to upscale a saved image.</Text>
               </>
             )}

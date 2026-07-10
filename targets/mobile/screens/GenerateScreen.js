@@ -86,7 +86,7 @@ const ResultRow = memo(function ResultRow({ number, text, copied, onCopy }) {
 });
 
 export default function GenerateScreen({ onGenerated }) {
-  const { T, provider, rewriteProvider, providerSettings } = useTheme();
+  const { T, provider, rewriteProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
   const [genMsg, setGenMsg] = useState("");
@@ -247,8 +247,9 @@ export default function GenerateScreen({ onGenerated }) {
           for (let i = 0; i < rolled.length; i++) {
             setGenMsg(`Rewriting prompt ${i + 1} of ${rolled.length}…`);
             let t = rolled[i];
-            if (autoFix) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("fix") })).text || t;
-            if (autoKeyword) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("keyword") })).text || t;
+            const rs = { backendUrl };
+            if (autoFix) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("fix"), mode: "fix", settings: rs })).text || t;
+            if (autoKeyword) t = (await rprov.rewrite({ prompt: t, key: rkey, system: systemFor("keyword"), mode: "keyword", settings: rs })).text || t;
             out.push(t);
           }
           prompts = out;
@@ -275,7 +276,7 @@ export default function GenerateScreen({ onGenerated }) {
       return;
     }
     // Generate one image per prompt, saving each into the Gallery as it lands.
-    const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}) };
+    const provSettings = { ...providerDefaults(provider), ...(providerSettings[provider] || {}), backendUrl };
     const model = provSettings.model || provSettings.comfyCheckpoint || undefined;
     setGenerating(true);
     let saved = 0;
@@ -298,7 +299,7 @@ export default function GenerateScreen({ onGenerated }) {
     setGenMsg(
       error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
     );
-  }, [generating, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, onGenerated]);
+  }, [generating, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, backendUrl, onGenerated]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {

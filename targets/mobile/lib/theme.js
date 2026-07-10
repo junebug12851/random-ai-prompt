@@ -93,6 +93,7 @@ export function ThemeProvider({ children }) {
   const [provider, setProvider] = useState("plain"); // image provider id (plain = prompts only)
   const [rewriteProvider, setRewriteProvider] = useState("none"); // text/rewrite provider ("none" = off)
   const [upscaleProvider, setUpscaleProvider] = useState("none"); // upscaler ("none" = off)
+  const [backendUrl, setBackendUrl] = useState(""); // base URL of a backend for hosted-proxy providers
   const [providerSettings, setProviderSettings] = useState({}); // { [providerId]: { model, size, … } }
   const [ready, setReady] = useState(false);
 
@@ -115,6 +116,7 @@ export function ThemeProvider({ children }) {
               if (j.provider != null) setProvider(j.provider);
               if (j.rewriteProvider != null) setRewriteProvider(j.rewriteProvider);
               if (j.upscaleProvider != null) setUpscaleProvider(j.upscaleProvider);
+              if (j.backendUrl != null) setBackendUrl(j.backendUrl);
               if (j.providerSettings) setProviderSettings(j.providerSettings);
             }
           }
@@ -134,9 +136,9 @@ export function ThemeProvider({ children }) {
     if (!ready || !FS) return;
     FS.writeAsStringAsync(
       FILE,
-      JSON.stringify({ mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings }),
+      JSON.stringify({ mode, accent, locale, provider, rewriteProvider, upscaleProvider, backendUrl, providerSettings }),
     ).catch(() => {});
-  }, [mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings, ready]);
+  }, [mode, accent, locale, provider, rewriteProvider, upscaleProvider, backendUrl, providerSettings, ready]);
 
   const resolved = mode === "system" ? (system === "light" ? "light" : "dark") : mode;
   const T = useMemo(() => buildTokens(resolved, accent), [resolved, accent]);
@@ -157,12 +159,14 @@ export function ThemeProvider({ children }) {
       setRewriteProvider,
       upscaleProvider,
       setUpscaleProvider,
+      backendUrl,
+      setBackendUrl,
       providerSettings,
       setProviderSetting,
       resolved,
       ready,
     }),
-    [T, mode, accent, locale, provider, rewriteProvider, upscaleProvider, providerSettings, resolved, ready],
+    [T, mode, accent, locale, provider, rewriteProvider, upscaleProvider, backendUrl, providerSettings, resolved, ready],
   );
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
@@ -187,6 +191,8 @@ export function useTheme() {
     setRewriteProvider: () => {},
     upscaleProvider: "none",
     setUpscaleProvider: () => {},
+    backendUrl: "",
+    setBackendUrl: () => {},
     providerSettings: {},
     setProviderSetting: () => {},
     resolved: "dark",

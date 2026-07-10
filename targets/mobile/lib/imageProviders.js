@@ -84,6 +84,54 @@ async function submitPoll({ submit, poll, isDone, isFailed = () => false, getIma
   }
 }
 
+// ---------------------------------------------------------------------------------------------
+// hosted-proxy transport — for providers whose API a client can't call directly (CORS / key
+// safety). The web routes these through its own backend (/api/generate|rewrite|upscale). Mobile
+// has no backend of ours, so the user points at one "hosted elsewhere" (their desktop app or a
+// self-hosted online edition) via a Backend URL; we POST the same contract to it.
+// ---------------------------------------------------------------------------------------------
+
+function proxyBase(settings = {}) {
+  const b = (settings.backendUrl || "").replace(/\/+$/, "");
+  if (!b)
+    throw new Error(
+      "Set a Backend URL in the ⋯ menu to use this hosted provider (your desktop app or a self-hosted server).",
+    );
+  return b;
+}
+
+async function proxyPost(settings, path, body) {
+  let res;
+  try {
+    res = await fetch(`${proxyBase(settings)}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    throw new Error(`Can't reach the Backend URL${path} — check it's running and reachable.`);
+  }
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(d.error || `Backend returned ${res.status}`);
+  return d;
+}
+
+// Build a hosted-proxy image adapter for a provider id (params via its buildParams(settings)).
+const proxyImage = (providerId, buildParams) => async ({ prompt, key, settings = {} }) => {
+  const d = await proxyPost(settings, "/api/generate", { providerId, prompt, key, params: buildParams(settings) });
+  return { images: d.images || [] };
+};
+// Hosted-proxy rewrite adapter (text role) — forwards mode (fix/keyword) to /api/rewrite.
+const proxyRewrite = (providerId) => async ({ prompt, key, mode, settings = {} }) => {
+  const d = await proxyPost(settings, "/api/rewrite", { providerId, prompt, key, mode: mode || "fix" });
+  return { text: d.text || "" };
+};
+// Hosted-proxy upscale adapter — forwards the image (data URL) to /api/upscale.
+const proxyUpscale = (providerId) => async ({ image, key, settings = {} }) => {
+  const d = await proxyPost(settings, "/api/upscale", { providerId, image, key, params: {} });
+  return { images: d.images || [] };
+};
+
 // =============================================================================================
 // IMAGE adapters (browser-direct BYOK)
 // =============================================================================================
@@ -597,8 +645,64 @@ export const IMAGE_PROVIDERS = [
       { key: "imageHeight", label: "Height", type: "number", default: 1024 },
       { key: "batchSize", label: "Images", type: "number", default: 1 },
     ] },
+  // Online (hosted-proxy — route through a Backend URL, key BYOK)
+  { id: "replicate", label: "Replicate", group: "online", proxy: true, keyHint: "r8_…", keyUrl: "https://replicate.com/account/api-tokens",
+    generate: proxyImage("replicate", (s) => ({ model: s.model || "black-forest-labs/flux-schnell", aspect_ratio: s.aspectRatio || "1:1", n: num(s.batchSize, 1) })),
+    description: "Hosted open models (FLUX, SDXL, SD3.5, …) — needs a Backend URL.",
+    settings: [
+      { key: "model", label: "Model (owner/name)", type: "text", default: "black-forest-labs/flux-schnell" },
+      { key: "aspectRatio", label: "Aspect ratio", options: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"], default: "1:1" },
+      { key: "batchSize", label: "Images", type: "number", default: 1 },
+    ] },
+  { id: "bfl", label: "FLUX (Black Forest Labs)", group: "online", proxy: true, keyHint: "bfl key", keyUrl: "https://dashboard.bfl.ai/",
+    generate: proxyImage("bfl", (s) => ({ model: s.model || "flux-dev", aspect_ratio: s.aspectRatio || "1:1" })),
+    description: "FLUX direct from Black Forest Labs — needs a Backend URL.",
+    settings: [
+      { key: "model", label: "Model", options: ["flux-dev", "flux-pro-1.1", "flux-pro", "flux-schnell"], default: "flux-dev" },
+      { key: "aspectRatio", label: "Aspect ratio", options: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"], default: "1:1" },
+    ] },
+  { id: "ideogram", label: "Ideogram", group: "online", proxy: true, keyHint: "ideogram key", keyUrl: "https://ideogram.ai/manage-api",
+    generate: proxyImage("ideogram", (s) => ({ model: s.model || "V_2", aspect_ratio: s.aspectRatio || "ASPECT_1_1" })),
+    description: "Ideogram — best in-image text rendering — needs a Backend URL.",
+    settings: [
+      { key: "model", label: "Model", options: ["V_2", "V_2_TURBO", "V_1", "V_1_TURBO"], default: "V_2" },
+      { key: "aspectRatio", label: "Aspect ratio", options: ["ASPECT_1_1", "ASPECT_16_9", "ASPECT_9_16", "ASPECT_4_3", "ASPECT_3_4"], default: "ASPECT_1_1" },
+    ] },
+  { id: "midjourney", label: "Midjourney (copy prompt)", group: "online", copy: true, description: "No API — copies a full Midjourney prompt to paste into Discord.", settings: [] },
   { id: "novelai", label: "NovelAI (copy prompt)", group: "online", copy: true, description: "No API — copies a NovelAI-dialect prompt.", settings: [] },
 ];
+
+// Hosted-proxy text (rewrite) providers — LLMs that run through a Backend URL (/api/rewrite).
+const PROXY_TEXT = [
+  ["ai21", "AI21 (jamba-large)"],
+  ["anthropic", "Claude (3.5 Haiku)"],
+  ["cerebras", "Cerebras (llama-3.3-70b)"],
+  ["cohere", "Cohere (command-r)"],
+  ["deepseek", "DeepSeek (deepseek-chat)"],
+  ["fireworks", "Fireworks (Llama-3.3-70B)"],
+  ["huggingface", "Hugging Face (Llama-3.3-70B)"],
+  ["llama", "Llama (3.3-70B)"],
+  ["mistral", "Mistral (small-latest)"],
+  ["moonshot", "Moonshot (moonshot-v1-8k)"],
+  ["perplexity", "Perplexity (sonar)"],
+  ["qwen", "Qwen (qwen-plus)"],
+  ["together", "Together (Llama-3.3-70B)"],
+].map(([id, label]) => ({ id, label, proxy: true, keyHint: "API key", rewrite: proxyRewrite(id), description: `${label.split(" (")[0]} — rewrites via a Backend URL.` }));
+
+// Hosted-proxy upscale / enhancer providers — run through a Backend URL (/api/upscale).
+const PROXY_UPSCALE = [
+  ["replicate", "Replicate (Real-ESRGAN)"],
+  ["claid", "Claid / Let's Enhance"],
+  ["clipdrop", "Clipdrop (Upscale)"],
+  ["deepai", "DeepAI (Super Resolution)"],
+  ["deepimage", "Deep-Image.ai (Upscale)"],
+  ["neurallove", "neural.love (Upscale)"],
+  ["picsart", "Picsart (Upscale)"],
+  ["segmind", "Segmind (ESRGAN)"],
+  ["vanceai", "VanceAI (Upscale)"],
+  ["venice", "Venice AI (Upscale)"],
+  ["wavespeed", "WaveSpeed (Real-ESRGAN)"],
+].map(([id, label]) => ({ id, label, group: "online", proxy: true, mode: "dataurl", keyHint: "API key", upscale: proxyUpscale(id), description: `${label.split(" (")[0]} — upscales via a Backend URL.` }));
 
 // Text / prompt-rewrite providers (the web's "Text" role). A provider shown here in the text role
 // uses its chat model, so the label is the rewriteLabel. `sharesImageKey` providers reuse the same
@@ -609,6 +713,7 @@ export const TEXT_PROVIDERS = [
   { id: "grok", label: "Grok (xAI · Grok 2)", keyHint: "xai-…", keyUrl: "https://console.x.ai/", rewrite: grokRewrite, description: "Rewrites prompts with Grok 2." },
   { id: "groq", label: "Groq (llama-3.3-70b)", keyHint: "gsk_…", keyUrl: "https://console.groq.com/keys", rewrite: groqRewrite, description: "Very fast open-model rewrite (Llama 3.3 70B)." },
   { id: "openrouter", label: "OpenRouter (gpt-4o-mini)", keyHint: "sk-or-…", keyUrl: "https://openrouter.ai/keys", rewrite: openrouterRewrite, description: "One key, hundreds of models." },
+  ...PROXY_TEXT,
 ];
 
 // Upscale / enhance providers (the web's "Upscaler / Enhancer" role, used in the single-image view).
@@ -621,6 +726,7 @@ export const UPSCALE_PROVIDERS = [
   { id: "fal", label: "fal.ai (Real-ESRGAN)", group: "online", keyHint: "fal key", keyUrl: "https://fal.ai/dashboard/keys", mode: "dataurl", upscale: falUpscale, description: "fal Real-ESRGAN 4× super-resolution." },
   { id: "stability", label: "Stability (fast upscaler)", group: "online", keyHint: "sk-…", keyUrl: "https://platform.stability.ai/account/keys", mode: "file", upscale: stabilityUpscale, description: "Stability fast ~4× upscaler." },
   { id: "leonardo", label: "Leonardo (Universal Upscaler)", group: "online", keyHint: "leonardo key", keyUrl: "https://app.leonardo.ai/api-access", mode: "file", upscale: leonardoUpscale, description: "Leonardo Universal Upscaler (≤2×)." },
+  ...PROXY_UPSCALE,
 ];
 
 // =============================================================================================
