@@ -17,6 +17,10 @@ export default defineConfig({
     include: ["tests/**/*.test.js"],
     // The SPA suite is run separately (npm run test:web) with its own jsdom config.
     exclude: ["node_modules/**", "targets/web/**", "tests/e2e/**"],
+    // Builds the generated Metro catalog + snapshots nodeLoader's built-in surface ONCE, before any
+    // worker spawns, so tests/mobile/metroLoader.test.js can't race manageFs's shared-FS fixtures or
+    // concurrent-read scan misses. See the file header for the full rationale.
+    globalSetup: ["./tests/setup/metro-catalog.globalSetup.js"],
     globals: false,
     coverage: {
       provider: "v8",
@@ -50,6 +54,12 @@ export default defineConfig({
         // The browser user-overlay catalog is likewise browser-only (import.meta.glob over user/),
         // exercised by the SPA (jsdom) suite, not the Node gate — so don't count it here.
         "engine/core/browserUserCatalog.js",
+        // metroCatalogData.js is a GENERATED, gitignored ~1.2MB static-data module (built by
+        // scripts/build-metro-catalog.mjs) -- data, not logic, so it is not unit-testable and is
+        // excluded exactly like its browser twin browserCatalogData.js above. The metroLoader.js
+        // LOGIC that reads it is deliberately NOT excluded: it is exercised for real (every method +
+        // a seeded generation) by tests/mobile/metroLoader.test.js, so its coverage is earned here.
+        "engine/core/metroCatalogData.js",
       ],
       // `lcov` is added for Codecov (CI uploads coverage/node/lcov.info); text+html are for humans.
       reporter: ["text", "html", "lcov"],
