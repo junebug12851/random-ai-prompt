@@ -4,16 +4,19 @@ import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
 import { sortLines, dedupeLines } from "../lib/listOps.js";
 import ManageBlockEditor from "../components/ManageBlockEditor.js";
+import ManageTree from "../components/ManageTree.js";
 import {
-  listUserLists,
   readUserList,
   writeUserList,
   deleteUserList,
-  listUserBlocks,
   writeUserBlock,
   deleteUserBlock,
+  readUserTree,
+  deleteUserFolder,
   storageAvailable,
 } from "../lib/storage.js";
+
+const EMPTY_TREE = { name: "", path: "", folders: [], entries: [] };
 
 // One editable line. The input is UNCONTROLLED (defaultValue) and writes straight into the shared line
 // object on change — so typing never re-renders the (up to 100k-row) list. Memoized on the line object.
@@ -164,46 +167,42 @@ function Editor({ name, onClose }) {
   );
 }
 
-// One tap-to-open / delete row in a master section (blocks or lists).
-function OverlayRow({ name, onOpen, onDelete, styles }) {
-  return (
-    <View style={styles.listRow}>
-      <TouchableOpacity style={{ flex: 1 }} onPress={onOpen}>
-        <Text style={styles.listName}>{name}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onDelete} hitSlop={8}>
-        <Text style={styles.del}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+// Sanitize a (possibly nested) new name: clean each `folder/segment` and drop empties. The storage
+// layer creates parent folders, so naming an entry `scene/dawn` puts it in a "scene" folder — the
+// mobile form of the web tree's folders (no separate "new folder" button needed).
+const cleanKey = (s) =>
+  s
+    .split("/")
+    .map((seg) => seg.trim().replace(/[^a-z0-9_-]/gi, ""))
+    .filter(Boolean)
+    .join("/");
 
 /**
  * Manage the phone-local user overlay — the two editable roots the web Manage exposes, to the extent the
- * platform allows: **Blocks** (custom DPL generators) and **Lists** (custom word lists), each master/detail
- * with its own editor (block editor / windowed line editor, smooth to the 100k-line max). Built-in browsing,
- * override/restore, and the live runtime overlay follow (tracked in notes/plans/mobile-parity.md).
+ * platform allows: **Blocks** (custom DPL generators) and **Lists** (custom word lists), each a nested
+ * folder tree (folders created implicitly by a `folder/name`), master/detail with its own editor (block
+ * editor / windowed line editor, smooth to the 100k-line max). Built-in browsing, override/restore, and
+ * the live runtime overlay follow (tracked in notes/plans/mobile-parity.md).
  */
 export default function ManageScreen() {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
-  const [lists, setLists] = useState([]);
-  const [blocks, setBlocks] = useState([]);
+  const [listTree, setListTree] = useState(EMPTY_TREE);
+  const [blockTree, setBlockTree] = useState(EMPTY_TREE);
   const [editing, setEditing] = useState(null); // { kind: "list"|"block", key } | null
   const [newList, setNewList] = useState("");
   const [newBlock, setNewBlock] = useState("");
 
   const reload = useCallback(() => {
-    listUserLists().then(setLists);
-    listUserBlocks().then(setBlocks);
+    readUserTree("blocks").then(setBlockTree);
+    readUserTree("lists").then(setListTree);
   }, []);
   useEffect(() => {
     reload();
   }, [reload]);
 
-  const clean = (s) => s.trim().replace(/[^a-z0-9_-]/gi, "");
   const createList = useCallback(async () => {
-    const n = clean(newList);
+    const n = cleanKey(newList);
     if (!n) return;
     await writeUserList(n, "");
     setNewList("");
@@ -211,23 +210,34 @@ export default function ManageScreen() {
     setEditing({ kind: "list", key: n });
   }, [newList, reload]);
   const createBlock = useCallback(async () => {
-    const n = clean(newBlock);
+    const n = cleanKey(newBlock);
     if (!n) return;
     await writeUserBlock(n, "Start\n===\n");
     setNewBlock("");
     reload();
     setEditing({ kind: "block", key: n });
   }, [newBlock, reload]);
-  const removeList = useCallback(
-    async (name) => {
-      await deleteUserList(name);
+
+  const openEntry = useCallback((e) => {
+    setEditing({ kind: e.kind === "generator" ? "block" : "list", key: e.key });
+  }, []);
+  const deleteBlockEntry = useCallback(
+    async (e) => {
+      await deleteUserBlock(e.key);
       reload();
     },
     [reload],
   );
-  const removeBlock = useCallback(
-    async (key) => {
-      await deleteUserBlock(key);
+  const deleteListEntry = useCallback(
+    async (e) => {
+      await deleteUserList(e.key);
+      reload();
+    },
+    [reload],
+  );
+  const deleteFolder = useCallback(
+    async (root, path) => {
+      await deleteUserFolder(root, path);
       reload();
     },
     [reload],
@@ -260,8 +270,9 @@ export default function ManageScreen() {
     <ScrollView style={styles.scroll} keyboardShouldPersistTaps="handled">
       <Text style={styles.h}>Your building blocks</Text>
       <Text style={styles.hint}>
-        Custom DPL generators (blocks) and word lists stored on your phone. Editors stay smooth to the
-        100k-line max.{storageAvailable ? "" : " (Storage is off in the web preview.)"}
+        Custom DPL generators (blocks) and word lists stored on your phone — name one `folder/name` to
+        nest it. Editors stay smooth to the 100k-line max.
+        {storageAvailable ? "" : " (Storage is off in the web preview.)"}
       </Text>
 
       <Text style={styles.section}>Blocks</Text>
@@ -278,19 +289,13 @@ export default function ManageScreen() {
           <Text style={styles.btnTextP}>New block</Text>
         </TouchableOpacity>
       </View>
-      {blocks.length === 0 ? (
-        <Text style={styles.none}>No custom blocks yet — add one above.</Text>
-      ) : (
-        blocks.map((key) => (
-          <OverlayRow
-            key={key}
-            name={key}
-            styles={styles}
-            onOpen={() => setEditing({ kind: "block", key })}
-            onDelete={() => removeBlock(key)}
-          />
-        ))
-      )}
+      <ManageTree
+        tree={blockTree}
+        onOpen={openEntry}
+        onDelete={deleteBlockEntry}
+        onDeleteFolder={(path) => deleteFolder("blocks", path)}
+        emptyText="No custom blocks yet — add one above."
+      />
 
       <Text style={styles.section}>Your custom lists</Text>
       <View style={styles.newRow}>
@@ -306,19 +311,13 @@ export default function ManageScreen() {
           <Text style={styles.btnTextP}>Add</Text>
         </TouchableOpacity>
       </View>
-      {lists.length === 0 ? (
-        <Text style={styles.none}>No custom lists yet — add one above.</Text>
-      ) : (
-        lists.map((name) => (
-          <OverlayRow
-            key={name}
-            name={name}
-            styles={styles}
-            onOpen={() => setEditing({ kind: "list", key: name })}
-            onDelete={() => removeList(name)}
-          />
-        ))
-      )}
+      <ManageTree
+        tree={listTree}
+        onOpen={openEntry}
+        onDelete={deleteListEntry}
+        onDeleteFolder={(path) => deleteFolder("lists", path)}
+        emptyText="No custom lists yet — add one above."
+      />
     </ScrollView>
   );
 }
