@@ -226,6 +226,18 @@ async function mockManageBackend(page) {
   await page.route("**/api/manage/ping", (r) => r.fulfill({ status: 200, json: { ok: true } }));
   await page.route("**/api/manage/tree", (r) => r.fulfill({ json: MANAGE_TREE }));
   await page.route("**/api/manage/remote-manifest", (r) => r.fulfill({ json: {} }));
+  // Serve file reads so the right-pane editors actually render (block DPL box, list entries). The
+  // `.dpl`/`.txt` body carries a deliberately long line so it wraps on a narrow phone pane; a `.json`
+  // sidecar 404s (no metadata), which the editors treat as "no sidecar".
+  await page.route("**/api/manage/file**", (r) => {
+    const path = new URL(r.request().url()).searchParams.get("path") || "";
+    if (path.endsWith(".json")) return r.fulfill({ status: 404, json: { error: "no sidecar" } });
+    return r.fulfill({
+      json: {
+        text: "---\ndescription: a deliberately long front-matter line that wraps on a narrow phone editor pane\n---\nStart\n===\n- {color}\n",
+      },
+    });
+  });
 }
 
 async function openManage(page) {
@@ -263,6 +275,42 @@ test.describe("manage — phone master/detail", () => {
     await page.locator(".mg-back").click();
     await expect(treePane).toBeVisible();
     await expect(editorPane).toBeHidden();
+  });
+
+  // Regression: the block editor's free-text "Modify / Draft" combo is pinned to the DPL box's
+  // top-right corner on desktop, but its intended top gutter is defeated by CodeMirror's own padding,
+  // so on the narrow phone pane the wrapping code ran straight under the combo. On phone it must
+  // un-pin (become a static right-aligned row ABOVE the editor) so it never overlaps the code.
+  test("block editor: the Modify/Draft combo clears the code, and the head fields stay usable", async ({ page }) => {
+    await openManage(page);
+    await page.locator(".mg-pill.is-clickable").first().click(); // first entry = the block (generator)
+
+    const corner = page.locator(".dpl-ask-corner");
+    await corner.waitFor();
+    await expect(corner).toHaveCSS("position", "static"); // un-pinned on phone
+
+    const content = page.locator(".dpl-editor-wrap .cm-content");
+    await content.waitFor();
+    const cornerBox = await corner.boundingBox();
+    const contentBox = await content.boundingBox();
+    // The combo sits entirely ABOVE the code — its bottom edge doesn't cross into the text band.
+    expect(cornerBox.y + cornerBox.height).toBeLessThanOrEqual(contentBox.y + 1);
+
+    // The editor head wraps so the name field isn't squeezed to an unreadable sliver.
+    const nameBox = await page.locator(".mg-name-input").boundingBox();
+    expect(nameBox.width).toBeGreaterThan(150);
+  });
+
+  // Regression: the list editor's tools row (search · Add · Sort · …) was `nowrap`, collapsing the
+  // entries search to ~24px on a phone. It must wrap and give the search a usable full-width line.
+  test("list editor: the entries search filter stays usable width", async ({ page }) => {
+    await openManage(page);
+    // The list root sits below Blocks; its entry is the last clickable pill in the tree.
+    await page.locator(".mg-pill.is-clickable").last().click();
+    const filter = page.locator(".mg-list-tools .picker-filter");
+    await filter.waitFor();
+    const box = await filter.boundingBox();
+    expect(box.width).toBeGreaterThan(150);
   });
 });
 

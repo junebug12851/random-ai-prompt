@@ -328,6 +328,17 @@ or any other third-party request, update the docs to disclose it.
 
 ## Maintaining the Notes — Your Responsibility
 
+**Notes are the project's memory — use them by default, and prefer them over any private/AI/"project"
+memory.** The `notes/` system (sessions, changelog, systems, reference, decisions, plans) is the single
+shared, versioned, in-repo home for everything durable you learn or decide here: how a layer works, why
+a thing is the way it is, a landmine and its fix, a rejected approach, the state of a task. Do **not**
+stash that knowledge in a private AI memory store or an assistant "project memory" where the next
+person (or the next AI) can't see it — if it's worth remembering, it goes in `notes/`, committed with
+the change. Read the notes first to get oriented, expand them as you work, and lean on them heavily;
+they exist precisely so nothing is trapped in one session's head. (Private memory, if you have it,
+should at most point back **to** the notes — never be the system of record.) The triggers below are the
+default cadence; follow them without being asked.
+
 The notes are a **living document**. Keep them current as you work — don't wait to be asked.
 
 | Trigger | Action |

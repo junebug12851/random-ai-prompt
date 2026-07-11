@@ -59,3 +59,80 @@
     background: var(--chip-hover);
   }
 }
+
+/* ---------- Manage editors → compact ergonomics (phone/tablet) ----------
+   The right-pane editors (block / list) are dense flex rows tuned for a wide desktop pane. In the
+   phone master/detail the editor gets the full ~360px width, and those rows overflowed badly:
+     • the editor HEAD (name · kind · Rename · tabs · Save) is `nowrap`, so the name field collapsed
+       to ~20px — unreadable and uneditable;
+     • the list TOOLS row (search · Add · Sort · Dedupe · AI Expand · count) is `nowrap`, so the
+       entries search shrank to ~24px;
+     • the block editor's free-text "Modify / Draft" combo is absolutely pinned to the DPL box's
+       top-right corner. Its intended top gutter (`padding-top: 2.5rem` on `.cm-content`) is defeated
+       by CodeMirror's own base padding, so on the narrow pane the wrapping code ran straight under
+       the combo. On desktop the pane is wide enough that the short lines never reach the corner, so
+       this only bites on mobile.
+   All width-driven and scoped to `.workspace.manage`, so desktop (and the Generate composer) are
+   untouched. */
+@media (width <= 768px) {
+  /* Heads wrap; the name input takes its own full-width first line so it's actually usable. The kind
+     tag, Rename, tabs, and Save flow onto the next line (the `.grow` spacer keeps Save hard-right). */
+  .workspace.manage .mg-editor-head {
+    flex-wrap: wrap;
+  }
+
+  .workspace.manage .mg-editor-head .mg-name-input {
+    flex: 1 1 100%;
+  }
+
+  /* List tools wrap; the entries search claims a full-width first line, actions wrap beneath it. */
+  .workspace.manage .mg-list-tools {
+    flex-wrap: wrap;
+  }
+
+  .workspace.manage .mg-list-tools .picker-filter {
+    flex: 1 1 100%;
+  }
+
+  /* Un-pin the Modify/Draft combo from the editor corner: stack the DPL box as a column and drop the
+     combo in as a right-aligned row ABOVE the editor. No overlap, no reliance on the (overridden)
+     CodeMirror gutter, and the editor keeps the rest of the height. */
+  .workspace.manage .dpl-editor-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .workspace.manage .dpl-editor-wrap .dpl-ask-corner {
+    position: static;
+    order: -1;
+    align-self: flex-end;
+    inset: auto;
+    margin: 0 0 0.4rem;
+  }
+
+  .workspace.manage .dpl-editor-wrap .dpl-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+
+  /* The combo's popover would be clipped by the editor body's `overflow: hidden`. Float it to a
+     full-width bottom sheet over a dimming backdrop — the same treatment the header submenus use
+     (see mobile-sheets.css) — so it escapes the clip and reads as a proper mobile panel. */
+  .workspace.manage .dpl-ask-pop {
+    position: fixed;
+    inset: auto 0 0;
+    width: auto;
+    max-width: none;
+    max-height: 72vh;
+    overflow-y: auto;
+    z-index: 91;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .workspace.manage .dpl-ask-scrim {
+    z-index: 90;
+    background: rgb(0 0 0 / 45%);
+  }
+}
