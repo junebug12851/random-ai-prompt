@@ -91,6 +91,7 @@ const ResultRow = memo(function ResultRow({
   canImages,
   busy,
   onGenImages,
+  onOpenImage,
 }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
@@ -120,14 +121,23 @@ const ResultRow = memo(function ResultRow({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.resultThumbs}
         >
-          {images.map((uri, i) => (
-            <Image
-              key={i}
-              source={{ uri }}
-              style={styles.resultThumb}
-              contentFit="cover"
-              transition={120}
-            />
+          {/* Each thumb is the SAVED gallery item ({name, uri}) — tapping opens it in the Single view
+              (the web's inline image batch behaviour). Raw provider sources are never stored here. */}
+          {images.map((img, i) => (
+            <TouchableOpacity
+              key={img.uri ?? i}
+              onPress={() => onOpenImage?.(img)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={`Open generated image ${i + 1}`}
+            >
+              <Image
+                source={{ uri: img.uri }}
+                style={styles.resultThumb}
+                contentFit="cover"
+                transition={120}
+              />
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}
@@ -135,7 +145,7 @@ const ResultRow = memo(function ResultRow({
   );
 });
 
-export default function GenerateScreen({ onGenerated }) {
+export default function GenerateScreen({ onGenerated, onOpenImage }) {
   const { T, provider, rewriteProvider, providerSettings, setProviderSetting, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
@@ -410,8 +420,9 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
         const negText = provSettings.negativePrompt || "";
+        const savedItems = [];
         for (const img of images) {
-          await saveImageSrc(img, {
+          const it = await saveImageSrc(img, {
             prompt: prompts[i],
             negative: negText,
             layers: {
@@ -428,7 +439,16 @@ export default function GenerateScreen({ onGenerated }) {
             size: sizeFromSettings(provSettings),
             settings: provSettings,
           });
+          if (it) savedItems.push(it); // { name, uri } — the SAVED gallery item
           saved++;
+        }
+        // Attach the batch to its prompt row so images show INLINE on Generate (web parity), not only
+        // in the Gallery. Tapping one opens it in the Single view.
+        if (savedItems.length) {
+          const rowId = `${batchId}:${i}`;
+          setResults((prev) =>
+            prev.map((r) => (r.id === rowId ? { ...r, images: [...(r.images || []), ...savedItems] } : r)),
+          );
         }
         if (saved) onGenerated?.();
       } catch (e) {
@@ -490,8 +510,9 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: item.text, key, settings: provSettings });
         const negText = provSettings.negativePrompt || "";
-        for (const img of images)
-          await saveImageSrc(img, {
+        const savedItems = [];
+        for (const img of images) {
+          const it = await saveImageSrc(img, {
             prompt: item.text,
             negative: negText,
             layers: { final: item.text },
@@ -502,8 +523,13 @@ export default function GenerateScreen({ onGenerated }) {
             size: sizeFromSettings(provSettings),
             settings: provSettings,
           });
+          if (it) savedItems.push(it); // store the SAVED { name, uri }, not the raw provider source —
+          // Single resolves by gallery uri, so raw sources could never be opened.
+        }
         setResults((prev) =>
-          prev.map((r) => (r.id === item.id ? { ...r, images: [...(r.images || []), ...images] } : r)),
+          prev.map((r) =>
+            r.id === item.id ? { ...r, images: [...(r.images || []), ...savedItems] } : r,
+          ),
         );
         onGenerated?.();
       } catch (e) {
@@ -767,6 +793,7 @@ export default function GenerateScreen({ onGenerated }) {
             images={item.images}
             copied={copiedId === item.text}
             onCopy={copy}
+            onOpenImage={onOpenImage}
             canImages={canImages}
             busy={rowBusy === item.id}
             onGenImages={() => genImagesFor(item)}

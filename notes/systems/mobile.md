@@ -64,6 +64,13 @@ Four layers, mirroring the web target's rigor:
   code path) with native modules mocked (`targets/mobile/jest.setup.js`) and assert render + wiring. Run
   `npm --prefix targets/mobile test` (root `test:mobile`, in `npm test`). Pure helpers (`lib/single.js`)
   also have root-vitest unit tests under `tests/mobile/`.
+  - **Interactions MUST be pressed, not just rendered (standing rule).** Marker/surface-parity checks and
+    render-only assertions cannot catch a **dead control** — a prop the parent passes and the child never
+    destructures renders perfectly and does nothing. That is exactly how the Generate screen shipped with
+    untappable image thumbnails (`onOpenImage` ignored). For every interactive control: `fireEvent.press`
+    it and assert the handler fired **with the right payload**, and in the parent's test capture the mocked
+    child's props and assert the callback is a function. A regression test must be proven by
+    re-introducing the bug and seeing it FAIL. See [`../reference/fix-patterns.md`](../reference/fix-patterns.md).
 - **Visual/UX parity** — `expo export --platform web` → Playwright screenshot at 390px vs a web reference.
 
 ## Open follow-ups

@@ -13,7 +13,13 @@ jest.mock("../lib/theme.js", () => ({
     resolved: "dark",
   }),
 }));
-jest.mock("../screens/GenerateScreen.js", () => () => { const { Text } = require("react-native"); return <Text>GEN_PANE</Text>; });
+// Capture the props App hands each screen, so a silently-dropped callback (e.g. onOpenImage) fails here.
+const mockScreenProps = {};
+jest.mock("../screens/GenerateScreen.js", () => (props) => {
+  const { Text } = require("react-native");
+  mockScreenProps.generate = props;
+  return <Text>GEN_PANE</Text>;
+});
 jest.mock("../screens/GalleryScreen.js", () => () => { const { Text } = require("react-native"); return <Text>GAL_PANE</Text>; });
 jest.mock("../screens/SingleScreen.js", () => () => { const { Text } = require("react-native"); return <Text>SINGLE_PANE</Text>; });
 jest.mock("../screens/ManageScreen.js", () => () => { const { Text } = require("react-native"); return <Text>MANAGE_PANE</Text>; });
@@ -51,5 +57,13 @@ describe("App shell (mounted)", () => {
     fireEvent.press(getByText("Gallery"));
     fireEvent.press(getByText("Manage"));
     expect(getByText("Generate")).toBeTruthy();
+  });
+
+  // Regression: App passed `onOpenImage` to GenerateScreen but the screen never destructured it, so
+  // generated thumbs were dead. Guard BOTH ends — here that App still hands the callback down.
+  it("hands GenerateScreen the callbacks it needs (onOpenImage / onGenerated)", async () => {
+    await setup();
+    expect(typeof mockScreenProps.generate.onOpenImage).toBe("function");
+    expect(typeof mockScreenProps.generate.onGenerated).toBe("function");
   });
 });

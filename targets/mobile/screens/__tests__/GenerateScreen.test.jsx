@@ -38,13 +38,22 @@ jest.mock("../../lib/storage.js", () => ({ saveImageSrc: jest.fn(async () => ({}
 jest.mock("../../components/InsertMenu.js", () => () => null);
 jest.mock("../../components/BlockPalette.js", () => () => null);
 
+import * as providers from "../../lib/imageProviders.js";
+import * as storage from "../../lib/storage.js";
 import GenerateScreen from "../GenerateScreen.js";
+
+// Default: the "plain" copy provider (prompts only, no images).
+const COPY_PROVIDER = { id: "plain", copy: true, label: "None" };
+beforeEach(() => {
+  providers.getImageProvider.mockReturnValue(COPY_PROVIDER);
+  storage.saveImageSrc.mockResolvedValue({});
+});
 
 async function setup() {
   const onGenerated = jest.fn(), onOpenImage = jest.fn();
   const utils = render(<GenerateScreen onGenerated={onGenerated} onOpenImage={onOpenImage} />);
   await act(async () => {});
-  return { ...utils, onGenerated };
+  return { ...utils, onGenerated, onOpenImage };
 }
 
 describe("GenerateScreen (mounted)", () => {
@@ -73,5 +82,52 @@ describe("GenerateScreen (mounted)", () => {
     const { getByLabelText, findByText } = await setup();
     fireEvent.press(getByLabelText("Toggle live preview"));
     expect(await findByText("PREVIEW · LIVE")).toBeTruthy();
+  });
+
+  // --- Image batches: INTERACTION tests (regression) ---------------------------------------------
+  // These press things. The previous suite only asserted rendering, so two real bugs sailed through:
+  //   1. App passed `onOpenImage` but GenerateScreen never destructured it → thumbs were dead.
+  //   2. Generate saved images to the Gallery but never attached them to their prompt row, so nothing
+  //      appeared inline on Generate; and the row stored RAW provider sources (which Single, which
+  //      resolves by saved gallery uri, could never open).
+
+  const savedItem = { name: "img-1.png", uri: "file:///doc/rap/images/img-1.png" };
+  const withImageProvider = () => {
+    providers.getImageProvider.mockReturnValue({
+      id: "comfyui",
+      local: true,
+      copy: false,
+      label: "ComfyUI",
+      generate: jest.fn(async () => ({ images: ["data:image/png;base64,AAA"] })),
+    });
+    storage.saveImageSrc.mockResolvedValue(savedItem);
+  };
+
+  it("generating auto-attaches the image INLINE to its prompt row", async () => {
+    withImageProvider();
+    const { getByLabelText, findByLabelText } = await setup();
+    fireEvent.press(getByLabelText("Generate"));
+    // The thumb shows under the prompt (not only in the Gallery).
+    expect(await findByLabelText("Open generated image 1")).toBeTruthy();
+  });
+
+  it("tapping a generated image opens it in Single via onOpenImage (with the SAVED gallery item)", async () => {
+    withImageProvider();
+    const { getByLabelText, findByLabelText, onOpenImage } = await setup();
+    fireEvent.press(getByLabelText("Generate"));
+    fireEvent.press(await findByLabelText("Open generated image 1"));
+    // Must hand Single the saved {name, uri} — Single resolves by gallery uri, not the raw source.
+    expect(onOpenImage).toHaveBeenCalledWith(savedItem);
+  });
+
+  it("the per-row 'Generate images' link also yields a tappable, openable image", async () => {
+    withImageProvider();
+    const { getByLabelText, getByText, findByLabelText, onOpenImage } = await setup();
+    fireEvent.press(getByLabelText("Generate"));
+    await findByLabelText("Open generated image 1");
+    fireEvent.press(getByText("Generate images")); // per-row link
+    const thumbs = await findByLabelText("Open generated image 2");
+    fireEvent.press(thumbs);
+    expect(onOpenImage).toHaveBeenCalledWith(savedItem);
   });
 });
