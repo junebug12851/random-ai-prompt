@@ -234,11 +234,72 @@ function checkSurfaces() {
   }
 }
 
+// ---------- CAPABILITY GATING: a provider-dependent control must LOCK, never error on press --------
+// The layer that surface parity does NOT cover, and that a whole review missed. The web's convention
+// is: when a provider isn't picked (or can't do the job), the control is rendered LOCKED — visibly
+// disabled, `is-locked` + 🔒, with a hint — and pressing it does nothing. It does NOT pop a "pick a
+// provider first" error. A feature-presence check happily passes an implementation that renders the
+// control fully enabled and then throws an error at you.
+//
+// Two halves, and the negative one is the point:
+//   1. every provider-dependent control is wired to a capability flag (disabled + an announced state);
+//   2. NO error-on-press path exists anywhere in the shipped mobile source.
+function checkGating() {
+  console.log("Capability gating (locked controls, never error-on-press)");
+  const read = (rel) => {
+    try {
+      return readFileSync(join(MOBILE, rel), "utf8");
+    } catch {
+      return "";
+    }
+  };
+  const src = {
+    generate: read("screens/GenerateScreen.js"),
+    single: read("screens/SingleScreen.js"),
+    gallery: read("screens/GalleryScreen.js"),
+    manageBlock: read("components/ManageBlockEditor.js"),
+    capabilities: read("lib/capabilities.js"),
+    ready: read("lib/useProviderReady.js"),
+  };
+
+  // 1. Each provider-dependent control is gated on a capability, not merely present.
+  const GATED = [
+    ["auto-fix (wand) locked without a Text provider", "generate", /disabled=\{!canRewrite\}/],
+    ["keyword-translate (tag) locked without a Text provider", "generate", /disabled=\{!canRewrite\}/],
+    ["shuffle locked until a suggestion exists", "generate", /disabled=\{!suggestion\}/],
+    ["inline image batch gated on the image provider", "generate", /canImages/],
+    ["gallery compose gated on the image provider", "gallery", /disabled=\{composeBusy \|\| !canImages\}/],
+    ["AI Upscale gated on an upscale provider", "single", /hasUpscalers|upscalersFor\(/],
+    ["Manage AI actions locked without a Text provider", "manageBlock", /disabled=\{aiOff\}/],
+    ["capability helpers exist (derive from the manifests)", "capabilities", /canRewrite|canUpscale/],
+    ["provider-ready hook reports {picked, keyed, ready, reason}", "ready", /reason/],
+  ];
+  let ok = 0;
+  for (const [what, key, re] of GATED) {
+    if (re.test(src[key] || "")) ok++;
+    else fail(`ungated: ${what}`);
+  }
+  if (ok === GATED.length) pass(`all ${ok} provider-dependent controls are capability-gated`);
+
+  // 2. THE NEGATIVE ASSERTION. An error-on-press path is a parity BUG, so its absence is asserted —
+  // presence checks can never do this. (This is the exact regression that shipped once: pressing
+  // Refine with no Text provider popped "Pick a Text provider" instead of the control being locked.)
+  const ERROR_ON_PRESS =
+    /(Alert\.alert|setErr|setError|throw new Error)\([^)]*[Pp]ick an? (Text|Image|Upscale) provider/;
+  const offenders = Object.entries(src).filter(([, text]) => ERROR_ON_PRESS.test(text));
+  if (!offenders.length) {
+    pass("no error-on-press path — a control the user can't use is LOCKED, not shouted at");
+  } else {
+    fail(`error-on-press path found in: ${offenders.map(([k]) => k).join(", ")} (lock it instead)`);
+  }
+}
+
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
   checkLocales,
   checkDplInserts,
   checkSurfaces,
+  checkGating,
 ]) {
   await step();
   console.log("");

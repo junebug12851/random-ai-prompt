@@ -168,11 +168,11 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
   return (
     <ScrollView style={styles.wrap} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16 }}>
       <View style={styles.head}>
-        <TouchableOpacity onPress={() => onClose?.(false)} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => onClose?.(false)} hitSlop={8}>
           <Text style={styles.back}>‹ Blocks</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={save} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={save} hitSlop={8}>
           <Text style={styles.save}>Save</Text>
         </TouchableOpacity>
       </View>
@@ -188,7 +188,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
           placeholderTextColor={T.faint}
         />
         <Text style={styles.kind}>block</Text>
-        <TouchableOpacity onPress={rename} disabled={name.trim() === label} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={rename} disabled={name.trim() === label} hitSlop={8}>
           <Text style={[styles.link, name.trim() === label && styles.linkOff]}>Rename</Text>
         </TouchableOpacity>
       </View>
@@ -202,7 +202,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
         placeholderTextColor={T.faint}
       />
 
-      <TouchableOpacity style={styles.nsfwRow} onPress={() => setNsfw((v) => !v)} activeOpacity={0.7}>
+      <TouchableOpacity accessibilityRole="button" style={styles.nsfwRow} onPress={() => setNsfw((v) => !v)} activeOpacity={0.7}>
         <View style={[styles.checkbox, nsfw && styles.checkboxOn]}>
           {nsfw ? <Text style={styles.checkboxMark}>✓</Text> : null}
         </View>
@@ -211,10 +211,10 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
 
       {js !== null && (
         <View style={styles.tabs}>
-          <TouchableOpacity style={[styles.tab, tab === "dpl" && styles.tabOn]} onPress={() => setTab("dpl")}>
+          <TouchableOpacity accessibilityRole="button" style={[styles.tab, tab === "dpl" && styles.tabOn]} onPress={() => setTab("dpl")}>
             <Text style={[styles.tabText, tab === "dpl" && styles.tabTextOn]}>DPL</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, tab === "js" && styles.tabOn]} onPress={() => setTab("js")}>
+          <TouchableOpacity accessibilityRole="button" style={[styles.tab, tab === "js" && styles.tabOn]} onPress={() => setTab("js")}>
             <Text style={[styles.tabText, tab === "js" && styles.tabTextOn]}>JS sidecar</Text>
           </TouchableOpacity>
         </View>
@@ -230,7 +230,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
             <Text style={styles.refineLead}>REFINE{!aiReady ? " 🔒" : ""}</Text>
             {REFINE_DIMS.map((d) => (
               <View key={d.label} style={styles.combo}>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                   onPress={() => refine(d.less)}
                   disabled={aiOff}
                   accessibilityState={{ disabled: aiOff }}
@@ -240,7 +240,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
                   <Text style={styles.comboBtn}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.comboLabel}>{d.label}</Text>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                   onPress={() => refine(d.more)}
                   disabled={aiOff}
                   accessibilityState={{ disabled: aiOff }}
@@ -251,7 +251,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               style={styles.solo}
               onPress={() => refine("dpl-tighten")}
               disabled={aiOff}
@@ -260,7 +260,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
             >
               <Text style={styles.soloText}>Cleanup</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               style={[styles.solo, askIntent === "modify" && styles.soloOn]}
               onPress={() => {
                 setAskIntent(askIntent === "modify" ? null : "modify");
@@ -272,7 +272,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
             >
               <Text style={styles.soloText}>Modify</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               style={[styles.solo, askIntent === "create" && styles.soloOn]}
               onPress={() => {
                 setAskIntent(askIntent === "create" ? null : "create");
@@ -298,7 +298,7 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
                 multiline
                 textAlignVertical="top"
               />
-              <TouchableOpacity style={styles.askSend} onPress={submitAsk} disabled={!!busy}>
+              <TouchableOpacity accessibilityRole="button" style={styles.askSend} onPress={submitAsk} disabled={!!busy}>
                 <Text style={styles.askSendText}>{busy ? "…" : "Send"}</Text>
               </TouchableOpacity>
             </View>
@@ -314,12 +314,12 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
 
       <View style={styles.foot}>
         {js === null && (
-          <TouchableOpacity onPress={createJs} hitSlop={8}>
+          <TouchableOpacity accessibilityRole="button" onPress={createJs} hitSlop={8}>
             <Text style={styles.link}>+ Create JS sidecar</Text>
           </TouchableOpacity>
         )}
         <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={del} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={del} hitSlop={8}>
           <Text style={styles.danger}>Delete</Text>
         </TouchableOpacity>
       </View>

@@ -42,9 +42,9 @@ import {
 const APP_VERSION = "2.52.0";
 
 const LINKS = {
-  github: "https://github.com/junebug12851/random-ai-prompt",
-  releases: "https://github.com/junebug12851/random-ai-prompt/releases",
-  selfhost: "https://github.com/junebug12851/random-ai-prompt#how-to-get-it",
+  github: "https://github.com/1fairyfox/random-ai-prompt",
+  releases: "https://github.com/1fairyfox/random-ai-prompt/releases",
+  selfhost: "https://github.com/1fairyfox/random-ai-prompt#how-to-get-it",
   docs: "https://fairyfox.io/random-ai-prompt/",
   home: "https://fairyfox.io",
 };
@@ -123,7 +123,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
   };
   const backHead = (title) => (
     <View style={styles.subHead}>
-      <TouchableOpacity onPress={() => setSub(null)} hitSlop={8}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => setSub(null)} hitSlop={8}>
         <Text style={styles.back}>‹ {title}</Text>
       </TouchableOpacity>
     </View>
@@ -131,7 +131,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
 
   // One selectable provider row (with description + selected check).
   const pickRow = (id, label, desc, selected, onPress) => (
-    <TouchableOpacity key={id} style={styles.pickRow} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity accessibilityRole="button" key={id} style={styles.pickRow} onPress={onPress} activeOpacity={0.7}>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowLabel}>{label}</Text>
         {desc ? (
@@ -191,36 +191,45 @@ export default function OverflowMenu({ visible, onClose, top }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <View style={styles.root}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={close} activeOpacity={1} />
+        {/* Tap-outside-to-close scrim. It IS a control, so it must announce itself — otherwise
+            react-native-web emits an empty <button> with no accessible name (axe: button-name,
+            critical) and a screen-reader user meets a nameless full-screen button. */}
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Close the menu"
+          style={StyleSheet.absoluteFill}
+          onPress={close}
+          activeOpacity={1}
+        />
         <View style={[styles.panel, { top }]}>
           <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {sub === null && (
               <>
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("img")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("img")} activeOpacity={0.7}>
                   <Text style={styles.ctlLabel}>Image</Text>
                   <Text style={styles.ctlValue} numberOfLines={1}>{image ? image.label.split(" (")[0] : "Unset"}</Text>
                   <ChevronDownIcon size={16} color={T.muted} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("text")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("text")} activeOpacity={0.7}>
                   <Text style={styles.ctlLabel}>Text</Text>
                   <Text style={styles.ctlValue} numberOfLines={1}>{rewrite ? rewrite.label.split(" (")[0] : "Off"}</Text>
                   <ChevronDownIcon size={16} color={T.muted} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("up")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("up")} activeOpacity={0.7}>
                   <Text style={styles.ctlLabel}>Upscale</Text>
                   <Text style={styles.ctlValue} numberOfLines={1}>{upscale ? upscale.label.split(" (")[0] : "Off"}</Text>
                   <ChevronDownIcon size={16} color={T.muted} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("settings")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("settings")} activeOpacity={0.7}>
                   <GearIcon size={18} color={T.muted} />
                   <Text style={[styles.ctlLabel, { marginLeft: 12 }]}>Provider settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("appearance")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("appearance")} activeOpacity={0.7}>
                   <PaletteIcon size={18} color={T.muted} />
                   <Text style={[styles.ctlLabel, { marginLeft: 12 }]}>Appearance</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ctlRow} onPress={() => setSub("language")} activeOpacity={0.7}>
+                <TouchableOpacity accessibilityRole="button" style={styles.ctlRow} onPress={() => setSub("language")} activeOpacity={0.7}>
                   <Text style={styles.ctlLabel}>Language</Text>
                   <Text style={styles.ctlValue} numberOfLines={1}>{localeLabel}</Text>
                   <ChevronDownIcon size={16} color={T.muted} />
@@ -231,7 +240,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                   <View key={gi}>
                     {gi > 0 && <View style={styles.sep} />}
                     {items.map(({ url, Icon, label, desc, external }) => (
-                      <TouchableOpacity key={url} style={styles.row} onPress={() => open(url)} activeOpacity={0.7}>
+                      <TouchableOpacity accessibilityRole="button" key={url} style={styles.row} onPress={() => open(url)} activeOpacity={0.7}>
                         <View style={styles.rowIcon}><Icon size={18} color={T.muted} /></View>
                         <View style={styles.rowText}>
                           <Text style={styles.rowLabel}>{label}</Text>
@@ -319,7 +328,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                               const lab = typeof opt === "object" ? opt.label : opt;
                               const on = cur === val;
                               return (
-                                <TouchableOpacity key={String(val)} style={[styles.chip, on && styles.chipOn]} onPress={() => setProviderSetting(image.id, f.key, val)}>
+                                <TouchableOpacity accessibilityRole="button" key={String(val)} style={[styles.chip, on && styles.chipOn]} onPress={() => setProviderSetting(image.id, f.key, val)}>
                                   <Text style={[styles.chipText, on && styles.chipTextOn]}>{lab}</Text>
                                 </TouchableOpacity>
                               );
@@ -353,7 +362,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                   {MODES.map(({ id, label, Icon }) => {
                     const on = mode === id;
                     return (
-                      <TouchableOpacity key={id} style={[styles.seg, on && styles.segOn]} onPress={() => setMode(id)} activeOpacity={0.8}>
+                      <TouchableOpacity accessibilityRole="button" key={id} style={[styles.seg, on && styles.segOn]} onPress={() => setMode(id)} activeOpacity={0.8}>
                         <Icon size={15} color={on ? T.accent : T.muted} />
                         <Text style={[styles.segText, on && styles.segTextOn]}>{label}</Text>
                       </TouchableOpacity>
@@ -365,7 +374,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                   {accents.map((a) => {
                     const on = accent === a.id;
                     return (
-                      <TouchableOpacity key={a.id} style={[styles.swatchWrap, on && styles.swatchWrapOn]} onPress={() => setAccent(a.id)} activeOpacity={0.8}>
+                      <TouchableOpacity accessibilityRole="button" key={a.id} style={[styles.swatchWrap, on && styles.swatchWrapOn]} onPress={() => setAccent(a.id)} activeOpacity={0.8}>
                         <View style={[styles.swatch, { backgroundColor: a.swatch }]} />
                       </TouchableOpacity>
                     );
@@ -381,7 +390,7 @@ export default function OverflowMenu({ visible, onClose, top }) {
                 {locales.map((l) => {
                   const on = locale === l.id;
                   return (
-                    <TouchableOpacity key={l.id} style={styles.pickRow} onPress={() => setLocale(l.id)} activeOpacity={0.7}>
+                    <TouchableOpacity accessibilityRole="button" key={l.id} style={styles.pickRow} onPress={() => setLocale(l.id)} activeOpacity={0.7}>
                       <Text style={[styles.rowLabel, { flex: 1 }]}>{l.label}</Text>
                       {on && <CheckIcon size={16} color={T.accent} />}
                     </TouchableOpacity>
@@ -431,7 +440,7 @@ function KeyField({ id, hint, keyUrl, styles, T, onOpen }) {
           {err || "Stored securely on your device (BYOK)."}
         </Text>
         {keyUrl && (
-          <TouchableOpacity onPress={() => onOpen(keyUrl)}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => onOpen(keyUrl)}>
             <Text style={styles.provLink}>Get a key ↗</Text>
           </TouchableOpacity>
         )}

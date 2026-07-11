@@ -57,7 +57,7 @@ export default function BuiltinBrowser({ onOverride }) {
               <Text style={styles.rowLabel} numberOfLines={1}>
                 {key}
               </Text>
-              <TouchableOpacity onPress={() => overrideBlock(key)} hitSlop={6}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => overrideBlock(key)} hitSlop={6}>
                 <Text style={styles.override}>Override</Text>
               </TouchableOpacity>
             </View>
@@ -68,7 +68,7 @@ export default function BuiltinBrowser({ onOverride }) {
               <Text style={styles.rowLabel} numberOfLines={1}>
                 {key}
               </Text>
-              <TouchableOpacity onPress={() => overrideList(key)} hitSlop={6}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => overrideList(key)} hitSlop={6}>
                 <Text style={styles.override}>Override</Text>
               </TouchableOpacity>
             </View>

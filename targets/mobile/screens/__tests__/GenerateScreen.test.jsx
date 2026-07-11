@@ -63,12 +63,12 @@ describe("GenerateScreen (mounted)", () => {
     // to "{#random-words}" only until the first suggestion rolls.
     expect(getByPlaceholderText("Try: a live preview line")).toBeTruthy();
     expect(getByText("PROMPTS")).toBeTruthy();
-    expect(getByLabelText("Generate")).toBeTruthy();
+    expect(getByLabelText("Generate prompts")).toBeTruthy();
   });
 
   it("rolling generates prompts into the results feed", async () => {
     const { getByLabelText, findByText } = await setup();
-    fireEvent.press(getByLabelText("Generate"));
+    fireEvent.press(getByLabelText("Generate prompts"));
     expect(await findByText("hello world")).toBeTruthy();
   });
 
@@ -108,7 +108,7 @@ describe("GenerateScreen (mounted)", () => {
   it("generating auto-attaches the image INLINE to its prompt row", async () => {
     withImageProvider();
     const { getByLabelText, findByLabelText } = await setup();
-    fireEvent.press(getByLabelText("Generate"));
+    fireEvent.press(getByLabelText("Generate prompts"));
     // The thumb shows under the prompt (not only in the Gallery).
     expect(await findByLabelText("Open generated image 1")).toBeTruthy();
   });
@@ -116,7 +116,7 @@ describe("GenerateScreen (mounted)", () => {
   it("tapping a generated image opens it in Single via onOpenImage (with the SAVED gallery item)", async () => {
     withImageProvider();
     const { getByLabelText, findByLabelText, onOpenImage } = await setup();
-    fireEvent.press(getByLabelText("Generate"));
+    fireEvent.press(getByLabelText("Generate prompts"));
     fireEvent.press(await findByLabelText("Open generated image 1"));
     // Must hand Single the saved {name, uri} — Single resolves by gallery uri, not the raw source.
     expect(onOpenImage).toHaveBeenCalledWith(savedItem);
@@ -125,7 +125,7 @@ describe("GenerateScreen (mounted)", () => {
   it("the per-row 'Generate images' link also yields a tappable, openable image", async () => {
     withImageProvider();
     const { getByLabelText, getByText, findByLabelText, onOpenImage } = await setup();
-    fireEvent.press(getByLabelText("Generate"));
+    fireEvent.press(getByLabelText("Generate prompts"));
     await findByLabelText("Open generated image 1");
     fireEvent.press(getByText("Generate images")); // per-row link
     const thumbs = await findByLabelText("Open generated image 2");
@@ -164,5 +164,36 @@ describe("GenerateScreen — random suggestion (shuffle)", () => {
   it("has exactly ONE building-blocks control (the FAB) — not a duplicate in the toolbar", async () => {
     const { getAllByLabelText } = await setup();
     expect(getAllByLabelText("Open the building-blocks palette")).toHaveLength(1);
+  });
+});
+/**
+ * Regression: the prompts-per-roll count was STEPPER-ONLY, so the app's advertised ceiling of 1000
+ * prompts was reachable only by tapping + nine hundred and ninety-nine times. The web has a numeric
+ * input. Found while writing the max-load perf test — the test was absurd because the UI was.
+ */
+describe("GenerateScreen — prompts-per-roll count", () => {
+  it("is directly editable and clamps to the 1..1000 range (web parity)", async () => {
+    const { getByLabelText } = await setup();
+    const count = getByLabelText("Number of prompts per roll");
+
+    fireEvent.changeText(count, "1000");
+    expect(count.props.value).toBe("1000");
+
+    fireEvent.changeText(count, "9999"); // above the ceiling → clamped, never rejected
+    expect(count.props.value).toBe("1000");
+
+    fireEvent.changeText(count, ""); // emptied → falls back to 1, never NaN
+    expect(count.props.value).toBe("1");
+  });
+
+  it("the steppers still work alongside it", async () => {
+    const { getByLabelText } = await setup();
+    const count = getByLabelText("Number of prompts per roll");
+
+    fireEvent.press(getByLabelText("One more prompt"));
+    expect(count.props.value).toBe("2");
+
+    fireEvent.press(getByLabelText("One fewer prompt"));
+    expect(count.props.value).toBe("1");
   });
 });

@@ -108,13 +108,13 @@ const ResultRow = memo(function ResultRow({
         <Text style={styles.resultNum}>#{number}</Text>
         <View style={styles.resultHeadRight}>
           {canImages && (
-            <TouchableOpacity onPress={() => onGenImages(text)} disabled={busy}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => onGenImages(text)} disabled={busy}>
               <Text style={[styles.copyLink, busy && { opacity: 0.5 }]}>
                 {busy ? "Generating…" : "Generate images"}
               </Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={() => onCopy(text)}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => onCopy(text)}>
             <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
           </TouchableOpacity>
         </View>
@@ -346,7 +346,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
         {options.map((o) => {
           const on = getS(key) === o.value;
           return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               key={String(o.value)}
               style={[styles.setChip, on && styles.setChipOn]}
               onPress={() => setS(key, o.value)}
@@ -617,13 +617,13 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               )}
               {supportsNegative && (
                 <View style={styles.cmTabs}>
-                  <TouchableOpacity
+                  <TouchableOpacity accessibilityRole="button"
                     style={[styles.cmTab, editMode === "prompt" && styles.cmTabOn]}
                     onPress={() => setComposeMode("prompt")}
                   >
                     <Text style={[styles.cmTabText, editMode === "prompt" && styles.cmTabTextOn]}>Prompt</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
+                  <TouchableOpacity accessibilityRole="button"
                     style={[styles.cmTab, editMode === "negative" && styles.cmTabOn]}
                     onPress={() => setComposeMode("negative")}
                   >
@@ -633,10 +633,10 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               )}
             </View>
             <View style={styles.editorHeadRight}>
-              <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon} accessibilityLabel="Toggle live preview">
+              <TouchableOpacity accessibilityRole="button" onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon} accessibilityLabel="Toggle live preview">
                 <EyeIcon size={18} color={previewOn ? T.accent : T.muted} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon} accessibilityLabel="Prompt settings">
+              <TouchableOpacity accessibilityRole="button" onPress={() => setGearOpen(true)} style={styles.headIcon} accessibilityLabel="Prompt settings">
                 <GearIcon size={18} color={T.muted} />
               </TouchableOpacity>
             </View>
@@ -648,7 +648,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
                 <View key={i} style={styles.gutterLine}>
                   <Text style={styles.gutterNum}>{i + 1}</Text>
                   {i === 0 && (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                       onPress={() => setActiveValue((p) => (p.endsWith("\n") || !p ? p : p + "\n"))}
                       hitSlop={10}
                     >
@@ -699,7 +699,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
           >
             <View style={styles.suggStripRow}>
               {suggestions.map((c) => (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                   key={c.token}
                   style={styles.sugg}
                   onPress={() => applyCompletion(c.token)}
@@ -728,16 +728,36 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
           <View style={styles.leftCluster}>
             <View style={styles.promptsCount}>
               <Text style={styles.promptsLabel}>PROMPTS</Text>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
                 onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+                accessibilityLabel="One fewer prompt"
               >
                 <Text style={styles.countBtnText}>−</Text>
               </TouchableOpacity>
-              <Text style={styles.countVal}>{promptCount}</Text>
-              <TouchableOpacity
+              {/*
+                The count is EDITABLE, not stepper-only — web parity (PromptComposer uses a numeric
+                input). Without this the app's own advertised ceiling of 1000 prompts is reachable
+                only by tapping + nine hundred and ninety-nine times, which is not a feature, it's a
+                dare. Found while writing the max-load perf test: the test was absurd because the UI
+                was.
+              */}
+              <TextInput
+                style={styles.countInput}
+                value={String(promptCount)}
+                onChangeText={(v) => {
+                  const n = parseInt(v.replace(/[^0-9]/g, ""), 10);
+                  setPromptCount(Number.isFinite(n) ? clamp(n, 1, 1000) : 1);
+                }}
+                keyboardType="number-pad"
+                selectTextOnFocus
+                maxLength={4}
+                accessibilityLabel="Number of prompts per roll"
+              />
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
                 onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+                accessibilityLabel="One more prompt"
               >
                 <Text style={styles.countBtnText}>+</Text>
               </TouchableOpacity>
@@ -747,11 +767,11 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
             {imgBatchField && (
               <View style={styles.promptsCount}>
                 <Text style={styles.promptsLabel}>IMAGES</Text>
-                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) - 1, 1, 8))}>
+                <TouchableOpacity accessibilityRole="button" style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) - 1, 1, 8))}>
                   <Text style={styles.countBtnText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.countVal}>{imgGet("batchSize", 1)}</Text>
-                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) + 1, 1, 8))}>
+                <TouchableOpacity accessibilityRole="button" style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) + 1, 1, 8))}>
                   <Text style={styles.countBtnText}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -765,7 +785,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
                     const lab = typeof opt === "object" ? opt.label : opt;
                     const on = imgGet(imgSizeField.key, imgSizeField.default) === val;
                     return (
-                      <TouchableOpacity key={String(val)} style={[styles.setChip, on && styles.setChipOn]} onPress={() => setImgParam(imgSizeField.key, val)}>
+                      <TouchableOpacity accessibilityRole="button" key={String(val)} style={[styles.setChip, on && styles.setChipOn]} onPress={() => setImgParam(imgSizeField.key, val)}>
                         <Text style={[styles.setChipText, on && styles.setChipTextOn]}>{lab}</Text>
                       </TouchableOpacity>
                     );
@@ -775,16 +795,16 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
             )}
 
             <View style={styles.toolGroup}>
-              <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)}>
+              <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)} accessibilityLabel={canRewrite ? "Auto-fix the prompt with the Text provider" : "Auto-fix (locked — pick a Text provider)"}>
                 <WandIcon size={18} color={autoFix ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)}>
+              <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)} accessibilityLabel={canRewrite ? "Translate the prompt to keywords" : "Keyword translate (locked — pick a Text provider)"}>
                 <TagIcon size={18} color={autoKeyword ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn on={wrapActive} onPress={() => setWrapperOpen(true)}>
+              <ToolBtn on={wrapActive} onPress={() => setWrapperOpen(true)} accessibilityLabel="Prompt wrapper">
                 <BracketsIcon size={18} color={wrapActive ? T.accent : T.muted} />
               </ToolBtn>
-              <ToolBtn onPress={share}>
+              <ToolBtn onPress={share} accessibilityLabel="Share a link to this setup">
                 <ShareIcon size={17} color={T.muted} />
               </ToolBtn>
               {/*
@@ -807,10 +827,10 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
             </View>
           </View>
 
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             style={[styles.genRound, generating && styles.genRoundBusy]}
             onPress={generate}
-            accessibilityLabel="Generate"
+            accessibilityLabel="Generate prompts"
             disabled={generating}
             activeOpacity={0.85}
           >
@@ -830,10 +850,10 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
           <Text style={styles.resultsTitle}>Prompts</Text>
           <View style={styles.resultsHeadRight}>
             <Text style={styles.count}>{results.length} generated</Text>
-            <TouchableOpacity onPress={copyAll}>
+            <TouchableOpacity accessibilityRole="button" onPress={copyAll}>
               <Text style={styles.copyLink}>Copy all</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setResults([])}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => setResults([])}>
               <Text style={styles.clearAll}>Clear all</Text>
             </TouchableOpacity>
           </View>
@@ -868,7 +888,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
 
       {/* The ONE building-blocks control (the web's off-canvas drawer). The toolbar above used to
           carry a second, identical one — see the regression test in __tests__/GenerateScreen.test.jsx. */}
-      <TouchableOpacity
+      <TouchableOpacity accessibilityRole="button"
         style={[styles.fab, { bottom: insets.bottom + 24 }]}
         onPress={() => setPaletteOpen(true)}
         activeOpacity={0.85}
@@ -891,7 +911,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
         onRequestClose={() => setGearOpen(false)}
       >
         <View style={styles.sheetScrim}>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             style={{ flex: 1 }}
             onPress={() => setGearOpen(false)}
             activeOpacity={1}
@@ -899,7 +919,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
           <View style={styles.gearSheet}>
             <View style={styles.gearHead}>
               <Text style={styles.gearTitle}>Prompt settings</Text>
-              <TouchableOpacity onPress={() => setGearOpen(false)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setGearOpen(false)}>
                 <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -909,7 +929,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              <TouchableOpacity style={styles.resetBtn} onPress={() => setCfg({})}>
+              <TouchableOpacity accessibilityRole="button" style={styles.resetBtn} onPress={() => setCfg({})}>
                 <Text style={styles.resetText}>Reset to defaults</Text>
               </TouchableOpacity>
 
@@ -955,11 +975,11 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
         onRequestClose={() => setWrapperOpen(false)}
       >
         <View style={styles.sheetScrim}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => setWrapperOpen(false)} activeOpacity={1} />
+          <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={() => setWrapperOpen(false)} activeOpacity={1} />
           <View style={styles.gearSheet}>
             <View style={styles.gearHead}>
               <Text style={styles.gearTitle}>Wrapper</Text>
-              <TouchableOpacity onPress={() => setWrapperOpen(false)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setWrapperOpen(false)}>
                 <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -1004,7 +1024,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
                   thumbColor="#fff"
                 />
               </View>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.resetBtn}
                 onPress={() => {
                   setS("wrapper", { start: "", end: "" });
@@ -1168,6 +1188,21 @@ const makeStyles = (T) =>
     },
     countBtnText: { color: T.fgSoft, fontSize: 18, fontWeight: "700", lineHeight: 20 },
     countVal: { color: T.fg, fontSize: 16, fontWeight: "800", minWidth: 26, textAlign: "center" },
+    // The count is an editable field, so it needs a FIXED width. Reusing the old Text style
+    // (`countVal`, which only sets minWidth) let the input stretch and shove the + stepper off the
+    // screen — invisible to every test, obvious the moment you look at a screenshot.
+    countInput: {
+      color: T.fg,
+      fontSize: 16,
+      fontWeight: "800",
+      width: 54,
+      textAlign: "center",
+      paddingVertical: 4,
+      borderRadius: 8,
+      backgroundColor: T.input,
+      borderWidth: 1,
+      borderColor: T.border,
+    },
 
     toolGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
     tool: {

@@ -88,7 +88,7 @@ function Root() {
           {TABS.map((t) => {
             const on = view === t.id;
             return (
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 key={t.id}
                 style={[styles.tab, on && styles.tabOn]}
                 onPress={() => setView(t.id)}
@@ -102,7 +102,7 @@ function Root() {
           })}
         </View>
 
-        <TouchableOpacity style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)} accessibilityLabel="More options">
+        <TouchableOpacity accessibilityRole="button" style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)} accessibilityLabel="More options">
           <MoreIcon size={20} color={T.fgSoft} />
         </TouchableOpacity>
       </View>

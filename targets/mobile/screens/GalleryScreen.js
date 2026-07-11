@@ -25,7 +25,7 @@ const Cell = memo(function Cell({ item, size, pad, selectMode, selected, onPress
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   return (
-    <TouchableOpacity
+    <TouchableOpacity accessibilityRole="button"
       onPress={() => onPress(item)}
       onLongPress={() => onLong(item)}
       activeOpacity={0.85}
@@ -220,7 +220,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
           autoCapitalize="none"
           autoCorrect={false}
         />
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
           style={[styles.composerBtn, (composeBusy || !canImages) && styles.composerBtnOff]}
           onPress={generateHere}
           accessibilityLabel="Generate here"
@@ -262,11 +262,11 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
           autoCorrect={false}
         />
         {!selectMode && items.length > 0 && (
-          <TouchableOpacity style={styles.headBtn} onPress={() => setSelectMode(true)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.headBtn} onPress={() => setSelectMode(true)}>
             <Text style={styles.headBtnText}>Select</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.headBtn} onPress={reload}>
+        <TouchableOpacity accessibilityRole="button" style={styles.headBtn} onPress={reload}>
           <Text style={styles.headBtnText}>Refresh</Text>
         </TouchableOpacity>
       </View>
@@ -277,24 +277,24 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
             {selected.size === 0 ? "None selected" : `${selected.size} selected`}
           </Text>
           <View style={{ flex: 1 }} />
-          <TouchableOpacity onPress={selectAll} disabled={filtered.length === 0 || allSelected}>
+          <TouchableOpacity accessibilityRole="button" onPress={selectAll} disabled={filtered.length === 0 || allSelected}>
             <Text
               style={[styles.selLink, (filtered.length === 0 || allSelected) && styles.selDisabled]}
             >
               Select all
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={clearSel} disabled={selected.size === 0}>
+          <TouchableOpacity accessibilityRole="button" onPress={clearSel} disabled={selected.size === 0}>
             <Text style={[styles.selLink, selected.size === 0 && styles.selDisabled]}>Clear</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             style={[styles.delBtn, selected.size === 0 && styles.selDisabled]}
             onPress={deleteSelected}
             disabled={selected.size === 0}
           >
             <Text style={styles.delBtnText}>Delete {selected.size || ""}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={exitSelect}>
+          <TouchableOpacity accessibilityRole="button" onPress={exitSelect}>
             <Text style={styles.selLink}>Done</Text>
           </TouchableOpacity>
         </View>

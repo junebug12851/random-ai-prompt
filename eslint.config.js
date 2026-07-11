@@ -84,6 +84,22 @@ export default [
     },
   },
 
+  // Playwright specs for the MOBILE target. They run in Node, but `page.evaluate()` bodies execute IN
+  // THE BROWSER, so they legitimately reference `document` / `window`. Both global sets apply.
+  // (The web specs under tests/e2e/ declare their browser globals per-file with `/* global … */`, so
+  // they're deliberately not included here — adding them would double-declare and error.)
+  {
+    files: ["tests/e2e-mobile/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
+
   // Browser scripts served to the page. These are classic multi-<script> files
   // that intentionally share globals (jQuery, lodash, and helpers defined in
   // sibling files), so the module-oriented "undefined/redeclare" rules don't

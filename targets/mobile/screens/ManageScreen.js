@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
-import { sortLines, dedupeLines, parseAiCandidates, mergeNew } from "../lib/listOps.js";
+import { sortLines, dedupeLines, parseAiCandidates, mergeNew } from "engine/listEditorOps.js";
 import { getTextProvider, systemFor } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
 import { useTextReady } from "../lib/useProviderReady.js";
@@ -41,7 +41,7 @@ const LineRow = memo(function LineRow({ line, onCommit, onDelete }) {
         placeholder="(empty)"
         placeholderTextColor={T.faint}
       />
-      <TouchableOpacity onPress={() => onDelete(line)} hitSlop={10}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => onDelete(line)} hitSlop={10}>
         <Text style={styles.lineDel}>✕</Text>
       </TouchableOpacity>
     </View>
@@ -201,22 +201,22 @@ function Editor({ name, onClose }) {
   return (
     <View style={styles.editorWrap}>
       <View style={styles.editorHead}>
-        <TouchableOpacity onPress={() => onClose(false)} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => onClose(false)} hitSlop={8}>
           <Text style={styles.back}>‹ Lists</Text>
         </TouchableOpacity>
         <Text style={styles.editorTitle} numberOfLines={1}>
           {name}
         </Text>
-        <TouchableOpacity onPress={save} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={save} hitSlop={8}>
           <Text style={styles.save}>Save</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.editorTabs}>
-        <TouchableOpacity onPress={() => switchMode("entries")}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => switchMode("entries")}>
           <Text style={[styles.editorTab, mode === "entries" && styles.editorTabOn]}>Entries</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => switchMode("raw")}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => switchMode("raw")}>
           <Text style={[styles.editorTab, mode === "raw" && styles.editorTabOn]}>Raw</Text>
         </TouchableOpacity>
       </View>
@@ -242,16 +242,16 @@ function Editor({ name, onClose }) {
               placeholderTextColor={T.faint}
               autoCapitalize="none"
             />
-            <TouchableOpacity style={styles.addBtn} onPress={add}>
+            <TouchableOpacity accessibilityRole="button" style={styles.addBtn} onPress={add}>
               <Text style={styles.addBtnText}>+ Line</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addBtn} onPress={sort}>
+            <TouchableOpacity accessibilityRole="button" style={styles.addBtn} onPress={sort}>
               <Text style={styles.addBtnText}>Sort</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addBtn} onPress={dedupe}>
+            <TouchableOpacity accessibilityRole="button" style={styles.addBtn} onPress={dedupe}>
               <Text style={styles.addBtnText}>Dedupe</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               style={[styles.addBtn, (expanding || !aiReady) && styles.addBtnLocked]}
               onPress={aiExpand}
               disabled={expanding || !aiReady}
@@ -429,7 +429,7 @@ export default function ManageScreen() {
           placeholderTextColor={T.faint}
           autoCapitalize="none"
         />
-        <TouchableOpacity style={styles.primary} onPress={createBlock}>
+        <TouchableOpacity accessibilityRole="button" style={styles.primary} onPress={createBlock}>
           <Text style={styles.btnTextP}>New block</Text>
         </TouchableOpacity>
       </View>
@@ -451,7 +451,7 @@ export default function ManageScreen() {
           placeholderTextColor={T.faint}
           autoCapitalize="none"
         />
-        <TouchableOpacity style={styles.primary} onPress={createList}>
+        <TouchableOpacity accessibilityRole="button" style={styles.primary} onPress={createList}>
           <Text style={styles.btnTextP}>Add</Text>
         </TouchableOpacity>
       </View>

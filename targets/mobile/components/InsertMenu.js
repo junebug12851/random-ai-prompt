@@ -58,7 +58,7 @@ export default function InsertMenu({ onInsert }) {
 
   return (
     <>
-      <TouchableOpacity
+      <TouchableOpacity accessibilityRole="button"
         style={[styles.insert, open && styles.insertOn]}
         onPress={() => setOpen(true)}
         activeOpacity={0.8}
@@ -69,19 +69,19 @@ export default function InsertMenu({ onInsert }) {
 
       <Modal visible={open} animationType="slide" transparent onRequestClose={close}>
         <View style={styles.scrim}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={close} activeOpacity={1} />
+          <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={close} activeOpacity={1} />
           <View style={styles.sheet}>
             {!openCat ? (
               <>
                 <View style={styles.head}>
                   <Text style={styles.title}>Insert DPL syntax</Text>
-                  <TouchableOpacity onPress={close}>
+                  <TouchableOpacity accessibilityRole="button" onPress={close}>
                     <Text style={styles.close}>✕</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView contentContainerStyle={styles.body}>
                   {DPL_INSERTS.map((cat) => (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                       key={cat.key}
                       style={styles.catRow}
                       onPress={() => setActiveKey(cat.key)}
@@ -99,16 +99,16 @@ export default function InsertMenu({ onInsert }) {
             ) : (
               <>
                 <View style={styles.head}>
-                  <TouchableOpacity style={styles.back} onPress={() => setActiveKey(null)}>
+                  <TouchableOpacity accessibilityRole="button" style={styles.back} onPress={() => setActiveKey(null)}>
                     <Text style={styles.backText}>‹ {openCat.label}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={close}>
+                  <TouchableOpacity accessibilityRole="button" onPress={close}>
                     <Text style={styles.close}>✕</Text>
                   </TouchableOpacity>
                 </View>
                 <ScrollView ref={scrollRef} contentContainerStyle={styles.body}>
                   {openCat.items.map((it) => (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                       key={it.id}
                       style={styles.item}
                       onPress={() => pick(it)}

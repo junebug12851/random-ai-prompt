@@ -19,12 +19,12 @@ function countEntries(node) {
 function Entry({ entry, onOpen, onDelete, styles }) {
   return (
     <View style={styles.entryRow}>
-      <TouchableOpacity style={styles.entryOpen} onPress={() => onOpen(entry)}>
+      <TouchableOpacity accessibilityRole="button" style={styles.entryOpen} onPress={() => onOpen(entry)}>
         <View style={[styles.dot, entry.kind === "generator" ? styles.dotGen : styles.dotList]} />
         <Text style={styles.entryLabel}>{entry.label}</Text>
         {entry.hasJs ? <Text style={styles.jsBadge}>JS</Text> : null}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => onDelete(entry)} hitSlop={8}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => onDelete(entry)} hitSlop={8}>
         <Text style={styles.del}>✕</Text>
       </TouchableOpacity>
     </View>
@@ -36,12 +36,12 @@ function FolderNode({ node, onOpen, onDelete, onDeleteFolder, styles, depth }) {
   return (
     <View style={{ marginLeft: depth ? 12 : 0 }}>
       <View style={styles.folderHead}>
-        <TouchableOpacity style={styles.folderName} onPress={() => setOpen((v) => !v)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.folderName} onPress={() => setOpen((v) => !v)}>
           <Text style={styles.caret}>{open ? "▾" : "▸"}</Text>
           <Text style={styles.folderLabel}>{node.name}</Text>
           <Text style={styles.count}>{countEntries(node)}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => onDeleteFolder(node.path)} hitSlop={8}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => onDeleteFolder(node.path)} hitSlop={8}>
           <Text style={styles.del}>Delete</Text>
         </TouchableOpacity>
       </View>
