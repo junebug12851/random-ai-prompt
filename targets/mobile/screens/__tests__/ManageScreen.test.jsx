@@ -100,6 +100,17 @@ describe("ManageScreen (mounted)", () => {
     await waitFor(() => expect(getByPlaceholderText("Filter 2 lines")).toBeTruthy());
   });
 
+  it("the list editor loads its description and switches to a Raw view", async () => {
+    storage.readUserSidecar.mockResolvedValueOnce({ description: "warm colors" });
+    const { getByText, findByText, getByDisplayValue } = await setup();
+    await waitFor(() => expect(getByText("colors")).toBeTruthy());
+    fireEvent.press(getByText("colors"));
+    expect(await findByText("Raw")).toBeTruthy();
+    await waitFor(() => expect(getByDisplayValue("warm colors")).toBeTruthy());
+    fireEvent.press(getByText("Raw"));
+    await waitFor(() => expect(getByDisplayValue("red\nblue")).toBeTruthy());
+  });
+
   it("deleting a list entry calls the storage delete", async () => {
     const { getAllByText, getByText } = await setup({ lists: ["colors"], blocks: [] });
     await waitFor(() => expect(getByText("colors")).toBeTruthy());

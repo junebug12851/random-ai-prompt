@@ -13,6 +13,8 @@ import {
   deleteUserBlock,
   readUserTree,
   deleteUserFolder,
+  readUserSidecar,
+  writeUserSidecar,
   storageAvailable,
 } from "../lib/storage.js";
 
@@ -51,6 +53,9 @@ function Editor({ name, onClose }) {
   const [filter, setFilter] = useState("");
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("");
+  const [description, setDescription] = useState("");
+  const [mode, setMode] = useState("entries"); // "entries" | "raw"
+  const [rawText, setRawText] = useState("");
 
   const recompute = useCallback((f) => {
     const all = linesRef.current;
@@ -66,10 +71,11 @@ function Editor({ name, onClose }) {
   }, []);
 
   useEffect(() => {
-    readUserList(name).then((text) => {
+    Promise.all([readUserList(name), readUserSidecar("lists", name)]).then(([text, meta]) => {
       const arr = text.length ? text.split("\n") : [];
       linesRef.current = arr.map((t) => ({ id: nextId.current++, text: t }));
       setView(linesRef.current.slice());
+      setDescription(meta.description || "");
       setReady(true);
     });
   }, [name]);
@@ -112,10 +118,27 @@ function Editor({ name, onClose }) {
     },
     [recompute],
   );
+  // Entries ⇄ Raw: serialize to raw on the way in; re-parse the raw text back into rows on the way out.
+  const switchMode = useCallback(
+    (next) => {
+      if (next === mode) return;
+      if (next === "raw") {
+        setRawText(linesRef.current.map((l) => l.text).join("\n"));
+      } else {
+        const arr = rawText.length ? rawText.split("\n") : [];
+        linesRef.current = arr.map((t) => ({ id: nextId.current++, text: t }));
+        recompute(filter);
+      }
+      setMode(next);
+    },
+    [mode, rawText, filter, recompute],
+  );
   const save = useCallback(async () => {
-    await writeUserList(name, linesRef.current.map((l) => l.text).join("\n"));
+    const text = mode === "raw" ? rawText : linesRef.current.map((l) => l.text).join("\n");
+    await writeUserList(name, text);
+    await writeUserSidecar("lists", name, { description: description.trim() || null });
     onClose(true);
-  }, [name, onClose]);
+  }, [name, onClose, mode, rawText, description]);
 
   return (
     <View style={styles.editorWrap}>
@@ -130,39 +153,78 @@ function Editor({ name, onClose }) {
           <Text style={styles.save}>Save</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.toolbar}>
-        <TextInput
-          style={styles.filter}
-          value={filter}
-          onChangeText={onFilter}
-          placeholder={`Filter ${ready ? linesRef.current.length : 0} lines`}
-          placeholderTextColor={T.faint}
-          autoCapitalize="none"
-        />
-        <TouchableOpacity style={styles.addBtn} onPress={add}>
-          <Text style={styles.addBtnText}>+ Line</Text>
+
+      <View style={styles.editorTabs}>
+        <TouchableOpacity onPress={() => switchMode("entries")}>
+          <Text style={[styles.editorTab, mode === "entries" && styles.editorTabOn]}>Entries</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.addBtn} onPress={sort}>
-          <Text style={styles.addBtnText}>Sort</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addBtn} onPress={dedupe}>
-          <Text style={styles.addBtnText}>Dedupe</Text>
+        <TouchableOpacity onPress={() => switchMode("raw")}>
+          <Text style={[styles.editorTab, mode === "raw" && styles.editorTabOn]}>Raw</Text>
         </TouchableOpacity>
       </View>
-      {status ? <Text style={styles.status}>{status}</Text> : null}
-      <FlashList
-        data={view}
-        keyExtractor={(l) => String(l.id)}
-        estimatedItemSize={52}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 14 }}
-        renderItem={({ item }) => <LineRow line={item} onCommit={onCommit} onDelete={onDelete} />}
-        ListEmptyComponent={
-          ready ? (
-            <Text style={styles.none}>{filter ? "No matching lines." : "Empty — add a line."}</Text>
-          ) : null
-        }
-      />
+
+      <View style={styles.descRow}>
+        <TextInput
+          style={styles.descInput}
+          value={description}
+          onChangeText={setDescription}
+          placeholder="Description (optional)"
+          placeholderTextColor={T.faint}
+        />
+      </View>
+
+      {mode === "entries" ? (
+        <>
+          <View style={styles.toolbar}>
+            <TextInput
+              style={styles.filter}
+              value={filter}
+              onChangeText={onFilter}
+              placeholder={`Filter ${ready ? linesRef.current.length : 0} lines`}
+              placeholderTextColor={T.faint}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity style={styles.addBtn} onPress={add}>
+              <Text style={styles.addBtnText}>+ Line</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addBtn} onPress={sort}>
+              <Text style={styles.addBtnText}>Sort</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addBtn} onPress={dedupe}>
+              <Text style={styles.addBtnText}>Dedupe</Text>
+            </TouchableOpacity>
+          </View>
+          {status ? <Text style={styles.status}>{status}</Text> : null}
+          <FlashList
+            data={view}
+            keyExtractor={(l) => String(l.id)}
+            estimatedItemSize={52}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ padding: 14 }}
+            renderItem={({ item }) => <LineRow line={item} onCommit={onCommit} onDelete={onDelete} />}
+            ListEmptyComponent={
+              ready ? (
+                <Text style={styles.none}>
+                  {filter ? "No matching lines." : "Empty — add a line."}
+                </Text>
+              ) : null
+            }
+          />
+        </>
+      ) : (
+        <TextInput
+          style={styles.rawInput}
+          value={rawText}
+          onChangeText={setRawText}
+          multiline
+          autoCapitalize="none"
+          autoCorrect={false}
+          spellCheck={false}
+          textAlignVertical="top"
+          placeholder="One entry per line"
+          placeholderTextColor={T.faint}
+        />
+      )}
     </View>
   );
 }
@@ -388,6 +450,46 @@ const makeStyles = (T) =>
       marginHorizontal: 10,
     },
     save: { color: T.accent, fontSize: 15, fontWeight: "800" },
+    editorTabs: {
+      flexDirection: "row",
+      gap: 4,
+      paddingHorizontal: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: T.border,
+    },
+    editorTab: {
+      color: T.muted,
+      fontSize: 14,
+      fontWeight: "700",
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderBottomWidth: 2,
+      borderBottomColor: "transparent",
+    },
+    editorTabOn: { color: T.fg, borderBottomColor: T.accent },
+    descRow: { paddingHorizontal: 14, paddingTop: 10 },
+    descInput: {
+      color: T.fg,
+      fontSize: 14,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    },
+    rawInput: {
+      flex: 1,
+      color: T.fg,
+      fontSize: 14,
+      fontFamily: "monospace",
+      backgroundColor: T.input,
+      margin: 14,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      padding: 12,
+    },
     toolbar: {
       flexDirection: "row",
       flexWrap: "wrap",
