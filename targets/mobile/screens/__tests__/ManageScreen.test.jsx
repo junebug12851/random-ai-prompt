@@ -33,6 +33,11 @@ jest.mock("../../lib/storage.js", () => ({
 // overlay.js imports the engine (metroLoader), which isn't jest-resolvable; ManageScreen only calls
 // refreshOverlay() as a side-effect after edits, so mock it.
 jest.mock("../../lib/overlay.js", () => ({ refreshOverlay: jest.fn(async () => ({ lists: 0, blocks: 0 })) }));
+// The block editor's InsertMenu pulls in the engine (expandOnce) via the module graph — stub it.
+jest.mock("../../components/InsertMenu.js", () => () => {
+  const { Text } = require("react-native");
+  return <Text>INSERT_MENU</Text>;
+});
 
 import * as storage from "../../lib/storage.js";
 import ManageScreen from "../ManageScreen.js";

@@ -10,6 +10,11 @@ jest.mock("../../lib/theme.js", () => ({
     T: new Proxy({}, { get: (_t, k) => (typeof k === "string" && k.startsWith("radius") ? 12 : "#334") }),
   }),
 }));
+// InsertMenu pulls in the engine (expandOnce) which isn't jest-resolvable; stub it to a marker.
+jest.mock("../InsertMenu.js", () => () => {
+  const { Text } = require("react-native");
+  return <Text>INSERT_MENU</Text>;
+});
 jest.mock("../../lib/storage.js", () => ({
   readUserBlock: jest.fn(async () => "Start\n===\n{color}"),
   writeUserBlock: jest.fn(async () => {}),

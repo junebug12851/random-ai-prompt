@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "../lib/theme.js";
 import DplMiniEditor from "./DplMiniEditor.js";
+import InsertMenu from "./InsertMenu.js";
 import {
   readUserBlock,
   writeUserBlock,
@@ -163,7 +164,12 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
       )}
 
       {ready && tab === "dpl" && (
-        <DplMiniEditor value={dpl} onChangeText={setDpl} placeholder="Start&#10;===&#10;{color}" />
+        <>
+          <View style={styles.insertRow}>
+            <InsertMenu onInsert={(t) => setDpl((d) => (d ? `${d}${d.endsWith("\n") ? "" : "\n"}${t}` : t))} />
+          </View>
+          <DplMiniEditor value={dpl} onChangeText={setDpl} placeholder="Start&#10;===&#10;{color}" />
+        </>
       )}
       {ready && tab === "js" && js !== null && (
         <DplMiniEditor value={js} onChangeText={setJs} placeholder={JS_BOILERPLATE} />
@@ -242,6 +248,7 @@ const makeStyles = (T) =>
     tabOn: { borderBottomColor: T.accent },
     tabText: { color: T.muted, fontSize: 14, fontWeight: "700" },
     tabTextOn: { color: T.fg },
+    insertRow: { marginBottom: 8 },
     foot: { flexDirection: "row", alignItems: "center", gap: 14, marginTop: 14 },
     danger: { color: T.dangerFg, fontSize: 13, fontWeight: "800" },
     status: { color: T.accent, fontSize: 12.5, marginTop: 10 },
