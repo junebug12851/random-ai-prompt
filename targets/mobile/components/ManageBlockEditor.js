@@ -11,6 +11,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 
 import { useTheme } from "../lib/theme.js";
 import { getTextProvider, systemFor, cleanDplOutput } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
+import { useTextReady } from "../lib/useProviderReady.js";
 import DplMiniEditor from "./DplMiniEditor.js";
 import InsertMenu from "./InsertMenu.js";
 import {
@@ -64,6 +65,10 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
   const [busy, setBusy] = useState(""); // active refine mode, or "" when idle
   const [askIntent, setAskIntent] = useState(null); // "modify" | "create" | null
   const [askText, setAskText] = useState("");
+  // Refine / Cleanup / Modify / Draft are LOCKED unless the Text provider is picked AND keyed.
+  // Web parity: lock the control (🔒) — never leave it enabled to error on press.
+  const { ready: aiReady, reason: aiReason } = useTextReady(rewriteProvider);
+  const aiOff = !aiReady || !!busy;
 
   useEffect(() => {
     let alive = true;
@@ -125,24 +130,13 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
   // Run one DPL refine/create/custom through the Text provider and replace the editor content. `prompt`
   // is the current DPL (refine), the typed description (create), or instruction+template (custom).
   const runDpl = async (mode, prompt) => {
+    if (!aiReady) return; // locked — unreachable from the UI (no "pick a provider" error path)
     if (!(prompt || "").trim()) {
       setStatus(mode === "dpl-create" ? "Type a description first." : "Nothing to refine yet.");
       return;
     }
-    if (!rewriteProvider || rewriteProvider === "none") {
-      setStatus("Pick a Text provider in the ⋯ menu.");
-      return;
-    }
     const rprov = getTextProvider(rewriteProvider);
-    if (!rprov) {
-      setStatus("Text provider unavailable.");
-      return;
-    }
     const key = await getKey(rewriteProvider);
-    if (!key) {
-      setStatus(`Add your ${rprov.label} key in the ⋯ menu.`);
-      return;
-    }
     setBusy(mode);
     setStatus("");
     try {
@@ -232,20 +226,38 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
             <InsertMenu onInsert={(t) => setDpl((d) => (d ? `${d}${d.endsWith("\n") ? "" : "\n"}${t}` : t))} />
           </View>
 
-          <View style={styles.refineWrap}>
-            <Text style={styles.refineLead}>REFINE</Text>
+          <View style={[styles.refineWrap, !aiReady && styles.lockedGroup]}>
+            <Text style={styles.refineLead}>REFINE{!aiReady ? " 🔒" : ""}</Text>
             {REFINE_DIMS.map((d) => (
               <View key={d.label} style={styles.combo}>
-                <TouchableOpacity onPress={() => refine(d.less)} disabled={!!busy} hitSlop={6}>
+                <TouchableOpacity
+                  onPress={() => refine(d.less)}
+                  disabled={aiOff}
+                  accessibilityState={{ disabled: aiOff }}
+                  accessibilityLabel={`${d.label} less${aiReady ? "" : " (locked)"}`}
+                  hitSlop={6}
+                >
                   <Text style={styles.comboBtn}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.comboLabel}>{d.label}</Text>
-                <TouchableOpacity onPress={() => refine(d.more)} disabled={!!busy} hitSlop={6}>
+                <TouchableOpacity
+                  onPress={() => refine(d.more)}
+                  disabled={aiOff}
+                  accessibilityState={{ disabled: aiOff }}
+                  accessibilityLabel={`${d.label} more${aiReady ? "" : " (locked)"}`}
+                  hitSlop={6}
+                >
                   <Text style={[styles.comboBtn, styles.comboPlus]}>+</Text>
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity style={styles.solo} onPress={() => refine("dpl-tighten")} disabled={!!busy}>
+            <TouchableOpacity
+              style={styles.solo}
+              onPress={() => refine("dpl-tighten")}
+              disabled={aiOff}
+              accessibilityState={{ disabled: aiOff }}
+              accessibilityLabel={aiReady ? "Cleanup" : "Cleanup (locked)"}
+            >
               <Text style={styles.soloText}>Cleanup</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -254,7 +266,9 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
                 setAskIntent(askIntent === "modify" ? null : "modify");
                 setAskText("");
               }}
-              disabled={!!busy}
+              disabled={aiOff}
+              accessibilityState={{ disabled: aiOff }}
+              accessibilityLabel={aiReady ? "Modify" : "Modify (locked)"}
             >
               <Text style={styles.soloText}>Modify</Text>
             </TouchableOpacity>
@@ -264,11 +278,14 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
                 setAskIntent(askIntent === "create" ? null : "create");
                 setAskText("");
               }}
-              disabled={!!busy}
+              disabled={aiOff}
+              accessibilityState={{ disabled: aiOff }}
+              accessibilityLabel={aiReady ? "Draft" : "Draft (locked)"}
             >
               <Text style={styles.soloText}>Draft</Text>
             </TouchableOpacity>
           </View>
+          {!aiReady && <Text style={styles.lockHint}>{aiReason}</Text>}
 
           {askIntent && (
             <View style={styles.askRow}>
@@ -369,6 +386,8 @@ const makeStyles = (T) =>
     tabText: { color: T.muted, fontSize: 14, fontWeight: "700" },
     tabTextOn: { color: T.fg },
     insertRow: { marginBottom: 8 },
+    lockedGroup: { opacity: 0.5 },
+    lockHint: { color: T.faint, fontSize: 12, fontStyle: "italic", marginBottom: 8 },
     refineWrap: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 6, marginBottom: 8 },
     refineLead: { color: T.faint, fontSize: 10, fontWeight: "800", letterSpacing: 0.6, marginRight: 2 },
     combo: {

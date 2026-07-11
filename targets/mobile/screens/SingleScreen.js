@@ -25,6 +25,7 @@ import { Image } from "expo-image";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../lib/theme.js";
 import { useResponsive } from "../lib/responsive.js";
+import { canGenerateImages, upscalersFor } from "../lib/capabilities.js";
 import {
   listImages,
   deleteImage,
@@ -69,7 +70,7 @@ async function copyText(t) {
 }
 
 export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onSearch }) {
-  const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
+  const { T, rewriteProvider, upscaleProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
   const { twoPane } = useResponsive();
@@ -156,7 +157,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
 
   // --- Derive gating (re-roll / make variation) ---
   const imgProv = getImageProvider(current.provider);
-  const canGenerate = !!imgProv && !imgProv.copy && typeof imgProv.generate === "function";
+  const canGenerate = canGenerateImages(current.provider);
   const hasSource = (src) => !!p[src];
   const hasSeedField = !!(imgProv?.settings || []).some((f) => f.key === "seed");
 
@@ -274,7 +275,10 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
   };
 
   // --- AI Upscale (via the provider's upscale adapter) → tracked resize child ---
-  const upscalers = UPSCALE_PROVIDERS;
+  // Only the UPSCALER THE USER PICKED (⋯ → Upscale). "none" → [] → the AI Upscale tool renders LOCKED.
+  // (Was `UPSCALE_PROVIDERS` — the whole static registry, offered as tappable even with Upscale off.)
+  const upscalers = upscalersFor(upscaleProvider);
+  const hasUpscalers = upscalers.length > 0;
   const doUpscale = async (upId) => {
     if (busy || !FS) return;
     const up = getUpscaleProvider(upId);
@@ -567,14 +571,24 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.pickGroup}>AI Upscale</Text>
-          <View style={styles.pickRow}>
-            {upscalers.map((u) => (
-              <TouchableOpacity key={u.id} style={styles.pickChip} onPress={() => doUpscale(u.id)}>
-                <Text style={styles.pickChipText}>{u.label.split(" (")[0]}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {/* LOCKED when no upscaler is picked (⋯ → Upscale = off) — web parity: lock the tool with a 🔒
+              rather than leaving it tappable and erroring. */}
+          <Text style={[styles.pickGroup, !hasUpscalers && styles.pickGroupLocked]}>
+            AI Upscale{!hasUpscalers ? " 🔒" : ""}
+          </Text>
+          {hasUpscalers ? (
+            <View style={styles.pickRow}>
+              {upscalers.map((u) => (
+                <TouchableOpacity key={u.id} style={styles.pickChip} onPress={() => doUpscale(u.id)}>
+                  <Text style={styles.pickChipText}>{u.label.split(" (")[0]}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.lockHint} accessibilityLabel="AI Upscale locked">
+              Pick an Upscale provider in the ⋯ menu to unlock.
+            </Text>
+          )}
         </View>
       )}
       {msg ? <Text style={[styles.msg, msg.startsWith("Error") && styles.msgErr]}>{msg}</Text> : null}
@@ -823,6 +837,8 @@ const makeStyles = (T) =>
     navBtnText: { color: T.fgSoft, fontSize: 13, fontWeight: "700" },
     navPos: { color: T.muted, fontSize: 13, fontWeight: "700" },
 
+    pickGroupLocked: { opacity: 0.5 },
+    lockHint: { color: T.faint, fontSize: 12.5, fontStyle: "italic", marginBottom: 8 },
     twoCol: { flexDirection: "row", alignItems: "flex-start", gap: 16 },
     metaCol: { flex: 1, minWidth: 0 },
     imgWrap: { position: "relative", alignItems: "center" },

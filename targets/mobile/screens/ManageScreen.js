@@ -5,6 +5,7 @@ import { useTheme } from "../lib/theme.js";
 import { sortLines, dedupeLines, parseAiCandidates, mergeNew } from "../lib/listOps.js";
 import { getTextProvider, systemFor } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
+import { useTextReady } from "../lib/useProviderReady.js";
 import ManageBlockEditor from "../components/ManageBlockEditor.js";
 import ManageTree from "../components/ManageTree.js";
 import BuiltinBrowser from "../components/BuiltinBrowser.js";
@@ -61,6 +62,8 @@ function Editor({ name, onClose }) {
   const [mode, setMode] = useState("entries"); // "entries" | "raw"
   const [rawText, setRawText] = useState("");
   const [expanding, setExpanding] = useState(false);
+  // AI Expand is LOCKED unless the Text provider is picked AND keyed (web parity: lock, never error).
+  const { ready: aiReady, reason: aiReason } = useTextReady(rewriteProvider);
 
   const recompute = useCallback((f) => {
     const all = linesRef.current;
@@ -117,28 +120,17 @@ function Editor({ name, onClose }) {
     recompute(filter);
   }, [filter, recompute]);
   // AI Expand: sample existing entries → ask the Text provider for 25 fresh ones in the same vein →
-  // merge in only the net-new (deduped). Mirrors the web list editor's aiExpand + the mobile composer's
-  // rewrite wiring; parseAiCandidates/mergeNew are the shared, parity-locked listOps.
+  // merge in only the net-new (deduped). The button is LOCKED unless the Text provider is picked + keyed
+  // (see aiReady), so there is no "pick a provider" error path here — web parity is lock, not error.
   const aiExpand = useCallback(async () => {
-    if (!rewriteProvider || rewriteProvider === "none") {
-      setStatus("Pick a Text provider in the ⋯ menu to expand.");
-      return;
-    }
+    if (!aiReady) return; // locked — unreachable from the UI
     const rprov = getTextProvider(rewriteProvider);
-    if (!rprov) {
-      setStatus("Text provider unavailable.");
-      return;
-    }
     const pool = linesRef.current.map((l) => l.text.trim()).filter(Boolean);
     if (!pool.length) {
       setStatus("Add a few entries first, then Expand.");
       return;
     }
     const key = await getKey(rewriteProvider);
-    if (!key) {
-      setStatus(`Add your ${rprov.label} key in the ⋯ menu to expand.`);
-      return;
-    }
     // Random sample of 25 (Fisher–Yates, no lodash).
     const shuffled = pool.slice();
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -176,7 +168,7 @@ function Editor({ name, onClose }) {
     } finally {
       setExpanding(false);
     }
-  }, [rewriteProvider, providerSettings, backendUrl, filter, recompute]);
+  }, [aiReady, rewriteProvider, providerSettings, backendUrl, filter, recompute]);
   const onFilter = useCallback(
     (f) => {
       setFilter(f);
@@ -260,11 +252,16 @@ function Editor({ name, onClose }) {
               <Text style={styles.addBtnText}>Dedupe</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.addBtn, expanding && { opacity: 0.5 }]}
+              style={[styles.addBtn, (expanding || !aiReady) && styles.addBtnLocked]}
               onPress={aiExpand}
-              disabled={expanding}
+              disabled={expanding || !aiReady}
+              accessibilityState={{ disabled: expanding || !aiReady }}
+              accessibilityLabel={aiReady ? "AI Expand" : "AI Expand (locked)"}
+              accessibilityHint={aiReady ? undefined : aiReason}
             >
-              <Text style={styles.addBtnText}>{expanding ? "Expanding…" : "AI Expand"}</Text>
+              <Text style={styles.addBtnText}>
+                {expanding ? "Expanding…" : aiReady ? "AI Expand" : "AI Expand 🔒"}
+              </Text>
             </TouchableOpacity>
           </View>
           {status ? <Text style={styles.status}>{status}</Text> : null}
@@ -608,6 +605,7 @@ const makeStyles = (T) =>
       borderColor: T.border,
     },
     addBtnText: { color: T.fgSoft, fontSize: 14, fontWeight: "700" },
+    addBtnLocked: { opacity: 0.5 },
     lineRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
     lineInput: {
       flex: 1,

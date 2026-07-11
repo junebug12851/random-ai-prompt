@@ -20,6 +20,14 @@ jest.mock("../../lib/imageProviders.js", () => ({
   systemFor: jest.fn(() => "SYS"),
 }));
 jest.mock("../../lib/keys.js", () => ({ getKey: jest.fn(async () => "sk-test") }));
+jest.mock("../../lib/useProviderReady.js", () => ({
+  useTextReady: jest.fn(() => ({ picked: true, keyed: true, ready: true, reason: "" })),
+}));
+import { useTextReady } from "../../lib/useProviderReady.js";
+beforeEach(() => {
+  mockRewriteFn.mockClear();
+  useTextReady.mockReturnValue({ picked: true, keyed: true, ready: true, reason: "" });
+});
 
 const tree = (entries = [], folders = []) => ({ name: "", path: "", folders, entries });
 jest.mock("../../lib/storage.js", () => ({
@@ -144,6 +152,22 @@ describe("ManageScreen (mounted)", () => {
     await waitFor(() => expect(mockRewriteFn).toHaveBeenCalledWith(expect.objectContaining({ mode: "expand" })));
     expect(await findByText("Added 2 new entries.")).toBeTruthy();
     expect(getByDisplayValue("green")).toBeTruthy();
+  });
+
+  it("AI Expand is LOCKED (🔒) with no Text provider — pressing it does NOT call the provider", async () => {
+    useTextReady.mockReturnValue({
+      picked: false,
+      keyed: false,
+      ready: false,
+      reason: "Pick a Text provider in the ⋯ menu to unlock.",
+    });
+    const { getByText, findByText } = await setup();
+    await waitFor(() => expect(getByText("colors")).toBeTruthy());
+    fireEvent.press(getByText("colors"));
+    const locked = await findByText("AI Expand 🔒");
+    fireEvent.press(locked);
+    await act(async () => {});
+    expect(mockRewriteFn).not.toHaveBeenCalled(); // locked → no call, and no error message
   });
 
   it("deleting a list entry calls the storage delete", async () => {
