@@ -9,6 +9,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { useTheme } from "../lib/theme.js";
+import { getTextProvider, systemFor, cleanDplOutput } from "../lib/imageProviders.js";
+import { getKey } from "../lib/keys.js";
 import DplMiniEditor from "./DplMiniEditor.js";
 import InsertMenu from "./InsertMenu.js";
 import {
@@ -36,8 +38,17 @@ export default function (settings, imageSettings, upscaleSettings) {
  * @param {Function} props.onClose `(changed)` — return to the tree; `changed` true after save/delete/rename.
  * @returns {JSX.Element}
  */
+// The Refine dimensions — each a −/+ stepper mapping to a DPL refine mode (mirrors the web DplRefineBar).
+const REFINE_DIMS = [
+  { label: "Detail", less: "dpl-detail-less", more: "dpl-detail-more" },
+  { label: "Complexity", less: "dpl-complex-less", more: "dpl-complex-more" },
+  { label: "Focus", less: "dpl-focus-less", more: "dpl-focus-more" },
+  { label: "Intensity", less: "dpl-intensity-less", more: "dpl-intensity-more" },
+  { label: "Variety", less: "dpl-variety-less", more: "dpl-variety-more" },
+];
+
 export default function ManageBlockEditor({ blockKey, onClose }) {
-  const { T } = useTheme();
+  const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const folder = blockKey.includes("/") ? blockKey.slice(0, blockKey.lastIndexOf("/")) : "";
   const label = blockKey.slice(blockKey.lastIndexOf("/") + 1);
@@ -50,6 +61,9 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
   const [tab, setTab] = useState("dpl");
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(""); // active refine mode, or "" when idle
+  const [askIntent, setAskIntent] = useState(null); // "modify" | "create" | null
+  const [askText, setAskText] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -106,6 +120,55 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
   const createJs = () => {
     setJs(JS_BOILERPLATE);
     setTab("js");
+  };
+
+  // Run one DPL refine/create/custom through the Text provider and replace the editor content. `prompt`
+  // is the current DPL (refine), the typed description (create), or instruction+template (custom).
+  const runDpl = async (mode, prompt) => {
+    if (!(prompt || "").trim()) {
+      setStatus(mode === "dpl-create" ? "Type a description first." : "Nothing to refine yet.");
+      return;
+    }
+    if (!rewriteProvider || rewriteProvider === "none") {
+      setStatus("Pick a Text provider in the ⋯ menu.");
+      return;
+    }
+    const rprov = getTextProvider(rewriteProvider);
+    if (!rprov) {
+      setStatus("Text provider unavailable.");
+      return;
+    }
+    const key = await getKey(rewriteProvider);
+    if (!key) {
+      setStatus(`Add your ${rprov.label} key in the ⋯ menu.`);
+      return;
+    }
+    setBusy(mode);
+    setStatus("");
+    try {
+      const rs = { ...(providerSettings[rewriteProvider] || {}), backendUrl };
+      const out = await rprov.rewrite({ prompt, key, system: systemFor(mode), mode, settings: rs });
+      const cleaned = cleanDplOutput(out.text || "");
+      if (!cleaned) {
+        setStatus("The model returned nothing usable.");
+        return;
+      }
+      setDpl(cleaned);
+      setAskIntent(null);
+      setStatus(mode === "dpl-create" ? "Drafted." : mode === "dpl-custom" ? "Modified." : "Refined.");
+    } catch (e) {
+      setStatus(`Refine error: ${e?.message || e}`);
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const refine = (mode) => runDpl(mode, dpl);
+  const submitAsk = () => {
+    const t = askText.trim();
+    if (!t) return;
+    if (askIntent === "create") runDpl("dpl-create", t);
+    else runDpl("dpl-custom", `${t}\n--- TEMPLATE ---\n${dpl}`);
   };
 
   return (
@@ -168,6 +231,63 @@ export default function ManageBlockEditor({ blockKey, onClose }) {
           <View style={styles.insertRow}>
             <InsertMenu onInsert={(t) => setDpl((d) => (d ? `${d}${d.endsWith("\n") ? "" : "\n"}${t}` : t))} />
           </View>
+
+          <View style={styles.refineWrap}>
+            <Text style={styles.refineLead}>REFINE</Text>
+            {REFINE_DIMS.map((d) => (
+              <View key={d.label} style={styles.combo}>
+                <TouchableOpacity onPress={() => refine(d.less)} disabled={!!busy} hitSlop={6}>
+                  <Text style={styles.comboBtn}>−</Text>
+                </TouchableOpacity>
+                <Text style={styles.comboLabel}>{d.label}</Text>
+                <TouchableOpacity onPress={() => refine(d.more)} disabled={!!busy} hitSlop={6}>
+                  <Text style={[styles.comboBtn, styles.comboPlus]}>+</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+            <TouchableOpacity style={styles.solo} onPress={() => refine("dpl-tighten")} disabled={!!busy}>
+              <Text style={styles.soloText}>Cleanup</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.solo, askIntent === "modify" && styles.soloOn]}
+              onPress={() => {
+                setAskIntent(askIntent === "modify" ? null : "modify");
+                setAskText("");
+              }}
+              disabled={!!busy}
+            >
+              <Text style={styles.soloText}>Modify</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.solo, askIntent === "create" && styles.soloOn]}
+              onPress={() => {
+                setAskIntent(askIntent === "create" ? null : "create");
+                setAskText("");
+              }}
+              disabled={!!busy}
+            >
+              <Text style={styles.soloText}>Draft</Text>
+            </TouchableOpacity>
+          </View>
+
+          {askIntent && (
+            <View style={styles.askRow}>
+              <TextInput
+                style={styles.askInput}
+                value={askText}
+                onChangeText={setAskText}
+                placeholder={askIntent === "create" ? "Describe the block to draft…" : "Describe the change…"}
+                placeholderTextColor={T.faint}
+                multiline
+                textAlignVertical="top"
+              />
+              <TouchableOpacity style={styles.askSend} onPress={submitAsk} disabled={!!busy}>
+                <Text style={styles.askSendText}>{busy ? "…" : "Send"}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {busy ? <Text style={styles.status}>Working…</Text> : null}
+
           <DplMiniEditor value={dpl} onChangeText={setDpl} placeholder="Start&#10;===&#10;{color}" />
         </>
       )}
@@ -249,6 +369,57 @@ const makeStyles = (T) =>
     tabText: { color: T.muted, fontSize: 14, fontWeight: "700" },
     tabTextOn: { color: T.fg },
     insertRow: { marginBottom: 8 },
+    refineWrap: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 6, marginBottom: 8 },
+    refineLead: { color: T.faint, fontSize: 10, fontWeight: "800", letterSpacing: 0.6, marginRight: 2 },
+    combo: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: T.border,
+      borderRadius: T.radiusPill,
+      backgroundColor: T.input,
+    },
+    comboBtn: { color: T.fgSoft, fontSize: 16, fontWeight: "800", paddingHorizontal: 10, paddingVertical: 4 },
+    comboPlus: { color: T.accent },
+    comboLabel: {
+      color: T.fgSoft,
+      fontSize: 12.5,
+      fontWeight: "600",
+      paddingHorizontal: 4,
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderColor: T.border,
+    },
+    solo: {
+      borderWidth: 1,
+      borderColor: T.border,
+      borderRadius: T.radiusPill,
+      backgroundColor: T.input,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+    },
+    soloOn: { borderColor: T.accent, backgroundColor: T.accentSoft || T.chip },
+    soloText: { color: T.fgSoft, fontSize: 12.5, fontWeight: "600" },
+    askRow: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginBottom: 8 },
+    askInput: {
+      flex: 1,
+      minHeight: 40,
+      color: T.fg,
+      fontSize: 14,
+      backgroundColor: T.input,
+      borderRadius: T.radiusSm,
+      borderWidth: 1,
+      borderColor: T.border,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+    },
+    askSend: {
+      backgroundColor: T.accent,
+      borderRadius: T.radiusSm,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    askSendText: { color: T.accentInk, fontSize: 14, fontWeight: "800" },
     foot: { flexDirection: "row", alignItems: "center", gap: 14, marginTop: 14 },
     danger: { color: T.dangerFg, fontSize: 13, fontWeight: "800" },
     status: { color: T.accent, fontSize: 12.5, marginTop: 10 },

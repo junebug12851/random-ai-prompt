@@ -8,8 +8,18 @@ import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 jest.mock("../../lib/theme.js", () => ({
   useTheme: () => ({
     T: new Proxy({}, { get: (_t, k) => (typeof k === "string" && k.startsWith("radius") ? 12 : "#334") }),
+    rewriteProvider: "openai",
+    providerSettings: {},
+    backendUrl: "",
   }),
 }));
+const mockRewrite = jest.fn(async () => ({ text: "Start\n===\n{color}\n- refined" }));
+jest.mock("../../lib/imageProviders.js", () => ({
+  getTextProvider: jest.fn(() => ({ label: "OpenAI", rewrite: mockRewrite })),
+  systemFor: jest.fn((m) => `SYS:${m}`),
+  cleanDplOutput: jest.fn((s) => (s || "").trim()),
+}));
+jest.mock("../../lib/keys.js", () => ({ getKey: jest.fn(async () => "sk-test") }));
 // InsertMenu pulls in the engine (expandOnce) which isn't jest-resolvable; stub it to a marker.
 jest.mock("../InsertMenu.js", () => () => {
   const { Text } = require("react-native");
@@ -56,6 +66,27 @@ describe("ManageBlockEditor", () => {
     const { getByText } = await setup();
     fireEvent.press(getByText("+ Create JS sidecar"));
     await waitFor(() => expect(getByText("JS sidecar")).toBeTruthy());
+  });
+
+  it("Refine (+ on a dimension) calls the provider with the DPL mode and replaces the source", async () => {
+    const { getAllByText, getByDisplayValue, findByText } = await setup();
+    await findByText("REFINE");
+    fireEvent.press(getAllByText("+")[0]); // Detail +
+    await waitFor(() =>
+      expect(mockRewrite).toHaveBeenCalledWith(expect.objectContaining({ mode: "dpl-detail-more" })),
+    );
+    await waitFor(() => expect(getByDisplayValue("Start\n===\n{color}\n- refined")).toBeTruthy());
+  });
+
+  it("Draft opens an input and runs dpl-create with the typed description", async () => {
+    const { getByText, getByPlaceholderText, findByText } = await setup();
+    await findByText("REFINE");
+    fireEvent.press(getByText("Draft"));
+    fireEvent.changeText(getByPlaceholderText("Describe the block to draft…"), "a neon fox");
+    fireEvent.press(getByText("Send"));
+    await waitFor(() =>
+      expect(mockRewrite).toHaveBeenCalledWith(expect.objectContaining({ mode: "dpl-create", prompt: "a neon fox" })),
+    );
   });
 
   it("delete removes the generator and closes", async () => {

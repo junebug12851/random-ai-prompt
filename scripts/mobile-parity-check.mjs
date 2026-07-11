@@ -314,6 +314,41 @@ async function checkListOps() {
   if (ok === cases.length) pass(`all ${ok} list-op cases match the web source`);
 }
 
+// ---------- 8. Rewrite systems: mobile systemFor == web systemFor for EVERY mode --------------------
+// The Manage AI features (list AI-Expand, block Refine/Modify/Draft) depend on the exact system prompts.
+// Mobile hand-ports DPL_PRIMER + DPL_TASKS + EXPAND_SYSTEM; assert systemFor() is byte-identical to the
+// web source for every mode so a web prompt tweak fails loudly until the mobile port is updated.
+async function checkRewriteSystems() {
+  console.log("Rewrite systems (imageProviders.systemFor  ⇄  web rewriteSystem.systemFor)");
+  const mob = await imp(join(MOBILE, "lib/imageProviders.js"));
+  const web = await imp(join(WEB, "shared/_shared/rewriteSystem.js"));
+  const modes = [
+    "keyword",
+    "expand",
+    "fix",
+    undefined,
+    "dpl-detail-more",
+    "dpl-detail-less",
+    "dpl-complex-more",
+    "dpl-complex-less",
+    "dpl-focus-more",
+    "dpl-focus-less",
+    "dpl-intensity-more",
+    "dpl-intensity-less",
+    "dpl-variety-more",
+    "dpl-variety-less",
+    "dpl-tighten",
+    "dpl-custom",
+    "dpl-create",
+  ];
+  let ok = 0;
+  for (const m of modes) {
+    if (mob.systemFor(m) === web.systemFor(m)) ok++;
+    else fail(`systemFor(${JSON.stringify(m)}) differs from the web source`);
+  }
+  if (ok === modes.length) pass(`all ${ok} rewrite-system modes match the web source`);
+}
+
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
   checkAccents,
@@ -322,6 +357,7 @@ for (const step of [
   checkProviders,
   checkLocalSettings,
   checkListOps,
+  checkRewriteSystems,
   checkSurfaces,
 ]) {
   await step();
