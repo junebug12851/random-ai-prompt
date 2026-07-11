@@ -89,14 +89,30 @@ a size change":
   overlay. Runtime-overlay wiring into `metroLoader` (so `{name}` draws from the overlay during
   generation) is Phase 4.
 
+## Status: COMPLETE (2026-07-10)
+
+All phases below shipped green on `dev` in ~15 verified increments. The mobile Manage went from a
+lists-only screen to a full AI-capable content manager at parity with the web (to the platform-allowed
+extent), every surface has tablet layouts with no size-based feature loss, and the strict Manage parity
+gate is ON. `test:mobile` 80/80 · `mobile:parity` (Header/Generate/Gallery/Single/Manage + listOps + all
+17 rewrite-system modes) · `metro:parity` (89/88/150) — all green.
+
 ## Phased plan (each phase lands green; strict gates flip on with their implementation)
 
-- **Phase 0 (done, 2026-07-10)** — audit + this plan; multi-size visual parity; jest FlashList-mock key fix.
-- **Phase 1** — `useResponsive()` hook + per-screen tablet layouts (centered reading columns; Gallery
-  columns scale) + size assertions. No feature hidden at any size.
-  - **1a done (2026-07-10)** — Gallery fills full width on tablet/wide; `ContentColumn` gives
-    Generate/Single/Manage the centered reading column on tablet. Remaining: Single two-pane (image +
-    metadata) on tablet; Manage two-pane lands with its port (Phase 3).
+- **Phase 0 (done)** — audit + this plan; multi-size visual parity; jest FlashList-mock key fix.
+- **Phase 1 (done)** — `useResponsive()` hook + per-screen tablet layouts: Gallery fills full width; a
+  `ContentColumn` gives Generate/Manage the centered reading column; **Single goes two-pane on tablet**
+  (image left, metadata right). No feature hidden at any size.
+- **Phase 2 (done)** — on-device storage overlay (user blocks + folders + sidecars + tree) + `listOps`
+  port (Sort/Dedupe) with a parity-lockstep check.
+- **Phase 3 (done)** — full RN Manage: two-root folder tree; block editor (DPL + Insert + Refine +
+  Modify/Draft + JS sidecar + rename/delete/description/NSFW); list editor (Entries/Raw + Sort/Dedupe +
+  description + AI Expand); runtime overlay (custom content feeds generation); built-in browse + override.
+  DPL system prompts ported verbatim + parity-gated (all 17 modes).
+- **Phase 4 (done)** — strict Manage surface gate ON (22 markers; missing feature = build failure).
+
+### Historical detail (superseded by the above)
+- **1a** — Gallery full-width + `ContentColumn` centered columns.
 - **Phase 2** — extract the reusable DPL editor component from `GenerateScreen`; build the mobile Manage
   **Blocks** root + block editor (DPL + Insert + Refine + Modify/Draft + JS sidecar) to parity.
 - **Phase 3** — mobile Manage **Lists** editor (Entries/Raw/Sort/Dedupe/AI-Expand) + **folder** tree +
