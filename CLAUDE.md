@@ -425,6 +425,9 @@ do it here.
 
 ## Project Preferences
 
+- **Start dev servers / builds in the BACKGROUND by default** (hidden process, output to a log), not a
+  popped-open/visible terminal window — e.g. `expo start` (mobile), the Vite dev server (`npm run web`),
+  long builds. Surface the connection info (URL / QR / port) from the log instead of relying on a window.
 - Keep the app feeling like polished software, not a dev tool.
 - Don't silently swallow errors; surface them. Never corrupt or lose a user's generated images or
   their `user-settings.json`.
