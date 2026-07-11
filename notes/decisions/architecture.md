@@ -2,6 +2,36 @@
 
 Key structural choices and why. (Things tried and rejected live in [`rejected.md`](rejected.md).)
 
+## A generated static index is the only universal plugin-discovery mechanism (2026-07-11)
+
+**Decision:** provider discovery goes through a **generated static index** —
+`targets/shared/registry.generated.js`, written by `scripts/build-provider-registry.mjs` — and
+`targets/shared/index.js` is **runtime-agnostic**: no `import.meta.glob`, no `import.meta.env`, no `node:`
+imports. Anything build-specific is passed in by the caller.
+
+**Why.** The plugin pools (providers, and the same argument applies to blocks/lists) are drop-a-folder-in,
+so they need *discovery*. Every runtime discovers differently, and there is no intersection:
+
+| Runtime | Target | Discovery |
+|---|---|---|
+| Vite | web | `import.meta.glob` (build-time) |
+| Node | CLI, backend | `fs.readdirSync` + dynamic `import()` |
+| **Metro** | mobile | **neither** — a static module graph, no fs at runtime |
+
+Because Metro can do neither, a Metro target *cannot* consume a glob-based or fs-based registry, and the
+"obvious" fix is to hand-port the registry into the target. That is exactly what happened: the same 40
+provider folders grew **three** registries (the Vite glob, an fs re-port in the CLI that also duplicated
+`applySharedSettings`, and an 892-line hand-port in mobile that re-declared every provider *and*
+re-implemented the transports). The parity checks (`scripts/mobile-parity-check.mjs`) were built to *detect*
+that drift — a symptom of the duplication, not a cure.
+
+The one construct all three runtimes understand is a plain `import` statement. Generating that list keeps
+the zero-central-edit property (add a folder → `npm run registry`; `npm run check:registry`, in `npm test`,
+fails if it's stale) while giving every target the *same* registry object. Corollary rule: **a module meant
+to be shared across targets may not touch `import.meta` or `node:`** — the moment it does, the other targets
+can't import it and someone will fork a copy. The web-only online gating therefore lives in the web shim
+(`targets/web/frontend/lib/providers/index.js`), not in the shared registry.
+
 ## Scaling to the max supported load: virtualize, contain, chunk (2026-07-04)
 
 The app promises to stay seamless at a **100k-image gallery + 1000 prompts / ~10k images + a 100k-line

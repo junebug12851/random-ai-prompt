@@ -1,10 +1,10 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.52.0",
+  "version": "2.53.0",
   "description": "An open-source generator for AI image and text prompts that automatically builds richer, more detailed prompts than most people write by hand, then runs them through 40+ models. Isomorphic prompt engine (engine/) + React/Vite web app (targets/web/).",
   "type": "module",
   "main": "engine/core/engine.js",
-  "author": "junebug12851",
+  "author": "1fairyfox",
   "license": "Apache-2.0",
   "private": true,
   "engines": {
@@ -52,9 +52,11 @@
     "profile": "node scripts/profile-scenarios.mjs",
     "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
-    "test": "npm run check:docs && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
+    "test": "npm run check:docs && npm run check:registry && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
     "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios",
-    "test:mobile": "npm --prefix targets/mobile test"
+    "test:mobile": "npm --prefix targets/mobile test",
+    "registry": "node scripts/build-provider-registry.mjs",
+    "check:registry": "node scripts/build-provider-registry.mjs --check"
   },
   "dependencies": {
     "compromise": "^14.15.1",
