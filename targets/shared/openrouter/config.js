@@ -12,6 +12,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "sk-or-…",
   textOnly: true, // rewrite/text only — no image generation, so excluded from the image picker
   loadRewrite: () =>
     import("../_shared/openaiCompatRewrite.js").then((m) =>

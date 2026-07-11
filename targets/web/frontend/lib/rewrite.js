@@ -7,6 +7,7 @@
  */
 import { getProvider } from "./providers/index.js";
 import { systemFor } from "../../../shared/_shared/rewriteSystem.js";
+import { callRewriteProxy } from "../../../shared/_shared/transport/hostedProxy.js";
 
 /**
  * @param {object} args
@@ -28,13 +29,8 @@ export async function rewritePrompt({ providerId, prompt, key, mode }) {
     return text || "";
   }
 
-  // Fallback: the shared proxy (local dev middleware / any non-browser-direct provider).
-  const res = await fetch("/api/rewrite", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ providerId, prompt, key, mode }),
-  });
-  const d = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(d.error || `Rewrite proxy returned ${res.status}`);
-  return d.text || "";
+  // Fallback: the shared proxy (local dev middleware / any non-browser-direct provider). Goes
+  // through the transport so a native target can point it at an absolute Backend URL.
+  const { text } = await callRewriteProxy({ providerId, prompt, key, mode });
+  return text;
 }

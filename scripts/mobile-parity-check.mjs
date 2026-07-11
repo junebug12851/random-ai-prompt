@@ -1,9 +1,26 @@
 /**
- * Mobile ⇄ web parity check. The mobile app copies several catalogs from the web (image providers,
- * accent presets, locales, DPL-insert constructs). This asserts those copies still match the web
- * SOURCES, so drift fails loudly — e.g. the web adds a provider / accent / DPL construct and this goes
- * red until the mobile port is updated. Engine/data parity is covered separately by
- * scripts/metro-parity-check.mjs; this covers the hand-ported UI catalogs.
+ * Mobile ⇄ web parity check.
+ *
+ * TWO KINDS OF CHECK LIVE HERE — know the difference before adding one:
+ *
+ * 1. **Drift checks** (`checkAccents`, `checkLocales`, `checkDplInserts`, `checkListOps`,
+ *    `checkLocalSettings`) compare a mobile HAND-PORT against the web source, so a copy that falls
+ *    behind fails loudly. These are a **symptom of duplication, not a cure** — each one is a standing
+ *    invitation to delete the copy and import the shared thing instead. When the copy goes, the check
+ *    goes with it. See `notes/plans/de-duplication.md`.
+ *
+ *    Already retired this way: **`checkProviders`** and **`checkRewriteSystems`**. The mobile target
+ *    no longer re-declares the ~40 providers or re-states the rewrite system prompts — it derives
+ *    both from `targets/shared/` (see `targets/mobile/lib/imageProviders.js`). Comparing that against
+ *    the web source would be comparing a file to itself: **you cannot drift from yourself.** The
+ *    derivation rules are asserted for real in `targets/mobile/lib/__tests__/imageProviders.test.js`.
+ *
+ * 2. **Surface parity** (`checkSurfaces`) asserts the mobile UI EXPOSES every web feature — the
+ *    owner's full-parity mandate (no size-based feature loss, no "mobile is simpler" build). This is
+ *    NOT a drift check and does not go away when code is shared: sharing an engine guarantees nothing
+ *    about whether a screen actually surfaces a control. **Keep it.**
+ *
+ * Engine/data parity is covered separately by scripts/metro-parity-check.mjs.
  *
  * Run: `node scripts/mobile-parity-check.mjs` (from the repo root). Exits non-zero on any mismatch.
  */
@@ -77,75 +94,6 @@ async function checkDplInserts() {
   const mobKeys = DPL_INSERTS.map((c) => c.key);
   if (eq(webKeys, mobKeys)) pass(`categories match (${mobKeys.length}): ${mobKeys.join(", ")}`);
   else fail(`category mismatch — web [${webKeys}] vs mobile [${mobKeys}]`);
-}
-
-// ---------- 4. Provider ROLE completeness: mobile MUST cover every provider the phone can run --------
-// The phone has no backend of ours, so a web provider is "mobile-capable" iff it talks straight to its
-// API from the client (browser-direct), hits the user's own server (local-direct), or needs no network
-// at all (transport "none" — copy-prompt). The web exposes THREE provider roles (image generation /
-// text prompt-rewrite / upscale). For each role, mobile MUST expose the same mobile-capable set — a
-// missing one is a FAILURE, not a note. This is the completeness gate: it proves nothing runnable was
-// dropped, instead of only checking that what was ported happens to match.
-async function checkProviders() {
-  console.log("Provider role completeness (mobile registries  ⇄  web shared/*/config.js)");
-  const mod = await imp(join(MOBILE, "lib/imageProviders.js"));
-  const mobImage = new Set((mod.IMAGE_PROVIDERS || []).map((p) => p.id));
-  const mobText = new Set((mod.TEXT_PROVIDERS || []).map((p) => p.id));
-  const mobUpscale = new Set((mod.UPSCALE_PROVIDERS || []).map((p) => p.id));
-
-  const shared = join(ROOT, "targets/shared");
-  const web = [];
-  for (const d of readdirSync(shared, { withFileTypes: true })) {
-    if (!d.isDirectory()) continue;
-    let cfg;
-    try {
-      cfg = readFileSync(join(shared, d.name, "config.js"), "utf8");
-    } catch {
-      continue;
-    }
-    const id = cfg.match(/id:\s*"([^"]+)"/)?.[1];
-    if (!id) continue;
-    const transport = cfg.match(/transport:\s*"([^"]+)"/)?.[1];
-    const tier = cfg.match(/tier:\s*"([^"]+)"/)?.[1];
-    const capBlock = cfg.slice(cfg.indexOf("capabilities"));
-    web.push({
-      id,
-      transport,
-      tier,
-      textOnly: /textOnly:\s*true/.test(cfg),
-      upscaleOnly: /upscaleOnly:\s*true/.test(cfg),
-      hasGenerate: /loadGenerate/.test(cfg),
-      hasRewrite: /loadRewrite/.test(cfg) || /\brewrite:\s*true/.test(cfg),
-      hasUpscale: /loadUpscale/.test(cfg) && /upscale:\s*true/.test(capBlock),
-    });
-  }
-  // EVERY web provider must be present per role — hosted-proxy ones run via a Backend URL, so nothing
-  // is left out (mirrors the web's picker filters in ProvidersMenu.jsx, minus the online/local gating).
-  const expImage = web.filter(
-    (p) =>
-      !p.textOnly && !p.upscaleOnly && (p.hasGenerate || p.tier === "syntax" || p.tier === "plain"),
-  );
-  const expText = web.filter((p) => p.hasRewrite);
-  const expUpscale = web.filter((p) => p.hasUpscale);
-
-  const role = (name, expected, have) => {
-    const exp = expected.map((p) => p.id).sort();
-    const missing = exp.filter((id) => !have.has(id));
-    const extra = [...have].filter((id) => !exp.includes(id));
-    if (!missing.length && !extra.length)
-      pass(`${name}: all ${exp.length} mobile-capable providers present (${exp.join(", ")})`);
-    if (missing.length)
-      fail(`${name}: MISSING ${missing.length} mobile-capable provider(s): ${missing.join(", ")}`);
-    if (extra.length)
-      fail(
-        `${name}: mobile lists provider(s) with no mobile-capable ${name} role on the web: ${extra.join(", ")}`,
-      );
-  };
-  role("Image", expImage, mobImage);
-  role("Text/rewrite", expText, mobText);
-  role("Upscale", expUpscale, mobUpscale);
-  const proxied = web.filter((p) => p.transport === "hosted-proxy").length;
-  console.log(`  ℹ ${proxied} hosted-proxy providers included via the Backend URL setting`);
 }
 
 // ---------- 6. Surface feature parity: Generate / Gallery / Header must match the web features ------
@@ -297,36 +245,6 @@ function checkSurfaces() {
   }
 }
 
-// ---------- 5. Local provider settings: mobile field keys == web provider settings.js field keys ----
-async function checkLocalSettings() {
-  console.log("Local provider settings (imageProviders.js  ⇄  web shared/*/settings.js)");
-  const { IMAGE_PROVIDERS } = await imp(join(MOBILE, "lib/imageProviders.js"));
-  // Which web settings.js each mobile local provider mirrors (forge/sdnext reuse local-webui).
-  const SRC = {
-    comfyui: "comfyui/settings.js",
-    forge: "local-webui/settings.js",
-    sdnext: "local-webui/settings.js",
-  };
-  for (const p of IMAGE_PROVIDERS.filter((x) => x.local)) {
-    const rel = SRC[p.id];
-    if (!rel) {
-      fail(`no known web settings.js mapped for local provider "${p.id}"`);
-      continue;
-    }
-    const src = readFileSync(join(ROOT, "targets/shared", rel), "utf8");
-    const block = src.slice(src.indexOf("fields:"), src.indexOf("data:") + 1 || undefined);
-    const webKeys = [...block.matchAll(/key:\s*"([A-Za-z0-9_]+)"/g)].map((m) => m[1]);
-    const mobKeys = (p.settings || []).map((f) => f.key);
-    if (eq(webKeys, mobKeys)) pass(`"${p.id}" settings fields match (${mobKeys.length})`);
-    else fail(`"${p.id}" settings fields differ — web [${webKeys}] vs mobile [${mobKeys}]`);
-    // The URL field must default to the 192.168.1.1 hint the user asked for.
-    const urlField = (p.settings || []).find((f) => f.key === p.serverKey);
-    if (urlField && /192\.168\.1\.1/.test(String(urlField.default)))
-      pass(`"${p.id}" Server URL defaults to the 192.168.1.1 hint`);
-    else fail(`"${p.id}" Server URL should default to 192.168.1.1 (got "${urlField?.default}")`);
-  }
-}
-
 // ---------- 7. List-editor ops: mobile lib/listOps.js == web lib/manage/listEditorOps.js ----------
 // The Manage list editor's Sort / Dedupe / AI-expand logic is a hand-port on mobile; assert it stays
 // behaviorally identical to the web source (same functions, same output) so it can't silently drift.
@@ -359,50 +277,12 @@ async function checkListOps() {
   if (ok === cases.length) pass(`all ${ok} list-op cases match the web source`);
 }
 
-// ---------- 8. Rewrite systems: mobile systemFor == web systemFor for EVERY mode --------------------
-// The Manage AI features (list AI-Expand, block Refine/Modify/Draft) depend on the exact system prompts.
-// Mobile hand-ports DPL_PRIMER + DPL_TASKS + EXPAND_SYSTEM; assert systemFor() is byte-identical to the
-// web source for every mode so a web prompt tweak fails loudly until the mobile port is updated.
-async function checkRewriteSystems() {
-  console.log("Rewrite systems (imageProviders.systemFor  ⇄  web rewriteSystem.systemFor)");
-  const mob = await imp(join(MOBILE, "lib/imageProviders.js"));
-  const web = await imp(join(ROOT, "targets/shared/_shared/rewriteSystem.js"));
-  const modes = [
-    "keyword",
-    "expand",
-    "fix",
-    undefined,
-    "dpl-detail-more",
-    "dpl-detail-less",
-    "dpl-complex-more",
-    "dpl-complex-less",
-    "dpl-focus-more",
-    "dpl-focus-less",
-    "dpl-intensity-more",
-    "dpl-intensity-less",
-    "dpl-variety-more",
-    "dpl-variety-less",
-    "dpl-tighten",
-    "dpl-custom",
-    "dpl-create",
-  ];
-  let ok = 0;
-  for (const m of modes) {
-    if (mob.systemFor(m) === web.systemFor(m)) ok++;
-    else fail(`systemFor(${JSON.stringify(m)}) differs from the web source`);
-  }
-  if (ok === modes.length) pass(`all ${ok} rewrite-system modes match the web source`);
-}
-
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
   checkAccents,
   checkLocales,
   checkDplInserts,
-  checkProviders,
-  checkLocalSettings,
   checkListOps,
-  checkRewriteSystems,
   checkSurfaces,
 ]) {
   await step();

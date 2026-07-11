@@ -53,57 +53,56 @@ runtimes understand. Anything genuinely platform-specific is **injected by the t
 - **B3 — provider `description` / `keyUrl` moved onto the manifests.** Was a hand-kept `PROVIDER_META`
   table in the web + a second copy inside mobile's registry. Now declared once, next to the provider.
 
-## Next: C — mobile imports the shared providers (delete `targets/mobile/lib/imageProviders.js`)
+- **C — mobile imports the shared providers** (2.54.0). The 892-line hand-port is **deleted**; a 268-line
+  adapter derives the three role lists from the same manifests the web uses and dispatches into the shared
+  provider code. The settings-schema mismatch (async manifests vs a sync UI) was resolved by **preloading
+  every schema once at boot** — not by making the UI async: on a phone the bundle already ships everything,
+  so lazy code-splitting buys nothing. `cleanDplOutput` moved to `shared/_shared/rewriteSystem.js`;
+  `keyHint` joined the manifests. Contract-tested (17 tests) in
+  `targets/mobile/lib/__tests__/imageProviders.test.js`.
+- **D — retired the drift checks the duplication made necessary** (2.54.0). `checkProviders`,
+  `checkRewriteSystems`, `checkLocalSettings` deleted from `scripts/mobile-parity-check.mjs` — they now
+  compare a file to itself. `checkSurfaces` **kept** (it asserts the UI *exposes* every web feature, which
+  code-sharing does not guarantee).
 
-The foundation is in place: Metro already aliases `shared` (and `engine`), the registry is
-Metro-importable, and the transport can be pointed at the phone's reality. What's left is the swap.
+## Historical: how C was originally scoped (kept — the obstacle it names is instructive)
 
-**The one real obstacle, found while doing it — an impedance mismatch, not a missing piece:**
+> The shared manifest exposes settings *asynchronously* (`loadSettings() → {defaults, fields, data}`,
+> code-split), while the mobile UI reads a *synchronous flat* `provider.settings` array. So the swap is not
+> a find-and-replace: mobile's provider-settings UI must become async…
 
-- The **shared manifest** exposes settings *asynchronously* and *structured*:
-  `loadSettings() → { defaults, fields, data }` (code-split; the web loads it lazily when the gear opens).
-- The **mobile UI** currently reads a *synchronous, flat* `provider.settings = [{key,label,type,default,placeholder}]`
-  array, and `providerDefaults(id)` walks it synchronously at render time.
+That framing was **wrong in its conclusion**, and it's worth remembering why. The async-ness of
+`loadSettings()` is a *web* concern — it exists so the browser can code-split the gear. A phone has already
+downloaded the whole bundle, so the right move was to **resolve the asynchrony once at boot** (preload all
+schemas + their option sources) and keep the UI synchronous. Making the mobile UI async would have imported
+the web's constraint along with the web's code. **Share the logic; don't inherit the other platform's
+trade-offs.**
 
-So the swap is not a find-and-replace: mobile's provider-settings UI (and `providerDefaults`) must
-become async (load-on-open with a spinner/suspense), exactly as the web's `ProviderBox` already is.
-That is the correct end state — it's how the web works — but it is a real UI change, not a rename.
-
-Order (each step green + committed on its own):
-
-1. Mobile: make the provider-settings sheet **load its schema on open** (`await p.loadSettings()`),
-   with the flat-array reader kept only as the rendering shape. Press-tests stay green.
-2. Replace `IMAGE_PROVIDERS` / `TEXT_PROVIDERS` / `UPSCALE_PROVIDERS` with derivations of the shared
-   registry (`providers`, `rewriteProviders()`, `upscaleProviders()`), and `generate`/`rewrite`/
-   `upscale` with `await p.loadGenerate()` etc. Call `configureTransport({apiBase: backendUrl,
-   forward: false, timeoutMs: 120_000})` at boot and whenever the Backend URL changes.
-3. Delete `imageProviders.js` (~892 lines), including its re-implemented `submitPoll` /
-   `localPostJson` / `fetchWithTimeout` — all of which now exist once in `_shared/transport/`.
-4. `lib/capabilities.js` derives from the manifests (`transport === "none"` ⇒ copy-only; `loadUpscale`
-   ⇒ upscalable) instead of the hand-kept arrays. The **locked-state** behavior it drives must not
-   change (see working-agreements §E).
-
-## Then: D — engine-domain logic still duplicated in mobile
+## Next: E — engine-domain logic STILL duplicated in mobile
 
 These are *engine* concepts the mobile target hand-ported; they belong in `engine/`, imported by both:
 
 | Mobile file | Lines | Belongs in | Note |
 |---|---|---|---|
-| `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. |
-| `lib/listOps.js` | 71 | `engine/` | Sort / dedupe / clean of list content. |
+| `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. Guarded by `checkDplInserts`. |
+| `lib/listOps.js` | 71 | `engine/` | Sort / dedupe / clean of list content. Guarded by `checkListOps`. |
 | `lib/blockCatalog.js` | 218 | `engine/` | Block browsing + completions over the loaders. |
-| rewrite system prompts (`systemFor`, `cleanDplOutput` in `imageProviders.js`) | ~120 | `engine/` or `shared/_shared/rewriteSystem.js` (already exists — mobile re-ported it) | `DPL_PRIMER` / `DPL_TASKS` **document the engine's grammar**; they are not a provider concern. |
-| `lib/themeData.js` | 82 | `targets/shared/` | Design tokens, mirrored from the web's CSS tokens. |
+| `lib/themeData.js` | 82 | `targets/shared/` | Design tokens + locales, mirrored from the web's CSS tokens. Guarded by `checkAccents` / `checkLocales`. |
 
-## Then: E — retire the drift checks that duplication made necessary
+Each row's "guarded by" is the drift check that will be **deleted along with the copy** — that's the
+tell that the copy shouldn't exist. (The rewrite system prompts + `cleanDplOutput` were on this list and
+are **done**: they now live once in `shared/_shared/rewriteSystem.js`.)
 
-Once mobile *imports* rather than *copies*, these steps of `scripts/mobile-parity-check.mjs` are
-checking a file against itself and should be deleted: `checkAccents`, `checkDplInserts`,
-`checkListOps`, `checkRewriteSystems`, `checkLocalSettings`, `checkProviders`.
+## Done: the drift checks that duplication made necessary
 
-**Keep `checkSurfaces`.** It is not a drift check — it asserts the mobile UI *exposes* every web
-feature (the FULL-parity mandate), which no amount of code-sharing guarantees. Likewise keep the
-capability-gating parity layer.
+`checkProviders`, `checkRewriteSystems` and `checkLocalSettings` are **deleted** (2.54.0) — mobile derives
+all three from the shared layer now, so they were comparing a file to itself. The remaining drift checks
+(`checkAccents`, `checkLocales`, `checkDplInserts`, `checkListOps`) each guard a copy listed above, and go
+when that copy does.
+
+**`checkSurfaces` stays — permanently.** It is not a drift check: it asserts the mobile UI *exposes* every
+web feature (the FULL-parity mandate), which no amount of code-sharing guarantees. Same for the
+capability-gating layer.
 
 > The measure of success: deleting a parity check because the thing it guarded **can no longer
 > differ**, not because we stopped caring.

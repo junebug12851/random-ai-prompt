@@ -9,9 +9,19 @@
  * `engine/web/frontend/**`, `engine/core/stages/**` except the pure stages the core engine
  * still imports, i.e. cleanup.js / prompt-salt.js).
  */
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
+const repoRoot = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
+  // The mobile target imports the cross-target app layer as `shared/…` (Metro aliases it via
+  // `resolver.extraNodeModules`, exactly like `engine`). Mirror that alias here so the Node suite can
+  // import mobile modules that reach into the shared provider registry.
+  resolve: {
+    alias: { shared: path.join(repoRoot, "targets", "shared") },
+  },
   test: {
     environment: "node",
     include: ["tests/**/*.test.js"],

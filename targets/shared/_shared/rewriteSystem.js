@@ -155,3 +155,26 @@ export function systemFor(mode) {
   }
   return REWRITE_SYSTEM;
 }
+
+/**
+ * Normalize a model's raw reply into usable text. An LLM habitually wraps its answer in a fenced
+ * code block (```dpl … ```) or in quotes even when told not to; pasting that verbatim into a block
+ * or a prompt would corrupt it. Strips ONE wrapping fence and ONE pair of wrapping quotes (only when
+ * they enclose the whole single-line reply), then trims.
+ *
+ * Lives here, next to the system prompts that produce the reply, so **every** target shares one
+ * implementation (the web's `lib/dpl/dplRefine.js` re-exports it; the mobile target used to carry a
+ * hand-ported copy).
+ * @param {string} out The model's raw reply.
+ * @returns {string} The cleaned text.
+ */
+export function cleanDplOutput(out) {
+  let text = String(out ?? "").replace(/\r\n/g, "\n");
+  // Strip a single wrapping fenced block: optional leading ```lang and trailing ```.
+  const fence = text.match(/^\s*```[^\n]*\n([\s\S]*?)\n?```\s*$/);
+  if (fence) text = fence[1];
+  text = text.replace(/^\n+/, "").replace(/\s+$/, "");
+  // Drop one pair of wrapping quotes only if they enclose the whole (single-line) reply.
+  if (/^"[^\n]*"$/.test(text) || /^'[^\n]*'$/.test(text)) text = text.slice(1, -1);
+  return text;
+}

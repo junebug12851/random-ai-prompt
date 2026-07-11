@@ -14,6 +14,7 @@ export default {
   transport: "hosted-proxy",
   local: false,
   needsKey: true,
+  keyHint: "ideogram key",
   // Built for safe-for-work content. Never hard-blocked — soft-locked (icon + confirm) in NSFW mode.
   contentPolicy: "sfw-only",
   capabilities: {

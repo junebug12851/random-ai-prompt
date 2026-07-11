@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "./lib/theme.js";
 import { MoreIcon } from "./lib/icons.js";
 import { refreshOverlay } from "./lib/overlay.js";
+import { initProviderSchemas, providerSchemasReady } from "./lib/imageProviders.js";
 import OverflowMenu from "./components/OverflowMenu.js";
 import ContentColumn from "./components/ContentColumn.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
@@ -47,6 +48,17 @@ function Root() {
   // draw from the user's own content. ManageScreen refreshes it again after each edit.
   useEffect(() => {
     refreshOverlay().catch(() => {});
+  }, []);
+
+  // Preload every provider's settings schema (from the SHARED registry) once at boot, so the
+  // provider gear/knobs can be read synchronously everywhere. The web code-splits its schemas
+  // lazily; on a phone the bundle already ships them, so there's nothing to defer. Flipping this
+  // state re-renders the mounted screens with their knobs filled in.
+  const [, setSchemasReady] = useState(providerSchemasReady());
+  useEffect(() => {
+    initProviderSchemas()
+      .then(() => setSchemasReady(true))
+      .catch(() => setSchemasReady(true)); // never leave the UI stuck on "no providers"
   }, []);
 
   const openImage = useCallback((it) => {

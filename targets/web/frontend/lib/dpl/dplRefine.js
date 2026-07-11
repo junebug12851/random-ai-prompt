@@ -105,18 +105,12 @@ export function getDplRefineActions(intl) {
  * Normalize a model's DPL reply into a clean template: strip a wrapping markdown code fence (``` or
  * ```dpl), trim surrounding blank lines, and drop a single pair of wrapping quotes if the whole
  * thing is quoted. Never touches the interior — DPL indentation and blank lines inside are preserved.
- * @param {string} out The raw provider text.
- * @returns {string} The cleaned DPL (may be empty if the model returned nothing usable).
+ *
+ * The implementation lives in the shared layer, next to the system prompts that produce the reply
+ * (`targets/shared/_shared/rewriteSystem.js`), so every target shares ONE copy — the mobile target
+ * used to carry a hand-ported duplicate. Re-exported here to keep this import path working.
+ * @see targets/shared/_shared/rewriteSystem.js
  */
-export function cleanDplOutput(out) {
-  let text = String(out ?? "").replace(/\r\n/g, "\n");
-  // Strip a single wrapping fenced block: optional leading ```lang and trailing ```.
-  const fence = text.match(/^\s*```[^\n]*\n([\s\S]*?)\n?```\s*$/);
-  if (fence) text = fence[1];
-  text = text.replace(/^\n+/, "").replace(/\s+$/, "");
-  // Drop one pair of wrapping quotes only if they enclose the whole (single-line) reply.
-  if (/^"[^\n]*"$/.test(text) || /^'[^\n]*'$/.test(text)) text = text.slice(1, -1);
-  return text;
-}
+export { cleanDplOutput } from "../../../../shared/_shared/rewriteSystem.js";
 
 export default getDplRefineActions;

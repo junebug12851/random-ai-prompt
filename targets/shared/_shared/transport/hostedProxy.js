@@ -60,3 +60,28 @@ export async function callUpscaleProxy({ providerId, image, key, params, signal 
   if (!res.ok) throw new Error(data.error || `Upscale proxy returned ${res.status}`);
   return { images: data.images || [] };
 }
+
+/**
+ * Call the prompt-rewrite proxy for a text provider that isn't `browser-direct` (its API can't be
+ * reached from a client, so a server adapter runs it — see the backend's dispatch.js). A
+ * browser-direct provider skips this and calls its own API with `loadRewrite()`.
+ * @param {object} args
+ * @param {string} args.providerId The provider id (routes to its rewrite-server adapter).
+ * @param {string} args.prompt The prompt to rewrite.
+ * @param {string} args.key The user's BYOK API key (per-request, never stored).
+ * @param {string} [args.mode] Rewrite mode (`fix` | `keyword` | `expand` | a `dpl-*` task).
+ * @param {AbortSignal} [args.signal] Optional abort signal.
+ * @returns {Promise<{text: string}>} The rewritten text.
+ * @throws {Error} On a non-OK proxy response.
+ */
+export async function callRewriteProxy({ providerId, prompt, key, mode, signal }) {
+  const res = await transportFetch(apiUrl("/api/rewrite"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal,
+    body: JSON.stringify({ providerId, prompt, key, mode }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Rewrite proxy returned ${res.status}`);
+  return { text: data.text || "" };
+}

@@ -13,6 +13,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "sk-…",
   // Built for safe-for-work content. Never hard-blocked — soft-locked (icon + confirm) in NSFW mode.
   contentPolicy: "sfw-only",
   capabilities: {

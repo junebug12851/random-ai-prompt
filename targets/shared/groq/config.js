@@ -12,6 +12,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "gsk_…",
   textOnly: true,
   loadRewrite: () =>
     import("../_shared/openaiCompatRewrite.js").then((m) =>

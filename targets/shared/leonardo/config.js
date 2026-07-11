@@ -14,6 +14,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "leonardo key",
   capabilities: {
     models: true,
     size: true,

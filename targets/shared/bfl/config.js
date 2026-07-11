@@ -13,6 +13,7 @@ export default {
   transport: "hosted-proxy",
   local: false,
   needsKey: true,
+  keyHint: "bfl key",
   capabilities: {
     models: true,
     aspectRatio: true,

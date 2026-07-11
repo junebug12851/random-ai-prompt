@@ -57,9 +57,15 @@ rebuild). Storage (`lib/storage.js`) is expo-file-system, web-safe no-op under `
 Four layers, mirroring the web target's rigor:
 
 - **Engine/data parity** — `scripts/metro-parity-check.mjs` (metroLoader output == nodeLoader).
-- **Ported-catalog + surface parity** — `scripts/mobile-parity-check.mjs` (accents/locales/DPL/providers
-  match the web SOURCES, and each focus surface — Header / Generate / Gallery / Single — carries a marker
-  for every web feature; no per-feature ignores). Wired into `npm test`.
+- **Ported-catalog + surface parity** — `scripts/mobile-parity-check.mjs`. Two different things live in
+  there: **drift checks** (accents / locales / DPL inserts / listOps still match the web SOURCES) guard the
+  catalogs mobile still hand-ports — each one is a standing invitation to delete the copy and import the
+  shared thing, and it gets deleted when the copy does (that's how `checkProviders`,
+  `checkRewriteSystems` and `checkLocalSettings` went away in 2.54.0 — mobile now *derives* providers from
+  `targets/shared/`, and **you can't drift from yourself**). **Surface parity** (`checkSurfaces`) is
+  permanent: it asserts each focus surface — Header / Generate / Gallery / Single / Manage — carries a
+  marker for every web feature, which code-sharing does NOT guarantee. Wired into `npm test`.
+  See [`../plans/de-duplication.md`](../plans/de-duplication.md).
 - **Component/behavior** — `jest-expo` + React Native Testing Library mount the REAL screens (the Android
   code path) with native modules mocked (`targets/mobile/jest.setup.js`) and assert render + wiring. Run
   `npm --prefix targets/mobile test` (root `test:mobile`, in `npm test`). Pure helpers (`lib/single.js`)

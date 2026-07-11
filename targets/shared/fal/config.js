@@ -13,6 +13,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "fal key",
   capabilities: {
     models: true,
     size: true,

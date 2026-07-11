@@ -15,6 +15,7 @@ export default {
   transport: "browser-direct",
   local: false,
   needsKey: true,
+  keyHint: "xai-…",
   capabilities: {
     models: true,
     negativePrompt: false,

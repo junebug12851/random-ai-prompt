@@ -13,6 +13,7 @@ export default {
   transport: "hosted-proxy",
   local: false,
   needsKey: true,
+  keyHint: "r8_…",
   capabilities: {
     models: true,
     aspectRatio: true,
