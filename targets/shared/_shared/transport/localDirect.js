@@ -1,12 +1,19 @@
 /**
  * `local-direct` transport helper — talk to the user's OWN local server (ComfyUI,
- * A1111/Forge/SD.Next, …). The JSON API calls are routed through our dev server's
- * `/api/forward` endpoint (server-side fetch) so they work even when the local server sends
- * no CORS headers — which Comfy Desktop and a default A1111 do not. Image URLs are returned
- * direct: an `<img>` tag is not subject to CORS for display, only the fetch() API calls are.
- * Local providers only run with the dev server present (they're hidden in online mode).
+ * A1111/Forge/SD.Next, …).
+ *
+ * In a **browser** the JSON API calls are routed through our backend's `/api/forward` endpoint
+ * (server-side fetch) so they work even when the local server sends no CORS headers — which Comfy
+ * Desktop and a default A1111 do not. Image URLs are returned direct: an `<img>` tag is not subject
+ * to CORS for display, only the fetch() API calls are.
+ *
+ * A **native** target has no CORS at all, so it calls the local server straight — no backend in the
+ * loop (which also means it works with no desktop app running). That's `configureTransport({
+ * forward: false })`; see `./config.js`. The default is the browser behavior, so the web is
+ * unchanged.
  * @module gui/providers/_shared/transport/localDirect
  */
+import { apiUrl, getTransportConfig, transportFetch } from "./config.js";
 
 const FORWARD = "/api/forward";
 
@@ -33,7 +40,8 @@ function readableError(data, url, status) {
 }
 
 /**
- * Forward a request to a local server through the dev proxy (avoids CORS).
+ * Call a local server — through the backend's forward proxy in a browser (to dodge CORS), or
+ * directly on a native target (no CORS, no backend needed).
  * @param {string} url The absolute local URL (e.g. http://127.0.0.1:8188/prompt).
  * @param {string} method HTTP method.
  * @param {object} [body] JSON body (for POST).
@@ -42,12 +50,34 @@ function readableError(data, url, status) {
  * @throws {Error} With the upstream error message on a non-OK response.
  */
 async function forward(url, method, body, signal) {
-  const res = await fetch(FORWARD, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    signal,
-    body: JSON.stringify({ url, method, body }),
-  });
+  const direct = !getTransportConfig().forward;
+  let res;
+  try {
+    res = direct
+      ? await transportFetch(url, {
+          method,
+          headers: body ? { "Content-Type": "application/json" } : undefined,
+          signal,
+          body: body ? JSON.stringify(body) : undefined,
+        })
+      : await transportFetch(apiUrl(FORWARD), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal,
+          body: JSON.stringify({ url, method, body }),
+        });
+  } catch (e) {
+    // A native target reaches the server over the LAN, where "unreachable" is the common failure
+    // (wrong IP, server not listening on 0.0.0.0, phone on another network). Say so plainly rather
+    // than surfacing a bare "Network request failed".
+    if (direct) {
+      throw new Error(
+        `Can't reach ${url} — check the Server URL and that the server is on this Wi-Fi.`,
+        { cause: e },
+      );
+    }
+    throw e;
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(readableError(data, url, res.status));
   return data;

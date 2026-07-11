@@ -4,8 +4,14 @@
  * to our own `/api/generate` endpoint. That endpoint is served by the same shared handler
  * everywhere: a Netlify function when deployed online, and a Vite dev-server middleware
  * when running locally (`npm run web`). The key is sent per-request and never stored.
+ *
+ * The route is resolved through {@link apiUrl}, so a **native** target (which has no origin, and
+ * therefore no same-origin `/api/…`) points these calls at an absolute Backend URL by calling
+ * `configureTransport({ apiBase })` at boot. In a browser `apiBase` is empty and the URL stays the
+ * relative `/api/generate` it has always been. See `./config.js`.
  * @module gui/providers/_shared/transport/hostedProxy
  */
+import { apiUrl, transportFetch } from "./config.js";
 
 /**
  * Call the generation proxy for a hosted provider.
@@ -19,7 +25,7 @@
  * @throws {Error} On a non-OK proxy response.
  */
 export async function callProxy({ providerId, prompt, key, params, signal }) {
-  const res = await fetch("/api/generate", {
+  const res = await transportFetch(apiUrl("/api/generate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -44,7 +50,7 @@ export async function callProxy({ providerId, prompt, key, params, signal }) {
  * @throws {Error} On a non-OK proxy response.
  */
 export async function callUpscaleProxy({ providerId, image, key, params, signal }) {
-  const res = await fetch("/api/upscale", {
+  const res = await transportFetch(apiUrl("/api/upscale"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
