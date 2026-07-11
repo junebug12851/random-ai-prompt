@@ -245,9 +245,19 @@ function checkSurfaces() {
     ["Single", "keyword search", "single", /onSearch/],
     // Manage — full content manager parity (to the platform-allowed extent: the on-device user overlay
     // + read-only built-in browse/override; no fs backend). Every web Manage capability maps to a marker.
-    ["Manage", "two roots (Blocks + Lists)", "manageScreen", /readUserTree\("blocks"\)[\s\S]*readUserTree\("lists"\)/],
+    [
+      "Manage",
+      "two roots (Blocks + Lists)",
+      "manageScreen",
+      /readUserTree\("blocks"\)[\s\S]*readUserTree\("lists"\)/,
+    ],
     ["Manage", "nested folder tree", "manageScreen", /ManageTree/],
-    ["Manage", "new block / list create", "manageScreen", /createBlock[\s\S]*createList|createList[\s\S]*createBlock/],
+    [
+      "Manage",
+      "new block / list create",
+      "manageScreen",
+      /createBlock[\s\S]*createList|createList[\s\S]*createBlock/,
+    ],
     ["Manage", "folder create (nested name) + delete", "manageScreen", /deleteUserFolder/],
     ["Manage", "built-in browse + override", "manageScreen", /BuiltinBrowser/],
     ["Manage", "override copies to overlay", "builtin", /onOverride/],
@@ -256,7 +266,12 @@ function checkSurfaces() {
     ["Manage", "block DPL editor", "manageBlock", /DplMiniEditor/],
     ["Manage", "block Insert menu", "manageBlock", /InsertMenu/],
     ["Manage", "block Refine steppers", "manageBlock", /REFINE_DIMS/],
-    ["Manage", "block Modify / Draft", "manageBlock", /dpl-custom[\s\S]*dpl-create|dpl-create[\s\S]*dpl-custom/],
+    [
+      "Manage",
+      "block Modify / Draft",
+      "manageBlock",
+      /dpl-custom[\s\S]*dpl-create|dpl-create[\s\S]*dpl-custom/,
+    ],
     ["Manage", "block Cleanup", "manageBlock", /dpl-tighten/],
     ["Manage", "block JS sidecar", "manageBlock", /JS sidecar|createJs/],
     ["Manage", "block NSFW flag", "manageBlock", /nsfw/],

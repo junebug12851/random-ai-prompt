@@ -24,6 +24,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { Image } from "expo-image";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../lib/theme.js";
+import { useResponsive } from "../lib/responsive.js";
 import {
   listImages,
   deleteImage,
@@ -71,6 +72,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
   const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
+  const { twoPane } = useResponsive();
 
   const [feed, setFeed] = useState([]); // full gallery, newest-first, with children linked
   const [current, setCurrent] = useState(image || null);
@@ -419,7 +421,10 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
   const variations = strip("variation", "variation");
   const resizes = strip("resize", "resize");
 
-  const imgW = Math.min(width, 900) - 32;
+  // Tablet two-pane (web parity): the image becomes a left column (~44%) beside the metadata, instead of
+  // a full-bleed image stacked over it. On phones it's the usual single stacked column.
+  const mediaW = twoPane ? Math.min(width * 0.44, 460) : Math.min(width, 900);
+  const imgW = mediaW - 32;
 
   // --- Small building blocks ---
   const LayerRow = ({ label, value, mono, accent, actions }) => {
@@ -502,6 +507,9 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
         </View>
       </View>
 
+      {/* Tablet: image (left) + metadata (right) two-pane; phone: layout-neutral single column. */}
+      <View style={twoPane ? styles.twoCol : undefined}>
+        <View style={twoPane ? { width: mediaW } : undefined}>
       {/* Image + overlay actions */}
       <View style={styles.imgWrap}>
         <TouchableOpacity activeOpacity={0.95} onPress={() => setViewerOpen(true)}>
@@ -528,6 +536,8 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           </TouchableOpacity>
         </View>
       </View>
+        </View>
+        <View style={twoPane ? styles.metaCol : undefined}>
 
       {/* Tools: Convert · Resize/Upscale */}
       <View style={styles.toolRow}>
@@ -776,6 +786,8 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           </View>
         </View>
       )}
+        </View>
+      </View>
 
       {/* Full-screen viewer */}
       <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
@@ -811,6 +823,8 @@ const makeStyles = (T) =>
     navBtnText: { color: T.fgSoft, fontSize: 13, fontWeight: "700" },
     navPos: { color: T.muted, fontSize: 13, fontWeight: "700" },
 
+    twoCol: { flexDirection: "row", alignItems: "flex-start", gap: 16 },
+    metaCol: { flex: 1, minWidth: 0 },
     imgWrap: { position: "relative", alignItems: "center" },
     overlay: { position: "absolute", top: 10, right: 10, flexDirection: "row", gap: 6 },
     ovBtn: {
