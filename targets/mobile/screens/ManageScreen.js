@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
+import { sortLines, dedupeLines } from "../lib/listOps.js";
 import {
   listUserLists,
   readUserList,
@@ -42,6 +43,7 @@ function Editor({ name, onClose }) {
   const [view, setView] = useState([]);
   const [filter, setFilter] = useState("");
   const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState("");
 
   const recompute = useCallback((f) => {
     const all = linesRef.current;
@@ -82,6 +84,20 @@ function Editor({ name, onClose }) {
     setFilter("");
     recompute("");
   }, [recompute]);
+  // Sort / Dedupe reuse the shared listOps (lockstep with the web list editor). They rebuild the line
+  // objects with fresh ids so every (uncontrolled) row remounts showing its new text.
+  const sort = useCallback(() => {
+    const texts = sortLines(linesRef.current.map((l) => l.text));
+    linesRef.current = texts.map((t) => ({ id: nextId.current++, text: t }));
+    setStatus("Sorted A→Z");
+    recompute(filter);
+  }, [filter, recompute]);
+  const dedupe = useCallback(() => {
+    const { lines: texts, removed } = dedupeLines(linesRef.current.map((l) => l.text));
+    linesRef.current = texts.map((t) => ({ id: nextId.current++, text: t }));
+    setStatus(removed ? `Removed ${removed} duplicate${removed === 1 ? "" : "s"}` : "No duplicates");
+    recompute(filter);
+  }, [filter, recompute]);
   const onFilter = useCallback(
     (f) => {
       setFilter(f);
@@ -119,7 +135,14 @@ function Editor({ name, onClose }) {
         <TouchableOpacity style={styles.addBtn} onPress={add}>
           <Text style={styles.addBtnText}>+ Line</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.addBtn} onPress={sort}>
+          <Text style={styles.addBtnText}>Sort</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.addBtn} onPress={dedupe}>
+          <Text style={styles.addBtnText}>Dedupe</Text>
+        </TouchableOpacity>
       </View>
+      {status ? <Text style={styles.status}>{status}</Text> : null}
       <FlashList
         data={view}
         keyExtractor={(l) => String(l.id)}
@@ -284,9 +307,17 @@ const makeStyles = (T) =>
       marginHorizontal: 10,
     },
     save: { color: T.accent, fontSize: 15, fontWeight: "800" },
-    toolbar: { flexDirection: "row", gap: 10, paddingHorizontal: 14, paddingBottom: 10 },
+    toolbar: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: 10,
+      paddingHorizontal: 14,
+      paddingBottom: 10,
+    },
     filter: {
       flex: 1,
+      minWidth: 150,
       color: T.fg,
       fontSize: 14,
       backgroundColor: T.input,
@@ -296,6 +327,7 @@ const makeStyles = (T) =>
       paddingHorizontal: 12,
       paddingVertical: 9,
     },
+    status: { color: T.accent, fontSize: 12.5, paddingHorizontal: 14, paddingBottom: 8 },
     addBtn: {
       backgroundColor: T.chip,
       borderRadius: T.radiusSm,

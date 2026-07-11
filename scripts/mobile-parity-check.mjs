@@ -282,6 +282,38 @@ async function checkLocalSettings() {
   }
 }
 
+// ---------- 7. List-editor ops: mobile lib/listOps.js == web lib/manage/listEditorOps.js ----------
+// The Manage list editor's Sort / Dedupe / AI-expand logic is a hand-port on mobile; assert it stays
+// behaviorally identical to the web source (same functions, same output) so it can't silently drift.
+async function checkListOps() {
+  console.log("List-editor ops (listOps.js  ⇄  web listEditorOps.js)");
+  const mob = await imp(join(MOBILE, "lib/listOps.js"));
+  const web = await imp(join(WEB, "frontend/lib/manage/listEditorOps.js"));
+  const cases = [
+    ["parseAiCandidates", ["- red\n2. green\n• blue"]],
+    ["parseAiCandidates", ["red, green, blue"]],
+    [
+      "mergeNew",
+      [
+        ["Red", "green"],
+        ["red", "BLUE", "blue", "Green"],
+      ],
+    ],
+    ["dedupeLines", [["a", "A", "b", " a ", "b"]]],
+    ["sortLines", [["banana", "Apple", "cherry"]]],
+  ];
+  for (const fn of ["parseAiCandidates", "mergeNew", "dedupeLines", "sortLines"]) {
+    if (typeof mob[fn] !== "function") fail(`mobile listOps is missing "${fn}"`);
+  }
+  let ok = 0;
+  for (const [fn, args] of cases) {
+    if (typeof mob[fn] !== "function" || typeof web[fn] !== "function") continue;
+    if (eq(mob[fn](...args), web[fn](...args))) ok++;
+    else fail(`"${fn}" output differs from the web source for args ${JSON.stringify(args)}`);
+  }
+  if (ok === cases.length) pass(`all ${ok} list-op cases match the web source`);
+}
+
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
   checkAccents,
@@ -289,6 +321,7 @@ for (const step of [
   checkDplInserts,
   checkProviders,
   checkLocalSettings,
+  checkListOps,
   checkSurfaces,
 ]) {
   await step();
