@@ -531,7 +531,17 @@ const KEYWORD_SYSTEM =
   "weighting syntax such as parentheses, brackets, ':1.2' weights, and LoRA/embedding tags; expand them to " +
   "their plain meaning. No duplicates, no numbering, no sentences. Reply with ONLY the comma-separated " +
   "keywords — no preamble, no quotes, no explanation.";
-export const systemFor = (mode) => (mode === "keyword" ? KEYWORD_SYSTEM : REWRITE_SYSTEM);
+// Grow a word list — invent 25 new entries in a sample's style (Manage list editor's AI Expand).
+// Kept verbatim in lockstep with the web EXPAND_SYSTEM (shared/_shared/rewriteSystem.js).
+const EXPAND_SYSTEM =
+  "You extend a word list. The user gives a sample of entries from one list (each a short word or " +
+  "phrase, one per line). Infer the list's theme/category and style, then invent NEW entries that fit " +
+  "right in. Reply with EXACTLY 25 new entries, one per line, matching the sample's style, length, and " +
+  "casing. Do NOT repeat any of the sample entries and do NOT repeat yourself. No numbering, no bullets, " +
+  "no commentary, no blank lines — only the 25 entries, one per line.";
+
+export const systemFor = (mode) =>
+  mode === "keyword" ? KEYWORD_SYSTEM : mode === "expand" ? EXPAND_SYSTEM : REWRITE_SYSTEM;
 
 // OpenAI-compatible chat rewrite factory (Groq / OpenRouter / xAI / OpenAI all speak this shape).
 function makeChatRewrite({ url, model, label }) {

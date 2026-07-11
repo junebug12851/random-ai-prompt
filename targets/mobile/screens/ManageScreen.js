@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
-import { sortLines, dedupeLines } from "../lib/listOps.js";
+import { sortLines, dedupeLines, parseAiCandidates, mergeNew } from "../lib/listOps.js";
+import { getTextProvider, systemFor } from "../lib/imageProviders.js";
+import { getKey } from "../lib/keys.js";
 import ManageBlockEditor from "../components/ManageBlockEditor.js";
 import ManageTree from "../components/ManageTree.js";
 import { refreshOverlay } from "../lib/overlay.js";
@@ -46,7 +48,7 @@ const LineRow = memo(function LineRow({ line, onCommit, onDelete }) {
 
 // The windowed editor for one list — master/detail's detail pane (the web Manage's phone layout).
 function Editor({ name, onClose }) {
-  const { T } = useTheme();
+  const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const linesRef = useRef([]);
   const nextId = useRef(0);
@@ -57,6 +59,7 @@ function Editor({ name, onClose }) {
   const [description, setDescription] = useState("");
   const [mode, setMode] = useState("entries"); // "entries" | "raw"
   const [rawText, setRawText] = useState("");
+  const [expanding, setExpanding] = useState(false);
 
   const recompute = useCallback((f) => {
     const all = linesRef.current;
@@ -112,6 +115,67 @@ function Editor({ name, onClose }) {
     setStatus(removed ? `Removed ${removed} duplicate${removed === 1 ? "" : "s"}` : "No duplicates");
     recompute(filter);
   }, [filter, recompute]);
+  // AI Expand: sample existing entries → ask the Text provider for 25 fresh ones in the same vein →
+  // merge in only the net-new (deduped). Mirrors the web list editor's aiExpand + the mobile composer's
+  // rewrite wiring; parseAiCandidates/mergeNew are the shared, parity-locked listOps.
+  const aiExpand = useCallback(async () => {
+    if (!rewriteProvider || rewriteProvider === "none") {
+      setStatus("Pick a Text provider in the ⋯ menu to expand.");
+      return;
+    }
+    const rprov = getTextProvider(rewriteProvider);
+    if (!rprov) {
+      setStatus("Text provider unavailable.");
+      return;
+    }
+    const pool = linesRef.current.map((l) => l.text.trim()).filter(Boolean);
+    if (!pool.length) {
+      setStatus("Add a few entries first, then Expand.");
+      return;
+    }
+    const key = await getKey(rewriteProvider);
+    if (!key) {
+      setStatus(`Add your ${rprov.label} key in the ⋯ menu to expand.`);
+      return;
+    }
+    // Random sample of 25 (Fisher–Yates, no lodash).
+    const shuffled = pool.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const sample = shuffled.slice(0, 25);
+    setExpanding(true);
+    setStatus("");
+    try {
+      const rs = { ...(providerSettings[rewriteProvider] || {}), backendUrl };
+      const out =
+        (
+          await rprov.rewrite({
+            prompt: sample.join("\n"),
+            key,
+            system: systemFor("expand"),
+            mode: "expand",
+            settings: rs,
+          })
+        ).text || "";
+      const added = mergeNew(pool, parseAiCandidates(out));
+      if (!added.length) {
+        setStatus("Only duplicates came back — nothing new added.");
+      } else {
+        linesRef.current = [
+          ...added.map((t) => ({ id: nextId.current++, text: t })),
+          ...linesRef.current,
+        ];
+        setStatus(`Added ${added.length} new entr${added.length === 1 ? "y" : "ies"}.`);
+        recompute(filter);
+      }
+    } catch (e) {
+      setStatus(`Expand error: ${e?.message || e}`);
+    } finally {
+      setExpanding(false);
+    }
+  }, [rewriteProvider, providerSettings, backendUrl, filter, recompute]);
   const onFilter = useCallback(
     (f) => {
       setFilter(f);
@@ -193,6 +257,13 @@ function Editor({ name, onClose }) {
             </TouchableOpacity>
             <TouchableOpacity style={styles.addBtn} onPress={dedupe}>
               <Text style={styles.addBtnText}>Dedupe</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.addBtn, expanding && { opacity: 0.5 }]}
+              onPress={aiExpand}
+              disabled={expanding}
+            >
+              <Text style={styles.addBtnText}>{expanding ? "Expanding…" : "AI Expand"}</Text>
             </TouchableOpacity>
           </View>
           {status ? <Text style={styles.status}>{status}</Text> : null}

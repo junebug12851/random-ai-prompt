@@ -8,8 +8,18 @@ import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 jest.mock("../../lib/theme.js", () => ({
   useTheme: () => ({
     T: new Proxy({}, { get: (_t, k) => (typeof k === "string" && k.startsWith("radius") ? 12 : "#334") }),
+    rewriteProvider: "openai",
+    providerSettings: {},
+    backendUrl: "",
   }),
 }));
+// AI Expand deps: a Text provider that returns two fresh entries, and a present key.
+const mockRewriteFn = jest.fn(async () => ({ text: "green\nyellow" }));
+jest.mock("../../lib/imageProviders.js", () => ({
+  getTextProvider: jest.fn(() => ({ label: "OpenAI", rewrite: mockRewriteFn })),
+  systemFor: jest.fn(() => "SYS"),
+}));
+jest.mock("../../lib/keys.js", () => ({ getKey: jest.fn(async () => "sk-test") }));
 
 const tree = (entries = [], folders = []) => ({ name: "", path: "", folders, entries });
 jest.mock("../../lib/storage.js", () => ({
@@ -118,6 +128,17 @@ describe("ManageScreen (mounted)", () => {
     await waitFor(() => expect(getByDisplayValue("warm colors")).toBeTruthy());
     fireEvent.press(getByText("Raw"));
     await waitFor(() => expect(getByDisplayValue("red\nblue")).toBeTruthy());
+  });
+
+  it("AI Expand asks the Text provider and merges the new entries", async () => {
+    const { getByText, findByText, getByDisplayValue } = await setup();
+    await waitFor(() => expect(getByText("colors")).toBeTruthy());
+    fireEvent.press(getByText("colors"));
+    await findByText("AI Expand");
+    fireEvent.press(getByText("AI Expand"));
+    await waitFor(() => expect(mockRewriteFn).toHaveBeenCalledWith(expect.objectContaining({ mode: "expand" })));
+    expect(await findByText("Added 2 new entries.")).toBeTruthy();
+    expect(getByDisplayValue("green")).toBeTruthy();
   });
 
   it("deleting a list entry calls the storage delete", async () => {
