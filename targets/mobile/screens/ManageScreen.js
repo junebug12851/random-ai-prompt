@@ -1,13 +1,17 @@
 import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "../lib/theme.js";
 import { sortLines, dedupeLines } from "../lib/listOps.js";
+import ManageBlockEditor from "../components/ManageBlockEditor.js";
 import {
   listUserLists,
   readUserList,
   writeUserList,
   deleteUserList,
+  listUserBlocks,
+  writeUserBlock,
+  deleteUserBlock,
   storageAvailable,
 } from "../lib/storage.js";
 
@@ -160,47 +164,79 @@ function Editor({ name, onClose }) {
   );
 }
 
+// One tap-to-open / delete row in a master section (blocks or lists).
+function OverlayRow({ name, onOpen, onDelete, styles }) {
+  return (
+    <View style={styles.listRow}>
+      <TouchableOpacity style={{ flex: 1 }} onPress={onOpen}>
+        <Text style={styles.listName}>{name}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onDelete} hitSlop={8}>
+        <Text style={styles.del}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 /**
- * Manage the phone-local user overlay: custom word lists, each a windowed editor that stays smooth to the
- * supported 100k-line max. Master/detail like the web Manage. Wiring these into the engine as a live
- * runtime overlay (so {name} draws from them during generation) is the next step.
+ * Manage the phone-local user overlay — the two editable roots the web Manage exposes, to the extent the
+ * platform allows: **Blocks** (custom DPL generators) and **Lists** (custom word lists), each master/detail
+ * with its own editor (block editor / windowed line editor, smooth to the 100k-line max). Built-in browsing,
+ * override/restore, and the live runtime overlay follow (tracked in notes/plans/mobile-parity.md).
  */
 export default function ManageScreen() {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [lists, setLists] = useState([]);
-  const [editing, setEditing] = useState(null);
-  const [newName, setNewName] = useState("");
+  const [blocks, setBlocks] = useState([]);
+  const [editing, setEditing] = useState(null); // { kind: "list"|"block", key } | null
+  const [newList, setNewList] = useState("");
+  const [newBlock, setNewBlock] = useState("");
 
   const reload = useCallback(() => {
     listUserLists().then(setLists);
+    listUserBlocks().then(setBlocks);
   }, []);
   useEffect(() => {
     reload();
   }, [reload]);
 
-  const create = useCallback(async () => {
-    // No `/`: writeUserList stores `${LISTS}${name}.txt` and listUserLists only scans the top-level
-    // lists dir, so a `folder/list` name wouldn't round-trip. Keep names flat.
-    const n = newName.trim().replace(/[^a-z0-9_-]/gi, "");
+  const clean = (s) => s.trim().replace(/[^a-z0-9_-]/gi, "");
+  const createList = useCallback(async () => {
+    const n = clean(newList);
     if (!n) return;
     await writeUserList(n, "");
-    setNewName("");
+    setNewList("");
     reload();
-    setEditing(n);
-  }, [newName, reload]);
-  const remove = useCallback(
+    setEditing({ kind: "list", key: n });
+  }, [newList, reload]);
+  const createBlock = useCallback(async () => {
+    const n = clean(newBlock);
+    if (!n) return;
+    await writeUserBlock(n, "Start\n===\n");
+    setNewBlock("");
+    reload();
+    setEditing({ kind: "block", key: n });
+  }, [newBlock, reload]);
+  const removeList = useCallback(
     async (name) => {
       await deleteUserList(name);
       reload();
     },
     [reload],
   );
+  const removeBlock = useCallback(
+    async (key) => {
+      await deleteUserBlock(key);
+      reload();
+    },
+    [reload],
+  );
 
-  if (editing != null) {
+  if (editing?.kind === "list") {
     return (
       <Editor
-        name={editing}
+        name={editing.key}
         onClose={(saved) => {
           setEditing(null);
           if (saved) reload();
@@ -208,45 +244,82 @@ export default function ManageScreen() {
       />
     );
   }
+  if (editing?.kind === "block") {
+    return (
+      <ManageBlockEditor
+        blockKey={editing.key}
+        onClose={(changed) => {
+          setEditing(null);
+          if (changed) reload();
+        }}
+      />
+    );
+  }
 
   return (
-    <View style={styles.scroll}>
-      <Text style={styles.h}>Your custom lists</Text>
+    <ScrollView style={styles.scroll} keyboardShouldPersistTaps="handled">
+      <Text style={styles.h}>Your building blocks</Text>
       <Text style={styles.hint}>
-        Word lists stored on your phone (editor stays smooth to 100k lines). Hooking them into
-        generation as a live overlay is the next step.
-        {storageAvailable ? "" : " (Storage is off in the web preview.)"}
+        Custom DPL generators (blocks) and word lists stored on your phone. Editors stay smooth to the
+        100k-line max.{storageAvailable ? "" : " (Storage is off in the web preview.)"}
       </Text>
+
+      <Text style={styles.section}>Blocks</Text>
       <View style={styles.newRow}>
         <TextInput
           style={styles.newInput}
-          value={newName}
-          onChangeText={setNewName}
+          value={newBlock}
+          onChangeText={setNewBlock}
+          placeholder="new block name"
+          placeholderTextColor={T.faint}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity style={styles.primary} onPress={createBlock}>
+          <Text style={styles.btnTextP}>New block</Text>
+        </TouchableOpacity>
+      </View>
+      {blocks.length === 0 ? (
+        <Text style={styles.none}>No custom blocks yet — add one above.</Text>
+      ) : (
+        blocks.map((key) => (
+          <OverlayRow
+            key={key}
+            name={key}
+            styles={styles}
+            onOpen={() => setEditing({ kind: "block", key })}
+            onDelete={() => removeBlock(key)}
+          />
+        ))
+      )}
+
+      <Text style={styles.section}>Your custom lists</Text>
+      <View style={styles.newRow}>
+        <TextInput
+          style={styles.newInput}
+          value={newList}
+          onChangeText={setNewList}
           placeholder="new list name"
           placeholderTextColor={T.faint}
           autoCapitalize="none"
         />
-        <TouchableOpacity style={styles.primary} onPress={create}>
+        <TouchableOpacity style={styles.primary} onPress={createList}>
           <Text style={styles.btnTextP}>Add</Text>
         </TouchableOpacity>
       </View>
-      <FlashList
-        data={lists}
-        keyExtractor={(n) => n}
-        estimatedItemSize={60}
-        ListEmptyComponent={<Text style={styles.none}>No custom lists yet — add one above.</Text>}
-        renderItem={({ item: name }) => (
-          <View style={styles.listRow}>
-            <TouchableOpacity style={{ flex: 1 }} onPress={() => setEditing(name)}>
-              <Text style={styles.listName}>{name}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => remove(name)} hitSlop={8}>
-              <Text style={styles.del}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-    </View>
+      {lists.length === 0 ? (
+        <Text style={styles.none}>No custom lists yet — add one above.</Text>
+      ) : (
+        lists.map((name) => (
+          <OverlayRow
+            key={name}
+            name={name}
+            styles={styles}
+            onOpen={() => setEditing({ kind: "list", key: name })}
+            onDelete={() => removeList(name)}
+          />
+        ))
+      )}
+    </ScrollView>
   );
 }
 
@@ -255,6 +328,15 @@ const makeStyles = (T) =>
     scroll: { flex: 1, padding: 16 },
     h: { color: T.fg, fontSize: 18, fontWeight: "700", marginBottom: 6 },
     hint: { color: T.muted, fontSize: 13, lineHeight: 19, marginBottom: 14 },
+    section: {
+      color: T.fgSoft,
+      fontSize: 12,
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      marginTop: 18,
+      marginBottom: 8,
+    },
     newRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
     newInput: {
       flex: 1,
