@@ -72,11 +72,31 @@ a size change":
   set at phone AND tablet widths).
 - Keep the "no per-feature ignores" philosophy: a missing feature is a FAILURE, not a note.
 
+## Data-layer feasibility (confirmed 2026-07-10 — de-risks Phase 2)
+
+- **Built-in catalog is fully readable on device.** `metroLoader` exposes `blockNames` / `listNames`,
+  `readBlockMeta` / `readListMeta`, `blockForcedPrefixDirs` / `blockGroupDirs` / `groupListDirs`,
+  `loadBlock`, `readListLines` — the same interface the web `getBlocks` uses (see `lib/blockCatalog.js`).
+  So the read-only **built-in tree** (Blocks + Lists, folders, badges, NSFW gating) is straightforward.
+- **Raw source IS in the static catalog.** `scripts/build-metro-catalog.mjs` inlines every `.dpl` as
+  `dpDplText[key]` and every list as `listLines[key]`. So viewing a built-in block's DPL source and
+  **override** (copy built-in → editable user overlay) are feasible. TODO for Phase 2: expose the raw
+  `.dpl` text via a `metroLoader.readBlockSource(key)` (small loader addition; keep the loader interface
+  parallel across node/browser/metro).
+- **User overlay = the editable extent.** `lib/storage.js` currently stores only flat user **lists**
+  (`rap/lists/*.txt`). Phase 2 extends it to user **blocks** (`rap/blocks/*.dpl` + `.json` sidecar) and
+  **nested folders** (recursive walk, since `readDirectoryAsync` is one level), mirroring the web `user/`
+  overlay. Runtime-overlay wiring into `metroLoader` (so `{name}` draws from the overlay during
+  generation) is Phase 4.
+
 ## Phased plan (each phase lands green; strict gates flip on with their implementation)
 
 - **Phase 0 (done, 2026-07-10)** — audit + this plan; multi-size visual parity; jest FlashList-mock key fix.
 - **Phase 1** — `useResponsive()` hook + per-screen tablet layouts (centered reading columns; Gallery
   columns scale) + size assertions. No feature hidden at any size.
+  - **1a done (2026-07-10)** — Gallery fills full width on tablet/wide; `ContentColumn` gives
+    Generate/Single/Manage the centered reading column on tablet. Remaining: Single two-pane (image +
+    metadata) on tablet; Manage two-pane lands with its port (Phase 3).
 - **Phase 2** — extract the reusable DPL editor component from `GenerateScreen`; build the mobile Manage
   **Blocks** root + block editor (DPL + Insert + Refine + Modify/Draft + JS sidecar) to parity.
 - **Phase 3** — mobile Manage **Lists** editor (Entries/Raw/Sort/Dedupe/AI-Expand) + **folder** tree +
