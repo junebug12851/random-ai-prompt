@@ -10,6 +10,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useTheme } from "../lib/theme.js";
+import { useResponsive } from "../lib/responsive.js";
 import { listImages, deleteImages, saveImageSrc } from "../lib/storage.js";
 import { run, baseSettings } from "../lib/engine.js";
 import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
@@ -60,6 +61,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const { T, provider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
+  const { isTabletOrWider } = useResponsive();
   const [items, setItems] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [loadErr, setLoadErr] = useState("");
@@ -77,8 +79,12 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const canImages = !!imgProv && !imgProv.copy;
 
   const pad = 12;
-  const w = Math.min(width, 900);
-  const cols = Math.max(2, Math.floor(w / 180));
+  // Phones keep the tuned ≤900px sizing; tablets/wide use the FULL width with a larger cell target so
+  // the grid fills the screen (web parity — the gallery spans the full content width) instead of leaving
+  // dead space past 900px. Phone path is byte-identical to before (no phone regression).
+  const w = isTabletOrWider ? width : Math.min(width, 900);
+  const target = isTabletOrWider ? 220 : 180;
+  const cols = Math.max(2, Math.floor(w / target));
   const cell = Math.floor((w - pad) / cols) - pad;
 
   const reload = useCallback(() => {

@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "./lib/theme.js";
 import { MoreIcon } from "./lib/icons.js";
 import OverflowMenu from "./components/OverflowMenu.js";
+import ContentColumn from "./components/ContentColumn.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
 import GalleryScreen from "./screens/GalleryScreen.js";
 import SingleScreen from "./screens/SingleScreen.js";
@@ -88,8 +89,13 @@ function Root() {
       </View>
 
       <View style={styles.body}>
+        {/* Reading/editing surfaces get the web's centered max-width column on tablet/wide (via
+            ContentColumn); the Gallery grid opts out and uses the full width itself. No feature changes
+            with size — only the column width. */}
         <View style={pane("generate")}>
-          <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
+          <ContentColumn>
+            <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
+          </ContentColumn>
         </View>
         <View style={pane("gallery")}>
           <GalleryScreen
@@ -101,16 +107,20 @@ function Root() {
           />
         </View>
         <View style={pane("single")}>
-          <SingleScreen
-            image={image}
-            onBack={() => setView("gallery")}
-            onDeleted={afterDelete}
-            onUpscaled={() => setGalleryKey((k) => k + 1)}
-            onSearch={searchFromSingle}
-          />
+          <ContentColumn max={1100}>
+            <SingleScreen
+              image={image}
+              onBack={() => setView("gallery")}
+              onDeleted={afterDelete}
+              onUpscaled={() => setGalleryKey((k) => k + 1)}
+              onSearch={searchFromSingle}
+            />
+          </ContentColumn>
         </View>
         <View style={pane("manage")}>
-          <ManageScreen />
+          <ContentColumn>
+            <ManageScreen />
+          </ContentColumn>
         </View>
       </View>
 
