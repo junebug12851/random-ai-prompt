@@ -2,6 +2,13 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
+0. **De-duplication campaign — push shared behavior down, keep targets thin.** See
+   [`de-duplication.md`](de-duplication.md). Phases A/B (one provider registry for all three runtimes +
+   an injectable transport + provider metadata on the manifests) are **done** (2.52.0–2.53.0). **Next: C** —
+   mobile swaps its 892-line `imageProviders.js` for the shared registry (blocked on making mobile's
+   provider-settings sheet load its schema **async**, like the web's gear). Then D (engine-domain logic
+   still hand-ported in mobile: `dplInserts`/`listOps`/`blockCatalog`/rewrite systems) and E (retire
+   the drift checks the duplication made necessary).
 00. **Old `/generate` carry-over — Sweep 1 (prune).** Full disposition of every legacy prompt-page control
    in [`generate-page-triage.md`](generate-page-triage.md). Sweep 1 = drop the DPL-replaced randomization
    knobs (chaos, keyword counts, auto-fx/artists, anime words), all animation settings, and the salt
