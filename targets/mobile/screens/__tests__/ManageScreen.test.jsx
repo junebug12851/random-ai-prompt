@@ -48,6 +48,11 @@ jest.mock("../../components/InsertMenu.js", () => () => {
   const { Text } = require("react-native");
   return <Text>INSERT_MENU</Text>;
 });
+// BuiltinBrowser imports the engine (metroLoader) directly — stub it to a marker.
+jest.mock("../../components/BuiltinBrowser.js", () => () => {
+  const { Text } = require("react-native");
+  return <Text>BUILTIN_BROWSER</Text>;
+});
 
 import * as storage from "../../lib/storage.js";
 import ManageScreen from "../ManageScreen.js";

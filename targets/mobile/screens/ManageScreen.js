@@ -7,6 +7,7 @@ import { getTextProvider, systemFor } from "../lib/imageProviders.js";
 import { getKey } from "../lib/keys.js";
 import ManageBlockEditor from "../components/ManageBlockEditor.js";
 import ManageTree from "../components/ManageTree.js";
+import BuiltinBrowser from "../components/BuiltinBrowser.js";
 import { refreshOverlay } from "../lib/overlay.js";
 import {
   readUserList,
@@ -378,6 +379,16 @@ export default function ManageScreen() {
     },
     [reload],
   );
+  // Override a built-in: copy its source into the editable user overlay (user-wins), then open it.
+  const override = useCallback(
+    async (kind, key, source) => {
+      if (kind === "block") await writeUserBlock(key, source);
+      else await writeUserList(key, source);
+      reload();
+      setEditing({ kind, key });
+    },
+    [reload],
+  );
 
   if (editing?.kind === "list") {
     return (
@@ -454,6 +465,9 @@ export default function ManageScreen() {
         onDeleteFolder={(path) => deleteFolder("lists", path)}
         emptyText="No custom lists yet — add one above."
       />
+
+      <Text style={styles.section}>Built-in catalog</Text>
+      <BuiltinBrowser onOverride={override} />
     </ScrollView>
   );
 }
