@@ -5,6 +5,7 @@ import { useTheme } from "../lib/theme.js";
 import { sortLines, dedupeLines } from "../lib/listOps.js";
 import ManageBlockEditor from "../components/ManageBlockEditor.js";
 import ManageTree from "../components/ManageTree.js";
+import { refreshOverlay } from "../lib/overlay.js";
 import {
   readUserList,
   writeUserList,
@@ -258,6 +259,8 @@ export default function ManageScreen() {
   const reload = useCallback(() => {
     readUserTree("blocks").then(setBlockTree);
     readUserTree("lists").then(setListTree);
+    // Push edits into the engine overlay so custom content feeds generation immediately.
+    refreshOverlay().catch(() => {});
   }, []);
   useEffect(() => {
     reload();

@@ -1,9 +1,10 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "./lib/theme.js";
 import { MoreIcon } from "./lib/icons.js";
+import { refreshOverlay } from "./lib/overlay.js";
 import OverflowMenu from "./components/OverflowMenu.js";
 import ContentColumn from "./components/ContentColumn.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
@@ -41,6 +42,12 @@ function Root() {
   const [galleryKey, setGalleryKey] = useState(0);
   const [gallerySearch, setGallerySearch] = useState({ term: "", seq: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Install the on-device Manage overlay (custom lists + blocks) into the engine at startup so prompts
+  // draw from the user's own content. ManageScreen refreshes it again after each edit.
+  useEffect(() => {
+    refreshOverlay().catch(() => {});
+  }, []);
 
   const openImage = useCallback((it) => {
     setImage(it);

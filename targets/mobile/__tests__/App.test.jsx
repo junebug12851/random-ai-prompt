@@ -21,6 +21,9 @@ jest.mock("../components/OverflowMenu.js", () => ({ visible }) => {
   const { Text } = require("react-native");
   return visible ? <Text>OVERFLOW_OPEN</Text> : null;
 });
+// overlay.js pulls in the engine (metroLoader) which isn't jest-resolvable; the shell only calls
+// refreshOverlay() as a startup side-effect, so mock it away.
+jest.mock("../lib/overlay.js", () => ({ refreshOverlay: jest.fn(async () => ({ lists: 0, blocks: 0 })) }));
 
 import App from "../App.js";
 

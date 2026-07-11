@@ -30,6 +30,10 @@ jest.mock("../../lib/storage.js", () => ({
   storageAvailable: true,
 }));
 
+// overlay.js imports the engine (metroLoader), which isn't jest-resolvable; ManageScreen only calls
+// refreshOverlay() as a side-effect after edits, so mock it.
+jest.mock("../../lib/overlay.js", () => ({ refreshOverlay: jest.fn(async () => ({ lists: 0, blocks: 0 })) }));
+
 import * as storage from "../../lib/storage.js";
 import ManageScreen from "../ManageScreen.js";
 
