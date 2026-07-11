@@ -152,7 +152,7 @@ async function checkProviders() {
 // A mandatory gate: for each of the three focus surfaces, assert the mobile implementation carries a
 // marker for every web feature. A missing marker fails loudly so a dropped/omitted feature can't hide.
 function checkSurfaces() {
-  console.log("Surface feature parity (Generate / Gallery / Header)");
+  console.log("Surface feature parity (Header / Generate / Gallery / Single / Manage)");
   const read = (rel) => {
     try {
       return readFileSync(join(MOBILE, rel), "utf8");
@@ -166,6 +166,10 @@ function checkSurfaces() {
     generate: read("screens/GenerateScreen.js"),
     gallery: read("screens/GalleryScreen.js"),
     single: read("screens/SingleScreen.js"),
+    manageScreen: read("screens/ManageScreen.js"),
+    manageBlock: read("components/ManageBlockEditor.js"),
+    manageList: read("screens/ManageScreen.js"),
+    builtin: read("components/BuiltinBrowser.js"),
   };
   // [surface, feature, fileKey, /marker/]
   const CHECKS = [
@@ -239,6 +243,32 @@ function checkSurfaces() {
     ["Single", "keyword cloud", "single", /parseKeywords/],
     ["Single", "keyword rebuild (AI)", "single", /rebuildKeywords/],
     ["Single", "keyword search", "single", /onSearch/],
+    // Manage — full content manager parity (to the platform-allowed extent: the on-device user overlay
+    // + read-only built-in browse/override; no fs backend). Every web Manage capability maps to a marker.
+    ["Manage", "two roots (Blocks + Lists)", "manageScreen", /readUserTree\("blocks"\)[\s\S]*readUserTree\("lists"\)/],
+    ["Manage", "nested folder tree", "manageScreen", /ManageTree/],
+    ["Manage", "new block / list create", "manageScreen", /createBlock[\s\S]*createList|createList[\s\S]*createBlock/],
+    ["Manage", "folder create (nested name) + delete", "manageScreen", /deleteUserFolder/],
+    ["Manage", "built-in browse + override", "manageScreen", /BuiltinBrowser/],
+    ["Manage", "override copies to overlay", "builtin", /onOverride/],
+    ["Manage", "runtime overlay wiring", "manageScreen", /refreshOverlay/],
+    // Block (generator) editor
+    ["Manage", "block DPL editor", "manageBlock", /DplMiniEditor/],
+    ["Manage", "block Insert menu", "manageBlock", /InsertMenu/],
+    ["Manage", "block Refine steppers", "manageBlock", /REFINE_DIMS/],
+    ["Manage", "block Modify / Draft", "manageBlock", /dpl-custom[\s\S]*dpl-create|dpl-create[\s\S]*dpl-custom/],
+    ["Manage", "block Cleanup", "manageBlock", /dpl-tighten/],
+    ["Manage", "block JS sidecar", "manageBlock", /JS sidecar|createJs/],
+    ["Manage", "block NSFW flag", "manageBlock", /nsfw/],
+    ["Manage", "block description", "manageBlock", /description/],
+    ["Manage", "block rename", "manageBlock", /rename/],
+    ["Manage", "block delete", "manageBlock", /deleteUserBlock/],
+    // List editor
+    ["Manage", "list Entries/Raw tabs", "manageList", /switchMode|rawText/],
+    ["Manage", "list Sort", "manageList", /sortLines/],
+    ["Manage", "list Dedupe", "manageList", /dedupeLines/],
+    ["Manage", "list AI Expand", "manageList", /aiExpand/],
+    ["Manage", "list description", "manageList", /writeUserSidecar\("lists"/],
   ];
   const bySurface = {};
   for (const [surface, feature, fileKey, re] of CHECKS) {
