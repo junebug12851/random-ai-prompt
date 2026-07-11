@@ -42,7 +42,9 @@ jest.mock("@shopify/flash-list", () => {
       ? data.map((item, index) =>
           React.createElement(React.Fragment, { key: keyExtractor ? keyExtractor(item, index) : String(index) },
             renderItem ? renderItem({ item, index }) : null))
-      : (emptyEl ? [emptyEl] : []);
+      // Keep the empty element keyed too — it's rendered inside an array, and an unkeyed child there
+      // trips React's "unique key" warning (the real FlashList renders it as a lone child, not in a list).
+      : (emptyEl ? [React.createElement(React.Fragment, { key: "empty" }, emptyEl)] : []);
     return React.createElement(ScrollView, null, header, rows);
   };
   return { FlashList };

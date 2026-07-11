@@ -16,12 +16,16 @@ Metro can't cross the repo-root ESM package boundary, so `metro.config.js` alias
 `--tier=full` and `--tier=sfw` (`catalog:play`, physically excludes nsfw-token content). Parity is proven
 by `scripts/metro-parity-check.mjs` (metroLoader output == nodeLoader).
 
-## UI — parity with the web is a STANDING INSTRUCTION
+## UI — FULL parity with the web is a STANDING INSTRUCTION
 
-**Keep the mobile UI and the web UI in parity by default, without being asked.** The web SPA already has a
-complete responsive **phone** layout; the mobile app mirrors it — it does not invent its own design. This
-is bidirectional: a change to one surface's look/layout should be reflected in the other in the same spirit
-(the analog of the CLI's "stay at parity with the engine + GUI" rule). Concretely the mobile app mirrors:
+**Keep the mobile UI and the web UI in COMPLETE parity — no exceptions, no size-based feature loss, no
+"mobile is simpler" version.** The whole app is available on every device (phone AND tablet) **to the extent
+the target platform allows**, and parity is **enforced behind the release quality gate**. The only sanctioned
+non-parity is a genuine platform boundary expressed as a **build variant, not a feature drop** — the SFW
+build physically removes NSFW (content + toggle) via `--tier=sfw`; an NSFW-capable APK keeps it. See the
+campaign + gap audit + phased plan in [`../plans/mobile-parity.md`](../plans/mobile-parity.md). This is
+bidirectional: a change to one surface's look/layout/features must be reflected in the other. Concretely the
+mobile app mirrors:
 
 - **Top bar** (`App.js`): dark rounded brand mark (mint pencil) + the **enclosed pill view-switch** (active
   tab green-filled) + a `⋯` overflow — one row, matching the web phone header. Panes stay mounted
@@ -63,6 +67,10 @@ Four layers, mirroring the web target's rigor:
 - **Visual/UX parity** — `expo export --platform web` → Playwright screenshot at 390px vs a web reference.
 
 ## Open follow-ups
+- **FULL-parity campaign** (mandatory, gate-enforced) — see [`../plans/mobile-parity.md`](../plans/mobile-parity.md):
+  port the complete web Manage to RN (Blocks root + DPL/block editor + refine/AI + list editor
+  Entries/Raw/Sort/Dedupe/AI-Expand + folder editor + override/restore), add responsive **tablet** layouts
+  (two-pane master/detail, no size-based feature loss), and add Manage + size assertions to the parity gate.
 - Wire image generation (reuse `targets/web/shared/` provider adapters + expo-secure-store keys) → Gallery.
 - Wire the Manage user overlay into runtime generation (metroLoader runtime overlay).
 - Load the real brand fonts (Maven Pro / Space Grotesk); light/dark theme following the system.

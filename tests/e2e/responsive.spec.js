@@ -281,7 +281,9 @@ test.describe("manage — phone master/detail", () => {
   // top-right corner on desktop, but its intended top gutter is defeated by CodeMirror's own padding,
   // so on the narrow phone pane the wrapping code ran straight under the combo. On phone it must
   // un-pin (become a static right-aligned row ABOVE the editor) so it never overlaps the code.
-  test("block editor: the Modify/Draft combo clears the code, and the head fields stay usable", async ({ page }) => {
+  test("block editor: the Modify/Draft combo clears the code, and the head fields stay usable", async ({
+    page,
+  }) => {
     await openManage(page);
     await page.locator(".mg-pill.is-clickable").first().click(); // first entry = the block (generator)
 
