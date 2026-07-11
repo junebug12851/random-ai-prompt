@@ -4,7 +4,7 @@
  * that embeds the shared DPL primer, so the text provider refines templates *as DPL*.
  */
 import { describe, it, expect } from "vitest";
-import { systemFor, DPL_PRIMER, DPL_TASKS, REWRITE_SYSTEM } from "../../shared/_shared/rewriteSystem.js";
+import { systemFor, DPL_PRIMER, DPL_TASKS, REWRITE_SYSTEM } from "../../../shared/_shared/rewriteSystem.js";
 import { DPL_REFINE_MODES, DPL_CREATE_MODE, DPL_CUSTOM_MODE } from "../../frontend/lib/dpl/dplRefine.js";
 
 describe("systemFor — legacy modes", () => {

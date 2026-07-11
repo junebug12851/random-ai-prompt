@@ -2,7 +2,7 @@
 
 An open-source generator for AI image and text prompts that automatically builds richer, more
 detailed prompts than most people write by hand, then runs them through 40+ models (Midjourney,
-DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
+DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By 1fairyfox.
 
 **This is a single project at the repo root, organized as an engine + build targets.** An isomorphic
 prompt **engine** (`engine/`) authored in the **DPL** block language powers one or more **build
@@ -21,14 +21,20 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   `engine/data/blocks/`. The **one deliberate exception** to "engine code is `.js` modules" is
   `engine/data/blocks/`: those generators are executable `.js` authored as prompt *content* (like
   lists), so they live under `engine/data/`. (Expansions are deprecated, superseded by blocks.)
-- **`targets/`** — the build targets that consume the engine. **`targets/web/`** is the React/Vite web
-  target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`), `targets/web/backend/` (the
-  `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
-  `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/web-shell/`**
+- **`targets/shared/`** — the **cross-target app layer**: the provider adapters (one folder per provider:
+  `config.js` / `settings.js` / `code/`) plus `_shared/` (transport, dialects, rewrite systems, shared
+  settings). **Every target imports this ONE implementation** — the web SPA + backend, the CLI, the desktop
+  shell, and the mobile app (Metro aliases it as `shared`, exactly like `engine`). It used to live inside
+  `targets/web/shared/`, which forced the mobile app to hand-port ~1.7k lines and spawned drift-detecting
+  parity checks; promoting it out killed that whole class of problem. **Never fork it into a target.**
+- **`targets/`** — the build targets that consume the engine + `targets/shared/`. **`targets/web/`** is the
+  React/Vite web target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`) and
+  `targets/web/backend/` (the `/api` server — was `gui/server`); its Vite/build config sits at the
+  `targets/web/` package root. **`targets/web-shell/`**
   is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
-  **`targets/shared/`** is reserved for code shared across targets. **`targets/cli/`** is the
+  **`targets/cli/`** is the
   command-line target (the `prompt` tool, added 2.50.0 — its own npm package): a traditional args + flags
-  CLI that reuses the engine + the `targets/web/shared/` provider adapters + the `user/settings/` store
+  CLI that reuses the engine + the `targets/shared/` provider adapters + the `user/settings/` store
   to generate prompts and images headlessly, with multi-shell completion. It must stay at parity with
   BOTH the engine and the GUI by default (every `engine/settings.js` field is a flag; the same provider
   set + keys). See [`notes/systems/cli.md`](notes/systems/cli.md). For image gen it runs the real
@@ -416,7 +422,7 @@ report-only.
 included — reading it lets you skip a redundant prompt, it never lets the system act on this repo);
 never apply changes or rewrite history without an explicit go-ahead (an active `authorizations.yml`
 entry that covers the change *is* that go-ahead, given at the system); reconcile with local edits, don't
-clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
+clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `1fairyfox.github.io`); when a
 hub-side change is needed (e.g. a `registry.yml` correction), **report it for the owner to make**, don't
 do it here.
 

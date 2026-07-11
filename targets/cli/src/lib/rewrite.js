@@ -6,7 +6,7 @@
  * in-process backend). Same behavior the GUI's auto-fix uses.
  */
 import { getProvider } from "./providers.js";
-import { systemFor } from "../../../web/shared/_shared/rewriteSystem.js";
+import { systemFor } from "../../../shared/_shared/rewriteSystem.js";
 
 /**
  * Rewrite a prompt with a text provider.

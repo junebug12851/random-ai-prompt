@@ -33,9 +33,9 @@ import {
 
 // External destinations. Kept here (not in `online.js`) so the menu owns its own link set.
 const LINKS = {
-  github: "https://github.com/junebug12851/random-ai-prompt",
-  releases: "https://github.com/junebug12851/random-ai-prompt/releases",
-  selfhost: "https://github.com/junebug12851/random-ai-prompt#how-to-get-it",
+  github: "https://github.com/1fairyfox/random-ai-prompt",
+  releases: "https://github.com/1fairyfox/random-ai-prompt/releases",
+  selfhost: "https://github.com/1fairyfox/random-ai-prompt#how-to-get-it",
   docs: "https://fairyfox.io/random-ai-prompt/",
   home: "https://fairyfox.io",
 };

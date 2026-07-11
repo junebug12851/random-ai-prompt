@@ -85,7 +85,7 @@ A pass to raise the Scorecard from 4.2, addressing the high-weight failing check
   (with a `# vX` comment). Dependabot's `github-actions` ecosystem keeps the SHAs current.
 - **Signed-Releases** — `release.yml` does **two** things: (1) `actions/attest-build-provenance` writes a
   verifiable SLSA provenance attestation to the attestations API (`gh attestation verify <file> --repo
-  junebug12851/random-ai-prompt`), and (2) **keyless cosign** `sign-blob --bundle` emits a Sigstore
+  1fairyfox/random-ai-prompt`), and (2) **keyless cosign** `sign-blob --bundle` emits a Sigstore
   bundle per asset, named **`<asset>.sigstore.json`** and **attached to the release as an asset**. The
   second part is what the Scorecard check actually reads — it scans release *assets* for signature files
   (it recognizes `.sig` / `.sigstore` / `.sigstore.json` / `.intoto.jsonl`) and does **not** detect the
@@ -197,7 +197,7 @@ from green `dev` or a `release/`/`hotfix/` branch — `main` is branch-protected
 - **SLSA build provenance** — every asset (source, docs, online bundle, and installers) is attested via
   `actions/attest-build-provenance` (keyless Sigstore signing; `id-token`/`attestations: write` at job
   scope) and also carries a `<asset>.sigstore.json` cosign bundle. Verify a downloaded asset with
-  `gh attestation verify <file> --repo junebug12851/random-ai-prompt`. This satisfies the Scorecard
+  `gh attestation verify <file> --repo 1fairyfox/random-ai-prompt`. This satisfies the Scorecard
   **Signed-Releases** check (from the next release onward).
 
 The release body is composed automatically: a plain-English "what it is", a prerelease note, **"What's
@@ -260,7 +260,7 @@ CLI/@netlify/build resolves `publish` from the root, so the build command is `np
 npm --prefix gui run build` and `publish = "targets/web/dist"`.
 
 **Set up (done 2026-06-27):** the site **`prompt-fairyfox`** (→ `prompt-fairyfox.netlify.app`,
-team `junebug12851`) was created and deployed via the Netlify CLI:
+team `1fairyfox`) was created and deployed via the Netlify CLI:
 
 ```sh
 netlify link --id <site-id>          # link the repo folder to the site

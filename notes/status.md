@@ -26,7 +26,7 @@ to the new layout but **not yet verified with a real Tauri/Rust build** — do t
 **CLI target — the `prompt` command-line tool (2.50.0 — branch `feature/cli-target`):** a new build
 target under `targets/cli/` (own npm package, `@random-ai-prompt/cli`, bin `prompt`). Traditional args +
 flags, `--help`, colored output, and bash/zsh/fish/PowerShell completion — **full parity with the engine
-and the GUI by default**: it reuses the shared engine, the `targets/web/shared/` provider adapters, and
+and the GUI by default**: it reuses the shared engine, the `targets/shared/` provider adapters, and
 the `user/settings/` store (shared BYOK keys), exposing every `engine/settings.js` field as a flag.
 Image/upscale/rewrite run the real backend (`apiHandler.js`) **in-process** on an ephemeral port with a
 `fetch` shim, so provider adapters run unmodified and images save to the shared `output/` folder with the
@@ -106,7 +106,7 @@ a memoized `PromptResult` (all rows present, offscreen ones skip layout/paint/de
 generation is **placeholder-first + chunked** — `useImageBatches` shows every prompt's busy placeholder
 instantly and runs the real generate behind a **per-provider concurrency limiter** (rewrites through a
 separate text-provider limiter), so a huge run never stampedes an API. The concurrency lives in a new
-**shared-settings system** (`targets/web/shared/_shared/settings/`, auto-discovered + injected into every
+**shared-settings system** (`targets/shared/_shared/settings/`, auto-discovered + injected into every
 provider's schema): a per-provider **"Batch chunk size"** with metadata defaults (local 6 / hosted 3).
 Guarded by a Playwright **perf suite** (`tests/perf/`, real release server via `playwright.perf.config.js`
 — `npm run test:perf:scenarios`, in `test:all` + a CI job) and a profiler (`npm run profile`). See
@@ -260,7 +260,7 @@ to **`main`** (see [`reference/git-workflow.md`](reference/git-workflow.md)). **
 check-only one, writes a report) and the **standards compliance audit**
 ([`reference/compliance.md`](reference/compliance.md)), plus `## Verify` sections on the git-workflow
 and versioning notes. Notes-only adoption — no `VERSION` bump, no release. Open (hub-side, for the
-owner, in the `junebug12851.github.io` repo): the registry's `notes:` link still points at `tree/master/…`
+owner, in the `1fairyfox.github.io` repo): the registry's `notes:` link still points at `tree/master/…`
 (update to `tree/main/…` after the default branch flips), and the `adopts_hub`/docs-site flag is overstated.
 The registry's `branch: dev` is **correct** — that field tracks the work branch, not the default branch.
 
@@ -373,7 +373,7 @@ patterns, but were not launched live (launching the server opens a browser on th
 |-------|-------|----------------|
 | ~~No automated test suite~~ | ~~whole repo~~ | **DONE (2.6.0).** Full Vitest (Node + jsdom SPA) + Playwright (E2E/visual/a11y) suite — **738 Vitest tests** green (319 Node + 419 jsdom). See [`plans/testing.md`](plans/testing.md). |
 | ~~`no-dupe-else-if` / `no-useless-escape` lint warnings~~ | ~~`blocks/**.js`, some regexes~~ | **RESOLVED.** The tech-debt sweep cleared all ESLint warnings; `npm run lint` (eslint + stylelint) is now **0 problems**. |
-| Live generation unverified end-to-end | the provider adapters (`targets/web/shared/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
+| Live generation unverified end-to-end | the provider adapters (`targets/shared/**`) | Fully exercising real image/text generation needs live provider keys (or a running SD WebUI); not done in CI. |
 
 ## Build / run health
 

@@ -72,14 +72,14 @@ targets/web/                   ← the dev server's root, so the folder lives he
     wrappers.json                ← saved START/END wrapper presets
     presets.json                 ← custom setting presets
     providers/                   ← created lazily, the first time a provider's settings are changed
-      openai.json                ← override diff over targets/web/shared/openai defaults
+      openai.json                ← override diff over targets/shared/openai defaults
       comfyui.json               ← …only the keys the user changed
       …
 ```
 (The whole folder is gitignored — `targets/web/user-settings/` — so BYOK keys in `settings.json`
 are never committed.)
 
-Provider **defaults** stay in the provider folder (`targets/web/shared/<id>/settings.js` `defaults`,
+Provider **defaults** stay in the provider folder (`targets/shared/<id>/settings.js` `defaults`,
 optionally a sibling `<id>.json` if a literal sidecar is preferred). Same logical name on both sides
 (`<id>`), defaults-then-override, exactly as specified.
 

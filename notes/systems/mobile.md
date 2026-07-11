@@ -78,7 +78,7 @@ Four layers, mirroring the web target's rigor:
   port the complete web Manage to RN (Blocks root + DPL/block editor + refine/AI + list editor
   Entries/Raw/Sort/Dedupe/AI-Expand + folder editor + override/restore), add responsive **tablet** layouts
   (two-pane master/detail, no size-based feature loss), and add Manage + size assertions to the parity gate.
-- Wire image generation (reuse `targets/web/shared/` provider adapters + expo-secure-store keys) → Gallery.
+- Wire image generation (reuse `targets/shared/` provider adapters + expo-secure-store keys) → Gallery.
 - Wire the Manage user overlay into runtime generation (metroLoader runtime overlay).
 - Load the real brand fonts (Maven Pro / Space Grotesk); light/dark theme following the system.
 - Make `engine/` its own workspace package to tidy cross-target imports.

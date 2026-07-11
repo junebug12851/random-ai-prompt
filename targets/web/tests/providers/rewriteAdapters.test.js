@@ -5,9 +5,9 @@
 import { describe, it, expect } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../msw/server.js";
-import openaiRewrite from "../../shared/openai/code/rewrite.js";
-import geminiRewrite from "../../shared/gemini/code/rewrite.js";
-import grokRewrite from "../../shared/grok/code/rewrite.js";
+import openaiRewrite from "../../../shared/openai/code/rewrite.js";
+import geminiRewrite from "../../../shared/gemini/code/rewrite.js";
+import grokRewrite from "../../../shared/grok/code/rewrite.js";
 
 describe("openai rewrite", () => {
   it("sends the system + user messages and returns the trimmed content", async () => {

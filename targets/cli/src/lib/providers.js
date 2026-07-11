@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Node-side provider registry — the CLI's equivalent of the SPA's Vite-glob registry
- * (`targets/web/shared/index.js`), which can't run under plain Node. It fs-discovers every
+ * (`targets/shared/index.js`), which can't run under plain Node. It fs-discovers every
  * `shared/<id>/config.js` and every `shared/_shared/settings/*.js`, dynamic-imports them, and folds
  * the shared settings into each provider's schema exactly like the web registry does — so the CLI
  * sees the identical provider set and metadata the GUI sees (GUI parity). The CLI is always "local",
@@ -11,10 +11,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { WEB_ROOT } from "./paths.js";
-import { DIALECTS, engineModeFor } from "../../../web/shared/_shared/dialects.js";
+import { SHARED_ROOT } from "./paths.js";
+import { DIALECTS, engineModeFor } from "../../../shared/_shared/dialects.js";
 
-const SHARED_DIR = path.join(WEB_ROOT, "shared");
+const SHARED_DIR = SHARED_ROOT;
 
 /**
  * Dynamic-import an ESM module by absolute path and return its default export.

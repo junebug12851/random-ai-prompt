@@ -6,14 +6,14 @@
  * tiers.
  */
 import { describe, it, expect } from "vitest";
-import { applySharedSettings, SHARED_SETTINGS } from "../../shared/_shared/settings/index.js";
+import { applySharedSettings, SHARED_SETTINGS } from "../../../shared/_shared/settings/index.js";
 import {
   defaultConcurrencyFor,
   effectiveConcurrency,
   clampConcurrency,
   CONCURRENCY_KEY,
   CONCURRENCY_MAX,
-} from "../../shared/_shared/settings/concurrency.js";
+} from "../../../shared/_shared/settings/concurrency.js";
 
 const local = { id: "comfyui", tier: "api", local: true, transport: "local-direct" };
 const hosted = { id: "openai", tier: "api", local: false, transport: "browser-direct" };

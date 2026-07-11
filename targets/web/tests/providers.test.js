@@ -7,8 +7,8 @@
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { availableProviders, getProvider } from "../frontend/lib/providers/index.js";
-import localWebuiGenerate from "../shared/local-webui/code/generate.js";
-import mjFormat from "../shared/midjourney/code/format.js";
+import localWebuiGenerate from "../../shared/local-webui/code/generate.js";
+import mjFormat from "../../shared/midjourney/code/format.js";
 
 afterEach(() => {
   vi.unstubAllGlobals();

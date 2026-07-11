@@ -2,7 +2,7 @@
  * @file Unit tests for gui/providers/_shared/dialects.js — the dialect → engine-mode map.
  */
 import { describe, it, expect } from "vitest";
-import { DIALECTS, engineModeFor } from "../../shared/_shared/dialects.js";
+import { DIALECTS, engineModeFor } from "../../../shared/_shared/dialects.js";
 
 describe("dialects", () => {
   it("maps each known dialect to its engine mode", () => {

@@ -15,7 +15,7 @@ prompt or provider logic — it reuses:
 
 - **The engine** — `createEngine(nodeLoader)` + `promptFilesAndSuggestions` (the exact bootstrap the
   smoke test uses). Every field in `engine/settings.js` is exposed as a flag (`src/lib/optionSpec.js`).
-- **The providers** — the adapters under `targets/web/shared/` are run **verbatim**. A Node-side
+- **The providers** — the adapters under `targets/shared/` are run **verbatim**. A Node-side
   registry (`src/lib/providers.js`) replaces the SPA's Vite-glob registry (`shared/index.js`, which
   can't run under plain Node): it fs-discovers each `shared/<id>/config.js` and each
   `_shared/settings/*.js` and dynamic-imports them, folding shared settings in exactly like the web

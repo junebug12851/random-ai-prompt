@@ -11,7 +11,7 @@
  *   app/engine                the isomorphic prompt engine + its content (engine/data)
  *   app/targets/web/dist      the built LOCAL edition SPA
  *   app/targets/web/backend   the /api backend (serve.js + apiHandler.js + manageFs.js …)
- *   app/targets/web/shared    the provider adapters
+ *   app/targets/shared       the provider adapters (cross-target)
  *   app/user                  the seed user overlay (lists + blocks + README; settings NOT bundled)
  *   app/node_modules          production-only deps (lodash + compromise) resolved fresh
  *   app/runtime/node          the platform Node binary (the sidecar the shell launches)
@@ -55,13 +55,14 @@ function copyDir(from, to) {
   fs.cpSync(from, path.join(stageDir, to), { recursive: true });
 }
 
-// Engine (with its content: engine/data comes along), then the web target's build output. The
-// destination paths mirror the repo so the backend's `../../../engine/…`, `../shared/…`, and
-// `../../../user/…` imports resolve identically inside the working copy.
+// Engine (with its content: engine/data comes along), the cross-target shared layer (provider
+// adapters), then the web target's build output. The destination paths mirror the repo so the
+// backend's `../../../engine/…`, `../../shared/…`, and `../../../user/…` imports resolve identically
+// inside the working copy.
 copyDir(path.join(repoRoot, "engine"), "engine");
+copyDir(path.join(repoRoot, "targets", "shared"), path.join("targets", "shared"));
 copyDir(path.join(webDir, "dist"), path.join("targets", "web", "dist"));
 copyDir(path.join(webDir, "backend"), path.join("targets", "web", "backend"));
-copyDir(path.join(webDir, "shared"), path.join("targets", "web", "shared"));
 
 // The user overlay's SEED content: the community-contributed lists/blocks + the user/ README. It's
 // shipped so a fresh install already has it; the desktop shell seeds `user/` into the writable

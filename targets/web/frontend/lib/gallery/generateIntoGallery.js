@@ -23,7 +23,7 @@ import { cleanSnapshot } from "../home/snapshot.js";
 import { getProvider } from "../providers/index.js";
 import { flattenForProvider } from "../useProvider.js";
 import { createLimiter } from "../home/useImageBatches.js";
-import { effectiveConcurrency } from "../../../shared/_shared/settings/concurrency.js";
+import { effectiveConcurrency } from "../../../../shared/_shared/settings/concurrency.js";
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 

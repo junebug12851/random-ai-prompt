@@ -16,7 +16,7 @@ Current: **2.0.0**.
   Not capped at 9.
 - **MINOR** (`2.0.x → 2.1.0`) — a notable feature set or milestone.
 - **MAJOR** (`2.x → 3.0.0`) — a breaking change or a stability promise. **The project leader's call
-  (junebug12851); never bump automatically.**
+  (1fairyfox); never bump automatically.**
 
 2.0.0 itself was a MAJOR bump because the ESM + Node-24 + dependency-major move breaks anyone on an old
 Node or relying on the CommonJS module shape.

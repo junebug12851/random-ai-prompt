@@ -142,7 +142,7 @@ These came from the memory dump but describe a tree that no longer exists (`engi
 `gui/`, `src/server.js`, `prompt-modules/`). The repo is now **engine/ + targets/**.
 - *classic-server-read-only* — the legacy Express/Pug server and `prompt-modules/` were read-only and are
   now **deleted** from the tree (they live in git history + the reference clone).
-- *provider-framework* — the `gui/providers/` design; it shipped and now lives at `targets/web/shared/`.
+- *provider-framework* — the `gui/providers/` design; it shipped and now lives at `targets/shared/`.
 - *removed-pending-readd* — 2026-06-19 SPA home features pulled for later re-add (presets to come back
   richer: full settings + auto-generation).
 - *list-cleanup-and-safety* — the v2.1.0 keyword-list purge/reorg; the durable **policy** is captured in

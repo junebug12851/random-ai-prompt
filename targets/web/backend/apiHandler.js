@@ -67,7 +67,7 @@ function promptRun() {
 }
 
 /** The GitHub repo the update check reads its latest release from. */
-const UPDATE_REPO = "junebug12851/random-ai-prompt";
+const UPDATE_REPO = "1fairyfox/random-ai-prompt";
 /** How long a fetched "latest release" answer is cached server-side before we ask GitHub again. */
 const UPDATE_CACHE_MS = 60 * 60 * 1000; // 1 hour
 /** In-memory cache of the last GitHub answer (shared across requests for this process). */

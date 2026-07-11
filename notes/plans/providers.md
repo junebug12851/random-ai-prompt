@@ -19,7 +19,7 @@ Capabilities **expand/contract per provider** — never a lowest-common-denomina
 ## Folder layout (under `targets/web/`, per owner)
 
 ```
-targets/web/shared/
+targets/shared/
   _shared/dialects.js                  # dialect → engine mode
   _shared/transport/{localDirect,hostedProxy,submitPoll}.js
   <id>/
@@ -57,7 +57,7 @@ file via `/api/storage` (browser fallback). Per-provider presets via `presetStor
 
 ## Phases
 
-1. **Framework foundation — DONE (2.7.2).** `targets/web/shared/` + registry + dialects (+ native `plain`) +
+1. **Framework foundation — DONE (2.7.2).** `targets/shared/` + registry + dialects (+ native `plain`) +
    storage + transport (Netlify fn + Vite middleware) + first providers (local-webui, comfyui, openai,
    midjourney). Tests: registry/Midjourney contract + plain-dialect unit.
 2. **UI re-add** — provider dropdown, capability-driven settings, image results, Copy-prompt for the

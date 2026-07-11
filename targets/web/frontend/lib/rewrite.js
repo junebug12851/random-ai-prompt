@@ -6,7 +6,7 @@
  * @module gui/lib/rewrite
  */
 import { getProvider } from "./providers/index.js";
-import { systemFor } from "../../shared/_shared/rewriteSystem.js";
+import { systemFor } from "../../../shared/_shared/rewriteSystem.js";
 
 /**
  * @param {object} args

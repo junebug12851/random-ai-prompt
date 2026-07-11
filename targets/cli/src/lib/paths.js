@@ -10,8 +10,11 @@ import { fileURLToPath } from "node:url";
 // targets/cli/src/lib → repo root is four levels up.
 export const REPO_ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
 
-/** The web target root — the CLI reuses its backend (apiHandler) and provider adapters (shared/). */
+/** The web target root — the CLI reuses its backend (apiHandler). */
 export const WEB_ROOT = path.join(REPO_ROOT, "targets", "web");
+
+/** The cross-target shared layer — provider adapters + transport, used by every target. */
+export const SHARED_ROOT = path.join(REPO_ROOT, "targets", "shared");
 
 /** The central output folder — where generated images land, shared with the web app's gallery. */
 export const OUTPUT_DIR = path.join(REPO_ROOT, "output");

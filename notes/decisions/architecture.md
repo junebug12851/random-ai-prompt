@@ -31,10 +31,10 @@ since online providers are all browser-direct). So the "Batch chunk size" is **p
 in each provider's settings — not a global gear knob (an earlier global attempt was reverted).
 
 Rather than copy the field into ~40 provider folders, it's the first entry in a new **shared-settings
-system** (`targets/web/shared/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
+system** (`targets/shared/_shared/settings/`): each shared setting is an auto-discovered module (globbed,
 like providers/blocks) exporting `{ key, applies, defaultFor, field }`, and
 `applySharedSettings` folds each applicable one into a provider's schema **at the registry**
-(`targets/web/shared/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
+(`targets/shared/index.js`), so it flows identically to the gear UI (`ProviderBox`) and the flattened
 generation settings (`flattenForProvider`). Defaults are metadata-derived (local 6 / hosted 3 / poll 4),
 overridable per provider (`config.concurrencyDefault`), and a provider that declares its own field keeps
 it (escape hatch). It applies to image, text (rewrite), and upscale providers independently — the Home

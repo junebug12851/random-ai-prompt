@@ -12,4 +12,4 @@ export {
   ONLINE,
   DIALECTS,
   engineModeFor,
-} from "../../../shared/index.js";
+} from "../../../../shared/index.js";

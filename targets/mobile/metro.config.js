@@ -19,6 +19,10 @@ config.resolver.nodeModulesPaths = [
 config.resolver.extraNodeModules = {
   ...(config.resolver.extraNodeModules || {}),
   engine: path.resolve(repoRoot, 'engine'),
+  // The cross-target app layer (provider adapters + transport). Aliased exactly like `engine` so the
+  // mobile app IMPORTS the one shared implementation instead of hand-porting it (which is what forced
+  // the old drift-detecting parity checks). App code imports it as `shared/...`.
+  shared: path.resolve(repoRoot, 'targets/shared'),
 };
 
 module.exports = config;

@@ -66,6 +66,24 @@ export default [
     },
   },
 
+  // The cross-target shared layer (`targets/shared/**`) — provider adapters + transport. This code is
+  // ISOMORPHIC: it runs in the browser (web SPA, BYOK direct calls), under Node (the web backend + the
+  // CLI), and in React Native (the mobile app). So it needs BOTH global sets — e.g. `FileReader` /
+  // `fetch` (browser) alongside Node's. It used to live under `targets/web/**`, which the root config
+  // ignores (the web package lints itself), so it inherited browser globals for free; now that it's a
+  // top-level target it's linted here and must declare them.
+  {
+    files: ["targets/shared/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
+
   // Browser scripts served to the page. These are classic multi-<script> files
   // that intentionally share globals (jQuery, lodash, and helpers defined in
   // sibling files), so the module-oriented "undefined/redeclare" rules don't

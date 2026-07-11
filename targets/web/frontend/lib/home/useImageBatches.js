@@ -25,7 +25,7 @@ import { expandPromptSeeded } from "../promptEngine.js";
 import { ingestImage, isOutputFile, deleteImageFile } from "../output.js";
 import { effectiveKey } from "../sessionKeys.js";
 import { getProvider } from "../providers/index.js";
-import { effectiveConcurrency } from "../../../shared/_shared/settings/concurrency.js";
+import { effectiveConcurrency } from "../../../../shared/_shared/settings/concurrency.js";
 import { dialog } from "../dialog.js";
 import { cleanSnapshot } from "./snapshot.js";
 

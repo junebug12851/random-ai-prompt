@@ -93,7 +93,7 @@ async function checkProviders() {
   const mobText = new Set((mod.TEXT_PROVIDERS || []).map((p) => p.id));
   const mobUpscale = new Set((mod.UPSCALE_PROVIDERS || []).map((p) => p.id));
 
-  const shared = join(WEB, "shared");
+  const shared = join(ROOT, "targets/shared");
   const web = [];
   for (const d of readdirSync(shared, { withFileTypes: true })) {
     if (!d.isDirectory()) continue;
@@ -313,7 +313,7 @@ async function checkLocalSettings() {
       fail(`no known web settings.js mapped for local provider "${p.id}"`);
       continue;
     }
-    const src = readFileSync(join(WEB, "shared", rel), "utf8");
+    const src = readFileSync(join(ROOT, "targets/shared", rel), "utf8");
     const block = src.slice(src.indexOf("fields:"), src.indexOf("data:") + 1 || undefined);
     const webKeys = [...block.matchAll(/key:\s*"([A-Za-z0-9_]+)"/g)].map((m) => m[1]);
     const mobKeys = (p.settings || []).map((f) => f.key);
@@ -366,7 +366,7 @@ async function checkListOps() {
 async function checkRewriteSystems() {
   console.log("Rewrite systems (imageProviders.systemFor  ⇄  web rewriteSystem.systemFor)");
   const mob = await imp(join(MOBILE, "lib/imageProviders.js"));
-  const web = await imp(join(WEB, "shared/_shared/rewriteSystem.js"));
+  const web = await imp(join(ROOT, "targets/shared/_shared/rewriteSystem.js"));
   const modes = [
     "keyword",
     "expand",
