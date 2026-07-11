@@ -64,3 +64,6 @@ notes/todo.txt
 /screenshots-preview/
 engine/core/metroCatalogData.js
 engine/core/metroCatalogData.*.js
+
+# Visual-parity screenshots (scripts/mobile-visual-parity.mjs) — machine-local review output.
+artifacts/

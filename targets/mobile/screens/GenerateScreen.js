@@ -22,6 +22,7 @@ import {
   TagIcon,
   BracketsIcon,
   ShareIcon,
+  ShuffleIcon,
   SparkleIcon,
   GridIcon,
 } from "../lib/icons.js";
@@ -45,6 +46,7 @@ const COMPLETIONS = getDplCompletions();
 // Share link — encode settings (minus secrets) into the web app's #s= hash so a setup can be
 // restored elsewhere (mirrors targets/web/frontend/lib/share.js).
 const SHARE_BASE = "https://prompt.fairyfox.io/";
+const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes (web parity)
 function b64url(str) {
   // btoa over a UTF-8-safe byte string, then URL-safe.
   const utf8 = unescape(encodeURIComponent(str));
@@ -68,7 +70,7 @@ function activeToken(text, caret) {
   return { start: open, frag };
 }
 
-function ToolBtn({ children, onPress, on, disabled }) {
+function ToolBtn({ children, onPress, on, disabled, accessibilityLabel }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   return (
@@ -76,6 +78,11 @@ function ToolBtn({ children, onPress, on, disabled }) {
       style={[styles.tool, on && styles.toolOn, disabled && styles.toolOff]}
       onPress={disabled ? undefined : onPress}
       activeOpacity={disabled ? 1 : 0.6}
+      // A locked control must ANNOUNCE that it's locked (and be assertable in tests) — not just
+      // look faded. See notes/reference/working-agreements.md §E.
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled: !!disabled, selected: !!on }}
     >
       {children}
     </TouchableOpacity>
@@ -201,6 +208,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
     return depth === 0;
   }, [activeValue]);
 
+
   // Completion candidates for the token at the caret.
   const [caretTick, setCaretTick] = useState(0); // bump to recompute suggestions on caret move
   const suggestions = useMemo(() => {
@@ -238,6 +246,40 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
   );
   const getS = (k) => (cfg[k] !== undefined ? cfg[k] : baseSettings[k]);
   const setS = (k, v) => setCfg((c) => ({ ...c, [k]: v }));
+
+  // A rotating random prompt SUGGESTION — web parity (PromptComposer): the empty box shows "Try: …"
+  // and the shuffle button drops the suggestion in. Distinct from the DPL *completion* candidates
+  // (caret autocomplete) — the two used to share the name "suggestions", which is exactly how the
+  // surface-parity check falsely passed while this feature was missing from mobile entirely.
+  //
+  // MUST sit below `settings` (it reads it): declared above, this threw a temporal-dead-zone
+  // ReferenceError that blanked the whole app — and every unit test still passed, because they mock
+  // the engine and never exercise the real module order. Only the screenshot caught it.
+  // See notes/reference/fix-patterns.md.
+  const [suggestion, setSuggestion] = useState("");
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  useEffect(() => {
+    const roll = () => {
+      try {
+        setSuggestion(expandOnce("{#random-words}", settingsRef.current));
+      } catch {
+        /* engine not ready — skip this tick */
+      }
+    };
+    roll();
+    const id = setInterval(roll, SUGGESTION_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  /** Drop the current random suggestion into the active box (append, like the web's insert). */
+  const useSuggestion = useCallback(() => {
+    if (!suggestion) return;
+    setActiveValue((current = "") => {
+      const sep = current && !/\s$/.test(current) ? ", " : "";
+      return `${current}${sep}${suggestion}`;
+    });
+  }, [suggestion, setActiveValue]);
 
   // Inline image controls (Images count + Size/Ratio) surfaced next to the Prompts counter — they
   // read/write the SAME providerSettings[id] fields the ⋯ menu edits, so the two stay in lockstep.
@@ -629,7 +671,15 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder={editMode === "negative" ? "Negative prompt — what to keep out" : "{#random-words}"}
+              // Web parity (PromptComposer): the empty box advertises the rotating random
+              // suggestion ("Try: …"), so the shuffle button next to it has an obvious meaning.
+              placeholder={
+                editMode === "negative"
+                  ? "Negative prompt — what to keep out"
+                  : suggestion
+                    ? `Try: ${suggestion}`
+                    : "{#random-words}"
+              }
               placeholderTextColor={T.faint}
               autoCapitalize="none"
               autoCorrect={false}
@@ -737,8 +787,22 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               <ToolBtn onPress={share}>
                 <ShareIcon size={17} color={T.muted} />
               </ToolBtn>
-              <ToolBtn on onPress={() => setPaletteOpen(true)}>
-                <GridIcon size={17} color={T.accent} />
+              {/*
+                Random suggestion (web parity: PromptComposer's shuffle). This slot used to hold a
+                SECOND building-blocks button — an exact duplicate of the green FAB below it, same
+                icon, same handler — which meant the shuffle feature was missing from mobile
+                altogether. Caught by LOOKING at a screenshot; no marker/render test could see it.
+                Locked (not error-on-press) while there's no suggestion yet, like every other
+                capability-gated control.
+              */}
+              <ToolBtn
+                disabled={!suggestion}
+                onPress={useSuggestion}
+                accessibilityLabel={
+                  suggestion ? "Random suggestion" : "Random suggestion (locked — none yet)"
+                }
+              >
+                <ShuffleIcon size={17} color={suggestion ? T.muted : T.faint} />
               </ToolBtn>
             </View>
           </View>
@@ -802,10 +866,14 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
         estimatedItemSize={104}
       />
 
+      {/* The ONE building-blocks control (the web's off-canvas drawer). The toolbar above used to
+          carry a second, identical one — see the regression test in __tests__/GenerateScreen.test.jsx. */}
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 24 }]}
         onPress={() => setPaletteOpen(true)}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Open the building-blocks palette"
       >
         <GridIcon size={24} color={T.accentInk} />
       </TouchableOpacity>

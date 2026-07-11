@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.54.0",
+  "version": "2.56.0",
   "description": "An open-source generator for AI image and text prompts that automatically builds richer, more detailed prompts than most people write by hand, then runs them through 40+ models. Isomorphic prompt engine (engine/) + React/Vite web app (targets/web/).",
   "type": "module",
   "main": "engine/core/engine.js",

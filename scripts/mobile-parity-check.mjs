@@ -3,17 +3,21 @@
  *
  * TWO KINDS OF CHECK LIVE HERE — know the difference before adding one:
  *
- * 1. **Drift checks** (`checkAccents`, `checkLocales`, `checkDplInserts`, `checkListOps`,
- *    `checkLocalSettings`) compare a mobile HAND-PORT against the web source, so a copy that falls
- *    behind fails loudly. These are a **symptom of duplication, not a cure** — each one is a standing
+ * 1. **Drift checks** compare a mobile HAND-PORT against the web source, so a copy that falls behind
+ *    fails loudly. These are a **symptom of duplication, not a cure** — each one is a standing
  *    invitation to delete the copy and import the shared thing instead. When the copy goes, the check
  *    goes with it. See `notes/plans/de-duplication.md`.
  *
- *    Already retired this way: **`checkProviders`** and **`checkRewriteSystems`**. The mobile target
- *    no longer re-declares the ~40 providers or re-states the rewrite system prompts — it derives
- *    both from `targets/shared/` (see `targets/mobile/lib/imageProviders.js`). Comparing that against
- *    the web source would be comparing a file to itself: **you cannot drift from yourself.** The
- *    derivation rules are asserted for real in `targets/mobile/lib/__tests__/imageProviders.test.js`.
+ *    Only TWO are left, and each names the copy that still needs promoting:
+ *      • `checkDplInserts` → `targets/mobile/lib/dplInserts.js` (the DPL insert catalog — engine grammar).
+ *      • `checkLocales`    → the mobile locale list.
+ *
+ *    Already retired, because the copy is gone: **`checkProviders`**, **`checkRewriteSystems`**,
+ *    **`checkLocalSettings`** (mobile derives all ~40 providers + the rewrite system prompts + their
+ *    settings from `targets/shared/`), **`checkListOps`** (both targets import `engine/listEditorOps.js`),
+ *    and **`checkAccents`** (both read `targets/shared/theme/`). Comparing any of those against the web
+ *    source would be comparing a file to itself: **you cannot drift from yourself.** They're replaced by
+ *    real contract tests — e.g. `targets/mobile/lib/__tests__/imageProviders.test.js`.
  *
  * 2. **Surface parity** (`checkSurfaces`) asserts the mobile UI EXPOSES every web feature — the
  *    owner's full-parity mandate (no size-based feature loss, no "mobile is simpler" build). This is
@@ -24,7 +28,7 @@
  *
  * Run: `node scripts/mobile-parity-check.mjs` (from the repo root). Exits non-zero on any mismatch.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -42,40 +46,13 @@ const fail = (m) => {
 };
 const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-// ---------- 1. Accent presets: mobile themeData.ACCENTS == web theme/themes/*.json ----------
-async function checkAccents() {
-  console.log("Accents (themeData.js  ⇄  theme/themes/*.json)");
-  const { ACCENTS } = await imp(join(MOBILE, "lib/themeData.js"));
-  const dir = join(WEB, "frontend/theme/themes");
-  const web = readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
-    .sort()
-    .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")));
-  const webIds = web.map((a) => a.id);
-  const mobIds = ACCENTS.map((a) => a.id);
-  if (eq(webIds, mobIds)) pass(`ids match (${mobIds.length}): ${mobIds.join(", ")}`);
-  else fail(`id/order mismatch — web [${webIds}] vs mobile [${mobIds}]`);
-  for (const w of web) {
-    const m = ACCENTS.find((a) => a.id === w.id);
-    if (!m) {
-      fail(`mobile missing accent "${w.id}"`);
-      continue;
-    }
-    if (
-      eq(
-        { swatch: w.swatch, dark: w.dark, light: w.light },
-        { swatch: m.swatch, dark: m.dark, light: m.light },
-      )
-    )
-      pass(`"${w.id}" values match`);
-    else fail(`"${w.id}" values differ from the web theme file`);
-  }
-}
-
 // ---------- 2. Locales: mobile real locale (en) present in web i18n LOCALES ----------
 async function checkLocales() {
   console.log("Locales (themeData.js  ⇄  i18n/config.js)");
-  const { LOCALES } = await imp(join(MOBILE, "lib/themeData.js"));
+  // Read the SOURCE rather than importing it: themeData.js now re-exports the shared theme index
+  // via Metro's bare `shared/` alias, which plain Node can't resolve.
+  const themeSrc = readFileSync(join(MOBILE, "lib/themeData.js"), "utf8");
+  const LOCALES = [...themeSrc.matchAll(/\{\s*id:\s*"([a-z-]+)"/g)].map((m) => ({ id: m[1] }));
   const cfg = readFileSync(join(WEB, "frontend/i18n/config.js"), "utf8");
   const block = cfg.slice(cfg.indexOf("LOCALES ="));
   const webCodes = [...block.matchAll(/^\s*"?([a-z]{2}(?:-[A-Z]{2})?)"?\s*:/gm)].map((m) => m[1]);
@@ -149,12 +126,24 @@ function checkSurfaces() {
     ["Generate", "auto-fix (wand)", "generate", /autoFix/],
     ["Generate", "keyword-translate (tag)", "generate", /autoKeyword/],
     ["Generate", "building-block palette", "generate", /BlockPalette/],
-    ["Generate", "completion strip", "generate", /suggestions/],
+    // NOTE: this marker used to be /suggestions/, which ALSO matched the caret-completion strip — two
+    // different features that happen to share the word. The shuffle/random-suggestion control was
+    // missing from mobile for months and this check passed anyway. Markers must be specific enough to
+    // name ONE feature. (Found by looking at a screenshot; see notes/version 2.56.0.)
+    ["Generate", "completion strip (caret autocomplete)", "generate", /activeToken\(/],
+    // Match the WIRING, not the import. `/ShuffleIcon/` alone is satisfied by the import line even
+    // when the button is gone — which is precisely the mistake this whole block exists to fix.
+    ["Generate", "random suggestion + shuffle", "generate", /onPress=\{useSuggestion\}/],
+    ["Generate", "suggestion advertised in placeholder", "generate", /Try: \$\{suggestion\}/],
     ["Generate", "generate button", "generate", /SparkleIcon/],
     ["Generate", "negative prompt tab", "generate", /composeMode|Negative/],
     ["Generate", "wrapper button", "generate", /[Ww]rapper/],
     ["Generate", "share link", "generate", /shareUrl|Share link/],
-    ["Generate", "random suggestion", "generate", /suggestion/],
+    // (The old `["random suggestion", /suggestion/]` marker lived here. It matched the *completion*
+    // strip's `suggestions` array, so it passed for months while the actual random-suggestion +
+    // shuffle feature did not exist on mobile at all. Replaced by the three specific markers above —
+    // a marker that can be satisfied by an unrelated identifier is worse than no marker, because it
+    // buys false confidence.)
     ["Generate", "inline per-prompt image batches", "generate", /batch|InlineImage/],
     // Gallery
     ["Gallery", "title", "gallery", /Photo gallery/],
@@ -245,44 +234,10 @@ function checkSurfaces() {
   }
 }
 
-// ---------- 7. List-editor ops: mobile lib/listOps.js == web lib/manage/listEditorOps.js ----------
-// The Manage list editor's Sort / Dedupe / AI-expand logic is a hand-port on mobile; assert it stays
-// behaviorally identical to the web source (same functions, same output) so it can't silently drift.
-async function checkListOps() {
-  console.log("List-editor ops (listOps.js  ⇄  web listEditorOps.js)");
-  const mob = await imp(join(MOBILE, "lib/listOps.js"));
-  const web = await imp(join(WEB, "frontend/lib/manage/listEditorOps.js"));
-  const cases = [
-    ["parseAiCandidates", ["- red\n2. green\n• blue"]],
-    ["parseAiCandidates", ["red, green, blue"]],
-    [
-      "mergeNew",
-      [
-        ["Red", "green"],
-        ["red", "BLUE", "blue", "Green"],
-      ],
-    ],
-    ["dedupeLines", [["a", "A", "b", " a ", "b"]]],
-    ["sortLines", [["banana", "Apple", "cherry"]]],
-  ];
-  for (const fn of ["parseAiCandidates", "mergeNew", "dedupeLines", "sortLines"]) {
-    if (typeof mob[fn] !== "function") fail(`mobile listOps is missing "${fn}"`);
-  }
-  let ok = 0;
-  for (const [fn, args] of cases) {
-    if (typeof mob[fn] !== "function" || typeof web[fn] !== "function") continue;
-    if (eq(mob[fn](...args), web[fn](...args))) ok++;
-    else fail(`"${fn}" output differs from the web source for args ${JSON.stringify(args)}`);
-  }
-  if (ok === cases.length) pass(`all ${ok} list-op cases match the web source`);
-}
-
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
-  checkAccents,
   checkLocales,
   checkDplInserts,
-  checkListOps,
   checkSurfaces,
 ]) {
   await step();

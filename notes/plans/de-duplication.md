@@ -78,27 +78,32 @@ schemas + their option sources) and keep the UI synchronous. Making the mobile U
 the web's constraint along with the web's code. **Share the logic; don't inherit the other platform's
 trade-offs.**
 
-## Next: E — engine-domain logic STILL duplicated in mobile
+- **E (partial) — engine-domain logic promoted out of mobile** (2.55.0):
+  - `listOps.js` (71 lines) → **`engine/listEditorOps.js`**. Sort / dedupe / AI-candidate parse of *list
+    content* is engine domain — "what counts as a duplicate entry" is a property of the engine's lists,
+    not of any one UI. Both Manage editors import it; the mobile copy and `checkListOps` are deleted.
+  - `themeData.js` (82 → 24 lines) → the accent themes moved to **`targets/shared/theme/themes/*.json`**
+    with a generated static index. Same root cause as the providers: the web discovered them with a Vite
+    `import.meta.glob` that Metro can't run, so mobile transcribed all nine by hand. `checkAccents` deleted.
+    (`gen-accents.mjs` still emits the same byte-identical `accents.css` — only its source path moved.)
 
-These are *engine* concepts the mobile target hand-ported; they belong in `engine/`, imported by both:
+## Next: E (remainder) — what's still hand-ported in mobile
 
 | Mobile file | Lines | Belongs in | Note |
 |---|---|---|---|
-| `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. Guarded by `checkDplInserts`. |
-| `lib/listOps.js` | 71 | `engine/` | Sort / dedupe / clean of list content. Guarded by `checkListOps`. |
-| `lib/blockCatalog.js` | 218 | `engine/` | Block browsing + completions over the loaders. |
-| `lib/themeData.js` | 82 | `targets/shared/` | Design tokens + locales, mirrored from the web's CSS tokens. Guarded by `checkAccents` / `checkLocales`. |
+| `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. Guarded by `checkDplInserts`. **Entangled:** the web localizes its labels through react-intl descriptors (`dplInsertsMessages.js`) while mobile inlines English, so only the language-neutral *grammar* (id / syntax / template / example) can move; each target keeps its own label layer. |
+| `lib/blockCatalog.js` | 218 | `engine/` | Block browsing + completions over the loaders. Unguarded — no drift check, which is *worse*, not better. |
 
-Each row's "guarded by" is the drift check that will be **deleted along with the copy** — that's the
-tell that the copy shouldn't exist. (The rewrite system prompts + `cleanDplOutput` were on this list and
-are **done**: they now live once in `shared/_shared/rewriteSystem.js`.)
+Each row's "guarded by" is the drift check that gets **deleted along with the copy** — that's the tell
+that the copy shouldn't exist. Every check that has ever been deleted here was deleted because the thing
+it guarded *could no longer differ*.
 
 ## Done: the drift checks that duplication made necessary
 
-`checkProviders`, `checkRewriteSystems` and `checkLocalSettings` are **deleted** (2.54.0) — mobile derives
-all three from the shared layer now, so they were comparing a file to itself. The remaining drift checks
-(`checkAccents`, `checkLocales`, `checkDplInserts`, `checkListOps`) each guard a copy listed above, and go
-when that copy does.
+**Five of seven are gone.** `checkProviders`, `checkRewriteSystems`, `checkLocalSettings` (2.54.0),
+`checkListOps` and `checkAccents` (2.55.0) are **deleted** — mobile derives all of them from the shared
+layer / engine now, so each was comparing a file to itself. Only `checkDplInserts` and `checkLocales`
+remain, and each names the copy still to promote (see above).
 
 **`checkSurfaces` stays — permanently.** It is not a drift check: it asserts the mobile UI *exposes* every
 web feature (the FULL-parity mandate), which no amount of code-sharing guarantees. Same for the

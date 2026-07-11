@@ -35,8 +35,15 @@ const SIZES = [
   { id: "tablet-portrait", w: 834, h: 1112 }, // tablet portrait (two-pane tier on the web)
   { id: "tablet-landscape", w: 1112, h: 834 }, // tablet landscape (wide tier)
 ];
+// Both colour schemes: the app defaults to "system" and a headless browser is LIGHT, so a
+// light-only run never renders the dark canvas the design is actually built around.
+// Pass --scheme=light|dark to shoot just one.
+const SCHEMES = ["light", "dark"];
+
 const noBuild = process.argv.includes("--no-build");
 const sizeArg = (process.argv.find((a) => a.startsWith("--size=")) || "").split("=")[1];
+const schemeArg = (process.argv.find((a) => a.startsWith("--scheme=")) || "").split("=")[1];
+if (schemeArg) SCHEMES.splice(0, SCHEMES.length, schemeArg);
 
 const MIME = {
   ".html": "text/html",
@@ -63,12 +70,16 @@ function build() {
     return existsSync(OUT);
   }
   log("• Exporting mobile web build (expo export --platform web)…");
-  const npx = process.platform === "win32" ? "npx.cmd" : "npx";
-  const r = spawnSync(npx, ["expo", "export", "--platform", "web", "--output-dir", "dist"], {
+  // Windows: `npx` is a .cmd shim, and spawnSync can't exec it without a shell — without this the
+  // export silently failed and the whole visual check degraded to "can't capture", which is how the
+  // screenshots went unreviewed. Never let a broken tool look like a skipped step.
+  const r = spawnSync("npx", ["expo", "export", "--platform", "web", "--output-dir", "dist"], {
     cwd: MOBILE,
     stdio: "inherit",
     env: process.env,
+    shell: process.platform === "win32",
   });
+  if (r.status !== 0) log(`  ! expo export exited ${r.status}${r.error ? ` (${r.error.message})` : ""}`);
   return r.status === 0 && existsSync(OUT);
 }
 
@@ -104,13 +115,21 @@ function serve() {
   return new Promise((resolve) => srv.listen(PORT, () => resolve(srv)));
 }
 
-// Capture every surface at one device size into artifacts/mobile-parity/<size>/.
-async function captureSize(browser, size) {
-  const dir = join(SHOTS, size.id);
+// Capture every surface at one device size into artifacts/mobile-parity/<size>/ (or
+// <size>-dark/ for the dark scheme).
+//
+// BOTH colour schemes are captured, and that is not optional. The app's theme mode defaults to
+// "system" (web AND mobile — same default, so this is parity, not a bug), and a headless browser
+// reports `prefers-color-scheme: light`. So a light-only capture never renders the app's PRIMARY
+// look — the dark canvas (#1c1c1f) with the mint accent that the design tokens are actually built
+// around. Reviewing only the light shots would leave the app's main appearance literally unseen.
+async function captureSize(browser, size, scheme = "light") {
+  const dir = join(SHOTS, scheme === "dark" ? `${size.id}-dark` : size.id);
   mkdirSync(dir, { recursive: true });
   const page = await browser.newPage({
     viewport: { width: size.w, height: size.h },
     deviceScaleFactor: 2,
+    colorScheme: scheme,
   });
   page.on("pageerror", (e) => log(`  ! [${size.id}] page error: ${e.message}`));
   page.on("console", (m) => {
@@ -197,8 +216,10 @@ async function main() {
   const browser = await chromium.launch();
   try {
     for (const size of sizes) {
-      log(`• Capturing ${size.id} (${size.w}×${size.h})`);
-      await captureSize(browser, size);
+      for (const scheme of SCHEMES) {
+        log(`• Capturing ${size.id} (${size.w}×${size.h}) — ${scheme}`);
+        await captureSize(browser, size, scheme);
+      }
     }
   } finally {
     await browser.close();

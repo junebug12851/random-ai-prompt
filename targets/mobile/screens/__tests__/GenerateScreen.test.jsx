@@ -59,7 +59,9 @@ async function setup() {
 describe("GenerateScreen (mounted)", () => {
   it("renders the composer (editor, prompts count, generate button)", async () => {
     const { getByPlaceholderText, getByText, getByLabelText } = await setup();
-    expect(getByPlaceholderText("{#random-words}")).toBeTruthy();
+    // The empty box advertises the rotating random suggestion (web parity: "Try: …"); it falls back
+    // to "{#random-words}" only until the first suggestion rolls.
+    expect(getByPlaceholderText("Try: a live preview line")).toBeTruthy();
     expect(getByText("PROMPTS")).toBeTruthy();
     expect(getByLabelText("Generate")).toBeTruthy();
   });
@@ -129,5 +131,38 @@ describe("GenerateScreen (mounted)", () => {
     const thumbs = await findByLabelText("Open generated image 2");
     fireEvent.press(thumbs);
     expect(onOpenImage).toHaveBeenCalledWith(savedItem);
+  });
+});
+/**
+ * Regression: the toolbar's 5th slot used to be a SECOND building-blocks button — an exact duplicate
+ * of the green FAB (same icon, same `setPaletteOpen(true)` handler) — which meant the web's SHUFFLE
+ * control (drop the rotating random suggestion into the box) was missing from mobile entirely.
+ *
+ * Nothing automated caught it: the surface-parity check greps for /suggestions/, which matched the
+ * DPL *completion strip* (a different feature that happens to share the word), and a render-only test
+ * sees a perfectly fine button. It was found by LOOKING at a screenshot. See working-agreements §B3.
+ */
+describe("GenerateScreen — random suggestion (shuffle)", () => {
+  it("exposes a shuffle control that appends the rotating suggestion to the prompt", async () => {
+    const { getByLabelText, getByDisplayValue } = await setup();
+
+    const shuffle = getByLabelText("Random suggestion");
+    expect(shuffle.props.accessibilityState.disabled).toBe(false);
+
+    fireEvent.press(shuffle);
+
+    // The engine mock's expandOnce() -> "a live preview line" is the suggestion; pressing shuffle
+    // appends it to the existing prompt (comma-separated), exactly like the web's insert().
+    expect(getByDisplayValue("{#random-words}, a live preview line")).toBeTruthy();
+  });
+
+  it("advertises the suggestion in the placeholder (web parity: 'Try: …')", async () => {
+    const { getByPlaceholderText } = await setup();
+    expect(getByPlaceholderText("Try: a live preview line")).toBeTruthy();
+  });
+
+  it("has exactly ONE building-blocks control (the FAB) — not a duplicate in the toolbar", async () => {
+    const { getAllByLabelText } = await setup();
+    expect(getAllByLabelText("Open the building-blocks palette")).toHaveLength(1);
   });
 });
