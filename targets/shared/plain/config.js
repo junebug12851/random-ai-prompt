@@ -9,6 +9,7 @@ export default {
   // a plain-text prompt (no image API), which is exactly "no image provider selected".
   id: "plain",
   label: "Unset",
+  description: "No API — copies a plain-text prompt for any tool.",
   tier: "plain",
   dialect: "plain",
   transport: "none",

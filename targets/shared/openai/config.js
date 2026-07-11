@@ -7,6 +7,8 @@
 export default {
   id: "openai",
   label: "OpenAI (DALL·E / gpt-image)",
+  description: "OpenAI DALL·E / gpt-image — strong prompt following.",
+  keyUrl: "https://platform.openai.com/api-keys",
   // Shown when this provider is picked for the TEXT (prompt-rewrite) role — the rewrite uses a
   // GPT chat model, not the image model, so the image-flavoured label would be misleading here.
   rewriteLabel: "OpenAI (GPT-4o mini)",

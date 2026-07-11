@@ -6,6 +6,7 @@
 export default {
   id: "sdnext",
   label: "SD.Next",
+  description: "Local SD.Next (Stable Diffusion). Free, runs on your machine.",
   tier: "api",
   dialect: "sd",
   transport: "local-direct",

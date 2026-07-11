@@ -6,6 +6,8 @@
 export default {
   id: "replicate",
   label: "Replicate",
+  description: "Hosted open models (FLUX, SDXL, SD3.5, …) selected by slug.",
+  keyUrl: "https://replicate.com/account/api-tokens",
   tier: "api",
   dialect: "plain",
   transport: "hosted-proxy",

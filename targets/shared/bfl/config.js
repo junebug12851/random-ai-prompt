@@ -6,6 +6,8 @@
 export default {
   id: "bfl",
   label: "FLUX (Black Forest Labs)",
+  description: "FLUX direct from Black Forest Labs.",
+  keyUrl: "https://dashboard.bfl.ai/",
   tier: "api",
   dialect: "plain",
   transport: "hosted-proxy",

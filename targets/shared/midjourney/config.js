@@ -9,6 +9,7 @@
 export default {
   id: "midjourney",
   label: "Midjourney",
+  description: "No API — copies a full Midjourney prompt to paste into Discord.",
   tier: "syntax",
   dialect: "midjourney",
   transport: "none",

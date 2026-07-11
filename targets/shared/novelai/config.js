@@ -8,6 +8,7 @@
 export default {
   id: "novelai",
   label: "NovelAI",
+  description: "No API — copies a NovelAI-dialect prompt.",
   tier: "syntax",
   dialect: "novelai",
   transport: "none",

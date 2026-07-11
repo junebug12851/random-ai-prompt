@@ -7,6 +7,8 @@
 export default {
   id: "leonardo",
   label: "Leonardo AI",
+  description: "Leonardo AI — game / concept-art models.",
+  keyUrl: "https://app.leonardo.ai/api-access",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",

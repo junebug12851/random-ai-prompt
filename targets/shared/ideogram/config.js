@@ -7,6 +7,8 @@
 export default {
   id: "ideogram",
   label: "Ideogram",
+  description: "Ideogram — best in-image text rendering.",
+  keyUrl: "https://ideogram.ai/manage-api",
   tier: "api",
   dialect: "plain",
   transport: "hosted-proxy",

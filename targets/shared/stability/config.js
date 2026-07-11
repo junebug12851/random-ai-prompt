@@ -6,6 +6,8 @@
 export default {
   id: "stability",
   label: "Stability AI",
+  description: "Stability AI — Stable Image Core / SD3 / Ultra.",
+  keyUrl: "https://platform.stability.ai/account/keys",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",

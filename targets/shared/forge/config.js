@@ -7,6 +7,7 @@
 export default {
   id: "forge",
   label: "Forge WebUI",
+  description: "Local Forge WebUI (Stable Diffusion). Free, runs on your machine.",
   tier: "api",
   dialect: "sd",
   transport: "local-direct",

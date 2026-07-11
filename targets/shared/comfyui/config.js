@@ -7,6 +7,7 @@
 export default {
   id: "comfyui",
   label: "ComfyUI",
+  description: "Local ComfyUI — node-based SD/FLUX. Free, runs on your machine.",
   tier: "api",
   dialect: "sd",
   transport: "local-direct",

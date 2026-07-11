@@ -6,6 +6,8 @@
 export default {
   id: "fal",
   label: "fal.ai",
+  description: "Fast hosted inference (FLUX, SD3.5, Recraft, …).",
+  keyUrl: "https://fal.ai/dashboard/keys",
   tier: "api",
   dialect: "plain",
   transport: "browser-direct",
