@@ -50,13 +50,17 @@ module.exports = {
       binaryPath: "android/app/build/outputs/apk/release/app-release.apk",
       testBinaryPath:
         "android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk",
-      build: `cd android && ${gradle} assembleRelease assembleAndroidTest -DtestBuildType=release -PreactNativeArchitectures=${abis}${ndkInit}`,
+      // `:app:` scoped ON PURPOSE. The unscoped `assembleAndroidTest` builds an androidTest variant for
+      // EVERY module in the graph — every Expo library, in DEBUG, none of which this suite ever runs. It
+      // is pure waste, and it is not harmless: a CI run died in `:expo-constants:packageDebugAndroidTest`,
+      // a task whose output nothing consumes. Build the two artifacts Detox actually installs.
+      build: `cd android && ${gradle} :app:assembleRelease :app:assembleAndroidTest -DtestBuildType=release -PreactNativeArchitectures=${abis}${ndkInit}`,
     },
     "android.debug": {
       type: "android.apk",
       binaryPath: "android/app/build/outputs/apk/debug/app-debug.apk",
       testBinaryPath: "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
-      build: `cd android && ${gradle} assembleDebug assembleAndroidTest -DtestBuildType=debug -PreactNativeArchitectures=${abis}${ndkInit}`,
+      build: `cd android && ${gradle} :app:assembleDebug :app:assembleAndroidTest -DtestBuildType=debug -PreactNativeArchitectures=${abis}${ndkInit}`,
       reversePorts: [8081],
     },
   },
