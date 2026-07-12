@@ -186,6 +186,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check:docs     # fail on broken relative links in the Markdown docs (drift guard; in `npm test` + CI)
 npm run check:tidy     # fail on untracked non-ignored files (run before finishing — nothing left uncommitted)
+npm run check:committed # fail if TRACKED source differs from HEAD — you must verify what you COMMITTED
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
 npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under targets/web/tests/
@@ -241,6 +242,14 @@ After making changes, run this loop without being asked:
      untracked non-ignored file (stray notes/reports/docs). Commit them (fairyfox reports get their own
      commit) or gitignore genuinely machine-local files. Only `/_*.bat|.log|.sh`, `*-private*`, and
      build/runtime artifacts are meant to be untracked.
+   - **VERIFY WHAT YOU COMMITTED, NOT WHAT YOU HAVE.** After committing, run
+     **`npm run check:committed`** — it fails if any tracked *source* file still differs from `HEAD`.
+     A green suite proves nothing if the fix it exercised is sitting uncommitted on your disk: the
+     tests, the build and the parity checks all read the **working tree**, while CI (and every other
+     clone) reads the **commit**. This is not hypothetical — a multi-path `git add` silently staged
+     only part of what was listed, and **four commits shipped a web build that didn't compile** while
+     every local gate reported green (2.55.0–2.57.0; see `reference/fix-patterns.md`). For a release,
+     go further: build from a clean `git worktree` at `HEAD`.
 3. **Commit on `dev` (or a `feature/*` branch).** This project follows the system's **git-flow**
    standard: real features get a `feature/<name>` branch off `dev`, merged back with `--no-ff`; only a
    genuinely trivial change goes straight on `dev`. Stage specific files (never `git add -A`/`.`),

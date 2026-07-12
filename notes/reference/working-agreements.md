@@ -92,6 +92,20 @@ proactively, not just the thing asked about. Add runtime diagnostics (`scrollWid
 non-interactive elements). A real catch: a drawer scrim was `display:none`, so it neither dimmed nor
 swallowed clicks and "click-off to close" silently failed.
 
+### B3a. Verify what you COMMITTED, not what you have. A working tree is not evidence.
+Every gate — tests, build, parity — reads the **working tree**. CI, and every other clone, reads the
+**commit**. If a fix is on disk but not in the commit, the suite goes green over a broken tree.
+
+This is how **four commits shipped a web build that did not compile** (2.55.0–2.57.0): a multi-path
+`git add` silently staged 13 of the 17 files listed, so a moved module's importer updates never landed,
+and every local check still passed.
+
+- After committing, run **`npm run check:committed`** (fails when tracked source differs from `HEAD`).
+- For a release, build from a **clean `git worktree` at `HEAD`** — the only real proof.
+- Never trust a multi-path `git add`; check `git diff --cached --numstat` against what you touched.
+- **Never junction `node_modules` into a throwaway worktree**: `git worktree remove --force` follows
+  the junction and deletes the real one (it did, and both had to be reinstalled).
+
 ### B4. Verify with the real tool before claiming done.
 Don't assert success from a proxy signal. (I claimed OpenSSF Signed-Releases was satisfied because an
 attestation existed — Scorecard reads signature files, not the attestations API, and never credited it.)
