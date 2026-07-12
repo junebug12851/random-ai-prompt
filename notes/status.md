@@ -3,6 +3,33 @@
 _Current state only._ For the chronological history of what changed each session and why, see
 [`sessions/`](sessions/README.md). For the commit-by-commit changelog see [`version.md`](version.md).
 
+## Health (2026-07-12, 2.59.0)
+
+Green, and — new as of 2.58.0 — **actually gated in CI**, which it wasn't before: the mobile app, its
+parity/gating/no-caps checks and the metro engine-parity check had never run in CI at all.
+
+| Gate | State |
+|---|---|
+| `npm test` (docs · registry · lint · smoke · mobile parity · unit · web · mobile) | green |
+| Node unit / integration / regression | 361 |
+| Web (jsdom) | 430 |
+| Mobile (jest-expo) + coverage gate | 122 |
+| Mobile a11y (axe, 5 sizes × 2 colour schemes) | 60 — zero serious/critical WCAG 2 A/AA |
+| Mobile visual baselines | 50 (win32; Linux baselines still to generate) |
+| Web build / online build + SSR prerender | green |
+| `check:committed` · `check:tidy` | clean |
+
+**Open / known:**
+- **The 1000-prompt load is UNVERIFIED on mobile.** It can't be verified in the react-native-web proxy
+  (FlashList's *web* renderer doesn't recycle like the native one; the engine itself does 1000 in 158 ms
+  and 25 000 linearly). Needs a Detox/Android-emulator harness — the one sanctioned exception. See
+  [`plans/testing.md`](plans/testing.md).
+- Mobile visual baselines are Windows-only, so CI runs a11y + perf and visual stays a local gate.
+- `targets/mobile/lib/dplInserts.js` (262 lines) is still a hand-port — the last one. See
+  [`plans/de-duplication.md`](plans/de-duplication.md).
+- Desktop (Tauri) path wiring was rewritten for the new layout but **never verified with a real Rust
+  build** — do that before shipping desktop.
+
 **Repository structure — engine/ + targets/ (restructured 2026-07-06, 2.47.0; the "dynamic prompt"
 concept was renamed to "block" everywhere in 2.48.0, and the Tauri target `targets/desktop` was renamed
 `targets/web-shell`):** the project lives at the
@@ -11,8 +38,12 @@ concept was renamed to "block" everywhere in 2.48.0, and the Tauri target `targe
 manifest/settings/content-safety modules), and the engine **owns its content** under `engine/data/`
 (lists, presets, sources, and the `{#name}` block generators). Build targets live under
 `targets/`: `targets/web/` is the React/Vite web target (ONE npm package, split into `frontend/` +
-`backend/` + `shared/`), and `targets/web-shell/` is the Tauri shell (its own package; wraps the built local
-web target). `targets/shared/` is reserved for cross-target code. Two further targets have since shipped: `targets/cli/` (the `prompt` command-line tool, 2.50.0) and `targets/comfyui/` (the ComfyUI custom-node target, 2.51.0).
+`backend/`), and `targets/web-shell/` is the Tauri shell (its own package; wraps the built local
+web target). **`targets/shared/` is the cross-target app layer** — the ~40 provider adapters + the
+injectable transport + the accent themes, imported by the web, the CLI **and** the mobile app (2.52.0–
+2.54.0; it used to live inside the web target as `targets/web/shared/`). Two further targets have since
+shipped: `targets/cli/` (the `prompt` command-line tool, 2.50.0) and `targets/comfyui/` (the ComfyUI
+custom-node target, 2.51.0), plus **`targets/mobile/`** (Expo/React Native, Android).
 The universal override overlay stays at the repo-root `user/` (`user/lists`, `user/blocks`). Build/meta
 tooling is in `scripts/`, the Node engine test suite in `tests/` (the web target has its own under
 `targets/web/tests/`); **all commands run from the repo root**. The dev server (`npm run web`) is
