@@ -97,22 +97,48 @@ trade-offs.**
   real test (`tests/unit/blockCatalog.test.js`, 9 tests) that pins the catalog's rules AND asserts the
   phone never invents content the engine doesn't have.
 
-## Next: E (remainder) — what's still hand-ported in mobile
+- **E (done) — `dplInserts` → `engine/dplInsertCatalog.js`** (2.60.0). The **last hand-port**, and the
+  one the plan called "entangled": the web localizes the menu's labels through react-intl descriptors
+  while mobile inlines English, so a naïve "share the module" would have dragged react-intl into React
+  Native. The split that resolved it is the general answer to that whole class of problem:
 
-| Mobile file | Lines | Belongs in | Note |
+  - **The grammar moved** — ids, DPL `syntax`, editor `template`, `example`, the `${…}` template
+    conventions and `materializeTemplate`. It describes what `engine/core/dpl/dpl.js` *compiles*, so it
+    was never the web's to own.
+  - **The label layer stayed** — the web keeps its react-intl messages, mobile keeps its English table.
+    Each target attaches its own via `buildInsertMenu({category, item})`. Presentation is
+    platform-specific; grammar is not.
+  - Label keys are **derived from the catalog ids** (`camelId`: `one-of-nothing` → `oneOfNothing…`), so a
+    construct added to the grammar with no string in a target fails
+    `tests/unit/dplInsertCatalog.test.js` instead of rendering `undefined` on a phone. That test is what
+    `checkDplInserts` became: the copies can't drift (there are none), but a label layer *can* fall
+    behind, and that's what's now asserted.
+
+  Mobile's file went 262 lines → a label table. `checkDplInserts` is **deleted**.
+
+## Next: E — nothing. The campaign's hand-ports are all gone.
+
+Every mobile hand-port the audit found has been promoted:
+
+| Was | Lines | Now | Its drift check |
 |---|---|---|---|
-| `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. Guarded by `checkDplInserts`. **Entangled:** the web localizes its labels through react-intl descriptors (`dplInsertsMessages.js`) while mobile inlines English, so only the language-neutral *grammar* (id / syntax / template / example) can move; each target keeps its own label layer. |
+| `lib/imageProviders.js` | 892 | `targets/shared/` registry | `checkProviders` / `checkRewriteSystems` / `checkLocalSettings` — deleted |
+| `lib/listOps.js` | 71 | `engine/listEditorOps.js` | `checkListOps` — deleted |
+| `lib/themeData.js` (accents) | 82 | `targets/shared/theme/` | `checkAccents` — deleted |
+| `lib/blockCatalog.js` | 218 | `engine/blockCatalog.js` | (had none — the worst case) |
+| `lib/dplInserts.js` | 262 | `engine/dplInsertCatalog.js` | `checkDplInserts` — deleted |
 
-Each row's "guarded by" is the drift check that gets **deleted along with the copy** — that's the tell
-that the copy shouldn't exist. Every check that has ever been deleted here was deleted because the thing
-it guarded *could no longer differ*.
+The "its drift check" column is the tell: **every check deleted here was deleted because the thing it
+guarded could no longer differ.** What remains in `scripts/mobile-parity-check.mjs` is `checkLocales`
+(one line of config, not a port), plus the three permanent gates that code-sharing does NOT satisfy —
+`checkSurfaces` (the UI exposes every web feature), `checkGating`, and `checkNoCaps`.
 
 ## Done: the drift checks that duplication made necessary
 
-**Five of seven are gone.** `checkProviders`, `checkRewriteSystems`, `checkLocalSettings` (2.54.0),
-`checkListOps` and `checkAccents` (2.55.0) are **deleted** — mobile derives all of them from the shared
-layer / engine now, so each was comparing a file to itself. Only `checkDplInserts` and `checkLocales`
-remain, and each names the copy still to promote (see above).
+**Six of seven are gone.** `checkProviders`, `checkRewriteSystems`, `checkLocalSettings` (2.54.0),
+`checkListOps` and `checkAccents` (2.55.0), and `checkDplInserts` (2.60.0) are **deleted** — mobile
+derives all of them from the shared layer / engine now, so each was comparing a file to itself. Only
+`checkLocales` remains, and it guards a config list, not a port.
 
 **`checkSurfaces` stays — permanently.** It is not a drift check: it asserts the mobile UI *exposes* every
 web feature (the FULL-parity mandate), which no amount of code-sharing guarantees. Same for the

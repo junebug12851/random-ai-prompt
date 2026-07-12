@@ -8,16 +8,18 @@
  *    invitation to delete the copy and import the shared thing instead. When the copy goes, the check
  *    goes with it. See `notes/plans/de-duplication.md`.
  *
- *    Only TWO are left, and each names the copy that still needs promoting:
- *      • `checkDplInserts` → `targets/mobile/lib/dplInserts.js` (the DPL insert catalog — engine grammar).
+ *    Exactly ONE is left, and it names the copy that still needs promoting:
  *      • `checkLocales`    → the mobile locale list.
  *
  *    Already retired, because the copy is gone: **`checkProviders`**, **`checkRewriteSystems`**,
  *    **`checkLocalSettings`** (mobile derives all ~40 providers + the rewrite system prompts + their
  *    settings from `targets/shared/`), **`checkListOps`** (both targets import `engine/listEditorOps.js`),
- *    and **`checkAccents`** (both read `targets/shared/theme/`). Comparing any of those against the web
- *    source would be comparing a file to itself: **you cannot drift from yourself.** They're replaced by
- *    real contract tests — e.g. `targets/mobile/lib/__tests__/imageProviders.test.js`.
+ *    **`checkAccents`** (both read `targets/shared/theme/`), and — as of 2.60.0 — **`checkDplInserts`**
+ *    (both targets read `engine/dplInsertCatalog.js`; only the LABELS are per-target now, and their
+ *    coverage of the grammar is asserted by `tests/unit/dplInsertCatalog.test.js`). Comparing any of
+ *    those against the web source would be comparing a file to itself: **you cannot drift from
+ *    yourself.** They're replaced by real contract tests — e.g.
+ *    `targets/mobile/lib/__tests__/imageProviders.test.js`.
  *
  * 2. **Surface parity** (`checkSurfaces`) asserts the mobile UI EXPOSES every web feature — the
  *    owner's full-parity mandate (no size-based feature loss, no "mobile is simpler" build). This is
@@ -60,17 +62,6 @@ async function checkLocales() {
     if (webCodes.includes(l.id)) pass(`locale "${l.id}" is a registered web locale`);
     else fail(`locale "${l.id}" not found in the web i18n config`);
   }
-}
-
-// ---------- 3. DPL insert categories: mobile keys == web getDplInserts categories ----------
-async function checkDplInserts() {
-  console.log("DPL insert categories (dplInserts.js  ⇄  web dpl/dplInserts.js)");
-  const { DPL_INSERTS } = await imp(join(MOBILE, "lib/dplInserts.js"));
-  const src = readFileSync(join(WEB, "frontend/lib/dpl/dplInserts.js"), "utf8");
-  const webKeys = [...src.matchAll(/key:\s*"([a-z-]+)"/g)].map((m) => m[1]);
-  const mobKeys = DPL_INSERTS.map((c) => c.key);
-  if (eq(webKeys, mobKeys)) pass(`categories match (${mobKeys.length}): ${mobKeys.join(", ")}`);
-  else fail(`category mismatch — web [${webKeys}] vs mobile [${mobKeys}]`);
 }
 
 // ---------- 6. Surface feature parity: Generate / Gallery / Header must match the web features ------
@@ -265,13 +256,25 @@ function checkGating() {
   // 1. Each provider-dependent control is gated on a capability, not merely present.
   const GATED = [
     ["auto-fix (wand) locked without a Text provider", "generate", /disabled=\{!canRewrite\}/],
-    ["keyword-translate (tag) locked without a Text provider", "generate", /disabled=\{!canRewrite\}/],
+    [
+      "keyword-translate (tag) locked without a Text provider",
+      "generate",
+      /disabled=\{!canRewrite\}/,
+    ],
     ["shuffle locked until a suggestion exists", "generate", /disabled=\{!suggestion\}/],
     ["inline image batch gated on the image provider", "generate", /canImages/],
-    ["gallery compose gated on the image provider", "gallery", /disabled=\{composeBusy \|\| !canImages\}/],
+    [
+      "gallery compose gated on the image provider",
+      "gallery",
+      /disabled=\{composeBusy \|\| !canImages\}/,
+    ],
     ["AI Upscale gated on an upscale provider", "single", /hasUpscalers|upscalersFor\(/],
     ["Manage AI actions locked without a Text provider", "manageBlock", /disabled=\{aiOff\}/],
-    ["capability helpers exist (derive from the manifests)", "capabilities", /canRewrite|canUpscale/],
+    [
+      "capability helpers exist (derive from the manifests)",
+      "capabilities",
+      /canRewrite|canUpscale/,
+    ],
     ["provider-ready hook reports {picked, keyed, ready, reason}", "ready", /reason/],
   ];
   let ok = 0;
@@ -321,14 +324,14 @@ function checkNoCaps() {
   // Strip ALL comments before scanning — block (`/* … */`, incl. JSX `{/* … */}`) and line. The rule
   // is explained in comments that quote the very patterns being banned, so a line-based filter isn't
   // enough: it left `{/* … max={50} … */}` in the source and the check flagged its own documentation.
-  const stripComments = (src) =>
-    src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
   let clean = 0;
   for (const [name, src] of Object.entries(sources)) {
     const code = stripComments(src);
     const hit = CAP.find((re) => re.test(code));
-    if (hit) fail(`${name}: caps the user (${hit}) — documented capacities are a promise, not a limit`);
+    if (hit)
+      fail(`${name}: caps the user (${hit}) — documented capacities are a promise, not a limit`);
     else clean++;
   }
   if (clean === Object.keys(sources).length) {
@@ -337,13 +340,7 @@ function checkNoCaps() {
 }
 
 console.log("mobile ⇄ web parity check\n");
-for (const step of [
-  checkLocales,
-  checkDplInserts,
-  checkSurfaces,
-  checkGating,
-  checkNoCaps,
-]) {
+for (const step of [checkLocales, checkSurfaces, checkGating, checkNoCaps]) {
   await step();
   console.log("");
 }
