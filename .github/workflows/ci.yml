@@ -276,6 +276,13 @@ jobs:
             adb shell input keyevent 82 || true
             adb shell settings put system screen_off_timeout 2147483647 || true
             adb shell settings put secure lockscreen.disabled 1 || true
+            # THE one that mattered. A failure screenshot showed our app rendered perfectly with a
+            # "Pixel Launcher isn't responding" ANR dialog on top of it — the EMULATOR's launcher
+            # choking, not our app. That dialog holds window focus, so Espresso refuses to touch
+            # anything and all three tests die in 3 ms behind a root dump that reads like a crash.
+            # `hide_error_dialogs` is Android's own switch for exactly this, and it is why CI images
+            # ship it.
+            adb shell settings put global hide_error_dialogs 1 || true
             echo "--- window focus before the run ---"
             adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp|mAwake|mScreenOn" || true
             DETOX_ADB_NAME=emulator-5554 npm --prefix targets/mobile run e2e:attached
