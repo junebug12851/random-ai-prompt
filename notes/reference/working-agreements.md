@@ -39,6 +39,21 @@ Engine/prompt/provider logic lives in the engine (or a shared module); every tar
 never forks it. If a new target would force a third copy of existing behavior, **extract** the shared piece
 instead of re-porting. The owner has flagged fast-path re-implementation **more than once**.
 
+### A4a. The app never limits the user. Documented capacities are a PROMISE, not a cap.
+(Owner, 2026-07-11: *"Nowhere in my app does it limit the user… it only officially supports with no
+performance loss those numbers, and beyond that hope for the best. If it supports numbers that high
+then it'll support much higher numbers before problems increase."*)
+
+- **1000 prompts / 100k gallery / 100k-line editor = the levels the app handles with NO PERFORMANCE
+  LOSS.** They describe behaviour, not permission. Past them the app degrades gracefully; it never
+  refuses, and it never silently truncates.
+- So: **no `MAX_*` caps, no `max=` attributes, no clamping to a documented figure.** Keep only
+  *validity* constraints (≥ 1, whole numbers) — those aren't limits.
+- Treat a supported figure as a **floor for performance work**, never a ceiling on the user's ask.
+- This had been violated in three places (web truncated every roll to 50; mobile clamped at 1000) —
+  and **the tests asserted the caps**, which is how it survived. See
+  [`fix-patterns.md`](fix-patterns.md): *a test that asserts a bug is the bug's best defender.*
+
 ### A4. Prefer the higher-quality option — always, by default.
 Never present quality as an opt-in tradeoff. Assume the quality-maximizing choice (real e2e/visual
 verification, full a11y, polished UX, genuine coverage) and just do it, even if it's more work.

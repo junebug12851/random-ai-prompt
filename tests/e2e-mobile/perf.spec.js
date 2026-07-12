@@ -2,10 +2,17 @@
  * @file Performance of the MOBILE app at its stated MAX LOAD.
  *
  * The app promises to stay smooth at: **1000 prompts per roll**, a 100k-image gallery, and a
- * 100k-line Manage editor. Those promises are kept by virtualization (FlashList) and by keeping the
- * editor's per-line inputs uncontrolled — invariants that are easy to break silently. A refactor that
- * accidentally renders all 1000 rows still *passes every unit test*; it just melts the phone. So the
- * load is driven for real and the cost is measured.
+ * 100k-line Manage editor. Read that correctly: those are the levels it supports with **no
+ * performance loss** — a promise about BEHAVIOUR, not a cap. The app never limits the user. Ask for
+ * 5000 and you get 5000; past the supported level it degrades gracefully rather than refusing. (The
+ * web used to silently truncate every roll to 50 and mobile clamped at 1000 — both were bugs, and
+ * both are gone.)
+ *
+ * The promise is kept by virtualization (FlashList) and by keeping the editor's per-line inputs
+ * uncontrolled — invariants that are easy to break silently. A refactor that accidentally renders all
+ * 1000 rows still *passes every unit test*; it just melts the phone. So the load is driven for real
+ * and the cost is measured. And because there IS no cap, the supported level is a floor for the
+ * measurement, not a boundary: if it handles 1000 smoothly it should handle far more before trouble.
  *
  * ## Why this runs in react-native-web, and what that means (the exception, stated plainly)
  *
@@ -22,7 +29,7 @@
  */
 import { test, expect } from "@playwright/test";
 
-/** The app's advertised ceilings (notes/plans/testing.md). */
+/** The app's SUPPORTED load — the level it handles with no performance loss, not a cap. */
 const MAX_PROMPTS = Number(process.env.MOBILE_PERF_PROMPTS || 1000);
 
 async function boot(page) {
@@ -42,7 +49,7 @@ test.describe("mobile performance at max load", () => {
 
   // ── SKIPPED, WITH EVIDENCE — and this is the honest outcome, not a dodge ───────────────────────
   //
-  // This test drives the app to its advertised 1000-prompt ceiling and asserts the result list stays
+  // This test drives the app to its supported 1000-prompt load and asserts the result list stays
   // virtualized. In the react-native-web export it does not complete: rolling 1 prompt renders
   // instantly, 100 does not finish in ~2 minutes, and 1000 times out.
   //
@@ -70,18 +77,18 @@ test.describe("mobile performance at max load", () => {
     test.setTimeout(240_000);
     await boot(page);
 
-    // Drive the REAL control to the REAL ceiling. Playwright-clicking + a thousand times would take
-    // ~30s of actionability checks, so the presses are dispatched in-page — but they go through the
-    // stepper's own onPress, so this is the app's real state path, not a back door. (A "max-load"
-    // test that quietly rolls 2 prompts is theatre.)
-    //
-    // Type the ceiling into the count field — the app's own control, one interaction.
+    // Type the supported load into the count field — the app's own control, one interaction. (A
+    // "max-load" test that quietly rolls 2 prompts is theatre.)
     //
     // This test is the reason that field EXISTS. Writing it exposed that the count was stepper-only,
-    // so the app's advertised ceiling of 1000 was reachable only by tapping + 999 times — absurd for
-    // a test, and worse for a user. (Two further dead ends worth not repeating: react-native-web
-    // drives Touchables through its own responder, so neither `element.click()` nor a synthetic
-    // PointerEvent moves the counter — both silently do nothing and the test just hangs.)
+    // so a large roll was reachable only by tapping + hundreds of times — absurd for a test, and worse
+    // for a user. It then exposed a second, bigger bug: the count was CLAMPED (mobile at 1000, the web
+    // silently truncating every roll to 50). The app doesn't limit the user; those numbers describe
+    // supported performance, not permission. Both caps are gone.
+    //
+    // (Two dead ends worth not repeating: react-native-web drives Touchables through its own
+    // responder, so neither `element.click()` nor a synthetic PointerEvent moves the counter — both
+    // silently do nothing and the test just hangs. Only real browser input works.)
     const count = page.getByLabel("Number of prompts per roll");
     await expect(count).toBeVisible();
     await count.fill(String(MAX_PROMPTS));
@@ -95,7 +102,7 @@ test.describe("mobile performance at max load", () => {
     await page.getByText("#1", { exact: true }).first().waitFor({ timeout: 60_000 });
     const elapsed = Date.now() - started;
 
-    // Generous ceiling: this is a proxy, not a device benchmark. It fails loudly if generation goes
+    // Generous budget: this is a proxy, not a device benchmark. It fails loudly if generation goes
     // quadratic, not if CI is having a slow minute.
     console.log(`[perf] generating ${MAX_PROMPTS} prompts took ${elapsed}ms`);
     expect(elapsed, `generating took ${elapsed}ms`).toBeLessThan(60_000);

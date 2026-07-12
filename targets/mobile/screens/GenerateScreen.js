@@ -41,6 +41,13 @@ const LIST_OPTIONS = [
 ];
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+
+// Prompts-per-roll has a FLOOR (you can't roll zero prompts) but deliberately NO CEILING. The
+// documented 1000 is the level the app supports with *no performance loss* — a promise about
+// behaviour, not a cap on the user. Nothing in this app tells a user "no": if it handles 1000
+// smoothly it will handle more, degrading gracefully rather than refusing. (This screen used to
+// clamp to 1000 in five places — a mobile-only limit the engine and the web never had.)
+const atLeast1 = (n) => Math.max(1, n);
 const COMPLETIONS = getDplCompletions();
 
 // Share link — encode settings (minus secrets) into the web app's #s= hash so a setup can be
@@ -239,7 +246,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
       ...baseSettings,
       ...cfg,
       prompt,
-      promptCount: clamp(promptCount, 1, 1000),
+      promptCount: atLeast1(promptCount),
       generateImages: false,
     }),
     [prompt, promptCount, cfg],
@@ -378,7 +385,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
   );
   const rollPrompts = useCallback(() => {
     if (!wrapActive) return run.generatePrompts(settings);
-    const count = clamp(promptCount, 1, 1000);
+    const count = atLeast1(promptCount);
     const base =
       settings.randomSeed === false && String(settings.promptSeed ?? "").trim() !== ""
         ? String(settings.promptSeed).trim()
@@ -730,33 +737,34 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
               <Text style={styles.promptsLabel}>PROMPTS</Text>
               <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
-                onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+                onPress={() => setPromptCount((n) => atLeast1(n - 1))}
                 accessibilityLabel="One fewer prompt"
               >
                 <Text style={styles.countBtnText}>−</Text>
               </TouchableOpacity>
               {/*
                 The count is EDITABLE, not stepper-only — web parity (PromptComposer uses a numeric
-                input). Without this the app's own advertised ceiling of 1000 prompts is reachable
-                only by tapping + nine hundred and ninety-nine times, which is not a feature, it's a
-                dare. Found while writing the max-load perf test: the test was absurd because the UI
-                was.
+                input). Without this, a large roll was reachable only by tapping + hundreds of times,
+                which is not a feature, it's a dare. Found while writing the max-load perf test: the
+                test was absurd because the UI was.
+
+                No upper bound, and no maxLength: 1000 is the level the app SUPPORTS with no
+                performance loss, not a cap it enforces. The app never tells the user "no".
               */}
               <TextInput
                 style={styles.countInput}
                 value={String(promptCount)}
                 onChangeText={(v) => {
                   const n = parseInt(v.replace(/[^0-9]/g, ""), 10);
-                  setPromptCount(Number.isFinite(n) ? clamp(n, 1, 1000) : 1);
+                  setPromptCount(Number.isFinite(n) ? atLeast1(n) : 1);
                 }}
                 keyboardType="number-pad"
                 selectTextOnFocus
-                maxLength={4}
                 accessibilityLabel="Number of prompts per roll"
               />
               <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
-                onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+                onPress={() => setPromptCount((n) => n + 1)}
                 accessibilityLabel="One more prompt"
               >
                 <Text style={styles.countBtnText}>+</Text>

@@ -5,9 +5,16 @@
  */
 import { pickRollSeed, forkRollSeed } from "./seed.js";
 
-// The per-roll prompt ceiling — mirrors the `max` on the Home prompt-count input. Enforced here too so
-// the helper is the single source of truth and can't be driven past it by stale/shared settings.
-const MAX_PROMPTS = 50;
+// NOTE: there is deliberately NO per-roll ceiling.
+//
+// This used to be `const MAX_PROMPTS = 50`, silently truncating any roll to 50 — so the app couldn't
+// even produce the 1000 prompts it documents as its supported load, and a user who asked for 200 got
+// 50 with no explanation. The documented numbers (1000 prompts, 100k gallery, 100k-line editor) are a
+// promise about PERFORMANCE — "this much with no degradation" — not a cap the app enforces. Past them
+// it degrades gracefully; it never refuses. Nothing in this app tells the user "no".
+//
+// The floor and the integer coercion below stay: those are validity (you can't roll zero or half a
+// prompt), not a limit.
 
 /**
  * Assemble one roll: frame `text` with the active wrapper, generate `settings.promptCount` prompts
@@ -28,9 +35,8 @@ const MAX_PROMPTS = 50;
  */
 export function buildRoll({ settings, text, wrapper, mode, deps }) {
   const { renderWrapperPart, generatePrompt, nextId, mintSeed } = deps;
-  // Clamp to an integer in [1, MAX_PROMPTS] — the same ceiling the UI input enforces — so a stale or
-  // shared-link `promptCount` that is fractional or oversized can't spin an excessive synchronous loop.
-  const count = Math.min(MAX_PROMPTS, Math.max(1, Math.floor(Number(settings.promptCount)) || 1));
+  // At least one whole prompt. No upper bound — see the note above.
+  const count = Math.max(1, Math.floor(Number(settings.promptCount)) || 1);
   const rollSeed = pickRollSeed(settings, mintSeed);
   // Whether blocks may contribute their own Auto Begin / Auto End framing (default on).
   const useAuto = settings.useAutoSections !== false;

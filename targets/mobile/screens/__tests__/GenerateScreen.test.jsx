@@ -167,22 +167,32 @@ describe("GenerateScreen — random suggestion (shuffle)", () => {
   });
 });
 /**
- * Regression: the prompts-per-roll count was STEPPER-ONLY, so the app's advertised ceiling of 1000
- * prompts was reachable only by tapping + nine hundred and ninety-nine times. The web has a numeric
- * input. Found while writing the max-load perf test — the test was absurd because the UI was.
+ * Regression, twofold:
+ *
+ *  1. The prompts-per-roll count was STEPPER-ONLY, so a large roll was reachable only by tapping +
+ *     hundreds of times. The web has a numeric input. Found while writing the max-load perf test —
+ *     the test was absurd because the UI was.
+ *
+ *  2. It then CAPPED the user at 1000 (in five places). It shouldn't: nothing in this app tells the
+ *     user "no". The documented 1000 is the load the app supports with *no performance loss* — a
+ *     promise about behaviour, not a limit. Past it the app degrades gracefully; it never refuses.
  */
 describe("GenerateScreen — prompts-per-roll count", () => {
-  it("is directly editable and clamps to the 1..1000 range (web parity)", async () => {
+  it("is directly editable, with a floor of 1 and NO upper cap", async () => {
     const { getByLabelText } = await setup();
     const count = getByLabelText("Number of prompts per roll");
 
     fireEvent.changeText(count, "1000");
     expect(count.props.value).toBe("1000");
 
-    fireEvent.changeText(count, "9999"); // above the ceiling → clamped, never rejected
-    expect(count.props.value).toBe("1000");
+    // Beyond the documented support level → still honoured, never clamped or rejected.
+    fireEvent.changeText(count, "9999");
+    expect(count.props.value).toBe("9999");
 
-    fireEvent.changeText(count, ""); // emptied → falls back to 1, never NaN
+    fireEvent.changeText(count, "250000");
+    expect(count.props.value).toBe("250000");
+
+    fireEvent.changeText(count, ""); // emptied → falls back to 1, never NaN (validity, not a limit)
     expect(count.props.value).toBe("1");
   });
 

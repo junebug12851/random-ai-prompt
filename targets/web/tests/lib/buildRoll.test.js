@@ -53,13 +53,21 @@ describe("buildRoll", () => {
     }
   });
 
-  it("coerces a fractional count to an integer and caps it at the 50-item ceiling", () => {
+  it("coerces a fractional count to an integer, and imposes NO upper ceiling", () => {
     const len = (promptCount) =>
       buildRoll({ ...base, settings: { ...base.settings, promptCount }, deps: makeDeps() }).prompts
         .length;
-    expect(len(3.9)).toBe(3); // floored, not rounded up
-    expect(len(999)).toBe(50); // capped
+    expect(len(3.9)).toBe(3); // floored, not rounded up — you can't roll half a prompt
     expect(len("7")).toBe(7); // numeric string coerced
+
+    // Regression: this used to silently truncate to 50 (`MAX_PROMPTS`), so the app couldn't even
+    // produce the 1000 prompts it documents as its supported load, and a user who asked for 200 got
+    // 50 with no explanation. The documented numbers are a promise about PERFORMANCE ("this much
+    // with no degradation"), NOT a cap the app enforces — past them it degrades gracefully, it never
+    // refuses. Ask for it, get it.
+    expect(len(999)).toBe(999);
+    expect(len(1000)).toBe(1000);
+    expect(len(5000)).toBe(5000); // well beyond the documented level — still honoured
   });
 
   it("frames the text with the wrapper start/end, dropping empty parts", () => {

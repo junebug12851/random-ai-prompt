@@ -294,12 +294,55 @@ function checkGating() {
   }
 }
 
+// ---------- NO USER-FACING CAPS: documented capacities are a promise, not a limit ----------------
+// The app never tells the user "no". 1000 prompts / 100k gallery / 100k-line editor are the levels it
+// supports with NO PERFORMANCE LOSS — behaviour, not permission. Past them it degrades gracefully; it
+// never refuses and never silently truncates. (See working-agreements §A4a.)
+//
+// This is a NEGATIVE check, and it needs to be: the caps that were removed in 2.57.0 had survived
+// precisely because nothing looked for them — the web silently truncated every roll to 50, mobile
+// clamped at 1000, and the unit tests ASSERTED both. Presence checks can't catch a cap; only looking
+// for it can.
+function checkNoCaps() {
+  console.log("No user-facing caps (documented capacities are a promise, not a limit)");
+  const sources = {
+    "mobile/GenerateScreen": readFileSync(join(MOBILE, "screens/GenerateScreen.js"), "utf8"),
+    "web/buildRoll": readFileSync(join(WEB, "frontend/lib/home/buildRoll.js"), "utf8"),
+    "web/PromptComposer": readFileSync(join(WEB, "frontend/components/PromptComposer.jsx"), "utf8"),
+  };
+  // A cap = clamping/min-ing the user's ask against one of the DOCUMENTED capacity figures, or an
+  // upper `max=` on the prompt-count input. Comment lines are ignored (they explain the ban).
+  const CAP = [
+    /Math\.min\([^)]*\b(50|1000|100000|100_000)\b/, // Math.min(…, 1000) — truncating the ask
+    /clamp\([^,)]+,\s*\d+\s*,\s*(50|1000|100000|100_000)\s*\)/, // clamp(n, 1, 1000)
+    /\bMAX_PROMPTS\s*=\s*\d+/, // a re-introduced ceiling constant
+    /max=\{?\s*(50|1000)\s*\}?/, // <input max={50}> — caps the spinner + marks larger invalid
+  ];
+  // Strip ALL comments before scanning — block (`/* … */`, incl. JSX `{/* … */}`) and line. The rule
+  // is explained in comments that quote the very patterns being banned, so a line-based filter isn't
+  // enough: it left `{/* … max={50} … */}` in the source and the check flagged its own documentation.
+  const stripComments = (src) =>
+    src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+  let clean = 0;
+  for (const [name, src] of Object.entries(sources)) {
+    const code = stripComments(src);
+    const hit = CAP.find((re) => re.test(code));
+    if (hit) fail(`${name}: caps the user (${hit}) — documented capacities are a promise, not a limit`);
+    else clean++;
+  }
+  if (clean === Object.keys(sources).length) {
+    pass(`no caps in ${clean} generate paths — ask for 5000 and you get 5000`);
+  }
+}
+
 console.log("mobile ⇄ web parity check\n");
 for (const step of [
   checkLocales,
   checkDplInserts,
   checkSurfaces,
   checkGating,
+  checkNoCaps,
 ]) {
   await step();
   console.log("");

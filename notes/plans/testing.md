@@ -18,6 +18,26 @@ never renders the dark canvas the design is built around).
 - **Performance** (`perf.spec.js`) — typing cost and pane-mount cost, both of which the browser
   reproduces faithfully because they're pure JS work.
 
+### First, a correction: the documented numbers are NOT limits
+
+1000 prompts / 100k gallery / 100k-line editor are the levels the app supports **with no performance
+loss**. They are a promise about *behaviour*, not a cap, and **the app never limits the user** — past
+them it degrades gracefully rather than refusing. If it handles 1000 smoothly it will handle far more
+before trouble starts.
+
+Writing the max-load test surfaced that the code had forgotten this in two places, and I initially
+made it worse:
+
+| Where | The bug |
+|---|---|
+| `targets/web/frontend/lib/home/buildRoll.js` | `MAX_PROMPTS = 50` — **every** web roll was silently truncated to 50. The app could not produce the 1000 prompts it documents, and a user asking for 200 got 50 with no explanation. |
+| `targets/mobile/screens/GenerateScreen.js` | Clamped to 1000 in **five** places (settings, roll, both steppers, and the new field) — a mobile-only limit neither the engine nor the web had. |
+| The web's prompt-count `<input>` | `max={50}`, capping the spinner and marking anything higher as invalid. |
+
+All removed. The floor (≥ 1, integer) stays — that's validity, not a limit. **And the tests had
+enshrined the caps** (`expect(len(999)).toBe(50) // capped`), which is how it survived: a test that
+asserts a bug is the bug's best defender. They now assert the opposite (`len(5000) === 5000`).
+
 ### The exception: the 1000-prompt max-load test is SKIPPED, and here is the evidence
 
 The advertised ceiling (1000 prompts/roll) **cannot be honestly verified in the browser proxy.** In the
