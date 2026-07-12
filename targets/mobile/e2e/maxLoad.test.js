@@ -46,12 +46,16 @@ async function roll(n) {
   }
 
   await element(by.id("prompt-count")).replaceText(String(n));
-  // Dismiss the number pad so it can't sit on top of the generate button. (A number-pad has no return
-  // key on every Android skin, so `pressBack` — which closes the IME first — is the reliable one.)
+  // Dismiss the number pad so it can't sit on top of the generate button.
+  //
+  // NOT `device.pressBack()`: with no keyboard up, BACK goes to the *activity* and closes the app — the
+  // next action then fails with "No activities in stage RESUMED", which reads like an app crash and
+  // isn't one. (Cost a CI round-trip to learn. The keyboard's own return key only ever talks to the
+  // keyboard.)
   try {
-    await device.pressBack();
+    await element(by.id("prompt-count")).tapReturnKey();
   } catch {
-    // No keyboard up; nothing to dismiss.
+    // No IME to dismiss on this skin — fine, the generate button is reachable either way.
   }
 
   const started = Date.now();
