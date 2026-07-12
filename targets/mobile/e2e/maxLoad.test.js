@@ -46,8 +46,13 @@ async function roll(n) {
   }
 
   await element(by.id("prompt-count")).replaceText(String(n));
-  // Dismiss the number pad so it can't sit on top of the generate button.
-  await element(by.id("prompt-count")).tapReturnKey();
+  // Dismiss the number pad so it can't sit on top of the generate button. (A number-pad has no return
+  // key on every Android skin, so `pressBack` — which closes the IME first — is the reliable one.)
+  try {
+    await device.pressBack();
+  } catch {
+    // No keyboard up; nothing to dismiss.
+  }
 
   const started = Date.now();
   await element(by.id("generate")).tap();
@@ -71,6 +76,21 @@ async function scrollAndMeasure(deviceId, passes = 6) {
 describe("mobile @ max load (on device)", () => {
   beforeAll(async () => {
     await device.launchApp({ newInstance: true });
+
+    // Drive the app MANUALLY instead of through Espresso's idle-based synchronization.
+    //
+    // The composer advertises a rotating random suggestion in its placeholder, on a timer. So the view
+    // hierarchy never stops requesting layout, and Espresso — which waits for the UI thread to go
+    // quiet before it will act — waits forever: *"Waited for the root of the view hierarchy to have
+    // window focus and not request layout for 10 seconds."* That is a healthy, animated app, not a
+    // stuck one, and Detox documents `disableSynchronization()` as the escape hatch for exactly it.
+    //
+    // Nothing is lost by turning it off here: every wait in this file is on **real, observable UI
+    // state** (the literal "N generated" label the app renders when the roll is complete), which is a
+    // stronger signal than "the framework believes it is idle" — and it's the state the assertion is
+    // about anyway.
+    await device.disableSynchronization();
+
     await waitFor(element(by.id("generate")))
       .toBeVisible()
       .withTimeout(120000);
