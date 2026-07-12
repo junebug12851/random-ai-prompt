@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0. Analyze (and optionally apply) a sub-split of keyword.txt.
+/* Copyright 2026 1fairyfox — Apache-2.0. Analyze (and optionally apply) a sub-split of keyword.txt.
  * Run `node split-proper.mjs`        -> analyze only (read-only), prints distribution + samples.
  * Run `node split-proper.mjs --apply` -> writes the split lists and shrinks keyword.txt.
  * Never deletes a word — everything lands in some list (leftover stays in keyword.txt).

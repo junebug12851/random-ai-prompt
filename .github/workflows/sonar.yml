@@ -5,7 +5,7 @@ name: SonarCloud
 #
 # DORMANT until you enable it: the job only runs when the repo VARIABLE `SONAR_ENABLED` is "true".
 # One-time setup:
-#   1. Sign in at https://sonarcloud.io with GitHub and import junebug12851/random-ai-prompt.
+#   1. Sign in at https://sonarcloud.io with GitHub and import 1fairyfox/random-ai-prompt.
 #   2. Add a repo SECRET `SONAR_TOKEN` (from Sonar → My Account → Security).
 #   3. Add a repo VARIABLE `SONAR_ENABLED` = true (Settings → Secrets and variables → Actions → Variables).
 # Until then this workflow is a no-op, so it never shows a spurious red X.

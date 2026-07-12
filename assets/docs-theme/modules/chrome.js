@@ -135,7 +135,7 @@ export function injectFooter() {
     `<span>© ${new Date().getFullYear()} Fairy Fox</span>` +
     `<span>A project under <a href="${HUB}/">Fairy&nbsp;Fox</a></span>` +
     '<span class="spacer"></span>' +
-    '<a href="https://github.com/junebug12851">@junebug12851</a>' +
+    '<a href="https://github.com/1fairyfox">@1fairyfox</a>' +
     "</div></div>";
   const main = document.getElementById("main");
   (main || document.body).appendChild(foot);

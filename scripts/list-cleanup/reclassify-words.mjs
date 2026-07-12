@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Strict POS validation of the curated word lists against WordNet. Each entry:
  *  - stays if WordNet confirms its current part of speech;
  *  - else if it's an action gerund (contains an -ing token and isn't a WordNet

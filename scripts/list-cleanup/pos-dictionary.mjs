@@ -1,5 +1,5 @@
 /*
-    Copyright 2026 junebug12851 — Apache-2.0 (see src/contentSafety.js header).
+    Copyright 2026 1fairyfox — Apache-2.0 (see src/contentSafety.js header).
 */
 
 /**

@@ -1,26 +1,26 @@
 # Random AI Prompt
 
-[![Contributors](https://img.shields.io/github/contributors/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/graphs/contributors)
-[![Stars](https://img.shields.io/github/stars/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/stargazers)
-[![Forks](https://img.shields.io/github/forks/junebug12851/random-ai-prompt?style=flat-square&logo=github)](https://github.com/junebug12851/random-ai-prompt/network/members)
-![Watchers](https://img.shields.io/github/watchers/junebug12851/random-ai-prompt?style=flat-square&logo=github)
-[![Last commit](https://img.shields.io/github/last-commit/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/commits)
-![Commits](https://img.shields.io/github/commit-activity/t/junebug12851/random-ai-prompt?style=flat-square&label=commits)
-[![Version](https://img.shields.io/github/package-json/v/junebug12851/random-ai-prompt?style=flat-square&label=version)](https://github.com/junebug12851/random-ai-prompt/releases)
+[![Contributors](https://img.shields.io/github/contributors/1fairyfox/random-ai-prompt?style=flat-square&logo=github)](https://github.com/1fairyfox/random-ai-prompt/graphs/contributors)
+[![Stars](https://img.shields.io/github/stars/1fairyfox/random-ai-prompt?style=flat-square&logo=github)](https://github.com/1fairyfox/random-ai-prompt/stargazers)
+[![Forks](https://img.shields.io/github/forks/1fairyfox/random-ai-prompt?style=flat-square&logo=github)](https://github.com/1fairyfox/random-ai-prompt/network/members)
+![Watchers](https://img.shields.io/github/watchers/1fairyfox/random-ai-prompt?style=flat-square&logo=github)
+[![Last commit](https://img.shields.io/github/last-commit/1fairyfox/random-ai-prompt?style=flat-square)](https://github.com/1fairyfox/random-ai-prompt/commits)
+![Commits](https://img.shields.io/github/commit-activity/t/1fairyfox/random-ai-prompt?style=flat-square&label=commits)
+[![Version](https://img.shields.io/github/package-json/v/1fairyfox/random-ai-prompt?style=flat-square&label=version)](https://github.com/1fairyfox/random-ai-prompt/releases)
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2024-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
-[![CI](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/junebug12851/random-ai-prompt/actions/workflows/ci.yml)
-[![Engine coverage](https://img.shields.io/codecov/c/github/junebug12851/random-ai-prompt?flag=node&style=flat-square&logo=codecov&logoColor=white&label=engine%20coverage)](https://codecov.io/gh/junebug12851/random-ai-prompt?flags%5B0%5D=node)
-[![Code quality](https://img.shields.io/codefactor/grade/github/junebug12851/random-ai-prompt?style=flat-square&logo=codefactor&logoColor=white&label=code%20quality)](https://www.codefactor.io/repository/github/junebug12851/random-ai-prompt)
-[![Quality gate](https://img.shields.io/sonar/quality_gate/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=quality%20gate)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
-[![Tech debt](https://img.shields.io/sonar/tech_debt/junebug12851_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=tech%20debt)](https://sonarcloud.io/summary/new_code?id=junebug12851_random-ai-prompt)
-[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/junebug12851/random-ai-prompt?style=flat-square&label=scorecard)](https://securityscorecards.dev/viewer/?uri=github.com/junebug12851/random-ai-prompt)
+[![CI](https://img.shields.io/github/actions/workflow/status/1fairyfox/random-ai-prompt/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/1fairyfox/random-ai-prompt/actions/workflows/ci.yml)
+[![Engine coverage](https://img.shields.io/codecov/c/github/1fairyfox/random-ai-prompt?flag=node&style=flat-square&logo=codecov&logoColor=white&label=engine%20coverage)](https://codecov.io/gh/1fairyfox/random-ai-prompt?flags%5B0%5D=node)
+[![Code quality](https://img.shields.io/codefactor/grade/github/1fairyfox/random-ai-prompt?style=flat-square&logo=codefactor&logoColor=white&label=code%20quality)](https://www.codefactor.io/repository/github/1fairyfox/random-ai-prompt)
+[![Quality gate](https://img.shields.io/sonar/quality_gate/1fairyfox_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=quality%20gate)](https://sonarcloud.io/summary/new_code?id=1fairyfox_random-ai-prompt)
+[![Tech debt](https://img.shields.io/sonar/tech_debt/1fairyfox_random-ai-prompt?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white&label=tech%20debt)](https://sonarcloud.io/summary/new_code?id=1fairyfox_random-ai-prompt)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/1fairyfox/random-ai-prompt?style=flat-square&label=scorecard)](https://securityscorecards.dev/viewer/?uri=github.com/1fairyfox/random-ai-prompt)
 [![Docs](https://img.shields.io/badge/docs-fairyfox.io-4c9?style=flat-square&logo=readthedocs&logoColor=white)](https://fairyfox.io/random-ai-prompt/)
-[![Netlify](https://img.shields.io/github/actions/workflow/status/junebug12851/random-ai-prompt/netlify-deploy.yml?branch=main&style=flat-square&logo=netlify&logoColor=white&label=netlify)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
-[![Open issues](https://img.shields.io/github/issues/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/issues)
-![Closed issues](https://img.shields.io/github/issues-closed/junebug12851/random-ai-prompt?style=flat-square)
-[![Open PRs](https://img.shields.io/github/issues-pr/junebug12851/random-ai-prompt?style=flat-square)](https://github.com/junebug12851/random-ai-prompt/pulls)
-![Closed PRs](https://img.shields.io/github/issues-pr-closed/junebug12851/random-ai-prompt?style=flat-square)
-[![License](https://img.shields.io/github/license/junebug12851/random-ai-prompt?style=flat-square)](LICENSE)
+[![Netlify](https://img.shields.io/github/actions/workflow/status/1fairyfox/random-ai-prompt/netlify-deploy.yml?branch=main&style=flat-square&logo=netlify&logoColor=white&label=netlify)](https://app.netlify.com/projects/prompt-fairyfox/deploys)
+[![Open issues](https://img.shields.io/github/issues/1fairyfox/random-ai-prompt?style=flat-square)](https://github.com/1fairyfox/random-ai-prompt/issues)
+![Closed issues](https://img.shields.io/github/issues-closed/1fairyfox/random-ai-prompt?style=flat-square)
+[![Open PRs](https://img.shields.io/github/issues-pr/1fairyfox/random-ai-prompt?style=flat-square)](https://github.com/1fairyfox/random-ai-prompt/pulls)
+![Closed PRs](https://img.shields.io/github/issues-pr-closed/1fairyfox/random-ai-prompt?style=flat-square)
+[![License](https://img.shields.io/github/license/1fairyfox/random-ai-prompt?style=flat-square)](LICENSE)
 
 ![Random AI Prompt shown with a generated image, its prompt, and the DPL source](https://fairyfox.io/random-ai-prompt/screenshots/single-desktop.png?v=3)
 
@@ -83,14 +83,14 @@ you want to.
 your own API key (or skip the key and generate prompt text only), and start composing. Nothing is
 stored on a server. Want to run the online edition yourself? Every release attaches a ready-to-host
 **online bundle** (`random-ai-prompt-<version>-online.zip`) on the
-[Releases page](https://github.com/junebug12851/random-ai-prompt/releases) — static files you can drop
+[Releases page](https://github.com/1fairyfox/random-ai-prompt/releases) — static files you can drop
 on any web host (Netlify, Cloudflare Pages, GitHub Pages, nginx, or `npx serve`). The hosted site is
 just one deployment of that same bundle.
 
 **Desktop edition — download pre-built.** The full desktop edition (image gallery, single-image view,
 in-app content manager, local Stable Diffusion providers, and 18+ mode) is a pre-built download for
 Windows, macOS, and Linux on the
-[Releases page](https://github.com/junebug12851/random-ai-prompt/releases):
+[Releases page](https://github.com/1fairyfox/random-ai-prompt/releases):
 
 - **Windows** — an installer (`.msi` / `.exe`), or a **portable** `.zip` (unzip and run, no install).
 - **macOS** — a `.dmg` you drag to Applications, or the `.app` run in place.
@@ -125,7 +125,7 @@ local providers, NSFW mode). It requires [Node.js](https://nodejs.org) 24 or new
 pinned in `.nvmrc`), and every command is run from the repository root.
 
 ```sh
-git clone https://github.com/junebug12851/random-ai-prompt.git
+git clone https://github.com/1fairyfox/random-ai-prompt.git
 cd random-ai-prompt
 npm install
 ```
@@ -166,7 +166,7 @@ directory; begin with [notes/status.md](notes/status.md).
 
 ## Credits
 
-Random AI Prompt is created by [junebug12851](https://github.com/junebug12851), with early internal
+Random AI Prompt is created by [1fairyfox](https://github.com/1fairyfox), with early internal
 list work by Merk. It builds on the work of others:
 
 - **Prompt and word lists** — the artist and Danbooru tag lists from

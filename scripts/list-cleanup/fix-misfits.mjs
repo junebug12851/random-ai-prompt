@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Spot-check fixes: pull danbooru face/expression/pose tags out of word/adjective
  * into a new look/expression list, drop typos, and move a stray anime title out of
  * artist/anime. Relocations only (typos removed). Reviewed by hand.

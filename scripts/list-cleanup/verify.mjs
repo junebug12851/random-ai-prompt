@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0. Ad-hoc virtual-list smoke check. */
+/* Copyright 2026 1fairyfox — Apache-2.0. Ad-hoc virtual-list smoke check. */
 import { nodeLoader } from "../../engine/core/nodeLoader.js";
 
 const names = nodeLoader.listNames();

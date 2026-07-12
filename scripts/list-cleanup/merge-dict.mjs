@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Collapse the dictionary POS lists into the curated ones (one list per POS).
  * dict-misc becomes word/misc. Removes the dict-* files.
  *   node scripts/list-cleanup/merge-dict.mjs

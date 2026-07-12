@@ -1,5 +1,5 @@
 /*
-    Copyright 2026 junebug12851
+    Copyright 2026 1fairyfox
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
