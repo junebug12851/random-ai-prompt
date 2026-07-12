@@ -410,7 +410,18 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
 
   const generate = useCallback(async () => {
     if (generating) return;
+
+    // Time the ROLL itself, and say so out loud (logcat).
+    //
+    // Not decoration: the on-device suite measures the wall-clock from "tap generate" to "N generated"
+    // renders, which is engine + render + list mount in one number — and when that number went bad at
+    // N=1000 there was no way to tell WHICH. (The previous guess, "it's FlashList's web renderer",
+    // was wrong and cost a session.) This line splits it: engine time here, everything else is the
+    // difference. Hermes keeps console.log in release, and the Detox run captures logcat.
+    const t0 = Date.now();
     const { seed, prompts: rolled } = rollPrompts();
+    // eslint-disable-next-line no-console
+    console.log(`[rap-perf] roll ${rolled.length} prompts: ${Date.now() - t0}ms (engine only)`);
     setCopiedId(null);
 
     // Text rewrite (auto-fix / keyword-translate) with the selected Text provider, if toggled on.

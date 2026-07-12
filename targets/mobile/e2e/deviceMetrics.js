@@ -74,4 +74,35 @@ function readMemoryMb(deviceId) {
   return m ? Number(m[1]) / 1024 : NaN;
 }
 
-module.exports = { PACKAGE, adb, resetFrameStats, readFrameStats, readMemoryMb };
+/** Wipe logcat, so a read afterwards covers exactly the roll under test. */
+function clearLog(deviceId) {
+  adb(["logcat", "-c"], deviceId);
+}
+
+/**
+ * The app's OWN report of how long the engine took (`[rap-perf] roll N prompts: Xms`), read back from
+ * logcat.
+ *
+ * This is what turns "the 1000-prompt roll is slow" into an actionable fact: the test measures tap →
+ * "N generated" (engine + render + list mount), the app measures the engine alone, and the difference
+ * is the render. Without the split, the only honest thing you can say is "somewhere in there" — which
+ * is how a wrong guess ("it's the web renderer") survived a whole session.
+ *
+ * @returns {number|null} Milliseconds the engine spent, or null if the app didn't log it.
+ */
+function readEngineMs(deviceId) {
+  const out = adb(["logcat", "-d", "-s", "ReactNativeJS:*"], deviceId);
+  const matches = [...out.matchAll(/\[rap-perf] roll (\d+) prompts: (\d+)ms/g)];
+  if (!matches.length) return null;
+  return Number(matches[matches.length - 1][2]);
+}
+
+module.exports = {
+  PACKAGE,
+  adb,
+  clearLog,
+  resetFrameStats,
+  readFrameStats,
+  readMemoryMb,
+  readEngineMs,
+};

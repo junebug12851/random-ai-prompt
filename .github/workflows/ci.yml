@@ -208,6 +208,10 @@ jobs:
   android-device:
     name: On-device max load (Detox + Android emulator)
     runs-on: ubuntu-latest
+    # A hang must FAIL, not idle. Without this a stuck roll sat in the runner for over an hour before
+    # anyone noticed — burning minutes and telling us nothing. Build ~10 min + three rolls + scrolling
+    # fits comfortably in 45; past that, something is wrong and the log is the answer.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:

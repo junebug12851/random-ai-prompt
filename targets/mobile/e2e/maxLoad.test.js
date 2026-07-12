@@ -26,7 +26,13 @@
  */
 const { device, element, by, waitFor } = require("detox");
 const jestExpect = require("expect").default; // Detox's `expect` shadows Jest's — see Detox docs.
-const { resetFrameStats, readFrameStats, readMemoryMb } = require("./deviceMetrics");
+const {
+  clearLog,
+  resetFrameStats,
+  readFrameStats,
+  readMemoryMb,
+  readEngineMs,
+} = require("./deviceMetrics");
 
 /** The app's SUPPORTED load — the level it handles with no performance loss, NOT a cap. */
 const MAX_PROMPTS = Number(process.env.MOBILE_MAX_PROMPTS || 1000);
@@ -76,12 +82,19 @@ async function roll(n) {
     // No IME to dismiss on this skin — fine, the generate button is reachable either way.
   }
 
+  clearLog(device.id); // so the engine timing we read back belongs to THIS roll
+
   const started = Date.now();
   await element(by.id("generate")).tap();
   await waitFor(element(by.id("results-count")))
     .toHaveText(`${n} generated`)
     .withTimeout(ROLL_TIMEOUT_MS);
-  return Date.now() - started;
+  const total = Date.now() - started;
+
+  // The split. `total` is engine + render + list mount; `engineMs` is what the app says the engine alone
+  // cost. Everything else is the render. One number is a complaint; two are a diagnosis.
+  const engineMs = readEngineMs(device.id);
+  return { total, engineMs, renderMs: engineMs == null ? null : total - engineMs };
 }
 
 /** Scroll the results list hard and report what the phone reports about those frames. */
@@ -118,50 +131,49 @@ describe("mobile @ max load (on device)", () => {
       .withTimeout(120000);
   });
 
-  it(`rolls ${BASELINE_PROMPTS} prompts (the baseline this device is judged against)`, async () => {
-    const elapsed = await roll(BASELINE_PROMPTS);
-    const { frames, memMb } = await scrollAndMeasure(device.id, 3);
-    baseline = { elapsed, frames, memMb };
-
+  /** One line per roll, with the engine/render split — the whole point of the exercise. */
+  function report(n, r, frames, memMb) {
+    const split =
+      r.engineMs == null
+        ? "engine ?ms (the app didn't log it)"
+        : `engine ${r.engineMs}ms + render ${r.renderMs}ms`;
     // eslint-disable-next-line no-console
     console.log(
-      `[device] ${BASELINE_PROMPTS} prompts: ${elapsed}ms · ${memMb.toFixed(0)}MB · ` +
-        `${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · p90 ${frames.p90}ms`,
+      `[device] ${n} prompts: ${r.total}ms total (${(r.total / n).toFixed(1)} ms/prompt) — ${split} · ` +
+        `${memMb.toFixed(0)}MB · ${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · ` +
+        `p90 ${frames.p90}ms p95 ${frames.p95}ms p99 ${frames.p99}ms`,
     );
+  }
+
+  it(`rolls ${BASELINE_PROMPTS} prompts (the baseline this device is judged against)`, async () => {
+    const r = await roll(BASELINE_PROMPTS);
+    const { frames, memMb } = await scrollAndMeasure(device.id, 3);
+    baseline = { elapsed: r.total, roll: r, frames, memMb };
+    report(BASELINE_PROMPTS, r, frames, memMb);
 
     jestExpect(memMb).toBeGreaterThan(0); // the metrics pipe works; without this the test is blind
   });
 
   it(`rolls ${PROBE_PROMPTS} prompts (the middle of the curve — is the cost LINEAR?)`, async () => {
-    const elapsed = await roll(PROBE_PROMPTS);
+    const r = await roll(PROBE_PROMPTS);
     const { frames, memMb } = await scrollAndMeasure(device.id, 5);
-    probe = { elapsed, frames, memMb };
-
-    // eslint-disable-next-line no-console
-    console.log(
-      `[device] ${PROBE_PROMPTS} prompts: ${elapsed}ms (${(elapsed / PROBE_PROMPTS).toFixed(1)} ms/prompt) · ` +
-        `${memMb.toFixed(0)}MB · ${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · p90 ${frames.p90}ms`,
-    );
+    probe = { elapsed: r.total, roll: r, frames, memMb };
+    report(PROBE_PROMPTS, r, frames, memMb);
 
     // The point of the middle probe: separate "this device is slow" (per-prompt cost roughly constant —
     // fine, that's Hermes on a software-rendered emulator) from "this app is quadratic" (per-prompt
     // cost climbing with N — a real defect that a 50× roll would turn into a hang). 10× the prompts
     // must not cost much more than 10× the time.
     const perPromptBaseline = baseline.elapsed / BASELINE_PROMPTS;
-    const perPromptProbe = elapsed / PROBE_PROMPTS;
+    const perPromptProbe = r.total / PROBE_PROMPTS;
     jestExpect(perPromptProbe).toBeLessThan(perPromptBaseline * 3 + 20);
   });
 
   it(`rolls ${MAX_PROMPTS} prompts and stays smooth — the promise, on real frames`, async () => {
-    const elapsed = await roll(MAX_PROMPTS);
+    const r = await roll(MAX_PROMPTS);
+    const elapsed = r.total;
     const { frames, memMb } = await scrollAndMeasure(device.id, 8);
-
-    // eslint-disable-next-line no-console
-    console.log(
-      `[device] ${MAX_PROMPTS} prompts: ${elapsed}ms (${(elapsed / MAX_PROMPTS).toFixed(1)} ms/prompt) · ` +
-        `${memMb.toFixed(0)}MB · ${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · ` +
-        `p90 ${frames.p90}ms · p95 ${frames.p95}ms · p99 ${frames.p99}ms`,
-    );
+    report(MAX_PROMPTS, r, frames, memMb);
 
     // 1. It PRODUCED all of them. `roll` waited for the literal "1000 generated" — a partial roll times
     //    out rather than passing quietly, which is how a re-introduced cap gets caught.
