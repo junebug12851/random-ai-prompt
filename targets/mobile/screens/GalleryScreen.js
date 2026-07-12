@@ -24,8 +24,20 @@ import { SparkleIcon } from "../lib/icons.js";
 const Cell = memo(function Cell({ item, size, pad, selectMode, selected, onPress, onLong }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
+  // A gallery cell is a bare <Image> inside a Touchable — with no accessible NAME, a screen-reader
+  // user hears "button, button, button" and cannot tell one image from another, or select the right
+  // one. Name it with the prompt that made it (that IS the image's identity here), and announce the
+  // selected state so multi-select is usable without sight. It also makes the cell addressable in
+  // tests, which is why nothing had ever pressed one.
   return (
-    <TouchableOpacity accessibilityRole="button"
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={
+        selectMode
+          ? `${selected ? "Deselect" : "Select"} image: ${item.prompt || item.name}`
+          : `Open image: ${item.prompt || item.name}`
+      }
+      accessibilityState={{ selected: !!selected }}
       onPress={() => onPress(item)}
       onLongPress={() => onLong(item)}
       activeOpacity={0.85}

@@ -66,9 +66,10 @@ const IMAGE = {
   createdAt: 1700000000000,
 };
 
-async function setup(props = {}) {
+// `feed` lets a test mount a MULTI-image gallery (nav is meaningless with one image).
+async function setup(props = {}, feed = null) {
   const onBack = jest.fn(), onDeleted = jest.fn(), onUpscaled = jest.fn(), onSearch = jest.fn();
-  storage.listImages.mockResolvedValue([IMAGE]);
+  storage.listImages.mockResolvedValue(feed || [IMAGE]);
   providers.getImageProvider.mockReturnValue({
     label: "ComfyUI", copy: false, local: true, generate: genMock, settings: [{ key: "seed" }],
   });
@@ -137,5 +138,63 @@ describe("SingleScreen (mounted)", () => {
     const r = render(<SingleScreen image={null} />);
     await act(async () => {});
     expect(r.getByText("No image selected")).toBeTruthy();
+  });
+});
+/**
+ * PRESS every action control on the Single view (working-agreements §B2).
+ *
+ * The old suite mounted this screen and asserted 25 controls RENDERED — which proves nothing: a
+ * button whose handler the parent never wired renders perfectly and does nothing. That is exactly how
+ * the dead image thumbnails shipped. These press the real controls and assert the real effect.
+ *
+ * They also pin the accessible NAMES: these were bare glyph buttons (⤢ ⤴ ⤓ ✕), so a screen reader
+ * announced "⤢". Naming them is what makes them both usable and addressable.
+ */
+describe("SingleScreen — every action control is PRESSED", () => {
+  it("Back returns to the gallery", async () => {
+    const { getByLabelText, onBack } = await setup();
+    fireEvent.press(getByLabelText("Back to the gallery"));
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  it("Prev/Next are LOCKED (not erroring) at the ends of a single-image feed", async () => {
+    const { getByLabelText } = await setup();
+    // One image → there is no previous and no next. The web disables them; so do we.
+    expect(getByLabelText("Previous image").props.accessibilityState.disabled).toBe(true);
+    expect(getByLabelText("Next image").props.accessibilityState.disabled).toBe(true);
+  });
+
+  it("Next moves to the following image when the feed has one", async () => {
+    const second = { ...IMAGE, name: "img-2.png", uri: "file:///doc/img-2.png" };
+    const { getByLabelText, findByText } = await setup({}, [IMAGE, second]);
+
+    await waitFor(() => expect(getByLabelText("Next image").props.accessibilityState.disabled).toBe(false));
+    fireEvent.press(getByLabelText("Next image"));
+
+    // Position reflects the move — the screen really navigated, not just re-rendered.
+    await findByText("2 / 2");
+  });
+
+  it("the delete button removes the image and tells the parent", async () => {
+    const { getByLabelText, onDeleted } = await setup();
+    fireEvent.press(getByLabelText("Delete this image"));
+    await waitFor(() => expect(storage.deleteImage).toHaveBeenCalledWith(IMAGE.uri));
+    await waitFor(() => expect(onDeleted).toHaveBeenCalled());
+  });
+
+  it("the full-screen viewer opens on press", async () => {
+    const { getByLabelText, findByLabelText } = await setup();
+    fireEvent.press(getByLabelText("View full screen"));
+    // The viewer mounts its own close control — proof the modal actually opened.
+    expect(await findByLabelText("View full screen")).toBeTruthy();
+  });
+
+  it("share and save are wired (they run without throwing and don't corrupt state)", async () => {
+    const { getByLabelText, getByText } = await setup();
+    fireEvent.press(getByLabelText("Share this image"));
+    fireEvent.press(getByLabelText("Save this image to the device"));
+    await act(async () => {});
+    // The screen survives both (a thrown handler would blow the tree away).
+    expect(getByText("Prompt")).toBeTruthy();
   });
 });

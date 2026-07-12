@@ -14,7 +14,8 @@
     "export:android": "expo export --platform android",
     "test": "jest",
     "export:web": "expo export --platform web --output-dir dist",
-    "preexport:web": "npm run catalog"
+    "preexport:web": "npm run catalog",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -61,6 +62,21 @@
       "^shared/(.*)$": "<rootDir>/../shared/$1",
       "^@babel/runtime/(.*)$": "<rootDir>/node_modules/@babel/runtime/$1",
       "^engine/(.*)$": "<rootDir>/../../engine/$1"
-    }
+    },
+    "coverageThreshold": {
+      "global": {
+        "statements": 56,
+        "branches": 47,
+        "functions": 52,
+        "lines": 59
+      }
+    },
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "screens/**/*.js",
+      "components/**/*.js",
+      "App.js",
+      "!**/__tests__/**"
+    ]
   }
 }

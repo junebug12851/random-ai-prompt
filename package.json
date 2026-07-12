@@ -1,6 +1,6 @@
 {
   "name": "random-ai-prompt",
-  "version": "2.57.1",
+  "version": "2.58.0",
   "description": "An open-source generator for AI image and text prompts that automatically builds richer, more detailed prompts than most people write by hand, then runs them through 40+ models. Isomorphic prompt engine (engine/) + React/Vite web app (targets/web/).",
   "type": "module",
   "main": "engine/core/engine.js",
@@ -59,7 +59,9 @@
     "check:registry": "node scripts/build-provider-registry.mjs --check",
     "test:e2e:mobile": "playwright test --config playwright.mobile.config.js",
     "test:e2e:mobile:update": "playwright test --config playwright.mobile.config.js --update-snapshots",
-    "check:committed": "node scripts/check-committed.mjs"
+    "check:committed": "node scripts/check-committed.mjs",
+    "test:mobile:coverage": "npm --prefix targets/mobile run test:coverage",
+    "test:e2e:mobile:ci": "playwright test --config playwright.mobile.config.js accessibility.spec.js perf.spec.js"
   },
   "dependencies": {
     "compromise": "^14.15.1",

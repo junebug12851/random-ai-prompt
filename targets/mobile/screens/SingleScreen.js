@@ -493,11 +493,11 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
     <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
       {/* Nav bar: Back + Prev / position / Next */}
       <View style={styles.navbar}>
-        <TouchableOpacity accessibilityRole="button" style={styles.navBtn} onPress={onBack}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to the gallery" style={styles.navBtn} onPress={onBack}>
           <Text style={styles.navBtnText}>‹ Back</Text>
         </TouchableOpacity>
         <View style={styles.navRight}>
-          <TouchableOpacity accessibilityRole="button" style={[styles.navBtn, !hasPrev && styles.navBtnOff]} onPress={() => go(feed[index - 1])} disabled={!hasPrev}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Previous image" style={[styles.navBtn, !hasPrev && styles.navBtnOff]} onPress={() => go(feed[index - 1])} disabled={!hasPrev}>
             <Text style={styles.navBtnText}>‹ Prev</Text>
           </TouchableOpacity>
           {index >= 0 && (
@@ -505,7 +505,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               {index + 1} / {total}
             </Text>
           )}
-          <TouchableOpacity accessibilityRole="button" style={[styles.navBtn, !hasNext && styles.navBtnOff]} onPress={() => go(feed[index + 1])} disabled={!hasNext}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Next image" style={[styles.navBtn, !hasNext && styles.navBtnOff]} onPress={() => go(feed[index + 1])} disabled={!hasNext}>
             <Text style={styles.navBtnText}>Next ›</Text>
           </TouchableOpacity>
         </View>
@@ -526,16 +526,16 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           />
         </TouchableOpacity>
         <View style={styles.overlay}>
-          <TouchableOpacity accessibilityRole="button" style={styles.ovBtn} onPress={() => setViewerOpen(true)}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="View full screen" style={styles.ovBtn} onPress={() => setViewerOpen(true)}>
             <Text style={styles.ovIcon}>⤢</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={styles.ovBtn} onPress={share}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share this image" style={styles.ovBtn} onPress={share}>
             <Text style={styles.ovIcon}>⤴</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={styles.ovBtn} onPress={download}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save this image to the device" style={styles.ovBtn} onPress={download}>
             <Text style={styles.ovIcon}>⤓</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={[styles.ovBtn, styles.ovDel]} onPress={del}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this image" style={[styles.ovBtn, styles.ovDel]} onPress={del}>
             <Text style={styles.ovIcon}>✕</Text>
           </TouchableOpacity>
         </View>

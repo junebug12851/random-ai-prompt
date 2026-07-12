@@ -56,6 +56,12 @@ jobs:
       - name: Import smoke test (full ES-module graph + all dynamic prompts)
         run: npm run smoke
 
+      # The generated static indexes (provider registry + theme presets) must be in sync with the
+      # folders they describe — a provider/theme added without regenerating would silently vanish
+      # from every target.
+      - name: Static-index freshness (provider registry + themes)
+        run: npm run check:registry
+
       - name: Unit / integration / snapshot / regression tests + coverage gate (Vitest, Node)
         run: npm run test:coverage
 
@@ -104,6 +110,53 @@ jobs:
           flags: gui
           fail_ci_if_error: false
 
+  # The MOBILE target. This job did not exist — so the whole mobile app (its component tests, the
+  # web⇄mobile parity gate, the capability-gating and no-caps checks, the engine/metro parity) was
+  # never enforced by CI. A gate you don't run is not a gate.
+  mobile:
+    name: Mobile (parity gates + component tests + coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (root)
+        run: npm install --no-audit --no-fund
+
+      - name: Install dependencies (mobile)
+        run: npm --prefix targets/mobile install --no-audit --no-fund
+
+      # Engine/data parity: the metroLoader (mobile's content loader) must produce byte-identical
+      # output to the nodeLoader — same blocks, same lists, same seeded generation.
+      - name: Engine parity (metroLoader == nodeLoader)
+        run: npm run metro:parity
+
+      # Surface parity (mobile exposes every web feature), capability gating (provider-dependent
+      # controls LOCK, never error on press), and the no-caps rule (documented capacities are a
+      # promise, not a limit).
+      - name: Mobile ⇄ web parity, gating + no-caps gates
+        run: npm run mobile:parity
+
+      - name: Component / interaction tests + coverage gate (jest-expo)
+        run: npm run test:mobile:coverage
+
+      # Non-blocking: publish mobile coverage to Codecov under its own flag.
+      - name: Upload coverage to Codecov (mobile)
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: 1fairyfox/random-ai-prompt
+          files: targets/mobile/coverage/lcov.info
+          flags: mobile
+          fail_ci_if_error: false
+
   e2e:
     name: E2E & accessibility (Playwright)
     runs-on: ubuntu-latest
@@ -128,6 +181,22 @@ jobs:
 
       - name: E2E, accessibility & visual regression
         run: npm run test:e2e
+
+      # The MOBILE app's a11y + visual + perf suite, driven through its react-native-web export
+      # (playwright.mobile.config.js). This is the only place a screen-reader-level defect can be
+      # caught: RN's accessibility props only become ARIA once react-native-web renders them, so
+      # jest-expo cannot see them. 60 axe tests across 5 device sizes x both colour schemes.
+      - name: Install dependencies (mobile)
+        run: npm --prefix targets/mobile install --no-audit --no-fund
+
+      # a11y + perf only. The VISUAL baselines are pixel snapshots and are therefore OS-specific
+      # (Playwright names them `-win32` / `-linux`; font rendering genuinely differs). Only Windows
+      # baselines exist so far, so running visual here would fail on a missing Linux snapshot rather
+      # than on a real regression. Visual stays a LOCAL gate (`npm run test:e2e:mobile`) until Linux
+      # baselines are generated in CI — same convention the web suite already follows (it commits both
+      # `-win32` and `-linux` PNGs). Tracked in notes/plans/testing.md.
+      - name: Mobile a11y & perf (react-native-web export)
+        run: npm run test:e2e:mobile:ci
 
   cross-browser:
     name: Cross-browser E2E (Firefox + WebKit + mobile)
