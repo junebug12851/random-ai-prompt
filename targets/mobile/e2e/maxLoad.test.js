@@ -126,9 +126,23 @@ describe("mobile @ max load (on device)", () => {
     // about anyway.
     await device.disableSynchronization();
 
-    await waitFor(element(by.id("generate")))
-      .toBeVisible()
-      .withTimeout(120000);
+    // If the app has no window focus, Espresso will not act on ANYTHING and every test dies in 3 ms
+    // with a message that reads like a crash. On a CI emulator the usual cause is the keyguard sitting
+    // in front of the app (the workflow dismisses it), so say which it is instead of leaving the next
+    // person to decode `has-window-focus=false`.
+    try {
+      await waitFor(element(by.id("generate")))
+        .toBeVisible()
+        .withTimeout(120000);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(
+        `[device] the app's composer never became visible. If the root says has-window-focus=false, the ` +
+          `device is showing something in front of the app (keyguard / a system dialog) — that is the ` +
+          `environment, not the app.`,
+      );
+      throw e;
+    }
   });
 
   /** One line per roll, with the engine/render split — the whole point of the exercise. */

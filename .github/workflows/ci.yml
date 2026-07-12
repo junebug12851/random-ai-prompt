@@ -260,7 +260,15 @@ jobs:
           profile: pixel_6
           ram-size: 4096M
           disable-animations: true
-          script: DETOX_ADB_NAME=emulator-5554 npm --prefix targets/mobile run e2e:attached
+          # Dismiss the KEYGUARD before running. Without this the app launches BEHIND the lock screen and
+          # never gets window focus — Espresso then refuses to do anything ("Waited for the root of the
+          # view hierarchy to have window focus…", with `has-window-focus=false` on the app's own window)
+          # and every test fails in 3 ms looking exactly like an app crash. It is flaky, not constant:
+          # one run got through and passed, which is the worst kind of failure to chase.
+          script: |
+            adb shell wm dismiss-keyguard || true
+            adb shell input keyevent 82 || true
+            DETOX_ADB_NAME=emulator-5554 npm --prefix targets/mobile run e2e:attached
 
       - name: Upload Detox artifacts (logs, screenshots on failure)
         if: always()
