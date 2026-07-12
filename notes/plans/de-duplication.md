@@ -87,12 +87,21 @@ trade-offs.**
     `import.meta.glob` that Metro can't run, so mobile transcribed all nine by hand. `checkAccents` deleted.
     (`gen-accents.mjs` still emits the same byte-identical `accents.css` — only its source path moved.)
 
+- **E (cont.) — `blockCatalog` → `engine/blockCatalog.js`** (2.59.0). The building-block catalog (the
+  token cloud + the DPL autocomplete) is engine domain — it describes the engine's own content pools,
+  their folder categories, the `{#any}` / `{keyword}` wildcards and the NSFW gate — and is a pure
+  function of a **loader**, which is exactly why it could be shared: each target passes its own
+  (`runtimeLoader` in the browser, `metroLoader` on the phone). The web's `promptEngine.js` went 411 →
+  219 lines and **mobile's 218-line hand-port became 33 lines**. That copy had **no drift check at
+  all** — the worst case, since nothing would have noticed the phone falling behind. Replaced with a
+  real test (`tests/unit/blockCatalog.test.js`, 9 tests) that pins the catalog's rules AND asserts the
+  phone never invents content the engine doesn't have.
+
 ## Next: E (remainder) — what's still hand-ported in mobile
 
 | Mobile file | Lines | Belongs in | Note |
 |---|---|---|---|
 | `lib/dplInserts.js` | 262 | `engine/` | The DPL **insert catalog** — it describes the engine's own grammar. Guarded by `checkDplInserts`. **Entangled:** the web localizes its labels through react-intl descriptors (`dplInsertsMessages.js`) while mobile inlines English, so only the language-neutral *grammar* (id / syntax / template / example) can move; each target keeps its own label layer. |
-| `lib/blockCatalog.js` | 218 | `engine/` | Block browsing + completions over the loaders. Unguarded — no drift check, which is *worse*, not better. |
 
 Each row's "guarded by" is the drift check that gets **deleted along with the copy** — that's the tell
 that the copy shouldn't exist. Every check that has ever been deleted here was deleted because the thing

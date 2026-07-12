@@ -28,6 +28,7 @@ scripts/list-cleanup/out/
 # ARE tracked; only the generated reports below are not.
 /coverage/
 targets/web/coverage/
+targets/mobile/coverage/
 /playwright-report/
 /test-results/
 /.vitest/
