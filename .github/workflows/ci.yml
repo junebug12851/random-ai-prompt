@@ -189,14 +189,13 @@ jobs:
       - name: Install dependencies (mobile)
         run: npm --prefix targets/mobile install --no-audit --no-fund
 
-      # a11y + perf only. The VISUAL baselines are pixel snapshots and are therefore OS-specific
-      # (Playwright names them `-win32` / `-linux`; font rendering genuinely differs). Only Windows
-      # baselines exist so far, so running visual here would fail on a missing Linux snapshot rather
-      # than on a real regression. Visual stays a LOCAL gate (`npm run test:e2e:mobile`) until Linux
-      # baselines are generated in CI — same convention the web suite already follows (it commits both
-      # `-win32` and `-linux` PNGs). Tracked in notes/plans/testing.md.
-      - name: Mobile a11y & perf (react-native-web export)
-        run: npm run test:e2e:mobile:ci
+      # a11y + VISUAL + perf. Visual used to be skipped here because the pixel baselines are OS-specific
+      # (Playwright names them `-win32` / `-linux`) and only Windows ones existed — so a gate the whole
+      # team depends on ran on exactly one machine. The `visual-baselines.yml` workflow now regenerates
+      # the mobile set on Linux too (both are committed, same convention as the web suite), so the full
+      # suite runs here.
+      - name: Mobile a11y, visual & perf (react-native-web export)
+        run: npm run test:e2e:mobile
 
   # The app's headline promise — 1000 prompts in one roll with no performance loss — is a claim about a
   # PHONE, and until now nothing verified it on one. The react-native-web proxy can't: it runs
