@@ -34,6 +34,17 @@ let baseline = null;
 
 /** Roll N prompts and wait for the app to say it produced exactly N. */
 async function roll(n) {
+  // The composer (count field + generate button) is the results list's HEADER — so the previous
+  // measurement's scrolling leaves it off screen, and Espresso refuses to act on a view that isn't
+  // visible ("the target view does not match one or more of the following constraints"). Ride the list
+  // back to the top first. (Found on the first real CI run: the baseline roll passed, the 1000 roll
+  // failed in 19 ms — a test-harness bug, not the app's, and worth the two lines to say so.)
+  try {
+    await element(by.id("results-list")).scrollTo("top");
+  } catch {
+    // Nothing rolled yet — the list isn't scrollable. Fine.
+  }
+
   await element(by.id("prompt-count")).replaceText(String(n));
   // Dismiss the number pad so it can't sit on top of the generate button.
   await element(by.id("prompt-count")).tapReturnKey();
