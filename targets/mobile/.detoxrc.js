@@ -44,6 +44,21 @@ module.exports = {
       setupTimeout: 300000,
     },
   },
+  // Keep the device's own account of a failure: the app log and a screenshot of what was on screen.
+  // Without these, a failed run leaves you with an Espresso root dump and a guess — which is exactly how
+  // "the app never took window focus" got mistaken for an app crash more than once. The CI job uploads
+  // this folder; it's gitignored locally.
+  artifacts: {
+    rootDir: "artifacts",
+    plugins: {
+      log: { enabled: true },
+      screenshot: {
+        shouldTakeAutomaticSnapshots: true,
+        keepOnlyFailedTestsArtifacts: true,
+        takeWhen: { testStart: false, testDone: true },
+      },
+    },
+  },
   apps: {
     "android.release": {
       type: "android.apk",

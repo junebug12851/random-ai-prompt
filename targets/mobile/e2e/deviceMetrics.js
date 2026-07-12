@@ -97,6 +97,36 @@ function readEngineMs(deviceId) {
   return Number(matches[matches.length - 1][2]);
 }
 
+/**
+ * Everything the device knows about why the app isn't on screen — printed when the composer never
+ * appears.
+ *
+ * Espresso's answer to that situation is `has-window-focus=false` plus a 40-line root dump, which says
+ * *what* it saw and nothing about *why*. These three questions do: who holds focus (the launcher? a
+ * dialog?), is our activity resumed at all, and did the app crash on its way up.
+ */
+function describeForeground(deviceId) {
+  const safe = (fn) => {
+    try {
+      return fn();
+    } catch (e) {
+      return `(unavailable: ${e.message})`;
+    }
+  };
+  const focus = safe(() =>
+    adb(["shell", "dumpsys window | grep -E 'mCurrentFocus|mFocusedApp'"], deviceId).trim(),
+  );
+  const resumed = safe(() =>
+    adb(["shell", "dumpsys activity activities | grep -E 'mResumedActivity'"], deviceId).trim(),
+  );
+  const crash = safe(() => adb(["logcat", "-d", "-b", "crash", "-t", "40"], deviceId).trim());
+  return [
+    `focus:   ${focus || "(none)"}`,
+    `resumed: ${resumed || "(none)"}`,
+    `crash log (last 40):\n${crash || "(empty — the app did not crash)"}`,
+  ].join("\n");
+}
+
 module.exports = {
   PACKAGE,
   adb,
@@ -105,4 +135,5 @@ module.exports = {
   readFrameStats,
   readMemoryMb,
   readEngineMs,
+  describeForeground,
 };

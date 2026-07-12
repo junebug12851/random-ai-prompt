@@ -32,6 +32,7 @@ const {
   readFrameStats,
   readMemoryMb,
   readEngineMs,
+  describeForeground,
 } = require("./deviceMetrics");
 
 /** The app's SUPPORTED load — the level it handles with no performance loss, NOT a cap. */
@@ -109,40 +110,44 @@ async function scrollAndMeasure(deviceId, passes = 6) {
 }
 
 describe("mobile @ max load (on device)", () => {
-  beforeAll(async () => {
+  /**
+   * Launch and wait for the composer — retrying the launch once.
+   *
+   * On a cold CI emulator the app sometimes comes up without taking window focus (the *launcher* keeps
+   * it), and Espresso then refuses to touch anything: three tests die in 3 ms with a root dump, looking
+   * exactly like an app crash. A second launch settles it. If it doesn't, we print what the DEVICE says
+   * — who holds focus, whether our activity is resumed, and the crash buffer — because "has-window-focus
+   * =false" on its own has now cost several CI round-trips to interpret.
+   */
+  async function launchAndWait(attempt = 1) {
     await device.launchApp({ newInstance: true });
-
-    // Drive the app MANUALLY instead of through Espresso's idle-based synchronization.
-    //
-    // The composer advertises a rotating random suggestion in its placeholder, on a timer. So the view
-    // hierarchy never stops requesting layout, and Espresso — which waits for the UI thread to go
-    // quiet before it will act — waits forever: *"Waited for the root of the view hierarchy to have
-    // window focus and not request layout for 10 seconds."* That is a healthy, animated app, not a
-    // stuck one, and Detox documents `disableSynchronization()` as the escape hatch for exactly it.
-    //
-    // Nothing is lost by turning it off here: every wait in this file is on **real, observable UI
-    // state** (the literal "N generated" label the app renders when the roll is complete), which is a
-    // stronger signal than "the framework believes it is idle" — and it's the state the assertion is
-    // about anyway.
     await device.disableSynchronization();
-
-    // If the app has no window focus, Espresso will not act on ANYTHING and every test dies in 3 ms
-    // with a message that reads like a crash. On a CI emulator the usual cause is the keyguard sitting
-    // in front of the app (the workflow dismisses it), so say which it is instead of leaving the next
-    // person to decode `has-window-focus=false`.
     try {
       await waitFor(element(by.id("generate")))
         .toBeVisible()
-        .withTimeout(120000);
+        .withTimeout(60000);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(
-        `[device] the app's composer never became visible. If the root says has-window-focus=false, the ` +
-          `device is showing something in front of the app (keyguard / a system dialog) — that is the ` +
-          `environment, not the app.`,
+        `[device] the composer never became visible (attempt ${attempt}).\n${describeForeground(device.id)}`,
       );
-      throw e;
+      if (attempt >= 2) throw e;
+      await launchAndWait(attempt + 1);
     }
+  }
+
+  // `launchAndWait` also calls `device.disableSynchronization()` — Detox drives the app MANUALLY here.
+  //
+  // The composer advertises a rotating random suggestion in its placeholder, on a timer, so the view
+  // hierarchy never stops requesting layout, and Espresso — which waits for the UI thread to go quiet
+  // before it will act — waits forever. That is a healthy, animated app, not a stuck one, and Detox
+  // documents `disableSynchronization()` as the escape hatch for exactly it.
+  //
+  // Nothing is lost: every wait in this file is on real, observable UI state (the literal "N generated"
+  // label the app renders when the roll completes), which is a stronger signal than "the framework
+  // believes it is idle" — and it is the state the assertion is about anyway.
+  beforeAll(async () => {
+    await launchAndWait();
   });
 
   /** One line per roll, with the engine/render split — the whole point of the exercise. */
