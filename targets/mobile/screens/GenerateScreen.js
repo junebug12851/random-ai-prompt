@@ -522,6 +522,19 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
     );
   }, [generating, rollPrompts, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, backendUrl, onGenerated]);
 
+  // When did the rows actually COMMIT? (logcat timestamps do the arithmetic.)
+  //
+  // The on-device gate showed the engine is linear and fine (1000 prompts in 13.3 s) while the run as a
+  // whole never finished — so the cost is after the roll. This says whether React has committed the rows
+  // (and the wait is then in the test harness / the native list's measurement) or whether the commit
+  // itself is the wall. Cheap, permanent, and it is the difference between fixing the app and fixing the
+  // test.
+  useEffect(() => {
+    if (!results.length) return;
+    // eslint-disable-next-line no-console
+    console.log(`[rap-perf] committed ${results.length} result rows`);
+  }, [results.length]);
+
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {
     if (!previewOn) {
