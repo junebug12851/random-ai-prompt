@@ -24,7 +24,11 @@ export function parseAiCandidates(out) {
     .split(/\r?\n/)
     .map((s) => s.replace(/^\s*[-*•]?\s*\d*[.)]?\s*/, "").trim())
     .filter(Boolean);
-  if (candidates.length <= 1) candidates = (out || "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (candidates.length <= 1)
+    candidates = (out || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   return candidates;
 }
 
@@ -70,7 +74,5 @@ export function dedupeLines(lines) {
  * @returns {string[]} A new, sorted array.
  */
 export function sortLines(lines) {
-  return lines
-    .slice()
-    .sort((x, y) => x.trim().toLowerCase().localeCompare(y.trim().toLowerCase()));
+  return lines.slice().sort((x, y) => x.trim().toLowerCase().localeCompare(y.trim().toLowerCase()));
 }

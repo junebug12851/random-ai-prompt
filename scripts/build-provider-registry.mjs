@@ -35,6 +35,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { format, resolveConfig } from "prettier";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sharedDir = path.join(repoRoot, "targets", "shared");
@@ -134,8 +135,14 @@ function renderThemes() {
   ].join("\n");
 }
 
-const next = render();
-const nextThemes = renderThemes();
+// Run the rendered source through Prettier before writing OR comparing. Without this the generator's
+// output was hand-assembled strings that happened not to be Prettier-clean, so `npm run format:check`
+// went red on a file nobody is allowed to edit by hand — and the only way to fix it (formatting the
+// file) made `check:registry` call it STALE. Two gates, each demanding the other be broken. Formatting
+// at the source settles it: the file the generator writes is the file both gates expect.
+const prettierOpts = { ...(await resolveConfig(outFile)), parser: "babel" };
+const next = await format(render(), prettierOpts);
+const nextThemes = await format(renderThemes(), prettierOpts);
 const check = process.argv.includes("--check");
 const prev = fs.existsSync(outFile) ? fs.readFileSync(outFile, "utf8") : null;
 const prevThemes = fs.existsSync(themeOutFile) ? fs.readFileSync(themeOutFile, "utf8") : null;

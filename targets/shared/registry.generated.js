@@ -96,6 +96,4 @@ export const PROVIDER_CONFIGS = [
 ];
 
 /** @type {object[]} Every shared-setting descriptor (`_shared/settings/*.js`). */
-export const SHARED_SETTING_DESCRIPTORS = [
-  setting_concurrency,
-];
+export const SHARED_SETTING_DESCRIPTORS = [setting_concurrency];

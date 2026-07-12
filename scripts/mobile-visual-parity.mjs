@@ -79,7 +79,8 @@ function build() {
     env: process.env,
     shell: process.platform === "win32",
   });
-  if (r.status !== 0) log(`  ! expo export exited ${r.status}${r.error ? ` (${r.error.message})` : ""}`);
+  if (r.status !== 0)
+    log(`  ! expo export exited ${r.status}${r.error ? ` (${r.error.message})` : ""}`);
   return r.status === 0 && existsSync(OUT);
 }
 

@@ -52,7 +52,7 @@
     "profile": "node scripts/profile-scenarios.mjs",
     "screenshots": "node scripts/screenshots/capture.mjs --build",
     "test:lhci": "lhci autorun",
-    "test": "npm run check:docs && npm run check:registry && npm run lint && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
+    "test": "npm run check:docs && npm run check:registry && npm run lint && npm run format:check && npm run smoke && npm run mobile:parity && npm run test:unit && npm run test:web && npm run test:mobile",
     "test:all": "npm run test && npm run test:e2e && npm run test:perf && npm run test:perf:scenarios",
     "test:mobile": "npm --prefix targets/mobile test",
     "registry": "node scripts/build-provider-registry.mjs",
@@ -61,6 +61,8 @@
     "test:e2e:mobile:update": "playwright test --config playwright.mobile.config.js --update-snapshots",
     "check:committed": "node scripts/check-committed.mjs",
     "test:mobile:coverage": "npm --prefix targets/mobile run test:coverage",
+    "test:mobile:device": "npm --prefix targets/mobile run e2e",
+    "test:mobile:device:build": "npm --prefix targets/mobile run prebuild:android && npm --prefix targets/mobile run e2e:build",
     "test:e2e:mobile:ci": "playwright test --config playwright.mobile.config.js accessibility.spec.js perf.spec.js"
   },
   "dependencies": {

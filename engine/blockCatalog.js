@@ -123,7 +123,11 @@ export function buildBlocks(loader, opts = {}) {
         name: lastSeg(folder),
         pill,
         entries: members
-          .map((k) => ({ token: `{#${btnNames[k]}}`, label: btnNames[k], description: dpDescFor(k) }))
+          .map((k) => ({
+            token: `{#${btnNames[k]}}`,
+            label: btnNames[k],
+            description: dpDescFor(k),
+          }))
           .sort((a, b) => compareNames(a.label, b.label)),
       };
     });

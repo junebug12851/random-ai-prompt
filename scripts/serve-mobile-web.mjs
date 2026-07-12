@@ -34,9 +34,7 @@ const MIME = {
 };
 
 if (!existsSync(OUT)) {
-  console.error(
-    `✗ ${OUT} missing — build it first: npm --prefix targets/mobile run export:web`,
-  );
+  console.error(`✗ ${OUT} missing — build it first: npm --prefix targets/mobile run export:web`);
   process.exit(1);
 }
 

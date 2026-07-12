@@ -131,7 +131,9 @@ test.describe("mobile performance at max load", () => {
     expect(elapsed, `typing 48 chars took ${elapsed}ms`).toBeLessThan(8_000);
   });
 
-  test("switching tabs keeps panes mounted (state survives, no re-mount cost)", async ({ page }) => {
+  test("switching tabs keeps panes mounted (state survives, no re-mount cost)", async ({
+    page,
+  }) => {
     await boot(page);
 
     // The panes stay MOUNTED (visibility toggled) — the web's behaviour, so scroll/state survives a

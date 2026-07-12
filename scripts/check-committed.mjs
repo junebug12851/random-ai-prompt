@@ -46,7 +46,9 @@ const rows = git("diff", "HEAD", "--numstat")
 const dirtySource = rows.filter((r) => SOURCE.test(r.path) && !IGNORE.test(r.path));
 
 if (!dirtySource.length) {
-  const extra = rows.length ? ` (${rows.length} non-source file(s) differ — docs/notes, harmless)` : "";
+  const extra = rows.length
+    ? ` (${rows.length} non-source file(s) differ — docs/notes, harmless)`
+    : "";
   console.log(`✓ check:committed — the working tree's source matches HEAD${extra}.`);
   if (verbose && rows.length) for (const r of rows) console.log(`    ~ ${r.path}`);
   process.exit(0);
