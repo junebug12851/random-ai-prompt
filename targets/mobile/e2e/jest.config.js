@@ -9,7 +9,9 @@
 module.exports = {
   rootDir: "..",
   testMatch: ["<rootDir>/e2e/**/*.test.js"],
-  testTimeout: 600000,
+  // A single roll of the app's supported load, on a software-rendered CI emulator, is minutes — and
+  // there are three of them (20 / 200 / 1000, the scaling curve). This is a hang detector, not a budget.
+  testTimeout: 900000,
   maxWorkers: 1,
   globalSetup: "detox/runners/jest/globalSetup",
   globalTeardown: "detox/runners/jest/globalTeardown",

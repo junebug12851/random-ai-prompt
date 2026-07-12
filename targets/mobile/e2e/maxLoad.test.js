@@ -11,11 +11,15 @@
  * ## What is actually asserted, and why it can't be fooled
  *
  * Not "1000 prompts in under N ms" — that's a benchmark of whatever box CI got that morning. The
- * invariant is **scaling**: a virtualized list holds a window of rows, so going from 20 prompts to
- * 1000 (50×) must NOT cost 50× the memory or collapse the frame rate. If someone swaps FlashList for
- * a `.map()`, or makes the rows re-render on every state change, memory explodes and janky frames
- * spike — and this fails. On a healthy app the two rolls look nearly identical, which is the whole
- * point of the promise.
+ * invariant is **scaling**, measured as a three-point curve on one device in one session: **20 → 200 →
+ * 1000**. A virtualized list holds a *window* of rows and a linear generate path costs the same per
+ * prompt at any N, so the big roll must not cost more *per prompt*, more memory, or more jank than the
+ * small ones. Swap FlashList for a `.map()`, or make the rows re-render on every state change, and the
+ * curve bends — that is the defect this catches, and it is invisible to any single-point stopwatch.
+ *
+ * The middle probe exists because the first CI run couldn't tell two very different things apart: "this
+ * emulator is slow" (per-prompt cost constant — fine) and "this app is quadratic" (per-prompt cost
+ * climbing with N — a real bug). One point cannot distinguish them; three can.
  *
  * The baseline is measured in the same session on the same device, so emulator noise, GPU mode and
  * CPU contention cancel out instead of being budgeted for.
@@ -28,9 +32,23 @@ const { resetFrameStats, readFrameStats, readMemoryMb } = require("./deviceMetri
 const MAX_PROMPTS = Number(process.env.MOBILE_MAX_PROMPTS || 1000);
 /** The control group: a roll small enough that no virtualization is needed to survive it. */
 const BASELINE_PROMPTS = 20;
+/** The middle probe: the point of a THREE-point curve is to tell "slow" from "quadratic" apart. */
+const PROBE_PROMPTS = 200;
+
+/**
+ * How long a single roll may take before we call it a failure.
+ *
+ * Deliberately huge — it is a *hang* detector, not a performance budget. The budget is the scaling
+ * assertion below (cost per prompt must not blow up with N); a wall-clock ceiling here would just
+ * encode whatever this morning's runner was worth. The first run with a 180 s cap timed out at 1000
+ * and told us nothing about *why*, which is the whole reason for the three-point curve.
+ */
+const ROLL_TIMEOUT_MS = Number(process.env.MOBILE_ROLL_TIMEOUT_MS || 600000);
 
 /** Measurements from the small roll, used as the yardstick for the big one. */
 let baseline = null;
+/** Measurements from the middle probe — the second point on the curve. */
+let probe = null;
 
 /** Roll N prompts and wait for the app to say it produced exactly N. */
 async function roll(n) {
@@ -62,7 +80,7 @@ async function roll(n) {
   await element(by.id("generate")).tap();
   await waitFor(element(by.id("results-count")))
     .toHaveText(`${n} generated`)
-    .withTimeout(180000);
+    .withTimeout(ROLL_TIMEOUT_MS);
   return Date.now() - started;
 }
 
@@ -114,39 +132,70 @@ describe("mobile @ max load (on device)", () => {
     jestExpect(memMb).toBeGreaterThan(0); // the metrics pipe works; without this the test is blind
   });
 
+  it(`rolls ${PROBE_PROMPTS} prompts (the middle of the curve — is the cost LINEAR?)`, async () => {
+    const elapsed = await roll(PROBE_PROMPTS);
+    const { frames, memMb } = await scrollAndMeasure(device.id, 5);
+    probe = { elapsed, frames, memMb };
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `[device] ${PROBE_PROMPTS} prompts: ${elapsed}ms (${(elapsed / PROBE_PROMPTS).toFixed(1)} ms/prompt) · ` +
+        `${memMb.toFixed(0)}MB · ${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · p90 ${frames.p90}ms`,
+    );
+
+    // The point of the middle probe: separate "this device is slow" (per-prompt cost roughly constant —
+    // fine, that's Hermes on a software-rendered emulator) from "this app is quadratic" (per-prompt
+    // cost climbing with N — a real defect that a 50× roll would turn into a hang). 10× the prompts
+    // must not cost much more than 10× the time.
+    const perPromptBaseline = baseline.elapsed / BASELINE_PROMPTS;
+    const perPromptProbe = elapsed / PROBE_PROMPTS;
+    jestExpect(perPromptProbe).toBeLessThan(perPromptBaseline * 3 + 20);
+  });
+
   it(`rolls ${MAX_PROMPTS} prompts and stays smooth — the promise, on real frames`, async () => {
     const elapsed = await roll(MAX_PROMPTS);
     const { frames, memMb } = await scrollAndMeasure(device.id, 8);
 
     // eslint-disable-next-line no-console
     console.log(
-      `[device] ${MAX_PROMPTS} prompts: ${elapsed}ms · ${memMb.toFixed(0)}MB · ` +
-        `${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · p90 ${frames.p90}ms · ` +
-        `p95 ${frames.p95}ms · p99 ${frames.p99}ms`,
+      `[device] ${MAX_PROMPTS} prompts: ${elapsed}ms (${(elapsed / MAX_PROMPTS).toFixed(1)} ms/prompt) · ` +
+        `${memMb.toFixed(0)}MB · ${frames.janky}/${frames.total} janky (${frames.jankPercent}%) · ` +
+        `p90 ${frames.p90}ms · p95 ${frames.p95}ms · p99 ${frames.p99}ms`,
     );
 
-    // 1. It PRODUCED all of them. (`roll` already waited for "1000 generated" — a partial roll times
-    //    out rather than passing quietly, which is how a re-introduced cap gets caught.)
-    //    The ceiling is deliberately loose: the engine does this in ~0.2 ms/prompt, so anything under
-    //    a minute means the cost is not the engine going quadratic.
-    jestExpect(elapsed).toBeLessThan(60000);
+    // 1. It PRODUCED all of them. `roll` waited for the literal "1000 generated" — a partial roll times
+    //    out rather than passing quietly, which is how a re-introduced cap gets caught.
+    //
+    //    Note what is NOT asserted: a wall-clock ceiling. The app's promise is "no performance loss at
+    //    this load", not "1000 prompts in N seconds on whatever box CI got". A stopwatch budget here
+    //    would be a benchmark of the runner, and would go red on a busy morning while a genuinely
+    //    quadratic regression slid through on a fast one. The budget is the SCALING below.
+    jestExpect(elapsed).toBeGreaterThan(0);
 
-    // 2. It stayed VIRTUALIZED — the invariant the proxy could not see. 50× the rows must not mean
-    //    50× the memory; a recycled window is roughly flat. The allowance (2× + 120MB) is enormous
-    //    compared to a real regression (every row mounted is orders of magnitude), so this fails on
-    //    pathology, not on noise.
+    // 2. The cost per prompt did NOT climb with N — the curve is linear across 20 → 200 → 1000. This is
+    //    the assertion that catches a real defect: an O(n²) generate path, or a list that re-renders
+    //    every row per item, shows up here as per-prompt cost multiplying while the small rolls stay
+    //    innocent. Generous multiple, because the small rolls carry fixed startup cost.
+    const perPromptProbe = probe.elapsed / PROBE_PROMPTS;
+    const perPromptMax = elapsed / MAX_PROMPTS;
+    jestExpect(perPromptMax).toBeLessThan(perPromptProbe * 3 + 20);
+
+    // 3. It stayed VIRTUALIZED — the invariant the proxy could not see. 50× the rows must not mean 50×
+    //    the memory; a recycled window is roughly flat. The allowance (2× + 120 MB) is enormous next to
+    //    a real regression (every row mounted is orders of magnitude), so this fails on pathology, not
+    //    on noise.
     const memCeiling = baseline.memMb * 2 + 120;
     jestExpect(memMb).toBeLessThan(memCeiling);
 
-    // 3. It stayed SMOOTH. Compared against this device's own baseline, not an absolute frame budget
-    //    — a software-rendered emulator janks even when the app is perfect, and that noise is
-    //    identical in both rolls.
-    const jankCeiling = Math.max(baseline.frames.jankPercent * 2 + 15, 35);
+    // 4. It stayed SMOOTH. Compared against this device's OWN baseline, not an absolute frame budget —
+    //    a software-rendered emulator janks even when the app is perfect (the baseline run measured 97%
+    //    janky frames), and that noise is identical in both rolls, so it cancels.
+    const jankCeiling = Math.max(baseline.frames.jankPercent * 1.3 + 10, 40);
     jestExpect(frames.total).toBeGreaterThan(10); // we really did drive frames
     jestExpect(frames.jankPercent).toBeLessThan(jankCeiling);
 
-    // 4. It stayed ALIVE. The app is still interactive after the big roll — no ANR, no frozen JS
-    //    thread. (A list that mounted 1000 rows typically passes 1–3 and dies here.)
+    // 5. It stayed ALIVE. The app is still interactive after the big roll — no ANR, no frozen JS thread.
+    //    (A list that mounted all 1000 rows typically passes 1–4 and dies here.)
     await element(by.id("prompt-count")).replaceText("7");
     await expect(element(by.id("prompt-count"))).toHaveText("7");
   });
