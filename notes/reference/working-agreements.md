@@ -13,6 +13,29 @@ See [`repo-hygiene.md`](repo-hygiene.md) and the "Maintaining the Notes" section
 
 ## A. Hard rules (non-negotiable)
 
+### A0. The notes are the system of record — READ them first, USE them by default, WRITE them back.
+(Owner, 2026-07-12: *"look in the notes please — use them by default and grow accustomed to them by
+default."*) This is not a filing preference; it is how the project keeps its memory across sessions and
+across assistants. It has three halves, and skipping any one of them breaks the loop:
+
+- **Read first, every session — before touching code.** The opening move on ANY task is
+  `notes/status.md` (current health + what's open), then today's/most-recent
+  `notes/sessions/YYYY-MM/…` (what the last session was in the middle of), then the specific
+  `notes/plans/*` or `notes/systems/*` page for the area being touched. Do not ask the owner to
+  re-explain state that the notes already hold — that's the state they wrote down *so nobody would
+  have to*. "Continue where you left off" is answerable from the notes alone.
+- **Use them as the default source of truth** — over your own guesses, over the code's surface
+  reading, and **over any private/AI/"project" memory** (which this project forbids as a store; see
+  the header of this file). A landmine you're about to step on is usually already in
+  [`fix-patterns.md`](fix-patterns.md) / [`esm-patterns.md`](esm-patterns.md); a design you're about to
+  re-propose is usually already in [`../decisions/rejected.md`](../decisions/rejected.md).
+- **Write them back in the SAME change.** Session log · changelog entry · `status.md` · the fix/decision/
+  plan page. The triggers table in `CLAUDE.md` ("Maintaining the Notes") is the cadence — it is a
+  standing instruction, not a request to be asked for.
+
+The test: *an assistant (or human) opening this repo cold reads the notes and is fully oriented —
+nothing trapped in one session's head, nothing lost between sessions.*
+
 ### A1. PowerShell is the shell — EXECUTE, never hand off. Never touch the bash sandbox.
 `mcp__Windows-MCP__PowerShell` is a real shell on the owner's machine with full git / npm / node / build
 access, available every turn.

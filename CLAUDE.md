@@ -55,9 +55,25 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
 Note: the dev server (`npm run web`) is a **development-only** tool. End users run the built local
 **desktop** target (the production local edition) or the hosted **web** build — never the dev server.
 
-## Start Here
+## Start Here — the notes are the system of record (READ THEM FIRST, EVERY SESSION)
 
-Read `notes/status.md` first — current health, what works, what's next.
+**This is a hard rule, not a suggestion** (owner, 2026-07-12: *"look in the notes please — use them by
+default and grow accustomed to them by default"*). Before touching code, on **every** task, in **this**
+order:
+
+1. **`notes/status.md`** — current health, what's open, what's next. Always.
+2. **The latest `notes/sessions/YYYY-MM/*.md`** — what the previous session was doing and why. This is
+   what makes *"continue where you left off"* answerable without asking the owner to re-explain state
+   they already wrote down.
+3. **The `notes/plans/*` or `notes/systems/*` page for the area you're touching** — plus
+   `reference/fix-patterns.md` / `reference/esm-patterns.md` before debugging, and
+   `decisions/rejected.md` before proposing anything structural.
+
+Then **use** them as the default source of truth — over guesses, over a surface read of the code, and
+**over any private/AI/"project" memory** (which this project forbids as a store: see
+[`notes/reference/working-agreements.md`](notes/reference/working-agreements.md) §A0). And **write them
+back in the same change** — the triggers table under *Maintaining the Notes* below is the cadence, and it
+is a standing instruction, not something to be asked for.
 
 The full notes system is in `notes/`, organized by topic:
 
@@ -70,7 +86,8 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/context/architecture.md` | Codebase layout, the two entry points, the prompt pipeline, data flow |
 | `notes/context/principles.md` | Project philosophy — what to do and what to avoid |
 | `notes/context/history.md` | The 2022 origins and the 2026 ESM modernization |
-| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `gui.md`. Start here to understand how it fits together |
+| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `gui.md`, `mobile.md`, `desktop.md`, `comfyui.md`. Start here to understand how it fits together |
+| `notes/reference/working-agreements.md` | **The owner's standing rules** — how this project is to be worked on (§A0 notes-first · §A1 PowerShell · §A3 don't duplicate · §A4a no caps · §B definition of done). Read it before your first change |
 | `notes/reference/esm-patterns.md` | **The Node/ESM landmine catalog** — CJS→ESM gotchas hit during the migration (import ordering vs `process.chdir`, `require(ESM)` for config-driven plugin loading, default vs named exports, JSON imports, dropping `node-fetch`). Read before touching module wiring |
 | `notes/reference/dependencies.md` | Every runtime/dev dependency, why it's there, and the breaking-change notes for the current majors |
 | `notes/reference/fix-patterns.md` | Error → fix lookup table |
@@ -83,7 +100,8 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/decisions/architecture.md` | Key structural choices and why |
 | `notes/decisions/rejected.md` | Things tried/considered that were rejected — don't repeat |
 | `notes/plans/next-steps.md` | Ordered task list |
-| `notes/plans/testing.md` | Testing reality (there is no automated suite yet) + how verification is done today |
+| `notes/plans/testing.md` | **The test suite** — what exists (Vitest Node + jsdom, Playwright e2e/visual/a11y/perf, jest-expo + Detox on-device), the budgets, and the landmines baked into it |
+| `notes/plans/mobile-parity.md` · `notes/plans/de-duplication.md` | The two live campaigns — mobile ⇄ web FULL parity (gate-enforced) and pushing shared behavior down into the engine / `targets/shared/` |
 | `notes/plans/future.md` | Longer-term ideas |
 
 ## Critical Things Not to Get Wrong
@@ -192,7 +210,10 @@ npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression und
 npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under targets/web/tests/
 npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
 npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
-npm test               # check:docs + lint + smoke + test:unit + test:web (the headless verification gate)
+npm test               # check:docs + check:registry + lint + FORMAT:CHECK + smoke + mobile:parity
+                       #   + test:unit + test:web + test:mobile — the headless gate. It now includes
+                       #   format:check because CI does: the local gate must be the CI gate, or you ship
+                       #   a red build believing you're green (2026-07-12).
 npm run test:all       # npm test + test:e2e
 npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
