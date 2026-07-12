@@ -752,6 +752,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
                 performance loss, not a cap it enforces. The app never tells the user "no".
               */}
               <TextInput
+                testID="prompt-count"
                 style={styles.countInput}
                 value={String(promptCount)}
                 onChangeText={(v) => {
@@ -836,6 +837,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
           </View>
 
           <TouchableOpacity accessibilityRole="button"
+            testID="generate"
             style={[styles.genRound, generating && styles.genRoundBusy]}
             onPress={generate}
             accessibilityLabel="Generate prompts"
@@ -857,7 +859,9 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
         <View style={styles.resultsHead}>
           <Text style={styles.resultsTitle}>Prompts</Text>
           <View style={styles.resultsHeadRight}>
-            <Text style={styles.count}>{results.length} generated</Text>
+            <Text testID="results-count" style={styles.count}>
+              {results.length} generated
+            </Text>
             <TouchableOpacity accessibilityRole="button" onPress={copyAll}>
               <Text style={styles.copyLink}>Copy all</Text>
             </TouchableOpacity>
@@ -873,6 +877,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
   return (
     <>
       <FlashList
+        testID="results-list"
         data={results}
         keyExtractor={(it) => it.id}
         ListHeaderComponent={header}
