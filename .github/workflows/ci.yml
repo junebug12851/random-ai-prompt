@@ -260,14 +260,24 @@ jobs:
           profile: pixel_6
           ram-size: 4096M
           disable-animations: true
-          # Dismiss the KEYGUARD before running. Without this the app launches BEHIND the lock screen and
-          # never gets window focus — Espresso then refuses to do anything ("Waited for the root of the
-          # view hierarchy to have window focus…", with `has-window-focus=false` on the app's own window)
-          # and every test fails in 3 ms looking exactly like an app crash. It is flaky, not constant:
-          # one run got through and passed, which is the worst kind of failure to chase.
+          # WAKE the screen, unlock, and keep it awake — then run.
+          #
+          # Espresso will not touch a view unless the app's window has focus, and a headless emulator
+          # whose screen is off grants focus to nobody: every test then dies in 3 ms with "Waited for the
+          # root of the view hierarchy to have window focus…" and `has-window-focus=false`, which reads
+          # exactly like an app crash and is not one. (Dismissing the keyguard alone was not enough — the
+          # screen has to be ON first, which is why `input keyevent 224` (WAKEUP) leads.)
+          #
+          # The focus dump is printed on purpose: if this ever fails again, the log names who holds focus
+          # instead of leaving the next person to decode a root-view dump.
           script: |
+            adb shell input keyevent 224 || true
             adb shell wm dismiss-keyguard || true
             adb shell input keyevent 82 || true
+            adb shell settings put system screen_off_timeout 2147483647 || true
+            adb shell settings put secure lockscreen.disabled 1 || true
+            echo "--- window focus before the run ---"
+            adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp|mAwake|mScreenOn" || true
             DETOX_ADB_NAME=emulator-5554 npm --prefix targets/mobile run e2e:attached
 
       - name: Upload Detox artifacts (logs, screenshots on failure)
