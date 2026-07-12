@@ -28,15 +28,13 @@
  * @property {AccentTone} light Pastel tone for the light base.
  */
 
-// Eager-load every system theme file. Glob keys are paths
-// ("./themes/01-mint.json"); the NN- filename prefix defines picker order, so a
-// plain key sort yields the intended order.
-const modules = import.meta.glob("./themes/*.json", { eager: true, import: "default" });
+// The themes live in the SHARED layer (`targets/shared/theme/themes/*.json`) and are loaded through a
+// generated static index. This used to be a Vite `import.meta.glob`, which Metro can't do — so the
+// mobile target hand-copied all nine themes. Same root cause as the provider registry, same fix.
+// See notes/plans/de-duplication.md.
+import { ACCENTS } from "../../../shared/theme/presets.generated.js";
 
-/** @type {Accent[]} The built-in themes, in filename order. */
-export const ACCENTS = Object.keys(modules)
-  .sort()
-  .map((key) => modules[key]);
+export { ACCENTS };
 
 /** Default accent id (the mint theme; matches the :root tokens in tokens.css). */
 export const DEFAULT_ACCENT = "mint";

@@ -24,7 +24,7 @@ import {
   mergeNew,
   dedupeLines,
   sortLines as sortEntries,
-} from "../lib/manage/listEditorOps.js";
+} from "../../../../engine/listEditorOps.js";
 
 const AI_SAMPLE = 25; // entries sampled and new entries requested per AI expand round
 

@@ -3,7 +3,7 @@
  * (AI-reply parsing, new-entry merge, de-dupe, sort).
  */
 import { describe, it, expect } from "vitest";
-import { parseAiCandidates, mergeNew, dedupeLines, sortLines } from "../../frontend/lib/manage/listEditorOps.js";
+import { parseAiCandidates, mergeNew, dedupeLines, sortLines } from "../../../../engine/listEditorOps.js";
 
 describe("parseAiCandidates", () => {
   it("splits one entry per line and strips list prefixes", () => {

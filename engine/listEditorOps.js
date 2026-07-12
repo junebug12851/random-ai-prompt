@@ -1,7 +1,16 @@
 /**
- * @file Pure list-editor operations for the Manage list editor: parsing an AI "expand" reply into
- * clean candidate entries, merging in only the new ones, de-duplication, and alphabetical sorting.
- * Kept side-effect-free (no React, no I/O) so they're independently unit-tested.
+ * @file Pure list-editor operations: parsing an AI "expand" reply into clean candidate entries,
+ * merging in only the new ones, de-duplication, and alphabetical sorting.
+ *
+ * These operate on **list content**, which is engine domain — a list is one of the engine's two
+ * content pools, and "what counts as a duplicate entry" is a property of the engine's lists, not of
+ * any one UI. So this lives in `engine/` and **every target imports it**: the web's Manage list
+ * editor (`components/ManageListEditor.jsx`) and the mobile one (`screens/ManageScreen.js`). It used
+ * to live inside the web target with a byte-for-byte hand-ported copy in mobile, kept honest by a
+ * drift check (`checkListOps`) that is now deleted — you cannot drift from yourself.
+ *
+ * Side-effect-free (no React, no RN, no I/O), so it's unit-tested directly and is safe under all
+ * three loaders (Node / browser / Metro). See `notes/plans/de-duplication.md`.
  */
 
 /**
