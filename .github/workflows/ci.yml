@@ -304,6 +304,17 @@ jobs:
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M
+          # THE fix for three dead runs. Every one of them ended in "Error on ZipFile unknown archive"
+          # while installing the system image — and every one printed this, one line earlier:
+          #
+          #   "This version only understands SDK XML versions up to 3 but an SDK XML file of version 4
+          #    was encountered."
+          #
+          # The runner's bundled sdkmanager is too old to parse Google's current repository metadata, so
+          # it fetches something it can't read and hands us a corrupt archive. That is not a flaky CDN,
+          # which is what I called it twice — it is a version mismatch that would fail every single time.
+          # Pin a cmdline-tools new enough to understand XML v4.
+          cmdline-tools-version: "19.0"
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
@@ -327,6 +338,17 @@ jobs:
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M
+          # THE fix for three dead runs. Every one of them ended in "Error on ZipFile unknown archive"
+          # while installing the system image — and every one printed this, one line earlier:
+          #
+          #   "This version only understands SDK XML versions up to 3 but an SDK XML file of version 4
+          #    was encountered."
+          #
+          # The runner's bundled sdkmanager is too old to parse Google's current repository metadata, so
+          # it fetches something it can't read and hands us a corrupt archive. That is not a flaky CDN,
+          # which is what I called it twice — it is a version mismatch that would fail every single time.
+          # Pin a cmdline-tools new enough to understand XML v4.
+          cmdline-tools-version: "19.0"
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
