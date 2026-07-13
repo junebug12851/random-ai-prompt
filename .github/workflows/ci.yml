@@ -266,6 +266,40 @@ jobs:
           RN_ABIS: x86_64
         run: npm --prefix targets/mobile run e2e:build
 
+      # CACHE THE AVD — and not just for speed.
+      #
+      # Twice now this job has died before running a single test because the Android system-image
+      # DOWNLOAD came back corrupt ("Error on ZipFile unknown archive"), leaving no emulator and a red
+      # release gate that had nothing to do with the code. A gate that randomly fails on somebody else's
+      # CDN is not a gate — it is a coin toss people learn to re-run until it lands.
+      #
+      # With the image + a booted snapshot cached, the usual run doesn't fetch anything at all (and saves
+      # ~5 minutes of boot on top).
+      - name: Cache the AVD + system image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            ~/.android/debug.keystore
+          key: avd-34-google_apis-x86_64-pixel_6
+
+      # Cold cache: create the AVD and boot it once, so the snapshot (and the image) get cached above.
+      - name: Create the AVD snapshot (first run only)
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "AVD created and snapshotted"
+
       - name: Run the on-device suite (max load, real frame stats)
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
@@ -274,6 +308,8 @@ jobs:
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           # WAKE the screen, unlock, and keep it awake — then run.
           #
