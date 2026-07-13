@@ -237,21 +237,32 @@ export function writeFileAtomic(abs, text) {
 export function mergeSidecar(root, name, patch) {
   const abs = resolveManagePath(root, `${name}.json`);
   if (!abs) return null;
+  // Read it; don't ask whether it exists and THEN read it (check-then-use race, CodeQL
+  // js/file-system-race). A missing sidecar just means "no sidecar yet".
   let cur = {};
-  if (fs.existsSync(abs)) {
-    try {
-      cur = JSON.parse(fs.readFileSync(abs, "utf8")) || {};
-    } catch {
-      cur = {};
-    }
+  try {
+    cur = JSON.parse(fs.readFileSync(abs, "utf8")) || {};
+  } catch {
+    cur = {}; // missing or corrupt — either way we start from nothing
   }
+
   const merged = { ...cur };
   for (const [k, v] of Object.entries(patch || {})) {
+    // The patch comes off an HTTP request, so its KEYS are attacker-chosen. `merged["__proto__"] = v`
+    // on a plain object mutates the prototype — every object in the process suddenly grows a property
+    // (CodeQL js/remote-property-injection, high). These three keys are never legitimate sidecar
+    // fields, so drop them rather than trying to be clever.
+    if (k === "__proto__" || k === "constructor" || k === "prototype") continue;
     if (v === null || v === undefined) delete merged[k];
     else merged[k] = v;
   }
+
   if (Object.keys(merged).length === 0) {
-    if (fs.existsSync(abs)) fs.unlinkSync(abs);
+    try {
+      fs.unlinkSync(abs); // an empty sidecar is no sidecar; deleting one that's already gone is fine
+    } catch (e) {
+      if (e.code !== "ENOENT") throw e;
+    }
     return {};
   }
   writeFileAtomic(abs, `${JSON.stringify(merged, null, 2)}\n`);
@@ -272,11 +283,21 @@ export function setMarker(root, dir, marker, on) {
   if (!MARKERS.has(marker)) return false;
   const abs = resolveManagePath(root, dir ? `${dir}/${marker}` : marker);
   if (!abs) return false;
+  // Do it, don't check-then-do it (CodeQL js/file-system-race). `wx` fails if it already exists, which
+  // is exactly the condition the old `existsSync` was testing for — only without the window in between.
   if (on) {
     fs.mkdirSync(path.dirname(abs), { recursive: true });
-    if (!fs.existsSync(abs)) fs.writeFileSync(abs, "");
-  } else if (fs.existsSync(abs)) {
-    fs.unlinkSync(abs);
+    try {
+      fs.writeFileSync(abs, "", { flag: "wx" });
+    } catch (e) {
+      if (e.code !== "EEXIST") throw e; // already there = already on
+    }
+  } else {
+    try {
+      fs.unlinkSync(abs);
+    } catch (e) {
+      if (e.code !== "ENOENT") throw e; // already gone = already off
+    }
   }
   return true;
 }
@@ -292,10 +313,16 @@ let manifestAt = 0;
 
 // On-disk cache so the manifest is fetched at most ~once a day (no rate limits, works offline after
 // the first fetch). The filename carries a hash of repo@branch so different targets don't collide.
+//
+// NOT in `os.tmpdir()` any more (CodeQL `js/insecure-temporary-file`, high). The system temp dir is
+// WORLD-WRITABLE and this filename is entirely predictable, so any other local account could pre-create
+// it — or symlink it somewhere interesting — and we'd happily write through it and then trust what we
+// read back. The app already owns a directory; keep app state in it. Written 0600 for good measure.
 const MANIFEST_TTL = 24 * 60 * 60 * 1000;
+const CACHE_DIR = path.join(USER_ROOT, ".cache");
 const MANIFEST_CACHE_FILE = path.join(
-  os.tmpdir(),
-  `rap-manifest-${crypto.createHash("sha1").update(`${REPO}@${STABLE_BRANCH}`).digest("hex").slice(0, 12)}.json`,
+  CACHE_DIR,
+  `manifest-${crypto.createHash("sha1").update(`${REPO}@${STABLE_BRANCH}`).digest("hex").slice(0, 12)}.json`,
 );
 
 const normalizeManifest = (d) => ({
@@ -336,7 +363,8 @@ export async function remoteManifest(fresh = false) {
     if (!r.ok) throw new Error(`manifest returned ${r.status}`);
     const data = await r.json();
     try {
-      fs.writeFileSync(MANIFEST_CACHE_FILE, JSON.stringify(data));
+      fs.mkdirSync(CACHE_DIR, { recursive: true });
+      fs.writeFileSync(MANIFEST_CACHE_FILE, JSON.stringify(data), { mode: 0o600 });
     } catch {
       /* cache write is best-effort */
     }
