@@ -20,7 +20,22 @@ const arg = (k, d) => {
   return hit ? hit.slice(k.length + 3) : d;
 };
 
+/** A profiler that silently profiles something other than what you asked for is worse than no profiler. */
+const die = (msg) => {
+  console.error(
+    `profile-engine: ${msg}\nusage: node scripts/profile-engine.mjs [--loader=node|metro] [--n=<positive integer>]`,
+  );
+  process.exit(1);
+};
+
 const which = arg("loader", "node");
+if (which !== "node" && which !== "metro")
+  die(`unknown loader "${which}" (expected node or metro)`);
+
+const N = Number(arg("n", "1000"));
+if (!Number.isSafeInteger(N) || N < 1)
+  die(`--n must be a positive whole number (got "${arg("n", "")}")`);
+
 const { nodeLoader } = await import("../engine/core/nodeLoader.js");
 const loader =
   which === "metro" ? (await import("../engine/core/metroLoader.js")).metroLoader : nodeLoader;
@@ -41,10 +56,9 @@ function timeBatch(n) {
 
 timeBatch(20); // warm the caches so the curve measures steady-state work, not first-touch I/O
 
-const N = Number(arg("n", "1000"));
 console.log(`engine profile — loader=${which}, prompt=${JSON.stringify(settings.prompt)}\n`);
 console.log("      N        total     per prompt");
-for (const n of [20, 200, N].filter((v, i, a) => a.indexOf(v) === i)) {
+for (const n of [...new Set([20, 200, N])].sort((a, b) => a - b)) {
   const ms = timeBatch(n);
   console.log(
     `${String(n).padStart(7)}  ${`${ms.toFixed(1)} ms`.padStart(11)}  ${`${(ms / n).toFixed(3)} ms`.padStart(12)}`,

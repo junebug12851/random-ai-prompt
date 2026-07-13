@@ -21,8 +21,10 @@
  * The fix is **no shell**: build the program and its arguments separately and hand them to `execFile`,
  * which passes argv straight to the OS. A quote in a filename is then just a quote in a filename.
  *
- * These builders are pure so the invariant is *testable* — see `tests/regression/bugRegressions.test.js`,
- * which asserts a malicious filename lands intact in a single argv entry and never in a command string.
+ * These builders are pure so the invariant is *testable* — see
+ * `tests/regression/commandInjection.test.js`, which asserts a malicious filename lands intact in a
+ * single argv entry and never in a command string (and was proven by restoring the old shell version and
+ * watching it go red).
  * @module gui/server/osCommands
  */
 import path from "node:path";

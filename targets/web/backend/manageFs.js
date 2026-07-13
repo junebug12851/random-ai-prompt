@@ -325,10 +325,19 @@ const MANIFEST_CACHE_FILE = path.join(
   `manifest-${crypto.createHash("sha1").update(`${REPO}@${STABLE_BRANCH}`).digest("hex").slice(0, 12)}.json`,
 );
 
-const normalizeManifest = (d) => ({
-  lists: d?.lists || [],
-  "blocks": d?.["blocks"] || [],
-});
+/**
+ * Reduce whatever came back from the network to the ONLY shape this code understands: two arrays of
+ * plain strings. Anything else — extra keys, nested objects, numbers, a `__proto__` — is dropped.
+ *
+ * This is also what gets cached to disk (CodeQL `js/http-to-file-access`: "network data written to
+ * file"). Writing the raw response would mean the next boot parses attacker-influenced JSON straight
+ * off our own disk and trusts it a little more for having been there. So the cache stores the
+ * *normalized* value: what we persist is what we already validated.
+ */
+const normalizeManifest = (d) => {
+  const strings = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string") : []);
+  return { lists: strings(d?.lists), blocks: strings(d?.blocks) };
+};
 
 /**
  * The set of content files that exist on the stable branch, by root — used to surface "ghost"
@@ -362,13 +371,15 @@ export async function remoteManifest(fresh = false) {
     const r = await fetch(`${RAW_BASE}/manifest.json`);
     if (!r.ok) throw new Error(`manifest returned ${r.status}`);
     const data = await r.json();
+    // Normalize FIRST, then cache the normalized value — never the raw network payload (see
+    // normalizeManifest). What we persist is what we already validated.
+    const out = normalizeManifest(data);
     try {
       fs.mkdirSync(CACHE_DIR, { recursive: true });
-      fs.writeFileSync(MANIFEST_CACHE_FILE, JSON.stringify(data), { mode: 0o600 });
+      fs.writeFileSync(MANIFEST_CACHE_FILE, JSON.stringify(out), { mode: 0o600 });
     } catch {
       /* cache write is best-effort */
     }
-    const out = normalizeManifest(data);
     manifestCache = out;
     manifestAt = Date.now();
     return out;
