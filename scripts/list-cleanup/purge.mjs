@@ -1,5 +1,5 @@
 /*
-    Copyright 2026 junebug12851 — Apache-2.0 (see blocklist.mjs header).
+    Copyright 2026 1fairyfox — Apache-2.0 (see blocklist.mjs header).
 */
 
 /**

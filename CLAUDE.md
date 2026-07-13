@@ -2,7 +2,7 @@
 
 An open-source generator for AI image and text prompts that automatically builds richer, more
 detailed prompts than most people write by hand, then runs them through 40+ models (Midjourney,
-DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By junebug12851.
+DALL·E, Gemini, FLUX, Stable Diffusion, and more). Node.js (ES modules). By 1fairyfox.
 
 **This is a single project at the repo root, organized as an engine + build targets.** An isomorphic
 prompt **engine** (`engine/`) authored in the **DPL** block language powers one or more **build
@@ -21,14 +21,20 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
   `engine/data/blocks/`. The **one deliberate exception** to "engine code is `.js` modules" is
   `engine/data/blocks/`: those generators are executable `.js` authored as prompt *content* (like
   lists), so they live under `engine/data/`. (Expansions are deprecated, superseded by blocks.)
-- **`targets/`** — the build targets that consume the engine. **`targets/web/`** is the React/Vite web
-  target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`), `targets/web/backend/` (the
-  `/api` server — was `gui/server`), and `targets/web/shared/` (the provider adapters shared by both — was
-  `gui/providers`); its Vite/build config sits at the `targets/web/` package root. **`targets/web-shell/`**
+- **`targets/shared/`** — the **cross-target app layer**: the provider adapters (one folder per provider:
+  `config.js` / `settings.js` / `code/`) plus `_shared/` (transport, dialects, rewrite systems, shared
+  settings). **Every target imports this ONE implementation** — the web SPA + backend, the CLI, the desktop
+  shell, and the mobile app (Metro aliases it as `shared`, exactly like `engine`). It used to live inside
+  `targets/web/shared/`, which forced the mobile app to hand-port ~1.7k lines and spawned drift-detecting
+  parity checks; promoting it out killed that whole class of problem. **Never fork it into a target.**
+- **`targets/`** — the build targets that consume the engine + `targets/shared/`. **`targets/web/`** is the
+  React/Vite web target (ONE npm package): `targets/web/frontend/` (the SPA — was `gui/src`) and
+  `targets/web/backend/` (the `/api` server — was `gui/server`); its Vite/build config sits at the
+  `targets/web/` package root. **`targets/web-shell/`**
   is the Tauri desktop shell (its own package; wraps the built local web target — was `gui/src-tauri`).
-  **`targets/shared/`** is reserved for code shared across targets. **`targets/cli/`** is the
+  **`targets/cli/`** is the
   command-line target (the `prompt` tool, added 2.50.0 — its own npm package): a traditional args + flags
-  CLI that reuses the engine + the `targets/web/shared/` provider adapters + the `user/settings/` store
+  CLI that reuses the engine + the `targets/shared/` provider adapters + the `user/settings/` store
   to generate prompts and images headlessly, with multi-shell completion. It must stay at parity with
   BOTH the engine and the GUI by default (every `engine/settings.js` field is a flag; the same provider
   set + keys). See [`notes/systems/cli.md`](notes/systems/cli.md). For image gen it runs the real
@@ -49,9 +55,25 @@ git history and as a read-only reference clone at `assets/references/og-pre-revi
 Note: the dev server (`npm run web`) is a **development-only** tool. End users run the built local
 **desktop** target (the production local edition) or the hosted **web** build — never the dev server.
 
-## Start Here
+## Start Here — the notes are the system of record (READ THEM FIRST, EVERY SESSION)
 
-Read `notes/status.md` first — current health, what works, what's next.
+**This is a hard rule, not a suggestion** (owner, 2026-07-12: *"look in the notes please — use them by
+default and grow accustomed to them by default"*). Before touching code, on **every** task, in **this**
+order:
+
+1. **`notes/status.md`** — current health, what's open, what's next. Always.
+2. **The latest `notes/sessions/YYYY-MM/*.md`** — what the previous session was doing and why. This is
+   what makes *"continue where you left off"* answerable without asking the owner to re-explain state
+   they already wrote down.
+3. **The `notes/plans/*` or `notes/systems/*` page for the area you're touching** — plus
+   `reference/fix-patterns.md` / `reference/esm-patterns.md` before debugging, and
+   `decisions/rejected.md` before proposing anything structural.
+
+Then **use** them as the default source of truth — over guesses, over a surface read of the code, and
+**over any private/AI/"project" memory** (which this project forbids as a store: see
+[`notes/reference/working-agreements.md`](notes/reference/working-agreements.md) §A0). And **write them
+back in the same change** — the triggers table under *Maintaining the Notes* below is the cadence, and it
+is a standing instruction, not something to be asked for.
 
 The full notes system is in `notes/`, organized by topic:
 
@@ -64,7 +86,8 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/context/architecture.md` | Codebase layout, the two entry points, the prompt pipeline, data flow |
 | `notes/context/principles.md` | Project philosophy — what to do and what to avoid |
 | `notes/context/history.md` | The 2022 origins and the 2026 ESM modernization |
-| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `gui.md`. Start here to understand how it fits together |
+| `notes/systems/` | **System map** — `README.md` (hub) + `overview.md` (the machine end-to-end) and per-layer deep-dives: `core-engine.md` (the isomorphic `core/` engine), `cli.md`, `server.md`, `gui.md`, `mobile.md`, `desktop.md`, `comfyui.md`. Start here to understand how it fits together |
+| `notes/reference/working-agreements.md` | **The owner's standing rules** — how this project is to be worked on (§A0 notes-first · §A1 PowerShell · §A3 don't duplicate · §A4a no caps · §B definition of done). Read it before your first change |
 | `notes/reference/esm-patterns.md` | **The Node/ESM landmine catalog** — CJS→ESM gotchas hit during the migration (import ordering vs `process.chdir`, `require(ESM)` for config-driven plugin loading, default vs named exports, JSON imports, dropping `node-fetch`). Read before touching module wiring |
 | `notes/reference/dependencies.md` | Every runtime/dev dependency, why it's there, and the breaking-change notes for the current majors |
 | `notes/reference/fix-patterns.md` | Error → fix lookup table |
@@ -77,7 +100,8 @@ The full notes system is in `notes/`, organized by topic:
 | `notes/decisions/architecture.md` | Key structural choices and why |
 | `notes/decisions/rejected.md` | Things tried/considered that were rejected — don't repeat |
 | `notes/plans/next-steps.md` | Ordered task list |
-| `notes/plans/testing.md` | Testing reality (there is no automated suite yet) + how verification is done today |
+| `notes/plans/testing.md` | **The test suite** — what exists (Vitest Node + jsdom, Playwright e2e/visual/a11y/perf, jest-expo + Detox on-device), the budgets, and the landmines baked into it |
+| `notes/plans/mobile-parity.md` · `notes/plans/de-duplication.md` | The two live campaigns — mobile ⇄ web FULL parity (gate-enforced) and pushing shared behavior down into the engine / `targets/shared/` |
 | `notes/plans/future.md` | Longer-term ideas |
 
 ## Critical Things Not to Get Wrong
@@ -180,12 +204,16 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check:docs     # fail on broken relative links in the Markdown docs (drift guard; in `npm test` + CI)
 npm run check:tidy     # fail on untracked non-ignored files (run before finishing — nothing left uncommitted)
+npm run check:committed # fail if TRACKED source differs from HEAD — you must verify what you COMMITTED
 npm run smoke          # the import smoke test (node scripts/smoke-test.mjs)
 npm run test:unit      # Vitest (Node): unit/integration/snapshot/regression under tests/
 npm run test:web       # Vitest (jsdom): SPA unit/component/contract/integration under targets/web/tests/
 npm run test:e2e       # Playwright: E2E/visual/a11y (builds the SPA; needs `npx playwright install chromium` once)
 npm run test:e2e:update# refresh the committed visual baselines after a deliberate UI change
-npm test               # check:docs + lint + smoke + test:unit + test:web (the headless verification gate)
+npm test               # check:docs + check:registry + lint + FORMAT:CHECK + smoke + mobile:parity
+                       #   + test:unit + test:web + test:mobile — the headless gate. It now includes
+                       #   format:check because CI does: the local gate must be the CI gate, or you ship
+                       #   a red build believing you're green (2026-07-12).
 npm run test:all       # npm test + test:e2e
 npm run docs           # build the JSDoc doc-site (code API + notes as tutorials) into docs/jsdoc/
 ```
@@ -235,6 +263,14 @@ After making changes, run this loop without being asked:
      untracked non-ignored file (stray notes/reports/docs). Commit them (fairyfox reports get their own
      commit) or gitignore genuinely machine-local files. Only `/_*.bat|.log|.sh`, `*-private*`, and
      build/runtime artifacts are meant to be untracked.
+   - **VERIFY WHAT YOU COMMITTED, NOT WHAT YOU HAVE.** After committing, run
+     **`npm run check:committed`** — it fails if any tracked *source* file still differs from `HEAD`.
+     A green suite proves nothing if the fix it exercised is sitting uncommitted on your disk: the
+     tests, the build and the parity checks all read the **working tree**, while CI (and every other
+     clone) reads the **commit**. This is not hypothetical — a multi-path `git add` silently staged
+     only part of what was listed, and **four commits shipped a web build that didn't compile** while
+     every local gate reported green (2.55.0–2.57.0; see `reference/fix-patterns.md`). For a release,
+     go further: build from a clean `git worktree` at `HEAD`.
 3. **Commit on `dev` (or a `feature/*` branch).** This project follows the system's **git-flow**
    standard: real features get a `feature/<name>` branch off `dev`, merged back with `--no-ff`; only a
    genuinely trivial change goes straight on `dev`. Stage specific files (never `git add -A`/`.`),
@@ -328,6 +364,17 @@ or any other third-party request, update the docs to disclose it.
 
 ## Maintaining the Notes — Your Responsibility
 
+**Notes are the project's memory — use them by default, and prefer them over any private/AI/"project"
+memory.** The `notes/` system (sessions, changelog, systems, reference, decisions, plans) is the single
+shared, versioned, in-repo home for everything durable you learn or decide here: how a layer works, why
+a thing is the way it is, a landmine and its fix, a rejected approach, the state of a task. Do **not**
+stash that knowledge in a private AI memory store or an assistant "project memory" where the next
+person (or the next AI) can't see it — if it's worth remembering, it goes in `notes/`, committed with
+the change. Read the notes first to get oriented, expand them as you work, and lean on them heavily;
+they exist precisely so nothing is trapped in one session's head. (Private memory, if you have it,
+should at most point back **to** the notes — never be the system of record.) The triggers below are the
+default cadence; follow them without being asked.
+
 The notes are a **living document**. Keep them current as you work — don't wait to be asked.
 
 | Trigger | Action |
@@ -405,7 +452,7 @@ report-only.
 included — reading it lets you skip a redundant prompt, it never lets the system act on this repo);
 never apply changes or rewrite history without an explicit go-ahead (an active `authorizations.yml`
 entry that covers the change *is* that go-ahead, given at the system); reconcile with local edits, don't
-clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `junebug12851.github.io`); when a
+clobber them. **Stay inside this repo only** — never edit or push to another repo (including the hub `1fairyfox.github.io`); when a
 hub-side change is needed (e.g. a `registry.yml` correction), **report it for the owner to make**, don't
 do it here.
 
@@ -414,6 +461,9 @@ do it here.
 
 ## Project Preferences
 
+- **Start dev servers / builds in the BACKGROUND by default** (hidden process, output to a log), not a
+  popped-open/visible terminal window — e.g. `expo start` (mobile), the Vite dev server (`npm run web`),
+  long builds. Surface the connection info (URL / QR / port) from the log instead of relying on a window.
 - Keep the app feeling like polished software, not a dev tool.
 - Don't silently swallow errors; surface them. Never corrupt or lose a user's generated images or
   their `user-settings.json`.

@@ -10,7 +10,7 @@ nai-tag-expirement  https://zele.st/NovelAI/?Verbs                              
 NovelAI Experiments by u/Carlyone is licensed under CC BY 4.0
 
 Any other files which are not listed here are developed internaly by Merk and
-me (junebug12851) and are licensed public domain.
+me (1fairyfox) and are licensed public domain.
 
 Internally developed files atrtributed to Merk and me (juenbug12851)
 

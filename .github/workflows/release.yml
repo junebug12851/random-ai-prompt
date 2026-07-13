@@ -150,7 +150,7 @@ jobs:
 
       # Cryptographically sign the release assets with SLSA build provenance (keyless, via Sigstore).
       # Produces a verifiable attestation per asset; verify with:
-      #   gh attestation verify <file> --repo junebug12851/random-ai-prompt
+      #   gh attestation verify <file> --repo 1fairyfox/random-ai-prompt
       # Only on a real (non-dry-run) release. See notes/reference/deployment.md.
       - name: Attest build provenance for release artifacts
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
@@ -168,7 +168,7 @@ jobs:
       # Keyless = Sigstore Fulcio/Rekor via the job's OIDC token (no keys to manage). The bundle is
       # self-contained (signature + cert + Rekor entry). Verify a downloaded asset with:
       #   cosign verify-blob --bundle <a>.sigstore.json \
-      #     --certificate-identity-regexp 'https://github.com/junebug12851/random-ai-prompt/.*' \
+      #     --certificate-identity-regexp 'https://github.com/1fairyfox/random-ai-prompt/.*' \
       #     --certificate-oidc-issuer https://token.actions.githubusercontent.com <a>
       - name: Install cosign
         if: steps.ver.outputs.should_release == 'true' && github.event.inputs.dry_run != 'true'
@@ -405,7 +405,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          repo="junebug12851/random-ai-prompt"
+          repo="1fairyfox/random-ai-prompt"
           tag="${{ needs.release.outputs.tag }}"
           v="${{ needs.release.outputs.version }}"
           base="https://github.com/$repo/releases/download/$tag"

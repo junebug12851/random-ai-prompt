@@ -1,0 +1,23 @@
+// Build with an NDK you ALREADY have, instead of downloading the exact one the RN/Expo template pins.
+//
+// The template pins `ndkVersion` (via the expo-root-project plugin -> rootProject.ext.ndkVersion), and
+// AGP will happily fetch a ~700 MB NDK to satisfy it — over a home connection that is a >2-hour stall
+// before a single line of the app compiles. Any NDK of the same major works for this app (it builds no
+// C++ of its own; RN 0.81 ships prebuilt native libs).
+//
+// Opt in by setting ANDROID_NDK_VERSION to an installed NDK (see $ANDROID_HOME/ndk), e.g.
+//   $env:ANDROID_NDK_VERSION = "27.2.12479018"; npm run e2e:build
+// Unset, this script does nothing — so CI (fast network, cached SDK) keeps the pinned version and the
+// committed native config is untouched. Wired in by .detoxrc.js.
+//
+// The hook matters: the root project is evaluated BEFORE its subprojects, so overwriting the ext
+// property in the root's afterEvaluate lands before app/build.gradle reads it.
+def requested = System.getenv("ANDROID_NDK_VERSION")
+if (requested) {
+  gradle.afterProject { project ->
+    if (project == project.rootProject) {
+      project.ext.ndkVersion = requested
+      project.logger.lifecycle("[ndk-override] using installed NDK ${requested}")
+    }
+  }
+}

@@ -332,10 +332,17 @@ function PromptComposer({ settings, setSettings, onGenerate, compact = false }, 
           <div className="prompt-tools">
             <label className="field-count" title={intl.formatMessage(msgs.promptsPerRunTitle)}>
               <span className="field-count-label">{intl.formatMessage(msgs.promptsLabel)}</span>
+              {/*
+                A floor (you can't roll zero prompts) but NO CEILING — deliberately. `max={50}` used
+                to sit here, which capped the spinner and made the browser mark anything above 50 as
+                invalid, contradicting the app's own supported load of 1000+. The documented numbers
+                are a promise about PERFORMANCE ("this much with no degradation"), not a limit on the
+                user: past them the app degrades gracefully, it never refuses. The onChange already
+                had no upper bound — the attribute was the only cap, and it was an accident.
+              */}
               <input
                 type="number"
                 min={1}
-                max={50}
                 value={settings.promptCount}
                 onChange={(e) =>
                   setSettings({

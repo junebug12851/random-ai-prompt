@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Move flat list files into organized folders. Basenames are preserved (so bare
  * {name} references still resolve via path-suffix) EXCEPT the danbooru d-* and
  * artist artist-* files, which drop their prefix. Idempotent-ish: skips missing.

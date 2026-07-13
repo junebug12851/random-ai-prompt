@@ -14,7 +14,10 @@ describe("online flags", () => {
     expect(ONLINE).toBe(false);
   });
   it("points the full version at the GitHub repo", () => {
-    expect(FULL_VERSION_URL).toMatch(/github\.com\/junebug12851\/random-ai-prompt/);
+    // ANCHORED to the origin on purpose (CodeQL js/missing-regexp-anchor): an unanchored host pattern
+    // also matches `https://github.com.evil.example/1fairyfox/random-ai-prompt`, so the assertion would
+    // pass for a URL pointing at somebody else's server entirely.
+    expect(FULL_VERSION_URL).toMatch(/^https:\/\/github\.com\/1fairyfox\/random-ai-prompt/);
   });
 });
 

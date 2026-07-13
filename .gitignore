@@ -28,6 +28,7 @@ scripts/list-cleanup/out/
 # ARE tracked; only the generated reports below are not.
 /coverage/
 targets/web/coverage/
+targets/mobile/coverage/
 /playwright-report/
 /test-results/
 /.vitest/
@@ -64,3 +65,6 @@ notes/todo.txt
 /screenshots-preview/
 engine/core/metroCatalogData.js
 engine/core/metroCatalogData.*.js
+
+# Visual-parity screenshots (scripts/mobile-visual-parity.mjs) — machine-local review output.
+artifacts/

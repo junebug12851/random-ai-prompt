@@ -7,6 +7,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { Platform, useColorScheme } from "react-native";
 import { ACCENTS, DEFAULT_ACCENT, LOCALES, DEFAULT_LOCALE } from "./themeData.js";
+import { configureMobileTransport } from "./imageProviders.js";
 
 // Re-export so existing consumers keep importing these from lib/theme.js unchanged. The data lives in
 // the RN-free themeData.js so the parity check can import it in Node.
@@ -130,6 +131,14 @@ export function ThemeProvider({ children }) {
       alive = false;
     };
   }, []);
+
+  // Point the SHARED provider transport at this device's reality: an absolute Backend URL for our
+  // own /api routes (a phone has no origin), local servers called directly (RN has no CORS), and a
+  // fetch timeout (RN's fetch has none). Re-runs whenever the user edits the Backend URL.
+  // See targets/shared/_shared/transport/config.js.
+  useEffect(() => {
+    configureMobileTransport(backendUrl);
+  }, [backendUrl]);
 
   // Persist after the initial load (so we don't clobber the saved file with defaults).
   useEffect(() => {

@@ -13,7 +13,7 @@
 export const ONLINE = import.meta.env.VITE_ONLINE === "true";
 
 /** Where to send someone who wants the full, locally-run version. */
-export const FULL_VERSION_URL = "https://github.com/junebug12851/random-ai-prompt";
+export const FULL_VERSION_URL = "https://github.com/1fairyfox/random-ai-prompt";
 
 /**
  * The hover tooltip for a control that's only in the full version. Takes an

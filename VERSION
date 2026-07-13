@@ -12,11 +12,11 @@
 #     AND ordinary features. The PATCH number is not capped at 9.
 #   - MINOR (2.0.x -> 2.1.0): a notable feature set / milestone.
 #   - MAJOR (2.x -> 3.0.0): a breaking change or stability promise. The project
-#     leader's call (junebug12851) -- never bumped automatically.
+#     leader's call (1fairyfox) -- never bumped automatically.
 #
 # 2.0.0 marks the June 2026 modernization: the whole codebase moved from
 # CommonJS to ES modules, the toolchain moved to Node 24 LTS, and every
 # dependency was taken to its current major (Express 5, yargs 18, open 11,
 # node-fetch dropped for the built-in fetch). That is a breaking jump for anyone
 # running an old Node, hence the MAJOR bump.
-2.52.0
+2.60.0

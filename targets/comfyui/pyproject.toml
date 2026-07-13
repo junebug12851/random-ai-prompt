@@ -9,9 +9,9 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.urls]
-Repository = "https://github.com/junebug12851/random-ai-prompt"
+Repository = "https://github.com/1fairyfox/random-ai-prompt"
 
 [tool.comfy]
-PublisherId = "junebug12851"
+PublisherId = "1fairyfox"
 DisplayName = "Random AI Prompt"
 Icon = ""

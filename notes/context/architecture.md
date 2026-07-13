@@ -104,7 +104,7 @@ Each edition has the usual **dev** stage (`npm run web` — the Vite dev server,
 The SPA composes a **DPL prompt** in the editor → `targets/web/frontend/lib/promptEngine.js` drives the engine
 (`createEngine` + the browser loader) to expand it into the final prompt(s), deterministically and
 seedably → for **text** generation the prompt is returned as-is or rewritten by a text AI; for **images**
-the chosen provider adapter (`targets/web/shared/<id>/`) is called **directly from the browser** with the
+the chosen provider adapter (`targets/shared/<id>/`) is called **directly from the browser** with the
 user's BYOK key (there is no server relay). In the **local** edition, each generated image plus a `.json`
 metadata sidecar (the prompt layers, the deterministic engine roll, the provider, and a key-stripped
 settings snapshot) is written to `output/` via `POST /api/image` and browsed through `GET /api/feed`.

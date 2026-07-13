@@ -65,7 +65,7 @@ by the SemVer level.
 - **Linear history is OFF** on purpose, so the `--no-ff`-style **merge commits** each release creates
   are allowed.
 
-Managed via `gh api PUT /repos/junebug12851/random-ai-prompt/branches/main/protection`; fully
+Managed via `gh api PUT /repos/1fairyfox/random-ai-prompt/branches/main/protection`; fully
 reversible from **Settings → Branches**. `dev` is **unprotected** (day-to-day work + the release
 back-merge push land there directly). This is a local divergence from the hub git-workflow standard,
 proposed back in `notes/fairyfox-reports/2026-07-02-propose-scorecard-hardening.md`.

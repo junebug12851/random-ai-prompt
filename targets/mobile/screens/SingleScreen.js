@@ -24,6 +24,8 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { Image } from "expo-image";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../lib/theme.js";
+import { useResponsive } from "../lib/responsive.js";
+import { canGenerateImages, upscalersFor } from "../lib/capabilities.js";
 import {
   listImages,
   deleteImage,
@@ -68,9 +70,10 @@ async function copyText(t) {
 }
 
 export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onSearch }) {
-  const { T, rewriteProvider, providerSettings, backendUrl } = useTheme();
+  const { T, rewriteProvider, upscaleProvider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
+  const { twoPane } = useResponsive();
 
   const [feed, setFeed] = useState([]); // full gallery, newest-first, with children linked
   const [current, setCurrent] = useState(image || null);
@@ -154,7 +157,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
 
   // --- Derive gating (re-roll / make variation) ---
   const imgProv = getImageProvider(current.provider);
-  const canGenerate = !!imgProv && !imgProv.copy && typeof imgProv.generate === "function";
+  const canGenerate = canGenerateImages(current.provider);
   const hasSource = (src) => !!p[src];
   const hasSeedField = !!(imgProv?.settings || []).some((f) => f.key === "seed");
 
@@ -272,7 +275,10 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
   };
 
   // --- AI Upscale (via the provider's upscale adapter) → tracked resize child ---
-  const upscalers = UPSCALE_PROVIDERS;
+  // Only the UPSCALER THE USER PICKED (⋯ → Upscale). "none" → [] → the AI Upscale tool renders LOCKED.
+  // (Was `UPSCALE_PROVIDERS` — the whole static registry, offered as tappable even with Upscale off.)
+  const upscalers = upscalersFor(upscaleProvider);
+  const hasUpscalers = upscalers.length > 0;
   const doUpscale = async (upId) => {
     if (busy || !FS) return;
     const up = getUpscaleProvider(upId);
@@ -419,7 +425,10 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
   const variations = strip("variation", "variation");
   const resizes = strip("resize", "resize");
 
-  const imgW = Math.min(width, 900) - 32;
+  // Tablet two-pane (web parity): the image becomes a left column (~44%) beside the metadata, instead of
+  // a full-bleed image stacked over it. On phones it's the usual single stacked column.
+  const mediaW = twoPane ? Math.min(width * 0.44, 460) : Math.min(width, 900);
+  const imgW = mediaW - 32;
 
   // --- Small building blocks ---
   const LayerRow = ({ label, value, mono, accent, actions }) => {
@@ -430,14 +439,14 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           <Text style={styles.layerLabel}>{label}</Text>
           <View style={styles.layerActs}>
             {(actions || []).map((a) => (
-              <TouchableOpacity key={a.key} onPress={a.onPress} disabled={a.disabled}>
+              <TouchableOpacity accessibilityRole="button" key={a.key} onPress={a.onPress} disabled={a.disabled}>
                 <Text style={[styles.layerAct, a.disabled && styles.layerActOff]}>
                   {a.label}
                   {a.disabled ? " 🔒" : ""}
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity onPress={() => copyText(value)}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => copyText(value)}>
               <Text style={styles.layerAct}>Copy</Text>
             </TouchableOpacity>
           </View>
@@ -456,7 +465,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
         <Text style={styles.stripTitle}>{title}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stripRow}>
           {kids.map((c) => (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               key={c.uri}
               onPress={() => go(feed.find((it) => it.uri === c.uri))}
               activeOpacity={0.85}
@@ -484,11 +493,11 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
     <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
       {/* Nav bar: Back + Prev / position / Next */}
       <View style={styles.navbar}>
-        <TouchableOpacity style={styles.navBtn} onPress={onBack}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to the gallery" style={styles.navBtn} onPress={onBack}>
           <Text style={styles.navBtnText}>‹ Back</Text>
         </TouchableOpacity>
         <View style={styles.navRight}>
-          <TouchableOpacity style={[styles.navBtn, !hasPrev && styles.navBtnOff]} onPress={() => go(feed[index - 1])} disabled={!hasPrev}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Previous image" style={[styles.navBtn, !hasPrev && styles.navBtnOff]} onPress={() => go(feed[index - 1])} disabled={!hasPrev}>
             <Text style={styles.navBtnText}>‹ Prev</Text>
           </TouchableOpacity>
           {index >= 0 && (
@@ -496,15 +505,18 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               {index + 1} / {total}
             </Text>
           )}
-          <TouchableOpacity style={[styles.navBtn, !hasNext && styles.navBtnOff]} onPress={() => go(feed[index + 1])} disabled={!hasNext}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Next image" style={[styles.navBtn, !hasNext && styles.navBtnOff]} onPress={() => go(feed[index + 1])} disabled={!hasNext}>
             <Text style={styles.navBtnText}>Next ›</Text>
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Tablet: image (left) + metadata (right) two-pane; phone: layout-neutral single column. */}
+      <View style={twoPane ? styles.twoCol : undefined}>
+        <View style={twoPane ? { width: mediaW } : undefined}>
       {/* Image + overlay actions */}
       <View style={styles.imgWrap}>
-        <TouchableOpacity activeOpacity={0.95} onPress={() => setViewerOpen(true)}>
+        <TouchableOpacity accessibilityRole="button" activeOpacity={0.95} onPress={() => setViewerOpen(true)}>
           <Image
             source={current.uri}
             style={{ width: imgW, height: imgW, borderRadius: T.radius, backgroundColor: T.panel }}
@@ -514,34 +526,36 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           />
         </TouchableOpacity>
         <View style={styles.overlay}>
-          <TouchableOpacity style={styles.ovBtn} onPress={() => setViewerOpen(true)}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="View full screen" style={styles.ovBtn} onPress={() => setViewerOpen(true)}>
             <Text style={styles.ovIcon}>⤢</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.ovBtn} onPress={share}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share this image" style={styles.ovBtn} onPress={share}>
             <Text style={styles.ovIcon}>⤴</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.ovBtn} onPress={download}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save this image to the device" style={styles.ovBtn} onPress={download}>
             <Text style={styles.ovIcon}>⤓</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.ovBtn, styles.ovDel]} onPress={del}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this image" style={[styles.ovBtn, styles.ovDel]} onPress={del}>
             <Text style={styles.ovIcon}>✕</Text>
           </TouchableOpacity>
         </View>
       </View>
+        </View>
+        <View style={twoPane ? styles.metaCol : undefined}>
 
       {/* Tools: Convert · Resize/Upscale */}
       <View style={styles.toolRow}>
-        <TouchableOpacity style={styles.toolBtn} onPress={() => setConvertOpen((o) => !o)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.toolBtn} onPress={() => setConvertOpen((o) => !o)}>
           <Text style={styles.toolBtnText}>Convert ▾</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.toolBtn} onPress={() => setResizeOpen((o) => !o)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.toolBtn} onPress={() => setResizeOpen((o) => !o)}>
           <Text style={styles.toolBtnText}>Resize / Upscale ▾</Text>
         </TouchableOpacity>
       </View>
       {convertOpen && (
         <View style={styles.pickRow}>
           {FORMATS.map((f) => (
-            <TouchableOpacity key={f} style={styles.pickChip} onPress={() => doConvert(f)}>
+            <TouchableOpacity accessibilityRole="button" key={f} style={styles.pickChip} onPress={() => doConvert(f)}>
               <Text style={styles.pickChipText}>{f}</Text>
             </TouchableOpacity>
           ))}
@@ -552,19 +566,29 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           <Text style={styles.pickGroup}>Resize (on-device)</Text>
           <View style={styles.pickRow}>
             {RESIZE_SCALES.map((sc) => (
-              <TouchableOpacity key={sc} style={styles.pickChip} onPress={() => doResize(sc)}>
+              <TouchableOpacity accessibilityRole="button" key={sc} style={styles.pickChip} onPress={() => doResize(sc)}>
                 <Text style={styles.pickChipText}>{FRAC[sc] || `${sc}×`}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.pickGroup}>AI Upscale</Text>
-          <View style={styles.pickRow}>
-            {upscalers.map((u) => (
-              <TouchableOpacity key={u.id} style={styles.pickChip} onPress={() => doUpscale(u.id)}>
-                <Text style={styles.pickChipText}>{u.label.split(" (")[0]}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {/* LOCKED when no upscaler is picked (⋯ → Upscale = off) — web parity: lock the tool with a 🔒
+              rather than leaving it tappable and erroring. */}
+          <Text style={[styles.pickGroup, !hasUpscalers && styles.pickGroupLocked]}>
+            AI Upscale{!hasUpscalers ? " 🔒" : ""}
+          </Text>
+          {hasUpscalers ? (
+            <View style={styles.pickRow}>
+              {upscalers.map((u) => (
+                <TouchableOpacity accessibilityRole="button" key={u.id} style={styles.pickChip} onPress={() => doUpscale(u.id)}>
+                  <Text style={styles.pickChipText}>{u.label.split(" (")[0]}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.lockHint} accessibilityLabel="AI Upscale locked">
+              Pick an Upscale provider in the ⋯ menu to unlock.
+            </Text>
+          )}
         </View>
       )}
       {msg ? <Text style={[styles.msg, msg.startsWith("Error") && styles.msgErr]}>{msg}</Text> : null}
@@ -590,7 +614,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               : ""}
           </Text>
           {current.parent && (
-            <TouchableOpacity onPress={() => go(feed.find((it) => it.name === current.parent))}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => go(feed.find((it) => it.name === current.parent))}>
               <Text style={styles.lineageParent}>↑ Parent</Text>
             </TouchableOpacity>
           )}
@@ -681,17 +705,17 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           <View style={styles.cardHead}>
             <Text style={styles.cardTitle}>Details</Text>
             <View style={styles.cardActs}>
-              <TouchableOpacity onPress={() => setRawView((v) => !v)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setRawView((v) => !v)}>
                 <Text style={[styles.cardAct, rawView && styles.cardActOn]}>{rawView ? "Table" : "Raw JSON"}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setCopyOpen((o) => !o)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setCopyOpen((o) => !o)}>
                 <Text style={[styles.cardAct, copyOpen && styles.cardActOn]}>Copy ⋯</Text>
               </TouchableOpacity>
             </View>
           </View>
           {copyOpen && (
             <View style={styles.copyRow}>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.copyBtn}
                 onPress={() => {
                   copyText(markdown);
@@ -701,7 +725,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               >
                 <Text style={styles.copyBtnText}>Copy Markdown</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.copyBtn}
                 onPress={() => {
                   copyText(rawJson);
@@ -731,7 +755,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
               </View>
               {restSettings.length > 0 && (
                 <>
-                  <TouchableOpacity onPress={() => setShowAllSettings((s) => !s)}>
+                  <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllSettings((s) => !s)}>
                     <Text style={styles.allSettings}>
                       {showAllSettings ? "▾" : "▸"} All settings ({restSettings.length})
                     </Text>
@@ -760,7 +784,7 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
         <View style={styles.card}>
           <View style={styles.cardHead}>
             <Text style={styles.cardTitle}>{savedKeywords ? "Keywords (edited)" : "Keywords"}</Text>
-            <TouchableOpacity onPress={rebuildKeywords} disabled={kwBusy}>
+            <TouchableOpacity accessibilityRole="button" onPress={rebuildKeywords} disabled={kwBusy}>
               <Text style={[styles.cardAct, kwBusy && styles.cardActOff]}>
                 {kwBusy ? "Rebuilding…" : "Rebuild with AI"}
               </Text>
@@ -769,17 +793,19 @@ export default function SingleScreen({ image, onBack, onDeleted, onUpscaled, onS
           {kwErr ? <Text style={styles.cardErr}>{kwErr}</Text> : null}
           <View style={styles.cloud}>
             {tags.map((t, i) => (
-              <TouchableOpacity key={`${t}-${i}`} style={styles.chip} onPress={() => onSearch?.(t)}>
+              <TouchableOpacity accessibilityRole="button" key={`${t}-${i}`} style={styles.chip} onPress={() => onSearch?.(t)}>
                 <Text style={styles.chipText}>{t}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
       )}
+        </View>
+      </View>
 
       {/* Full-screen viewer */}
       <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
-        <TouchableOpacity style={styles.viewer} activeOpacity={1} onPress={() => setViewerOpen(false)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.viewer} activeOpacity={1} onPress={() => setViewerOpen(false)}>
           <Image source={current.uri} style={styles.viewerImg} contentFit="contain" cachePolicy="disk" />
         </TouchableOpacity>
       </Modal>
@@ -811,6 +837,10 @@ const makeStyles = (T) =>
     navBtnText: { color: T.fgSoft, fontSize: 13, fontWeight: "700" },
     navPos: { color: T.muted, fontSize: 13, fontWeight: "700" },
 
+    pickGroupLocked: { opacity: 0.5 },
+    lockHint: { color: T.faint, fontSize: 12.5, fontStyle: "italic", marginBottom: 8 },
+    twoCol: { flexDirection: "row", alignItems: "flex-start", gap: 16 },
+    metaCol: { flex: 1, minWidth: 0 },
     imgWrap: { position: "relative", alignItems: "center" },
     overlay: { position: "absolute", top: 10, right: 10, flexDirection: "row", gap: 6 },
     ovBtn: {

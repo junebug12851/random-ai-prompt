@@ -22,6 +22,7 @@ import {
   TagIcon,
   BracketsIcon,
   ShareIcon,
+  ShuffleIcon,
   SparkleIcon,
   GridIcon,
 } from "../lib/icons.js";
@@ -40,11 +41,19 @@ const LIST_OPTIONS = [
 ];
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+
+// Prompts-per-roll has a FLOOR (you can't roll zero prompts) but deliberately NO CEILING. The
+// documented 1000 is the level the app supports with *no performance loss* — a promise about
+// behaviour, not a cap on the user. Nothing in this app tells a user "no": if it handles 1000
+// smoothly it will handle more, degrading gracefully rather than refusing. (This screen used to
+// clamp to 1000 in five places — a mobile-only limit the engine and the web never had.)
+const atLeast1 = (n) => Math.max(1, n);
 const COMPLETIONS = getDplCompletions();
 
 // Share link — encode settings (minus secrets) into the web app's #s= hash so a setup can be
 // restored elsewhere (mirrors targets/web/frontend/lib/share.js).
 const SHARE_BASE = "https://prompt.fairyfox.io/";
+const SUGGESTION_MS = 5000; // how often the rotating random suggestion refreshes (web parity)
 function b64url(str) {
   // btoa over a UTF-8-safe byte string, then URL-safe.
   const utf8 = unescape(encodeURIComponent(str));
@@ -68,7 +77,7 @@ function activeToken(text, caret) {
   return { start: open, frag };
 }
 
-function ToolBtn({ children, onPress, on, disabled }) {
+function ToolBtn({ children, onPress, on, disabled, accessibilityLabel }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   return (
@@ -76,6 +85,11 @@ function ToolBtn({ children, onPress, on, disabled }) {
       style={[styles.tool, on && styles.toolOn, disabled && styles.toolOff]}
       onPress={disabled ? undefined : onPress}
       activeOpacity={disabled ? 1 : 0.6}
+      // A locked control must ANNOUNCE that it's locked (and be assertable in tests) — not just
+      // look faded. See notes/reference/working-agreements.md §E.
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled: !!disabled, selected: !!on }}
     >
       {children}
     </TouchableOpacity>
@@ -91,6 +105,7 @@ const ResultRow = memo(function ResultRow({
   canImages,
   busy,
   onGenImages,
+  onOpenImage,
 }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
@@ -100,13 +115,13 @@ const ResultRow = memo(function ResultRow({
         <Text style={styles.resultNum}>#{number}</Text>
         <View style={styles.resultHeadRight}>
           {canImages && (
-            <TouchableOpacity onPress={() => onGenImages(text)} disabled={busy}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => onGenImages(text)} disabled={busy}>
               <Text style={[styles.copyLink, busy && { opacity: 0.5 }]}>
                 {busy ? "Generating…" : "Generate images"}
               </Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={() => onCopy(text)}>
+          <TouchableOpacity accessibilityRole="button" onPress={() => onCopy(text)}>
             <Text style={styles.copyLink}>{copied ? "Copied ✓" : "Copy"}</Text>
           </TouchableOpacity>
         </View>
@@ -120,14 +135,23 @@ const ResultRow = memo(function ResultRow({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.resultThumbs}
         >
-          {images.map((uri, i) => (
-            <Image
-              key={i}
-              source={{ uri }}
-              style={styles.resultThumb}
-              contentFit="cover"
-              transition={120}
-            />
+          {/* Each thumb is the SAVED gallery item ({name, uri}) — tapping opens it in the Single view
+              (the web's inline image batch behaviour). Raw provider sources are never stored here. */}
+          {images.map((img, i) => (
+            <TouchableOpacity
+              key={img.uri ?? i}
+              onPress={() => onOpenImage?.(img)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={`Open generated image ${i + 1}`}
+            >
+              <Image
+                source={{ uri: img.uri }}
+                style={styles.resultThumb}
+                contentFit="cover"
+                transition={120}
+              />
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}
@@ -135,7 +159,7 @@ const ResultRow = memo(function ResultRow({
   );
 });
 
-export default function GenerateScreen({ onGenerated }) {
+export default function GenerateScreen({ onGenerated, onOpenImage }) {
   const { T, provider, rewriteProvider, providerSettings, setProviderSetting, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const [generating, setGenerating] = useState(false);
@@ -191,6 +215,7 @@ export default function GenerateScreen({ onGenerated }) {
     return depth === 0;
   }, [activeValue]);
 
+
   // Completion candidates for the token at the caret.
   const [caretTick, setCaretTick] = useState(0); // bump to recompute suggestions on caret move
   const suggestions = useMemo(() => {
@@ -221,13 +246,47 @@ export default function GenerateScreen({ onGenerated }) {
       ...baseSettings,
       ...cfg,
       prompt,
-      promptCount: clamp(promptCount, 1, 1000),
+      promptCount: atLeast1(promptCount),
       generateImages: false,
     }),
     [prompt, promptCount, cfg],
   );
   const getS = (k) => (cfg[k] !== undefined ? cfg[k] : baseSettings[k]);
   const setS = (k, v) => setCfg((c) => ({ ...c, [k]: v }));
+
+  // A rotating random prompt SUGGESTION — web parity (PromptComposer): the empty box shows "Try: …"
+  // and the shuffle button drops the suggestion in. Distinct from the DPL *completion* candidates
+  // (caret autocomplete) — the two used to share the name "suggestions", which is exactly how the
+  // surface-parity check falsely passed while this feature was missing from mobile entirely.
+  //
+  // MUST sit below `settings` (it reads it): declared above, this threw a temporal-dead-zone
+  // ReferenceError that blanked the whole app — and every unit test still passed, because they mock
+  // the engine and never exercise the real module order. Only the screenshot caught it.
+  // See notes/reference/fix-patterns.md.
+  const [suggestion, setSuggestion] = useState("");
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  useEffect(() => {
+    const roll = () => {
+      try {
+        setSuggestion(expandOnce("{#random-words}", settingsRef.current));
+      } catch {
+        /* engine not ready — skip this tick */
+      }
+    };
+    roll();
+    const id = setInterval(roll, SUGGESTION_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  /** Drop the current random suggestion into the active box (append, like the web's insert). */
+  const useSuggestion = useCallback(() => {
+    if (!suggestion) return;
+    setActiveValue((current = "") => {
+      const sep = current && !/\s$/.test(current) ? ", " : "";
+      return `${current}${sep}${suggestion}`;
+    });
+  }, [suggestion, setActiveValue]);
 
   // Inline image controls (Images count + Size/Ratio) surfaced next to the Prompts counter — they
   // read/write the SAME providerSettings[id] fields the ⋯ menu edits, so the two stay in lockstep.
@@ -294,7 +353,7 @@ export default function GenerateScreen({ onGenerated }) {
         {options.map((o) => {
           const on = getS(key) === o.value;
           return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
               key={String(o.value)}
               style={[styles.setChip, on && styles.setChipOn]}
               onPress={() => setS(key, o.value)}
@@ -326,7 +385,7 @@ export default function GenerateScreen({ onGenerated }) {
   );
   const rollPrompts = useCallback(() => {
     if (!wrapActive) return run.generatePrompts(settings);
-    const count = clamp(promptCount, 1, 1000);
+    const count = atLeast1(promptCount);
     const base =
       settings.randomSeed === false && String(settings.promptSeed ?? "").trim() !== ""
         ? String(settings.promptSeed).trim()
@@ -351,7 +410,18 @@ export default function GenerateScreen({ onGenerated }) {
 
   const generate = useCallback(async () => {
     if (generating) return;
+
+    // Time the ROLL itself, and say so out loud (logcat).
+    //
+    // Not decoration: the on-device suite measures the wall-clock from "tap generate" to "N generated"
+    // renders, which is engine + render + list mount in one number — and when that number went bad at
+    // N=1000 there was no way to tell WHICH. (The previous guess, "it's FlashList's web renderer",
+    // was wrong and cost a session.) This line splits it: engine time here, everything else is the
+    // difference. Hermes keeps console.log in release, and the Detox run captures logcat.
+    const t0 = Date.now();
     const { seed, prompts: rolled } = rollPrompts();
+    // eslint-disable-next-line no-console
+    console.log(`[rap-perf] roll ${rolled.length} prompts: ${Date.now() - t0}ms (engine only)`);
     setCopiedId(null);
 
     // Text rewrite (auto-fix / keyword-translate) with the selected Text provider, if toggled on.
@@ -410,8 +480,9 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: prompts[i], key, settings: provSettings });
         const negText = provSettings.negativePrompt || "";
+        const savedItems = [];
         for (const img of images) {
-          await saveImageSrc(img, {
+          const it = await saveImageSrc(img, {
             prompt: prompts[i],
             negative: negText,
             layers: {
@@ -428,7 +499,16 @@ export default function GenerateScreen({ onGenerated }) {
             size: sizeFromSettings(provSettings),
             settings: provSettings,
           });
+          if (it) savedItems.push(it); // { name, uri } — the SAVED gallery item
           saved++;
+        }
+        // Attach the batch to its prompt row so images show INLINE on Generate (web parity), not only
+        // in the Gallery. Tapping one opens it in the Single view.
+        if (savedItems.length) {
+          const rowId = `${batchId}:${i}`;
+          setResults((prev) =>
+            prev.map((r) => (r.id === rowId ? { ...r, images: [...(r.images || []), ...savedItems] } : r)),
+          );
         }
         if (saved) onGenerated?.();
       } catch (e) {
@@ -441,6 +521,19 @@ export default function GenerateScreen({ onGenerated }) {
       error ? `Error: ${error}` : `Saved ${saved} image${saved === 1 ? "" : "s"} to the Gallery.`,
     );
   }, [generating, rollPrompts, settings, provider, rewriteProvider, canRewrite, autoFix, autoKeyword, providerSettings, backendUrl, onGenerated]);
+
+  // When did the rows actually COMMIT? (logcat timestamps do the arithmetic.)
+  //
+  // The on-device gate showed the engine is linear and fine (1000 prompts in 13.3 s) while the run as a
+  // whole never finished — so the cost is after the roll. This says whether React has committed the rows
+  // (and the wait is then in the test harness / the native list's measurement) or whether the commit
+  // itself is the wall. Cheap, permanent, and it is the difference between fixing the app and fixing the
+  // test.
+  useEffect(() => {
+    if (!results.length) return;
+    // eslint-disable-next-line no-console
+    console.log(`[rap-perf] committed ${results.length} result rows`);
+  }, [results.length]);
 
   // Live preview: while toggled on, re-roll the current prompt every second (like the web eye).
   useEffect(() => {
@@ -490,8 +583,9 @@ export default function GenerateScreen({ onGenerated }) {
       try {
         const { images } = await prov.generate({ prompt: item.text, key, settings: provSettings });
         const negText = provSettings.negativePrompt || "";
-        for (const img of images)
-          await saveImageSrc(img, {
+        const savedItems = [];
+        for (const img of images) {
+          const it = await saveImageSrc(img, {
             prompt: item.text,
             negative: negText,
             layers: { final: item.text },
@@ -502,8 +596,13 @@ export default function GenerateScreen({ onGenerated }) {
             size: sizeFromSettings(provSettings),
             settings: provSettings,
           });
+          if (it) savedItems.push(it); // store the SAVED { name, uri }, not the raw provider source —
+          // Single resolves by gallery uri, so raw sources could never be opened.
+        }
         setResults((prev) =>
-          prev.map((r) => (r.id === item.id ? { ...r, images: [...(r.images || []), ...images] } : r)),
+          prev.map((r) =>
+            r.id === item.id ? { ...r, images: [...(r.images || []), ...savedItems] } : r,
+          ),
         );
         onGenerated?.();
       } catch (e) {
@@ -549,13 +648,13 @@ export default function GenerateScreen({ onGenerated }) {
               )}
               {supportsNegative && (
                 <View style={styles.cmTabs}>
-                  <TouchableOpacity
+                  <TouchableOpacity accessibilityRole="button"
                     style={[styles.cmTab, editMode === "prompt" && styles.cmTabOn]}
                     onPress={() => setComposeMode("prompt")}
                   >
                     <Text style={[styles.cmTabText, editMode === "prompt" && styles.cmTabTextOn]}>Prompt</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
+                  <TouchableOpacity accessibilityRole="button"
                     style={[styles.cmTab, editMode === "negative" && styles.cmTabOn]}
                     onPress={() => setComposeMode("negative")}
                   >
@@ -565,10 +664,10 @@ export default function GenerateScreen({ onGenerated }) {
               )}
             </View>
             <View style={styles.editorHeadRight}>
-              <TouchableOpacity onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon} accessibilityLabel="Toggle live preview">
+              <TouchableOpacity accessibilityRole="button" onPress={() => setPreviewOn((v) => !v)} style={styles.headIcon} accessibilityLabel="Toggle live preview">
                 <EyeIcon size={18} color={previewOn ? T.accent : T.muted} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setGearOpen(true)} style={styles.headIcon} accessibilityLabel="Prompt settings">
+              <TouchableOpacity accessibilityRole="button" onPress={() => setGearOpen(true)} style={styles.headIcon} accessibilityLabel="Prompt settings">
                 <GearIcon size={18} color={T.muted} />
               </TouchableOpacity>
             </View>
@@ -580,7 +679,7 @@ export default function GenerateScreen({ onGenerated }) {
                 <View key={i} style={styles.gutterLine}>
                   <Text style={styles.gutterNum}>{i + 1}</Text>
                   {i === 0 && (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                       onPress={() => setActiveValue((p) => (p.endsWith("\n") || !p ? p : p + "\n"))}
                       hitSlop={10}
                     >
@@ -603,7 +702,15 @@ export default function GenerateScreen({ onGenerated }) {
               }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder={editMode === "negative" ? "Negative prompt — what to keep out" : "{#random-words}"}
+              // Web parity (PromptComposer): the empty box advertises the rotating random
+              // suggestion ("Try: …"), so the shuffle button next to it has an obvious meaning.
+              placeholder={
+                editMode === "negative"
+                  ? "Negative prompt — what to keep out"
+                  : suggestion
+                    ? `Try: ${suggestion}`
+                    : "{#random-words}"
+              }
               placeholderTextColor={T.faint}
               autoCapitalize="none"
               autoCorrect={false}
@@ -623,7 +730,7 @@ export default function GenerateScreen({ onGenerated }) {
           >
             <View style={styles.suggStripRow}>
               {suggestions.map((c) => (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                   key={c.token}
                   style={styles.sugg}
                   onPress={() => applyCompletion(c.token)}
@@ -652,16 +759,38 @@ export default function GenerateScreen({ onGenerated }) {
           <View style={styles.leftCluster}>
             <View style={styles.promptsCount}>
               <Text style={styles.promptsLabel}>PROMPTS</Text>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
-                onPress={() => setPromptCount((n) => clamp(n - 1, 1, 1000))}
+                onPress={() => setPromptCount((n) => atLeast1(n - 1))}
+                accessibilityLabel="One fewer prompt"
               >
                 <Text style={styles.countBtnText}>−</Text>
               </TouchableOpacity>
-              <Text style={styles.countVal}>{promptCount}</Text>
-              <TouchableOpacity
+              {/*
+                The count is EDITABLE, not stepper-only — web parity (PromptComposer uses a numeric
+                input). Without this, a large roll was reachable only by tapping + hundreds of times,
+                which is not a feature, it's a dare. Found while writing the max-load perf test: the
+                test was absurd because the UI was.
+
+                No upper bound, and no maxLength: 1000 is the level the app SUPPORTS with no
+                performance loss, not a cap it enforces. The app never tells the user "no".
+              */}
+              <TextInput
+                testID="prompt-count"
+                style={styles.countInput}
+                value={String(promptCount)}
+                onChangeText={(v) => {
+                  const n = parseInt(v.replace(/[^0-9]/g, ""), 10);
+                  setPromptCount(Number.isFinite(n) ? atLeast1(n) : 1);
+                }}
+                keyboardType="number-pad"
+                selectTextOnFocus
+                accessibilityLabel="Number of prompts per roll"
+              />
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.countBtn}
-                onPress={() => setPromptCount((n) => clamp(n + 1, 1, 1000))}
+                onPress={() => setPromptCount((n) => n + 1)}
+                accessibilityLabel="One more prompt"
               >
                 <Text style={styles.countBtnText}>+</Text>
               </TouchableOpacity>
@@ -671,11 +800,11 @@ export default function GenerateScreen({ onGenerated }) {
             {imgBatchField && (
               <View style={styles.promptsCount}>
                 <Text style={styles.promptsLabel}>IMAGES</Text>
-                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) - 1, 1, 8))}>
+                <TouchableOpacity accessibilityRole="button" style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) - 1, 1, 8))}>
                   <Text style={styles.countBtnText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.countVal}>{imgGet("batchSize", 1)}</Text>
-                <TouchableOpacity style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) + 1, 1, 8))}>
+                <TouchableOpacity accessibilityRole="button" style={styles.countBtn} onPress={() => setImgParam("batchSize", clamp((Number(imgGet("batchSize", 1)) || 1) + 1, 1, 8))}>
                   <Text style={styles.countBtnText}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -689,7 +818,7 @@ export default function GenerateScreen({ onGenerated }) {
                     const lab = typeof opt === "object" ? opt.label : opt;
                     const on = imgGet(imgSizeField.key, imgSizeField.default) === val;
                     return (
-                      <TouchableOpacity key={String(val)} style={[styles.setChip, on && styles.setChipOn]} onPress={() => setImgParam(imgSizeField.key, val)}>
+                      <TouchableOpacity accessibilityRole="button" key={String(val)} style={[styles.setChip, on && styles.setChipOn]} onPress={() => setImgParam(imgSizeField.key, val)}>
                         <Text style={[styles.setChipText, on && styles.setChipTextOn]}>{lab}</Text>
                       </TouchableOpacity>
                     );
@@ -699,28 +828,43 @@ export default function GenerateScreen({ onGenerated }) {
             )}
 
             <View style={styles.toolGroup}>
-              <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)}>
+              <ToolBtn on={autoFix} disabled={!canRewrite} onPress={() => setAutoFix((v) => !v)} accessibilityLabel={canRewrite ? "Auto-fix the prompt with the Text provider" : "Auto-fix (locked — pick a Text provider)"}>
                 <WandIcon size={18} color={autoFix ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)}>
+              <ToolBtn on={autoKeyword} disabled={!canRewrite} onPress={() => setAutoKeyword((v) => !v)} accessibilityLabel={canRewrite ? "Translate the prompt to keywords" : "Keyword translate (locked — pick a Text provider)"}>
                 <TagIcon size={18} color={autoKeyword ? T.accent : canRewrite ? T.muted : T.faint} />
               </ToolBtn>
-              <ToolBtn on={wrapActive} onPress={() => setWrapperOpen(true)}>
+              <ToolBtn on={wrapActive} onPress={() => setWrapperOpen(true)} accessibilityLabel="Prompt wrapper">
                 <BracketsIcon size={18} color={wrapActive ? T.accent : T.muted} />
               </ToolBtn>
-              <ToolBtn onPress={share}>
+              <ToolBtn onPress={share} accessibilityLabel="Share a link to this setup">
                 <ShareIcon size={17} color={T.muted} />
               </ToolBtn>
-              <ToolBtn on onPress={() => setPaletteOpen(true)}>
-                <GridIcon size={17} color={T.accent} />
+              {/*
+                Random suggestion (web parity: PromptComposer's shuffle). This slot used to hold a
+                SECOND building-blocks button — an exact duplicate of the green FAB below it, same
+                icon, same handler — which meant the shuffle feature was missing from mobile
+                altogether. Caught by LOOKING at a screenshot; no marker/render test could see it.
+                Locked (not error-on-press) while there's no suggestion yet, like every other
+                capability-gated control.
+              */}
+              <ToolBtn
+                disabled={!suggestion}
+                onPress={useSuggestion}
+                accessibilityLabel={
+                  suggestion ? "Random suggestion" : "Random suggestion (locked — none yet)"
+                }
+              >
+                <ShuffleIcon size={17} color={suggestion ? T.muted : T.faint} />
               </ToolBtn>
             </View>
           </View>
 
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
+            testID="generate"
             style={[styles.genRound, generating && styles.genRoundBusy]}
             onPress={generate}
-            accessibilityLabel="Generate"
+            accessibilityLabel="Generate prompts"
             disabled={generating}
             activeOpacity={0.85}
           >
@@ -739,11 +883,17 @@ export default function GenerateScreen({ onGenerated }) {
         <View style={styles.resultsHead}>
           <Text style={styles.resultsTitle}>Prompts</Text>
           <View style={styles.resultsHeadRight}>
-            <Text style={styles.count}>{results.length} generated</Text>
-            <TouchableOpacity onPress={copyAll}>
+            <Text testID="results-count" style={styles.count}>
+              {results.length} generated
+            </Text>
+            <TouchableOpacity accessibilityRole="button" onPress={copyAll}>
               <Text style={styles.copyLink}>Copy all</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setResults([])}>
+            <TouchableOpacity
+              testID="clear-all"
+              accessibilityRole="button"
+              onPress={() => setResults([])}
+            >
               <Text style={styles.clearAll}>Clear all</Text>
             </TouchableOpacity>
           </View>
@@ -755,6 +905,7 @@ export default function GenerateScreen({ onGenerated }) {
   return (
     <>
       <FlashList
+        testID="results-list"
         data={results}
         keyExtractor={(it) => it.id}
         ListHeaderComponent={header}
@@ -767,6 +918,7 @@ export default function GenerateScreen({ onGenerated }) {
             images={item.images}
             copied={copiedId === item.text}
             onCopy={copy}
+            onOpenImage={onOpenImage}
             canImages={canImages}
             busy={rowBusy === item.id}
             onGenImages={() => genImagesFor(item)}
@@ -775,10 +927,14 @@ export default function GenerateScreen({ onGenerated }) {
         estimatedItemSize={104}
       />
 
+      {/* The ONE building-blocks control (the web's off-canvas drawer). The toolbar above used to
+          carry a second, identical one — see the regression test in __tests__/GenerateScreen.test.jsx. */}
       <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 24 }]}
         onPress={() => setPaletteOpen(true)}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Open the building-blocks palette"
       >
         <GridIcon size={24} color={T.accentInk} />
       </TouchableOpacity>
@@ -796,7 +952,7 @@ export default function GenerateScreen({ onGenerated }) {
         onRequestClose={() => setGearOpen(false)}
       >
         <View style={styles.sheetScrim}>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             style={{ flex: 1 }}
             onPress={() => setGearOpen(false)}
             activeOpacity={1}
@@ -804,7 +960,7 @@ export default function GenerateScreen({ onGenerated }) {
           <View style={styles.gearSheet}>
             <View style={styles.gearHead}>
               <Text style={styles.gearTitle}>Prompt settings</Text>
-              <TouchableOpacity onPress={() => setGearOpen(false)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setGearOpen(false)}>
                 <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -814,7 +970,7 @@ export default function GenerateScreen({ onGenerated }) {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              <TouchableOpacity style={styles.resetBtn} onPress={() => setCfg({})}>
+              <TouchableOpacity accessibilityRole="button" style={styles.resetBtn} onPress={() => setCfg({})}>
                 <Text style={styles.resetText}>Reset to defaults</Text>
               </TouchableOpacity>
 
@@ -860,11 +1016,11 @@ export default function GenerateScreen({ onGenerated }) {
         onRequestClose={() => setWrapperOpen(false)}
       >
         <View style={styles.sheetScrim}>
-          <TouchableOpacity style={{ flex: 1 }} onPress={() => setWrapperOpen(false)} activeOpacity={1} />
+          <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={() => setWrapperOpen(false)} activeOpacity={1} />
           <View style={styles.gearSheet}>
             <View style={styles.gearHead}>
               <Text style={styles.gearTitle}>Wrapper</Text>
-              <TouchableOpacity onPress={() => setWrapperOpen(false)}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setWrapperOpen(false)}>
                 <Text style={styles.gearClose}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -909,7 +1065,7 @@ export default function GenerateScreen({ onGenerated }) {
                   thumbColor="#fff"
                 />
               </View>
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 style={styles.resetBtn}
                 onPress={() => {
                   setS("wrapper", { start: "", end: "" });
@@ -1073,6 +1229,21 @@ const makeStyles = (T) =>
     },
     countBtnText: { color: T.fgSoft, fontSize: 18, fontWeight: "700", lineHeight: 20 },
     countVal: { color: T.fg, fontSize: 16, fontWeight: "800", minWidth: 26, textAlign: "center" },
+    // The count is an editable field, so it needs a FIXED width. Reusing the old Text style
+    // (`countVal`, which only sets minWidth) let the input stretch and shove the + stepper off the
+    // screen — invisible to every test, obvious the moment you look at a screenshot.
+    countInput: {
+      color: T.fg,
+      fontSize: 16,
+      fontWeight: "800",
+      width: 54,
+      textAlign: "center",
+      paddingVertical: 4,
+      borderRadius: 8,
+      backgroundColor: T.input,
+      borderWidth: 1,
+      borderColor: T.border,
+    },
 
     toolGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
     tool: {

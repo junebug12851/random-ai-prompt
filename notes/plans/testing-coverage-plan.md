@@ -87,7 +87,7 @@ LivePreview, Manage, ManageBlockEditor, ManageFolderEditor, ManageListEditor, Ns
 PromptResult, ProviderBox, ProviderGear, ProviderPicker, ProvidersMenu, SettingsDrawer,
 SingleView, WrapperFab.
 
-### Providers (`targets/web/shared/`) — contract suite
+### Providers (`targets/shared/`) — contract suite
 Only `local-webui` + `midjourney` covered. **Untested adapters:** comfyui, openai, gemini,
 grok, replicate, fal, bfl, ideogram, leonardo, stability `code/generate.js`; the rewrite
 adapters (openai/gemini/grok `code/rewrite.js`); `_shared/transport/*` (hostedProxy,

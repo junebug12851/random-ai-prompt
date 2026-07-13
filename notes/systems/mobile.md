@@ -16,12 +16,16 @@ Metro can't cross the repo-root ESM package boundary, so `metro.config.js` alias
 `--tier=full` and `--tier=sfw` (`catalog:play`, physically excludes nsfw-token content). Parity is proven
 by `scripts/metro-parity-check.mjs` (metroLoader output == nodeLoader).
 
-## UI — parity with the web is a STANDING INSTRUCTION
+## UI — FULL parity with the web is a STANDING INSTRUCTION
 
-**Keep the mobile UI and the web UI in parity by default, without being asked.** The web SPA already has a
-complete responsive **phone** layout; the mobile app mirrors it — it does not invent its own design. This
-is bidirectional: a change to one surface's look/layout should be reflected in the other in the same spirit
-(the analog of the CLI's "stay at parity with the engine + GUI" rule). Concretely the mobile app mirrors:
+**Keep the mobile UI and the web UI in COMPLETE parity — no exceptions, no size-based feature loss, no
+"mobile is simpler" version.** The whole app is available on every device (phone AND tablet) **to the extent
+the target platform allows**, and parity is **enforced behind the release quality gate**. The only sanctioned
+non-parity is a genuine platform boundary expressed as a **build variant, not a feature drop** — the SFW
+build physically removes NSFW (content + toggle) via `--tier=sfw`; an NSFW-capable APK keeps it. See the
+campaign + gap audit + phased plan in [`../plans/mobile-parity.md`](../plans/mobile-parity.md). This is
+bidirectional: a change to one surface's look/layout/features must be reflected in the other. Concretely the
+mobile app mirrors:
 
 - **Top bar** (`App.js`): dark rounded brand mark (mint pencil) + the **enclosed pill view-switch** (active
   tab green-filled) + a `⋯` overflow — one row, matching the web phone header. Panes stay mounted
@@ -53,17 +57,44 @@ rebuild). Storage (`lib/storage.js`) is expo-file-system, web-safe no-op under `
 Four layers, mirroring the web target's rigor:
 
 - **Engine/data parity** — `scripts/metro-parity-check.mjs` (metroLoader output == nodeLoader).
-- **Ported-catalog + surface parity** — `scripts/mobile-parity-check.mjs` (accents/locales/DPL/providers
-  match the web SOURCES, and each focus surface — Header / Generate / Gallery / Single — carries a marker
-  for every web feature; no per-feature ignores). Wired into `npm test`.
+- **Ported-catalog + surface parity** — `scripts/mobile-parity-check.mjs`. Two different things live in
+  there: **drift checks** (accents / locales / DPL inserts / listOps still match the web SOURCES) guard the
+  catalogs mobile still hand-ports — each one is a standing invitation to delete the copy and import the
+  shared thing, and it gets deleted when the copy does (that's how `checkProviders`,
+  `checkRewriteSystems` and `checkLocalSettings` went away in 2.54.0 — mobile now *derives* providers from
+  `targets/shared/`, and **you can't drift from yourself**). **Surface parity** (`checkSurfaces`) is
+  permanent: it asserts each focus surface — Header / Generate / Gallery / Single / Manage — carries a
+  marker for every web feature, which code-sharing does NOT guarantee. Wired into `npm test`.
+  See [`../plans/de-duplication.md`](../plans/de-duplication.md).
 - **Component/behavior** — `jest-expo` + React Native Testing Library mount the REAL screens (the Android
   code path) with native modules mocked (`targets/mobile/jest.setup.js`) and assert render + wiring. Run
   `npm --prefix targets/mobile test` (root `test:mobile`, in `npm test`). Pure helpers (`lib/single.js`)
   also have root-vitest unit tests under `tests/mobile/`.
+  - **Interactions MUST be pressed, not just rendered (standing rule).** Marker/surface-parity checks and
+    render-only assertions cannot catch a **dead control** — a prop the parent passes and the child never
+    destructures renders perfectly and does nothing. That is exactly how the Generate screen shipped with
+    untappable image thumbnails (`onOpenImage` ignored). For every interactive control: `fireEvent.press`
+    it and assert the handler fired **with the right payload**, and in the parent's test capture the mocked
+    child's props and assert the callback is a function. A regression test must be proven by
+    re-introducing the bug and seeing it FAIL. See [`../reference/fix-patterns.md`](../reference/fix-patterns.md).
 - **Visual/UX parity** — `expo export --platform web` → Playwright screenshot at 390px vs a web reference.
+- **On-device (Detox + a real Android runtime)** — `targets/mobile/e2e/`, driven by `.detoxrc.js`
+  (`npm run test:mobile:device:build` once, then `npm run test:mobile:device`; CI job `android-device`).
+  This layer exists for the one thing **no proxy can answer**: the app's 1000-prompt promise is a claim
+  about a phone, and the react-native-web export runs FlashList's *web* renderer, which doesn't recycle
+  like the native one. The suite rolls the supported load for real and reads the **platform's own frame
+  accounting** (`adb shell dumpsys gfxinfo` / `meminfo`) — not a stopwatch in the test. It asserts
+  **scaling against a same-session baseline** (20 prompts vs 1000: 50× the rows must not mean 50× the
+  memory or a collapsed frame rate), which is exactly the shape a de-virtualized list breaks and which
+  emulator noise cannot fake. The native project is generated by Expo CNG (`prebuild`) and never
+  committed, so there is no hand-edited native file to rot.
 
 ## Open follow-ups
-- Wire image generation (reuse `targets/web/shared/` provider adapters + expo-secure-store keys) → Gallery.
+- **FULL-parity campaign** (mandatory, gate-enforced) — see [`../plans/mobile-parity.md`](../plans/mobile-parity.md):
+  port the complete web Manage to RN (Blocks root + DPL/block editor + refine/AI + list editor
+  Entries/Raw/Sort/Dedupe/AI-Expand + folder editor + override/restore), add responsive **tablet** layouts
+  (two-pane master/detail, no size-based feature loss), and add Manage + size assertions to the parity gate.
+- Wire image generation (reuse `targets/shared/` provider adapters + expo-secure-store keys) → Gallery.
 - Wire the Manage user overlay into runtime generation (metroLoader runtime overlay).
 - Load the real brand fonts (Maven Pro / Space Grotesk); light/dark theme following the system.
 - Make `engine/` its own workspace package to tidy cross-target imports.

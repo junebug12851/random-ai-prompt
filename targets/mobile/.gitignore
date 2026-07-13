@@ -48,3 +48,9 @@ engine/
 dist-web/
 *.log
 *.pid
+
+# Detox (on-device e2e) run artifacts — screenshots, logs, video of each run
+artifacts/
+
+# jest coverage (mobile)
+coverage/

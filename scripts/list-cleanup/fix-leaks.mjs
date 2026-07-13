@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Relocate NSFW terms that leaked into SFW lists into gated adult counterparts,
  * and drop extreme terms. False positives (legit words whose SFW sense dominates)
  * are KEPT. Reviewed line-by-line; KEEP set encodes those decisions.

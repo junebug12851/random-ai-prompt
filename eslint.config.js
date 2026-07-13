@@ -66,6 +66,40 @@ export default [
     },
   },
 
+  // The cross-target shared layer (`targets/shared/**`) — provider adapters + transport. This code is
+  // ISOMORPHIC: it runs in the browser (web SPA, BYOK direct calls), under Node (the web backend + the
+  // CLI), and in React Native (the mobile app). So it needs BOTH global sets — e.g. `FileReader` /
+  // `fetch` (browser) alongside Node's. It used to live under `targets/web/**`, which the root config
+  // ignores (the web package lints itself), so it inherited browser globals for free; now that it's a
+  // top-level target it's linted here and must declare them.
+  {
+    files: ["targets/shared/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
+
+  // Playwright specs for the MOBILE target. They run in Node, but `page.evaluate()` bodies execute IN
+  // THE BROWSER, so they legitimately reference `document` / `window`. Both global sets apply.
+  // (The web specs under tests/e2e/ declare their browser globals per-file with `/* global … */`, so
+  // they're deliberately not included here — adding them would double-declare and error.)
+  {
+    files: ["tests/e2e-mobile/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
+
   // Browser scripts served to the page. These are classic multi-<script> files
   // that intentionally share globals (jQuery, lodash, and helpers defined in
   // sibling files), so the module-oriented "undefined/redeclare" rules don't

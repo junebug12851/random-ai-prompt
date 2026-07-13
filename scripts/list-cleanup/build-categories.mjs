@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Distribute hand-classified proper nouns (cat/batch-*.json) into category lists.
  * SAFETY: only words that actually exist in keyword.txt are moved; anything not
  * listed in a batch stays in keyword.txt (never deleted). Reports coverage and

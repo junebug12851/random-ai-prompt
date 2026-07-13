@@ -284,7 +284,7 @@ export function setMarker(root, dir, marker, on) {
 // The stable branch the "restore default" action pulls original files from. `main` is the current
 // stable release, which carries the flat repo-root layout (`data/` at the top level).
 const STABLE_BRANCH = "main";
-const REPO = "junebug12851/random-ai-prompt";
+const REPO = "1fairyfox/random-ai-prompt";
 const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/${STABLE_BRANCH}/data`;
 
 let manifestCache = null;

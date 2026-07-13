@@ -1,10 +1,21 @@
 name: CI
 
-# Test-on-every-push. Mirrors the local verification gate (`npm test` = lint + format + smoke +
-# the Vitest suites) plus the gui build and the Playwright E2E / accessibility specs, so green
-# here means the same thing as green locally. Visual-regression is skipped on CI on purpose: its
-# baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
-# playwright.config.js. See notes/plans/testing.md.
+# CI IS A RELEASE GATE, NOT A COMMIT TAX (owner, 2026-07-12: *"why don't we CI gate only on release to
+# main"*).
+#
+# It does NOT run on pushes to `dev`. It runs where a mistake actually costs something:
+#   • the PULL REQUEST into `main` — the release itself, and the thing branch protection blocks on;
+#   • pushes to `main` (the merge commit that becomes the tagged release);
+#   • `workflow_dispatch`, whenever you want the full picture on demand.
+#
+# What guards `dev`, then? The SAME gate, locally: `npm test` (docs · registry · lint · format · smoke ·
+# mobile parity · unit · web · mobile) — deliberately identical to the `check` job, because a local gate
+# that is a *subset* of the CI gate is a lie about what green means (that mistake cost this project a red
+# `dev` for an hour on 2026-07-12).
+#
+# The trade this accepts, stated honestly: Linux-only and fresh-install failures now surface at the
+# release PR instead of at the commit that caused them. That is the owner's call, and the release PR is a
+# hard stop — nothing reaches `main` without the full suite, on-device Android job included, going green.
 #
 # The project lives at the repo root; the SPA is the targets/web/ subpackage (built/tested via
 # `npm --prefix targets/web`).
@@ -17,8 +28,9 @@ name: CI
 
 on:
   push:
-    branches: [dev, main]
+    branches: [main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 # Least privilege: read-only by default. No job here needs write (Codecov uploads use a token,
@@ -56,6 +68,12 @@ jobs:
       - name: Import smoke test (full ES-module graph + all dynamic prompts)
         run: npm run smoke
 
+      # The generated static indexes (provider registry + theme presets) must be in sync with the
+      # folders they describe — a provider/theme added without regenerating would silently vanish
+      # from every target.
+      - name: Static-index freshness (provider registry + themes)
+        run: npm run check:registry
+
       - name: Unit / integration / snapshot / regression tests + coverage gate (Vitest, Node)
         run: npm run test:coverage
 
@@ -66,7 +84,7 @@ jobs:
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: junebug12851/random-ai-prompt
+          slug: 1fairyfox/random-ai-prompt
           files: coverage/node/lcov.info
           flags: node
           fail_ci_if_error: false
@@ -99,9 +117,56 @@ jobs:
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: junebug12851/random-ai-prompt
+          slug: 1fairyfox/random-ai-prompt
           files: targets/web/coverage/lcov.info
           flags: gui
+          fail_ci_if_error: false
+
+  # The MOBILE target. This job did not exist — so the whole mobile app (its component tests, the
+  # web⇄mobile parity gate, the capability-gating and no-caps checks, the engine/metro parity) was
+  # never enforced by CI. A gate you don't run is not a gate.
+  mobile:
+    name: Mobile (parity gates + component tests + coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (root)
+        run: npm install --no-audit --no-fund
+
+      - name: Install dependencies (mobile)
+        run: npm --prefix targets/mobile install --no-audit --no-fund
+
+      # Engine/data parity: the metroLoader (mobile's content loader) must produce byte-identical
+      # output to the nodeLoader — same blocks, same lists, same seeded generation.
+      - name: Engine parity (metroLoader == nodeLoader)
+        run: npm run metro:parity
+
+      # Surface parity (mobile exposes every web feature), capability gating (provider-dependent
+      # controls LOCK, never error on press), and the no-caps rule (documented capacities are a
+      # promise, not a limit).
+      - name: Mobile ⇄ web parity, gating + no-caps gates
+        run: npm run mobile:parity
+
+      - name: Component / interaction tests + coverage gate (jest-expo)
+        run: npm run test:mobile:coverage
+
+      # Non-blocking: publish mobile coverage to Codecov under its own flag.
+      - name: Upload coverage to Codecov (mobile)
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: 1fairyfox/random-ai-prompt
+          files: targets/mobile/coverage/lcov.info
+          flags: mobile
           fail_ci_if_error: false
 
   e2e:
@@ -128,6 +193,122 @@ jobs:
 
       - name: E2E, accessibility & visual regression
         run: npm run test:e2e
+
+      # The MOBILE app's a11y + visual + perf suite, driven through its react-native-web export
+      # (playwright.mobile.config.js). This is the only place a screen-reader-level defect can be
+      # caught: RN's accessibility props only become ARIA once react-native-web renders them, so
+      # jest-expo cannot see them. 60 axe tests across 5 device sizes x both colour schemes.
+      - name: Install dependencies (mobile)
+        run: npm --prefix targets/mobile install --no-audit --no-fund
+
+      # a11y + VISUAL + perf. Visual used to be skipped here because the pixel baselines are OS-specific
+      # (Playwright names them `-win32` / `-linux`) and only Windows ones existed — so a gate the whole
+      # team depends on ran on exactly one machine. The `visual-baselines.yml` workflow now regenerates
+      # the mobile set on Linux too (both are committed, same convention as the web suite), so the full
+      # suite runs here.
+      - name: Mobile a11y, visual & perf (react-native-web export)
+        run: npm run test:e2e:mobile
+
+  # The app's headline promise — 1000 prompts in one roll with no performance loss — is a claim about a
+  # PHONE, and until now nothing verified it on one. The react-native-web proxy can't: it runs
+  # FlashList's web renderer, which doesn't recycle like the native one (the measurement is in
+  # tests/e2e-mobile/perf.spec.js). So the promise is checked here, on a real Android runtime, against
+  # the frame stats the device itself reports (`dumpsys gfxinfo`). See targets/mobile/e2e/.
+  #
+  # KVM is enabled on the Ubuntu runner (the emulator is unusably slow without it). The native
+  # project is generated by Expo CNG (`prebuild`) — nothing native is committed, so this can't rot.
+  android-device:
+    name: On-device max load (Detox + Android emulator)
+    runs-on: ubuntu-latest
+    # The expensive one: compiles the Android app from source, boots an emulator, drives three prompt
+    # rolls (20 → 200 → 1000) and reads the platform's own frame/memory accounting. 30–45 minutes.
+    # It needs no `if:` any more — the whole workflow is release-gated now.
+    #
+    # A hang must FAIL, not idle: without this a stuck roll sat in a runner for over an hour, burning
+    # minutes and telling us nothing.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Set up JDK 21 (AGP/Gradle for RN 0.81)
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # targets/mobile/.npmrc sets legacy-peer-deps (Detox's Expo config plugin still peers on expo 53).
+      - name: Install dependencies (root + mobile)
+        run: |
+          npm install --no-audit --no-fund
+          npm --prefix targets/mobile install --no-audit --no-fund
+
+      - name: Enable KVM (hardware acceleration for the emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # Generate the native Android project from app.json (CNG), then build the RELEASE app + the
+      # androidTest APK Detox drives it with. Release, not debug: a debug build's numbers are fiction.
+      - name: Generate the native project (Expo prebuild)
+        run: npm --prefix targets/mobile run prebuild:android
+
+      - name: Build the app + androidTest APKs (release)
+        env:
+          RN_ABIS: x86_64
+        run: npm --prefix targets/mobile run e2e:build
+
+      - name: Run the on-device suite (max load, real frame stats)
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disable-animations: true
+          # WAKE the screen, unlock, and keep it awake — then run.
+          #
+          # Espresso will not touch a view unless the app's window has focus, and a headless emulator
+          # whose screen is off grants focus to nobody: every test then dies in 3 ms with "Waited for the
+          # root of the view hierarchy to have window focus…" and `has-window-focus=false`, which reads
+          # exactly like an app crash and is not one. (Dismissing the keyguard alone was not enough — the
+          # screen has to be ON first, which is why `input keyevent 224` (WAKEUP) leads.)
+          #
+          # The focus dump is printed on purpose: if this ever fails again, the log names who holds focus
+          # instead of leaving the next person to decode a root-view dump.
+          script: |
+            adb shell input keyevent 224 || true
+            adb shell wm dismiss-keyguard || true
+            adb shell input keyevent 82 || true
+            adb shell settings put system screen_off_timeout 2147483647 || true
+            adb shell settings put secure lockscreen.disabled 1 || true
+            # THE one that mattered. A failure screenshot showed our app rendered perfectly with a
+            # "Pixel Launcher isn't responding" ANR dialog on top of it — the EMULATOR's launcher
+            # choking, not our app. That dialog holds window focus, so Espresso refuses to touch
+            # anything and all three tests die in 3 ms behind a root dump that reads like a crash.
+            # `hide_error_dialogs` is Android's own switch for exactly this, and it is why CI images
+            # ship it.
+            adb shell settings put global hide_error_dialogs 1 || true
+            echo "--- window focus before the run ---"
+            adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp|mAwake|mScreenOn" || true
+            DETOX_ADB_NAME=emulator-5554 npm --prefix targets/mobile run e2e:attached
+
+      - name: Upload Detox artifacts (logs, screenshots on failure)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: detox-artifacts
+          path: targets/mobile/artifacts/
+          if-no-files-found: ignore
 
   cross-browser:
     name: Cross-browser E2E (Firefox + WebKit + mobile)

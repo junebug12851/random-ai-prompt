@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0. Build the human change report from logs. */
+/* Copyright 2026 1fairyfox — Apache-2.0. Build the human change report from logs. */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

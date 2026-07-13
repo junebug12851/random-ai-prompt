@@ -38,15 +38,57 @@ import {
   dpGroupDirs,
 } from "./metroCatalogData.js";
 
-// Full list-name set (logical list + group names, plus implied-group dirs) — same composition the
-// browser loader uses for `_allNames`.
-const _allNames = allListNames([
-  ...logicalListNames([...Object.keys(listLines), ...Object.keys(groupLines)]),
-  ..._groupListDirs,
-]);
-
-const dplModCache = {};
+let dplModCache = {};
 const _listLinesCache = new Map(); // `${name}|${includeAdult}` -> string[]|null
+
+// ---- Runtime user overlay (mobile Manage) ----------------------------------------------------------
+// The mobile app's on-device user content (custom lists + block generators, edited in Manage) is injected
+// here at RUNTIME via setMetroOverlay(); the loader consults it FIRST (user-wins) — the analog of the
+// web runtime overlay (browserUserCatalog) and the node loader's [user, data] scan. It defaults to EMPTY,
+// so the built-in catalog — and therefore metro-parity-check, which never populates it — is unaffected.
+// NOTE: an overlay block's `.js` sidecar body can't execute on device (Metro has no runtime require/eval),
+// so a user block that calls `insert js:` yields "" for that call — its DPL still runs. Same limitation
+// the web notes flag for edited JS. The `.dpl` and lists apply live.
+const overlay = {
+  lists: Object.create(null), // logical list name -> raw text
+  listMeta: Object.create(null), // list name -> meta
+  blocks: Object.create(null), // block key -> raw .dpl text
+  blockMeta: Object.create(null), // block key -> meta
+};
+let _overlayVersion = 0;
+let _namesMemo = null;
+let _namesMemoVersion = -1;
+
+/**
+ * Replace the runtime user overlay and invalidate the loader caches. Call with empty/omitted maps to
+ * clear it (restoring the pure built-in catalog).
+ * @param {{lists?:object, listMeta?:object, blocks?:object, blockMeta?:object}} [next]
+ */
+export function setMetroOverlay(next = {}) {
+  overlay.lists = next.lists || Object.create(null);
+  overlay.listMeta = next.listMeta || Object.create(null);
+  overlay.blocks = next.blocks || Object.create(null);
+  overlay.blockMeta = next.blockMeta || Object.create(null);
+  _overlayVersion++;
+  dplModCache = {};
+  _listLinesCache.clear();
+}
+
+// Full list-name set (built-in + overlay), memoized until the overlay changes. Built-in-only composition
+// matches the browser loader's `_allNames`; overlay list names are folded in user-wins.
+function getAllNames() {
+  if (_namesMemo && _namesMemoVersion === _overlayVersion) return _namesMemo;
+  _namesMemo = allListNames([
+    ...logicalListNames([
+      ...Object.keys(listLines),
+      ...Object.keys(groupLines),
+      ...Object.keys(overlay.lists),
+    ]),
+    ..._groupListDirs,
+  ]);
+  _namesMemoVersion = _overlayVersion;
+  return _namesMemo;
+}
 
 // Bridge for a compiled `.dpl`: resolve a JS sidecar (`script:` / `{js:}` / `insert js:`) from the
 // static module map by joining the sidecar's relative path onto the `.dpl`'s key. Mirrors browserBridge;
@@ -87,14 +129,15 @@ function metroBridge(dplKey) {
  */
 export const metroLoader = {
   readListLines(name, includeAdult = false) {
-    const cacheKey = `${name}|${includeAdult ? 1 : 0}`;
+    const cacheKey = `${name}|${includeAdult ? 1 : 0}|${_overlayVersion}`;
     if (_listLinesCache.has(cacheKey)) return _listLinesCache.get(cacheKey);
-    const canonical = resolveName(name, _allNames);
+    const names = getAllNames();
+    const canonical = resolveName(name, names);
     const lines = resolveListLines(
       canonical,
       {
-        names: _allNames,
-        readListFile: (n) => listLines[n] ?? null,
+        names,
+        readListFile: (n) => overlay.lists[n] ?? listLines[n] ?? null, // user-wins
         readGroupFile: (n) => groupLines[n] ?? null,
         groupListDirs: _groupListDirs,
       },
@@ -104,7 +147,7 @@ export const metroLoader = {
     return lines;
   },
   listNames() {
-    return _allNames;
+    return getAllNames();
   },
   forcedPrefixDirs() {
     return forcedDirs;
@@ -113,22 +156,28 @@ export const metroLoader = {
     return _groupListDirs;
   },
   readListMeta(name) {
-    return listMetaMap[name] ?? null;
+    return overlay.listMeta[name] ?? listMetaMap[name] ?? null;
   },
   loadBlock(key) {
     if (dplModCache[key]) return dplModCache[key];
-    if (dpDplText[key]) {
-      const mod = compileDpl(dpDplText[key], metroBridge(key));
+    // Overlay block source wins over the built-in of the same key.
+    const src = overlay.blocks[key] ?? dpDplText[key];
+    if (src) {
+      const mod = compileDpl(src, metroBridge(key));
       dplModCache[key] = mod;
       return mod;
     }
     return dpJsModules[key] ?? null;
   },
   blockNames() {
-    return [...blockKeys].sort(compareNames);
+    return [...new Set([...blockKeys, ...Object.keys(overlay.blocks)])].sort(compareNames);
   },
   readBlockMeta(name) {
-    return dpMetaMap[name] ?? null;
+    return overlay.blockMeta[name] ?? dpMetaMap[name] ?? null;
+  },
+  /** The raw `.dpl` source for a key (overlay-first) — used by Manage to view/override built-ins. */
+  readBlockSource(key) {
+    return overlay.blocks[key] ?? dpDplText[key] ?? null;
   },
   blockForcedPrefixDirs() {
     return dpForcedDirsAll;

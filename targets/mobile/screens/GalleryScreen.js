@@ -10,6 +10,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useTheme } from "../lib/theme.js";
+import { useResponsive } from "../lib/responsive.js";
 import { listImages, deleteImages, saveImageSrc } from "../lib/storage.js";
 import { run, baseSettings } from "../lib/engine.js";
 import { getImageProvider, providerDefaults } from "../lib/imageProviders.js";
@@ -23,8 +24,20 @@ import { SparkleIcon } from "../lib/icons.js";
 const Cell = memo(function Cell({ item, size, pad, selectMode, selected, onPress, onLong }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
+  // A gallery cell is a bare <Image> inside a Touchable — with no accessible NAME, a screen-reader
+  // user hears "button, button, button" and cannot tell one image from another, or select the right
+  // one. Name it with the prompt that made it (that IS the image's identity here), and announce the
+  // selected state so multi-select is usable without sight. It also makes the cell addressable in
+  // tests, which is why nothing had ever pressed one.
   return (
     <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={
+        selectMode
+          ? `${selected ? "Deselect" : "Select"} image: ${item.prompt || item.name}`
+          : `Open image: ${item.prompt || item.name}`
+      }
+      accessibilityState={{ selected: !!selected }}
       onPress={() => onPress(item)}
       onLongPress={() => onLong(item)}
       activeOpacity={0.85}
@@ -60,6 +73,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const { T, provider, providerSettings, backendUrl } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   const { width } = useWindowDimensions();
+  const { isTabletOrWider } = useResponsive();
   const [items, setItems] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [loadErr, setLoadErr] = useState("");
@@ -77,8 +91,12 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
   const canImages = !!imgProv && !imgProv.copy;
 
   const pad = 12;
-  const w = Math.min(width, 900);
-  const cols = Math.max(2, Math.floor(w / 180));
+  // Phones keep the tuned ≤900px sizing; tablets/wide use the FULL width with a larger cell target so
+  // the grid fills the screen (web parity — the gallery spans the full content width) instead of leaving
+  // dead space past 900px. Phone path is byte-identical to before (no phone regression).
+  const w = isTabletOrWider ? width : Math.min(width, 900);
+  const target = isTabletOrWider ? 220 : 180;
+  const cols = Math.max(2, Math.floor(w / target));
   const cell = Math.floor((w - pad) / cols) - pad;
 
   const reload = useCallback(() => {
@@ -214,7 +232,7 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
           autoCapitalize="none"
           autoCorrect={false}
         />
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
           style={[styles.composerBtn, (composeBusy || !canImages) && styles.composerBtnOff]}
           onPress={generateHere}
           accessibilityLabel="Generate here"
@@ -256,11 +274,11 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
           autoCorrect={false}
         />
         {!selectMode && items.length > 0 && (
-          <TouchableOpacity style={styles.headBtn} onPress={() => setSelectMode(true)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.headBtn} onPress={() => setSelectMode(true)}>
             <Text style={styles.headBtnText}>Select</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.headBtn} onPress={reload}>
+        <TouchableOpacity accessibilityRole="button" style={styles.headBtn} onPress={reload}>
           <Text style={styles.headBtnText}>Refresh</Text>
         </TouchableOpacity>
       </View>
@@ -271,24 +289,24 @@ export default function GalleryScreen({ onOpen, refreshKey, onGenerated, searchT
             {selected.size === 0 ? "None selected" : `${selected.size} selected`}
           </Text>
           <View style={{ flex: 1 }} />
-          <TouchableOpacity onPress={selectAll} disabled={filtered.length === 0 || allSelected}>
+          <TouchableOpacity accessibilityRole="button" onPress={selectAll} disabled={filtered.length === 0 || allSelected}>
             <Text
               style={[styles.selLink, (filtered.length === 0 || allSelected) && styles.selDisabled]}
             >
               Select all
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={clearSel} disabled={selected.size === 0}>
+          <TouchableOpacity accessibilityRole="button" onPress={clearSel} disabled={selected.size === 0}>
             <Text style={[styles.selLink, selected.size === 0 && styles.selDisabled]}>Clear</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button"
             style={[styles.delBtn, selected.size === 0 && styles.selDisabled]}
             onPress={deleteSelected}
             disabled={selected.size === 0}
           >
             <Text style={styles.delBtnText}>Delete {selected.size || ""}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={exitSelect}>
+          <TouchableOpacity accessibilityRole="button" onPress={exitSelect}>
             <Text style={styles.selLink}>Done</Text>
           </TouchableOpacity>
         </View>

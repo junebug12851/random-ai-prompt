@@ -6,7 +6,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/junebug12851/random-ai-prompt/releases/latest/download/latest.json"
+        "https://github.com/1fairyfox/random-ai-prompt/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJBMEQzMDZDMURCNTQyOQpSV1FwVk52QkJ0T2dBaDVyRk1pdjhkcGJZS3BkcExPRW44U2dLTGtVTStjZnpIbzZlbzE4SG0wMQo="
     }

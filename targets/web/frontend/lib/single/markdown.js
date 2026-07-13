@@ -21,7 +21,7 @@ export function toMarkdown(promptFinal, negFinal, rows) {
     lines.push("");
   }
   lines.push(
-    "Generated using [Random AI Prompt](https://github.com/junebug12851/random-ai-prompt)",
+    "Generated using [Random AI Prompt](https://github.com/1fairyfox/random-ai-prompt)",
   );
   return lines.join("\n");
 }

@@ -5,9 +5,9 @@
 import { describe, it, expect } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../msw/server.js";
-import { callProxy } from "../../shared/_shared/transport/hostedProxy.js";
-import { postJson, getJson, normalizeBase } from "../../shared/_shared/transport/localDirect.js";
-import { submitPoll } from "../../shared/_shared/transport/submitPoll.js";
+import { callProxy } from "../../../shared/_shared/transport/hostedProxy.js";
+import { postJson, getJson, normalizeBase } from "../../../shared/_shared/transport/localDirect.js";
+import { submitPoll } from "../../../shared/_shared/transport/submitPoll.js";
 
 describe("hostedProxy.callProxy", () => {
   it("posts the job to /api/generate and returns images", async () => {

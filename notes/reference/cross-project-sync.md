@@ -24,7 +24,7 @@ one side automatically triggers a pull on the other.
 > **This project never writes to another repo.** The sync is read-only on the far side. When a
 > hub-side change is needed (for example correcting this project's row in `hub/registry.yml` or
 > `_data/projects.yml`), that is **reported to the owner to apply in the hub repo** — this repo
-> never edits or pushes `junebug12851.github.io`.
+> never edits or pushes `1fairyfox.github.io`.
 
 ## The two flows
 
@@ -37,7 +37,7 @@ produces no commit):
 ```sh
 # first time
 git -C assets/references clone --depth 1 --branch dev \
-    https://github.com/junebug12851/junebug12851.github.io fairyfox.io
+    https://github.com/1fairyfox/1fairyfox.github.io fairyfox.io
 # refresh
 git -C assets/references/fairyfox.io pull --depth 1 --ff-only origin dev
 ```

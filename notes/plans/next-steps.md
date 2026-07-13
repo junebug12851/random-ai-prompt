@@ -2,6 +2,45 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
+0000. **⚠️ The engine costs ~23–30 ms/prompt under Hermes, vs 0.16 ms/prompt in Node — a ~150× gap.**
+   Measured on device (2.60.0): 1000 prompts = **engine 23–31 s**, render 272 ms. The render is provably
+   fine; the *engine* is the whole cost on a phone.
+
+   Do not write this off as "emulators are slow" (the owner explicitly pushed back on exactly that, and
+   was right to). A software-emulated CPU plus a JIT-less VM explains *some* of it — but 150× is more
+   than those two should buy, and the same code is 0.16 ms/prompt in Node. Worth measuring properly:
+   1. Get the honest device number first — run the suite on a **real phone** (`npm run
+      test:mobile:device` with `DETOX_ADB_NAME` pointed at it). That separates "emulator" from "Hermes".
+   2. If it's still slow: profile the DPL path under Hermes (`console.time` around the stages, or a
+      Hermes sampling profile). Prime suspects are regex-heavy stages and per-prompt allocation
+      (Hermes' GC is far less forgiving than V8's).
+   3. Fix in the engine — it's shared, so every target gets the win.
+
+   Nothing here is a promise broken (the app still produces all 1000 and the list stays smooth), but a
+   user rolling 1000 prompts on a phone waits ~25 s for the engine, and that is worth knowing.
+
+000. **🔴 SECURITY — CodeQL's open alerts on the local backend (1 critical, several high).** Surfaced by
+   the 2.60.0 release PR (CodeQL calls them "new" only because `main` was far behind `dev`; they are
+   **pre-existing**, not from that release). They are real and they are ours:
+   - **critical** `js/command-line-injection` — `targets/web/backend/apiHandler.js:578` ("this command
+     line depends on a user-provided value" — the ImageMagick convert path).
+   - **high** `js/remote-property-injection` ×2 + `js/insecure-temporary-file` + `js/file-system-race` ×3
+     — `targets/web/backend/manageFs.js`, `apiHandler.js`.
+   - medium `js/file-access-to-http` ×2 in `targets/cli/src/lib/`.
+
+   Mitigating context, not an excuse: the backend is **local-only** (the user's own machine; the hosted
+   build has no backend). But "only local" is exactly the argument that ages badly the day someone runs
+   it on a LAN. Fix the command-line injection first (pass args as an array, never build a shell string
+   from user input), then the fs races (open-then-use, not check-then-use).
+
+
+0. **De-duplication campaign — push shared behavior down, keep targets thin.** See
+   [`de-duplication.md`](de-duplication.md). Phases A/B (one provider registry for all three runtimes +
+   an injectable transport + provider metadata on the manifests) are **done** (2.52.0–2.53.0). **Next: C** —
+   mobile swaps its 892-line `imageProviders.js` for the shared registry (blocked on making mobile's
+   provider-settings sheet load its schema **async**, like the web's gear). Then D (engine-domain logic
+   still hand-ported in mobile: `dplInserts`/`listOps`/`blockCatalog`/rewrite systems) and E (retire
+   the drift checks the duplication made necessary).
 00. **Old `/generate` carry-over — Sweep 1 (prune).** Full disposition of every legacy prompt-page control
    in [`generate-page-triage.md`](generate-page-triage.md). Sweep 1 = drop the DPL-replaced randomization
    knobs (chaos, keyword counts, auto-fx/artists, anime words), all animation settings, and the salt

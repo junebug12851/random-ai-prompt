@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Apply the parallel-audit findings: fix typos in place, remove garbage/fragments,
  * and move misfit entries to the correct list. Relocations preserve content
  * (only true typos/garbage are dropped). All touched files end de-duped + sorted.

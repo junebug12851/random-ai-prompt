@@ -2,9 +2,9 @@
 name = "random-ai-prompt"
 version = "0.0.0"
 description = "Random AI Prompt — desktop edition"
-authors = ["junebug12851"]
+authors = ["1fairyfox"]
 license = "Apache-2.0"
-repository = "https://github.com/junebug12851/random-ai-prompt"
+repository = "https://github.com/1fairyfox/random-ai-prompt"
 edition = "2021"
 rust-version = "1.77.2"
 

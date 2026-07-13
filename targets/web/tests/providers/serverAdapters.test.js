@@ -6,11 +6,11 @@
 import { describe, it, expect } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../msw/server.js";
-import openaiServer from "../../shared/openai/code/server.js";
-import replicateServer from "../../shared/replicate/code/server.js";
-import stabilityServer from "../../shared/stability/code/server.js";
-import falServer from "../../shared/fal/code/server.js";
-import geminiServer from "../../shared/gemini/code/server.js";
+import openaiServer from "../../../shared/openai/code/server.js";
+import replicateServer from "../../../shared/replicate/code/server.js";
+import stabilityServer from "../../../shared/stability/code/server.js";
+import falServer from "../../../shared/fal/code/server.js";
+import geminiServer from "../../../shared/gemini/code/server.js";
 
 describe("openai server adapter", () => {
   it("sends model/prompt/size/n with a Bearer key and maps b64 + url images", async () => {

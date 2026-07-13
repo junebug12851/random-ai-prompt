@@ -49,7 +49,9 @@ describe("OverflowMenu (mounted)", () => {
     expect(await findByText("‹ Image provider")).toBeTruthy();
     expect(getByText("Local")).toBeTruthy();
     expect(getByText("Online")).toBeTruthy();
-    fireEvent.press(getByText("ComfyUI (local server)"));
+    // The label comes from the SHARED provider manifest now (same string the web shows), not a
+    // mobile-only copy that suffixed "(local server)" — the picker already groups Local/Online.
+    fireEvent.press(getByText("ComfyUI"));
     expect(mockSet.provider).toHaveBeenCalledWith("comfyui");
   });
 

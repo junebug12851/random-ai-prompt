@@ -1,10 +1,13 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "./lib/theme.js";
 import { MoreIcon } from "./lib/icons.js";
+import { refreshOverlay } from "./lib/overlay.js";
+import { initProviderSchemas, providerSchemasReady } from "./lib/imageProviders.js";
 import OverflowMenu from "./components/OverflowMenu.js";
+import ContentColumn from "./components/ContentColumn.js";
 import GenerateScreen from "./screens/GenerateScreen.js";
 import GalleryScreen from "./screens/GalleryScreen.js";
 import SingleScreen from "./screens/SingleScreen.js";
@@ -41,6 +44,23 @@ function Root() {
   const [gallerySearch, setGallerySearch] = useState({ term: "", seq: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Install the on-device Manage overlay (custom lists + blocks) into the engine at startup so prompts
+  // draw from the user's own content. ManageScreen refreshes it again after each edit.
+  useEffect(() => {
+    refreshOverlay().catch(() => {});
+  }, []);
+
+  // Preload every provider's settings schema (from the SHARED registry) once at boot, so the
+  // provider gear/knobs can be read synchronously everywhere. The web code-splits its schemas
+  // lazily; on a phone the bundle already ships them, so there's nothing to defer. Flipping this
+  // state re-renders the mounted screens with their knobs filled in.
+  const [, setSchemasReady] = useState(providerSchemasReady());
+  useEffect(() => {
+    initProviderSchemas()
+      .then(() => setSchemasReady(true))
+      .catch(() => setSchemasReady(true)); // never leave the UI stuck on "no providers"
+  }, []);
+
   const openImage = useCallback((it) => {
     setImage(it);
     setView("single");
@@ -68,7 +88,7 @@ function Root() {
           {TABS.map((t) => {
             const on = view === t.id;
             return (
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 key={t.id}
                 style={[styles.tab, on && styles.tabOn]}
                 onPress={() => setView(t.id)}
@@ -82,14 +102,19 @@ function Root() {
           })}
         </View>
 
-        <TouchableOpacity style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)} accessibilityLabel="More options">
+        <TouchableOpacity accessibilityRole="button" style={styles.more} activeOpacity={0.7} onPress={() => setMenuOpen(true)} accessibilityLabel="More options">
           <MoreIcon size={20} color={T.fgSoft} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.body}>
+        {/* Reading/editing surfaces get the web's centered max-width column on tablet/wide (via
+            ContentColumn); the Gallery grid opts out and uses the full width itself. No feature changes
+            with size — only the column width. */}
         <View style={pane("generate")}>
-          <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
+          <ContentColumn>
+            <GenerateScreen onOpenImage={openImage} onGenerated={() => setGalleryKey((k) => k + 1)} />
+          </ContentColumn>
         </View>
         <View style={pane("gallery")}>
           <GalleryScreen
@@ -101,16 +126,20 @@ function Root() {
           />
         </View>
         <View style={pane("single")}>
-          <SingleScreen
-            image={image}
-            onBack={() => setView("gallery")}
-            onDeleted={afterDelete}
-            onUpscaled={() => setGalleryKey((k) => k + 1)}
-            onSearch={searchFromSingle}
-          />
+          <ContentColumn max={1100}>
+            <SingleScreen
+              image={image}
+              onBack={() => setView("gallery")}
+              onDeleted={afterDelete}
+              onUpscaled={() => setGalleryKey((k) => k + 1)}
+              onSearch={searchFromSingle}
+            />
+          </ContentColumn>
         </View>
         <View style={pane("manage")}>
-          <ManageScreen />
+          <ContentColumn>
+            <ManageScreen />
+          </ContentColumn>
         </View>
       </View>
 

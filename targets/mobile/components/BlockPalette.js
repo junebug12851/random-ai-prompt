@@ -89,11 +89,11 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.scrim}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
+        <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
         <View style={styles.sheet}>
           <View style={styles.head}>
             <Text style={styles.title}>Building blocks</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity accessibilityRole="button" onPress={onClose}>
               <Text style={styles.close}>✕</Text>
             </TouchableOpacity>
           </View>
@@ -117,7 +117,7 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
                   const on = active && active.title === b.title;
                   const count = b.items.filter((i) => !i.category).length;
                   return (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                       key={b.title}
                       style={[styles.group, on && styles.groupOn]}
                       onPress={() => {
@@ -174,7 +174,7 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
                   {activeItems.slice(0, 400).map((i, idx) =>
                     i.category ? (
                       i.token ? (
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                           key={`cat-${i.label}-${idx}`}
                           style={styles.groupPill}
                           onPress={() => onInsert(i.token)}
@@ -187,7 +187,7 @@ export default function BlockPalette({ visible, onClose, onInsert }) {
                         </View>
                       )
                     ) : (
-                      <TouchableOpacity
+                      <TouchableOpacity accessibilityRole="button"
                         key={i.token}
                         style={styles.chip}
                         onPress={() => onInsert(i.token)}
@@ -215,7 +215,7 @@ function SubTab({ label, count, on, onPress }) {
   const { T } = useTheme();
   const styles = useMemo(() => makeStyles(T), [T]);
   return (
-    <TouchableOpacity
+    <TouchableOpacity accessibilityRole="button"
       style={[styles.subTab, on && styles.subTabOn]}
       onPress={onPress}
       activeOpacity={0.8}

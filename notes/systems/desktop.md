@@ -37,7 +37,7 @@ Assembles `targets/web-shell/app/`:
 
 - `src/`, `data/` — the engine + content (copied from the repo root).
 - `targets/web/dist/` — the built **local** edition SPA (`VITE_ONLINE` unset).
-- `targets/web/backend/`, `targets/web/shared/`, and every top-level `targets/web/*.js` helper (e.g. `vite-api-helpers.js`,
+- `targets/web/backend/`, `targets/shared/`, and every top-level `targets/web/*.js` helper (e.g. `vite-api-helpers.js`,
   which `apiHandler.js` imports — this one is easy to miss).
 - `node_modules/` — the production dependency **closure** (`lodash` + `compromise` and its transitive
   deps `efrt`, `grad-school`, `suffix-thumb`), copied directly from the installed `node_modules` (no

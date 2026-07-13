@@ -1,15 +1,19 @@
 name: CodeQL
 
-# GitHub's native SAST — scans the JavaScript/TypeScript for security issues on every push/PR to
-# dev & main and weekly (to catch newly-published query updates). Findings land in the repo's
-# Security → Code scanning tab. Free for public repositories. No build step: JS/TS is interpreted,
-# so CodeQL analyzes the sources directly.
+# GitHub's native SAST — scans the JavaScript/TypeScript for security issues. Findings land in the
+# repo's Security → Code scanning tab. Free for public repositories. No build step: JS/TS is
+# interpreted, so CodeQL analyzes the sources directly.
+#
+# RELEASE-GATED, like the rest of CI (owner, 2026-07-12): the release PR into `main` and pushes to
+# `main` — plus a WEEKLY scan, which is kept deliberately. A security scan that only ever runs when you
+# happen to ship would let a newly-published query sit undiscovered for as long as you don't release;
+# the schedule costs nothing in the edit loop and closes that hole.
 
 on:
   push:
-    branches: [dev, main]
+    branches: [main]
   pull_request:
-    branches: [dev, main]
+    branches: [main]
   schedule:
     - cron: "0 6 * * 1" # Mondays 06:00 UTC
 

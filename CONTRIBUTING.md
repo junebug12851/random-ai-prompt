@@ -6,7 +6,7 @@ contributors, how to set up a local environment, and how to submit a change for 
 ## Ways to contribute
 
 - Report a bug or request a feature through the
-  [issue tracker](https://github.com/junebug12851/random-ai-prompt/issues).
+  [issue tracker](https://github.com/1fairyfox/random-ai-prompt/issues).
 - Extend the content — the scenes, subjects, styles, and word lists under `data/`.
 - Change the code — the engine under `src/` or the web application under `targets/web/`.
 - Improve the documentation — the README, the `notes/` developer guide, or this document.

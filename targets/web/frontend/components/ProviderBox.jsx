@@ -11,7 +11,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { Text, Num, Toggle, Select } from "./Field.jsx";
 import { getProvider } from "../lib/providers/index.js";
 import { useProviderSettings } from "../lib/useProvider.js";
-import { infoFor } from "../../shared/_shared/fieldInfo.js";
+import { infoFor } from "../../../shared/_shared/fieldInfo.js";
 
 const msgs = defineMessages({
   noSettings: {

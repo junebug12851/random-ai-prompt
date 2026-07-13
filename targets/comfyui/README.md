@@ -1,6 +1,6 @@
 # Random AI Prompt — ComfyUI nodes
 
-Bring the [Random AI Prompt](https://github.com/junebug12851/random-ai-prompt) engine into ComfyUI: the
+Bring the [Random AI Prompt](https://github.com/1fairyfox/random-ai-prompt) engine into ComfyUI: the
 DPL processor, blocks, lists, and presets, as **natural-language-first prompt sources** you wire into a
 `CLIP Text Encode`. No power-user syntax required — type plain English (with optional `{#block}` /
 `{list}` tokens) and get a richer prompt than you'd write by hand.

@@ -38,12 +38,12 @@ every caller `await`s — keep that in mind when adding a dialog to a previously
 ## The provider model
 
 Generation backends are modular — the same plugin pattern the blocks use. There are ~40
-**provider adapters** under `targets/web/shared/<id>/` (a shared transport in `providers/_shared/` plus one
+**provider adapters** under `targets/shared/<id>/` (a shared transport in `providers/_shared/` plus one
 folder per provider), registered through `targets/web/frontend/lib/providers/index.js`. Each exposes a small contract
 (`id`, `label`, whether it's `local`, whether it `needsKey`, and a `generate(...)`), and
 `availableProviders()` **filters out providers that can't run in the current build** — the local-only SD
 backends and any provider a browser can't call directly are hidden in the **online** build
-(`ONLINE` ← `VITE_ONLINE`). Add a backend by dropping a folder in `targets/web/shared/` and registering it.
+(`ONLINE` ← `VITE_ONLINE`). Add a backend by dropping a folder in `targets/shared/` and registering it.
 
 Calls are **BYOK and go straight from the browser** to the chosen provider with the user's key — there is
 **no server relay**. (The former serverless generate/rewrite proxy was retired; a provider a browser can't

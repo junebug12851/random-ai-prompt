@@ -152,6 +152,6 @@ fonts, `npm i` then re-copy `node_modules/@fontsource/<f>/files/<f>-latin-<wt>-n
 - Update `package.json`, run `npm install`, then **re-run the verification** in
   [`../plans/testing.md`](../plans/testing.md) (`node --check`, `npm run lint`, the import smoke test).
 - For a dep with a breaking major, read its migration notes and grep for its usage first. The code that
-  touches third-party APIs is the provider adapters (`targets/web/shared/**`) and the SPA libs; the engine
+  touches third-party APIs is the provider adapters (`targets/shared/**`) and the SPA libs; the engine
   itself only uses `lodash`.
 - Record the change here and in the changelog.

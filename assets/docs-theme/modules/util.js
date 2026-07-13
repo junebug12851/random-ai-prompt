@@ -7,7 +7,7 @@ export const HUB = "https://fairyfox.io";
 export const KEY = "random-ai-prompt";
 export const NAME = "Random AI Prompt";
 export const NODE = `${HUB}/projects/${KEY}/`;
-export const REPO = `https://github.com/junebug12851/${KEY}`;
+export const REPO = `https://github.com/1fairyfox/${KEY}`;
 
 /**
  * Create an element with attributes and optional inner HTML.

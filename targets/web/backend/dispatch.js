@@ -9,15 +9,15 @@
  * the Vite browser pipeline. Add a hosted provider → import its server adapter here.
  * @module gui/server/dispatch
  */
-import openaiServer from "../shared/openai/code/server.js";
-import replicateServer from "../shared/replicate/code/server.js";
-import falServer from "../shared/fal/code/server.js";
-import stabilityServer from "../shared/stability/code/server.js";
-import geminiServer from "../shared/gemini/code/server.js";
-import grokServer from "../shared/grok/code/server.js";
-import bflServer from "../shared/bfl/code/server.js";
-import ideogramServer from "../shared/ideogram/code/server.js";
-import leonardoServer from "../shared/leonardo/code/server.js";
+import openaiServer from "../../shared/openai/code/server.js";
+import replicateServer from "../../shared/replicate/code/server.js";
+import falServer from "../../shared/fal/code/server.js";
+import stabilityServer from "../../shared/stability/code/server.js";
+import geminiServer from "../../shared/gemini/code/server.js";
+import grokServer from "../../shared/grok/code/server.js";
+import bflServer from "../../shared/bfl/code/server.js";
+import ideogramServer from "../../shared/ideogram/code/server.js";
+import leonardoServer from "../../shared/leonardo/code/server.js";
 
 /**
  * Unwrap a module's adapter to the callable function. Netlify's function bundler can hand an ESM
@@ -59,18 +59,18 @@ export async function dispatch({ providerId, prompt, key, params }) {
   return adapter({ prompt, key, params });
 }
 
-import replicateUpscaleServer from "../shared/replicate/code/upscale-server.js";
-import deepaiUpscaleServer from "../shared/deepai/code/upscale-server.js";
-import picsartUpscaleServer from "../shared/picsart/code/upscale-server.js";
-import segmindUpscaleServer from "../shared/segmind/code/upscale-server.js";
-import comfyuiUpscaleServer from "../shared/comfyui/code/upscale-server.js";
-import veniceUpscaleServer from "../shared/venice/code/upscale-server.js";
-import clipdropUpscaleServer from "../shared/clipdrop/code/upscale-server.js";
-import wavespeedUpscaleServer from "../shared/wavespeed/code/upscale-server.js";
-import claidUpscaleServer from "../shared/claid/code/upscale-server.js";
-import deepimageUpscaleServer from "../shared/deepimage/code/upscale-server.js";
-import neuralloveUpscaleServer from "../shared/neurallove/code/upscale-server.js";
-import vanceaiUpscaleServer from "../shared/vanceai/code/upscale-server.js";
+import replicateUpscaleServer from "../../shared/replicate/code/upscale-server.js";
+import deepaiUpscaleServer from "../../shared/deepai/code/upscale-server.js";
+import picsartUpscaleServer from "../../shared/picsart/code/upscale-server.js";
+import segmindUpscaleServer from "../../shared/segmind/code/upscale-server.js";
+import comfyuiUpscaleServer from "../../shared/comfyui/code/upscale-server.js";
+import veniceUpscaleServer from "../../shared/venice/code/upscale-server.js";
+import clipdropUpscaleServer from "../../shared/clipdrop/code/upscale-server.js";
+import wavespeedUpscaleServer from "../../shared/wavespeed/code/upscale-server.js";
+import claidUpscaleServer from "../../shared/claid/code/upscale-server.js";
+import deepimageUpscaleServer from "../../shared/deepimage/code/upscale-server.js";
+import neuralloveUpscaleServer from "../../shared/neurallove/code/upscale-server.js";
+import vanceaiUpscaleServer from "../../shared/vanceai/code/upscale-server.js";
 
 /**
  * Server-side AI-upscale adapters (the proxy path) — for providers the browser can't / shouldn't call
@@ -107,12 +107,12 @@ export async function dispatchUpscale({ providerId, image, key, params }) {
   return adapter({ image, key, params });
 }
 
-import openaiRewrite from "../shared/openai/code/rewrite.js";
-import geminiRewrite from "../shared/gemini/code/rewrite.js";
-import grokRewrite from "../shared/grok/code/rewrite.js";
-import { systemFor } from "../shared/_shared/rewriteSystem.js";
-import { makeChatRewrite } from "../shared/_shared/openaiCompatRewrite.js";
-import { anthropicRewrite, cohereRewrite } from "../shared/_shared/bespokeRewrite.js";
+import openaiRewrite from "../../shared/openai/code/rewrite.js";
+import geminiRewrite from "../../shared/gemini/code/rewrite.js";
+import grokRewrite from "../../shared/grok/code/rewrite.js";
+import { systemFor } from "../../shared/_shared/rewriteSystem.js";
+import { makeChatRewrite } from "../../shared/_shared/openaiCompatRewrite.js";
+import { anthropicRewrite, cohereRewrite } from "../../shared/_shared/bespokeRewrite.js";
 
 /**
  * Auto-fix text rewriters. OpenAI/Gemini/Grok have bespoke browser-direct adapters; the OpenAI-

@@ -1,4 +1,4 @@
-/* Copyright 2026 junebug12851 — Apache-2.0.
+/* Copyright 2026 1fairyfox — Apache-2.0.
  * Spot-check helper: flag NSFW / offensive lines that leaked into lists that are
  * supposed to be clean (everything except the intentionally-adult danbooru/* and
  * keyword/keyword-adult). Also dumps a small sample of every file for eyeballing.
