@@ -29,21 +29,33 @@ of the CI gate is a lie about what green means — `format:check` now runs insid
   build** — do that before shipping desktop.
 - Live image/text generation against real provider keys / a running SD WebUI is still manual (not in CI).
 
-**The 1000-prompt promise HOLDS on a real device — and the app was never at fault.**
+**The 1000-prompt promise HOLDS on a real device — measured, not asserted.**
 
-The on-device gate's first runs looked like a P1 app defect (1000 prompts "never rendered"), and this
-file said so for a few hours. It was wrong, and the app's own instrumentation is what proved it:
+From the on-device gate (release APK, Android emulator, KVM):
+
+| Roll | engine | **render** | memory | jank |
+|---|---|---|---|---|
+| 20 | 1497 ms | 383 ms | 112 MB | 95.7% |
+| 200 | 5447 ms | **196 ms** | 122 MB | 92.7% |
+| 1000 | 23366 ms | **253 ms** | **110 MB** | 89.8% |
+
+**1000 prompts render in 253 ms with flat memory** — the list virtualizes exactly as promised, and the
+cost *per prompt* falls as N grows (94 → 28 → 24 ms). The jank is the emulator's software GPU: identical
+in all three rolls, which is why the gate judges each roll against the same device's own baseline instead
+of an absolute frame budget. (Engine time is Hermes on an emulator; Node does the same 1000 in 158 ms.)
+
+**The "defect" this gate first reported was my own test.** For a few hours this file said the app missed
+its headline promise. It didn't — and the app's own instrumentation said so all along:
 
 ```
 [rap-perf] roll 1000 prompts: 13044ms (engine only)
 [rap-perf] committed 1220 result rows      ← 34 ms later
 ```
 
-The engine produces all 1000 prompts (13.0 s on a software-rendered CI emulator, linear from 20 → 200 →
-1000) and React commits every row **34 ms after that**. The failing wait was mine: **results accumulate
-across rolls** (each batch is prepended, by design), so after a 20-prompt baseline the label reads
-`"220 generated"`, not `"200 generated"` — and the test sat through a ten-minute timeout waiting for a
-string that could never appear. The suite now clears the list before each roll.
+Results **accumulate across rolls** (each batch is prepended, by design), so after a 20-prompt baseline
+the label reads `"220 generated"`, not `"200 generated"` — and the test sat through a ten-minute timeout
+waiting for a string that could never appear. The suite now scrolls to the top, clears the list, and
+derives the expected label from observed state.
 
 Two things worth keeping from that hole:
 

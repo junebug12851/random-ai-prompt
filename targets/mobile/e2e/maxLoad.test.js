@@ -258,6 +258,12 @@ describe("mobile @ max load (on device)", () => {
 
     // 5. It stayed ALIVE. The app is still interactive after the big roll — no ANR, no frozen JS thread.
     //    (A list that mounted all 1000 rows typically passes 1–4 and dies here.)
+    //
+    //    Ride back to the top first: the composer lives in the list header, and we just scrolled eight
+    //    screens down to measure frames. Espresso won't type into a view it can't see — and that failure
+    //    ("the target view does not match one or more of the following constraints") looks nothing like
+    //    what it is. Third time this file has learned it; hence the comment.
+    await element(by.id("results-list")).scrollTo("top");
     await element(by.id("prompt-count")).replaceText("7");
     await expect(element(by.id("prompt-count"))).toHaveText("7");
   });
