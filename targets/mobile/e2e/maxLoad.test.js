@@ -50,15 +50,33 @@ const PROBE_PROMPTS = 200;
  * encode whatever this morning's runner was worth. The first run with a 180 s cap timed out at 1000
  * and told us nothing about *why*, which is the whole reason for the three-point curve.
  */
-const ROLL_TIMEOUT_MS = Number(process.env.MOBILE_ROLL_TIMEOUT_MS || 600000);
+const ROLL_TIMEOUT_MS = Number(process.env.MOBILE_ROLL_TIMEOUT_MS || 240000);
 
 /** Measurements from the small roll, used as the yardstick for the big one. */
 let baseline = null;
 /** Measurements from the middle probe — the second point on the curve. */
 let probe = null;
 
-/** Roll N prompts and wait for the app to say it produced exactly N. */
+/**
+ * Roll N prompts and wait for the app to say it produced exactly N.
+ *
+ * **Clear first — and this line is the whole story of a wasted afternoon.** Results ACCUMULATE across
+ * rolls (the app prepends each batch, by design). So after a 20-prompt baseline, rolling 200 makes the
+ * label read "220 generated", and a test waiting for "200 generated" waits forever. Which it did: two
+ * ten-minute timeouts per run, reported as *the app failing its 1000-prompt promise*.
+ *
+ * It was never the app. The device's own log said so all along — engine 13.0 s for 1000 prompts, rows
+ * committed **34 ms later** — and I still went looking for a render bug, because the test's verdict was
+ * louder than the app's evidence. Read the instrument you built before you distrust the thing it measures.
+ */
 async function roll(n) {
+  // Start from an empty list so "N generated" means exactly this roll.
+  try {
+    await element(by.id("clear-all")).tap();
+  } catch {
+    // Nothing rolled yet — no Clear all to press.
+  }
+
   // The composer (count field + generate button) is the results list's HEADER — so the previous
   // measurement's scrolling leaves it off screen, and Espresso refuses to act on a view that isn't
   // visible ("the target view does not match one or more of the following constraints"). Ride the list

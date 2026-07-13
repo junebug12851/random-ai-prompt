@@ -889,7 +889,11 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
             <TouchableOpacity accessibilityRole="button" onPress={copyAll}>
               <Text style={styles.copyLink}>Copy all</Text>
             </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" onPress={() => setResults([])}>
+            <TouchableOpacity
+              testID="clear-all"
+              accessibilityRole="button"
+              onPress={() => setResults([])}
+            >
               <Text style={styles.clearAll}>Clear all</Text>
             </TouchableOpacity>
           </View>

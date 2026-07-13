@@ -2,9 +2,16 @@ name: CI
 
 # Test-on-every-push. Mirrors the local verification gate (`npm test` = lint + format + smoke +
 # the Vitest suites) plus the gui build and the Playwright E2E / accessibility specs, so green
-# here means the same thing as green locally. Visual-regression is skipped on CI on purpose: its
-# baselines are committed for Windows only (`*-win32.png`) and can't match Linux rendering -- see
-# playwright.config.js. See notes/plans/testing.md.
+# here means the same thing as green locally. See notes/plans/testing.md.
+#
+# TWO TIERS, on purpose (owner, 2026-07-12):
+#   • FAST (every push, every PR): everything below except `android-device` — minutes, so a red build is
+#     found while the change is still in your head.
+#   • SLOW (release path only): `android-device` builds the Android app from source and boots an
+#     emulator — 30–45 minutes. It runs on the PR into `main`, on pushes to `main`, and on demand. It
+#     still blocks the release; it just stops taxing every commit on `dev`.
+# A gate that makes iteration miserable is a gate people learn to ignore. Put the expensive one where
+# the risk actually is: the thing being shipped.
 #
 # The project lives at the repo root; the SPA is the targets/web/ subpackage (built/tested via
 # `npm --prefix targets/web`).
@@ -208,9 +215,20 @@ jobs:
   android-device:
     name: On-device max load (Detox + Android emulator)
     runs-on: ubuntu-latest
+    # RELEASE-GATED, not per-push (owner, 2026-07-12: "only use CI for things that don't take a lot of
+    # time; things that take a lot of time should be gated for release/ship/deploy only").
+    #
+    # This job compiles the Android app from source, downloads and boots an emulator, then drives three
+    # prompt rolls — 30–45 minutes. Paying that on every push to `dev` made each small iteration a
+    # 40-minute wait and taught everyone to ignore it. So it runs where it actually protects something:
+    # the PULL REQUEST INTO `main` (the release), pushes to `main`, and on demand. `main` still cannot
+    # take a build this gate rejects — which was the whole point — while `dev` stays fast.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main')
     # A hang must FAIL, not idle. Without this a stuck roll sat in the runner for over an hour before
-    # anyone noticed — burning minutes and telling us nothing. Build ~10 min + three rolls + scrolling
-    # fits comfortably in 45; past that, something is wrong and the log is the answer.
+    # anyone noticed — burning minutes and telling us nothing.
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

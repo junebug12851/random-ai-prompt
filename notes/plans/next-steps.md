@@ -2,20 +2,6 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
-000. **🔴 P1 — the mobile app misses the 1000-prompt promise on a real device.** Found by the new
-   on-device gate on its first run (2.60.0): 20 prompts = 2218 ms, but 1000 never completes within 180 s
-   — **super-linear in N**. The `android-device` CI job is red and correct to be.
-   **Diagnose before fixing** (the last guess — "it's just FlashList's web renderer" — was wrong, and
-   cost a session):
-   1. Instrument the split. Log the app's own `rollPrompts()` duration vs the time to first paint of the
-      results list (Hermes keeps `console.log`; the Detox run captures logcat). That single number says
-      whether the cost is the **engine under Hermes** or the **render**.
-   2. If engine: profile the DPL path under Hermes (GC pressure on 1000 large strings is a real
-      candidate; Node's 0.16 ms/prompt says nothing about a non-JIT VM).
-   3. If render: FlashList v2 recycling + `ResultRow` (each row calls the screen's ~300-key `makeStyles`)
-      — cheap when a window of ~15 rows mounts, ruinous if the list isn't virtualizing.
-   Do **not** "fix" it by capping the roll ([`working-agreements.md`](../reference/working-agreements.md)
-   §A4a) and do not weaken the gate to get a release out.
 
 0. **De-duplication campaign — push shared behavior down, keep targets thin.** See
    [`de-duplication.md`](de-duplication.md). Phases A/B (one provider registry for all three runtimes +
