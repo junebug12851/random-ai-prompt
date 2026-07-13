@@ -2,6 +2,20 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
+000. **🔴 SECURITY — CodeQL's open alerts on the local backend (1 critical, several high).** Surfaced by
+   the 2.60.0 release PR (CodeQL calls them "new" only because `main` was far behind `dev`; they are
+   **pre-existing**, not from that release). They are real and they are ours:
+   - **critical** `js/command-line-injection` — `targets/web/backend/apiHandler.js:578` ("this command
+     line depends on a user-provided value" — the ImageMagick convert path).
+   - **high** `js/remote-property-injection` ×2 + `js/insecure-temporary-file` + `js/file-system-race` ×3
+     — `targets/web/backend/manageFs.js`, `apiHandler.js`.
+   - medium `js/file-access-to-http` ×2 in `targets/cli/src/lib/`.
+
+   Mitigating context, not an excuse: the backend is **local-only** (the user's own machine; the hosted
+   build has no backend). But "only local" is exactly the argument that ages badly the day someone runs
+   it on a LAN. Fix the command-line injection first (pass args as an array, never build a shell string
+   from user input), then the fs races (open-then-use, not check-then-use).
+
 
 0. **De-duplication campaign — push shared behavior down, keep targets thin.** See
    [`de-duplication.md`](de-duplication.md). Phases A/B (one provider registry for all three runtimes +
