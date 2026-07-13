@@ -29,6 +29,17 @@ Run it: `npm run test:mobile:device:build` (once, or after a native-config chang
 test:mobile:device`. It is deliberately **not** in `npm test` — it needs a booted device and takes
 minutes; the fast gate stays fast.
 
+**Where the wall-clock goes** (so nobody has to wonder whether "CI is slow" is hiding a real defect):
+Gradle compiles the Android app from source ≈ **9 min**, the emulator downloads/boots/installs ≈ **5
+min**, and the three rolls themselves ≈ **2.5 min** (20 → 13 s, 200 → 30 s, 1000 → 87 s). A run that takes
+much longer than that is a *failing* run sitting in its timeouts — which is exactly what happened before
+the harness bugs were fixed, and it briefly got mistaken for the app being slow.
+
+**The one number that is genuinely open:** the engine costs **23–30 ms/prompt on the emulator** against
+**0.16 ms/prompt in Node**. The render is fine (272 ms for 1000 rows, flat memory) — the phone's whole
+cost is the engine. Hermes has no JIT and the CI CPU is emulated, but ~150× is more than that should buy.
+Tracked in [`next-steps.md`](next-steps.md); measure on a real phone before theorising.
+
 **Where it actually runs, honestly stated.** The release APK builds locally (verified: 27 MB app +
 2.9 MB androidTest, `BUILD SUCCESSFUL`), but **the local Windows AVD cannot run it**: the moment the app
 renders, the emulator's own graphics stack dies —

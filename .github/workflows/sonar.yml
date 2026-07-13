@@ -10,11 +10,14 @@ name: SonarCloud
 #   3. Add a repo VARIABLE `SONAR_ENABLED` = true (Settings → Secrets and variables → Actions → Variables).
 # Until then this workflow is a no-op, so it never shows a spurious red X.
 
+# RELEASE-GATED, like the rest of CI (owner, 2026-07-12): the release PR into `main` and pushes to
+# `main`, plus manual runs. Quality analysis belongs on the thing being shipped, not on every keystroke
+# that lands on `dev`.
 on:
   push:
-    branches: [dev, main]
+    branches: [main]
   pull_request:
-    branches: [dev, main]
+    branches: [main]
   workflow_dispatch: # allow manual runs from the Actions tab / `gh workflow run sonar.yml`
 
 permissions:
