@@ -52,6 +52,8 @@ const PROBE_PROMPTS = 200;
  */
 const ROLL_TIMEOUT_MS = Number(process.env.MOBILE_ROLL_TIMEOUT_MS || 240000);
 
+/** How many result rows the app is currently showing (the label is cumulative, so we track it). */
+let onScreen = 0;
 /** Measurements from the small roll, used as the yardstick for the big one. */
 let baseline = null;
 /** Measurements from the middle probe — the second point on the curve. */
@@ -70,22 +72,27 @@ let probe = null;
  * louder than the app's evidence. Read the instrument you built before you distrust the thing it measures.
  */
 async function roll(n) {
-  // Start from an empty list so "N generated" means exactly this roll.
-  try {
-    await element(by.id("clear-all")).tap();
-  } catch {
-    // Nothing rolled yet — no Clear all to press.
-  }
-
-  // The composer (count field + generate button) is the results list's HEADER — so the previous
-  // measurement's scrolling leaves it off screen, and Espresso refuses to act on a view that isn't
-  // visible ("the target view does not match one or more of the following constraints"). Ride the list
-  // back to the top first. (Found on the first real CI run: the baseline roll passed, the 1000 roll
-  // failed in 19 ms — a test-harness bug, not the app's, and worth the two lines to say so.)
+  // ORDER MATTERS, and getting it wrong cost a 40-minute run: the composer AND the Clear-all button both
+  // live in the list's HEADER, so after the previous roll's scrolling they are off screen — and Espresso
+  // will not act on a view it cannot see. Ride the list back to the top FIRST; only then is there
+  // anything to press. (My first attempt tapped Clear-all before scrolling: the tap threw, the catch
+  // swallowed it, the list never cleared, and the label kept reading "220 generated".)
   try {
     await element(by.id("results-list")).scrollTo("top");
   } catch {
     // Nothing rolled yet — the list isn't scrollable. Fine.
+  }
+
+  // NOW clear, so "N generated" can only mean this roll.
+  //
+  // And belt AND braces: track what's on screen rather than assuming the clear worked. A swallowed
+  // failure here is precisely what turned a test bug into a phantom app defect, so the expected label is
+  // derived from state we actually observed, not from a hope.
+  try {
+    await element(by.id("clear-all")).tap();
+    onScreen = 0;
+  } catch {
+    // Nothing rolled yet (no Clear all on screen) — `onScreen` already says so.
   }
 
   await element(by.id("prompt-count")).replaceText(String(n));
@@ -103,12 +110,18 @@ async function roll(n) {
 
   clearLog(device.id); // so the engine timing we read back belongs to THIS roll
 
+  // The app's label is CUMULATIVE ("220 generated" after a 20-roll and a 200-roll), so the expected text
+  // is whatever is already on screen plus this roll — not `n`. Assuming `n` is what sent two runs into
+  // ten-minute timeouts and got written up as an app defect.
+  const expected = onScreen + n;
+
   const started = Date.now();
   await element(by.id("generate")).tap();
   await waitFor(element(by.id("results-count")))
-    .toHaveText(`${n} generated`)
+    .toHaveText(`${expected} generated`)
     .withTimeout(ROLL_TIMEOUT_MS);
   const total = Date.now() - started;
+  onScreen = expected;
 
   // The split. `total` is engine + render + list mount; `engineMs` is what the app says the engine alone
   // cost. Everything else is the render. One number is a complaint; two are a diagnosis.
