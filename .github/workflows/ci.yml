@@ -275,17 +275,26 @@ jobs:
       #
       # With the image + a booted snapshot cached, the usual run doesn't fetch anything at all (and saves
       # ~5 minutes of boot on top).
-      - name: Cache the AVD + system image
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # RESTORE (not the round-trip `cache` action) — because `actions/cache` only SAVES when the whole
+      # job succeeds, and this job's whole purpose is to sometimes fail. A red Detox run would throw the
+      # snapshot away and send the next attempt back through the cold download that broke us twice.
+      # Restore here, save immediately after the AVD exists, and the cache survives a failing test.
+      #
+      # The SYSTEM-IMAGE path is the one that actually matters: `~/.android/avd` is only AVD *state*, so
+      # caching it alone would still re-download the API-34 image on every cold runner — i.e. it would not
+      # fix the "Error on ZipFile unknown archive" failure this exists to fix. (No `debug.keystore` in the
+      # list, either: a signing key is not cache fodder.)
+      - name: Restore the AVD + system image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: avd-cache
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-            ~/.android/debug.keystore
-          key: avd-34-google_apis-x86_64-pixel_6
+            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/*
+          key: avd-34-google_apis-x86_64-pixel_6-v1
 
-      # Cold cache: create the AVD and boot it once, so the snapshot (and the image) get cached above.
+      # Cold cache: create the AVD and boot it once, so there's a snapshot (and an image) worth saving.
       - name: Create the AVD snapshot (first run only)
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
@@ -299,6 +308,16 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "AVD created and snapshotted"
+
+      - name: Save the AVD + system image
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/*
+          key: avd-34-google_apis-x86_64-pixel_6-v1
 
       - name: Run the on-device suite (max load, real frame stats)
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0

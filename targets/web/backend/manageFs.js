@@ -334,10 +334,36 @@ const MANIFEST_CACHE_FILE = path.join(
  * off our own disk and trusts it a little more for having been there. So the cache stores the
  * *normalized* value: what we persist is what we already validated.
  */
+/** A manifest entry is a relative content path: `scene/castle.dpl`. Nothing else is one. */
+const SAFE_ENTRY = /^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/;
+/** Sanity ceiling. The real manifest is ~200 entries; anything near this is not a manifest. */
+const MAX_ENTRIES = 5000;
+
 const normalizeManifest = (d) => {
-  const strings = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string") : []);
-  return { lists: strings(d?.lists), blocks: strings(d?.blocks) };
+  // These strings are later compared against — and used to reason about — paths on disk, so "it's a
+  // string" is not good enough. Absolute paths, `..`, backslashes, NULs and 10 MB of junk are all
+  // "strings". Take only what a manifest entry can legitimately look like, and only so many of them.
+  const entries = (v) =>
+    Array.isArray(v)
+      ? v
+          .filter(
+            (x) =>
+              typeof x === "string" &&
+              x.length > 0 &&
+              x.length <= 200 &&
+              SAFE_ENTRY.test(x) &&
+              !x.split("/").includes(".."),
+          )
+          .slice(0, MAX_ENTRIES)
+      : [];
+  return { lists: entries(d?.lists), blocks: entries(d?.blocks) };
 };
+
+/**
+ * Internals exposed for tests only. `normalizeManifest` is the trust boundary between the network and
+ * this process, so it gets asserted directly rather than inferred through a fetch mock.
+ */
+export const __testables = { normalizeManifest };
 
 /**
  * The set of content files that exist on the stable branch, by root — used to surface "ghost"
