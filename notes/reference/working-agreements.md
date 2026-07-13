@@ -51,6 +51,10 @@ access, available every turn.
 - **PowerShell gotchas:** `Get-Content -Raw | Set-Content` (and positional `Set-Content`) can silently
   no-op on this machine — use `[IO.File]::ReadAllText/WriteAllText` for scripted bulk replaces. And those
   .NET calls resolve **relative paths against .NET's cwd, not PowerShell's** — always pass absolute paths.
+- **Never pass prose through `-m` / `-e` on PowerShell — write it to a file.** PowerShell parses `&`,
+  `|`, `` ` `` and `$(…)` *inside* double-quoted arguments, so text is not text. A commit message
+  describing a shell-injection payload actually **ran** it (spawned `calc`) — the very bug the commit was
+  fixing, one layer up. Use `git commit -F <utf8 file>`; for scripts, a real `.mjs` file, never `node -e`.
 
 ### A2. Build the solution — don't offload the design decision.
 When a defect/problem is found, **design and build the fix**. Do NOT use AskUserQuestion to ask *how* to
