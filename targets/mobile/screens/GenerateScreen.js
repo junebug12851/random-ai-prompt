@@ -929,7 +929,7 @@ export default function GenerateScreen({ onGenerated, onOpenImage }) {
 
       {/* The ONE building-blocks control (the web's off-canvas drawer). The toolbar above used to
           carry a second, identical one — see the regression test in __tests__/GenerateScreen.test.jsx. */}
-      <TouchableOpacity accessibilityRole="button"
+      <TouchableOpacity
         style={[styles.fab, { bottom: insets.bottom + 24 }]}
         onPress={() => setPaletteOpen(true)}
         activeOpacity={0.85}

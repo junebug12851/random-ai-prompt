@@ -144,8 +144,20 @@ const prettierOpts = { ...(await resolveConfig(outFile)), parser: "babel" };
 const next = await format(render(), prettierOpts);
 const nextThemes = await format(renderThemes(), prettierOpts);
 const check = process.argv.includes("--check");
-const prev = fs.existsSync(outFile) ? fs.readFileSync(outFile, "utf8") : null;
-const prevThemes = fs.existsSync(themeOutFile) ? fs.readFileSync(themeOutFile, "utf8") : null;
+// Read it, don't ASK whether it exists and then read it. `existsSync` + `readFileSync` is a
+// check-then-use race (CodeQL js/file-system-race): the file can vanish between the two calls, and the
+// "safe" version is the one that just tries. A missing file is not an error here — it means "not
+// generated yet".
+const readIfPresent = (p) => {
+  try {
+    return fs.readFileSync(p, "utf8");
+  } catch (e) {
+    if (e.code === "ENOENT") return null;
+    throw e;
+  }
+};
+const prev = readIfPresent(outFile);
+const prevThemes = readIfPresent(themeOutFile);
 
 if (check) {
   if (prev !== next) {
