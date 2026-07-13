@@ -7,10 +7,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-const execP = promisify(exec);
+// `execFile`, not `exec`: nothing here needs a shell, and the ones that don't need it shouldn't have it.
+// (The backend's shell strings were a critical command-injection sink — see backend/osCommands.js.)
+const execFileP = promisify(execFile);
 
 const backendDir = fileURLToPath(new URL(".", import.meta.url));
 const webRoot = path.join(backendDir, ".."); // targets/web (the web package root)
@@ -64,7 +66,7 @@ export async function detectMagick() {
   let bin = null;
   for (const cand of ["magick", "convert"]) {
     try {
-      await execP(`${cand} -version`, { timeout: 5000 });
+      await execFileP(cand, ["-version"], { timeout: 5000 });
       bin = cand;
       break;
     } catch {
@@ -77,7 +79,7 @@ export async function detectMagick() {
   }
   const formats = [];
   try {
-    const { stdout } = await execP(`${bin} -list format`, { timeout: 8000 });
+    const { stdout } = await execFileP(bin, ["-list", "format"], { timeout: 8000 });
     const seen = new Set();
     for (const line of stdout.split(/\r?\n/)) {
       const parts = line.trim().split(/\s+/);

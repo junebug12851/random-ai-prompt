@@ -266,6 +266,70 @@ jobs:
           RN_ABIS: x86_64
         run: npm --prefix targets/mobile run e2e:build
 
+      # CACHE THE AVD — and not just for speed.
+      #
+      # Twice now this job has died before running a single test because the Android system-image
+      # DOWNLOAD came back corrupt ("Error on ZipFile unknown archive"), leaving no emulator and a red
+      # release gate that had nothing to do with the code. A gate that randomly fails on somebody else's
+      # CDN is not a gate — it is a coin toss people learn to re-run until it lands.
+      #
+      # With the image + a booted snapshot cached, the usual run doesn't fetch anything at all (and saves
+      # ~5 minutes of boot on top).
+      # RESTORE (not the round-trip `cache` action) — because `actions/cache` only SAVES when the whole
+      # job succeeds, and this job's whole purpose is to sometimes fail. A red Detox run would throw the
+      # snapshot away and send the next attempt back through the cold download that broke us twice.
+      # Restore here, save immediately after the AVD exists, and the cache survives a failing test.
+      #
+      # The SYSTEM-IMAGE path is the one that actually matters: `~/.android/avd` is only AVD *state*, so
+      # caching it alone would still re-download the API-34 image on every cold runner — i.e. it would not
+      # fix the "Error on ZipFile unknown archive" failure this exists to fix. (No `debug.keystore` in the
+      # list, either: a signing key is not cache fodder.)
+      - name: Restore the AVD + system image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/*
+          key: avd-34-google_apis-x86_64-pixel_6-v1
+
+      # Cold cache: create the AVD and boot it once, so there's a snapshot (and an image) worth saving.
+      - name: Create the AVD snapshot (first run only)
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          # THE fix for three dead runs. Every one of them ended in "Error on ZipFile unknown archive"
+          # while installing the system image — and every one printed this, one line earlier:
+          #
+          #   "This version only understands SDK XML versions up to 3 but an SDK XML file of version 4
+          #    was encountered."
+          #
+          # The runner's bundled sdkmanager is too old to parse Google's current repository metadata, so
+          # it fetches something it can't read and hands us a corrupt archive. That is not a flaky CDN,
+          # which is what I called it twice — it is a version mismatch that would fail every single time.
+          # Pin a cmdline-tools new enough to understand XML v4.
+          cmdline-tools-version: "19.0"
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "AVD created and snapshotted"
+
+      - name: Save the AVD + system image
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            /usr/local/lib/android/sdk/system-images/android-34/google_apis/x86_64/*
+          key: avd-34-google_apis-x86_64-pixel_6-v1
+
       - name: Run the on-device suite (max load, real frame stats)
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
@@ -274,6 +338,19 @@ jobs:
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M
+          # THE fix for three dead runs. Every one of them ended in "Error on ZipFile unknown archive"
+          # while installing the system image — and every one printed this, one line earlier:
+          #
+          #   "This version only understands SDK XML versions up to 3 but an SDK XML file of version 4
+          #    was encountered."
+          #
+          # The runner's bundled sdkmanager is too old to parse Google's current repository metadata, so
+          # it fetches something it can't read and hands us a corrupt archive. That is not a flaky CDN,
+          # which is what I called it twice — it is a version mismatch that would fail every single time.
+          # Pin a cmdline-tools new enough to understand XML v4.
+          cmdline-tools-version: "19.0"
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           # WAKE the screen, unlock, and keep it awake — then run.
           #

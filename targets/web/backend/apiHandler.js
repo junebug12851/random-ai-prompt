@@ -17,7 +17,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { dispatch, dispatchRewrite, dispatchUpscale } from "./dispatch.js";
 import {
@@ -46,6 +46,7 @@ import {
   listNs,
   migrateLegacyStore,
 } from "./vite-api-helpers.js";
+import { openFileCommand, revealFileCommand } from "./osCommands.js";
 import { createPromptRun } from "../../../engine/promptRun.js";
 import {
   bootNodeEngine,
@@ -57,7 +58,9 @@ import {
 } from "../../../engine/nodeEngine.js";
 import { presetNames, resolvePresets, applyPreset } from "../../../engine/presets.js";
 
-const execP = promisify(exec);
+// `execFile`, never `exec`: no shell means a filename with a quote in it is a filename, not a command.
+// See osCommands.js for the whole story (CodeQL js/command-line-injection, critical).
+const execFileP = promisify(execFile);
 
 // Lazily bind the shared prompt-run to the booted Node engine (idempotent) — powers /api/prompt.
 let _promptRun = null;
@@ -488,7 +491,8 @@ export function createApiHandler() {
       );
       try {
         // `[0]` takes only the first frame, so the output is always a single still image.
-        await execP(`${m.bin} "${inPath}[0]" "${outPath}"`, { timeout: 20000 });
+        // Argv, not a shell string: `inPath` is user-influenced (CodeQL js/command-line-injection).
+        await execFileP(m.bin, [`${inPath}[0]`, outPath], { timeout: 20000 });
         const buf = fs.readFileSync(outPath);
         fs.unlink(outPath, () => {});
         res.statusCode = 200;
@@ -523,8 +527,8 @@ export function createApiHandler() {
       const pct = Math.round(scale * 100);
       try {
         if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-        // `[0]` flattens to the first frame; `-resize N%` up/down-samples by the factor.
-        await execP(`${m.bin} "${inPath}[0]" -resize ${pct}% "${outPath}"`, { timeout: 30000 });
+        // `[0]` flattens to the first frame; `-resize N%` up/down-samples by the factor. Argv, no shell.
+        await execFileP(m.bin, [`${inPath}[0]`, "-resize", `${pct}%`, outPath], { timeout: 30000 });
       } catch (e) {
         try {
           if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
@@ -568,14 +572,17 @@ export function createApiHandler() {
     if (u.pathname === "/api/image/reveal" && req.method === "POST") {
       const fp = resolveOutputFile((await readJson(req))?.path);
       if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Not found" });
-      // explorer /select returns a non-zero exit code even on success — ignore it.
-      exec(`explorer /select,"${fp}"`);
+      // NO SHELL. The filename reaches the OS as one argv entry, so a quote in it is just a quote.
+      // (Explorer's /select returns a non-zero exit code even on success — the callback swallows it.)
+      const { cmd, args } = revealFileCommand(fp);
+      execFile(cmd, args, () => {});
       return send(res, 200, { ok: true });
     }
     if (u.pathname === "/api/image/open" && req.method === "POST") {
       const fp = resolveOutputFile((await readJson(req))?.path);
       if (!fp || !fs.existsSync(fp)) return send(res, 404, { error: "Not found" });
-      exec(`cmd /c start "" "${fp}"`); // open in the OS default program
+      const { cmd, args } = openFileCommand(fp); // default program, no shell
+      execFile(cmd, args, () => {});
       return send(res, 200, { ok: true });
     }
 

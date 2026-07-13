@@ -2,36 +2,38 @@
 
 Ordered, roughly by priority. Update as items are done or added.
 
-0000. **⚠️ The engine costs ~23–30 ms/prompt under Hermes, vs 0.16 ms/prompt in Node — a ~150× gap.**
-   Measured on device (2.60.0): 1000 prompts = **engine 23–31 s**, render 272 ms. The render is provably
-   fine; the *engine* is the whole cost on a phone.
+0000. **⚠️ The engine costs ~23–30 ms/prompt on the CI emulator vs 0.18 ms/prompt in Node — a ~150× gap.**
+   Measured on device (2.60.0): 1000 prompts = engine 23–31 s, render 272 ms. The render is fine; on a
+   phone the **engine is the whole cost**.
 
-   Do not write this off as "emulators are slow" (the owner explicitly pushed back on exactly that, and
-   was right to). A software-emulated CPU plus a JIT-less VM explains *some* of it — but 150× is more
-   than those two should buy, and the same code is 0.16 ms/prompt in Node. Worth measuring properly:
-   1. Get the honest device number first — run the suite on a **real phone** (`npm run
-      test:mobile:device` with `DETOX_ADB_NAME` pointed at it). That separates "emulator" from "Hermes".
-   2. If it's still slow: profile the DPL path under Hermes (`console.time` around the stages, or a
-      Hermes sampling profile). Prime suspects are regex-heavy stages and per-prompt allocation
-      (Hermes' GC is far less forgiving than V8's).
-   3. Fix in the engine — it's shared, so every target gets the win.
+   **What has been ruled out** (`scripts/profile-engine.mjs`, run with the *same* loader the phone uses):
 
-   Nothing here is a promise broken (the app still produces all 1000 and the list stays smooth), but a
-   user rolling 1000 prompts on a phone waits ~25 s for the engine, and that is worth knowing.
+   | N | Node + metroLoader | per prompt |
+   |---|---|---|
+   | 20 | 4.5 ms | 0.227 ms |
+   | 200 | 38.7 ms | 0.193 ms |
+   | 1000 | 178.8 ms | **0.179 ms** |
 
-000. **🔴 SECURITY — CodeQL's open alerts on the local backend (1 critical, several high).** Surfaced by
-   the 2.60.0 release PR (CodeQL calls them "new" only because `main` was far behind `dev`; they are
-   **pre-existing**, not from that release). They are real and they are ours:
-   - **critical** `js/command-line-injection` — `targets/web/backend/apiHandler.js:578` ("this command
-     line depends on a user-provided value" — the ImageMagick convert path).
-   - **high** `js/remote-property-injection` ×2 + `js/insecure-temporary-file` + `js/file-system-race` ×3
-     — `targets/web/backend/manageFs.js`, `apiHandler.js`.
-   - medium `js/file-access-to-http` ×2 in `targets/cli/src/lib/`.
+   Flat and linear — there is **no hidden quadratic** and no pathological algorithm. So the gap is the
+   *runtime*: Hermes (no JIT) executing on an emulated CPU on a shared runner. That is a plausible 150×,
+   though at the high end of plausible.
 
-   Mitigating context, not an excuse: the backend is **local-only** (the user's own machine; the hosted
-   build has no backend). But "only local" is exactly the argument that ages badly the day someone runs
-   it on a LAN. Fix the command-line injection first (pass args as an array, never build a shell string
-   from user input), then the fs races (open-then-use, not check-then-use).
+   **What would settle it** (do this before optimising anything):
+   1. Run the suite against a **real handset** (`npm run test:mobile:device` with `DETOX_ADB_NAME` set).
+      *Blocked today:* the owner's phone has Developer Options carrier-locked, so no adb — needs a
+      different device, or an emulator on a machine with native virtualization.
+   2. If a real device is still slow, profile the DPL path under Hermes. Suspects, in order: regex-heavy
+      stages, and per-prompt allocation (Hermes' GC is far less forgiving than V8's).
+   3. Any fix lands in the engine, so every target gets it.
+
+   No promise is broken — the app produces all 1000 and the list stays smooth — but a user rolling 1000
+   prompts on a phone waits ~25 s for the engine, and that is worth knowing rather than assuming.
+
+000. ~~**🔴 SECURITY — CodeQL's alerts on the local backend (1 critical, several high).**~~ **FIXED
+   (2.60.1).** The critical command-injection, the prototype pollution, the world-writable temp cache
+   and the check-then-use races are all closed — see the changelog. Remaining, and worth a look:
+   medium `js/file-access-to-http` ×2 in `targets/cli/src/lib/` (a file path reaching an HTTP request —
+   review whether the CLI should be reading arbitrary local files into a provider call at all).
 
 
 0. **De-duplication campaign — push shared behavior down, keep targets thin.** See
