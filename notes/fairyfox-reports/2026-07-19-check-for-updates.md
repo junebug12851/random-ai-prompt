@@ -42,8 +42,11 @@ pending the owner's scope call.
      already lived (working-agreements §A0, the Default Workflow, self-hosted fonts, the PowerShell /
      execute-don't-hand-off rule, notes-first), but there is no dedicated mirror note or explicit
      cross-reference.
-   - **Out of scope for this node**: `farm-operating-model`, `coins`, `new-project-setup`,
-     `onboarding-existing-project`, `docs-site/` (farm-tier / hub-internal / already-onboarded).
+   - **Out of scope for this node**: `farm-operating-model`, `new-project-setup`,
+     `onboarding-existing-project` (farm-tier / hub-internal / already-onboarded).
+     **[Corrected same-day]** `coins` and `docs-site` were initially listed here — **wrong**: coins
+     ships as part of the docs-site chrome this node wears (same-origin under `fairyfox.io/<key>/`), and
+     was adopted the same day. See `2026-07-19-adopting-updates.md` → "Correction".
 5. Did **not** run the template-file byte diff (CLAUDE.md mesh block, SECURITY.md, dependabot.yml,
    branch-sync.yml, check-links/check-tidy, gitattributes, legal/) this pass — deferred to the adopt
    run if the owner green-lights, since those are the files an actual apply would touch and re-verify.

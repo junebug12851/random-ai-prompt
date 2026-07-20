@@ -46,6 +46,17 @@ Applied under the standing authorization (skipped only the redundant report-then
 other safety step ran — copy-not-clobber (all six are new files; the CLAUDE.md/README/compliance edits
 are additive), full verification before and after, reviewable commit, this report.
 
+### Correction (same run): coins was NOT out of scope
+
+The initial pass filed `coins` under "out of scope for this node" — **wrong**, caught by the owner.
+Coins ships as part of the shared docs-site **chrome** (a counter beside the reader "Aa" button), and
+RAP's docs site is same-origin under `fairyfox.io/<key>/`, so it shares the hub wallet. RAP had adopted
+the chrome/reader at hub 0.14.3 but never included coins; chrome bundle is now 2.2.1. Added it:
+`assets/docs-theme/modules/coins.js` (master `coins.js` **vendored verbatim**, byte-identical), injected
+after `initReader()` in `fairyfox-docs.js`; `theme/coins.css` on the project tokens; `notes/reference/coins.md`
++ compliance row. Verified the rest of the chrome was already current at 2.2.1 (reader constants + nav
+match the master) — coins was the only gap. This is the lesson for the runbook below.
+
 ## What went well
 
 The standing `adopt-standards-by-default` grant made the posture unambiguous — no second-guessing

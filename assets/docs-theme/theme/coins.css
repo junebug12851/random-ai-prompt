@@ -1,0 +1,279 @@
+/* ============================================================================
+   coins.css — the Fairy Fox coins counter (button, panel, "+1" pop, reading-page
+   read-time chip + hidden-coin word). Vendored from the hub chrome master
+   (assets/css/main.css) to pair with the verbatim modules/coins.js; the panel
+   reuses the reader panel's .ff-rp-* chrome (theme/reader.css). Tokens are the
+   project's own (theme/tokens.css) — same names as the master, so it drops in
+   unchanged. See notes/reference/coins.md.
+   ========================================================================== */
+
+/* "Clear my data" — a small, soft link (not a button), bottom-right of the coins panel. */
+.ff-rp-clear {
+  flex: none;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-faint);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--text-faint) 45%, transparent);
+}
+.ff-rp-clear:hover {
+  color: var(--text-soft);
+  text-decoration-color: currentColor;
+}
+
+/* ── Coins ("◎") ─────────────────────────────────────────────────────────────
+   A light reading-engagement counter next to the reader button. Reading a page
+   you haven't seen today earns a coin (modules/coins.js). Subtle, but a small
+   pop + glow marks each earn. */
+.ff-coin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.34rem;
+  margin-left: 0.5rem;
+  flex: none;
+  height: 40px;
+  min-width: 46px;
+  padding: 0 0.72rem;
+  cursor: pointer;
+  border-radius: 999px;
+  font-family: var(--display);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  transition:
+    transform 0.16s var(--ease),
+    background 0.16s var(--ease),
+    color 0.16s var(--ease),
+    box-shadow 0.16s var(--ease);
+}
+.ff-coin-btn .ff-coin-ic {
+  display: inline-flex;
+  width: 19px;
+  height: 19px;
+  color: var(--text-soft);
+  flex: none;
+}
+.ff-coin-btn .ff-coin-ic svg {
+  width: 19px;
+  height: 19px;
+}
+.ff-coin-btn .ff-coin-n {
+  font-size: 0.95rem;
+  min-width: 0.7ch;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.ff-coin-btn:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel-2));
+}
+.ff-coin-btn:hover .ff-coin-ic {
+  color: var(--text);
+}
+.ff-coin-btn[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel-2));
+}
+.ff-coin-btn.is-earned {
+  animation: ff-coin-bounce 0.44s var(--ease);
+}
+@keyframes ff-coin-bounce {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.16);
+  }
+  60% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Floating "+1" chip spawned at the button on an earn. */
+.ff-coin-pop {
+  position: fixed;
+  z-index: 1400;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--accent-ink);
+  padding: 0.12rem 0.44rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel));
+  box-shadow: 0 4px 16px var(--glow);
+  animation: ff-coin-float 1.05s var(--ease) forwards;
+}
+.ff-coin-pop.is-lucky {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 34%, var(--panel));
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+@keyframes ff-coin-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 2px) scale(0.7);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -6px) scale(1.08);
+  }
+  40% {
+    transform: translate(-50%, -12px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -34px) scale(0.96);
+  }
+}
+
+/* Coin panel — reuses .ff-reader-panel positioning/chrome; only one popover open
+   at a time (coins.js closes the reader panel when this opens, and vice versa). */
+.ff-coin-panel {
+  width: min(19rem, calc(100vw - 1.4rem));
+}
+.ff-coin-balance {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.05rem 1rem 0.6rem;
+}
+.ff-coin-balance .ff-coin-glyph {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  color: var(--text-soft);
+  flex: none;
+}
+.ff-coin-balance .ff-coin-glyph svg {
+  width: 26px;
+  height: 26px;
+}
+.ff-coin-big {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ff-coin-unit {
+  align-self: flex-end;
+  margin-bottom: 0.18rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+.ff-coin-stats {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.2rem 1rem 0.9rem;
+}
+.ff-coin-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.ff-coin-stat .ff-coin-k {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.ff-coin-stat .ff-coin-v {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ff-coin-how {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+.ff-coin-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+.ff-coin-more:hover {
+  text-decoration: underline;
+}
+
+/* Reading pages — the estimated read-time chip + the very-subtle hidden-coin word. */
+.ff-readtime {
+  margin: 0 0 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.ff-hidden-coin {
+  cursor: pointer;
+  border-radius: 3px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--accent) 45%, transparent);
+  transition:
+    color 0.15s var(--ease),
+    background 0.15s var(--ease),
+    border-color 0.15s var(--ease);
+}
+.ff-hidden-coin:hover,
+.ff-hidden-coin:focus-visible {
+  color: var(--accent-ink);
+  border-bottom-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  outline: none;
+}
+.ff-hidden-claimed {
+  color: var(--accent-ink);
+  transition: color 0.5s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-coin-btn.is-earned {
+    animation: none;
+  }
+  .ff-coin-pop {
+    animation: ff-coin-fade 1.05s linear forwards;
+  }
+  @keyframes ff-coin-fade {
+    0% {
+      opacity: 0;
+    }
+    18% {
+      opacity: 1;
+      transform: translate(-50%, -8px);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -8px);
+    }
+  }
+}

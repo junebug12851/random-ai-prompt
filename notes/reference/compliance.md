@@ -46,6 +46,7 @@ The detailed pass/fail lives in each standard's `## Verify` section.
 | research-capture | [`research-capture.md` → Verify](research-capture.md#verify-is-it-being-followed) — non-trivial findings get a plain-English `reference/` note; load-bearing conclusions verified with the probe committed; wired into map/status/session/plan |
 | working-rhythm | [`working-rhythm.md` → Verify](working-rhythm.md#verify-is-it-being-followed) — multi-step work task-tracked live; runs stay background then surfaced; features briefed before built; ambiguity raised up front |
 | self-hosted-assets | [`self-hosted-assets.md` → Verify](self-hosted-assets.md#verify-is-it-being-followed) — fonts self-hosted (no `googleapis`/`gstatic`/CDN hot-links in built output); off-origin presentation requests absent; exceptions disclosed in the legal pages |
+| coins | [`coins.md` → Verify](coins.md#verify-is-it-being-followed) — docs-site `coins.js` vendored **verbatim** from master (byte-identical), loaded after `reader.js`; gates nothing; store read-merged not reset; `fairyfox:coins:a` disclosed via the same-origin hub `/legal/coins/` |
 
 ## How to run it (on request only)
 
