@@ -19,7 +19,7 @@ This file describes the **system** — where everything lives and how it's kept 
 | [`fairyfox-reports/`](fairyfox-reports/README.md) | **Process reports** — one per run of a fairyfox system procedure (check/adopt updates, setup, onboarding). The feedback this node sends the hub. |
 | `context/` | Background that changes rarely: [`project.md`](context/project.md) (what it is + goals), [`architecture.md`](context/architecture.md) (layout + entry points + pipeline), [`principles.md`](context/principles.md) (philosophy), [`history.md`](context/history.md) (origins + the 2026 ESM modernization). |
 | `systems/` | **System map** — [`README.md`](systems/README.md) (hub) + [`overview.md`](systems/overview.md) (the machine end-to-end) and the per-layer deep-dives: [`core-engine.md`](systems/core-engine.md), [`cli.md`](systems/cli.md), [`server.md`](systems/server.md), [`gui.md`](systems/gui.md). |
-| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (JSDoc doc-site + comment style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`repo-hygiene.md`](reference/repo-hygiene.md) (the guards against drift/litter/uncommitted files), [`versioning.md`](reference/versioning.md) (the version-number scheme), [`cross-project-sync.md`](reference/cross-project-sync.md) / [`process-reports.md`](reference/process-reports.md) / [`compliance.md`](reference/compliance.md) (the fairyfox-mesh standards). |
+| `reference/` | Quick lookup, no story: [`esm-patterns.md`](reference/esm-patterns.md) (Node/ESM landmines), [`dependencies.md`](reference/dependencies.md) (deps + breaking-change notes), [`fix-patterns.md`](reference/fix-patterns.md) (error→fix), [`documentation.md`](reference/documentation.md) (JSDoc doc-site + comment style), [`deployment.md`](reference/deployment.md) (Netlify + CI/release pipelines), [`git-workflow.md`](reference/git-workflow.md), [`repo-hygiene.md`](reference/repo-hygiene.md) (the guards against drift/litter/uncommitted files), [`versioning.md`](reference/versioning.md) (the version-number scheme), and the **fairyfox-mesh standards** [`cross-project-sync.md`](reference/cross-project-sync.md) / [`process-reports.md`](reference/process-reports.md) / [`compliance.md`](reference/compliance.md) / [`maintenance-sweep.md`](reference/maintenance-sweep.md) / [`agent-tooling.md`](reference/agent-tooling.md) / [`engineering-quality.md`](reference/engineering-quality.md) / [`planning.md`](reference/planning.md) / [`research-capture.md`](reference/research-capture.md) / [`working-rhythm.md`](reference/working-rhythm.md) / [`self-hosted-assets.md`](reference/self-hosted-assets.md) / [`coins.md`](reference/coins.md). |
 | `decisions/` | Rationale: [`architecture.md`](decisions/architecture.md) (choices + why), [`rejected.md`](decisions/rejected.md) (things tried/considered that were rejected). |
 | `plans/` | What's next: [`next-steps.md`](plans/next-steps.md) (ordered tasks), [`testing.md`](plans/testing.md) (the testing reality), [`future.md`](plans/future.md) (longer-term vision). |
 
@@ -83,8 +83,11 @@ notes/
     README.md  overview.md  core-engine.md  cli.md  server.md  gui.md
   reference/             ← quick lookup, no story
     esm-patterns.md  dependencies.md  fix-patterns.md
-    documentation.md  deployment.md  git-workflow.md  versioning.md
-    cross-project-sync.md  process-reports.md  compliance.md   ← fairyfox-mesh standards
+    documentation.md  deployment.md  git-workflow.md  versioning.md  repo-hygiene.md
+    cross-project-sync.md  process-reports.md  compliance.md  maintenance-sweep.md  ← fairyfox-mesh standards
+    agent-tooling.md  engineering-quality.md  planning.md               ← "
+    research-capture.md  working-rhythm.md  self-hosted-assets.md       ← "
+    coins.md                                                            ← "
   decisions/             ← rationale for choices
     architecture.md  rejected.md
   plans/                 ← what comes next

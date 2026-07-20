@@ -36,6 +36,17 @@ function run() {
   pruneSidebar();
   tidyTutorialTitle();
   initReader();
+
+  // Coins: the shared reading-engagement counter. modules/coins.js is vendored
+  // VERBATIM from the hub chrome master (the earning engine must not be
+  // reimplemented) and loaded AFTER the header + reader exist, so its button
+  // lands just left of the "Aa" reader button. It's a classic IIFE exposing
+  // window.FairyFoxCoins, so it's injected as a plain <script>, not imported.
+  // See notes/reference/coins.md.
+  const coins = document.createElement("script");
+  coins.src = new URL("./modules/coins.js", import.meta.url).href;
+  coins.defer = true;
+  document.head.appendChild(coins);
 }
 
 // type="module" scripts are deferred, so the DOM is usually ready; guard anyway.

@@ -185,7 +185,9 @@ The full notes system is in `notes/`, organized by topic:
   `notes/decisions/architecture.md`.
 - **Use PowerShell or the file tools (Read/Edit/Write) — not the Cowork bash sandbox.** Bash has
   reported false file truncations on this machine and risks data loss; PowerShell has real, reliable
-  access to the repo and Node 24. See `reference/fix-patterns.md`.
+  access to the repo and Node 24. See `reference/fix-patterns.md` and the mesh standard
+  [`reference/agent-tooling.md`](notes/reference/agent-tooling.md) (PowerShell + file tools,
+  execute-don't-hand-off, `.gitattributes` line-ending hygiene).
 
 ## Build / Run / Verify
 
@@ -247,6 +249,13 @@ npm run docs           # build the JSDoc doc-site (code API + notes as tutorials
   (`tests/helpers/seededRandom.js`). See `notes/plans/testing.md`.
 
 ## Default Workflow — Do These By Default (a standing instruction)
+
+**0. Plan before you execute (non-trivial work).** Before making changes to anything non-trivial
+(multiple files, multiple steps, a real decision), write the plan down first — the live task list for
+the in-flight breakdown, and a `notes/plans/` page for a release-worthy feature — then execute against
+it. Surface open questions instead of guessing. Trivial one-step changes are exempt; don't
+bureaucratize a typo. See [`notes/reference/planning.md`](notes/reference/planning.md) and the collaboration
+rhythm in [`notes/reference/working-rhythm.md`](notes/reference/working-rhythm.md).
 
 After making changes, run this loop without being asked:
 

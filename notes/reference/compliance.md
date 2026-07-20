@@ -28,8 +28,10 @@ report).
 
 ## The audit matrix (this project)
 
-Run every row; report each `done` / `partial` / `missing` with the specific gap named.
-The detailed pass/fail lives in each standard's `## Verify` section.
+This matrix aims to list **every standard this project has adopted**. Run every row; report each
+`done` / `partial` / `missing` with the specific gap named. The detailed pass/fail lives in each
+standard's `## Verify` section where it has one; a few standards are enforced by CI config or a
+`CLAUDE.md` standing instruction rather than a note (their row says where).
 
 | Standard | Enforced by (the check) |
 |----------|-------------------------|
@@ -40,6 +42,21 @@ The detailed pass/fail lives in each standard's `## Verify` section.
 | cross-project-sync | [`cross-project-sync.md` → anti-recursion checklist](cross-project-sync.md#anti-recursion-checklist) — pulls on-request, read-only, git-ignored, copy-not-link; the `authorizations.yml` ledger is read-only and only skips a redundant prompt (never lets the hub act on this node) |
 | process-reports | [`process-reports.md` → Verify](process-reports.md#verify) — a real report per fairyfox run in `notes/fairyfox-reports/` |
 | docs-site | the hub's docs-site compliance checklist — themed site at `fairyfox.io/<key>/` + "← Back to Fairy Fox" way-home link |
+| agent-tooling | [`agent-tooling.md` → Verify](agent-tooling.md#verify-is-it-being-followed) — `CLAUDE.md` names PowerShell + file tools & forbids the bash sandbox; root `.gitattributes` `* text=auto eol=lf`; no CRLF phantom-diff noise |
+| engineering-quality | [`engineering-quality.md` → Verify](engineering-quality.md#verify-is-it-being-followed) — no hacks/temp-fixes shipped; features land finished; doc-comments + current docs; refactors carry test updates; user-data fidelity |
+| planning | [`planning.md` → Verify](planning.md#verify-is-it-being-followed) — substantive work has a written plan (task list / `notes/plans/`) that predates execution; `CLAUDE.md` Default Workflow states plan-first |
+| research-capture | [`research-capture.md` → Verify](research-capture.md#verify-is-it-being-followed) — non-trivial findings get a plain-English `reference/` note; load-bearing conclusions verified with the probe committed; wired into map/status/session/plan |
+| working-rhythm | [`working-rhythm.md` → Verify](working-rhythm.md#verify-is-it-being-followed) — multi-step work task-tracked live; runs stay background then surfaced; features briefed before built; ambiguity surfaced up front |
+| self-hosted-assets | [`self-hosted-assets.md` → Verify](self-hosted-assets.md#verify-is-it-being-followed) — fonts self-hosted (no `googleapis`/`gstatic`/CDN hot-links in built output); off-origin presentation requests absent; exceptions disclosed in the legal pages |
+| coins | [`coins.md` → Verify](coins.md#verify-is-it-being-followed) — docs-site `coins.js` vendored **verbatim** from master (byte-identical), loaded after `reader.js`; gates nothing; store read-merged not reset; `fairyfox:coins:a` disclosed via the same-origin hub `/legal/coins/` |
+| dependencies | [`dependencies.md`](dependencies.md) — every runtime/dev dep justified, current majors tracked with breaking-change notes; Dependabot bumps triaged |
+| deployment | [`deployment.md`](deployment.md) — CI/Pages/release pipelines match reality (`ci.yml` · `pages.yml` · `release.yml`); tag is CI-derived, not hand-pushed |
+| repo-hygiene | [`repo-hygiene.md`](repo-hygiene.md) — `check:docs` (no broken links) · `check:tidy` (nothing untracked) · `check:committed` (tree == HEAD); no branch/PR litter |
+| maintenance-sweep | [`maintenance-sweep.md`](maintenance-sweep.md) — the periodic whole-repo cleanup composes git-workflow + repo-hygiene + versioning; run on "full maintenance" |
+| testing | [`../plans/testing.md`](../plans/testing.md) — Vitest (Node + jsdom) + Playwright suites green; every fix ships a regression test ([`working-agreements.md`](working-agreements.md) §B1) |
+| supply-chain-hardening | CI config, not a note — Scorecard/CodeQL/SonarCloud/Dependabot workflows + `main` branch protection; quality metrics hold or rise ([`working-agreements.md`](working-agreements.md) §B5/§F) |
+| legal-docs | `CLAUDE.md` "Keep the Legal Docs Accurate" + [`working-agreements.md`](working-agreements.md) §F — the three self-hosted pages under `targets/web/public/legal/` stay code-accurate; "Last updated" bumped on data-practice changes |
+| badges | the README badge block (shields.io + Codecov) reflects the live CI/coverage/security state |
 
 ## How to run it (on request only)
 
