@@ -40,6 +40,12 @@ The detailed pass/fail lives in each standard's `## Verify` section.
 | cross-project-sync | [`cross-project-sync.md` → anti-recursion checklist](cross-project-sync.md#anti-recursion-checklist) — pulls on-request, read-only, git-ignored, copy-not-link; the `authorizations.yml` ledger is read-only and only skips a redundant prompt (never lets the hub act on this node) |
 | process-reports | [`process-reports.md` → Verify](process-reports.md#verify) — a real report per fairyfox run in `notes/fairyfox-reports/` |
 | docs-site | the hub's docs-site compliance checklist — themed site at `fairyfox.io/<key>/` + "← Back to Fairy Fox" way-home link |
+| agent-tooling | [`agent-tooling.md` → Verify](agent-tooling.md#verify-is-it-being-followed) — `CLAUDE.md` names PowerShell + file tools & forbids the bash sandbox; root `.gitattributes` `* text=auto eol=lf`; no CRLF phantom-diff noise |
+| engineering-quality | [`engineering-quality.md` → Verify](engineering-quality.md#verify-is-it-being-followed) — no hacks/temp-fixes shipped; features land finished; doc-comments + current docs; refactors carry test updates; user-data fidelity |
+| planning | [`planning.md` → Verify](planning.md#verify-is-it-being-followed) — substantive work has a written plan (task list / `notes/plans/`) that predates execution; `CLAUDE.md` Default Workflow states plan-first |
+| research-capture | [`research-capture.md` → Verify](research-capture.md#verify-is-it-being-followed) — non-trivial findings get a plain-English `reference/` note; load-bearing conclusions verified with the probe committed; wired into map/status/session/plan |
+| working-rhythm | [`working-rhythm.md` → Verify](working-rhythm.md#verify-is-it-being-followed) — multi-step work task-tracked live; runs stay background then surfaced; features briefed before built; ambiguity raised up front |
+| self-hosted-assets | [`self-hosted-assets.md` → Verify](self-hosted-assets.md#verify-is-it-being-followed) — fonts self-hosted (no `googleapis`/`gstatic`/CDN hot-links in built output); off-origin presentation requests absent; exceptions disclosed in the legal pages |
 
 ## How to run it (on request only)
 
