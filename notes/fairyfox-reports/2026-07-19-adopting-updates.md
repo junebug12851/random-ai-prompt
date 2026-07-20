@@ -17,8 +17,11 @@ hub_commit: 697bc5c
 
 Adopted the **six new-and-applicable hub standards** (`engineering-quality`, `planning`,
 `research-capture`, `working-rhythm`, `self-hosted-assets`, `agent-tooling`) into this node as
-`notes/reference/*.md` adoption notes + CLAUDE.md/compliance/README wiring — notes-only, no `VERSION`
-bump, verification floor green. Continues the same-day `2026-07-19-check-for-updates.md` run.
+`notes/reference/*.md` adoption notes + CLAUDE.md/compliance/README wiring (notes-only). A **same-run
+follow-up** (see the Correction below) then shipped the **coins** counter on the docs chrome — executable
+`coins.js` **vendored verbatim** + `coins.css` + a `fairyfox-docs.js` loader — verified in a built docs
+site. No `VERSION` bump (docs/notes + docs-theme only). Continues the same-day
+`2026-07-19-check-for-updates.md` run.
 
 ## What was done
 
@@ -37,8 +40,12 @@ bump, verification floor green. Continues the same-day `2026-07-19-check-for-upd
    the PowerShell bullet; a compliance-audit-matrix row per standard (→ each note's `## Verify`);
    `notes/README.md` index + folder-map entries under the fairyfox-mesh group.
 5. Verification floor (before/after): `npm run check:docs` → 461 links resolve; `prettier --check` on
-   every touched file → clean; `npm run smoke` → module graph + all blocks load. Notes-only change, so
-   no code gates were materially exercised; `check:committed` + `check:tidy` run at commit time.
+   every touched file → clean; `npm run smoke` → module graph + all blocks load. The **six-standard
+   adoption** was notes-only (no app-code gate to exercise). The **coins follow-up** DID touch executable
+   code, so it additionally ran `npm run docs` (site builds; coins files install byte-identical) + a
+   browser runtime check on the built site (coin button renders beside "Aa", `+1` on first view, panel
+   opens, `FairyFoxCoins` API live, **no console errors**) + `npm run lint` (0 errors). `check:committed`
+   + `check:tidy` green on each commit.
 6. Changelog entry (`notes/version/2026-07.md`, no-bump `docs` entry) + session log
    (`notes/sessions/2026-07/2026-07-19.md`) written in the same change.
 
